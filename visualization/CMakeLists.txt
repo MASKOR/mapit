@@ -46,8 +46,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 if(UNIX)
 add_library( openvdb SHARED IMPORTED )
-#set_target_properties( openvdb PROPERTIES IMPORTED_LOCATION /usr/local/lib/libopenvdb.so )
-#include_directories()
+set_target_properties( openvdb PROPERTIES IMPORTED_LOCATION /usr/local/lib/libopenvdb.so )
 endif(UNIX)
 
 # todo: windows part is a mess
@@ -127,15 +126,11 @@ add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${GlslIncludeShader}
                                 ${GRAPHBLOCKS_INCLUDE_DIR})
 add_custom_target(resourceFilesViz ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
-#add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
-#                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-#                       ${Datas} $<TARGET_FILE_DIR:EntityComponentSuite>)
-#${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib
-message(boostlib: ${Boost_LIBRARIES})
+
 if(WIN32)
-target_link_libraries(${PROJECT_NAME} ${GRAPHBLOCKS_LIBRARY} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb )
+target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb )
 else(WIN32)
-target_link_libraries(${PROJECT_NAME} ${GRAPHBLOCKS_LIBRARY} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} openvdb Half tbb )
+target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} openvdb Half tbb )
 endif(WIN32)
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir)
 
