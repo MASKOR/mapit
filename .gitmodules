@@ -1,0 +1,3 @@
+[submodule "upns_interface"]
+	path = upns_interface
+	url = gitolite@robotics.fh_aachen.de:upns_interface
