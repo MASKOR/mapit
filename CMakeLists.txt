@@ -17,7 +17,6 @@ set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 
 set(UPNS_QTVERSION 5.5)
-
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
@@ -27,6 +26,8 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 set(DataDir ${PROJECT_SOURCE_DIR}/data)
 file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
+
+include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 
 add_subdirectory(mapmanager)
 add_subdirectory(operator_modules)

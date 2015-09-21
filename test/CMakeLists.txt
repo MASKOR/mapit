@@ -6,8 +6,6 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
-#include_directories(${PROJECT_SOURCE_DIR}/src/)
-
 #file(GLOB_RECURSE UPNS_TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 #add_executable(${PROJECT_NAME} ${SRC_LIST} ${UPNS_TEST_SOURCES} )
@@ -15,7 +13,6 @@ find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 #target_link_libraries(${PROJECT_NAME} Qt5::Core upns_mapmanager upns_interface )
 
 #cmake_minimum_required(VERSION 2.8)
-
 
 FILE(GLOB TEST_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
@@ -37,6 +34,6 @@ FOREACH(subdir ${SUBDIRS})
   FILE(GLOB CurrentUnitTestH ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/${subdir}/*.h)
   FILE(GLOB CurrentUnitTestCPP ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/${subdir}/*.cpp)
 
-  add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
+  add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP})
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface )
 ENDFOREACH()
