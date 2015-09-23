@@ -2,9 +2,8 @@ project(upns)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-#if(UNIX)
-#set (CMAKE_PREFIX_PATH ${QTDIR}"/gcc_64")
-#endif(UNIX)
+# c++11 for grpc dependencies
+add_definitions(-std=c++11)
 
 # add custom cmake scripts. i.e. FindProcessorCount...
 set(CMAKE_MODULE_PATH
@@ -16,7 +15,7 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 
-set(UPNS_QTVERSION 5.5)
+set(UPNS_QTVERSION)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
@@ -33,12 +32,13 @@ add_subdirectory(mapmanager)
 add_subdirectory(operator_modules)
 add_subdirectory(test)
 add_subdirectory(upns_interface)
+add_subdirectory(interface_grpc)
 if(WITH_VISUALIZATION)
 add_subdirectory(visualization)
 endif(WITH_VISUALIZATION)
 
 # make data visible in qtcreator
-add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
+add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})
 
 #target_link_libraries(${PROJECT_NAME} )
 
