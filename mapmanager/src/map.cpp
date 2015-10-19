@@ -28,7 +28,12 @@ Layer &Map::layer(LayerFilter filter) const
     return filter.retrieve(*this);
 }
 
-Layer &Map::operator[](LayerFilter filter)
+bool Map::operator==(const Map &rhs) const
+{
+    return m_mapId == rhs.m_mapId;
+}
+
+Layer &Map::operator[](LayerFilter &filter)
 {
     return layer( filter );
 }

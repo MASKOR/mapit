@@ -27,9 +27,17 @@ public:
     LayerIdentifier layerId() const;
     void setLayerId(const LayerIdentifier &layerId);
 
+    LayerType layerType() const;
+    void setLayerType(const LayerType &layerType);
+
+    LayerUsageType layerUsageType() const;
+    void setLayerUsageType(const LayerUsageType &layerUsageType);
+
 protected:
 private:
     LayerIdentifier m_layerId;
+    LayerType m_layerType;
+    LayerUsageType m_layerUsageType;
 };
 
 }

@@ -7,6 +7,7 @@
 #else
 #include <vector>
 #include <string>
+#include <iostream>
 #endif
 
 
@@ -18,12 +19,21 @@ template <typename T>
 using upnsVec = QVector<T>;
 using upnsuint64 = quint64;
 using upnsString = QString;
+using upnsReal = qreal;
+using upnsIStream = ;
+using upnsOStream = ;
 #else
 template <typename T>
 using upnsVec = std::vector<T>;
 using upnsuint64 = long long unsigned int;
 using upnsString = std::string;
+using upnsReal = float;
+using upnsIStream = std::istream;
+using upnsOStream = std::ostream;
 #endif
+
+// TODO: Shared Pointer makes sense here!
+using LayerDataHandle = void*;
 
 }
 
