@@ -1,0 +1,98 @@
+#ifndef __ABSTRACTLAYERDATA_H
+#define __ABSTRACTLAYERDATA_H
+
+#include "upns_globals.h"
+#include <limits>
+
+namespace upns
+{
+
+/**
+ * @brief The AbstractLayerData class is interface between a concrete layerdata implementation and layer. Basically an LayerData-Implementation will
+ * translate/delegate requests of "getData" to LayerDataStreamProvider \sa AbstractLayerDataStreamProvider.
+ * "setData" does not contain logic (e.g. registration)
+ */
+
+class AbstractLayerData
+{
+    /**
+     * @brief layerType return specialized type
+     * @return
+     */
+    virtual UpnsLayerType layerType() const = 0;
+
+    /**
+     * @brief hasFixedGrid indicated if the underlying datastructure likes to be read in predefined chunks
+     * @return
+     */
+    virtual bool hasFixedGrid() const = 0;
+
+    /**
+     * @brief canSaveRegions indicates if the underlying datastrucuture is capable of saving specific regions without rewriting the whole layer.
+     * If the datastructure does not support this, the boundingbox in "setData" might be ignored.
+     * @return
+     */
+    virtual bool canSaveRegions() const = 0;
+
+    /**
+     * @brief gridCellAt if the datastructure "hasFixedGrid", this method retrieves the optimal regions to read at once for a given point
+     * @param x input point x
+     * @param y input point y
+     * @param z input point z
+     * @param x1 output axis aligned bounding box lower x
+     * @param y1 output axis aligned bounding box lower y
+     * @param z1 output axis aligned bounding box lower z
+     * @param x2 output axis aligned bounding box upper x
+     * @param y2 output axis aligned bounding box upper y
+     * @param z2 output axis aligned bounding box upper z
+     */
+    virtual void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1,upnsReal &x2, upnsReal &y2, upnsReal &z2) const;
+
+};
+
+template<typename LayerDataType>
+class LayerData : public AbstractLayerData
+{
+public:
+
+    /**
+     * @brief getData
+     * @param x1 axis aligned bounding box lower x
+     * @param y1 axis aligned bounding box lower y
+     * @param z1 axis aligned bounding box lower z
+     * @param x2 axis aligned bounding box upper x
+     * @param y2 axis aligned bounding box upper y
+     * @param z2 axis aligned bounding box upper z
+     * @param clipMode underlying datastructure may allow to serve a larger area around the bb without much effort. If clipping is enabled, the module is forced to cut the are at the edges of the given bb.
+     * @param lod level of detail. higher values mean more detail. TODO: negative values? -1 is maximum detail?
+     * @return layer data for the area in the bb (and slightly around)
+     */
+    virtual upnsSharedPointer<LayerDataType> getData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, bool clipMode, int lod) = 0;
+
+    /**
+     * @brief setData deleted layerData for the given region and replaces it with the given data
+     * @param x1 axis aligned bounding box lower x
+     * @param y1 axis aligned bounding box lower y
+     * @param z1 axis aligned bounding box lower z
+     * @param x2 axis aligned bounding box upper x
+     * @param y2 axis aligned bounding box upper y
+     * @param z2 axis aligned bounding box upper z
+     * @param data data to set
+     * @param lod level of detail. The layertype module might recompute some detaillevels based on the new data and may discard levels.
+     * @return 0 on success. Other than zero indicates errors.
+     */
+    virtual int setData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+};
+
+void AbstractLayerData::gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+{
+    x1 = -std::numeric_limits<upnsReal>::infinity();
+    y1 = -std::numeric_limits<upnsReal>::infinity();
+    z1 = -std::numeric_limits<upnsReal>::infinity();
+    x2 = +std::numeric_limits<upnsReal>::infinity();
+    y2 = +std::numeric_limits<upnsReal>::infinity();
+    z2 = +std::numeric_limits<upnsReal>::infinity();
+}
+
+}
+#endif
