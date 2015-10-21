@@ -4,3 +4,9 @@
 [submodule "externals/leveldb"]
 	path = externals/leveldb
 	url = https://github.com/google/leveldb.git
+[submodule "externals/protobuf"]
+	path = externals/protobuf
+	url = https://github.com/google/protobuf.git
+[submodule "externals/grpc"]
+	path = externals/grpc
+	url = https://github.com/grpc/grpc.git

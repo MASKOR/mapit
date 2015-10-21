@@ -1,5 +1,7 @@
 #include "mapmanager.h"
 #include "upns.h"
+#include "leveldb/db.h"
+
 namespace upns
 {
 upnsVec<upns::MapIdentifier> upns::MapManager::listMaps()

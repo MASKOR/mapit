@@ -3,12 +3,12 @@
 
 #include "upns_globals.h"
 #include "mapservice.h"
-#include "map.h"
+//#include "map.h"
 
 namespace upns
 {
 
-class MapManager : public MapService
+class MapFileService : public MapService
 {
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);

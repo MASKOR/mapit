@@ -1,15 +1,18 @@
 project(upns)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
 # c++11 for grpc dependencies
 add_definitions(-std=c++11)
+
+set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
 # add custom cmake scripts. i.e. FindProcessorCount...
 set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
     ${CMAKE_MODULE_PATH}
 )
+include(externals)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -28,12 +31,15 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 
+set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/upns_interface/generated/)
+
 add_subdirectory(mapmanager)
 add_subdirectory(operator_modules)
 add_subdirectory(test)
 add_subdirectory(upns_interface)
 add_subdirectory(interface_grpc)
 add_subdirectory(layertypes)
+#add_subdirectory(externals)
 if(WITH_VISUALIZATION)
 add_subdirectory(visualization)
 endif(WITH_VISUALIZATION)

@@ -2,7 +2,9 @@
 #define __MAPSERVICE_H
 
 #include "upns_globals.h"
-#include "map.h"
+#include "services.pb.h"
+//#include "mapservice.h"
+//#include "map.h"
 
 namespace upns
 {
