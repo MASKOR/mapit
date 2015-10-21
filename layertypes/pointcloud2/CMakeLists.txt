@@ -9,7 +9,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/src/)
+include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 

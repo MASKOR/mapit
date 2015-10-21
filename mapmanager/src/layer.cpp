@@ -14,12 +14,12 @@ void Layer::setLayerId(const LayerIdentifier &layerId)
     m_layerId = layerId;
 }
 
-Layer::LayerType Layer::layerType() const
+UpnsLayerType Layer::layerType() const
 {
     return m_layerType;
 }
 
-void Layer::setLayerType(const LayerType &layerType)
+void Layer::setLayerType(const UpnsLayerType &layerType)
 {
     m_layerType = layerType;
 }

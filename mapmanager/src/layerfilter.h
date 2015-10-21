@@ -13,18 +13,18 @@ class LayerFilter
 public:
     // internal filter to address layer directly
     LayerFilter(LayerIdentifier id);
-    LayerFilter(Layer::LayerType layerType);
+    LayerFilter(UpnsLayerType layerType);
     LayerFilter(Layer::LayerUsageType layerUsageType);
 
     //TODO: not needed?
     //operator LayerIdentifier() const { return LayerFilter(); }
 
     LayerFilter& operator&(const LayerIdentifier id) const;
-    LayerFilter& operator&(const Layer::LayerType layerType) const;
+    LayerFilter& operator&(const UpnsLayerType layerType) const;
     LayerFilter& operator&(const Layer::LayerUsageType layerUsageType) const;
     LayerFilter& operator&(const LayerFilter& filter) const;
     LayerFilter& operator|(const LayerIdentifier id) const;
-    LayerFilter& operator|(const Layer::LayerType layerType) const;
+    LayerFilter& operator|(const UpnsLayerType layerType) const;
     LayerFilter& operator|(const Layer::LayerUsageType layerUsageType) const;
     LayerFilter& operator|(const LayerFilter& filter) const;
 

@@ -12,12 +12,6 @@ class Layer
 {
 public:
     // keep in sync with .proto
-    enum LayerType {
-      POINTCLOUD2 = 0,
-      OCTOMAP = 1,
-      OPENVDB = 2
-    };
-    // keep in sync with .proto
     enum LayerUsageType {
       LASER = 0,
       RADAR = 1,
@@ -27,8 +21,8 @@ public:
     LayerIdentifier layerId() const;
     void setLayerId(const LayerIdentifier &layerId);
 
-    LayerType layerType() const;
-    void setLayerType(const LayerType &layerType);
+    UpnsLayerType layerType() const;
+    void setLayerType(const UpnsLayerType &layerType);
 
     LayerUsageType layerUsageType() const;
     void setLayerUsageType(const LayerUsageType &layerUsageType);
@@ -36,7 +30,7 @@ public:
 protected:
 private:
     LayerIdentifier m_layerId;
-    LayerType m_layerType;
+    UpnsLayerType m_layerType;
     LayerUsageType m_layerUsageType;
 };
 

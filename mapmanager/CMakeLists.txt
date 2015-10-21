@@ -7,8 +7,9 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
+include_directories(${PROJECT_SOURCE_DIR}/include/)
 
-file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} )
 
