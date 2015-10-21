@@ -22,10 +22,11 @@ using LayerVector = upnsVec< upnsSharedPointer<Layer> >;
 
 class MapService
 {
+public:
     virtual upnsVec<MapIdentifier> listMaps() = 0;
     virtual MapVector getMaps(upnsVec<MapIdentifier> &mapIds) = 0;
     virtual upnsVec<upnsPair<MapIdentifier, int> > storeMaps( MapVector &maps ) = 0;
-    virtual upnsSharedPointer<Map> createMap(upnsString &name) = 0;
+    virtual upnsSharedPointer<Map> createMap(upnsString name) = 0;
 };
 
 }

@@ -33,8 +33,8 @@ endmacro(use_leveldb)
 
 macro(use_protobuf)
 
-#find_package(Protobuf)
-if(NOT ${PROTOBUF_INCLUDE_DIRS})
+find_package(Protobuf)
+if(NOT EXISTS ${PROTOBUF_INCLUDE_DIRS})
 execute_process(COMMAND ./configure WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
 execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
 #execute_process(COMMAND sudo make install WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)

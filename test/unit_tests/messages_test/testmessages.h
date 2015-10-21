@@ -4,7 +4,7 @@
 #include <QTest>
 #include "upns_interface/services.pb.h"
 
-class MessagesInterface : public QObject
+class TestMessages : public QObject
 {
     Q_OBJECT
 private slots:

@@ -2,25 +2,25 @@
 
 #include "../../src/autotestall.h"
 
-void MessagesInterface::init()
+void TestMessages::init()
 {
 }
 
-void MessagesInterface::cleanup()
+void TestMessages::cleanup()
 {
 }
 
-void MessagesInterface::testGetMaps()
-{
-    QVERIFY(true);
-    QVERIFY(false);
-}
-
-void MessagesInterface::testGetLayer()
+void TestMessages::testGetMaps()
 {
     QVERIFY(true);
     QVERIFY(false);
+}
+
+void TestMessages::testGetLayer()
+{
+    QVERIFY(true);
+    QVERIFY(false);
     QVERIFY(false);
 }
 
-DECLARE_TEST(MessagesInterface)
+DECLARE_TEST(TestMessages)

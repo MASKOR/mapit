@@ -35,10 +35,11 @@ namespace upns
 
 class MapManager : public MapService
 {
+public:
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
     upnsVec<upnsPair<MapIdentifier, int> > storeMaps( MapVector &maps );
-    upnsSharedPointer<Map> createMap(upnsString &name);
+    upnsSharedPointer<Map> createMap(upnsString name);
 
     upnsSharedPointer<Map> doOperation(upnsString &config);
 };

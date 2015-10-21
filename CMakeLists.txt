@@ -30,6 +30,7 @@ file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
+include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 
 set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/upns_interface/generated/)
 

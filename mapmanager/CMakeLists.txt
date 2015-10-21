@@ -7,6 +7,9 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
 use_leveldb()
+
+link_directories(${EXTERNALS_DIR}/leveldb)
+
 #use_grpc()
 use_protobuf()
 
@@ -17,5 +20,6 @@ include_directories(${UPNS_INTERFACE_INCLUDE})
 file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} )
+target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface ${EXTERNALS_DIR}/leveldb/libleveldb.so)
 
-target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/)
