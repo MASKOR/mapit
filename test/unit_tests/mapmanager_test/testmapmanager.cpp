@@ -1,4 +1,4 @@
-#include "testmapfileservice.h"
+#include "testmapmanager.h"
 #include "upns_globals.h"
 #include "../../src/autotestall.h"
 #include <QDir>
@@ -14,15 +14,15 @@ using Layers = upnsVec<Layer>;
 Q_DECLARE_METATYPE( Strings );
 Q_DECLARE_METATYPE( Layers );
 
-void TestMapFileService::init()
+void TestMapManager::init()
 {
 }
 
-void TestMapFileService::cleanup()
+void TestMapManager::cleanup()
 {
 }
 
-void TestMapFileService::initTestCase()
+void TestMapManager::initTestCase()
 {
     const char* databaseName = "test.db";
     QDir dir(databaseName);
@@ -37,15 +37,15 @@ void TestMapFileService::initTestCase()
     mapsource["filename"] = databaseName;
     conf["mapsource"] = mapsource;
 
-    m_mapService = new upns::MapFileService(mapsource);
+    m_mapService = new upns::MapManager(conf);
 }
 
-void TestMapFileService::cleanupTestCase()
+void TestMapManager::cleanupTestCase()
 {
     delete m_mapService;
 }
 
-void TestMapFileService::testListMaps_data()
+void TestMapManager::testListMaps_data()
 {
     // Test basic CRUD
     QTest::addColumn< Strings >("names");
@@ -120,7 +120,7 @@ void TestMapFileService::testListMaps_data()
                         testlayer2 };
 }
 
-void TestMapFileService::testListMaps()
+void TestMapManager::testListMaps()
 {
     QFETCH(Strings, names);
     QFETCH(Layers, layers);
@@ -227,11 +227,11 @@ void TestMapFileService::testListMaps()
     QCOMPARE(static_cast<int>(maps.size()), 0);
 }
 
-void TestMapFileService::testGetMaps()
+void TestMapManager::testGetMaps()
 {
 }
 
-void TestMapFileService::testStoreMaps()
+void TestMapManager::testStoreMaps()
 {
     upnsString testmapName("hello world");
     upns::upnsSharedPointer<upns::Map> map = m_mapService->createMap( testmapName );
@@ -251,4 +251,4 @@ void TestMapFileService::testStoreMaps()
     QVERIFY(foundTestMap);
 }
 
-DECLARE_TEST(TestMapFileService)
+DECLARE_TEST(TestMapManager)

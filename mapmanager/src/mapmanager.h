@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "mapservice.h"
-//#include "map.h"
+#include "yaml-cpp/yaml.h"
 
 /**
  * @brief The MapGraph class contains maps and their versions logically.
@@ -36,12 +36,17 @@ namespace upns
 class MapManager : public MapService
 {
 public:
+    MapManager(const YAML::Node &config);
+    ~MapManager();
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
-    upnsVec<upnsPair<MapIdentifier, int> > storeMaps( MapVector &maps );
+    MapResultsVector storeMaps( MapVector &maps );
     upnsSharedPointer<Map> createMap(upnsString name);
+    MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
-    upnsSharedPointer<Map> doOperation(upnsString &config);
+    upnsSharedPointer<Map> doOperation(upnsString config);
+private:
+    MapService *m_innerService;
 };
 
 }

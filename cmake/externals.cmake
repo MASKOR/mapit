@@ -1,5 +1,3 @@
-project(externals)
-cmake_minimum_required(VERSION 2.8)
 
 # NOTE: "git submodule update --init --recursive" may be used to initialize grpc correctly
 
@@ -14,7 +12,7 @@ if( NOT EXISTS ${GRPC_CPP_PLUGIN} )
 message("Build grpc. If this fails, you may need to update git repo with \"git submodule update --init --recursive\"")
 execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/grpc)
 #execute_process(COMMAND sudo make install WORKING_DIRECTORY ${EXTERNALS_DIR}/grpc)
-endif()
+endif( NOT EXISTS ${GRPC_CPP_PLUGIN} )
 
 endmacro(use_grpc)
 
@@ -22,7 +20,7 @@ macro(use_leveldb)
 
 if( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
 execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/leveldb)
-endif()
+endif( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
 
 link_directories(${EXTERNALS_DIR}/leveldb)
 include_directories(${EXTERNALS_DIR}/leveldb/include)
@@ -38,6 +36,6 @@ if(NOT EXISTS ${PROTOBUF_INCLUDE_DIRS})
 execute_process(COMMAND ./configure WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
 execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
 #execute_process(COMMAND sudo make install WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
-endif(NOT ${PROTOBUF_INCLUDE_DIRS})
+endif(NOT EXISTS ${PROTOBUF_INCLUDE_DIRS})
 
 endmacro(use_protobuf)

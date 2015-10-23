@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "mapservice.h"
-//#include "map.h"
+#include "yaml-cpp/yaml.h"
 
 namespace leveldb {
     class DB;
@@ -15,12 +15,13 @@ namespace upns
 class MapFileService : public MapService
 {
 public:
-    MapFileService(upnsString databaseFileName);
+    MapFileService(const YAML::Node &config);
     ~MapFileService();
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
-    upnsVec<upnsPair<MapIdentifier, int> > storeMaps( MapVector &maps );
+    MapResultsVector storeMaps( MapVector &maps );
     upnsSharedPointer<Map> createMap(upnsString name);
+    MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 private:
     leveldb::DB* m_db;
 };

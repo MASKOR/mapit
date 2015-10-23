@@ -19,6 +19,7 @@ namespace upns
 
 #ifdef USE_QT_STRUCTURES
 using upnsuint64 = quint64;
+using upnsuint32 = quint32;
 using upnsString = QString;
 using upnsReal = qreal;
 using upnsIStream = std::istream;
@@ -31,6 +32,7 @@ template <typename T1, typename T2>
 using upnsPair = QPair<T1, T2>;
 #else
 using upnsuint64 = long long unsigned int;
+using upnsuint32 = unsigned int;
 using upnsString = std::string;
 using upnsReal = float;
 using upnsIStream = std::istream;

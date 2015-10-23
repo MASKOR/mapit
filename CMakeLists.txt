@@ -1,3 +1,13 @@
+#cmake_minimum_required(VERSION 3.0) # for hunter
+#set(HUNTER_SKIP_LOCK ON)
+#set(HUNTER_ROOT ${PROJECT_SOURCE_DIR}/hunter)
+#include("cmake/HunterGate.cmake")
+
+#HunterGate(
+#    URL "https://github.com/ruslo/hunter/archive/v0.12.24.tar.gz"
+#    SHA1 "a25a7fa55c204a8126efd1f48593a662925b26da"
+#)
+
 project(upns)
 cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
 aux_source_directory(. SRC_LIST)
@@ -13,6 +23,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 include(externals)
+include(FindLog4cplus)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -21,6 +32,14 @@ set(CMAKE_AUTOMOC ON)
 set(UPNS_QTVERSION)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
+
+
+# Note: Dependency management is yet a mess. Some projects are contained in externals folder.
+# other projects are downloaded by cmake and installed
+# other projects must be installed on host system
+#find_package(Log4cplus REQUIRED)
+#include_directories( ${LOG4CPLUS_INCLUDE_DIR} )
+
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
@@ -41,9 +60,32 @@ add_subdirectory(upns_interface)
 add_subdirectory(interface_grpc)
 add_subdirectory(layertypes)
 #add_subdirectory(externals)
+#add_subdirectory(externals/yaml-cpp)
 if(WITH_VISUALIZATION)
 add_subdirectory(visualization)
 endif(WITH_VISUALIZATION)
+
+#hunter_add_package(yaml-cpp)
+
+include(ExternalProject) # ExternalProject_Add
+
+set(YAML_CPP_INSTALL_DIR ${PROJECT_SOURCE_DIR}/libs/yaml-cpp-0.5.2)
+set(YAML_CPP_INCLUDE ${YAML_CPP_INSTALL_DIR}/include)
+set(YAML_CPP_LIB_DIR ${YAML_CPP_INSTALL_DIR}/lib)
+
+ExternalProject_Add(
+    yaml-cpp
+    URL
+    "https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.tar.gz"
+    CONFIGURE_COMMAND
+    ""
+    BUILD_COMMAND
+    mkdir -p build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=${YAML_CPP_INSTALL_DIR} .. && make
+    BUILD_IN_SOURCE
+    1
+    INSTALL_COMMAND
+    cd build && make install
+)
 
 # make data visible in qtcreator
 add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})

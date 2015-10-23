@@ -8,20 +8,20 @@
 //#include <QApplication>
 
 //uses fuzzy compare
-#define QCOMPARE_OGREVEC3(a, b) do {\
+#define QCOMPARE_REALVEC3(a, b) do {\
     QCOMPARE(a.x, b.x);\
     QCOMPARE(a.y, b.y);\
     QCOMPARE(a.z, b.z);\
     } while(0)
 
 //uses fuzzy compare
-#define QCOMPARE_POINTOGREREAL(a, b) do {\
+#define QCOMPARE_REALVEC2(a, b) do {\
     QCOMPARE(a.x, b.x);\
     QCOMPARE(a.y, b.y);\
     } while(0)
 
 //uses fuzzy compare
-#define QCOMPARE_DPOINT(a, b) do {\
+#define QCOMPARE_REALPOINT(a, b) do {\
     QCOMPARE(a.getX(), b.getX());\
     QCOMPARE(a.getY(), b.getY());\
     } while(0)

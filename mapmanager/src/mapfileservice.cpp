@@ -1,24 +1,39 @@
 #include "mapfileservice.h"
 #include "upns.h"
+#include "util.h"
 #include "leveldb/db.h"
 #include <assert.h>
 #include <services.pb.h>
 #include <stdlib.h>
 #include <time.h>
+#include <log4cplus/logger.h>
 
 #include <QDebug>
+#include <QDateTime>
+
+#define log_error(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::ERROR_LOG_LEVEL, msg)
+#define log_warn(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::WARN_LOG_LEVEL, msg)
+#define log_info(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::INFO_LOG_LEVEL, msg)
 
 namespace upns
 {
 
-MapFileService::MapFileService(upnsString databaseFileName)
+MapFileService::MapFileService(const YAML::Node &config)
 {
+    std::string databaseName;
+    if(config["filename"])
+    {
+        databaseName = config["filename"].as<std::string>();
+    }
+    else
+    {
+        databaseName = "maps.db";
+    }
+    log_info("opening database " + databaseName);
     leveldb::Options options;
     options.create_if_missing = true;
-    leveldb::Status status = leveldb::DB::Open(options, databaseFileName, &m_db);
+    leveldb::Status status = leveldb::DB::Open(options, databaseName, &m_db);
     assert(status.ok());
-
-    srand (time(NULL));
 }
 
 MapFileService::~MapFileService()
@@ -34,7 +49,7 @@ upnsVec<MapIdentifier> upns::MapFileService::listMaps()
         const leveldb::Slice &key = it->key();
         if(key.starts_with("map!"))
         {
-            const MapIdentifier mi = *reinterpret_cast<const MapIdentifier*>(&(key.data()[key.size()-sizeof(MapIdentifier)]));
+            const MapIdentifier mi = sliceEndToId( key );
             ret.push_back( mi );
         }
     }
@@ -51,8 +66,7 @@ MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
     for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
     {
         std::string key("map!");
-        MapIdentifier ident = *iter;
-        key.append(std::string(reinterpret_cast<const char*>(&ident), sizeof(MapIdentifier)));
+        key.append( idToString( *iter ));
         std::string value;
         leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
         assert(s.ok());
@@ -66,14 +80,23 @@ MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
     return ret;
 }
 
-upnsVec<upnsPair<MapIdentifier, int> > upns::MapFileService::storeMaps(MapVector &maps)
+MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
 {
     upnsVec<upnsPair<MapIdentifier, int> > ret;
     for(MapVector::const_iterator iter(maps.begin()) ; iter != maps.end() ; iter++)
     {
         std::string key("map!");
-        MapIdentifier id = (*iter)->id();
-        key.append(std::string(reinterpret_cast<const char*>(&id), sizeof(MapIdentifier)));
+        const MapIdentifier &id = (*iter)->id();
+        key.append( idToString( id ));
+        (*iter)->set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        for(int i=0; i < (*iter)->layers_size() ; ++i)
+        {
+            Layer *layer = (*iter)->mutable_layers(i);
+            if(layer->id() == 0)
+            {
+                layer->set_id(generateId());
+            }
+        }
         leveldb::Status s = m_db->Put(leveldb::WriteOptions(), key, (*iter)->SerializeAsString());
         ret.push_back(upnsPair<MapIdentifier, int>(id, s.ok()));
     }
@@ -83,13 +106,25 @@ upnsVec<upnsPair<MapIdentifier, int> > upns::MapFileService::storeMaps(MapVector
 upnsSharedPointer<Map> upns::MapFileService::createMap(upnsString name)
 {
     upnsSharedPointer<Map> newMap(new Map());
-    newMap->set_name( name );
-    newMap->set_id(static_cast<::google::protobuf::int64>(rand()));
+    newMap->set_name( escapeName( name ) );
+    newMap->set_id( generateId() );
     MapVector vec;
     vec.push_back(newMap);
     upnsVec<upnsPair<MapIdentifier, int> > res = storeMaps( vec );
-    assert( res.at(0).second );
-    return newMap;
+    return res.at(0).second?newMap:upnsSharedPointer<Map>(NULL);
+}
+
+MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
+{
+    upnsVec<upnsPair<MapIdentifier, int> > ret;
+    for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
+    {
+        std::string key("map!");
+        key.append( idToString( *iter ));
+        leveldb::Status s = m_db->Delete(leveldb::WriteOptions(), key);
+        ret.push_back(upnsPair<MapIdentifier, int>(*iter, s.ok()));
+    }
+    return ret;
 }
 
 }

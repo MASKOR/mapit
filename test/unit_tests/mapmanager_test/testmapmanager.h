@@ -3,9 +3,9 @@
 
 #include <QTest>
 
-#include "../../../mapmanager/src/mapfileservice.h"
+#include "../../../mapmanager/src/mapmanager.h"
 
-class TestMapFileService : public QObject
+class TestMapManager : public QObject
 {
     Q_OBJECT
 private slots:
@@ -23,7 +23,7 @@ private slots:
     void testStoreMaps();
 
 private:
-    upns::MapFileService *m_mapService;
+    upns::MapManager *m_mapService;
 };
 
 #endif
