@@ -27,8 +27,8 @@ upnsPointcloud2Ptr PointcloudLayerdata::getData(upnsReal x1, upnsReal y1, upnsRe
     if(m_pointcloud == NULL)
     {
         m_pointcloud = upnsPointcloud2Ptr(new pcl::PCLPointCloud2);
-        upnsIStream &in = m_streamProvider->startRead();
-        readPointcloud2(in, *m_pointcloud);
+        upnsIStream *in = m_streamProvider->startRead();
+        readPointcloud2(*in, *m_pointcloud);
         m_streamProvider->endRead(in);
     }
     return m_pointcloud;
@@ -36,7 +36,7 @@ upnsPointcloud2Ptr PointcloudLayerdata::getData(upnsReal x1, upnsReal y1, upnsRe
 
 int PointcloudLayerdata::setData(upnsReal x1, upnsReal y1, upnsReal z1, upnsReal x2, upnsReal y2, upnsReal z2, upnsPointcloud2Ptr &data, int lod)
 {
-    upnsOStream &out = m_streamProvider->startWrite();
-    out << data.get();
+    upnsOStream *out = m_streamProvider->startWrite();
+    *out << data.get();
     m_streamProvider->endWrite(out);
 }

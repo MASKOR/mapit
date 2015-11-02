@@ -21,7 +21,7 @@ public:
      * @brief isCached indicates if reading operations are fast or if connection to storage device is slow (e.g. requests over network)
      * @return
      */
-    bool isCached();
+    virtual bool isCached() = 0;
 
     /**
      * @brief startRead Used to read data from stream.
@@ -29,11 +29,11 @@ public:
      * @param len defaultvalue of 0 indicates, that data will be read until end
      * @return a stream to read data from
      */
-    upnsIStream& startRead(upnsuint64 start = 0, upnsuint64 len = 0);
-    void endRead(upnsIStream& strm);
+    virtual upnsIStream *startRead(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
+    virtual void endRead(upnsIStream *strm) = 0;
 
-    upnsOStream& startWrite(upnsuint64 start = 0, upnsuint64 len = 0);
-    void endWrite(upnsOStream& strm);
+    virtual upnsOStream *startWrite(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
+    virtual void endWrite(upnsOStream *strm) = 0;
 };
 
 }

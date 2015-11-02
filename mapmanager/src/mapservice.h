@@ -3,6 +3,7 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
+#include "abstractlayerdatastreamprovider.h"
 //#include "mapservice.h"
 //#include "map.h"
 
@@ -36,6 +37,12 @@ public:
     virtual MapResultsVector storeMaps( MapVector &maps ) = 0;
     virtual upnsSharedPointer<Map> createMap(upnsString name) = 0;
     virtual MapResultsVector removeMaps( upnsVec<MapIdentifier> &mapIds ) = 0;
+
+    virtual upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId) = 0;
+    //virtual upnsSharedPointer<Map> receiveNewMap(upnsString name) = 0;
+
+    virtual bool canRead() = 0;
+    virtual bool canWrite() = 0;
 };
 
 }

@@ -1,6 +1,7 @@
 #include "mapfileservice.h"
 #include "upns.h"
 #include "util.h"
+#include "filelayerdatastreamprovider.h"
 #include "leveldb/db.h"
 #include <assert.h>
 #include <services.pb.h>
@@ -125,6 +126,23 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
         ret.push_back(upnsPair<MapIdentifier, int>(*iter, s.ok()));
     }
     return ret;
+}
+
+upnsSharedPointer<AbstractLayerDataStreamProvider> MapFileService::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
+{
+    std::string key = idToString(mapId);
+    key.append( idToString(layerId) );
+    return upnsSharedPointer<AbstractLayerDataStreamProvider>( new FileLayerDataStreamProvider(m_db, leveldb::Slice(key)));
+}
+
+bool MapFileService::canRead()
+{
+    return true;
+}
+
+bool MapFileService::canWrite()
+{
+    return true;
 }
 
 }

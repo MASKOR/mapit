@@ -44,6 +44,11 @@ public:
     upnsSharedPointer<Map> createMap(upnsString name);
     MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
+    upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
+
+    bool canRead();
+    bool canWrite();
+
     upnsSharedPointer<Map> doOperation(upnsString config);
 private:
     MapService *m_innerService;

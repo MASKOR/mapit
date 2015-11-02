@@ -66,6 +66,21 @@ MapResultsVector MapManager::removeMaps(upnsVec<MapIdentifier> &mapIds)
     return m_innerService->removeMaps( mapIds );
 }
 
+upnsSharedPointer<AbstractLayerDataStreamProvider> MapManager::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
+{
+    return m_innerService->getStreamProvider( mapId, layerId );
+}
+
+bool MapManager::canRead()
+{
+    return m_innerService->canRead();
+}
+
+bool MapManager::canWrite()
+{
+    return m_innerService->canWrite();
+}
+
 upnsSharedPointer<Map> MapManager::doOperation(upnsString config)
 {
 

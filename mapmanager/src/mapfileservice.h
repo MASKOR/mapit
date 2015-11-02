@@ -4,6 +4,7 @@
 #include "upns_globals.h"
 #include "mapservice.h"
 #include "yaml-cpp/yaml.h"
+#include "abstractlayerdatastreamprovider.h"
 
 namespace leveldb {
     class DB;
@@ -22,6 +23,12 @@ public:
     MapResultsVector storeMaps( MapVector &maps );
     upnsSharedPointer<Map> createMap(upnsString name);
     MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
+
+    upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
+
+    bool canRead();
+    bool canWrite();
+
 private:
     leveldb::DB* m_db;
 };
