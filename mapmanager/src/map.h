@@ -10,18 +10,7 @@
 
 //using MapIdentifier = upnsuint64;
 
-///**
-// * \brief A map containing multiple layers, grouping them logically together.
-// *
-// * The layers of a map share the same coordinate system. If an operation on the map's layers results in a layer,
-// * which remains in the same coordinate system, a layer will be added to the originating map (for most operators \sa Operator ).
-// * If the layer is not in the same coordinate system, a new mayp will be created.
-// *
-// * This structure is the business object representation of maps. It acts as an interface for the developer to easily do operations and
-// * not care too much about keeping things valid and in-sync.
-// *
-// * This class is not meant to do serialization, implementation of heavy pointcloud/computergraphics-algorithms.
-// */
+
 
 //class Map
 //{

@@ -175,7 +175,7 @@ upnsSharedPointer<AbstractLayerData> MapManager::wrapLayerOfType(upnsString laye
         std::cerr << "Cannot open library: " << dlerror() << '\n';
         return upnsSharedPointer<AbstractLayerData>(NULL);
     }
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createAbstractLayerData");
+    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createLayerData");
     return upnsSharedPointer<AbstractLayerData>( wrap( streamProvider ) );
 }
 

@@ -4,7 +4,7 @@
 #include "upns_globals.h"
 #include "mapservice.h"
 #include "yaml-cpp/yaml.h"
-#include "abstractlayerdata.h"
+#include "layerdata.h"
 
 /**
  * @brief The MapGraph class contains maps and their versions logically.
@@ -16,16 +16,14 @@
  * * Don't try to solve serialization problems on a too abstract level and stick strictly to requirements.
  * * * multiple versions of the same object may exist. Developer has to prevent/coupe with that individually.
  * * * objects are not managed and do not serialize/deserialize automatically.
- * * * aggregation: Objects have getters for easy-to-use access of aggregated objects as members.
- * * * * Indeed not the whole graph of objects is deserialized at once.
- * * * * objects live in a context / are associated to "map manager" which is able to resolve aggregation.
+ * * * aggregation: Objects have getters for easy-to-use access of aggregated objects as members only sometimes (non lazy).
+ * * * * Not the whole graph of objects is deserialized at once.
  * Every object can serialize/deserialize to/from a given source. Examples for sources: network, harddisk, memory (e.g. on undo-command).
- * Objects have no
  *
- * MapGraph -> Map:                 lazy
- * Map      -> Layer:               hard
- * Layer    -> LayerData/Region:    lazy
- * Layer    -> history:             lazy
+ * MapGraph -> Map:                 lazy  (listMaps -> getMap(s))
+ * Map      -> Layer:               hard  (Map::layers)
+ * Layer    -> LayerData/Region:    lazy  (getLayerdata)
+ * Layer    -> history:             lazy  (not yet discussed, TODO)
  *
  * doOperation: Map + Layer + operationName + params inside config?
  * doOperation(/*upnsSharedPointer<Map> targetMap, upnsSharedPointer<Layer> targetLayer, upnsString &operationName,* / upnsString config);
@@ -45,19 +43,21 @@ public:
     upnsSharedPointer<Map> createMap(upnsString name);
     MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
-    // convenience
+    /// convenience ///
     upnsSharedPointer<Map> getMap( MapIdentifier mapId );
     int storeMap( upnsSharedPointer<Map> map );
     int removeMap(MapIdentifier mapId);
-
-    upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
-
-    upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
+    ///////////////////
 
     bool canRead();
     bool canWrite();
 
+    upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
     upnsSharedPointer<Map> doOperation(upnsString config);
+
+protected:
+    upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
+
 private:
     MapService *m_innerService;
 

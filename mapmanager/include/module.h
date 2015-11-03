@@ -2,7 +2,7 @@
 #define __MODULE_H
 
 #include "upns.h"
-#include "abstractlayerdata.h"
+#include "layerdata.h"
 #include <boost/config.hpp>
 #include "upns_interface/services.pb.h"
 
