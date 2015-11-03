@@ -44,9 +44,8 @@ public:
 
     virtual bool canRead() = 0;
     virtual bool canWrite() = 0;
-protected:
-    virtual upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId) = 0;
 
+    virtual upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId) = 0;
 };
 
 }

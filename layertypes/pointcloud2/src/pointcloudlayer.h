@@ -1,7 +1,7 @@
 #ifndef __POINTCLOUDLAYER_H__
 #define __POINTCLOUDLAYER_H__
 
-#include "abstractlayerdata.h"
+#include "layerdata.h"
 #include "abstractlayerdatastreamprovider.h"
 #include <pcl/PCLPointCloud2.h>
 
@@ -11,7 +11,7 @@ using upnsPointcloud2Ptr = upnsSharedPointer<pcl::PCLPointCloud2>;
 
 extern "C"
 {
-upnsSharedPointer<AbstractLayerData> createAbstractLayerData(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+upnsSharedPointer<AbstractLayerData> createLayerData(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
 }
 
 class PointcloudLayerdata : public LayerData<pcl::PCLPointCloud2>

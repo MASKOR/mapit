@@ -9,17 +9,6 @@
 namespace upns
 {
 
-class AbstractLayerData;
-class AbstractLayerDataStreamProvider;
-
-extern "C"
-{
-/**
- *
- */
-typedef upnsSharedPointer<AbstractLayerData> (*WrapLayerTypeFunc)(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
-}
-
 template<typename LayerDataType>
 class LayerData : public AbstractLayerData
 {

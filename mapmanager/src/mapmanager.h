@@ -55,7 +55,6 @@ public:
     upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
     upnsSharedPointer<Map> doOperation(upnsString config);
 
-protected:
     upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
 
 private:

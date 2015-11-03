@@ -86,7 +86,7 @@ void deleteWrappedLayerData(AbstractLayerData* ld)
     delete ld;
 }
 
-upnsSharedPointer<AbstractLayerData> createAbstractLayerData(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractLayerData> createLayerData(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider)
 {
     return upnsSharedPointer<AbstractLayerData>(new PointcloudLayerdata( streamProvider ), deleteWrappedLayerData);
 }
