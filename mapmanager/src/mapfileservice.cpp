@@ -7,14 +7,10 @@
 #include <services.pb.h>
 #include <stdlib.h>
 #include <time.h>
-#include <log4cplus/logger.h>
+#include "error.h"
 
 #include <QDebug>
 #include <QDateTime>
-
-#define log_error(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::ERROR_LOG_LEVEL, msg)
-#define log_warn(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::WARN_LOG_LEVEL, msg)
-#define log_info(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::INFO_LOG_LEVEL, msg)
 
 namespace upns
 {
@@ -73,7 +69,7 @@ MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
         assert(s.ok());
         if(! map.ParseFromString( value ))
         {
-            std::cout << "could not parse: " << key;
+            log_error("could not parse: " + key);
             continue;
         }
         ret.push_back( upnsSharedPointer<Map>( new Map(map) ) );
@@ -121,9 +117,43 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
     for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
     {
         std::string key("map!");
-        key.append( idToString( *iter ));
-        leveldb::Status s = m_db->Delete(leveldb::WriteOptions(), key);
-        ret.push_back(upnsPair<MapIdentifier, int>(*iter, s.ok()));
+        std::string mapIdStr(idToString( *iter ));
+        key.append( mapIdStr );
+
+        // Get Map and all associated layers
+        std::string value;
+        leveldb::Status sread = m_db->Get(leveldb::ReadOptions(), key, &value);
+
+        Map map;
+        if(!sread.ok() || !map.ParseFromString( value ))
+        {
+            ret.push_back(upnsPair<MapIdentifier, int>(*iter, UPNS_ERR_DB_PARSE));
+            continue;
+        }
+        // Delete layers
+        bool layerDeletionSuccess = true;
+        for(int i=0; i < map.layers_size() ; ++i)
+        {
+            Layer *layer = map.mutable_layers(i);
+            if(layer->id() == 0)
+            {
+                layerDeletionSuccess = false;
+                continue;
+            }
+            std::string key(mapIdStr);
+            key.append( idToString(layer->id()) );
+            leveldb::Status slayer = m_db->Delete(leveldb::WriteOptions(), key);
+            layerDeletionSuccess &= slayer.ok();
+        }
+        if(!layerDeletionSuccess)
+        {
+            ret.push_back(upnsPair<MapIdentifier, int>(*iter, UPNS_ERR_DB_LAYER));
+            continue;
+        }
+
+        // Finally delete map only if everything went ok until here
+        leveldb::Status sdel = m_db->Delete(leveldb::WriteOptions(), key);
+        ret.push_back(upnsPair<MapIdentifier, int>(*iter, sdel.ok()));
     }
     return ret;
 }

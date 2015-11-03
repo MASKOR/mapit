@@ -22,6 +22,7 @@ private slots:
 
     void testStoreMaps();
 
+    void testStreamProvider();
 private:
     upns::MapFileService *m_mapService;
 };

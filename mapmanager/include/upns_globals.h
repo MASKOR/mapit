@@ -13,6 +13,10 @@
 #include <boost/shared_ptr.hpp>
 #endif
 
+#include <log4cplus/logger.h>
+#define log_error(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg)
+#define log_warn(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::WARN_LOG_LEVEL, std::string() + msg)
+#define log_info(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::INFO_LOG_LEVEL, std::string() + msg)
 
 namespace upns
 {

@@ -67,10 +67,11 @@ void TestLayerdata::testCreateLayer()
     QCOMPARE(abstractLayerData->layerType(), LayerType::POINTCLOUD2);
     upnsSharedPointer<PointcloudLayerdata> pointcloudLayerdata;
     pointcloudLayerdata = upns::static_pointer_cast<PointcloudLayerdata>(abstractLayerData);
-    upnsPointcloud2Ptr pclpc2(new pcl::PCLPointCloud2());
     pcl::PointCloud<pcl::PointXYZ> cloud;
     cloud.push_back(pcl::PointXYZ(-1.0, 0.0, 1.0));
     cloud.push_back(pcl::PointXYZ(-2.0, 3.0, 4.5));
+
+    upnsPointcloud2Ptr pclpc2(new pcl::PCLPointCloud2());
     pcl::toPCLPointCloud2<pcl::PointXYZ>(cloud, *pclpc2);
     pointcloudLayerdata->setData(pclpc2);
 

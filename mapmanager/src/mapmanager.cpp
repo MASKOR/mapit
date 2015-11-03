@@ -7,10 +7,6 @@
 #include <log4cplus/logger.h>
 #include <dlfcn.h>
 
-#define log_error(msg) log4cplus::Logger::getInstance("mapmanager").log(log4cplus::ERROR_LOG_LEVEL, msg)
-#define log_warn(msg) log4cplus::Logger::getInstance("mapmanager").log(log4cplus::WARN_LOG_LEVEL, msg)
-#define log_info(msg) log4cplus::Logger::getInstance("mapmanager").log(log4cplus::INFO_LOG_LEVEL, msg)
-
 namespace upns
 {
 
@@ -148,7 +144,7 @@ upnsSharedPointer<AbstractLayerData> MapManager::wrapLayerOfType(LayerType type,
         break;
     }
     default:
-        log_error("Unknown layertype: " + type);
+        log_error("Unknown layertype: " + std::to_string(type));
         return upnsSharedPointer<AbstractLayerData>(NULL);
     }
     return wrapLayerOfType( layerName, streamProvider );

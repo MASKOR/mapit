@@ -251,4 +251,61 @@ void TestMapFileService::testStoreMaps()
     QVERIFY(foundTestMap);
 }
 
+
+
+void TestMapFileService::testStreamProvider()
+{
+    upnsString testmapName("hello world");
+    upns::upnsSharedPointer<upns::Map> map = m_mapService->createMap( "map123" );
+    QVERIFY(map != NULL);
+    Layer* layer = map->add_layers();
+    layer->set_id(0); // will be overwritten
+    layer->set_name("layer");
+    layer->set_type(LayerType::OCTOMAP);
+    layer->set_usagetype(LayerUsageType::NAVIGATION);
+    MapVector maps;
+    maps.push_back( map );
+    upns::MapResultsVector results = m_mapService->storeMaps( maps );
+    QVERIFY( upnsCheckResultVector( results ) );
+    QVERIFY( layer->id() != 0 );
+    QVERIFY( layer->id() != -1 );
+    upnsSharedPointer<AbstractLayerDataStreamProvider> streamProv = m_mapService->getStreamProvider(map->id(), layer->id());
+
+    ///// Start of the StreamProvider Test /////
+
+    std::string t1 = "Hello World";
+    std::string t2 = "Dump data with no real layer interpretation";
+    upnsOStream *os = streamProv->startWrite(0,0);
+    *os << t1 << std::endl;
+    *os << t2;
+    *os << 1 << " " << 2 << " " << 3;
+    streamProv->endWrite(os);
+    upnsIStream *is = streamProv->startRead(0,0);
+    char szBuff[128];
+    is->getline(szBuff, sizeof(szBuff)); // getline
+    QCOMPARE(t1, std::string(szBuff));
+    is->get(szBuff, t2.size()+1);        // get
+    szBuff[t2.size()] = '\0';
+    QCOMPARE(t2, std::string(szBuff));
+    int i1, i2, i3;
+    *is >> i1;
+    QCOMPARE(i1, 1);
+    *is >> i2;
+    QCOMPARE(i2, 2);
+    *is >> i3;
+    QCOMPARE(i3, 3);
+    streamProv->endRead( is );
+    is = streamProv->startRead(t1.length()+1,0);
+    is->get(szBuff, t2.size()+1);
+    szBuff[t2.size()] = '\0';
+    QCOMPARE(t2, std::string(szBuff));
+    *is >> i1;
+    QCOMPARE(i1, 1);
+    *is >> i2;
+    QCOMPARE(i2, 2);
+    *is >> i3;
+    QCOMPARE(i3, 3);
+    streamProv->endRead( is );
+}
+
 DECLARE_TEST(TestMapFileService)
