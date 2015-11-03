@@ -2,10 +2,20 @@
 #define __ABSTRACTLAYERDATA_H
 
 #include "upns_globals.h"
+#include "upns_interface/services.pb.h"
 #include <limits>
 
 namespace upns
 {
+
+class AbstractLayerData;
+class AbstractLayerDataStreamProvider;
+
+extern "C"
+{
+typedef upnsSharedPointer<AbstractLayerData> (*WrapLayerTypeFunc)(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+typedef AbstractLayerData* (*DeleteWrappedLayerTypeFunc)(AbstractLayerData* toDelete);
+}
 
 /**
  * @brief The AbstractLayerData class is interface between a concrete layerdata implementation and layer. Basically an LayerData-Implementation will
@@ -15,11 +25,13 @@ namespace upns
 
 class AbstractLayerData
 {
+public:
+    virtual ~AbstractLayerData() { }
     /**
      * @brief layerType return specialized type
      * @return
      */
-    virtual UpnsLayerType layerType() const = 0;
+    virtual LayerType layerType() const = 0;
 
     /**
      * @brief hasFixedGrid indicated if the underlying datastructure likes to be read in predefined chunks
@@ -46,7 +58,7 @@ class AbstractLayerData
      * @param y2 output axis aligned bounding box upper y
      * @param z2 output axis aligned bounding box upper z
      */
-    virtual void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1,upnsReal &x2, upnsReal &y2, upnsReal &z2) const;
+    virtual void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1,upnsReal &x2, upnsReal &y2, upnsReal &z2) const = 0;
 
 };
 
@@ -82,17 +94,24 @@ public:
      * @return 0 on success. Other than zero indicates errors.
      */
     virtual int setData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, upnsSharedPointer<LayerDataType> &data, int lod) = 0;
-};
 
-void AbstractLayerData::gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) const
-{
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
-}
+    /**
+     * @brief getData get all the layers data.
+     * should only be used if the layer is known to contain a light amount of data
+     * @param lod
+     * @return
+     */
+    virtual upnsSharedPointer<LayerDataType> getData( int lod) = 0;
+
+    /**
+     * @brief setData set data of the complete layer. overwrite everything
+     * @param data
+     * @param lod
+     * @return
+     */
+    virtual int setData(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+
+};
 
 }
 #endif

@@ -4,6 +4,7 @@
 #include "upns_globals.h"
 #include "services.pb.h"
 #include "abstractlayerdatastreamprovider.h"
+#include "abstractlayerdata.h"
 //#include "mapservice.h"
 //#include "map.h"
 
@@ -32,6 +33,7 @@ bool upnsCheckResultVector( T result )
 class MapService
 {
 public:
+    virtual ~MapService() {};
     virtual upnsVec<MapIdentifier> listMaps() = 0;
     virtual MapVector getMaps(upnsVec<MapIdentifier> &mapIds) = 0;
     virtual MapResultsVector storeMaps( MapVector &maps ) = 0;

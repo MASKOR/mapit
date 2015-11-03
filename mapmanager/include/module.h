@@ -4,6 +4,7 @@
 #include "upns.h"
 #include "abstractlayerdata.h"
 #include <boost/config.hpp>
+#include "upns_interface/services.pb.h"
 
 // Always export. Headernot needed for import, because of dynamic loading at runtime.
 #ifdef WIN32
@@ -37,7 +38,7 @@ struct ModuleInfo
     const char*         author;          //< author of module
     const int           moduleVersion;  //< version
     const int           apiVersion;     //< mapmanager api version
-    const UpnsLayerType layerType;      // LayerType enum
+    const upns::LayerType layerType;      // LayerType enum
     OperateFunc         operate;
 };
 }

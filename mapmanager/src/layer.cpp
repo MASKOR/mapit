@@ -1,37 +1,37 @@
-#include "layer.h"
-#include "upns.h"
+//#include "layer.h"
+//#include "upns.h"
 
-namespace upns
-{
+//namespace upns
+//{
 
-LayerIdentifier Layer::layerId() const
-{
-    return m_layerId;
-}
+//LayerIdentifier Layer::layerId() const
+//{
+//    return m_layerId;
+//}
 
-void Layer::setLayerId(const LayerIdentifier &layerId)
-{
-    m_layerId = layerId;
-}
+//void Layer::setLayerId(const LayerIdentifier &layerId)
+//{
+//    m_layerId = layerId;
+//}
 
-UpnsLayerType Layer::layerType() const
-{
-    return m_layerType;
-}
+//UpnsLayerType Layer::layerType() const
+//{
+//    return m_layerType;
+//}
 
-void Layer::setLayerType(const UpnsLayerType &layerType)
-{
-    m_layerType = layerType;
-}
+//void Layer::setLayerType(const UpnsLayerType &layerType)
+//{
+//    m_layerType = layerType;
+//}
 
-Layer::LayerUsageType Layer::layerUsageType() const
-{
-    return m_layerUsageType;
-}
+//Layer::LayerUsageType Layer::layerUsageType() const
+//{
+//    return m_layerUsageType;
+//}
 
-void Layer::setLayerUsageType(const LayerUsageType &layerUsageType)
-{
-    m_layerUsageType = layerUsageType;
-}
+//void Layer::setLayerUsageType(const LayerUsageType &layerUsageType)
+//{
+//    m_layerUsageType = layerUsageType;
+//}
 
-}
+//}

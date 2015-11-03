@@ -1,15 +1,18 @@
 #include "pointcloudlayer.h"
 #include "pointcloudhelper.h"
+#include <sstream>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
-PointcloudLayerdata::PointcloudLayerdata(upns::AbstractLayerDataStreamProvider *streamProvider)
+PointcloudLayerdata::PointcloudLayerdata(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_pointcloud( NULL )
 {
 }
 
-UpnsLayerType PointcloudLayerdata::layerType() const
+LayerType PointcloudLayerdata::layerType() const
 {
-    return UpnsLayerType::POINTCLOUD2;
+    return LayerType::POINTCLOUD2;
 }
 
 bool PointcloudLayerdata::hasFixedGrid() const
@@ -28,7 +31,10 @@ upnsPointcloud2Ptr PointcloudLayerdata::getData(upnsReal x1, upnsReal y1, upnsRe
     {
         m_pointcloud = upnsPointcloud2Ptr(new pcl::PCLPointCloud2);
         upnsIStream *in = m_streamProvider->startRead();
-        readPointcloud2(*in, *m_pointcloud);
+        {
+            ::boost::archive::text_iarchive ia(*in);
+            ia >> *m_pointcloud;
+        }
         m_streamProvider->endRead(in);
     }
     return m_pointcloud;
@@ -37,6 +43,50 @@ upnsPointcloud2Ptr PointcloudLayerdata::getData(upnsReal x1, upnsReal y1, upnsRe
 int PointcloudLayerdata::setData(upnsReal x1, upnsReal y1, upnsReal z1, upnsReal x2, upnsReal y2, upnsReal z2, upnsPointcloud2Ptr &data, int lod)
 {
     upnsOStream *out = m_streamProvider->startWrite();
-    *out << data.get();
+    {
+        ::boost::archive::text_oarchive oa(*out);
+        oa << *data;
+    }
     m_streamProvider->endWrite(out);
+}
+
+upnsPointcloud2Ptr PointcloudLayerdata::getData(int lod)
+{
+    return getData(-std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                    std::numeric_limits<upnsReal>::infinity(),
+                    std::numeric_limits<upnsReal>::infinity(),
+                    std::numeric_limits<upnsReal>::infinity(),
+                   false, lod);
+}
+
+int PointcloudLayerdata::setData(upnsPointcloud2Ptr &data, int lod)
+{
+    return setData(-std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                    std::numeric_limits<upnsReal>::infinity(),
+                    std::numeric_limits<upnsReal>::infinity(),
+                    std::numeric_limits<upnsReal>::infinity(),
+                   data, lod);
+}
+
+void PointcloudLayerdata::gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+{
+    x1 = -std::numeric_limits<upnsReal>::infinity();
+    y1 = -std::numeric_limits<upnsReal>::infinity();
+    z1 = -std::numeric_limits<upnsReal>::infinity();
+    x2 = +std::numeric_limits<upnsReal>::infinity();
+    y2 = +std::numeric_limits<upnsReal>::infinity();
+    z2 = +std::numeric_limits<upnsReal>::infinity();
+}
+void deleteWrappedLayerData(AbstractLayerData* ld)
+{
+    delete ld;
+}
+
+upnsSharedPointer<AbstractLayerData> createAbstractLayerData(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider)
+{
+    return upnsSharedPointer<AbstractLayerData>(new PointcloudLayerdata( streamProvider ), deleteWrappedLayerData);
 }

@@ -9,20 +9,32 @@ using namespace upns;
 
 using upnsPointcloud2Ptr = upnsSharedPointer<pcl::PCLPointCloud2>;
 
+extern "C"
+{
+upnsSharedPointer<AbstractLayerData> createAbstractLayerData(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+}
+
 class PointcloudLayerdata : public LayerData<pcl::PCLPointCloud2>
 {
-    PointcloudLayerdata(AbstractLayerDataStreamProvider* streamProvider);
+public:
+    PointcloudLayerdata(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
 
-    UpnsLayerType       layerType() const;
+    LayerType           layerType() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
-    upnsPointcloud2Ptr  getData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, bool clipMode, int lod);
-    int                 setData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, upnsPointcloud2Ptr &data, int lod);
+    upnsPointcloud2Ptr  getData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, bool clipMode, int lod = 0);
+    int                 setData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, upnsPointcloud2Ptr &data, int lod = 0);
+
+    upnsPointcloud2Ptr  getData(int lod = 0);
+    int                 setData(upnsPointcloud2Ptr &data, int lod = 0);
+
+    void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) const;
 
 private:
-    AbstractLayerDataStreamProvider* m_streamProvider;
+    upnsSharedPointer<AbstractLayerDataStreamProvider> m_streamProvider;
     //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
     upnsPointcloud2Ptr m_pointcloud;
+
 };
 
 #endif

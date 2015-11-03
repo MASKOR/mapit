@@ -13,6 +13,7 @@ include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
-add_library(${PROJECT_NAME} ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} )
 
 #target_link_libraries(${PROJECT_NAME} Qt5::Core )

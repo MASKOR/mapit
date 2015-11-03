@@ -10,7 +10,7 @@ namespace upns
 class FileLayerDataStreamProvider : public AbstractLayerDataStreamProvider
 {
 public:
-    FileLayerDataStreamProvider(leveldb::DB *db, const leveldb::Slice &key);
+    FileLayerDataStreamProvider(leveldb::DB *db, const std::string &key);
     bool isCached();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 len);
     void endRead(upnsIStream *strm);
@@ -18,7 +18,7 @@ public:
     void endWrite(upnsOStream *strm);
 private:
     leveldb::DB *m_db;
-    leveldb::Slice m_key;
+    std::string m_key;
 };
 
 }

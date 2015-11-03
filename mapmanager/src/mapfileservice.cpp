@@ -132,7 +132,7 @@ upnsSharedPointer<AbstractLayerDataStreamProvider> MapFileService::getStreamProv
 {
     std::string key = idToString(mapId);
     key.append( idToString(layerId) );
-    return upnsSharedPointer<AbstractLayerDataStreamProvider>( new FileLayerDataStreamProvider(m_db, leveldb::Slice(key)));
+    return upnsSharedPointer<AbstractLayerDataStreamProvider>( new FileLayerDataStreamProvider(m_db, key));
 }
 
 bool MapFileService::canRead()

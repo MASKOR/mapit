@@ -4,7 +4,7 @@
 
 namespace upns {
 
-FileLayerDataStreamProvider::FileLayerDataStreamProvider(leveldb::DB *db, const leveldb::Slice &key)
+FileLayerDataStreamProvider::FileLayerDataStreamProvider(leveldb::DB *db, const std::string &key)
     :m_db(db),
      m_key(key)
 {
@@ -23,11 +23,13 @@ upnsIStream* upns::FileLayerDataStreamProvider::startRead(upnsuint64 start, upns
     it->Seek(m_key);
     assert(it->Valid());
     leveldb::Slice slice = it->value();
+    delete it;
     assert(start < slice.size());
     assert(start + len < slice.size());
 
     //TODO: add locking
-    std::string str(slice.data() + start);
+    if( len == 0 ) len = slice.size();
+    std::string str(slice.data() + start, len);
     std::istringstream *isstr = new std::istringstream( str );
     return isstr;
 }

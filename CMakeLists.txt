@@ -33,6 +33,7 @@ set(UPNS_QTVERSION)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
+set(CMAKE_C_FLAGS_DEBUG "-DUPNS_DEBUG")
 
 # Note: Dependency management is yet a mess. Some projects are contained in externals folder.
 # other projects are downloaded by cmake and installed

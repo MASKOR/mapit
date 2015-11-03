@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/layertypes)
+
+SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-rdynamic")
 
 MACRO(SUBDIRLIST result curdir)
   FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)

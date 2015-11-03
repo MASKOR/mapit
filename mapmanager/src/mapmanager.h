@@ -4,6 +4,7 @@
 #include "upns_globals.h"
 #include "mapservice.h"
 #include "yaml-cpp/yaml.h"
+#include "abstractlayerdata.h"
 
 /**
  * @brief The MapGraph class contains maps and their versions logically.
@@ -44,7 +45,14 @@ public:
     upnsSharedPointer<Map> createMap(upnsString name);
     MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
+    // convenience
+    upnsSharedPointer<Map> getMap( MapIdentifier mapId );
+    int storeMap( upnsSharedPointer<Map> map );
+    int removeMap(MapIdentifier mapId);
+
     upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
+
+    upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
 
     bool canRead();
     bool canWrite();
@@ -52,6 +60,9 @@ public:
     upnsSharedPointer<Map> doOperation(upnsString config);
 private:
     MapService *m_innerService;
+
+    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(LayerType type, upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(upnsString layertypeName, upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
 };
 
 }

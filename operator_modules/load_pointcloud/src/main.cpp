@@ -7,4 +7,4 @@ int operate(void* layer)
     return 0;
 }
 
-UPNS_MODULE("loadPointcloud", "Loads a Pcd File", "fhac", 1, UpnsLayerType::POINTCLOUD2, &operate)
+UPNS_MODULE("loadPointcloud", "Loads a Pcd File", "fhac", 1, upns::LayerType::POINTCLOUD2, &operate)
