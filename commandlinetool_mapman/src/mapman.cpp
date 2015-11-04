@@ -9,29 +9,34 @@ namespace po = boost::program_options;
  * --source=<mapsource>
  *
  * map -l|list
- * map <mapId>
- * map create --name=<name> --<todo>...
+ * map read <mapId>
+ * map update <mapId> --name=<name> --<todo>...
  * map remove <mapId>
- * map newlayer <mapId> --name=<name> --type=<type> --usagetype=<usagetype>
- * map removelayer <layerId>
- * map addlayer <mapId> <layerId>
- *
  *
  * layer -l <mapId>
- * layer <layerId>
+ * layer read <layerId>
+ * layer update <mapId> --name=<name> --usagetype=<usagetype>
+ * layer remove <mapId> <layerId>
+ * layer readdata <mapId> <layerId> <minx> <miny> <minz> <maxx> <maxy> <maxz> <clip> <lod>
+ * layer readdata <mapId> <layerId> <clip> <lod>
+ * layer persist <add|remove> <mapId> <layerId>
  *
- * layerdata read <mapId> <layerId> <minx> <miny> <minz> <maxx> <maxy> <maxz> <clip> <lod>
- * layerdata read <clip> <lod>
- *
- * layerdata store <mapId> <layerId> <minx> <miny> <minz> <maxx> <maxy> <maxz> <lod> [datastream cin]|--filename
- * layerdata store <clip> <lod> [datastream cin]|--filename
- *
- * operator <opname> <params...>
+ * operator <opname> <params...> (<params> includes mostly <mapId...> <layerId...>)
  *
  * dump
  *
  * help
  *
+ * Description:
+ * - layer update has no (--type=<type>)
+ * - operator generates mapId(s) and layerId(s) + type + usagetype on demand
+ * - maps and layers are created implicitly by operators.
+ *   Thus, "map create" should be expressed by something like "operator copy --name=mymap"
+ *   To read in rawdata: "operator load /home/.../myPcd.pcd"
+ *   - layerdata store <mapId> <layerId> <minx> <miny> <minz> <maxx> <maxy> <maxz> <lod> [datastream cin]|--filename
+ *   - layerdata store <clip> <lod> [datastream cin]|--filename
+ *
+ * TODO: discuss
  */
 int main(int argc, char **argv)
 {
