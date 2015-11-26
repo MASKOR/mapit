@@ -49,20 +49,20 @@ MapVector MapManager::getMaps(upnsVec<MapIdentifier> &mapIds)
     return m_innerService->getMaps( mapIds );
 }
 
-upnsVec<upnsPair<MapIdentifier, int> > MapManager::storeMaps(MapVector &maps)
-{
-    return m_innerService->storeMaps( maps );
-}
+//MapResultsVector MapManager::storeMaps(MapVector &maps)
+//{
+//    return m_innerService->storeMaps( maps );
+//}
 
-upnsSharedPointer<Map> MapManager::createMap(upnsString name)
-{
-    return m_innerService->createMap( name );
-}
+//upnsSharedPointer<Map> MapManager::createMap(upnsString name)
+//{
+//    return m_innerService->createMap( name );
+//}
 
-MapResultsVector MapManager::removeMaps(upnsVec<MapIdentifier> &mapIds)
-{
-    return m_innerService->removeMaps( mapIds );
-}
+//MapResultsVector MapManager::removeMaps(upnsVec<MapIdentifier> &mapIds)
+//{
+//    return m_innerService->removeMaps( mapIds );
+//}
 
 upnsSharedPointer<upns::Map> MapManager::getMap(upns::MapIdentifier mapId)
 {
@@ -73,23 +73,23 @@ upnsSharedPointer<upns::Map> MapManager::getMap(upns::MapIdentifier mapId)
     return maps.at(0);
 }
 
-int MapManager::storeMap(upnsSharedPointer<Map> map)
-{
-    MapVector maps;
-    maps.push_back(map);
-    MapResultsVector res = storeMaps( maps );
-    assert(res.size() == 1);
-    return res.at(0).second;
-}
+//int MapManager::storeMap(upnsSharedPointer<Map> map)
+//{
+//    MapVector maps;
+//    maps.push_back(map);
+//    MapResultsVector res = storeMaps( maps );
+//    assert(res.size() == 1);
+//    return res.at(0).second;
+//}
 
-int MapManager::removeMap(MapIdentifier mapId)
-{
-    upnsVec<MapIdentifier> mapIds;
-    mapIds.push_back(mapId);
-    MapResultsVector res = removeMaps( mapIds );
-    assert(res.size() == 1);
-    return res.at(0).second;
-}
+//int MapManager::removeMap(MapIdentifier mapId)
+//{
+//    upnsVec<MapIdentifier> mapIds;
+//    mapIds.push_back(mapId);
+//    MapResultsVector res = removeMaps( mapIds );
+//    assert(res.size() == 1);
+//    return res.at(0).second;
+//}
 
 upnsSharedPointer<AbstractLayerDataStreamProvider> MapManager::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
 {

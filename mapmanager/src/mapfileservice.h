@@ -8,6 +8,7 @@
 
 namespace leveldb {
     class DB;
+    class Status;
 }
 
 namespace upns
@@ -31,6 +32,8 @@ public:
 
 private:
     leveldb::DB* m_db;
+
+    upnsuint32 levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
 };
 
 }

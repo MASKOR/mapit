@@ -39,14 +39,14 @@ public:
     ~MapManager();
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
-    MapResultsVector storeMaps( MapVector &maps );
-    upnsSharedPointer<Map> createMap(upnsString name);
-    MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
+    //MapResultsVector storeMaps( MapVector &maps );
+    //upnsSharedPointer<Map> createMap(upnsString name);
+    //MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
     /// convenience ///
     upnsSharedPointer<Map> getMap( MapIdentifier mapId );
-    int storeMap( upnsSharedPointer<Map> map );
-    int removeMap(MapIdentifier mapId);
+//    int storeMap( upnsSharedPointer<Map> map );
+//    int removeMap(MapIdentifier mapId);
     ///////////////////
 
     bool canRead();

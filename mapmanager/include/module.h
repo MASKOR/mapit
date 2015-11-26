@@ -20,6 +20,11 @@
  * given to the module without modifications. This is a c++-structure in contrast to POD (plain old data) and thus will not be binary compatible
  * unless compiler, compiler version, os, third party dependencies are identical between module and mapamanger.
  * It could be tried to overcome this issue by providing an C interface to the \sa LayerData. However, datastrutures are likely to be c++ / incompatible.
+ *
+ * For fast Operation: Operator receives the original data and can decide to alter the exiting data or return a newly allocated chunk.
+ * Behaviour can be controlled by the application (use caching). E.g. a transformation can occur on the data itself. Only the TF must be changed, Pointclouddata remains and does not get copied.
+ * For a voxelgridfilter, both may be stored: the original pointcloud and the filtered one. The new version of the layer can be used, and the old one is also "cached" until the system decides,
+ * it is no longer used.
  */
 
 extern "C"

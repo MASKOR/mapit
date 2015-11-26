@@ -26,6 +26,7 @@ typedef upnsSharedPointer<AbstractLayerData> (*WrapLayerTypeFunc)(upnsSharedPoin
  * @brief The AbstractLayerData class is interface between a concrete layerdata implementation and layer. Basically an LayerData-Implementation will
  * translate/delegate requests of "getData" to LayerDataStreamProvider \sa AbstractLayerDataStreamProvider.
  * "setData" does not contain logic (e.g. registration)
+ * This abstract interface can be used to query metainformation from any type of layer. For reading/writing data, see \sa LayerData
  */
 
 class AbstractLayerData
@@ -64,7 +65,6 @@ public:
      * @param z2 output axis aligned bounding box upper z
      */
     virtual void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1,upnsReal &x2, upnsReal &y2, upnsReal &z2) const = 0;
-
 };
 
 }

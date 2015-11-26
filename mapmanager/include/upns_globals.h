@@ -48,13 +48,14 @@ using upnsSharedPointer = boost::shared_ptr<T>;
 template <typename T1, typename T2>
 using upnsPair = std::pair<T1, T2>;
 
+using LockHandle = upnsuint32;
+
 template<class T, class U>
 upnsSharedPointer<T> static_pointer_cast(upnsSharedPointer<U> const & r)
 {
     return boost::static_pointer_cast<T>(r);
 }
 #endif
-
 
 }
 

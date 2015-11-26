@@ -57,7 +57,6 @@ public:
      * @return
      */
     virtual int setData(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
-
 };
 
 }
