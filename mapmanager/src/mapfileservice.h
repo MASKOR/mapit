@@ -5,6 +5,7 @@
 #include "mapservice.h"
 #include "yaml-cpp/yaml.h"
 #include "abstractlayerdatastreamprovider.h"
+#include <QLockFile>
 
 namespace leveldb {
     class DB;
@@ -30,10 +31,17 @@ public:
     bool canRead();
     bool canWrite();
 
+    LockHandle lockLayerdataForRead(MapIdentifier mapId, LayerIdentifier layerId);
+    LockHandle lockLayerdataForWrite(MapIdentifier mapId, LayerIdentifier layerId);
+    void unlockLayerdataForWrite(LockHandle lockHandle);
+    void unlockLayerdataForRead(LockHandle lockHandle);
+    bool isLayerdataLockedForRead(MapIdentifier mapId, LayerIdentifier layerId);
+    bool isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentifier layerId);
 private:
     leveldb::DB* m_db;
 
     upnsuint32 levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
+    QLockFile m_lockFile;
 };
 
 }
