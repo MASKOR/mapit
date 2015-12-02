@@ -12,6 +12,7 @@ namespace upns
  * Storage is a service implemented in a common way for all layerdata. A concrete Layerdata-Implementation must be able to "translate" between
  * streamed and localized data in 3D space. For native pointcloud2 this might be slow, as there is no information on where to find points of
  * a specific region in a 1 dimensional stream. For more sophisticated datastructures (octrees, ...) operations will be faster.
+ * TODO: Might be called AbstractObjectDataStreamProvider
  */
 
 class AbstractLayerDataStreamProvider

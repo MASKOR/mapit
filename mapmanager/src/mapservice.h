@@ -5,24 +5,20 @@
 #include "services.pb.h"
 #include "abstractlayerdatastreamprovider.h"
 #include "layerdata.h"
+#include "error.h"
 //#include "mapservice.h"
 //#include "map.h"
 
 namespace upns
 {
 
-using MapIdentifier = upnsuint64;
-using LayerIdentifier = upnsuint64;
-
 using MapVector = upnsVec< upnsSharedPointer<Map> >;
 using LayerVector = upnsVec< upnsSharedPointer<Layer> >;
-
-using MapResultsVector = upnsVec<upnsPair<MapIdentifier, upnsuint32> >;
 
 template<typename T>
 bool upnsCheckResultVector( T result )
 {
-    return std::all_of(result.begin(), result.end(), [](typename T::value_type t){return t.second;});
+    return std::all_of(result.begin(), result.end(), [](typename T::value_type t){return upnsIsOk(t.second);});
 }
 
 /**
@@ -71,6 +67,13 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId) = 0;
+
+
+    /// convenience ///
+    upnsSharedPointer<Map> getMap( MapIdentifier mapId );
+    StatusCode storeMap( upnsSharedPointer<Map> map );
+    StatusCode removeMap(MapIdentifier mapId);
+    ///////////////////
 };
 
 }

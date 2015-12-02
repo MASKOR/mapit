@@ -5,8 +5,8 @@
 #include "mapservice.h"
 #include "yaml-cpp/yaml.h"
 #include "abstractlayerdatastreamprovider.h"
-#include <QLockFile>
 
+class QLockFile;
 namespace leveldb {
     class DB;
     class Status;
@@ -40,8 +40,8 @@ public:
 private:
     leveldb::DB* m_db;
 
-    upnsuint32 levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
-    QLockFile m_lockFile;
+    StatusCode levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
+    QLockFile *m_lockFile;
 };
 
 }

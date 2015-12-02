@@ -23,7 +23,8 @@ private slots:
     void testStoreMaps();
 
 private:
-    upns::MapManager *m_mapService;
+    upns::MapManager *m_mapManager;
+    upns::MapService *m_mapService;
 };
 
 #endif

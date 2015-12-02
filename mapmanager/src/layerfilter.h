@@ -8,6 +8,10 @@ namespace upns
 {
 class Map;
 
+/**
+ * @brief The LayerFilter class used to find layers in the system.
+ * TODO: May not be needed. Could also be done for Maps if needed.
+ */
 class LayerFilter
 {
 public:

@@ -11,6 +11,7 @@
 
 #include <QDebug>
 #include <QDateTime>
+#include <QFileInfo>
 #include <QLockFile>
 
 namespace upns
@@ -31,19 +32,18 @@ MapFileService::MapFileService(const YAML::Node &config)
 
     // check lockfile, database must only be opened once.
     // Note: leveldb seems to have locking on its own and does not allow simultaneous access at all
-    QFileInfo databaseFile(databaseName);
-    QLockFile lockFile(databaseFile.absolutePath() + "." + databaseFile.fileName() + ".lock");
-    qDebug() << "DBG: name of lockfile:" << lockFile;
-    if(!lockFile.tryLock())
+    QString databaseNameQStr = QString::fromStdString(databaseName);
+    m_lockFile = new QLockFile(QFileInfo(databaseNameQStr).absolutePath() + "." + QFileInfo(databaseNameQStr).fileName() + ".lock");
+    if(!m_lockFile->tryLock())
     {
         qint64 pid;
         QString hostname;
         QString appname;
-        lockFile.getLockInfo( &pid, &hostname, &appname);
-        log_error("database already open. Indicated by lockfile " + lockFile.canonicalFilePath()
-                  + "\n PID: " + QString::number(pid)
-                  + "\n Hostname: " + hostname
-                  + "\n Application: " + appname);
+        m_lockFile->getLockInfo( &pid, &hostname, &appname);
+        log_error(std::string("database already open. Indicated by lockfile ") + QFileInfo(databaseNameQStr).canonicalFilePath().toStdString()
+                  + "\n PID: " + QString::number(pid).toStdString()
+                  + "\n Hostname: " + hostname.toStdString()
+                  + "\n Application: " + appname.toStdString());
     }
 
     leveldb::Options options;
@@ -56,6 +56,7 @@ MapFileService::~MapFileService()
 {
     // destruction of m_lockFile will unlock the database if previously acquired.
     delete m_db;
+    delete m_lockFile;
 }
 
 upnsVec<MapIdentifier> upns::MapFileService::listMaps()
@@ -99,7 +100,7 @@ MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
 
 MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
 {
-    upnsVec<upnsPair<MapIdentifier, upnsuint32> > ret;
+    MapResultsVector ret;
     for(MapVector::const_iterator iter(maps.begin()) ; iter != maps.end() ; iter++)
     {
         std::string key("map!");
@@ -140,7 +141,7 @@ MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
             }
         }
         s = m_db->Put(leveldb::WriteOptions(), key, (*iter)->SerializeAsString());
-        ret.push_back(upnsPair<MapIdentifier, upnsuint32>(id, levelDbStatusToUpnsStatus(s)));
+        ret.push_back(StatusPair(id, levelDbStatusToUpnsStatus(s)));
     }
     return ret;
 }
@@ -152,13 +153,13 @@ upnsSharedPointer<Map> upns::MapFileService::createMap(upnsString name)
     newMap->set_id( generateId() );
     MapVector vec;
     vec.push_back(newMap);
-    upnsVec<upnsPair<MapIdentifier, upnsuint32> > res = storeMaps( vec );
-    return res.at(0).second?newMap:upnsSharedPointer<Map>(NULL);
+    upnsVec<upnsPair<MapIdentifier, StatusCode> > res = storeMaps( vec );
+    return upnsIsOk(res.at(0).second)?newMap:upnsSharedPointer<Map>(NULL);
 }
 
 MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
 {
-    upnsVec<upnsPair<MapIdentifier, upnsuint32> > ret;
+    upnsVec<upnsPair<MapIdentifier, StatusCode> > ret;
     for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
     {
         std::string key("map!");
@@ -172,7 +173,7 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
         Map map;
         if(!sread.ok() || !map.ParseFromString( value ))
         {
-            ret.push_back(upnsPair<MapIdentifier, upnsuint32>(*iter, UPNS_STATUS_ERR_DB_PARSE_MAP));
+            ret.push_back(StatusPair(*iter, UPNS_STATUS_ERR_DB_PARSE_MAP));
             continue;
         }
         // Delete layers
@@ -198,7 +199,7 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
 
         // Finally delete map only if everything went ok until here
         leveldb::Status sdel = m_db->Delete(leveldb::WriteOptions(), key);
-        ret.push_back(upnsPair<MapIdentifier, upnsuint32>(*iter, levelDbStatusToUpnsStatus( sdel )));
+        ret.push_back(StatusPair(*iter, levelDbStatusToUpnsStatus( sdel )));
     }
     return ret;
 }
@@ -222,16 +223,11 @@ bool MapFileService::canWrite()
 
 LockHandle MapFileService::lockLayerdataForRead(MapIdentifier mapId, LayerIdentifier layerId)
 {
-    //Note: TODO: Locking is not possible. Only for one thread. Does it make sense here?
-    Note
-    std::string key = "lock!read!";
-    key.append( idToString(mapId) );
-    key.append( idToString(layerId) );
-    std::string value;
-    leveldb::Status sread = m_db->Get(leveldb::ReadOptions(), key, &value);
-    leveldb::Status sread = m_db->Write
-
-
+    //Note: TODO: Locking is not possible with leveldb.
+    // Leveldb can only be opened by one process.
+    // Locking could be needed to handle mutliple threads.
+    // Does it make sense here?
+    // - member m_lock should be used. No database entries
 }
 
 LockHandle MapFileService::lockLayerdataForWrite(MapIdentifier mapId, LayerIdentifier layerId)
@@ -259,7 +255,7 @@ bool MapFileService::isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentif
 
 }
 
-upnsuint32 MapFileService::levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus)
+StatusCode MapFileService::levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus)
 {
     if(levelDbStatus.ok()) {
         return UPNS_STATUS_OK;

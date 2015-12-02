@@ -37,7 +37,8 @@ void TestMapManager::initTestCase()
     mapsource["filename"] = databaseName;
     conf["mapsource"] = mapsource;
 
-    m_mapService = new upns::MapManager(conf);
+    m_mapManager = new upns::MapManager(conf);
+    m_mapService = m_mapManager->getInternalMapService();
 }
 
 void TestMapManager::cleanupTestCase()

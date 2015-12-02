@@ -64,36 +64,15 @@ MapVector MapManager::getMaps(upnsVec<MapIdentifier> &mapIds)
 //    return m_innerService->removeMaps( mapIds );
 //}
 
-upnsSharedPointer<upns::Map> MapManager::getMap(upns::MapIdentifier mapId)
-{
-    upnsVec<MapIdentifier> mapIds;
-    mapIds.push_back(mapId);
-    MapVector maps = getMaps( mapIds );
-    assert(maps.size() == 1);
-    return maps.at(0);
-}
 
-//int MapManager::storeMap(upnsSharedPointer<Map> map)
+//upnsSharedPointer<AbstractLayerDataStreamProvider> MapManager::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
 //{
-//    MapVector maps;
-//    maps.push_back(map);
-//    MapResultsVector res = storeMaps( maps );
-//    assert(res.size() == 1);
-//    return res.at(0).second;
+//    return m_innerService->getStreamProvider( mapId, layerId );
 //}
 
-//int MapManager::removeMap(MapIdentifier mapId)
-//{
-//    upnsVec<MapIdentifier> mapIds;
-//    mapIds.push_back(mapId);
-//    MapResultsVector res = removeMaps( mapIds );
-//    assert(res.size() == 1);
-//    return res.at(0).second;
-//}
-
-upnsSharedPointer<AbstractLayerDataStreamProvider> MapManager::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
+MapService *MapManager::getInternalMapService()
 {
-    return m_innerService->getStreamProvider( mapId, layerId );
+    return m_innerService;
 }
 
 upnsSharedPointer<AbstractLayerData> MapManager::getLayerData(MapIdentifier mapId, LayerIdentifier layerId)

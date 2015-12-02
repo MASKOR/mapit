@@ -8,6 +8,9 @@
 
 namespace upns
 {
+/**
+ * TODO: Might be called ObjectData (Note: Do not use word 'Object', but ScanObject, UpnsObject, Entity,
+ */
 
 template<typename LayerDataType>
 class LayerData : public AbstractLayerData
@@ -40,7 +43,7 @@ public:
      * @param lod level of detail. The layertype module might recompute some detaillevels based on the new data and may discard levels.
      * @return 0 on success. Other than zero indicates errors.
      */
-    virtual int setData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+    virtual int setData(upnsReal x1, upnsReal y1, upnsReal z1, upnsReal x2, upnsReal y2, upnsReal z2, upnsSharedPointer<LayerDataType> &data, int lod) = 0;
 
     /**
      * @brief getData get all the layers data.
@@ -57,6 +60,12 @@ public:
      * @return
      */
     virtual int setData(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+
+    // TODO: Make the containing map/mapmanager decide, if the object occupies certain space
+    // virtual int getObjectBoundingBox(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+
+    // TODO: Nodes, Transforms, dependencies between Layers/Objects
+
 };
 
 }

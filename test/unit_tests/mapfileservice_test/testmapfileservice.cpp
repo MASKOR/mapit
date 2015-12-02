@@ -278,7 +278,7 @@ void TestMapFileService::testStreamProvider()
     upnsOStream *os = streamProv->startWrite(0,0);
     *os << t1 << std::endl;
     *os << t2;
-    *os << 1 << " " << 2 << " " << 3;
+    *os << 1 << " " << 2 << " " << 3 << " ";
     streamProv->endWrite(os);
     upnsIStream *is = streamProv->startRead(0,0);
     char szBuff[128];

@@ -4,6 +4,7 @@
 #include <QTest>
 
 #include "../../../mapmanager/src/mapmanager.h"
+#include "../../../mapmanager/src/mapservice.h"
 
 class TestLayerdata : public QObject
 {
@@ -19,7 +20,8 @@ private slots:
     void testCreateLayer();
 
 private:
-    upns::MapManager *m_mapService;
+    upns::MapManager *m_mapManager;
+    upns::MapService *m_mapService;
 };
 
 #endif

@@ -36,7 +36,8 @@ void TestLayerdata::initTestCase()
     mapsource["filename"] = databaseName;
     conf["mapsource"] = mapsource;
 
-    m_mapService = new upns::MapManager(conf);
+    m_mapManager = new upns::MapManager(conf);
+    m_mapService = m_mapManager->getInternalMapService();
 }
 
 void TestLayerdata::cleanupTestCase()
@@ -63,7 +64,7 @@ void TestLayerdata::testCreateLayer()
     assert(map->id() != -1);
     assert(layer->id() != 0);
     assert(layer->id() != -1);
-    upnsSharedPointer<AbstractLayerData> abstractLayerData = m_mapService->getLayerData( map->id(), layer->id() );
+    upnsSharedPointer<AbstractLayerData> abstractLayerData = m_mapManager->getLayerData( map->id(), layer->id() );
     QCOMPARE(abstractLayerData->layerType(), LayerType::POINTCLOUD2);
     upnsSharedPointer<PointcloudLayerdata> pointcloudLayerdata;
     pointcloudLayerdata = upns::static_pointer_cast<PointcloudLayerdata>(abstractLayerData);
@@ -75,7 +76,7 @@ void TestLayerdata::testCreateLayer()
     pcl::toPCLPointCloud2<pcl::PointXYZ>(cloud, *pclpc2);
     pointcloudLayerdata->setData(pclpc2);
 
-    upnsSharedPointer<AbstractLayerData> abstractLayerData2 = m_mapService->getLayerData( map->id(), layer->id() );
+    upnsSharedPointer<AbstractLayerData> abstractLayerData2 = m_mapManager->getLayerData( map->id(), layer->id() );
     QCOMPARE(abstractLayerData2->layerType(), LayerType::POINTCLOUD2);
     upnsSharedPointer<PointcloudLayerdata> pointcloudLayerdata2;
     pointcloudLayerdata2 = upns::static_pointer_cast<PointcloudLayerdata>(abstractLayerData2);

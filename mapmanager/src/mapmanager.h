@@ -7,8 +7,16 @@
 #include "layerdata.h"
 
 /**
- * @brief The MapGraph class contains maps and their versions logically.
- * It does not do caching or calculation.
+ * @brief The MapManager class makes maps an layer available to the client.
+ * The class acts as a facade and hides complex actions needed to create/delete/change maps.
+ * MapManager guarantees a consistent state of all maps.
+ * It may handle caching.
+ * Storage of data is done using the intenal MapService. MapService is another facade, which capsulates
+ * physical storage, which could be e.g. Filesystem, Database or Network.
+ *
+ * MapManager can always read Maps. Writing is done by Operations. The Data of each layer can be queried
+ * by using getLayerData which returns an abstract type. Depending on the type of layer that was queried,
+ * the abstract type can be casted to are more useful class with custom ways to query layer data.
  *
  * Serialization:
  * Goals:
@@ -32,7 +40,7 @@
 namespace upns
 {
 
-class MapManager : public MapService
+class MapManager //: public MapService
 {
 public:
     MapManager(const YAML::Node &config);
@@ -55,8 +63,14 @@ public:
     upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
     upnsSharedPointer<Map> doOperation(upnsString config);
 
-    upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
+    //upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
 
+    /**
+    * @brief getMapService is used to retrieve the internal mapservice
+    * This Method exposes internal implementation and should not be used. (It is here for unit testing)
+    * @return
+    */
+    MapService *getInternalMapService();
 private:
     MapService *m_innerService;
 

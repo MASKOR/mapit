@@ -12,3 +12,5 @@
 
 #define UPNS_STATUS_ERR_DB_PARSE_MAP 8
 #define UPNS_STATUS_ERR_DB_DELETE_LAYER_FROM_MAP 9
+
+#define upnsIsOk(status) (status == UPNS_STATUS_OK)
