@@ -15,7 +15,7 @@ namespace upns
  * TODO: Might be called AbstractObjectDataStreamProvider
  */
 
-class AbstractLayerDataStreamProvider
+class AbstractEntityDataStreamProvider
 {
 public:
     /**

@@ -1,4 +1,4 @@
-#include "autotestall.h"
+#include "autotest.h"
 #include <log4cplus/configurator.h>
 
 int main(int argc, char *argv[])

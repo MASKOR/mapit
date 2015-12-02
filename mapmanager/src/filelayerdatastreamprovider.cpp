@@ -4,7 +4,7 @@
 
 namespace upns {
 
-FileLayerDataStreamProvider::FileLayerDataStreamProvider(leveldb::DB *db, const std::string &key)
+FileEntityDataStreamProvider::FileEntityDataStreamProvider(leveldb::DB *db, const std::string &key)
     :m_db(db),
      m_key(key)
 {
@@ -12,12 +12,12 @@ FileLayerDataStreamProvider::FileLayerDataStreamProvider(leveldb::DB *db, const 
     assert(!m_key.empty());
 }
 
-bool FileLayerDataStreamProvider::isCached()
+bool FileEntityDataStreamProvider::isCached()
 {
     return true;
 }
 
-upnsIStream* upns::FileLayerDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
+upnsIStream* upns::FileEntityDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
     it->Seek(m_key);
@@ -34,19 +34,19 @@ upnsIStream* upns::FileLayerDataStreamProvider::startRead(upnsuint64 start, upns
     return isstr;
 }
 
-void FileLayerDataStreamProvider::endRead(upnsIStream *strm)
+void FileEntityDataStreamProvider::endRead(upnsIStream *strm)
 {
     //TODO: add locking
     delete strm;
 }
 
-upnsOStream *upns::FileLayerDataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
+upnsOStream *upns::FileEntityDataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 {
     //TODO: add locking
     return new std::ostringstream(std::string());
 }
 
-void FileLayerDataStreamProvider::endWrite(upnsOStream *strm)
+void FileEntityDataStreamProvider::endWrite(upnsOStream *strm)
 {
     //TODO: add locking
     std::ostringstream *osstrm = static_cast<std::ostringstream *>(strm);

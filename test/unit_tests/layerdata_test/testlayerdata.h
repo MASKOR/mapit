@@ -1,5 +1,5 @@
-#ifndef __TESTMAPFILESERVICE_H
-#define __TESTMAPFILESERVICE_H
+#ifndef __TESTLAYERDATA_H
+#define __TESTLAYERDATA_H
 
 #include <QTest>
 

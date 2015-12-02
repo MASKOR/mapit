@@ -14,7 +14,15 @@
 #endif
 
 #include <log4cplus/logger.h>
+#ifdef UPNS_DEBUG
+#ifdef USE_QT_STRUCTURES
+#define log_error(msg) do{log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg); qassert_x(false, "upns", msg); break;}while(true)
+#else
+#define log_error(msg) do{log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg); assert(false); break;}while(true)
+#endif
+#else
 #define log_error(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg)
+#endif
 #define log_warn(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::WARN_LOG_LEVEL, std::string() + msg)
 #define log_info(msg) log4cplus::Logger::getInstance("mapfileservice").log(log4cplus::INFO_LOG_LEVEL, std::string() + msg)
 
@@ -57,6 +65,7 @@ upnsSharedPointer<T> static_pointer_cast(upnsSharedPointer<U> const & r)
 
 using MapIdentifier = upnsuint64;
 using LayerIdentifier = upnsuint64;
+using EntityIdentifier = upnsuint64;
 
 using LockHandle = upnsuint32;
 using StatusCode = upnsuint32;

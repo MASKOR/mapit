@@ -8,8 +8,8 @@
 namespace upns
 {
 
-class AbstractLayerData;
-class AbstractLayerDataStreamProvider;
+class AbstractEntityData;
+class AbstractEntityDataStreamProvider;
 
 extern "C"
 {
@@ -19,7 +19,7 @@ extern "C"
  * important that the returned shared pointer has a custom deleter. In most cases this deleter will only call "delete"
  * for the previously allocated LayerData. See \sa PointcloudLayerdata for an example.
  */
-typedef upnsSharedPointer<AbstractLayerData> (*WrapLayerTypeFunc)(upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+typedef upnsSharedPointer<AbstractEntityData> (*WrapLayerTypeFunc)(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 }
 
 /**
@@ -29,10 +29,10 @@ typedef upnsSharedPointer<AbstractLayerData> (*WrapLayerTypeFunc)(upnsSharedPoin
  * This abstract interface can be used to query metainformation from any type of layer. For reading/writing data, see \sa LayerData
  */
 
-class AbstractLayerData
+class AbstractEntityData
 {
 public:
-    virtual ~AbstractLayerData() { }
+    virtual ~AbstractEntityData() { }
     /**
      * @brief layerType return specialized type
      * @return

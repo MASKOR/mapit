@@ -15,6 +15,16 @@ namespace leveldb {
 namespace upns
 {
 
+/**
+ * @brief The MapFileService class stores all data using leveldb.
+ *
+ * Database Schema:
+ * leveldb saves key -> value pairs. MapFileService saves Protobuf entities as values. Entitydata ist stored as is (binary).
+ * Entries:
+ *  Map: Key: map!<mapId>
+ *  Entity: Key: entity!<mapId>!<layerId>!<entityId>
+ */
+
 class MapFileService : public MapService
 {
 public:
@@ -26,7 +36,9 @@ public:
     upnsSharedPointer<Map> createMap(upnsString name);
     MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
-    upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
+    upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(MapIdentifier    mapId,
+                                                                         LayerIdentifier  layerId,
+                                                                         EntityIdentifier entityId);
 
     bool canRead();
     bool canWrite();
@@ -42,6 +54,9 @@ private:
 
     StatusCode levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
     QLockFile *m_lockFile;
+
+    std::string mapKey(MapIdentifier mapId) const;
+    std::string entityKey(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId) const;
 };
 
 }

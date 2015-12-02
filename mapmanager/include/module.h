@@ -36,14 +36,14 @@ struct ModuleInfo
 {
     const char*         compiler;       //< use moduleCompiler()
     const char*         compilerConfig; //< use moduleCompilerConfig()
-    const char*         date;          //< compilation date
-    const char*         time;          //< compilation date
+    const char*         date;           //< compilation date
+    const char*         time;           //< compilation date
     const char*         moduleName;     //< unique name of the module
-    const char*         description;     //< short description
-    const char*         author;          //< author of module
+    const char*         description;    //< short description
+    const char*         author;         //< author of module
     const int           moduleVersion;  //< version
     const int           apiVersion;     //< mapmanager api version
-    const upns::LayerType layerType;      // LayerType enum
+    const upns::LayerType layerType;    //< LayerType enum
     OperateFunc         operate;
 };
 }

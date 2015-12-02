@@ -87,7 +87,9 @@ public:
     virtual bool isLayerdataLockedForRead(MapIdentifier mapId, LayerIdentifier layerId) = 0;
     virtual bool isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentifier layerId) = 0;
 
-    virtual upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId) = 0;
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(MapIdentifier    mapId,
+                                                                                  LayerIdentifier  layerId,
+                                                                                  EntityIdentifier entityId) = 0;
 };
 
 }

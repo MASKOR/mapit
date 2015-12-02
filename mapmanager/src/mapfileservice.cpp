@@ -83,8 +83,7 @@ MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
     Map map;
     for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
     {
-        std::string key("map!");
-        key.append( idToString( *iter ));
+        std::string key(mapKey( *iter ));
         std::string value;
         leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
         assert(s.ok());
@@ -103,9 +102,12 @@ MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
     MapResultsVector ret;
     for(MapVector::const_iterator iter(maps.begin()) ; iter != maps.end() ; iter++)
     {
-        std::string key("map!");
-        const MapIdentifier &id = (*iter)->id();
-        key.append( idToString( id ));
+        if( (*iter)->id() == 0 )
+        {
+            log_error("tried to store map with id 0");
+            continue;
+        }
+        std::string key(mapKey( (*iter)->id() ));
 
         // Get the previously stored map to check for correct version (optimistic locking)
         // Note: leveldb has no transactions. It is not guaranteed, that stuff is done between the next "Get" and "Put".
@@ -122,7 +124,7 @@ MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
             }
             if(prevMap.lastchange() != (*iter)->lastchange())
             {
-                ret.push_back(upnsPair<MapIdentifier, int>(id, UPNS_STATUS_ERR_DB_OPTIMISTIC_LOCKING));
+                ret.push_back(upnsPair<MapIdentifier, int>((*iter)->id(), UPNS_STATUS_ERR_DB_OPTIMISTIC_LOCKING));
                 continue;
             }
         }
@@ -139,9 +141,18 @@ MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
             {
                 layer->set_id(generateId());
             }
+            for(int j=0; j < layer->entities_size() ; ++j)
+            {
+                Entity *entity = layer->mutable_entities(j);
+                if(entity->id() == 0)
+                {
+                    entity->set_id(generateId());
+                }
+                entity->set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch());
+            }
         }
         s = m_db->Put(leveldb::WriteOptions(), key, (*iter)->SerializeAsString());
-        ret.push_back(StatusPair(id, levelDbStatusToUpnsStatus(s)));
+        ret.push_back(StatusPair((*iter)->id(), levelDbStatusToUpnsStatus(s)));
     }
     return ret;
 }
@@ -162,13 +173,11 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
     upnsVec<upnsPair<MapIdentifier, StatusCode> > ret;
     for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
     {
-        std::string key("map!");
-        std::string mapIdStr(idToString( *iter ));
-        key.append( mapIdStr );
+        std::string mapKey(this->mapKey( *iter ));
 
         // Get Map and all associated layers
         std::string value;
-        leveldb::Status sread = m_db->Get(leveldb::ReadOptions(), key, &value);
+        leveldb::Status sread = m_db->Get(leveldb::ReadOptions(), mapKey, &value);
 
         Map map;
         if(!sread.ok() || !map.ParseFromString( value ))
@@ -176,20 +185,31 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
             ret.push_back(StatusPair(*iter, UPNS_STATUS_ERR_DB_PARSE_MAP));
             continue;
         }
-        // Delete layers
+        // Delete layers entity data
         bool layerDeletionSuccess = true;
         for(int i=0; i < map.layers_size() ; ++i)
         {
             Layer *layer = map.mutable_layers(i);
             if(layer->id() == 0)
             {
+                log_error("found inconsistent data. Layer with id 0 found. Map: " + mapKey + ", Name: " + map.name());
                 layerDeletionSuccess = false;
                 continue;
             }
-            std::string key(mapIdStr);
-            key.append( idToString(layer->id()) );
-            leveldb::Status slayer = m_db->Delete(leveldb::WriteOptions(), key);
-            layerDeletionSuccess &= slayer.ok();
+            for(int j=0; j < layer->entities_size() ; ++j)
+            {
+                Entity *entity = layer->mutable_entities(j);
+                if(entity->id() == 0)
+                {
+                    log_error("found inconsistent data. Entity with id 0 found. Map: " + mapKey + ", Name: " + map.name()
+                             + ", Layer: " + idToString(layer->id()));
+                    layerDeletionSuccess = false;
+                    continue;
+                }
+                std::string entityKey(this->entityKey( *iter, layer->id(), entity->id()));
+                leveldb::Status slayer = m_db->Delete(leveldb::WriteOptions(), entityKey);
+                layerDeletionSuccess &= slayer.ok();
+            }
         }
         if(!layerDeletionSuccess)
         {
@@ -198,17 +218,18 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
         }
 
         // Finally delete map only if everything went ok until here
-        leveldb::Status sdel = m_db->Delete(leveldb::WriteOptions(), key);
+        leveldb::Status sdel = m_db->Delete(leveldb::WriteOptions(), mapKey);
         ret.push_back(StatusPair(*iter, levelDbStatusToUpnsStatus( sdel )));
     }
     return ret;
 }
 
-upnsSharedPointer<AbstractLayerDataStreamProvider> MapFileService::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
+upnsSharedPointer<AbstractEntityDataStreamProvider> MapFileService::getStreamProvider(MapIdentifier    mapId,
+                                                                                      LayerIdentifier  layerId,
+                                                                                      EntityIdentifier entityId)
 {
-    std::string key = idToString(mapId);
-    key.append( idToString(layerId) );
-    return upnsSharedPointer<AbstractLayerDataStreamProvider>( new FileLayerDataStreamProvider(m_db, key));
+    std::string key(entityKey(mapId, layerId, entityId));
+    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new FileEntityDataStreamProvider(m_db, key));
 }
 
 bool MapFileService::canRead()
@@ -232,27 +253,27 @@ LockHandle MapFileService::lockLayerdataForRead(MapIdentifier mapId, LayerIdenti
 
 LockHandle MapFileService::lockLayerdataForWrite(MapIdentifier mapId, LayerIdentifier layerId)
 {
-
+    // TODO
 }
 
 void MapFileService::unlockLayerdataForWrite(LockHandle lockHandle)
 {
-
+    // TODO
 }
 
 void MapFileService::unlockLayerdataForRead(LockHandle lockHandle)
 {
-
+    // TODO
 }
 
 bool MapFileService::isLayerdataLockedForRead(MapIdentifier mapId, LayerIdentifier layerId)
 {
-
+    // TODO
 }
 
 bool MapFileService::isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentifier layerId)
 {
-
+    // TODO
 }
 
 StatusCode MapFileService::levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus)
@@ -271,6 +292,24 @@ StatusCode MapFileService::levelDbStatusToUpnsStatus(const leveldb::Status &leve
         // UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
         return UPNS_STATUS_ERR_DB_UNKNOWN;
     }
+}
+
+std::string MapFileService::mapKey(MapIdentifier mapId) const
+{
+    std::string key("map!");
+    key.append( idToString(mapId) );
+    return key;
+}
+
+std::string MapFileService::entityKey(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId) const
+{
+    std::string key("entity!");
+    key.append( idToString(mapId) );
+    key.append( "!" );
+    key.append( idToString(layerId) );
+    key.append( "!" );
+    key.append( idToString(entityId) );
+    return key;
 }
 
 }

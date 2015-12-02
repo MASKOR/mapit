@@ -1,6 +1,6 @@
 #include "testmapmanager.h"
 #include "upns_globals.h"
-#include "../../src/autotestall.h"
+#include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
 #include <QString>

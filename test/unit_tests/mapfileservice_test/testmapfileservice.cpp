@@ -1,6 +1,6 @@
 #include "testmapfileservice.h"
 #include "upns_globals.h"
-#include "../../src/autotestall.h"
+#include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
 #include <QString>
@@ -263,13 +263,16 @@ void TestMapFileService::testStreamProvider()
     layer->set_name("layer");
     layer->set_type(LayerType::OCTOMAP);
     layer->set_usagetype(LayerUsageType::NAVIGATION);
+    Entity *entity = layer->add_entities();
     MapVector maps;
     maps.push_back( map );
     upns::MapResultsVector results = m_mapService->storeMaps( maps );
     QVERIFY( upnsCheckResultVector( results ) );
     QVERIFY( layer->id() != 0 );
     QVERIFY( layer->id() != -1 );
-    upnsSharedPointer<AbstractLayerDataStreamProvider> streamProv = m_mapService->getStreamProvider(map->id(), layer->id());
+    QVERIFY( entity->id() != 0 );
+    QVERIFY( entity->id() != -1 );
+    upnsSharedPointer<AbstractEntityDataStreamProvider> streamProv = m_mapService->getStreamProvider(map->id(), layer->id(), entity->id());
 
     ///// Start of the StreamProvider Test /////
 

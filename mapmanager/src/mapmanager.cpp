@@ -75,7 +75,9 @@ MapService *MapManager::getInternalMapService()
     return m_innerService;
 }
 
-upnsSharedPointer<AbstractLayerData> MapManager::getLayerData(MapIdentifier mapId, LayerIdentifier layerId)
+upnsSharedPointer<AbstractEntityData> MapManager::getEntityData(MapIdentifier    mapId,
+                                                                LayerIdentifier  layerId,
+                                                                EntityIdentifier entityId)
 {
     upnsVec<MapIdentifier> mapIds;
     mapIds.push_back( mapId );
@@ -93,7 +95,7 @@ upnsSharedPointer<AbstractLayerData> MapManager::getLayerData(MapIdentifier mapI
     }
     assert( layer );
 
-    upnsSharedPointer<AbstractLayerData> layerData = wrapLayerOfType( layer->type(), m_innerService->getStreamProvider(mapId, layerId) ) ;
+    upnsSharedPointer<AbstractEntityData> layerData = wrapEntityOfType( layer->type(), m_innerService->getStreamProvider(mapId, layerId, entityId) ) ;
     return layerData;
 }
 
@@ -112,7 +114,8 @@ upnsSharedPointer<Map> MapManager::doOperation(upnsString config)
 
 }
 
-upnsSharedPointer<AbstractLayerData> MapManager::wrapLayerOfType(LayerType type, upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractEntityData> MapManager::wrapEntityOfType(LayerType type,
+                                                                   upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
     upnsString layerName;
     switch(type)
@@ -124,14 +127,15 @@ upnsSharedPointer<AbstractLayerData> MapManager::wrapLayerOfType(LayerType type,
     }
     default:
         log_error("Unknown layertype: " + std::to_string(type));
-        return upnsSharedPointer<AbstractLayerData>(NULL);
+        return upnsSharedPointer<AbstractEntityData>(NULL);
     }
-    return wrapLayerOfType( layerName, streamProvider );
+    return wrapEntityOfType( layerName, streamProvider );
 }
 
-upnsSharedPointer<AbstractLayerData> MapManager::wrapLayerOfType(upnsString layertypeName, upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractEntityData> MapManager::wrapEntityOfType(upnsString layertypeName,
+                                                                  upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
-    upnsSharedPointer<AbstractLayerData> ret;
+    upnsSharedPointer<AbstractEntityData> ret;
 #ifndef NDEBUG
     upnsString debug = "d";
 #else
@@ -148,10 +152,10 @@ upnsSharedPointer<AbstractLayerData> MapManager::wrapLayerOfType(upnsString laye
     void* handle = dlopen((upnsString("../layertypes/") + prefix + layertypeName + debug + postfix).c_str(), RTLD_NOW);
     if (!handle) {
         std::cerr << "Cannot open library: " << dlerror() << '\n';
-        return upnsSharedPointer<AbstractLayerData>(NULL);
+        return upnsSharedPointer<AbstractEntityData>(NULL);
     }
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createLayerData");
-    return upnsSharedPointer<AbstractLayerData>( wrap( streamProvider ) );
+    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
+    return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
 }
 
 }

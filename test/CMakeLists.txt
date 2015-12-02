@@ -37,11 +37,21 @@ ENDMACRO()
 SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests)
 
 #list(REMOVE_ITEM SUBDIRS "common")
+#FILE(GLOB_RECURSE ALL_TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.h )
+
+SET(AllUnitTest "")
+SET(AllUnitTestCPP "")
 
 FOREACH(subdir ${SUBDIRS})
   FILE(GLOB CurrentUnitTestH ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/${subdir}/*.h)
   FILE(GLOB CurrentUnitTestCPP ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/${subdir}/*.cpp)
+  SET(AllUnitTestH ${AllUnitTestH} ${CurrentUnitTestH})
+  SET(AllUnitTestCPP ${AllUnitTestCPP} ${CurrentUnitTestCPP})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP})
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 ${PCL_LIBRARIES} )
 ENDFOREACH()
+
+add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP}  )
+target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 ${PCL_LIBRARIES} )
+add_test(TestAll ${EXECUTABLE_OUTPUT_PATH}/TestAll)

@@ -13,7 +13,7 @@ namespace upns
  */
 
 template<typename LayerDataType>
-class LayerData : public AbstractLayerData
+class EntityData : public AbstractEntityData
 {
 public:
 
@@ -62,7 +62,7 @@ public:
     virtual int setData(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
 
     // TODO: Make the containing map/mapmanager decide, if the object occupies certain space
-    // virtual int getObjectBoundingBox(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+    virtual int getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) = 0;
 
     // TODO: Nodes, Transforms, dependencies between Layers/Objects
 

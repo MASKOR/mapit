@@ -13,8 +13,6 @@ private slots:
 
     void testGetMaps();
     void testGetLayer();
-
-
 };
 
 #endif

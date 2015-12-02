@@ -55,7 +55,7 @@ public:
     bool canRead();
     bool canWrite();
 
-    upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
+    upnsSharedPointer<AbstractEntityData> getEntityData(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId);
     upnsSharedPointer<Map> doOperation(upnsString config);
 
     /**
@@ -67,13 +67,14 @@ public:
     * @return
     */
     MapService *getInternalMapService();
+
 private:
     MapService *m_innerService;
 
-    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(LayerType type,
-                                                         upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
-    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(upnsString layertypeName,
-                                                         upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
+                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
+                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 };
 
 }

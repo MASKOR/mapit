@@ -1,6 +1,6 @@
 #include "testlayerdata.h"
 #include "upns_globals.h"
-#include "../../src/autotestall.h"
+#include "../../src/autotest.h"
 #include "layertypes/pointcloud2/src/pointcloudlayer.h"
 #include "yaml-cpp/yaml.h"
 #include <QDir>
@@ -58,30 +58,33 @@ void TestLayerdata::testCreateLayer()
     layer->set_name("testlayer");
     layer->set_type(LayerType::POINTCLOUD2);
     layer->set_usagetype(LayerUsageType::LASER);
+    Entity *entity = layer->add_entities();
 
     m_mapService->storeMap( map );
     assert(map->id() != 0);
     assert(map->id() != -1);
     assert(layer->id() != 0);
     assert(layer->id() != -1);
-    upnsSharedPointer<AbstractLayerData> abstractLayerData = m_mapManager->getLayerData( map->id(), layer->id() );
-    QCOMPARE(abstractLayerData->layerType(), LayerType::POINTCLOUD2);
-    upnsSharedPointer<PointcloudLayerdata> pointcloudLayerdata;
-    pointcloudLayerdata = upns::static_pointer_cast<PointcloudLayerdata>(abstractLayerData);
+    assert(entity->id() != 0);
+    assert(entity->id() != -1);
+    upnsSharedPointer<AbstractEntityData> abstractData = m_mapManager->getEntityData( map->id(), layer->id(), entity->id() );
+    QCOMPARE(abstractData->layerType(), LayerType::POINTCLOUD2);
+    upnsSharedPointer<PointcloudLayerdata> pointclouddata;
+    pointclouddata = upns::static_pointer_cast<PointcloudLayerdata>(abstractData);
     pcl::PointCloud<pcl::PointXYZ> cloud;
     cloud.push_back(pcl::PointXYZ(-1.0, 0.0, 1.0));
     cloud.push_back(pcl::PointXYZ(-2.0, 3.0, 4.5));
 
     upnsPointcloud2Ptr pclpc2(new pcl::PCLPointCloud2());
     pcl::toPCLPointCloud2<pcl::PointXYZ>(cloud, *pclpc2);
-    pointcloudLayerdata->setData(pclpc2);
+    pointclouddata->setData(pclpc2);
 
-    upnsSharedPointer<AbstractLayerData> abstractLayerData2 = m_mapManager->getLayerData( map->id(), layer->id() );
-    QCOMPARE(abstractLayerData2->layerType(), LayerType::POINTCLOUD2);
-    upnsSharedPointer<PointcloudLayerdata> pointcloudLayerdata2;
-    pointcloudLayerdata2 = upns::static_pointer_cast<PointcloudLayerdata>(abstractLayerData2);
+    upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapManager->getEntityData( map->id(), layer->id(), entity->id() );
+    QCOMPARE(abstractData2->layerType(), LayerType::POINTCLOUD2);
+    upnsSharedPointer<PointcloudLayerdata> pointclouddata2;
+    pointclouddata2 = upns::static_pointer_cast<PointcloudLayerdata>(abstractData2);
 
-    upnsPointcloud2Ptr pclpc22 = pointcloudLayerdata2->getData();
+    upnsPointcloud2Ptr pclpc22 = pointclouddata2->getData();
     QCOMPARE(pclpc22->height, pclpc2->height);
     QCOMPARE(pclpc22->width, pclpc2->width);
     pcl::PointCloud<pcl::PointXYZ> cloud2;
