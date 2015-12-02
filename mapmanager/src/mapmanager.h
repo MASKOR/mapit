@@ -40,21 +40,16 @@
 namespace upns
 {
 
-class MapManager //: public MapService
+class MapManager
 {
 public:
     MapManager(const YAML::Node &config);
     ~MapManager();
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
-    //MapResultsVector storeMaps( MapVector &maps );
-    //upnsSharedPointer<Map> createMap(upnsString name);
-    //MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
     /// convenience ///
     upnsSharedPointer<Map> getMap( MapIdentifier mapId );
-//    int storeMap( upnsSharedPointer<Map> map );
-//    int removeMap(MapIdentifier mapId);
     ///////////////////
 
     bool canRead();
@@ -63,19 +58,22 @@ public:
     upnsSharedPointer<AbstractLayerData> getLayerData(MapIdentifier mapId, LayerIdentifier layerId);
     upnsSharedPointer<Map> doOperation(upnsString config);
 
-    //upnsSharedPointer<AbstractLayerDataStreamProvider> getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId);
-
     /**
     * @brief getMapService is used to retrieve the internal mapservice
     * This Method exposes internal implementation and should not be used. (It is here for unit testing)
+    * TODO: Read book about testing. What to do when a unit test is the only place a method is needed to be public?
+    * TODO: The Test uses map service to write maps directly. Usually it would have to use mapmanager to do this.
+    *       Unit test would get bigger then.
     * @return
     */
     MapService *getInternalMapService();
 private:
     MapService *m_innerService;
 
-    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(LayerType type, upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
-    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(upnsString layertypeName, upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(LayerType type,
+                                                         upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractLayerData> wrapLayerOfType(upnsString layertypeName,
+                                                         upnsSharedPointer<AbstractLayerDataStreamProvider> streamProvider);
 };
 
 }

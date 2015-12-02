@@ -93,7 +93,7 @@ upnsSharedPointer<AbstractLayerData> MapManager::getLayerData(MapIdentifier mapI
     }
     assert( layer );
 
-    upnsSharedPointer<AbstractLayerData> layerData = wrapLayerOfType( layer->type(), getStreamProvider(mapId, layerId) ) ;
+    upnsSharedPointer<AbstractLayerData> layerData = wrapLayerOfType( layer->type(), m_innerService->getStreamProvider(mapId, layerId) ) ;
     return layerData;
 }
 
