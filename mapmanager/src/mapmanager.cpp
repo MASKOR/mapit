@@ -7,7 +7,7 @@
 #include <log4cplus/logger.h>
 #include <dlfcn.h>
 #include "module.h"
-#include "operationenvironment.h"
+#include "operationenvironmentimpl.h"
 
 namespace upns
 {
@@ -49,6 +49,13 @@ upnsVec<MapIdentifier> MapManager::listMaps()
 MapVector MapManager::getMaps(upnsVec<MapIdentifier> &mapIds)
 {
     return m_innerService->getMaps( mapIds );
+}
+
+upnsSharedPointer<Map> MapManager::getMap(MapIdentifier mapId)
+{
+    upnsVec<MapIdentifier> mapIds;
+    mapIds.push_back(mapId);
+    return m_innerService->getMaps( mapIds ).at(0);
 }
 
 MapService *MapManager::getInternalMapService()
@@ -94,7 +101,9 @@ typedef ModuleInfo* (*GetModuleInfo)();
 
 StatusCode MapManager::doOperation(const OperationDescription &desc)
 {
-    OperationEnvironment env(desc);
+    OperationEnvironmentImpl env(desc);
+    env.setMapManager( this );
+    env.setMapService( this->m_innerService );
 #ifndef NDEBUG
     upnsString debug = "d";
 #else
@@ -114,7 +123,6 @@ StatusCode MapManager::doOperation(const OperationDescription &desc)
     {
         filename << "." << desc.operatorversion();
     }
-    std::cout << filename.str() << std::endl;
     void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
     if (!handle) {
         std::cerr << "Cannot open library: " << dlerror() << '\n';

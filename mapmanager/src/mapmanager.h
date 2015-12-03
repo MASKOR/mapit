@@ -55,6 +55,7 @@ public:
     bool canRead();
     bool canWrite();
 
+    //TODO: should be part of an interface only for operations
     upnsSharedPointer<AbstractEntityData> getEntityData(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId);
     StatusCode doOperation(const OperationDescription &desc);
 

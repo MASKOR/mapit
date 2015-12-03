@@ -5,14 +5,12 @@
 #include <QVector>
 #include <QString>
 #include "yaml-cpp/yaml.h"
+#include "layertypes/pointcloud2/src/pointcloudlayer.h"
+
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 
 using namespace upns;
-
-using Strings = upnsVec<upnsString>;
-using Layers = upnsVec<Layer>;
-
-Q_DECLARE_METATYPE( Strings );
-Q_DECLARE_METATYPE( Layers );
 
 void TestOperators::init()
 {
@@ -50,7 +48,34 @@ void TestOperators::testOperatorLoadPointcloud()
 {
     OperationDescription desc;
     desc.set_operatorname("load_pointcloud");
+    OperationParameter* param = desc.add_params();
+    param->set_key("filename");
+    param->set_strval("data/bunny.pcd");
     m_mapManager->doOperation( desc );
+
+    upnsVec<MapIdentifier> maps = m_mapManager->listMaps();
+    QVERIFY( maps.size() == 1);
+    upnsSharedPointer<Map> map = m_mapManager->getMap(maps[0]);
+    upnsSharedPointer<AbstractEntityData> abstractEntityData = m_mapManager->getEntityData(map->id(), map->layers(0).id(), map->layers(0).entities(0).id());
+    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
+    upnsPointcloud2Ptr pc2 = entityData->getData(0);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(*pc2, *cloud);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr file (new pcl::PointCloud<pcl::PointXYZ>);
+
+    if (pcl::io::loadPCDFile<pcl::PointXYZ> ("data/bunny.pcd", *file) == -1) //* load the file
+    {
+        QFAIL ("Couldn't read file data/bunny.pcd \n");
+    }
+
+    for(int i=0 ; qMin(100, (int)file->width) > i ; ++i)
+    {
+        pcl::PointXYZ &p1 = cloud->at(i);
+        pcl::PointXYZ &p2 = file->at(i);
+        QCOMPARE_REALVEC3(p1, p2);
+    }
 }
 
 DECLARE_TEST(TestOperators)

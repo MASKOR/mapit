@@ -25,3 +25,7 @@ add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} )
 target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${EXTERNALS_DIR}/leveldb/libleveldb.so log4cplus)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/)
+
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+  SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-fPIC")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )

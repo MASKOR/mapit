@@ -14,10 +14,10 @@ extern "C"
 upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 }
 
-class PointcloudLayerdata : public EntityData<pcl::PCLPointCloud2>
+class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>
 {
 public:
-    PointcloudLayerdata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 
     LayerType           layerType() const;
     bool                hasFixedGrid() const;

@@ -1,24 +1,32 @@
-#ifndef __OPERATION_H
-#define __OPERATION_H
+#ifndef __OPERATIONENVIRONMENT_H
+#define __OPERATIONENVIRONMENT_H
 
 #include "upns.h"
-#include "layerdata.h"
-#include "upns_interface/services.pb.h"
 
 namespace upns
 {
+class MapManager;
+class MapService;
+class OperationDescription;
+class OperationParameter;
 
 class OperationEnvironment
 {
-    const OperationDescription m_operationDesc;
 public:
-    OperationEnvironment( const OperationDescription& desc);
+    /**
+     * @brief mapManager TODO: finally remove from here. Use single interface for operations!
+     * @return
+     */
+    virtual MapManager *mapManager() const = 0;
+    /**
+     * @brief mapServiceVersioned
+     * This might be able to do a snapshot before the operation. afterwards it can see, what the operation did change.
+     * @return
+     */
+    virtual MapService *mapServiceVersioned() const = 0;
+    virtual const OperationDescription *getDescription() const = 0;
+    virtual const OperationParameter *getParameter(std::string key) const = 0;
 };
-
-OperationEnvironment::OperationEnvironment(const OperationDescription &desc)
-    :m_operationDesc( desc )
-{
-}
 
 }
 #endif

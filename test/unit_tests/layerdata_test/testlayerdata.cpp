@@ -69,8 +69,8 @@ void TestLayerdata::testCreateLayer()
     assert(entity->id() != -1);
     upnsSharedPointer<AbstractEntityData> abstractData = m_mapManager->getEntityData( map->id(), layer->id(), entity->id() );
     QCOMPARE(abstractData->layerType(), LayerType::POINTCLOUD2);
-    upnsSharedPointer<PointcloudLayerdata> pointclouddata;
-    pointclouddata = upns::static_pointer_cast<PointcloudLayerdata>(abstractData);
+    upnsSharedPointer<PointcloudEntitydata> pointclouddata;
+    pointclouddata = upns::static_pointer_cast<PointcloudEntitydata>(abstractData);
     pcl::PointCloud<pcl::PointXYZ> cloud;
     cloud.push_back(pcl::PointXYZ(-1.0, 0.0, 1.0));
     cloud.push_back(pcl::PointXYZ(-2.0, 3.0, 4.5));
@@ -81,8 +81,8 @@ void TestLayerdata::testCreateLayer()
 
     upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapManager->getEntityData( map->id(), layer->id(), entity->id() );
     QCOMPARE(abstractData2->layerType(), LayerType::POINTCLOUD2);
-    upnsSharedPointer<PointcloudLayerdata> pointclouddata2;
-    pointclouddata2 = upns::static_pointer_cast<PointcloudLayerdata>(abstractData2);
+    upnsSharedPointer<PointcloudEntitydata> pointclouddata2;
+    pointclouddata2 = upns::static_pointer_cast<PointcloudEntitydata>(abstractData2);
 
     upnsPointcloud2Ptr pclpc22 = pointclouddata2->getData();
     QCOMPARE(pclpc22->height, pclpc2->height);

@@ -50,6 +50,11 @@ FOREACH(subdir ${SUBDIRS})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP})
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 ${PCL_LIBRARIES} )
+
+add_custom_command(
+    TARGET ${subdir} POST_BUILD
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/data
+)
 ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP}  )

@@ -10,7 +10,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#ifdef USE_BOOST_STRUCTURES
 #include <boost/shared_ptr.hpp>
+#else
+#include <memory>
+#endif
 #endif
 
 #include <log4cplus/logger.h>
@@ -51,16 +55,25 @@ using upnsIStream = std::istream;
 using upnsOStream = std::ostream;
 template <typename T>
 using upnsVec = std::vector<T>;
+#ifdef USE_BOOST_STRUCTURES
 template<typename T>
 using upnsSharedPointer = boost::shared_ptr<T>;
-template <typename T1, typename T2>
-using upnsPair = std::pair<T1, T2>;
-
 template<class T, class U>
 upnsSharedPointer<T> static_pointer_cast(upnsSharedPointer<U> const & r)
 {
     return boost::static_pointer_cast<T>(r);
 }
+#else
+template<typename T>
+using upnsSharedPointer = std::shared_ptr<T>;
+template<class T, class U>
+upnsSharedPointer<T> static_pointer_cast(upnsSharedPointer<U> const & r)
+{
+    return std::static_pointer_cast<T>(r);
+}
+#endif
+template <typename T1, typename T2>
+using upnsPair = std::pair<T1, T2>;
 #endif
 
 using MapIdentifier = upnsuint64;
