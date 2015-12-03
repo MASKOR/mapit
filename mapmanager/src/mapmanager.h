@@ -56,7 +56,7 @@ public:
     bool canWrite();
 
     upnsSharedPointer<AbstractEntityData> getEntityData(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId);
-    upnsSharedPointer<Map> doOperation(upnsString config);
+    StatusCode doOperation(const OperationDescription &desc);
 
     /**
     * @brief getMapService is used to retrieve the internal mapservice

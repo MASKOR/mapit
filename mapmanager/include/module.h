@@ -29,8 +29,11 @@
 
 extern "C"
 {
+namespace upns {
+class OperationEnvironment;
+}
 
-typedef int (*OperateFunc)(void*);
+typedef int (*OperateFunc)(upns::OperationEnvironment*);
 
 struct ModuleInfo
 {

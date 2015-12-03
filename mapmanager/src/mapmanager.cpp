@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <log4cplus/logger.h>
 #include <dlfcn.h>
+#include "module.h"
+#include "operationenvironment.h"
 
 namespace upns
 {
@@ -49,27 +51,6 @@ MapVector MapManager::getMaps(upnsVec<MapIdentifier> &mapIds)
     return m_innerService->getMaps( mapIds );
 }
 
-//MapResultsVector MapManager::storeMaps(MapVector &maps)
-//{
-//    return m_innerService->storeMaps( maps );
-//}
-
-//upnsSharedPointer<Map> MapManager::createMap(upnsString name)
-//{
-//    return m_innerService->createMap( name );
-//}
-
-//MapResultsVector MapManager::removeMaps(upnsVec<MapIdentifier> &mapIds)
-//{
-//    return m_innerService->removeMaps( mapIds );
-//}
-
-
-//upnsSharedPointer<AbstractLayerDataStreamProvider> MapManager::getStreamProvider(MapIdentifier mapId, LayerIdentifier layerId)
-//{
-//    return m_innerService->getStreamProvider( mapId, layerId );
-//}
-
 MapService *MapManager::getInternalMapService()
 {
     return m_innerService;
@@ -109,9 +90,40 @@ bool MapManager::canWrite()
     return m_innerService->canWrite();
 }
 
-upnsSharedPointer<Map> MapManager::doOperation(upnsString config)
-{
+typedef ModuleInfo* (*GetModuleInfo)();
 
+StatusCode MapManager::doOperation(const OperationDescription &desc)
+{
+    OperationEnvironment env(desc);
+#ifndef NDEBUG
+    upnsString debug = "d";
+#else
+    upnsString debug = "";
+#endif
+
+#ifdef _WIN32
+    upnsString prefix = "";
+    upnsString postfix = ".dll";
+#else
+    upnsString prefix = "lib";
+    upnsString postfix = ".so";
+#endif
+    std::stringstream filename;
+    filename << "../operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    if(desc.operatorversion())
+    {
+        filename << "." << desc.operatorversion();
+    }
+    std::cout << filename.str() << std::endl;
+    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+    if (!handle) {
+        std::cerr << "Cannot open library: " << dlerror() << '\n';
+        return UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND;
+    }
+    GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
+    ModuleInfo* info = getModInfo();
+    info->operate( &env );
+    return UPNS_STATUS_OK;
 }
 
 upnsSharedPointer<AbstractEntityData> MapManager::wrapEntityOfType(LayerType type,
