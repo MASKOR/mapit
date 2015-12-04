@@ -1,10 +1,10 @@
-#ifndef __MAPFILESERVICE_H
-#define __MAPFILESERVICE_H
+#ifndef __MAPLEVELDBSERIALIZER_H
+#define __MAPLEVELDBSERIALIZER_H
 
 #include "upns_globals.h"
-#include "mapservice.h"
+#include "../mapserializer.h"
 #include "yaml-cpp/yaml.h"
-#include "abstractlayerdatastreamprovider.h"
+#include "abstractentitydatastreamprovider.h"
 
 class QLockFile;
 namespace leveldb {
@@ -25,11 +25,11 @@ namespace upns
  *  Entity: Key: entity!<mapId>!<layerId>!<entityId>
  */
 
-class MapFileService : public MapService
+class MapLeveldbSerializer : public MapSerializer
 {
 public:
-    MapFileService(const YAML::Node &config);
-    ~MapFileService();
+    MapLeveldbSerializer(const YAML::Node &config);
+    ~MapLeveldbSerializer();
     upnsVec<MapIdentifier> listMaps();
     MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
     MapResultsVector storeMaps( MapVector &maps );

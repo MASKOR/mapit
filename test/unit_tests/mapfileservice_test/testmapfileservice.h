@@ -3,7 +3,7 @@
 
 #include <QTest>
 
-#include "../../../mapmanager/src/mapfileservice.h"
+#include "../../../mapmanager/src/mapleveldb/mapleveldbserializer.h"
 
 class TestMapFileService : public QObject
 {
@@ -24,7 +24,7 @@ private slots:
 
     void testStreamProvider();
 private:
-    upns::MapFileService *m_mapService;
+    upns::MapLeveldbSerializer *m_mapService;
 };
 
 #endif

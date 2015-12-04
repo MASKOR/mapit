@@ -4,7 +4,7 @@
 #include "upns_globals.h"
 #include "mapservice.h"
 #include "yaml-cpp/yaml.h"
-#include "layerdata.h"
+#include "entitydata.h"
 
 /**
  * @brief The MapManager class makes maps an layer available to the client.
@@ -55,10 +55,9 @@ public:
     bool canRead();
     bool canWrite();
 
-    //TODO: should be part of an interface only for operations
-    upnsSharedPointer<AbstractEntityData> getEntityData(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId);
     StatusCode doOperation(const OperationDescription &desc);
 
+    CommitId commit();
     /**
     * @brief getMapService is used to retrieve the internal mapservice
     * This Method exposes internal implementation and should not be used. (It is here for unit testing)
@@ -71,11 +70,6 @@ public:
 
 private:
     MapService *m_innerService;
-
-    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
-                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
-                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 };
 
 }

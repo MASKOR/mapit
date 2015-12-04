@@ -3,9 +3,10 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "abstractlayerdatastreamprovider.h"
-#include "layerdata.h"
+#include "abstractentitydatastreamprovider.h"
+#include "entitydata.h"
 #include "error.h"
+#include "mapserializer.h"
 //#include "mapservice.h"
 //#include "map.h"
 
@@ -15,14 +16,10 @@ namespace upns
 using MapVector = upnsVec< upnsSharedPointer<Map> >;
 using LayerVector = upnsVec< upnsSharedPointer<Layer> >;
 
-template<typename T>
-bool upnsCheckResultVector( T result )
-{
-    return std::all_of(result.begin(), result.end(), [](typename T::value_type t){return upnsIsOk(t.second);});
-}
-
 /**
  * @brief The MapService class serves ability to read/write maps to/from a source without futher logic.
+ * It 'decorates' MapSerializer, which only serves as a minimal interface to implement serialization.
+ * Between serialization and usable maps is a layer, where modules must be looked up. This does MapService.
  * It can be seen as the abstraction of a file system. E.g. Versioning can be implemented on top of it.
  * E.g. 'remove' strictly deletes the physical representation of an entity without versioning it.
  * Concrete implementations for sources like network, filesystem, ... could exist, have this in mind when changing the class.
@@ -61,12 +58,17 @@ bool upnsCheckResultVector( T result )
 class MapService
 {
 public:
-    virtual ~MapService() {};
-    virtual upnsVec<MapIdentifier> listMaps() = 0;
-    virtual MapVector getMaps(upnsVec<MapIdentifier> &mapIds) = 0;
-    virtual MapResultsVector storeMaps( MapVector &maps ) = 0;
-    virtual upnsSharedPointer<Map> createMap(upnsString name) = 0;
-    virtual MapResultsVector removeMaps( upnsVec<MapIdentifier> &mapIds ) = 0;
+    MapService(MapSerializer *serializer);
+    ~MapService();
+
+    bool canRead();
+    bool canWrite();
+
+    upnsVec<MapIdentifier> listMaps();
+    MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
+    MapResultsVector storeMaps( MapVector &maps );
+    upnsSharedPointer<Map> createMap(upnsString name);
+    MapResultsVector removeMaps( upnsVec<MapIdentifier> &mapIds );
 
     /// convenience ///
     upnsSharedPointer<Map> getMap( MapIdentifier mapId );
@@ -76,20 +78,24 @@ public:
 
     //virtual upnsSharedPointer<Map> receiveNewMap(upnsString name) = 0;
 
-    virtual bool canRead() = 0;
-    virtual bool canWrite() = 0;
+    LockHandle lockLayerdataForRead(MapIdentifier mapId, LayerIdentifier layerId);
+    LockHandle lockLayerdataForWrite(MapIdentifier mapId, LayerIdentifier layerId);
+    void unlockLayerdataForWrite(LockHandle lockHandle);
+    void unlockLayerdataForRead(LockHandle lockHandle);
 
-    virtual LockHandle lockLayerdataForRead(MapIdentifier mapId, LayerIdentifier layerId) = 0;
-    virtual LockHandle lockLayerdataForWrite(MapIdentifier mapId, LayerIdentifier layerId) = 0;
-    virtual void unlockLayerdataForWrite(LockHandle lockHandle) = 0;
-    virtual void unlockLayerdataForRead(LockHandle lockHandle) = 0;
+    bool isLayerdataLockedForRead(MapIdentifier mapId, LayerIdentifier layerId);
+    bool isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentifier layerId);
 
-    virtual bool isLayerdataLockedForRead(MapIdentifier mapId, LayerIdentifier layerId) = 0;
-    virtual bool isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentifier layerId) = 0;
+    upnsSharedPointer<AbstractEntityData> getEntityData(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId);
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(MapIdentifier    mapId,
-                                                                                  LayerIdentifier  layerId,
-                                                                                  EntityIdentifier entityId) = 0;
+private:
+    MapSerializer *m_innerSerializer;
+
+    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
+                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
+                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+
 };
 
 }

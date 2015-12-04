@@ -18,3 +18,14 @@
 #define UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND 10
 
 #define UPNS_STATUS_ERR_UNKNOWN 666
+
+namespace upns
+{
+
+template<typename T>
+bool upnsCheckResultVector( T result )
+{
+    return std::all_of(result.begin(), result.end(), [](typename T::value_type t){return upnsIsOk(t.second);});
+}
+
+}

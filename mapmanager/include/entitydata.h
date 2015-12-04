@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "upns_interface/services.pb.h"
-#include "abstractlayerdata.h"
+#include "abstractentitydata.h"
 #include <limits>
 
 namespace upns

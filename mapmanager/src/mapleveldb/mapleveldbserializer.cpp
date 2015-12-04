@@ -1,7 +1,7 @@
-#include "mapfileservice.h"
+#include "mapleveldb/mapleveldbserializer.h"
 #include "upns.h"
 #include "util.h"
-#include "filelayerdatastreamprovider.h"
+#include "mapleveldb/leveldbentitydatastreamprovider.h"
 #include "leveldb/db.h"
 #include <assert.h>
 #include <services.pb.h>
@@ -17,7 +17,7 @@
 namespace upns
 {
 
-MapFileService::MapFileService(const YAML::Node &config)
+MapLeveldbSerializer::MapLeveldbSerializer(const YAML::Node &config)
 {
     std::string databaseName;
     if(config["filename"])
@@ -52,14 +52,14 @@ MapFileService::MapFileService(const YAML::Node &config)
     assert(status.ok());
 }
 
-MapFileService::~MapFileService()
+MapLeveldbSerializer::~MapLeveldbSerializer()
 {
     // destruction of m_lockFile will unlock the database if previously acquired.
     delete m_db;
     delete m_lockFile;
 }
 
-upnsVec<MapIdentifier> upns::MapFileService::listMaps()
+upnsVec<MapIdentifier> upns::MapLeveldbSerializer::listMaps()
 {
     upnsVec<MapIdentifier> ret;
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
@@ -76,7 +76,7 @@ upnsVec<MapIdentifier> upns::MapFileService::listMaps()
     return ret;
 }
 
-MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
+MapVector upns::MapLeveldbSerializer::getMaps(upnsVec<MapIdentifier> &mapIds)
 {
     MapVector ret;
 
@@ -97,7 +97,7 @@ MapVector upns::MapFileService::getMaps(upnsVec<MapIdentifier> &mapIds)
     return ret;
 }
 
-MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
+MapResultsVector upns::MapLeveldbSerializer::storeMaps(MapVector &maps)
 {
     MapResultsVector ret;
     for(MapVector::const_iterator iter(maps.begin()) ; iter != maps.end() ; iter++)
@@ -157,7 +157,7 @@ MapResultsVector upns::MapFileService::storeMaps(MapVector &maps)
     return ret;
 }
 
-upnsSharedPointer<Map> upns::MapFileService::createMap(upnsString name)
+upnsSharedPointer<Map> upns::MapLeveldbSerializer::createMap(upnsString name)
 {
     upnsSharedPointer<Map> newMap(new Map());
     newMap->set_name( escapeName( name ) );
@@ -168,7 +168,7 @@ upnsSharedPointer<Map> upns::MapFileService::createMap(upnsString name)
     return upnsIsOk(res.at(0).second)?newMap:upnsSharedPointer<Map>(NULL);
 }
 
-MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
+MapResultsVector MapLeveldbSerializer::removeMaps(upnsVec<MapIdentifier> &mapIds)
 {
     upnsVec<upnsPair<MapIdentifier, StatusCode> > ret;
     for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
@@ -224,7 +224,7 @@ MapResultsVector MapFileService::removeMaps(upnsVec<MapIdentifier> &mapIds)
     return ret;
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider> MapFileService::getStreamProvider(MapIdentifier    mapId,
+upnsSharedPointer<AbstractEntityDataStreamProvider> MapLeveldbSerializer::getStreamProvider(MapIdentifier    mapId,
                                                                                       LayerIdentifier  layerId,
                                                                                       EntityIdentifier entityId)
 {
@@ -232,51 +232,17 @@ upnsSharedPointer<AbstractEntityDataStreamProvider> MapFileService::getStreamPro
     return upnsSharedPointer<AbstractEntityDataStreamProvider>( new FileEntityDataStreamProvider(m_db, key));
 }
 
-bool MapFileService::canRead()
+bool MapLeveldbSerializer::canRead()
 {
     return true;
 }
 
-bool MapFileService::canWrite()
+bool MapLeveldbSerializer::canWrite()
 {
     return true;
 }
 
-LockHandle MapFileService::lockLayerdataForRead(MapIdentifier mapId, LayerIdentifier layerId)
-{
-    //Note: TODO: Locking is not possible with leveldb.
-    // Leveldb can only be opened by one process.
-    // Locking could be needed to handle mutliple threads.
-    // Does it make sense here?
-    // - member m_lock should be used. No database entries
-}
-
-LockHandle MapFileService::lockLayerdataForWrite(MapIdentifier mapId, LayerIdentifier layerId)
-{
-    // TODO
-}
-
-void MapFileService::unlockLayerdataForWrite(LockHandle lockHandle)
-{
-    // TODO
-}
-
-void MapFileService::unlockLayerdataForRead(LockHandle lockHandle)
-{
-    // TODO
-}
-
-bool MapFileService::isLayerdataLockedForRead(MapIdentifier mapId, LayerIdentifier layerId)
-{
-    // TODO
-}
-
-bool MapFileService::isLayerdataLockedForWrite(MapIdentifier mapId, LayerIdentifier layerId)
-{
-    // TODO
-}
-
-StatusCode MapFileService::levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus)
+StatusCode MapLeveldbSerializer::levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus)
 {
     if(levelDbStatus.ok()) {
         return UPNS_STATUS_OK;
@@ -294,14 +260,14 @@ StatusCode MapFileService::levelDbStatusToUpnsStatus(const leveldb::Status &leve
     }
 }
 
-std::string MapFileService::mapKey(MapIdentifier mapId) const
+std::string MapLeveldbSerializer::mapKey(MapIdentifier mapId) const
 {
     std::string key("map!");
     key.append( idToString(mapId) );
     return key;
 }
 
-std::string MapFileService::entityKey(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId) const
+std::string MapLeveldbSerializer::entityKey(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId) const
 {
     std::string key("entity!");
     key.append( idToString(mapId) );

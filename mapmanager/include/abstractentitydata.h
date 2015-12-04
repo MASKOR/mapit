@@ -24,7 +24,7 @@ typedef upnsSharedPointer<AbstractEntityData> (*WrapLayerTypeFunc)(upnsSharedPoi
 
 /**
  * @brief The AbstractLayerData class is interface between a concrete layerdata implementation and layer. Basically an LayerData-Implementation will
- * translate/delegate requests of "getData" to LayerDataStreamProvider \sa AbstractLayerDataStreamProvider.
+ * translate/delegate requests of "getData" to LayerDataStreamProvider \sa AbstractEntityDataStreamProvider.
  * "setData" does not contain logic (e.g. registration)
  * This abstract interface can be used to query metainformation from any type of layer. For reading/writing data, see \sa LayerData
  */

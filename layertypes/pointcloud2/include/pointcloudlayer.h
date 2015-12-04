@@ -1,8 +1,8 @@
 #ifndef __POINTCLOUDLAYER_H__
 #define __POINTCLOUDLAYER_H__
 
-#include "layerdata.h"
-#include "abstractlayerdatastreamprovider.h"
+#include "entitydata.h"
+#include "abstractentitydatastreamprovider.h"
 #include <pcl/PCLPointCloud2.h>
 
 using namespace upns;

@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QString>
 #include "yaml-cpp/yaml.h"
+#include "error.h"
 
 using namespace upns;
 
@@ -37,7 +38,7 @@ void TestMapFileService::initTestCase()
     mapsource["filename"] = databaseName;
     conf["mapsource"] = mapsource;
 
-    m_mapService = new upns::MapFileService(mapsource);
+    m_mapService = new upns::MapLeveldbSerializer(mapsource);
 }
 
 void TestMapFileService::cleanupTestCase()

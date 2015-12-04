@@ -1,7 +1,7 @@
 #ifndef _FILELAYERDATASTREAMPROVIDER_H__
 #define _FILELAYERDATASTREAMPROVIDER_H__
 
-#include "abstractlayerdatastreamprovider.h"
+#include "abstractentitydatastreamprovider.h"
 #include "leveldb/db.h"
 
 namespace upns

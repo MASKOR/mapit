@@ -5,7 +5,7 @@
 #include <QVector>
 #include <QString>
 #include "yaml-cpp/yaml.h"
-#include "layertypes/pointcloud2/src/pointcloudlayer.h"
+#include "layertypes/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -44,6 +44,7 @@ void TestOperators::cleanupTestCase()
     delete m_mapService;
 }
 
+//TODO: rename service/serializer. Is abstraction ok? (If networking is implemented, will there be another layer? Maybe MapService has to handle all protobuf stuff. Protobuf can not be changed easily, can it? (Ids, addLayers, ...)))
 void TestOperators::testOperatorLoadPointcloud()
 {
     OperationDescription desc;
@@ -56,7 +57,7 @@ void TestOperators::testOperatorLoadPointcloud()
     upnsVec<MapIdentifier> maps = m_mapManager->listMaps();
     QVERIFY( maps.size() == 1);
     upnsSharedPointer<Map> map = m_mapManager->getMap(maps[0]);
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = m_mapManager->getEntityData(map->id(), map->layers(0).id(), map->layers(0).entities(0).id());
+    upnsSharedPointer<AbstractEntityData> abstractEntityData = m_mapService->getEntityData(map->id(), map->layers(0).id(), map->layers(0).entities(0).id());
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
     upnsPointcloud2Ptr pc2 = entityData->getData(0);
 

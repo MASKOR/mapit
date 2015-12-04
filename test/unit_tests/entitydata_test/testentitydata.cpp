@@ -1,7 +1,7 @@
-#include "testlayerdata.h"
+#include "testentitydata.h"
 #include "upns_globals.h"
 #include "../../src/autotest.h"
-#include "layertypes/pointcloud2/src/pointcloudlayer.h"
+#include "layertypes/pointcloud2/include/pointcloudlayer.h"
 #include "yaml-cpp/yaml.h"
 #include <QDir>
 #include <QVector>
@@ -13,15 +13,15 @@
 
 using namespace upns;
 
-void TestLayerdata::init()
+void TestEntitydata::init()
 {
 }
 
-void TestLayerdata::cleanup()
+void TestEntitydata::cleanup()
 {
 }
 
-void TestLayerdata::initTestCase()
+void TestEntitydata::initTestCase()
 {
     const char* databaseName = "test.db";
     QDir dir(databaseName);
@@ -40,16 +40,16 @@ void TestLayerdata::initTestCase()
     m_mapService = m_mapManager->getInternalMapService();
 }
 
-void TestLayerdata::cleanupTestCase()
+void TestEntitydata::cleanupTestCase()
 {
     delete m_mapService;
 }
 
-void TestLayerdata::testCreateLayer_data()
+void TestEntitydata::testCreateLayer_data()
 {
 }
 
-void TestLayerdata::testCreateLayer()
+void TestEntitydata::testCreateLayer()
 {
     QVERIFY(m_mapService->canRead());
     QVERIFY(m_mapService->canWrite());
@@ -67,7 +67,7 @@ void TestLayerdata::testCreateLayer()
     assert(layer->id() != -1);
     assert(entity->id() != 0);
     assert(entity->id() != -1);
-    upnsSharedPointer<AbstractEntityData> abstractData = m_mapManager->getEntityData( map->id(), layer->id(), entity->id() );
+    upnsSharedPointer<AbstractEntityData> abstractData = m_mapService->getEntityData( map->id(), layer->id(), entity->id() );
     QCOMPARE(abstractData->layerType(), LayerType::POINTCLOUD2);
     upnsSharedPointer<PointcloudEntitydata> pointclouddata;
     pointclouddata = upns::static_pointer_cast<PointcloudEntitydata>(abstractData);
@@ -79,7 +79,7 @@ void TestLayerdata::testCreateLayer()
     pcl::toPCLPointCloud2<pcl::PointXYZ>(cloud, *pclpc2);
     pointclouddata->setData(pclpc2);
 
-    upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapManager->getEntityData( map->id(), layer->id(), entity->id() );
+    upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapService->getEntityData( map->id(), layer->id(), entity->id() );
     QCOMPARE(abstractData2->layerType(), LayerType::POINTCLOUD2);
     upnsSharedPointer<PointcloudEntitydata> pointclouddata2;
     pointclouddata2 = upns::static_pointer_cast<PointcloudEntitydata>(abstractData2);
@@ -97,4 +97,4 @@ void TestLayerdata::testCreateLayer()
     QCOMPARE(cloud2.at(1).z,  4.5);
 }
 
-DECLARE_TEST(TestLayerdata)
+DECLARE_TEST(TestEntitydata)

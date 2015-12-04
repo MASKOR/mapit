@@ -1,5 +1,5 @@
 #include "module.h"
-#include "layertypes/pointcloud2/src/pointcloudlayer.h"
+#include "layertypes/pointcloud2/include/pointcloudlayer.h"
 #include "mapmanager/src/mapmanager.h" //< TODO: use interface (something in include folder)!
 #include "operationenvironment.h"
 #include <iostream>
@@ -31,7 +31,7 @@ int operate(upns::OperationEnvironment* env)
         assert( map->id() != 0 );
         assert( map->layers(0).id() != 0);
         assert( map->layers(0).entities(0).id() != 0 );
-        upnsSharedPointer<AbstractEntityData> abstractEntityData = env->mapManager()->getEntityData(map->id(), map->layers(0).id(), map->layers(0).entities(0).id() );
+        upnsSharedPointer<AbstractEntityData> abstractEntityData = env->mapServiceVersioned()->getEntityData(map->id(), map->layers(0).id(), map->layers(0).entities(0).id() );
         upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
         upnsPointcloud2Ptr pc2( new pcl::PCLPointCloud2);
         pcl::toPCLPointCloud2(*cloud, *pc2);

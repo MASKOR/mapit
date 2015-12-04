@@ -1,12 +1,12 @@
-#ifndef __TESTLAYERDATA_H
-#define __TESTLAYERDATA_H
+#ifndef __TESTENTITYDATA_H
+#define __TESTENTITYDATA_H
 
 #include <QTest>
 
 #include "../../../mapmanager/src/mapmanager.h"
 #include "../../../mapmanager/src/mapservice.h"
 
-class TestLayerdata : public QObject
+class TestEntitydata : public QObject
 {
     Q_OBJECT
 private slots:

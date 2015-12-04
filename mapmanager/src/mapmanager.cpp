@@ -1,7 +1,7 @@
 #include "mapmanager.h"
 #include "upns.h"
-#include "mapfileservice.h"
-#include "filelayerdatastreamprovider.h"
+#include "mapleveldb/mapleveldbserializer.h"
+#include "mapleveldb/leveldbentitydatastreamprovider.h"
 #include <string>
 #include <algorithm>
 #include <log4cplus/logger.h>
@@ -21,9 +21,17 @@ MapManager::MapManager(const YAML::Node &config)
         {
             std::string mapsrcnam = mapsourceName.as<std::string>();
             std::transform(mapsrcnam.begin(), mapsrcnam.end(), mapsrcnam.begin(), ::tolower);
+            MapSerializer *mser = NULL;
             if(mapsrcnam == "mapfileservice")
             {
-                m_innerService = new MapFileService(mapsource);
+                mser = new MapLeveldbSerializer(mapsource);
+            } else
+            {
+                log_error("mapsource '" + mapsrcnam + "' was not found.");
+            }
+            if(mser)
+            {
+                m_innerService = new MapService(mser);
             }
         } else {
             log_error("'mapsource' has no 'name' in config");
@@ -61,30 +69,6 @@ upnsSharedPointer<Map> MapManager::getMap(MapIdentifier mapId)
 MapService *MapManager::getInternalMapService()
 {
     return m_innerService;
-}
-
-upnsSharedPointer<AbstractEntityData> MapManager::getEntityData(MapIdentifier    mapId,
-                                                                LayerIdentifier  layerId,
-                                                                EntityIdentifier entityId)
-{
-    upnsVec<MapIdentifier> mapIds;
-    mapIds.push_back( mapId );
-    MapVector maps = m_innerService->getMaps( mapIds );
-    upnsSharedPointer<Map> map(maps.at(0));
-    const Layer *layer = NULL;
-    for(int i=0 ; i<map->layers_size() ; ++i)
-    {
-        const Layer &curLayer = map->layers(i);
-        if(curLayer.id() == layerId)
-        {
-            layer = &curLayer;
-            break;
-        }
-    }
-    assert( layer );
-
-    upnsSharedPointer<AbstractEntityData> layerData = wrapEntityOfType( layer->type(), m_innerService->getStreamProvider(mapId, layerId, entityId) ) ;
-    return layerData;
 }
 
 bool MapManager::canRead()
@@ -132,50 +116,6 @@ StatusCode MapManager::doOperation(const OperationDescription &desc)
     ModuleInfo* info = getModInfo();
     info->operate( &env );
     return UPNS_STATUS_OK;
-}
-
-upnsSharedPointer<AbstractEntityData> MapManager::wrapEntityOfType(LayerType type,
-                                                                   upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-{
-    upnsString layerName;
-    switch(type)
-    {
-    case POINTCLOUD2:
-    {
-        layerName = "layertype_pointcloud2";
-        break;
-    }
-    default:
-        log_error("Unknown layertype: " + std::to_string(type));
-        return upnsSharedPointer<AbstractEntityData>(NULL);
-    }
-    return wrapEntityOfType( layerName, streamProvider );
-}
-
-upnsSharedPointer<AbstractEntityData> MapManager::wrapEntityOfType(upnsString layertypeName,
-                                                                  upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-{
-    upnsSharedPointer<AbstractEntityData> ret;
-#ifndef NDEBUG
-    upnsString debug = "d";
-#else
-    upnsString debug = "";
-#endif
-
-#ifdef _WIN32
-    upnsString prefix = "";
-    upnsString postfix = ".dll";
-#else
-    upnsString prefix = "lib";
-    upnsString postfix = ".so";
-#endif
-    void* handle = dlopen((upnsString("../layertypes/") + prefix + layertypeName + debug + postfix).c_str(), RTLD_NOW);
-    if (!handle) {
-        std::cerr << "Cannot open library: " << dlerror() << '\n';
-        return upnsSharedPointer<AbstractEntityData>(NULL);
-    }
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
-    return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
 }
 
 }
