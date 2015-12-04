@@ -47,6 +47,7 @@ void TestOperators::cleanupTestCase()
 //TODO: rename service/serializer. Is abstraction ok? (If networking is implemented, will there be another layer? Maybe MapService has to handle all protobuf stuff. Protobuf can not be changed easily, can it? (Ids, addLayers, ...)))
 void TestOperators::testOperatorLoadPointcloud()
 {
+    //TODO: Use strict paramter-struct for each individual operation.
     OperationDescription desc;
     desc.set_operatorname("load_pointcloud");
     OperationParameter* param = desc.add_params();

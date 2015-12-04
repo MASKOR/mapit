@@ -17,6 +17,11 @@ bool FileEntityDataStreamProvider::isCached()
     return true;
 }
 
+bool FileEntityDataStreamProvider::isReadWriteSame()
+{
+    return true;
+}
+
 upnsIStream* upns::FileEntityDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());

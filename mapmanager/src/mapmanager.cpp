@@ -25,8 +25,7 @@ MapManager::MapManager(const YAML::Node &config)
             if(mapsrcnam == "mapfileservice")
             {
                 mser = new MapLeveldbSerializer(mapsource);
-            } else
-            {
+            } else {
                 log_error("mapsource '" + mapsrcnam + "' was not found.");
             }
             if(mser)

@@ -25,6 +25,12 @@ public:
     virtual bool isCached() = 0;
 
     /**
+     * @brief isReadWriteSame indicates, if reading the object is save while writing to the same position.
+     * The underlaying implementation may operates on two different memorychunks or on the same.
+     * @return
+     */
+    virtual bool isReadWriteSame() = 0;
+    /**
      * @brief startRead Used to read data from stream.
      * @param start offset in the stream. For slow connections the whole data may not be queried always.
      * @param len defaultvalue of 0 indicates, that data will be read until end

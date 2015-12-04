@@ -5,7 +5,6 @@ aux_source_directory(. SRC_LIST)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 
-set(OPERATOR_NAME load_pointcloud)
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 set(OPERATOR_VERSION 1)
