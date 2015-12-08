@@ -55,6 +55,7 @@ using upnsIStream = std::istream;
 using upnsOStream = std::ostream;
 template <typename T>
 using upnsVec = std::vector<T>;
+
 #ifdef USE_BOOST_STRUCTURES
 template<typename T>
 using upnsSharedPointer = boost::shared_ptr<T>;

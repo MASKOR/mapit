@@ -63,9 +63,9 @@ add_subdirectory(layertypes)
 add_subdirectory(commandlinetool_mapman)
 #add_subdirectory(externals)
 #add_subdirectory(externals/yaml-cpp)
-if(WITH_VISUALIZATION)
+if(ENABLE_VISUALIZATION)
 add_subdirectory(visualization)
-endif(WITH_VISUALIZATION)
+endif(ENABLE_VISUALIZATION)
 
 #hunter_add_package(yaml-cpp)
 
@@ -97,4 +97,4 @@ add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt pr
 # make qml visible in qtcreator
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir)
 
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${ECS_QMLFILES})
+add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})

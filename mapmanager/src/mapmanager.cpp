@@ -38,6 +38,7 @@ MapManager::MapManager(const YAML::Node &config)
     } else {
         log_error("Key 'mapsource' not given in config");
     }
+    assert(m_innerService);
 }
 
 MapManager::~MapManager()

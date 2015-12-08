@@ -15,7 +15,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 
@@ -91,11 +91,7 @@ endif()
 
 endif(WIN32)
 
-
-#file(GLOB MyResources ${PROJECT_SOURCE_DIR}/src/*.qrc)
-
-set(MyResources ${PROJECT_SOURCE_DIR}/src/qml.qrc)
-QT5_ADD_RESOURCES(MyResources_RCC ${MyResources})
+QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC qml.qrc)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
@@ -117,14 +113,14 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${UPNS_SOURCES}
-                                ${MyResources_RCC}
+                                ${UPNS_VIS_RESOURCES_RCC}
                                 ${FragmentShader}
                                 ${VertexShader}
                                 ${TesControlShader}
                                 ${TesEvalShader}
                                 ${GeometryShader}
-                                ${GlslIncludeShader}
-                                ${GRAPHBLOCKS_INCLUDE_DIR})
+                                ${GlslIncludeShader})
+
 add_custom_target(resourceFilesViz ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
 if(WIN32)
@@ -132,6 +128,14 @@ target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_L
 else(WIN32)
 target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} openvdb Half tbb )
 endif(WIN32)
+
+target_link_libraries(${PROJECT_NAME} upns_mapmanager)
+
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir)
 
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${ECS_QMLFILES})
+add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/visualization/data
+)
