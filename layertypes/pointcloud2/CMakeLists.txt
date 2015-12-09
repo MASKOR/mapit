@@ -12,7 +12,9 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 
-file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
+                                                ${PROJECT_SOURCE_DIR}/src/*.h
+                                                ${PROJECT_SOURCE_DIR}/include/*.h )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} )

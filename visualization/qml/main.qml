@@ -98,36 +98,122 @@ ApplicationWindow {
         }
     }
 
+    MapManager {
+        id: mapMan
+        Component.onCompleted: {
+            var allTheMaps = mapMan.listMaps();
+            allTheMaps.forEach(function(entry) {
+                maps.appendMap(entry, false, mapMan);
+            });
+        }
+    }
+    ListModel {
+        id:maps
+        property bool lazy: true
+        property var idToIndex
+        Component.onCompleted: {
+            idToIndex = {}
+        }
+        function appendMap(id, select, mman) {
+            if(idToIndex[id] !== undefined) {
+                console.log("map was added twice")
+                return
+            }
+//            for(var i=0 ; maps.count ; ++i) {
+//                if(maps.get(i).mapId === id) {
+//                    console.log("map was added twice");
+//                    return;
+//                }
+//            }
+            maps.append({mapId:id})
+            if(select)
+            {
+                mapsList.currentIndex = maps.count-1
+            }
+            if(mman) {
+                mman.getMap(id)
+            }
+        }
+    }
 
-
-
-    ColumnLayout {
+    RowLayout {
         anchors.fill: parent
+        ColumnLayout {
+            width: 220
+            Layout.fillHeight: true
+            Button {
+                width: Layout.width
+                text: "load_pointcloud"
+                onClicked: {
+                    dialog_load_pointcloud.open();
+                }
+                Dialog {
+                    id: dialog_load_pointcloud
+                    height: 30
+                    standardButtons: StandardButton.Ok | StandardButton.Cancel
+                    onAccepted: {
+                        var opdesc = {
+                            "operatorname":"load_pointcloud",
+                            "params": [
+                                {
+                                    "key": "filename",
+                                    //"strval": "/home/dbulla/Pointclouds/scene exports/FH-DGeb-Hoersaal-linksoben.pcd"
+                                    "strval": fileNamePcd.text
+                                }
+                            ]
+                        }
+                        var result = mapMan.doOperation( opdesc );
+                        drawingArea.mapId = result.output.params.target.mapval;
+                        maps.appendMap(result.output.params.target.mapval, true);
+                    }
+                    RowLayout {
+                        anchors.fill: parent
+                        TextField {
+                            id:fileNamePcd
+                        }
+                        Button {
+                            text: "Open"
+                            onClicked: {
+                                openPcdFileDialog.open()
+                            }
+                        }
+                    }
+                    FileDialog {
+                        id: openPcdFileDialog
+                        title: "Open Pcd"
+                        selectExisting: true
+                        selectFolder: false
+                        selectMultiple: false
+                        onAccepted: {
+                            var filename = fileUrl.toString()
+                            filename = filename.replace(/^(file:\/{2})/,"")
+                            fileNamePcd.text = filename
+                        }
+                    }
+                }
+            }
+            ListView {
+                id: mapsList
+                Layout.fillHeight: true
+                model: maps
+                delegate: Text {
+                    text: mapId
+                    color: mapsList.currentIndex == index?"blue":"black"
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: mapsList.currentIndex = index
+                    }
+                }
+                onCurrentIndexChanged: {
+                    drawingArea.mapId = maps.get(currentIndex).mapId;
+                }
+            }
+        }
         MapsRenderViewport {
             id: drawingArea
             Layout.fillWidth: true
             Layout.fillHeight: true
-            mapManager:
-                MapManager {
-                    id: mapMan
-                }
-            Component.onCompleted: {
-                var allTheMaps = mapMan.listMaps();
-                allTheMaps.forEach(function(entry) {
-                    console.log(entry);
-                });
-                drawingArea.mapId = allTheMaps[0];
-                var opdesc = {
-                    "operatorname":"load_pointcloud",
-                    "params": [
-                        {
-                            "key": "filename",
-                            "strval": "data/bunny.pcd"
-                        }
-                    ]
-                }
-                mapMan.doOperation( opdesc );
-            }
+            mapManager: mapMan
         }
     }
 }

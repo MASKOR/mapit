@@ -88,6 +88,8 @@ using CommitId = upnsString;
 using StatusPair = upnsPair<MapIdentifier, StatusCode>;
 using MapResultsVector = upnsVec<StatusPair >;
 
+class OperationDescription;
+using OperationResult = upnsPair<const StatusCode, const OperationDescription>;
 }
 
 extern "C"

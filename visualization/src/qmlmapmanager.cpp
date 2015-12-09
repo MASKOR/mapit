@@ -27,6 +27,13 @@ QList<QString> QmlMapManager::listMaps()
     return ret;//QList<qint32>::fromVector( upnsToQVector() );
 }
 
+QmlMap *QmlMapManager::getMap(quint64 mapId)
+{
+    if(!m_mapManager) initialize();
+    upns::upnsSharedPointer<upns::Map> map = m_mapManager->getMap(mapId);
+    TODO: save shared pointer to list and qmlmap to list. Or use shared pointer in qmlmap.
+}
+
 bool QmlMapManager::canRead()
 {
     if(!m_mapManager) initialize();
@@ -39,11 +46,15 @@ bool QmlMapManager::canWrite()
     return m_mapManager->canWrite();
 }
 
-qint32 QmlMapManager::doOperation(const QJsonObject &desc)
+QJsonObject QmlMapManager::doOperation(const QJsonObject &desc)
 {
     upns::OperationDescription od;
     operationDescriptionFromJsonObject( od, desc);
-    m_mapManager->doOperation( od );
+    QJsonObject json;
+    upns::OperationResult result = m_mapManager->doOperation( od );
+    json["status"] = static_cast<int>(result.first); //< zero remains zero, can be compared to other reinterpret casted values.
+    json["output"] = operationDescriptionToJson( result.second );
+    return json;
 }
 
 upns::MapManager *QmlMapManager::getMapManager()
@@ -63,7 +74,50 @@ void QmlMapManager::initialize()
     m_mapManager = new upns::MapManager(conf);
 }
 
-void QmlMapManager::yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json)
+QJsonObject QmlMapManager::operationDescriptionToJson(const upns::OperationDescription &desc) const
+{
+    QJsonObject jOperDesc;
+    jOperDesc["operatorname"] = QString::fromStdString(desc.operatorname());
+    jOperDesc["operatorversion"] = desc.operatorversion();
+    //QJsonArray jParams;
+    QJsonObject jParams;
+    for(int i=0; i < desc.params_size() ; ++i)
+    {
+        QJsonObject jp;
+        const upns::OperationParameter *p = &desc.params(i);
+        //jp["key"] = p->key();
+        if(!p->strval().empty())
+        {
+            jp["strval"] = QString::fromStdString(p->strval());
+        }
+        if(p->intval() != 0)
+        {
+            jp["intval"] = p->intval();
+        }
+        if(p->realval() != 0.0)
+        {
+            jp["realval"] = p->realval();
+        }
+        if(p->entityval() != 0)
+        {
+            jp["entityval"] = QString::number(p->entityval());
+        }
+        if(p->layerval() != 0)
+        {
+            jp["layerval"] = QString::number(p->layerval());
+        }
+        if(p->mapval() != 0)
+        {
+            jp["mapval"] = QString::number(p->mapval());
+        }
+        //jParams.append(jp);
+        jParams[QString::fromStdString(p->key())] = jp;
+    }
+    jOperDesc["params"] = jParams;
+    return jOperDesc;
+}
+
+void QmlMapManager::yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json) const
 {
     QJsonObject::const_iterator iter(json.constBegin());
     while(iter != json.constEnd())
@@ -101,7 +155,7 @@ void QmlMapManager::yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json
     }
 }
 
-void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescription &opDesc, const QJsonObject &json)
+void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescription &opDesc, const QJsonObject &json) const
 {
     QJsonObject::const_iterator iter(json.constBegin());
     while(iter != json.constEnd())
@@ -146,7 +200,15 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
                 }
                 else if(jparam.contains("entityVal"))
                 {
-                    param->mutable_entityval()->set_entityid( jparam["entityVal"].toInt() );
+                    param->set_entityval( jparam["entityVal"].toString().toULongLong() );
+                }
+                else if(jparam.contains("layerVal"))
+                {
+                    param->set_layerval( jparam["layerVal"].toString().toULongLong() );
+                }
+                else if(jparam.contains("mapVal"))
+                {
+                    param->set_mapval( jparam["mapVal"].toString().toULongLong() );
                 }
                 else if(jparam.contains("transformVal"))
                 {

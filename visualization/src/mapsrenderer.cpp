@@ -78,7 +78,10 @@ void MapsRenderer::initialize()
 
     m_fAngle = 0;
     m_fScale = 1;
-    createGeometry();
+    if(m_mapManager && m_mapId != 0)
+    {
+        createGeometry();
+    }
     m_initialized = true;
 }
 
@@ -154,4 +157,5 @@ void MapsRenderer::createGeometry()
       const pcl::PointXYZ& pt = cloud->points[i];
       vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
     }
+    qDebug() << "Map loaded:" << vertices.size() << "points.";
 }

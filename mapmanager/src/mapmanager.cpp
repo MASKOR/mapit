@@ -83,7 +83,7 @@ bool MapManager::canWrite()
 
 typedef ModuleInfo* (*GetModuleInfo)();
 
-StatusCode MapManager::doOperation(const OperationDescription &desc)
+OperationResult MapManager::doOperation(const OperationDescription &desc)
 {
     OperationEnvironmentImpl env(desc);
     env.setMapManager( this );
@@ -110,12 +110,12 @@ StatusCode MapManager::doOperation(const OperationDescription &desc)
     void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
     if (!handle) {
         std::cerr << "Cannot open library: " << dlerror() << '\n';
-        return UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND;
+        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
     }
     GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
     ModuleInfo* info = getModInfo();
     info->operate( &env );
-    return UPNS_STATUS_OK;
+    return OperationResult(UPNS_STATUS_OK, env.outputDescription());
 }
 
 }

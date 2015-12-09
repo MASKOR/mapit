@@ -121,7 +121,9 @@ public Q_SLOTS:
         surface->deleteLater();
 
         // Stop event processing, move the thread to GUI and make sure it is deleted.
-        moveToThread(QGuiApplication::instance()->thread());
+        QCoreApplication* app = QGuiApplication::instance();
+        QThread *guiThread = app->thread();
+        moveToThread(guiThread);
         exit();
     }
 

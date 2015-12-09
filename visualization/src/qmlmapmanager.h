@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include "mapmanager/src/mapmanager.h"
 #include "upns_interface/services.pb.h"
+#include "qmlmap.h"
 
 class QmlMapManager : public QObject
 {
@@ -17,12 +18,12 @@ public:
     ~QmlMapManager();
 
     Q_INVOKABLE QList<QString> listMaps();
-    //Q_INVOKABLE QmlMap getMap(quint64 mapId);
+    Q_INVOKABLE QmlMap *getMap(quint64 mapId);
 
     Q_INVOKABLE bool canRead();
     Q_INVOKABLE bool canWrite();
 
-    Q_INVOKABLE qint32 doOperation(const QJsonObject &desc);
+    Q_INVOKABLE QJsonObject doOperation(const QJsonObject &desc);
     QJsonObject config() const
     {
         return m_config;
@@ -48,8 +49,10 @@ private:
     upns::MapManager *m_mapManager;
 
     void initialize();
-    void yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json);
-    void operationDescriptionFromJsonObject(upns::OperationDescription &opDesc, const QJsonObject &json);
+    void yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json) const;
+    void operationDescriptionFromJsonObject(upns::OperationDescription &opDesc, const QJsonObject &json) const;
+    QJsonObject operationDescriptionToJson(const upns::OperationDescription &desc) const;
+    QMap<upns::MapIdentifier, QmlMap*> m_maps;
 };
 
 #endif

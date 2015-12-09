@@ -16,11 +16,13 @@ public:
     MapService *mapServiceVersioned() const;
     const OperationDescription *getDescription() const;
     const OperationParameter *getParameter(std::string key) const;
-
+    void setOutputDescription(const OperationDescription out);
+    const OperationDescription& outputDescription() const;
 private:
     MapManager *m_mapManager;
     MapService *m_mapService;
     const OperationDescription m_operationDesc;
+    OperationDescription m_outDesc;
 };
 
 }

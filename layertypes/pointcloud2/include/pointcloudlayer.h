@@ -17,6 +17,25 @@ upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<Abstrac
 class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>
 {
 public:
+    //
+    /**
+     * @brief The Representation enum of some Representations witch most algorithms will be able to use.
+     * Note that all representations of pcl is possible and all fields of pcd can be used.
+     * However, implementation of all types can be timeconsuming. At least these types should be supported by most
+     * operations.
+     */
+    enum Representation {
+        Rep_XYZ,
+        Rep_XYZI,
+        Rep_XYZRGB,
+        Rep_XYZRGBA,
+        Rep_XYZNormal,
+        Rep_XYZINormal,
+        Rep_XYZRGBNormal,
+        Rep_XYZRGBANormal,
+        Rep_Other
+    };
+
     PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 
     LayerType           layerType() const;

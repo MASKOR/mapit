@@ -47,4 +47,14 @@ const OperationParameter *OperationEnvironmentImpl::getParameter(std::string key
     return NULL;
 }
 
+void OperationEnvironmentImpl::setOutputDescription(OperationDescription out)
+{
+    m_outDesc = out;
+}
+
+const OperationDescription &OperationEnvironmentImpl::outputDescription() const
+{
+    return m_outDesc;
+}
+
 }

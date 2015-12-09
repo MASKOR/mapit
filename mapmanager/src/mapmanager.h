@@ -55,7 +55,7 @@ public:
     bool canRead();
     bool canWrite();
 
-    StatusCode doOperation(const OperationDescription &desc);
+    OperationResult doOperation(const OperationDescription &desc);
 
     CommitId commit();
     /**

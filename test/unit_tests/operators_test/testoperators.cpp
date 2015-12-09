@@ -53,8 +53,8 @@ void TestOperators::testOperatorLoadPointcloud()
     OperationParameter* param = desc.add_params();
     param->set_key("filename");
     param->set_strval("data/bunny.pcd");
-    m_mapManager->doOperation( desc );
-
+    OperationResult ret = m_mapManager->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
     upnsVec<MapIdentifier> maps = m_mapManager->listMaps();
     QVERIFY( maps.size() == 1);
     upnsSharedPointer<Map> map = m_mapManager->getMap(maps[0]);
