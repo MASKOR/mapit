@@ -55,6 +55,11 @@ add_custom_command(
     TARGET ${subdir} POST_BUILD
     COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/data
 )
+
+add_custom_command(
+    TARGET ${subdir} POST_BUILD
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/logging.properties
+)
 ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP}  )

@@ -4,13 +4,17 @@ import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
-import fhac.upns 1.0;
+import fhac.upns 1.0
+import "components"
 
 ApplicationWindow {
     title: qsTr("Map Visualization")
     width: 640
     height: 480
     visible: true
+    SystemPalette {
+        id: palette
+    }
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
@@ -97,49 +101,30 @@ ApplicationWindow {
             }
         }
     }
-
-    MapManager {
-        id: mapMan
-        Component.onCompleted: {
-            var allTheMaps = mapMan.listMaps();
-            allTheMaps.forEach(function(entry) {
-                maps.appendMap(entry, false, mapMan);
-            });
+    Dialog {
+        id: errorDialog
+        property alias text: errorText.text
+        title: "Error"
+        standardButtons: StandardButton.Ok
+        visible: false
+        Text {
+            id: errorText
+            renderType: Text.NativeRendering
+            color: palette.text
         }
-    }
-    ListModel {
-        id:maps
-        property bool lazy: true
-        property var idToIndex
-        Component.onCompleted: {
-            idToIndex = {}
-        }
-        function appendMap(id, select, mman) {
-            if(idToIndex[id] !== undefined) {
-                console.log("map was added twice")
-                return
-            }
-//            for(var i=0 ; maps.count ; ++i) {
-//                if(maps.get(i).mapId === id) {
-//                    console.log("map was added twice");
-//                    return;
-//                }
-//            }
-            maps.append({mapId:id})
-            if(select)
-            {
-                mapsList.currentIndex = maps.count-1
-            }
-            if(mman) {
-                mman.getMap(id)
-            }
+        function showError(msg) {
+            text = msg
+            visible = true
         }
     }
 
-    RowLayout {
+    SplitView {
         anchors.fill: parent
+        orientation: Qt.Horizontal
         ColumnLayout {
             width: 220
+            Layout.minimumWidth: 100
+            Layout.maximumWidth: Number.MAX_VALUE
             Layout.fillHeight: true
             Button {
                 width: Layout.width
@@ -151,61 +136,126 @@ ApplicationWindow {
                     id: dialog_load_pointcloud
                     height: 30
                     standardButtons: StandardButton.Ok | StandardButton.Cancel
+                    onVisibleChanged: {
+                        if(visible) {
+                            mapChooser.choosenMapId = Globals.mapIdsModel.get(mapsList.currentIndex).mapId
+                        }
+                    }
                     onAccepted: {
                         var opdesc = {
                             "operatorname":"load_pointcloud",
                             "params": [
                                 {
                                     "key": "filename",
-                                    //"strval": "/home/dbulla/Pointclouds/scene exports/FH-DGeb-Hoersaal-linksoben.pcd"
                                     "strval": fileNamePcd.text
                                 }
                             ]
                         }
-                        var result = mapMan.doOperation( opdesc );
-                        drawingArea.mapId = result.output.params.target.mapval;
-                        maps.appendMap(result.output.params.target.mapval, true);
-                    }
-                    RowLayout {
-                        anchors.fill: parent
-                        TextField {
-                            id:fileNamePcd
+                        if(mapChooser.choosenMapId !== "" && parseInt(mapChooser.choosenMapId) !== 0) {
+                            opdesc.params.push(
+                            {
+                                "key": "target",
+                                "mapval": mapChooser.choosenMapId
+                            });
+                            console.log("dbg: using old" + mapChooser.choosenMapId);
+                        } else if(mapChooser.choosenMapName !== "") {
+                            opdesc.params.push(
+                            {
+                                "key": "mapname",
+                                "strval": mapChooser.choosenMapName
+                            });
+                            console.log("dbg: creating nw" + mapChooser.choosenMapName);
+                        } else {
+                            console.log("dbg: none of the two");
                         }
-                        Button {
-                            text: "Open"
-                            onClicked: {
-                                openPcdFileDialog.open()
+                        var result = Globals.doOperation( opdesc, function(result) {
+                            if(result.status !== 0) {
+                                var errMsg = "An operation returned an error.\n";
+                                errMsg += "See the log file for more information.\n";
+                                errMsg += "\n"
+                                errMsg += "(Code: "+result.status+")"
+                                errorDialog.showError(errMsg);
+                                return
+                            }
+                            var loadedMapId = result.output.params.target.mapval
+                            mapsList.currentIndex = Globals.mapIdsModel.indexOfMap( loadedMapId )
+                        });
+                    }
+                    ColumnLayout {
+                        //anchors.fill: parent // dialog adapts it's size
+                        height: 200
+                        RowLayout {
+                            Layout.fillWidth: true
+                            TextField {
+                                id:fileNamePcd
+                            }
+                            Button {
+                                text: "Open"
+                                onClicked: {
+                                    openPcdFileDialog.open()
+                                }
+                            }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            Text {
+                                Layout.alignment: Qt.AlignTop
+                                text: "Target:"
+                                color: palette.text
+                                renderType: Text.NativeRendering
+                            }
+                            MapChooser {
+                                id: mapChooser
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
                             }
                         }
                     }
-                    FileDialog {
-                        id: openPcdFileDialog
-                        title: "Open Pcd"
-                        selectExisting: true
-                        selectFolder: false
-                        selectMultiple: false
-                        onAccepted: {
-                            var filename = fileUrl.toString()
-                            filename = filename.replace(/^(file:\/{2})/,"")
-                            fileNamePcd.text = filename
-                        }
+                }
+                FileDialog {
+                    id: openPcdFileDialog
+                    title: "Open Pcd"
+                    selectExisting: true
+                    selectFolder: false
+                    selectMultiple: false
+                    onAccepted: {
+                        var filename = fileUrl.toString()
+                        filename = filename.replace(/^(file:\/{2})/,"")
+                        fileNamePcd.text = filename
                     }
                 }
             }
             ListView {
                 id: mapsList
                 Layout.fillHeight: true
-                model: maps
+                Layout.fillWidth: true
+                clip: true
+                model: Globals.mapIdsModel
+                highlight: Rectangle {
+                    width: mapsList.currentItem.width + 2
+                    height: mapsList.currentItem.height
+                    color: palette.highlight
+                    radius: 1
+                    y: mapsList.currentItem.y
+                }
+                highlightFollowsCurrentItem: false
                 delegate: Text {
-                    text: mapId
-                    color: mapsList.currentIndex == index?"blue":"black"
+                    renderType: Text.NativeRendering
+                    text: Globals.getMap(mapId).name
+                    onTextChanged: {
+                        if(text === "") text = "<empty name>"
+                    }
+                    color: mapsList.currentIndex == index?palette.highlightedText:palette.text
                     MouseArea {
                         anchors.fill: parent
                         onClicked: mapsList.currentIndex = index
                     }
                 }
+
                 onCurrentIndexChanged: {
-                    drawingArea.mapId = maps.get(currentIndex).mapId;
+                    // simply using currentItem.mapId does not work
+                    drawingArea.mapId = Globals.mapIdsModel.get(currentIndex).mapId;
                 }
             }
         }
@@ -213,7 +263,8 @@ ApplicationWindow {
             id: drawingArea
             Layout.fillWidth: true
             Layout.fillHeight: true
-            mapManager: mapMan
+            Layout.minimumWidth: 50
+            mapManager: Globals._mapManager
         }
     }
 }

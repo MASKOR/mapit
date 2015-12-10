@@ -1,5 +1,8 @@
 project(load_pointcloud)
 cmake_minimum_required(VERSION 2.8)
+
+set(OPERATOR_VERSION 1)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -7,7 +10,6 @@ include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
-set(OPERATOR_VERSION 1)
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 include_directories(${UPNS_INTERFACE_INCLUDE})

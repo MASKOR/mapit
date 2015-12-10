@@ -9,9 +9,14 @@
 #include "qmlmap.h"
 #include "qmllayer.h"
 #include "qmlentity.h"
+#include <log4cplus/logger.h>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/configurator.h>
 
 int main(int argc, char *argv[])
 {
+    log4cplus::PropertyConfigurator config("logging.properties");
+    config.configure();
     //TODO: Use QGuiApplication when this bug iss fixed: https://bugreports.qt.io/browse/QTBUG-39437
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);

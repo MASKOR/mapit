@@ -1,5 +1,4 @@
 #include "operationenvironmentimpl.h"
-
 namespace upns
 {
 

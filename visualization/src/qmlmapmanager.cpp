@@ -31,7 +31,7 @@ QmlMap *QmlMapManager::getMap(quint64 mapId)
 {
     if(!m_mapManager) initialize();
     upns::upnsSharedPointer<upns::Map> map = m_mapManager->getMap(mapId);
-    TODO: save shared pointer to list and qmlmap to list. Or use shared pointer in qmlmap.
+    return new QmlMap(map); // Qml takes ownership
 }
 
 bool QmlMapManager::canRead()
@@ -130,7 +130,7 @@ void QmlMapManager::yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json
         }
         else if(iter.value().isArray())
         {
-            qDebug() << "array json could not be converted to yaml (not yet implemented)";
+            log_error("array json could not be converted to yaml (not yet implemented)");
 //            YAML::Node childNode;
 //            yamlFromJsonObject(childNode, iter.value().toArray());
 //            yaml[iter.key()] = childNode;
@@ -149,7 +149,7 @@ void QmlMapManager::yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json
         }
         else
         {
-            qDebug() << "unknown json could not be converted to yaml";
+            log_error("unknown json could not be converted to yaml");
         }
         iter++;
     }
@@ -171,18 +171,18 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
         {
             if(!iter.value().isArray())
             {
-                qDebug() << "json operator description malformed, has no list of params";
+                log_error("json operator description malformed, has no list of params");
                 continue;
             }
             const QJsonArray &params = iter.value().toArray();
-            upns::OperationParameter* param = opDesc.add_params();
             QJsonArray::const_iterator paramIter(params.constBegin());
             while(paramIter != params.constEnd())
             {
+                upns::OperationParameter* param = opDesc.add_params();
                 const QJsonObject &jparam = paramIter->toObject();
                 if(!jparam.contains("key") || !jparam["key"].isString())
                 {
-                    qDebug() << "json operator description malformed, has no key";
+                    log_error("json operator description malformed, has no key");
                     continue;
                 }
                 param->set_key(jparam["key"].toString().toStdString());
@@ -198,32 +198,34 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
                 {
                     param->set_realval( jparam["realval"].toDouble() );
                 }
-                else if(jparam.contains("entityVal"))
+                else if(jparam.contains("entityval"))
                 {
-                    param->set_entityval( jparam["entityVal"].toString().toULongLong() );
+                    param->set_entityval( jparam["entityval"].toString().toULongLong() );
                 }
-                else if(jparam.contains("layerVal"))
+                else if(jparam.contains("layerval"))
                 {
-                    param->set_layerval( jparam["layerVal"].toString().toULongLong() );
+                    param->set_layerval( jparam["layerval"].toString().toULongLong() );
                 }
-                else if(jparam.contains("mapVal"))
+                else if(jparam.contains("mapval"))
                 {
-                    param->set_mapval( jparam["mapVal"].toString().toULongLong() );
+                    param->set_mapval( jparam["mapval"].toString().toULongLong() );
                 }
-                else if(jparam.contains("transformVal"))
+                else if(jparam.contains("transformval"))
                 {
-                    qDebug() << "not yet implemented to set transfrom val";
+                    log_error("not yet implemented to set transfrom val");
                 }
                 else
                 {
-                    qDebug() << "unknown json could not be converted to yaml";
+                    log_error("unknown json could not be converted to operation description."
+                              "Check for lower case 'V' and correct member."
+                              "Key: ’"+ jparam["key"].toString().toStdString() + "’");
                 }
                 paramIter++;
             }
         }
         else
         {
-            qDebug() << "json operator description malformed";
+            log_error("json operator description malformed");
         }
         iter++;
     }

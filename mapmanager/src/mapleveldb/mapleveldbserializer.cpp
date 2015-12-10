@@ -86,7 +86,22 @@ MapVector upns::MapLeveldbSerializer::getMaps(upnsVec<MapIdentifier> &mapIds)
         std::string key(mapKey( *iter ));
         std::string value;
         leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
-        assert(s.ok());
+        if(!s.ok())
+        {
+            if(s.IsNotFound())
+            {
+                log_error("could not find map with id: " + QString::number(*iter).toStdString());
+            }
+            else if(s.IsIOError())
+            {
+                log_error("IO Error for map with id: " + QString::number(*iter).toStdString());
+            }
+            else if(s.IsCorruption())
+            {
+                log_error("Corruption Error for map with id: " + QString::number(*iter).toStdString() + ", database key: " + key);
+            }
+            continue;
+        }
         if(! map.ParseFromString( value ))
         {
             log_error("could not parse: " + key);

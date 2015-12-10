@@ -7,7 +7,10 @@
 
 using namespace upns;
 
-using upnsPointcloud2Ptr = upnsSharedPointer<pcl::PCLPointCloud2>;
+// Not a good idea because voxelgridfilter uses pcl smart pointers (bbost)
+//using upnsPointcloud2Ptr = upnsSharedPointer<pcl::PCLPointCloud2>;
+//TODO: will not compile... guru meditation
+using upnsPointcloud2Ptr = pcl::PCLPointCloud2Ptr;
 
 extern "C"
 {

@@ -28,10 +28,15 @@ void chooseDefaultRepresentation ( const std::vector<pcl::PCLPointField>& flist 
     //return new PointCloudCRangeFactory<>("z");
 }
 
-int operate(upns::OperationEnvironment* env)
+upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    std::string filename = env->getParameter("filename")->strval();
+    const upns::OperationParameter *paramFilename = env->getParameter("filename");
+    if(paramFilename == NULL)
+    {
+        log_error("No filename of PCD file given.");
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    std::string filename = paramFilename->strval();
 
     upnsPointcloud2Ptr pc2( new pcl::PCLPointCloud2);
 
@@ -39,7 +44,7 @@ int operate(upns::OperationEnvironment* env)
     if ( reader.read(filename, *pc2) < 0 )
     {
         log_error("Couldn't read file" + filename);
-        return -1;
+        return UPNS_STATUS_FILE_NOT_FOUND;
     }
 
     const OperationParameter* target = env->getParameter("target");
@@ -49,7 +54,7 @@ int operate(upns::OperationEnvironment* env)
             || target->mapval()   == 0 && target->entityval() != 0
             || target->layerval() == 0 && target->entityval() != 0)) {
         log_error("wrong combination of target ids was set. Valid: map, layer and entity; map and layer; only map.");
-        return -1;
+        return UPNS_STATUS_INVALID_ARGUMENT;
     }
 
     upnsSharedPointer<Map> map;
@@ -63,13 +68,30 @@ int operate(upns::OperationEnvironment* env)
         }
         else
         {
-            mapname = "load_pointcloud_output";
+            std::string basename(filename);
+            const size_t last_slash_idx = basename.find_last_of("\\/");
+            basename.erase(0, last_slash_idx + 1);
+            const size_t period_idx = basename.rfind('.');
+            if (std::string::npos != period_idx)
+            {
+                basename.erase(period_idx);
+            }
+            std::stringstream strm;
+            strm << "pcd_" << basename;
+            mapname = strm.str();
         }
         map = env->mapServiceVersioned()->createMap(mapname);
     }
     else
     {
         map = env->mapServiceVersioned()->getMap(target->mapval());
+    }
+    if(map == NULL)
+    {
+        std::stringstream strm;
+        strm << "Map not found: " << target->mapval();
+        log_error(strm.str());
+        return UPNS_STATUS_MAP_NOT_FOUND;
     }
     Layer* layer = NULL;
     if(!target || target->layerval() == 0)
@@ -103,7 +125,7 @@ int operate(upns::OperationEnvironment* env)
         }
         else
         {
-            log_info("Unknown Usagetype for layer: " + usage);
+            log_warn("Unknown Usagetype for layer: " + usage);
         }
     }
     else
@@ -120,12 +142,12 @@ int operate(upns::OperationEnvironment* env)
         if( layer == NULL )
         {
             log_error("layer was not found.");
-            return -1;
+            return UPNS_STATUS_LAYER_NOT_FOUND;
         }
         if(layer->type() != LayerType::POINTCLOUD2)
         {
             log_error("not a pointcloud layer. Can not load pointcloud into this layer.");
-            return -1;
+            return UPNS_STATUS_LAYER_TYPE_MISMATCH;
         }
     }
     const Entity *entity = NULL;
@@ -140,6 +162,7 @@ int operate(upns::OperationEnvironment* env)
             std::stringstream err;
             err << "could not store map. " << result;
             log_error( err.str() );
+            return result;
         }
     }
     else
@@ -156,7 +179,7 @@ int operate(upns::OperationEnvironment* env)
         if( entity == NULL )
         {
             log_error("entity was not found.");
-            return -1;
+            return UPNS_STATUS_ENTITY_NOT_FOUND;
         }
     }
     assert( map->id() != 0 );
@@ -179,7 +202,7 @@ int operate(upns::OperationEnvironment* env)
     outMapname->set_key("mapname");
     outMapname->set_strval( map->name() );
     env->setOutputDescription( out );
-    return 0;
+    return UPNS_STATUS_OK;
 }
 
 UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD2, &operate)

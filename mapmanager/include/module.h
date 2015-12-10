@@ -33,7 +33,7 @@ namespace upns {
 class OperationEnvironment;
 }
 
-typedef int (*OperateFunc)(upns::OperationEnvironment*);
+typedef upns::StatusCode (*OperateFunc)(upns::OperationEnvironment*);
 
 struct ModuleInfo
 {

@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>qml/loadMapname.js</file>
+        <file>qml/components/qmldir</file>
+        <file>qml/components/Globals.qml</file>
+        <file>qml/components/MapChooser.qml</file>
     </qresource>
 </RCC>

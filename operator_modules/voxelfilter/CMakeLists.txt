@@ -1,11 +1,44 @@
-project(upns_operator_voxelfilter)
+project(voxelgridfilter)
 cmake_minimum_required(VERSION 2.8)
+
+set(OPERATOR_VERSION 1)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
+include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 
-file(GLOB_RECURSE UPNS_OPERATOR_VOXELFILTER_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
-add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_OPERATOR_VOXELFILTER_SOURCES} )
+add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-#target_link_libraries(${PROJECT_NAME} Qt5::Core )
+include_directories(${UPNS_INTERFACE_INCLUDE})
+
+find_package(PCL REQUIRED COMPONENTS common io)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} )
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} upns_interface upns_mapmanager)
+
+#get_property(lib_location TARGET ${PROJECT_NAME} PROPERTY LOCATION)
+
+if (CMAKE_HOST_UNIX)
+    set(FILENAME_PREFIX "lib")
+    set(FILENAME_POSTFIX ".so")
+else (CMAKE_HOST_UNIX)
+    set(FILENAME_PREFIX "")
+    set(FILENAME_POSTFIX ".dll")
+endif (CMAKE_HOST_UNIX)
+
+set(LIB_FILENAME ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX})
+set(LIB_FILENAME_VERSION ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX}.${OPERATOR_VERSION})
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
+    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
+)

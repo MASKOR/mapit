@@ -63,7 +63,15 @@ upnsSharedPointer<Map> MapManager::getMap(MapIdentifier mapId)
 {
     upnsVec<MapIdentifier> mapIds;
     mapIds.push_back(mapId);
-    return m_innerService->getMaps( mapIds ).at(0);
+    MapVector mapvec(m_innerService->getMaps( mapIds ));
+    if(mapvec.empty())
+    {
+        return upnsSharedPointer<Map>(NULL);
+    }
+    else
+    {
+        return mapvec.at(0);
+    }
 }
 
 MapService *MapManager::getInternalMapService()
@@ -114,8 +122,14 @@ OperationResult MapManager::doOperation(const OperationDescription &desc)
     }
     GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
     ModuleInfo* info = getModInfo();
-    info->operate( &env );
-    return OperationResult(UPNS_STATUS_OK, env.outputDescription());
+    StatusCode result = info->operate( &env );
+    if(!upnsIsOk(result))
+    {
+        std::stringstream strm;
+        strm << "operator '" << desc.operatorname() << "' reported an error. (code:" << result << ")";
+        log_error(strm.str());
+    }
+    return OperationResult(result, env.outputDescription());
 }
 
 }

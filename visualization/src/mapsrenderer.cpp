@@ -49,7 +49,7 @@ void MapsRenderer::initialize()
         "{\n"
         "    vec3 toLight = normalize(vec3(0.0, 0.3, 1.0));\n"
         "    float angle = max(dot(toLight, toLight), 0.0);\n"
-        "    vec3 col = vec3(0.40, 1.0, 0.0);\n"
+        "    vec3 col = vec3(0.10, 1.0, 0.0);\n"
         "    color = vec4(col * 0.2 + col * 0.8 * angle, 1.0);\n"
         "    color = clamp(color, 0.0, 1.0);\n"
         "    gl_Position = matrix * vertex;\n"
@@ -108,7 +108,7 @@ void MapsRenderer::render()
     if(!m_initialized) return;
     glDepthMask(true);
 
-    glClearColor(0.5f, 0.5f, 0.7f, 1.0f);
+    glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );

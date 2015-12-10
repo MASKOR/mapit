@@ -19,16 +19,16 @@
 
 #include <log4cplus/logger.h>
 #ifdef UPNS_DEBUG
-#ifdef USE_QT_STRUCTURES
-#define log_error(msg) do{log4cplus::Logger::getInstance(__FILE__).log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg); qassert_x(false, "upns", msg); break;}while(true)
-#else
-#define log_error(msg) do{log4cplus::Logger::getInstance(__FILE__).log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg); assert(false); break;}while(true)
-#endif
-#else
-#define log_error(msg) log4cplus::Logger::getInstance(__FILE__).log(log4cplus::ERROR_LOG_LEVEL, std::string() + msg)
-#endif
-#define log_warn(msg) log4cplus::Logger::getInstance(__FILE__).log(log4cplus::WARN_LOG_LEVEL, std::string() + msg)
-#define log_info(msg) log4cplus::Logger::getInstance(__FILE__).log(log4cplus::INFO_LOG_LEVEL, std::string() + msg)
+    #ifdef USE_QT_STRUCTURES
+        #define log_error(msg) do{LOG4CPLUS_ERROR(log4cplus::Logger::getInstance("main"), std::string() + msg); qassert_x(false, "upns", msg); break;}while(true)
+    #else
+        #define log_error(msg) do{LOG4CPLUS_ERROR(log4cplus::Logger::getInstance("main"), std::string() + msg); assert(false); break;}while(true)
+    #endif
+#else // UPNS_DEBUG
+    #define log_error(msg) LOG4CPLUS_ERROR(log4cplus::Logger::getInstance("main"), std::string() + msg)
+#endif // UPNS_DEBUG
+#define log_warn(msg) LOG4CPLUS_WARN(log4cplus::Logger::getInstance("main"), std::string() + msg)
+#define log_info(msg) LOG4CPLUS_INFO(log4cplus::Logger::getInstance("main"), std::string() + msg)
 
 namespace upns
 {
