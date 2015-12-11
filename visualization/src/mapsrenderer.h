@@ -18,6 +18,7 @@ public:
 
     void setMapmanager(upns::MapManager *mapman);
     void setMapId( upns::MapIdentifier mapId);
+    void reloadMap();
 private:
 
     qreal   m_fAngle;

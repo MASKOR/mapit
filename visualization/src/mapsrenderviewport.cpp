@@ -65,6 +65,11 @@ public:
     }
 
 public Q_SLOTS:
+    void reloadMap()
+    {
+        m_mapsRenderer->reloadMap();
+    }
+
     void renderNext()
     {
         context->makeCurrent(surface);
@@ -273,6 +278,7 @@ MapsRenderViewport::MapsRenderViewport()
     connect(this, &MapsRenderViewport::mapIdChanged, m_renderThread, &RenderThread::setMapId);
     connect(this, &QQuickItem::widthChanged, m_renderThread, [&](){m_renderThread->setWidth(width());});
     connect(this, &QQuickItem::heightChanged, m_renderThread, [&](){m_renderThread->setHeight(height());});
+    connect(this, &MapsRenderViewport::needsReload, m_renderThread, &RenderThread::reloadMap);
 }
 
 void MapsRenderViewport::ready()
@@ -342,4 +348,10 @@ QSGNode *MapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDa
     return node;
 }
 
+void MapsRenderViewport::reload()
+{
+    Q_EMIT needsReload();
+}
+
 #include "mapsrenderviewport.moc"
+

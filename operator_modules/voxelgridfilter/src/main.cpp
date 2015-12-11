@@ -5,6 +5,7 @@
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
+#include <boost/weak_ptr.hpp>
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
@@ -22,8 +23,9 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     const OperationParameter* target = env->getParameter("target");
 
     if(     target == NULL
-            || target->mapval()   == 0 && target->layerval()  != 0
-            || target->layerval()  == 0) {
+            || target->mapval()   == 0 && target->layerval()  != 0)
+            //|| target->layerval()  == 0
+    {
         log_error("wrong combination of target ids was set. Valid: map and layer; map, layer and entity");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
@@ -42,6 +44,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         Layer *l = map->mutable_layers(i);
         if(l->id() == target->layerval())
         {
+            layer = l;
+            break;
+        }
+        else if(target->layerval() == 0 && l->type() == upns::POINTCLOUD2)
+        {
+            //TODO: this branch is TEMP. Do not 'randomly' choose first pcd layer but throw error. For testing only
             layer = l;
             break;
         }
@@ -90,14 +98,14 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
-    //pcl::PCLPointCloud2ConstPtr tmp(pc2.get());
-    sor.setInputCloud (pc2);
+    pcl::PCLPointCloud2ConstPtr stdPc2( pc2.get(), [](pcl::PCLPointCloud2*){});
+    sor.setInputCloud(stdPc2);
     sor.setLeafSize (leafSize, leafSize, leafSize);
 
     upnsPointcloud2Ptr cloud_filtered(new pcl::PCLPointCloud2 ());
-    sor.filter (*cloud_filtered);
+//    sor.filter (*cloud_filtered);
 
-    entityData->setData(cloud_filtered);
+//    entityData->setData(cloud_filtered);
 
     OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);

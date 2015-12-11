@@ -13,7 +13,7 @@ class QmlMap : public QObject
     Q_OBJECT
     Q_PROPERTY(QString id READ id WRITE setId NOTIFY idChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QQmlListProperty<QmlLayer> layers READ layers)
+    Q_PROPERTY(QQmlListProperty<QmlLayer> layers READ layers NOTIFY layersChanged)
     Q_PROPERTY(bool isValid READ isValid CONSTANT STORED false)
 
 public:
@@ -72,6 +72,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void idChanged(QString id);
     void nameChanged(QString name);
+    void layersChanged();
 
 private:
     upns::upnsSharedPointer<upns::Map> m_map;

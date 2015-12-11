@@ -13,6 +13,7 @@ class QmlLayer : public QObject
     Q_OBJECT
     Q_PROPERTY(QString id READ id WRITE setId NOTIFY idChanged)
     Q_PROPERTY(QQmlListProperty<QmlEntity> entities READ entities)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 public:
     QmlLayer(upns::Layer* obj);
@@ -30,6 +31,11 @@ public:
 
     Q_INVOKABLE QmlEntity *addEntity();
 
+    QString name() const
+    {
+        return QString::fromStdString(m_layer->name());
+    }
+
 public Q_SLOTS:
 
 
@@ -43,8 +49,20 @@ public Q_SLOTS:
         Q_EMIT idChanged(id);
     }
 
+    void setName(QString name)
+    {
+        std::string n(name.toStdString());
+        if (m_layer->name() == n)
+            return;
+
+        m_layer->set_name(n);
+        Q_EMIT nameChanged(name);
+    }
+
 Q_SIGNALS:
     void idChanged(QString id);
+
+    void nameChanged(QString name);
 
 private:
     upns::Layer *m_layer;

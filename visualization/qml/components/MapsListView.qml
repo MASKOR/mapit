@@ -7,25 +7,24 @@ import QtQuick.Layouts 1.1
 import "."
 
 ListView {
-    property var mapId
-    id: mapLayers
+    id: mapsList
     clip: true
-    model: Globals.getMap(mapId).layers
+    model: Globals.mapIdsModel
     highlight: Rectangle {
-        width: mapLayers.currentItem.width + 2
-        height: mapLayers.currentItem.height
+        width: mapsList.currentItem.width + 2
+        height: mapsList.currentItem.height
         color: palette.highlight
         radius: 1
-        y: mapLayers.currentItem.y
+        y: mapsList.currentItem.y
     }
     highlightFollowsCurrentItem: false
     delegate: Text {
         renderType: Text.NativeRendering
-        text: mapLayers.model[index].name.length===0?"<empty name>":mapLayers.model[index].name
-        color: mapLayers.currentIndex == index?palette.highlightedText:palette.text
+        text: Globals.getMap(mapId).name.length===0?"<empty name>":Globals.getMap(mapId).name
+        color: mapsList.currentIndex == index?palette.highlightedText:palette.text
         MouseArea {
             anchors.fill: parent
-            onClicked: mapLayers.currentIndex = index
+            onClicked: mapsList.currentIndex = index
         }
     }
     SystemPalette {

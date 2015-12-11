@@ -5,5 +5,10 @@
         <file>qml/components/qmldir</file>
         <file>qml/components/Globals.qml</file>
         <file>qml/components/MapChooser.qml</file>
+        <file>qml/operators/ButtonDefaultOperation.qml</file>
+        <file>qml/operators/ButtonLoadPointcloud.qml</file>
+        <file>qml/operators/ButtonVoxelGridFilter.qml</file>
+        <file>qml/components/MapsListView.qml</file>
+        <file>qml/components/MapLayerView.qml</file>
     </qresource>
 </RCC>

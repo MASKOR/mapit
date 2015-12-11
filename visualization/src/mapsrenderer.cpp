@@ -103,6 +103,14 @@ void MapsRenderer::setMapId(upns::MapIdentifier mapId)
     }
 }
 
+void MapsRenderer::reloadMap()
+{
+    if(m_initialized)
+    {
+        createGeometry();
+    }
+}
+
 void MapsRenderer::render()
 {
     if(!m_initialized) return;

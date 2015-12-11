@@ -25,6 +25,7 @@ QmlLayer *QmlMap::addLayer()
     if(!m_map) return NULL;
     upns::Layer* l = m_map->add_layers();
     m_layers.append( new QmlLayer(l) );
+    Q_EMIT layersChanged();
     return m_layers.back();
 }
 

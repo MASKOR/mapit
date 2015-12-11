@@ -6,15 +6,13 @@ import QtQuick.Layouts 1.1
 
 import fhac.upns 1.0
 import "components"
+import "operators"
 
 ApplicationWindow {
     title: qsTr("Map Visualization")
     width: 640
     height: 480
     visible: true
-    SystemPalette {
-        id: palette
-    }
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
@@ -101,161 +99,48 @@ ApplicationWindow {
             }
         }
     }
-    Dialog {
-        id: errorDialog
-        property alias text: errorText.text
-        title: "Error"
-        standardButtons: StandardButton.Ok
-        visible: false
-        Text {
-            id: errorText
-            renderType: Text.NativeRendering
-            color: palette.text
-        }
-        function showError(msg) {
-            text = msg
-            visible = true
-        }
-    }
 
     SplitView {
         anchors.fill: parent
         orientation: Qt.Horizontal
         ColumnLayout {
-            width: 220
             Layout.minimumWidth: 100
             Layout.maximumWidth: Number.MAX_VALUE
             Layout.fillHeight: true
-            Button {
-                width: Layout.width
-                text: "load_pointcloud"
-                onClicked: {
-                    dialog_load_pointcloud.open();
-                }
-                Dialog {
-                    id: dialog_load_pointcloud
-                    height: 30
-                    standardButtons: StandardButton.Ok | StandardButton.Cancel
-                    onVisibleChanged: {
-                        if(visible) {
-                            mapChooser.choosenMapId = Globals.mapIdsModel.get(mapsList.currentIndex).mapId
-                        }
-                    }
-                    onAccepted: {
-                        var opdesc = {
-                            "operatorname":"load_pointcloud",
-                            "params": [
-                                {
-                                    "key": "filename",
-                                    "strval": fileNamePcd.text
-                                }
-                            ]
-                        }
-                        if(mapChooser.choosenMapId !== "" && parseInt(mapChooser.choosenMapId) !== 0) {
-                            opdesc.params.push(
-                            {
-                                "key": "target",
-                                "mapval": mapChooser.choosenMapId
-                            });
-                            console.log("dbg: using old" + mapChooser.choosenMapId);
-                        } else if(mapChooser.choosenMapName !== "") {
-                            opdesc.params.push(
-                            {
-                                "key": "mapname",
-                                "strval": mapChooser.choosenMapName
-                            });
-                            console.log("dbg: creating nw" + mapChooser.choosenMapName);
-                        } else {
-                            console.log("dbg: none of the two");
-                        }
-                        var result = Globals.doOperation( opdesc, function(result) {
-                            if(result.status !== 0) {
-                                var errMsg = "An operation returned an error.\n";
-                                errMsg += "See the log file for more information.\n";
-                                errMsg += "\n"
-                                errMsg += "(Code: "+result.status+")"
-                                errorDialog.showError(errMsg);
-                                return
-                            }
-                            var loadedMapId = result.output.params.target.mapval
-                            mapsList.currentIndex = Globals.mapIdsModel.indexOfMap( loadedMapId )
-                        });
-                    }
-                    ColumnLayout {
-                        //anchors.fill: parent // dialog adapts it's size
-                        height: 200
-                        RowLayout {
-                            Layout.fillWidth: true
-                            TextField {
-                                id:fileNamePcd
-                            }
-                            Button {
-                                text: "Open"
-                                onClicked: {
-                                    openPcdFileDialog.open()
-                                }
-                            }
-                        }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            Text {
-                                Layout.alignment: Qt.AlignTop
-                                text: "Target:"
-                                color: palette.text
-                                renderType: Text.NativeRendering
-                            }
-                            MapChooser {
-                                id: mapChooser
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                            }
-                        }
-                    }
-                }
-                FileDialog {
-                    id: openPcdFileDialog
-                    title: "Open Pcd"
-                    selectExisting: true
-                    selectFolder: false
-                    selectMultiple: false
-                    onAccepted: {
-                        var filename = fileUrl.toString()
-                        filename = filename.replace(/^(file:\/{2})/,"")
-                        fileNamePcd.text = filename
-                    }
+            ButtonLoadPointcloud {
+                Layout.minimumWidth: 100
+                Layout.fillWidth: true
+                inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
+                onOutputMapIdChanged: {
+                    mapsList.currentIndex = Globals.mapIdsModel.indexOfMap( outputMapId )
                 }
             }
-            ListView {
+            ButtonVoxelGridFilter {
+                Layout.minimumWidth: 100
+                Layout.fillWidth: true
+                inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
+                onOutputMapIdChanged: {
+                    mapsList.currentIndex = Globals.mapIdsModel.indexOfMap( outputMapId )
+                }
+            }
+            MapsListView {
                 id: mapsList
                 Layout.fillHeight: true
+                Layout.minimumWidth: 100
                 Layout.fillWidth: true
-                clip: true
-                model: Globals.mapIdsModel
-                highlight: Rectangle {
-                    width: mapsList.currentItem.width + 2
-                    height: mapsList.currentItem.height
-                    color: palette.highlight
-                    radius: 1
-                    y: mapsList.currentItem.y
-                }
-                highlightFollowsCurrentItem: false
-                delegate: Text {
-                    renderType: Text.NativeRendering
-                    text: Globals.getMap(mapId).name
-                    onTextChanged: {
-                        if(text === "") text = "<empty name>"
-                    }
-                    color: mapsList.currentIndex == index?palette.highlightedText:palette.text
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: mapsList.currentIndex = index
-                    }
-                }
-
                 onCurrentIndexChanged: {
                     // simply using currentItem.mapId does not work
-                    drawingArea.mapId = Globals.mapIdsModel.get(currentIndex).mapId;
+                    var newMapId = Globals.mapIdsModel.get(currentIndex).mapId
+                    drawingArea.mapId = newMapId
+                    mapLayers.mapId = newMapId
+                }
+            }
+            MapLayerView {
+                id: mapLayers
+                Layout.fillWidth: true
+                Layout.minimumWidth: 100
+                Layout.preferredHeight: 200
+                onCurrentIndexChanged: {
                 }
             }
         }
@@ -266,5 +151,8 @@ ApplicationWindow {
             Layout.minimumWidth: 50
             mapManager: Globals._mapManager
         }
+    }
+    SystemPalette {
+        id: palette
     }
 }

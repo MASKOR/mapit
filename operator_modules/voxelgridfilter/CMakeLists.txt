@@ -14,15 +14,31 @@ add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
-find_package(PCL REQUIRED COMPONENTS common io)
+# Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
+# can lead problems resulting from to incompatible ABIs
+# (
+# solution:
+# git clone https://github.com/PointCloudLibrary/pcl.git
+# git checkout pcl-1.7.2
+# add line 'SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")' to CMakeLists.txt
+# mkdir build
+# cd build
+# cmake ..
+# make
+# sudo make install
+find_package(PCL 1.7 REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
+set(PCL_REALLY_ALL_LIBRARIES ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
 
 file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-
+message("PCL COMMON AND IO" ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
+message("PCL FILTER" ${PCL_FILTER_LIBRARIES})
+message("PCL FILTERS" ${PCL_FILTERS_LIBRARIES})
+message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} upns_interface upns_mapmanager)
+target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_mapmanager)
 
 #get_property(lib_location TARGET ${PROJECT_NAME} PROPERTY LOCATION)
 

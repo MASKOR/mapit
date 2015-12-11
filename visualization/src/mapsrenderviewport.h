@@ -48,11 +48,14 @@ public Q_SLOTS:
         Q_EMIT mapManagerChanged(mapManager);
     }
 
+    void reload();
+
 Q_SIGNALS:
     void mapIdChanged(QString mapId);
 
     void mapManagerChanged(QmlMapManager * mapManager);
 
+    void needsReload();
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
 

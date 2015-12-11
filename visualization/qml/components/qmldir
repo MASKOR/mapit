@@ -1,3 +1,4 @@
 singleton Globals 1.0 Globals.qml
 MapChooser 1.0 MapChooser.qml
 MapHistoryView 1.0 MapHistoryView.qml
+MapsListView 1.0 MapsListView.qml
