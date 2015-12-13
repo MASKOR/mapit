@@ -1,3 +1,4 @@
+if(USE_PCL)
 project(voxelgridfilter)
 cmake_minimum_required(VERSION 2.8)
 
@@ -58,3 +59,4 @@ add_custom_command(
     COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
     COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
 )
+endif(USE_PCL)

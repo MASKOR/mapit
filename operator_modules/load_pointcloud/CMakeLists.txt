@@ -1,3 +1,4 @@
+if(USE_PCL)
 project(load_pointcloud)
 cmake_minimum_required(VERSION 2.8)
 
@@ -13,7 +14,6 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 include_directories(${UPNS_INTERFACE_INCLUDE})
-
 find_package(PCL REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -42,3 +42,4 @@ add_custom_command(
     COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
     COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
 )
+endif(USE_PCL)
