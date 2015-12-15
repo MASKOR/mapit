@@ -1,5 +1,5 @@
 
-if(USE_PCL)
+if(NOT DISABLE_PCL)
 project(upns_visualization)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
@@ -152,4 +152,4 @@ add_custom_command(
     COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/visualization/logging.properties
 )
 
-endif(USE_PCL)
+endif(NOT DISABLE_PCL)

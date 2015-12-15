@@ -85,6 +85,11 @@ void MapsRenderer::initialize()
     m_initialized = true;
 }
 
+bool MapsRenderer::isInitialized()
+{
+    return m_initialized;
+}
+
 void MapsRenderer::setMapmanager(upns::MapManager *mapman)
 {
     m_mapManager = mapman;
@@ -101,6 +106,11 @@ void MapsRenderer::setMapId(upns::MapIdentifier mapId)
     {
         createGeometry();
     }
+}
+
+void MapsRenderer::setMatrix(const QMatrix4x4 &mat)
+{
+    m_matrix = mat;
 }
 
 void MapsRenderer::reloadMap()
@@ -135,7 +145,7 @@ void MapsRenderer::render()
     modelview.translate(0.0f, -0.2f, 0.0f);
 
     program1.bind();
-    program1.setUniformValue(matrixUniform1, modelview);
+    program1.setUniformValue(matrixUniform1, m_matrix);
     drawPointcloud();
     program1.release();
 

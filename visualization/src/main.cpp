@@ -4,11 +4,11 @@
 #include <qqml.h>
 #include <QResource>
 #include <QDebug>
-#include "mapsrenderviewport.h"
-#include "qmlmapmanager.h"
-#include "qmlmap.h"
-#include "qmllayer.h"
-#include "qmlentity.h"
+#include "render/mapsrenderviewport.h"
+#include "bindings/qmlmapmanager.h"
+#include "bindings/qmlmap.h"
+#include "bindings/qmllayer.h"
+#include "bindings/qmlentity.h"
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 #include <log4cplus/configurator.h>

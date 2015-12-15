@@ -7,12 +7,12 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
-if(USE_PCL)
+if(NOT DISABLE_PCL)
 find_package(PCL 1.7 REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-endif(USE_PCL)
+endif(NOT DISABLE_PCL)
 
 #file(GLOB_RECURSE UPNS_TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 

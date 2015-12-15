@@ -1,5 +1,5 @@
 
-if(USE_PCL)
+if(NOT DISABLE_PCL)
 project(layertype_pointcloud2)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
@@ -22,4 +22,4 @@ target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} )
 
 #target_link_libraries(${PROJECT_NAME} Qt5::Core )
 
-endif(USE_PCL)
+endif(NOT DISABLE_PCL)

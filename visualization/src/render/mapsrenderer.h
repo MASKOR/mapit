@@ -15,14 +15,17 @@ public:
 
     void render();
     void initialize();
+    bool isInitialized();
 
     void setMapmanager(upns::MapManager *mapman);
     void setMapId( upns::MapIdentifier mapId);
+    void setMatrix( const QMatrix4x4 &mat );
     void reloadMap();
 private:
 
     qreal   m_fAngle;
     qreal   m_fScale;
+    QMatrix4x4   m_matrix;
 
     void drawPointcloud();
     void createGeometry();
@@ -38,4 +41,5 @@ private:
     upns::MapIdentifier m_mapId;
     bool m_initialized;
 };
+
 #endif
