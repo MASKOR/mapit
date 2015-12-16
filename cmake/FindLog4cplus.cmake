@@ -28,6 +28,7 @@ find_path(LOG4CPLUS_INCLUDE_DIR
     /opt/local/include
     /opt/csw/include
     /opt/include
+    /usr/lib/include
     $ENV{LOG4CPLUS_DIR}/include
     $ENV{LOG4CPLUS_ROOT}/include
     ${LOG4CPLUS_DIR}/include
@@ -49,6 +50,7 @@ find_library(LOG4CPLUS_LIBRARY_RELEASE
     ${LOG4CPLUS_LIB_NAMES_RELEASE}
   PATHS
     /usr/local
+    /usr/lib
     /usr
     /sw
     /opt/local
@@ -60,12 +62,12 @@ find_library(LOG4CPLUS_LIBRARY_RELEASE
     ${LOG4CPLUS_ROOT}/lib
   NO_DEFAULT_PATH
 )
-
 find_library(LOG4CPLUS_LIBRARY_DEBUG
   NAMES
     ${LOG4CPLUS_LIB_NAMES_DEBUG}
   PATHS
     /usr/local
+    /usr/lib
     /usr
     /sw
     /opt/local
@@ -80,6 +82,11 @@ find_library(LOG4CPLUS_LIBRARY_DEBUG
 
 if(LOG4CPLUS_LIBRARY_DEBUG AND LOG4CPLUS_LIBRARY_RELEASE)
   set(LOG4CPLUS_LIBRARIES debug ${LOG4CPLUS_LIBRARY_DEBUG} optimized ${LOG4CPLUS_LIBRARY_RELEASE} CACHE STRING "Log4cplus Libraries")
+elseif(LOG4CPLUS_LIBRARY_RELEASE)
+  message(WARNING "log4cplus found no debuging found")
+  set(LOG4CPLUS_LIBRARIES optimized ${LOG4CPLUS_LIBRARY_RELEASE} CACHE STRING "Log4cplus Libraries")
+else()
+  message(WARNING "log4cplus not found")
 endif()
 
 
