@@ -11,6 +11,7 @@ class MapsRenderViewport : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QString mapId READ mapId WRITE setMapId NOTIFY mapIdChanged)
+    Q_PROPERTY(QString layerId READ layerId WRITE setLayerId NOTIFY layerIdChanged)
     Q_PROPERTY(QmlMapManager *mapManager READ mapManager WRITE setMapManager NOTIFY mapManagerChanged)
     Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
 
@@ -32,6 +33,11 @@ public:
     QMatrix4x4 matrix() const
     {
         return m_matrix;
+    }
+
+    QString layerId() const
+    {
+        return m_layerId;
     }
 
 public Q_SLOTS:
@@ -66,6 +72,15 @@ public Q_SLOTS:
         Q_EMIT matrixChanged(matrix);
     }
 
+    void setLayerId(QString layerId)
+    {
+        if (m_layerId == layerId)
+            return;
+
+        m_layerId = layerId;
+        Q_EMIT layerIdChanged(layerId);
+    }
+
 Q_SIGNALS:
     void mapIdChanged(QString mapId);
 
@@ -73,6 +88,8 @@ Q_SIGNALS:
 
     void needsReload();
     void matrixChanged(QMatrix4x4 matrix);
+
+    void layerIdChanged(QString layerId);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
@@ -82,6 +99,7 @@ private:
     QString m_mapId;
     QmlMapManager *m_mapManager;
     QMatrix4x4 m_matrix;
+    QString m_layerId;
 };
 
 #endif // MapsRenderer_H

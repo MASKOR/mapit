@@ -17,6 +17,7 @@ class RenderThread : public QThread
 {
     Q_OBJECT
     Q_PROPERTY(QString mapId READ mapId WRITE setMapId NOTIFY mapIdChanged)
+    Q_PROPERTY(QString layerId READ layerId WRITE setLayerId NOTIFY layerIdChanged)
     Q_PROPERTY(upns::MapManager *mapManager READ mapManager WRITE setMapManager NOTIFY mapManagerChanged)
     Q_PROPERTY(qreal width READ width WRITE setWidth NOTIFY widthChanged)
     Q_PROPERTY(qreal height READ height WRITE setHeight NOTIFY heightChanged)
@@ -33,42 +34,32 @@ public:
     upns::MapManager * mapManager() const;
 
     QString mapId() const;
-
+    QString layerId() const;
     qreal width() const;
-
     qreal height() const;
-
     QMatrix4x4 matrix() const;
 
 public Q_SLOTS:
     void reloadMap();
-
     void renderNext();
-
     void shutDown();
 
     void setMapManager(upns::MapManager * mapManager);
-
     void setMapId(QString mapId);
-
+    void setLayerId(QString layerId);
     void setWidth(qreal width);
-
     void setHeight(qreal height);
-
     void setMatrix(QMatrix4x4 matrix);
 
 Q_SIGNALS:
     void textureReady(int id, const QSize &size);
 
     void mapManagerChanged(upns::MapManager * mapManager);
-
     void mapIdChanged(QString mapId);
-
     void widthChanged(qreal width);
-
     void heightChanged(qreal height);
-
     void matrixChanged(QMatrix4x4 matrix);
+    void layerIdChanged(QString layerId);
 
 private:
     QOpenGLFramebufferObject *m_renderFbo;
@@ -78,6 +69,7 @@ private:
     QSize m_size;
     upns::MapManager *m_mapManager;
     QString m_mapId;
+    QString m_layerId;
     QMatrix4x4 m_matrix;
 };
 

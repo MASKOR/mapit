@@ -76,8 +76,6 @@ void MapsRenderer::initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-    m_fAngle = 0;
-    m_fScale = 1;
     if(m_mapManager && m_mapId != 0)
     {
         createGeometry();
@@ -102,6 +100,15 @@ void MapsRenderer::setMapmanager(upns::MapManager *mapman)
 void MapsRenderer::setMapId(upns::MapIdentifier mapId)
 {
     m_mapId = mapId;
+    if(m_initialized)
+    {
+        createGeometry();
+    }
+}
+
+void MapsRenderer::setLayerId(LayerIdentifier layerId)
+{
+    m_layerId = layerId;
     if(m_initialized)
     {
         createGeometry();
@@ -137,13 +144,6 @@ void MapsRenderer::render()
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-    QMatrix4x4 modelview;
-    modelview.rotate(m_fAngle, 0.0f, 1.0f, 0.0f);
-    modelview.rotate(m_fAngle, 1.0f, 0.0f, 0.0f);
-    modelview.rotate(m_fAngle, 0.0f, 0.0f, 1.0f);
-    modelview.scale(m_fScale);
-    modelview.translate(0.0f, -0.2f, 0.0f);
-
     program1.bind();
     program1.setUniformValue(matrixUniform1, m_matrix);
     drawPointcloud();
@@ -151,8 +151,6 @@ void MapsRenderer::render()
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-
-    m_fAngle += 1.0f;
 }
 
 void MapsRenderer::createGeometry()
@@ -162,7 +160,24 @@ void MapsRenderer::createGeometry()
     normals.clear();
 
     upns::upnsSharedPointer<upns::Map> map = m_mapManager->getInternalMapService()->getMap(m_mapId);
-    upns::upnsSharedPointer<upns::AbstractEntityData> aed = m_mapManager->getInternalMapService()->getEntityData(m_mapId, map->layers(0).id(), map->layers(0).entities(0).id());
+    const Layer* layer = NULL;
+    for(int i=0 ; i < map->layers_size() ; ++i)
+    {
+        const upns::Layer& l = map->layers(i);
+        if(l.id() == m_layerId)
+        {
+            layer = &l;
+            break;
+        }
+    }
+    if(layer == NULL)
+    {
+        log_error("tried to visualize wrong mapId and layerId. Map with "
+                  "Id: " + QString::number(m_mapId).toStdString() + " does not "
+                  "contain layer: " + QString::number(m_layerId).toStdString());
+        return;
+    }
+    upns::upnsSharedPointer<upns::AbstractEntityData> aed = m_mapManager->getInternalMapService()->getEntityData(m_mapId, layer->id(), layer->entities(0).id());
     upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(aed);
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 

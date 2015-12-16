@@ -103,9 +103,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     sor.setLeafSize (leafSize, leafSize, leafSize);
 
     upnsPointcloud2Ptr cloud_filtered(new pcl::PCLPointCloud2 ());
-//    sor.filter (*cloud_filtered);
+    sor.filter (*cloud_filtered);
+    std::stringstream strstr;
+    strstr << "new pointcloudsize " << cloud_filtered->width;
+    log_info( strstr.str() );
 
-//    entityData->setData(cloud_filtered);
+    entityData->setData(cloud_filtered);
 
     OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);

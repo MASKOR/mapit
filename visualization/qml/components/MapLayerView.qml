@@ -8,6 +8,7 @@ import "."
 
 ListView {
     property var mapId
+    property var currentLayerId
     id: mapLayers
     clip: true
     model: Globals.getMap(mapId).layers
@@ -26,6 +27,21 @@ ListView {
         MouseArea {
             anchors.fill: parent
             onClicked: mapLayers.currentIndex = index
+        }
+    }
+    onCurrentIndexChanged: {
+        var layerId = mapLayers.model[currentIndex].id
+        if(layerId !== currentLayerId) {
+            currentLayerId = layerId
+        }
+    }
+    onCurrentLayerIdChanged: {
+        for(var i=0 ; i < mapLayers.model.count ; ++i) {
+            var layerId = mapLayers.model[i].id
+            if( layerId === currentLayerId ) {
+                currentIndex = i;
+                return
+            }
         }
     }
     SystemPalette {

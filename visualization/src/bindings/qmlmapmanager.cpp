@@ -192,11 +192,37 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
                 }
                 else if(jparam.contains("intval"))
                 {
-                    param->set_intval( jparam["intval"].toInt() );
+                    const QJsonValue val = jparam["intval"];
+                    if( val.isDouble() )
+                    {
+                        param->set_intval( val.toInt() );
+                    }
+                    else if( val.isString() )
+                    {
+                        param->set_intval( val.toString().toInt() );
+                    }
+                    else if( val.isBool() )
+                    {
+                        param->set_intval( val.toBool()?1:0 );
+                    }
+                    else Q_ASSERT( false );
                 }
                 else if(jparam.contains("realval"))
                 {
-                    param->set_realval( jparam["realval"].toDouble() );
+                    const QJsonValue val = jparam["realval"];
+                    if( val.isDouble() )
+                    {
+                        param->set_realval( val.toDouble() );
+                    }
+                    else if( val.isString() )
+                    {
+                        param->set_realval( val.toString().toDouble() );
+                    }
+                    else if( val.isBool() )
+                    {
+                        param->set_realval( val.toBool()?1.0:0.0 );
+                    }
+                    else Q_ASSERT( false );
                 }
                 else if(jparam.contains("entityval"))
                 {

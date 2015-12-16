@@ -25,6 +25,7 @@ MapsRenderViewport::MapsRenderViewport()
             m_renderThread->setMapManager(mapManager()?mapManager()->getMapManager():NULL);
     });
     connect(this, &MapsRenderViewport::mapIdChanged, m_renderThread, &RenderThread::setMapId);
+    connect(this, &MapsRenderViewport::layerIdChanged, m_renderThread, &RenderThread::setLayerId);
     connect(this, &QQuickItem::widthChanged, m_renderThread, [&](){m_renderThread->setWidth(width());});
     connect(this, &QQuickItem::heightChanged, m_renderThread, [&](){m_renderThread->setHeight(height());});
     connect(this, &MapsRenderViewport::needsReload, m_renderThread, &RenderThread::reloadMap);

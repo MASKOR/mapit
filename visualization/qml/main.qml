@@ -103,44 +103,49 @@ ApplicationWindow {
     SplitView {
         anchors.fill: parent
         orientation: Qt.Horizontal
-        ColumnLayout {
+
+        Item {
             Layout.minimumWidth: 100
             Layout.maximumWidth: Number.MAX_VALUE
             Layout.fillHeight: true
-            ButtonLoadPointcloud {
-                Layout.minimumWidth: 100
-                Layout.fillWidth: true
-                inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
-                onOutputMapIdChanged: {
-                    mapsList.currentIndex = Globals.mapIdsModel.indexOfMap( outputMapId )
+            anchors.fill: parent //TODO: proper resizing
+            ColumnLayout {
+                anchors.fill: parent
+                ButtonLoadPointcloud {
+                    Layout.minimumWidth: 100
+                    Layout.fillWidth: true
+                    inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
+                    onOutputMapIdChanged: {
+                        mapsList.currentMapId = outputMapId
+                        Globals.reload(true)
+                        drawingArea.reload()
+                    }
                 }
-            }
-            ButtonVoxelGridFilter {
-                Layout.minimumWidth: 100
-                Layout.fillWidth: true
-                inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
-                onOutputMapIdChanged: {
-                    mapsList.currentIndex = Globals.mapIdsModel.indexOfMap( outputMapId )
+                ButtonVoxelGridFilter {
+                    Layout.minimumWidth: 100
+                    Layout.fillWidth: true
+                    inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
+                    onOutputMapIdChanged: {
+                        mapsList.currentMapId = outputMapId
+                        Globals.reload(true)
+                        drawingArea.reload()
+                    }
                 }
-            }
-            MapsListView {
-                id: mapsList
-                Layout.fillHeight: true
-                Layout.minimumWidth: 100
-                Layout.fillWidth: true
-                onCurrentIndexChanged: {
-                    // simply using currentItem.mapId does not work
-                    var newMapId = Globals.mapIdsModel.get(currentIndex).mapId
-                    drawingArea.mapId = newMapId
-                    mapLayers.mapId = newMapId
+                MapsListView {
+                    id: mapsList
+                    Layout.fillHeight: true
+                    Layout.minimumWidth: 100
+                    Layout.fillWidth: true
                 }
-            }
-            MapLayerView {
-                id: mapLayers
-                Layout.fillWidth: true
-                Layout.minimumWidth: 100
-                Layout.preferredHeight: 200
-                onCurrentIndexChanged: {
+                Text {
+                    text: "Layers"
+                }
+                MapLayerView {
+                    id: mapLayers
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 100
+                    Layout.preferredHeight: 200
+                    mapId: mapsList.currentMapId
                 }
             }
         }
@@ -150,6 +155,8 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.minimumWidth: 50
             mapManager: Globals._mapManager
+            mapId: mapsList.currentMapId
+            layerId: mapLayers.currentLayerId
             property real angleX: 0
             property real angleY: 0
             property real zoom: 1.0
