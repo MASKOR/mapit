@@ -17,6 +17,7 @@ CMakeLists.txt.user
 *.REMOTE.*
 libs/*
 .directory
+*.swp
 
 Release
 Debug
