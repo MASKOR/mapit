@@ -10,5 +10,6 @@
         <file>qml/operators/ButtonVoxelGridFilter.qml</file>
         <file>qml/components/MapsListView.qml</file>
         <file>qml/components/MapLayerView.qml</file>
+        <file>qml/components/LayerChooser.qml</file>
     </qresource>
 </RCC>

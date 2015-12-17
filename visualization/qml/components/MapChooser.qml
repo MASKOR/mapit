@@ -24,10 +24,10 @@ Item {
     TextField {
         id: comboButton
         readOnly: !root.allowNewMap
-        textColor: (choosenMapId !== "" && parseInt(root.choosenMapId) !== 0)?palette.text:"green"
+        textColor: (root.choosenMapId !== "" && parseInt(root.choosenMapId) !== 0)?palette.text:"green"
         onTextChanged: {
             // check if choosenId is aleady matching
-            if(choosenMapId !== "" && parseInt(root.choosenMapId) !== 0) {
+            if(root.choosenMapId !== "" && parseInt(root.choosenMapId) !== 0) {
                 var nam = Globals.getMap(root.choosenMapId).name
                 if( nam === text) {
                     return

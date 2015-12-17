@@ -105,10 +105,11 @@ ApplicationWindow {
         orientation: Qt.Horizontal
 
         Item {
+            width: 300
             Layout.minimumWidth: 100
             Layout.maximumWidth: Number.MAX_VALUE
-            Layout.fillHeight: true
-            anchors.fill: parent //TODO: proper resizing
+            //Layout.fillHeight: true
+            //anchors.fill: parent //TODO: proper resizing
             ColumnLayout {
                 anchors.fill: parent
                 ButtonLoadPointcloud {
@@ -136,6 +137,11 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     Layout.minimumWidth: 100
                     Layout.fillWidth: true
+//                    Rectangle {
+//                        anchors.fill: parent
+//                        border.width:  2
+//                        border.color: "red"
+//                    }
                 }
                 Text {
                     text: "Layers"
@@ -151,9 +157,9 @@ ApplicationWindow {
         }
         MapsRenderViewport {
             id: drawingArea
-            Layout.fillWidth: true
-            Layout.fillHeight: true
             Layout.minimumWidth: 50
+            Layout.fillWidth: true
+            //Layout.fillHeight: true
             mapManager: Globals._mapManager
             mapId: mapsList.currentMapId
             layerId: mapLayers.currentLayerId

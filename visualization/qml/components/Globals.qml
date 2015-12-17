@@ -24,7 +24,9 @@ Item {
         getMap(id, true)
     }
     function clearCache() {
-        privateMembers.maps = {}
+        mapIdsModel.idToIndex = {};
+        privateMembers.maps = {};
+        mapIdsModel.clear();
     }
     function doOperation(opDesc, onFinished, reloadLists) {
         var result = privateMembers.mapManager.doOperation(opDesc) //todo. async
@@ -36,14 +38,16 @@ Item {
             reload();
         }
     }
+//    function storeMap(mapObject) {
+//        var result = privateMembers.mapManager.
+//    }
     /**
      * Updates the list of known mapIds. If "cleanCache" is set to true, getMap() will be forced to get a new version
      * of a map for the next time it is called.
      */
     function reload(cleanCache) {
         if(cleanCache) {
-            mapIdsModel.idToIndex = {};
-            privateMembers.maps = {};
+            clearCache();
         }
         var allTheMaps = privateMembers.mapManager.listMaps();
         allTheMaps.forEach(function(id) {

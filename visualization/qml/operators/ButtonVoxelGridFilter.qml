@@ -19,7 +19,8 @@ ButtonDefaultOperation {
             "params": [
                 {
                     "key": "target",
-                    "mapval": mapChooser.choosenMapId
+                    "mapval": mapChooser.choosenMapId,
+                    "layerval": layerChooser.choosenLayerId
                 }, {
                     "key": "leafsize",
                     "realval": leafSizeText.text
@@ -38,6 +39,7 @@ ButtonDefaultOperation {
         id: controlsLayout
         //anchors.fill: parent // dialog adapts it's size
         height: 400
+        width: 500
         RowLayout {
             Layout.fillWidth: true
             Text {
@@ -57,14 +59,29 @@ ButtonDefaultOperation {
             Layout.fillHeight: true
             Text {
                 Layout.alignment: Qt.AlignTop
-                text: "Target:"
+                text: "Target: Map:"
                 color: palette.text
                 renderType: Text.NativeRendering
+                Layout.fillHeight: true
             }
             MapChooser {
                 id: mapChooser
-                Layout.fillWidth: true
                 Layout.fillHeight: true
+                width: 100
+            }
+            Text {
+                Layout.alignment: Qt.AlignTop
+                text: "Layer:"
+                color: palette.text
+                renderType: Text.NativeRendering
+                Layout.fillHeight: true
+            }
+            LayerChooser {
+                id: layerChooser
+                Layout.fillHeight: true
+                width: 100
+                rootMap: Globals.getMap(mapChooser.choosenMapId)
+                allowNewLayer: false
             }
         }
         SystemPalette {

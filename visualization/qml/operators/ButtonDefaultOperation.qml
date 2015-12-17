@@ -24,7 +24,8 @@ Button {
     }
     Dialog {
         id: settingsDialog
-        height: 30
+        height: 300
+        width: 500
         standardButtons: StandardButton.Ok | StandardButton.Cancel
         onVisibleChanged: {
             if(visible) {

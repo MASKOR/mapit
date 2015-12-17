@@ -13,50 +13,55 @@ ListView {
     clip: true
     model: Globals.mapIdsModel
     highlight: Rectangle {
-        width: mapsList.currentItem.width + 2
+        width: mapsList.currentItem.width
         height: mapsList.currentItem.height
         color: palette.highlight
         radius: 1
         y: mapsList.currentItem.y
     }
     highlightFollowsCurrentItem: false
-    delegate: //Item {
-//        height: innerText.height
-//        width: innerText.width
+    delegate: Item {
+        id: theItem
+        height: innerText.height
+        width: textForWidth.width + 10
+        Text {
+            id: textForWidth
+            opacity: 0.0
+            text: innerText.text
+            height: 1
+        }
         TextField {
             id: innerText
-            //renderType: Text.NativeRendering
+            anchors.fill: parent
             text: Globals.getMap(mapId).name.length===0?"<empty name>":Globals.getMap(mapId).name
             textColor: mapsList.currentIndex == index?palette.highlightedText:palette.text
             style: TextFieldStyle {
-                //textColor: (root.isInputBlock||root.isOutputBlock)?ColorTheme.inputOutputBlockTextColor:ColorTheme.blockTextColor
-                renderType: Text.NativeRendering
+                //renderType: Text.NativeRendering
+
                 background: Rectangle {
                     radius: 2
-                    //implicitWidth: middleWidthText.width + 10
-                    implicitHeight: 24
                     border.color: mapsList.currentIndex == index?palette.highlight:palette.dark
                     border.width: 1
-                    color: palette.highlight
+                    color: Qt.darker(palette.highlight)
                     opacity: Math.min(innerText.hovered * 0.2 + innerText.focus, 1.0)
                 }
             }
+            onFocusChanged: {
+                if(focus) mapsList.currentIndex = index
+            }
+//            onEditingFinished: {
+//                Mapm
+//            }
             MouseArea {
-                anchors.fill: parent
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: mapsList.currentIndex === index ? 0 : parent.height // hide mousearea to make cursor change for underlaying textfield
+                acceptedButtons: Qt.LeftButton // | Qt.RightButton
                 onClicked: mapsList.currentIndex = index
             }
         }
-//        TextField {
-//            id: innerText
-//            renderType: Text.NativeRendering
-//            text: Globals.getMap(mapId).name.length===0?"<empty name>":Globals.getMap(mapId).name
-//            color: mapsList.currentIndex == index?palette.highlightedText:palette.text
-//            MouseArea {
-//                anchors.fill: parent
-//                onClicked: mapsList.currentIndex = index
-//            }
-//        }
-//    }
+    }
     onCurrentIndexChanged: {
         // simply using currentItem.mapId does not work
         var mapId = Globals.mapIdsModel.get(currentIndex).mapId;
