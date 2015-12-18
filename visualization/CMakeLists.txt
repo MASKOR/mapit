@@ -27,6 +27,7 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 find_package(Qt5Qml 5.4 REQUIRED)
 find_package(Qt5Widgets 5.4 REQUIRED)
 find_package(Qt5Quick 5.4 REQUIRED)
+find_package(OPENVDB)
 
 find_package(Boost REQUIRED system iostreams)
 find_package(TBB REQUIRED)
@@ -50,11 +51,6 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 # there is no FindOpenVDB - cmake script yet...
 #### FindOpenVDB
-
-if(UNIX)
-add_library( openvdb SHARED IMPORTED )
-set_target_properties( openvdb PROPERTIES IMPORTED_LOCATION /usr/local/lib/libopenvdb.so )
-endif(UNIX)
 
 # todo: windows part is a mess
 if(WIN32)
@@ -134,7 +130,7 @@ add_custom_target(resourceFilesViz ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb )
 else(WIN32)
-target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} openvdb Half tbb )
+  target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${OpenVdb_LIBRARIES} Half tbb )
 endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager)
