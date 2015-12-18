@@ -49,9 +49,33 @@ ListView {
             onFocusChanged: {
                 if(focus) mapsList.currentIndex = index
             }
-//            onEditingFinished: {
-//                Mapm
-//            }
+            onEditingFinished: {
+                var opdesc = {
+                    "operatorname":"updatemetadata",
+                    "params": [
+                        {
+                            "key": "target",
+                            "mapval": mapId
+                        },
+                        {
+                            "key": "name",
+                            "strval": text
+                        }
+                    ]
+                }
+                var success = Globals.doOperation( opdesc, function(result) {
+                    if(result.status !== 0) {
+                        var errMsg = "An operation returned an error.\n";
+                        errMsg += "See the log file for more information.\n";
+                        errMsg += "\n"
+                        errMsg += "(Code: "+result.status+")"
+                        errorDialog.showError(errMsg);
+                        return
+                    }
+                    root.operationResult = result
+                    root.operationFinished(result)
+                });
+            }
             MouseArea {
                 anchors.top: parent.top
                 anchors.left: parent.left

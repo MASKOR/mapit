@@ -15,7 +15,7 @@ public:
     MapManager *mapManager() const;
     MapService *mapServiceVersioned() const;
     const OperationDescription *getDescription() const;
-    const OperationParameter *getParameter(std::string key) const;
+    const OperationParameter *getParameter(const std::string &key) const;
     void setOutputDescription(const OperationDescription out);
     const OperationDescription& outputDescription() const;
 private:

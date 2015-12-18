@@ -33,7 +33,7 @@ const OperationDescription *OperationEnvironmentImpl::getDescription() const
     return &m_operationDesc;
 }
 
-const OperationParameter *OperationEnvironmentImpl::getParameter(std::string key) const
+const OperationParameter *OperationEnvironmentImpl::getParameter(const std::string &key) const
 {
     for(int p=0; p < m_operationDesc.params_size() ; ++p)
     {

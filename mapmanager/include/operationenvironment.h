@@ -25,7 +25,7 @@ public:
      */
     virtual MapService *mapServiceVersioned() const = 0;
     virtual const OperationDescription *getDescription() const = 0;
-    virtual const OperationParameter *getParameter(std::string key) const = 0;
+    virtual const OperationParameter *getParameter(const std::string &key) const = 0;
     virtual void setOutputDescription(OperationDescription) = 0;
     virtual const OperationDescription& outputDescription() const = 0;
 };

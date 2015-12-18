@@ -10,6 +10,7 @@ Item {
     SystemPalette {
         id: palette
     }
+    height: 24
     property string choosenMapId /// can be 0 if new map wants to be created
     property alias choosenMapName: comboButton.text
     property real extendedHeight: 200
@@ -24,6 +25,7 @@ Item {
     TextField {
         id: comboButton
         readOnly: !root.allowNewMap
+        anchors.fill: parent
         textColor: (root.choosenMapId !== "" && parseInt(root.choosenMapId) !== 0)?palette.text:"green"
         onTextChanged: {
             // check if choosenId is aleady matching
@@ -49,8 +51,9 @@ Item {
 
     ListView {
         id: mapsList
-        height: 120
-        width: Math.max(parent.width, extendedHeight)
+        height: Math.max(parent.height, extendedHeight)
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.top: comboButton.bottom
         clip:true
         visible: comboButton.focus
