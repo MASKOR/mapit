@@ -27,6 +27,7 @@ Item {
         mapIdsModel.idToIndex = {};
         privateMembers.maps = {};
         mapIdsModel.clear();
+        console.log("dbg: cleared the cache")
     }
     function doOperation(opDesc, onFinished, reloadLists) {
         var result = privateMembers.mapManager.doOperation(opDesc) //todo. async
@@ -35,7 +36,7 @@ Item {
         }
         var typeofReload = typeof reloadLists
         if(typeofReload === "boolean" && reloadLists === true || typeofReload === "undefined") {
-            reload();
+            reload( true );
         }
     }
 //    function storeMap(mapObject) {

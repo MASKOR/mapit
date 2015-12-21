@@ -8,6 +8,8 @@
 #    SHA1 "a25a7fa55c204a8126efd1f48593a662925b26da"
 #)
 
+# Note: DISABLE_PCL does not yet work with minimal custom headers of pcl.
+# At least components io and common are needed
 project(upns)
 cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
 aux_source_directory(. SRC_LIST)

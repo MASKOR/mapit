@@ -190,7 +190,7 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
                 {
                     param->set_strval( jparam["strval"].toString().toStdString() );
                 }
-                else if(jparam.contains("intval"))
+                if(jparam.contains("intval"))
                 {
                     const QJsonValue val = jparam["intval"];
                     if( val.isDouble() )
@@ -207,7 +207,7 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
                     }
                     else Q_ASSERT( false );
                 }
-                else if(jparam.contains("realval"))
+                if(jparam.contains("realval"))
                 {
                     const QJsonValue val = jparam["realval"];
                     if( val.isDouble() )
@@ -224,28 +224,28 @@ void QmlMapManager::operationDescriptionFromJsonObject(upns::OperationDescriptio
                     }
                     else Q_ASSERT( false );
                 }
-                else if(jparam.contains("entityval"))
+                if(jparam.contains("entityval"))
                 {
                     param->set_entityval( jparam["entityval"].toString().toULongLong() );
                 }
-                else if(jparam.contains("layerval"))
+                if(jparam.contains("layerval"))
                 {
                     param->set_layerval( jparam["layerval"].toString().toULongLong() );
                 }
-                else if(jparam.contains("mapval"))
+                if(jparam.contains("mapval"))
                 {
                     param->set_mapval( jparam["mapval"].toString().toULongLong() );
                 }
-                else if(jparam.contains("transformval"))
+                if(jparam.contains("transformval"))
                 {
                     log_error("not yet implemented to set transfrom val");
                 }
-                else
-                {
-                    log_error("unknown json could not be converted to operation description."
-                              "Check for lower case 'V' and correct member."
-                              "Key: ’"+ jparam["key"].toString().toStdString() + "’");
-                }
+//                else
+//                {
+//                    log_error("unknown json could not be converted to operation description."
+//                              "Check for lower case 'V' and correct member."
+//                              "Key: ’"+ jparam["key"].toString().toStdString() + "’");
+//                }
                 paramIter++;
             }
         }

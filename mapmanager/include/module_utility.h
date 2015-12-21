@@ -42,7 +42,7 @@ Layer* parseLayer(Map* map, const OperationParameter *param)
     return layer;
 }
 
-Entity* parseEntity(Layer* layer, const OperationParameter *param, bool retrieveOmittedSingleEntity = true)
+Entity* parseEntity(Layer* layer, const OperationParameter *param, bool retrieveOmittedSingleEntity = false)
 {
     Entity *entity = NULL;
     if(param->entityval() == 0)

@@ -1,5 +1,4 @@
 
-if(NOT DISABLE_PCL)
 project(upns_visualization)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
@@ -33,13 +32,19 @@ find_package(Boost REQUIRED system iostreams)
 find_package(TBB REQUIRED)
 
 # didn't do the hassle to compile pcl under windows...
-if (NOT WIN32)
-find_package(PCL 1.7 REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
+if(NOT (WIN32 OR DISABLE_PCL))
+find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-add_definitions(-DENABLE_PCL)
-endif (NOT WIN32)
+else( NOT (WIN32 OR DISABLE_PCL))
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+set(PCL_CUSTOM_ROOT ${UPNS_ROOT_DIR}/externals/pcl-custom/include)
+include_directories(${PCL_CUSTOM_ROOT})
+FILE(GLOB PCL_CUSTOM_SRC ${PCL_CUSTOM_ROOT}/impl/* ${PCL_CUSTOM_ROOT}/common/impl/* ${PCL_CUSTOM_ROOT}/io/impl/*)
+set(PCL_CUSTOM_LIB ${Boost_SYSTEM_LIBRARY})
+endif (NOT (WIN32 OR DISABLE_PCL))
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
@@ -121,14 +126,15 @@ add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${TesControlShader}
                                 ${TesEvalShader}
                                 ${GeometryShader}
-                                ${GlslIncludeShader})
+                                ${GlslIncludeShader}
+                                ${PCL_CUSTOM_SRC})
 
 add_custom_target(resourceFilesViz ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
 if(WIN32)
-target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb )
+target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb )
 else(WIN32)
-target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} openvdb Half tbb )
+target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} openvdb Half tbb )
 endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager)
@@ -151,5 +157,3 @@ add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/visualization/logging.properties
 )
-
-endif(NOT DISABLE_PCL)

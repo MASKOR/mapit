@@ -50,6 +50,9 @@ ListView {
                 if(focus) mapsList.currentIndex = index
             }
             onEditingFinished: {
+                //enabled = false
+                focus = false
+                if(text !== Globals.getMap(mapId).name) return
                 var opdesc = {
                     "operatorname":"updatemetadata",
                     "params": [
@@ -64,6 +67,7 @@ ListView {
                     ]
                 }
                 var success = Globals.doOperation( opdesc, function(result) {
+                    //enabled = true
                     if(result.status !== 0) {
                         var errMsg = "An operation returned an error.\n";
                         errMsg += "See the log file for more information.\n";
@@ -72,8 +76,8 @@ ListView {
                         errorDialog.showError(errMsg);
                         return
                     }
-                    root.operationResult = result
-                    root.operationFinished(result)
+                    //root.operationResult = result
+                    //root.operationFinished(result)
                 });
             }
             MouseArea {
@@ -100,6 +104,22 @@ ListView {
                 currentIndex = i;
                 return
             }
+        }
+    }
+    Dialog {
+        id: errorDialog
+        property alias text: errorText.text
+        title: "Error"
+        standardButtons: StandardButton.Ok
+        visible: false
+        Text {
+            id: errorText
+            renderType: Text.NativeRendering
+            color: palette.text
+        }
+        function showError(msg) {
+            text = msg
+            visible = true
         }
     }
     SystemPalette {
