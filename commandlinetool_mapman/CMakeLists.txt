@@ -5,7 +5,7 @@ aux_source_directory(. SRC_LIST)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
-find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
+find_package( Boost 1.54 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
 
 link_directories(${YAML_CPP_LIB_DIR})
