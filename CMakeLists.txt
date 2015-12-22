@@ -17,6 +17,9 @@ aux_source_directory(. SRC_LIST)
 # c++11 for grpc dependencies
 add_definitions(-std=c++11)
 
+set(CMAKE_DEBUG_POSTFIX d)
+add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
+
 set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
 # add custom cmake scripts. i.e. FindProcessorCount...

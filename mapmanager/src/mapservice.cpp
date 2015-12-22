@@ -161,13 +161,7 @@ upnsSharedPointer<AbstractEntityData> MapService::wrapEntityOfType(LayerType typ
 upnsSharedPointer<AbstractEntityData> MapService::wrapEntityOfType(upnsString layertypeName,
                                                                   upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
-    upnsSharedPointer<AbstractEntityData> ret;
-#ifndef NDEBUG
-    upnsString debug = "d";
-#else
-    upnsString debug = "";
-#endif
-
+    upnsString debug = DEBUG_POSTFIX;
 #ifdef _WIN32
     upnsString prefix = "";
     upnsString postfix = ".dll";

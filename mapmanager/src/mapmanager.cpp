@@ -96,12 +96,7 @@ OperationResult MapManager::doOperation(const OperationDescription &desc)
     OperationEnvironmentImpl env(desc);
     env.setMapManager( this );
     env.setMapService( this->m_innerService );
-#ifndef NDEBUG
-    upnsString debug = "d";
-#else
-    upnsString debug = "";
-#endif
-
+    upnsString debug = DEBUG_POSTFIX;
 #ifdef _WIN32
     upnsString prefix = "";
     upnsString postfix = ".dll";
