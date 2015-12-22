@@ -22,6 +22,7 @@ add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
 
 set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
+add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
 # add custom cmake scripts. i.e. FindProcessorCount...
 set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
