@@ -125,7 +125,7 @@ ApplicationWindow {
                 ButtonVoxelGridFilter {
                     Layout.minimumWidth: 100
                     Layout.fillWidth: true
-                    inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
+                    inputMapId: mapsList.currentMapId
                     onOutputMapIdChanged: {
                         mapsList.currentMapId = outputMapId
                         Globals.reload(true)
@@ -163,6 +163,8 @@ ApplicationWindow {
             mapManager: Globals._mapManager
             mapId: mapsList.currentMapId
             layerId: mapLayers.currentLayerId
+            property var pos: Qt.vector3d(1.0,0.0,0.0)
+            property var offset: Qt.vector2d(0.0,0.0)
             property real angleX: 0
             property real angleY: 0
             property real zoom: 1.0
@@ -183,12 +185,17 @@ ApplicationWindow {
                                    0.0, Math.cos(angleY), -Math.sin(angleY), 0.0,
                                    0.0, Math.sin(angleY),  Math.cos(angleY), 0.0,
                                    0.0,              0.0, 0.0              , 1.0)
+            property var posMat: Qt.matrix4x4(
+                                     1.0, 0.0, 0.0, pos.x,
+                                     0.0, 1.0, 0.0, pos.y,
+                                     0.0, 0.0, 1.0, pos.z,
+                                     0.0, 0.0, 0.0, 1.0)
             property var zoomMat: Qt.matrix4x4(
                                    zoom, 0.0,  0.0, 0.0,
                                    0.0,  zoom, 0.0, 0.0,
                                    0.0,  0.0, zoom, 0.0,
                                    0.0,  0.0,  0.0, 1.0)
-            matrix: rotY.times(rotX).times(zoomMat)
+            matrix: posMat.times(rotY).times(rotX).times(zoomMat)
             MouseArea {
                 id: screenMouse
                 anchors.fill: parent
@@ -207,9 +214,17 @@ ApplicationWindow {
                     ay = drawingArea.angleY
                 }
                 onPositionChanged: {
-                    if(!pressed) return
-                    drawingArea.angleX = ax + (mx-mouseX)*0.05
-                    drawingArea.angleY = ay + (my-mouseY)*0.05
+                    var leftButton = screenMouse.pressedButtons & Qt.LeftButton
+                    var rightButton = screenMouse.pressedButtons & Qt.RightButton
+                    var middleButton = screenMouse.pressedButtons & Qt.MiddleButton
+                    if(leftButton && !rightButton) {
+                        // rotate mode
+                        drawingArea.angleX = ax + (mx-mouseX)*0.05
+                        drawingArea.angleY = ay + (my-mouseY)*0.05
+                    } else if(middleButton || leftButton && rightButton) {
+                        // translate mode
+
+                    }
                 }
             }
         }
