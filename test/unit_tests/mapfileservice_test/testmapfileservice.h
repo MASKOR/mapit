@@ -3,7 +3,7 @@
 
 #include <QTest>
 
-#include "../../../mapmanager/src/mapleveldb/mapleveldbserializer.h"
+#include "../../../libs/mapmanager/src/mapleveldb/mapleveldbserializer.h"
 
 class TestMapFileService : public QObject
 {

@@ -1,6 +1,6 @@
 #include "module.h"
-#include "layertypes/pointcloud2/include/pointcloudlayer.h"
-#include "mapmanager/src/mapmanager.h" //< TODO: use interface (something in include folder)!
+#include "libs/layertypes/pointcloud2/include/pointcloudlayer.h"
+#include "libs/mapmanager/src/mapmanager.h" //< TODO: use interface (something in include folder)!
 #include "operationenvironment.h"
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>

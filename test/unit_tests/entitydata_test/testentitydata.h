@@ -3,8 +3,8 @@
 
 #include <QTest>
 
-#include "../../../mapmanager/src/mapmanager.h"
-#include "../../../mapmanager/src/mapservice.h"
+#include "../../../libs/mapmanager/src/mapmanager.h"
+#include "../../../libs/mapmanager/src/mapservice.h"
 
 class TestEntitydata : public QObject
 {

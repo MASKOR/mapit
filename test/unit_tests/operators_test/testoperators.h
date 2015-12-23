@@ -3,7 +3,7 @@
 
 #include <QTest>
 
-#include "../../../mapmanager/src/mapmanager.h"
+#include "../../../libs/mapmanager/src/mapmanager.h"
 
 class TestOperators : public QObject
 {

@@ -3,8 +3,8 @@
 
 #include <QtCore>
 #include <QJsonObject>
-#include "mapmanager/src/mapmanager.h"
-#include "upns_interface/services.pb.h"
+#include "libs/mapmanager/src/mapmanager.h"
+#include "libs/upns_interface/services.pb.h"
 #include <QQmlListProperty>
 
 class QmlEntity : public QObject

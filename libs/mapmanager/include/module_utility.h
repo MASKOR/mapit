@@ -3,7 +3,7 @@
 
 #include "upns.h"
 #include "operationenvironment.h"
-#include "upns_interface/services.pb.h"
+#include "libs/upns_interface/services.pb.h"
 namespace upns
 {
 

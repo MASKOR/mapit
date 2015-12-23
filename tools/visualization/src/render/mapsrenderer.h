@@ -5,7 +5,7 @@
 #include <QOpenGLFunctions>
 #include <QVector>
 
-#include "mapmanager/src/mapmanager.h"
+#include "libs/mapmanager/src/mapmanager.h"
 
 class MapsRenderer : protected QOpenGLFunctions
 {

@@ -2,7 +2,7 @@
 #define __ABSTRACTLAYERDATA_H
 
 #include "upns_globals.h"
-#include "upns_interface/services.pb.h"
+#include "libs/upns_interface/services.pb.h"
 #include <limits>
 
 namespace upns

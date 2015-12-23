@@ -58,26 +58,26 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 
-set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/upns_interface/generated/)
+set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
 
-add_subdirectory(mapmanager)
-add_subdirectory(operator_modules)
+add_subdirectory(libs/mapmanager)
+add_subdirectory(libs/operator_modules)
 add_subdirectory(test)
-add_subdirectory(upns_interface)
-add_subdirectory(interface_grpc)
-add_subdirectory(layertypes)
+add_subdirectory(libs/upns_interface)
+add_subdirectory(libs/interface_grpc)
+add_subdirectory(libs/layertypes)
 #add_subdirectory(commandlinetool_mapman)
 #add_subdirectory(externals)
 #add_subdirectory(externals/yaml-cpp)
 if(ENABLE_VISUALIZATION)
-add_subdirectory(visualization)
+  add_subdirectory(tools/visualization)
 endif(ENABLE_VISUALIZATION)
 
 #hunter_add_package(yaml-cpp)
 
 include(ExternalProject) # ExternalProject_Add
 
-set(YAML_CPP_INSTALL_DIR ${PROJECT_SOURCE_DIR}/libs/yaml-cpp-0.5.2)
+set(YAML_CPP_INSTALL_DIR ${PROJECT_SOURCE_DIR}/externals/libs/yaml-cpp-0.5.2)
 set(YAML_CPP_INCLUDE ${YAML_CPP_INSTALL_DIR}/include)
 set(YAML_CPP_LIB_DIR ${YAML_CPP_INSTALL_DIR}/lib)
 

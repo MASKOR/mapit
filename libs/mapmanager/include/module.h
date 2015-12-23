@@ -4,7 +4,7 @@
 #include "upns.h"
 #include "entitydata.h"
 #include <boost/config.hpp>
-#include "upns_interface/services.pb.h"
+#include "libs/upns_interface/services.pb.h"
 
 // Always export. Headernot needed for import, because of dynamic loading at runtime.
 #ifdef WIN32
