@@ -141,15 +141,15 @@ add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} 
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/visualization/data
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/visualization/data
 )
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ln -sfT ${UPNS_ROOT_DIR}/resources ${CMAKE_BINARY_DIR}/visualization/resources
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/resources ${CMAKE_BINARY_DIR}/tools/visualization/resources
 )
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/visualization/logging.properties
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/tools/visualization/logging.properties
 )
