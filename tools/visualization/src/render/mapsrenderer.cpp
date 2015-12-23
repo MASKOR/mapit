@@ -181,6 +181,7 @@ void MapsRenderer::createGeometry()
     upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(aed);
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*pc2, *cloud);
 

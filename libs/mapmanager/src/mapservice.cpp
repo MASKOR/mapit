@@ -174,7 +174,7 @@ upnsSharedPointer<AbstractEntityData> MapService::wrapEntityOfType(upnsString la
     upnsString prefix = "lib";
     upnsString postfix = ".so";
 #endif
-    void* handle = dlopen((upnsString("../layertypes/") + prefix + layertypeName + debug + postfix).c_str(), RTLD_NOW);
+    void* handle = dlopen((upnsString("./layertypes/") + prefix + layertypeName + debug + postfix).c_str(), RTLD_NOW);
     if (!handle) {
         std::cerr << "Cannot open library: " << dlerror() << '\n';
         return upnsSharedPointer<AbstractEntityData>(NULL);

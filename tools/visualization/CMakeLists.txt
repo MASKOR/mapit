@@ -151,5 +151,15 @@ add_custom_command(
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ln -sfT ${CMAKE_BINARY_DIR}/libs/operator_modules ${CMAKE_BINARY_DIR}/tools/visualization/operator_modules
+)
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ln -sfT ${CMAKE_BINARY_DIR}/layertypes ${CMAKE_BINARY_DIR}/tools/visualization/layertypes
+)
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/tools/visualization/logging.properties
 )
