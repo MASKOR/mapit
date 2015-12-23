@@ -4,7 +4,7 @@
 #include "upns_globals.h"
 #include "libs/upns_interface/services.pb.h"
 #include "libs/mapmanager/src/mapmanager.h"
-#include "libs/layertypes/pointcloud2/include/pointcloudlayer.h"
+#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>

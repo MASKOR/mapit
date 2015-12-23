@@ -1,7 +1,7 @@
 #include "testentitydata.h"
 #include "upns_globals.h"
 #include "../../src/autotest.h"
-#include "libs/layertypes/pointcloud2/include/pointcloudlayer.h"
+#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 #include "yaml-cpp/yaml.h"
 #include <QDir>
 #include <QVector>

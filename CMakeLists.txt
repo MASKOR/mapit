@@ -60,11 +60,11 @@ include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
 
 add_subdirectory(libs/mapmanager)
-add_subdirectory(libs/operator_modules)
+add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(test/unit_tests)
 add_subdirectory(libs/upns_interface)
 add_subdirectory(libs/interface_grpc)
-add_subdirectory(libs/layertypes)
+add_subdirectory(libs/layertypes_collection)
 #add_subdirectory(commandlinetool_mapman)
 #add_subdirectory(externals)
 #add_subdirectory(externals/yaml-cpp)

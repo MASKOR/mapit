@@ -110,7 +110,7 @@ OperationResult MapManager::doOperation(const OperationDescription &desc)
     upnsString postfix = ".so";
 #endif
     std::stringstream filename;
-    filename << "./operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    filename << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
         filename << "." << desc.operatorversion();
