@@ -1,5 +1,5 @@
-[submodule "upns_interface"]
-	path = upns_interface
+[submodule "libs/upns_interface"]
+	path = libs/upns_interface
 	url = gitolite@robotics.fh-aachen.de:upns_interface
 [submodule "externals/leveldb"]
 	path = externals/leveldb
