@@ -61,7 +61,7 @@ set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
 
 add_subdirectory(libs/mapmanager)
 add_subdirectory(libs/operator_modules)
-add_subdirectory(test)
+add_subdirectory(test/unit_tests)
 add_subdirectory(libs/upns_interface)
 add_subdirectory(libs/interface_grpc)
 add_subdirectory(libs/layertypes)
