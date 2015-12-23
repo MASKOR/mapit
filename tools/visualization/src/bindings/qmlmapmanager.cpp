@@ -69,7 +69,7 @@ void QmlMapManager::initialize()
     YAML::Node conf;
     YAML::Node mapsource;
     mapsource["name"] = "MapFileService";
-    mapsource["filename"] = "test.db";
+    mapsource["filename"] = "test2.db";
     conf["mapsource"] = mapsource;
     m_mapManager = new upns::MapManager(conf);
 }
