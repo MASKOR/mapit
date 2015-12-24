@@ -58,47 +58,18 @@ ListView {
                 }
             }
             onFocusChanged: {
-                if(focus) mapLayers.currentIndex = index
+                //TODO; not perfect yet with timers
+                // Note that editbox is behaving strange when focus changes. (mapLayers undefined segfault)
+                if(focus) {
+                    focusChangeTimer.newIndex = index
+                    focusChangeTimer.start()
+                }
             }
             onEditingFinished: {
-                //enabled = false
-                focus = false
-                var allLayers = Globals.getMap(mapLayers.mapId).layers;
-                for(var i=0 ; i< allLayers.length ; ++i) {
-                    var l = allLayers[i]
-                    if(l.id === mapLayers.currentLayerId && l.name === text) {
-                        return
-                    }
-                }
-                var opdesc = {
-                    "operatorname":"updatemetadata",
-                    "params": [
-                        {
-                            "key": "target",
-                            "mapval": mapLayers.mapId,
-                            "layerval": mapLayers.currentLayerId
-                        },
-                        {
-                            "key": "name",
-                            "strval": text
-                        }
-                    ]
-                }
-                console.log("dbg: newname" + text);
-                console.log("dbg: mapid" + mapLayers.mapId + " lay " + mapLayers.currentLayerId);
-                var success = Globals.doOperation( opdesc, function(result) {
-                    //enabled = true
-                    if(result.status !== 0) {
-                        var errMsg = "An operation returned an error.\n";
-                        errMsg += "See the log file for more information.\n";
-                        errMsg += "\n"
-                        errMsg += "(Code: "+result.status+")"
-                        errorDialog.showError(errMsg);
-                        return
-                    }
-                    //root.operationResult = result
-                    //root.operationFinished(result)
-                });
+                antiSegfaultTimer.mapId = mapLayers.mapId
+                antiSegfaultTimer.layerId = mapLayers.currentLayerId
+                antiSegfaultTimer.newName = innerText.text
+                antiSegfaultTimer.start();
             }
             MouseArea {
                 anchors.top: parent.top
@@ -111,7 +82,68 @@ ListView {
         }
     }
 
-
+    Timer {
+        property var newIndex
+        id: focusChangeTimer
+        interval: 1
+        repeat: false
+        running: false
+        onTriggered: {
+            mapLayers.currentIndex = newIndex
+        }
+    }
+    Timer {
+        property var mapId
+        property var layerId
+        property var newName
+        id: antiSegfaultTimer
+        interval: 1
+        repeat: false
+        running: false
+        onTriggered: {
+            rename(mapId, layerId, newName)
+        }
+        function rename(mapId, layerId, newName) {
+            //enabled = false
+            focus = false // qml bug causes seg fault
+            var allLayers = Globals.getMap(mapId).layers;
+            for(var i=0 ; i< allLayers.length ; ++i) {
+                var l = allLayers[i]
+                if(l.id === layerId && l.name === newName) {
+                    return
+                }
+            }
+            var opdesc = {
+                "operatorname":"updatemetadata",
+                "params": [
+                    {
+                        "key": "target",
+                        "mapval": mapId,
+                        "layerval": layerId
+                    },
+                    {
+                        "key": "name",
+                        "strval": newName
+                    }
+                ]
+            }
+            console.log("dbg: newname" + newName);
+            console.log("dbg: mapid" + mapId + " lay " + layerId);
+            var success = Globals.doOperation( opdesc, function(result) {
+                //enabled = true
+                if(result.status !== 0) {
+                    var errMsg = "An operation returned an error.\n";
+                    errMsg += "See the log file for more information.\n";
+                    errMsg += "\n"
+                    errMsg += "(Code: "+result.status+")"
+                    errorDialog.showError(errMsg);
+                    return
+                }
+                //root.operationResult = result
+                //root.operationFinished(result)
+            });
+        }
+    }
 
     onCurrentIndexChanged: {
         var layerId = mapLayers.model[currentIndex].id
