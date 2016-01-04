@@ -33,9 +33,17 @@ macro(use_protobuf)
 
 find_package(Protobuf)
 if(NOT EXISTS ${PROTOBUF_INCLUDE_DIRS})
-execute_process(COMMAND ./configure WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
-execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
-#execute_process(COMMAND sudo make install WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
+    #Note: if this hangs, protobuf may does not support multithreaded build ( -j 8 )
+    #execute_process(COMMAND ./configure WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
+    #execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
+    #execute_process(COMMAND sudo make install WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)
+
 endif(NOT EXISTS ${PROTOBUF_INCLUDE_DIRS})
+
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
+#if(NOT EXISTS ${PROTOBUF_LIBRARIES})
+#    link_directories(${PROTOBUF_LIBRARY_PATH})
+#    set(PROTOBUF_LIBRARIES protobuf)
+#endif(NOT EXISTS ${PROTOBUF_LIBRARIES})
 
 endmacro(use_protobuf)
