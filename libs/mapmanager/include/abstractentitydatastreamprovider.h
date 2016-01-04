@@ -13,6 +13,7 @@ namespace upns
  * streamed and localized data in 3D space. For native pointcloud2 this might be slow, as there is no information on where to find points of
  * a specific region in a 1 dimensional stream. For more sophisticated datastructures (octrees, ...) operations will be faster.
  * TODO: Might be called AbstractObjectDataStreamProvider
+ * Do not read the write stream and do not write the read stream.
  */
 
 class AbstractEntityDataStreamProvider
@@ -37,10 +38,41 @@ public:
      * @return a stream to read data from
      */
     virtual upnsIStream *startRead(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
+    /**
+     * @brief endRead Tell underlying implementation, that the stream is no longer needed in memory.
+     * May unlock other operations on the stream.
+     * @param strm The stream returned by startRead()
+     */
     virtual void endRead(upnsIStream *strm) = 0;
 
+    /**
+     * @brief startWrite Write data to an entity
+     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+     * @param len defaultvalue of 0 indicates, that data will be written until end
+     * @return a stream to write data to
+     */
     virtual upnsOStream *startWrite(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
+    /**
+     * @brief endWrite Tell the underlying implementation, that write operation has finished.
+     * This will cause a rehashing of the stream, the entity and all parents.
+     * @param strm
+     */
     virtual void endWrite(upnsOStream *strm) = 0;
+
+    virtual upnsuint64 getStreamSize() const = 0;
+
+    virtual void setStreamSize(upnsuint64) = 0;
+
+    /**
+     * @brief lock If multiple writes are done and subsequent rehashing is not wanted, lock will supress rehashing.
+     * @return
+     */
+    virtual LockHandle lock() = 0;
+
+    /**
+     * @brief unlock after unlocking rehashing will be done, if there were writes after locking.
+     */
+    virtual void unlock(LockHandle) = 0;
 };
 
 }

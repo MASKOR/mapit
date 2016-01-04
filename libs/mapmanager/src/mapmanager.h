@@ -29,7 +29,7 @@
  * Every object can serialize/deserialize to/from a given source. Examples for sources: network, harddisk, memory (e.g. on undo-command).
  *
  * MapGraph -> Map:                 lazy  (listMaps -> getMap(s))
- * Map      -> Layer:               hard  (Map::layers)
+ * Map      -> Layer:               lazy  (getLayers()) (previously "hard"  (Map::layers), but must be treeish)
  * Layer    -> LayerData/Region:    lazy  (getLayerdata)
  * Layer    -> history:             lazy  (not yet discussed, TODO)
  *

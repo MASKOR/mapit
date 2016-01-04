@@ -77,13 +77,19 @@ template <typename T1, typename T2>
 using upnsPair = std::pair<T1, T2>;
 #endif
 
+using CommitId = upnsString;
 using MapIdentifier = upnsuint64;
 using LayerIdentifier = upnsuint64;
 using EntityIdentifier = upnsuint64;
 
 using LockHandle = upnsuint32;
 using StatusCode = upnsuint32;
+
 using CommitId = upnsString;
+using ObjectId = upnsString;
+
+#define InvalidCommitId "invalidCId"
+#define InvalidObjectId "invalidOId"
 
 using StatusPair = upnsPair<MapIdentifier, StatusCode>;
 using MapResultsVector = upnsVec<StatusPair >;

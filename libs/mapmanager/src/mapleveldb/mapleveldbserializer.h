@@ -36,6 +36,11 @@ public:
     upnsSharedPointer<Map> createMap(upnsString name);
     MapResultsVector removeMaps(upnsVec<MapIdentifier> &mapIds);
 
+    LayerVector getLayers(MapIdentifier &mapId);
+    MapResultsVector storeLayers(LayerVector &layers);
+    upnsSharedPointer<Layer> createLayer(MapIdentifier &map, upnsString layerName);
+    MapResultsVector removeLayers(upnsVec<LayerIdentifier> &layerIds);
+
     upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(MapIdentifier    mapId,
                                                                          LayerIdentifier  layerId,
                                                                          EntityIdentifier entityId);
@@ -56,7 +61,7 @@ private:
     QLockFile *m_lockFile;
 
     std::string mapKey(MapIdentifier mapId) const;
-    std::string entityKey(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId) const;
+    std::string entityKey(MapIdentifier mapId, LayerIdentifier layerId, EntityIdentifier entityId) const;    
 };
 
 }

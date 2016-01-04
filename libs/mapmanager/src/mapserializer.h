@@ -16,11 +16,24 @@ class MapSerializer
 {
 public:
     virtual ~MapSerializer() {};
-    virtual upnsVec<MapIdentifier> listMaps() = 0;
-    virtual MapVector getMaps(upnsVec<MapIdentifier> &mapIds) = 0;
-    virtual MapResultsVector storeMaps( MapVector &maps ) = 0;
-    virtual upnsSharedPointer<Map> createMap(upnsString name) = 0;
-    virtual MapResultsVector removeMaps( upnsVec<MapIdentifier> &mapIds ) = 0;
+
+
+
+//    virtual upnsVec<MapIdentifier> listMaps() = 0;
+//    virtual MapVector getMaps(upnsVec<MapIdentifier> &mapIds) = 0;
+//    virtual MapResultsVector storeMaps( MapVector &maps ) = 0;
+//    virtual upnsSharedPointer<Map> createMap(upnsString name) = 0;
+//    virtual MapResultsVector removeMaps( upnsVec<MapIdentifier> &mapIds ) = 0;
+
+//    virtual LayerVector getLayers(MapIdentifier &mapId) = 0;
+//    virtual MapResultsVector storeLayers( LayerVector &layers ) = 0;
+//    virtual upnsSharedPointer<Layer> createLayer(MapIdentifier &map, upnsString layerName) = 0;
+//    virtual MapResultsVector removeLayers( upnsVec<LayerIdentifier> &layerIds ) = 0;
+
+//    virtual LayerVector getEntity(MapIdentifier &mapId) = 0;
+//    virtual MapResultsVector storeLayers( LayerVector &layers ) = 0;
+//    virtual upnsSharedPointer<Layer> createLayer(MapIdentifier &map, upnsString layerName) = 0;
+//    virtual MapResultsVector removeLayers( upnsVec<LayerIdentifier> &layerIds ) = 0;
 
     //virtual upnsSharedPointer<Map> receiveNewMap(upnsString name) = 0;
 
