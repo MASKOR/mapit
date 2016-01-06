@@ -29,13 +29,13 @@ public:
     bool canRead() = 0;
     bool canWrite() = 0;
 
-    upnsSharedPointer<Treeish> getTreeish(const ObjectId &oid) = 0;
-    StatusCode storeTreeish(upnsSharedPointer<Treeish> &treeish) = 0;
-    StatusCode createTreeish(upnsSharedPointer<Treeish> &treeish) = 0;
-    StatusCode removeTreeish(const ObjectId &oid) = 0;
+    upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
+    StatusCode storeTree(upnsSharedPointer<Tree> &tree) = 0;
+    StatusCode createTree(upnsSharedPointer<Tree> &tree) = 0;
+    StatusCode removeTree(const ObjectId &oid) = 0;
 
     upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
-    StatusCode storeEntity(upnsSharedPointer<Entity> &treeish) = 0;
+    StatusCode storeEntity(upnsSharedPointer<Entity> &tree) = 0;
     StatusCode createEntity(upnsSharedPointer<Entity> &entity) = 0;
     StatusCode removeEntity(const ObjectId &oid) = 0;
 

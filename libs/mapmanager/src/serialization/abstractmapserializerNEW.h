@@ -24,10 +24,10 @@ public:
     bool canRead() = 0;
     bool canWrite() = 0;
 
-    virtual upnsSharedPointer<Treeish> getTreeish(const ObjectId &oid) = 0;
-    virtual StatusCode storeTreeish(upnsSharedPointer<Treeish> &treeish) = 0;
-    virtual StatusCode createTreeish(upnsSharedPointer<Treeish> &treeish) = 0;
-    virtual StatusCode removeTreeish(const ObjectId &oid) = 0;
+    virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
+    virtual StatusCode storeTree(upnsSharedPointer<Tree> &tree) = 0;
+    virtual StatusCode createTree(upnsSharedPointer<Tree> &tree) = 0;
+    virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
     virtual StatusCode storeEntity(upnsSharedPointer<Entity> &entity) = 0;

@@ -41,42 +41,42 @@ public:
     void setConflictSolved(ObjectId solved);
 
     /**
-     * @brief getConflicts gets references to mine, theirs and base of all conflicting treeishs/entities after merge.
+     * @brief getConflicts gets references to mine, theirs and base of all conflicting trees/entities after merge.
      * In the Checkout Tree, the objects are stored with the ObjectReference of "mine".
      * All conflicts, marked as solved are not returned.
      * @return
      */
     upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
 
-    upnsSharedPointer<Treeish> getRoot();
+    upnsSharedPointer<Tree> getRoot();
     /**
-     * @brief getChild gets a Treeish from repository. Treeish must be reachable from this checkout (descendant of <root>)
+     * @brief getChild gets a Tree from repository. Tree must be reachable from this checkout (descendant of <root>)
      * @param objectId
      * @return child
      */
-    upnsSharedPointer<Treeish> getChild(ObjectId objectId);
+    upnsSharedPointer<Tree> getChild(ObjectId objectId);
 
     /**
      * @brief getMap same as getChild, but can be used to make code more understandable
      * @param objectId
      * @return childMap
      */
-    inline upnsSharedPointer<Treeish> getMap(ObjectId objectId) { return getChild( objectId ); }
+    inline upnsSharedPointer<Tree> getMap(ObjectId objectId) { return getChild( objectId ); }
     /**
      * @brief getLayer same as getChild, but can be used to make code more understandable
      * @param objectId
      * @return childLayer
      */
-    inline upnsSharedPointer<Treeish> getLayer(ObjectId objectId) { return getChild( objectId ); }
+    inline upnsSharedPointer<Tree> getLayer(ObjectId objectId) { return getChild( objectId ); }
     /**
      * @brief getEntity same as getChild, but can be used to make code more understandable
      * @param objectId
      * @return childEntity
      */
-    inline upnsSharedPointer<Treeish> getEntity(ObjectId objectId) { return getChild( objectId ); }
+    inline upnsSharedPointer<Tree> getEntity(ObjectId objectId) { return getChild( objectId ); }
 
-    StatusCode storeTreeish(ObjectId previous, Treeish treeish);
-    StatusCode createTreeish(ObjectId parent, Treeish treeish);
+    StatusCode storeTree(ObjectId previous, Tree tree);
+    StatusCode createTree(ObjectId parent, Tree tree);
 
     upnsSharedPointer<Entity> createEntity(ObjectId parent);
 
@@ -87,9 +87,9 @@ public:
      * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
      * After the internally used stream provider calls "endWrite()", the stream gets hashed and new ObjectIds are generated.
      * Entity::id -> hash of stream
-     * Treeish (layer) id -> child updated, rehash
-     * Treeish (map  ) id -> child updated, rehash
-     * Treeish (root ) id -> child updated, rehash
+     * Tree (layer) id -> child updated, rehash
+     * Tree (map  ) id -> child updated, rehash
+     * Tree (root ) id -> child updated, rehash
      * @param entityId
      * @return
      */

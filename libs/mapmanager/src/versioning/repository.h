@@ -69,7 +69,7 @@ public:
     StatusCode push(Repository &repo);
 
     /**
-     * @brief pull TODO: same as <repo>.pull(this) ???
+     * @brief pull TODO: same as <repo>.push(this) ???
      * @param repo
      * @return status
      */
