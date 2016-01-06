@@ -1,7 +1,7 @@
-#include "mapleveldb/mapleveldbserializer.h"
+#include "leveldbserializer.h"
 #include "upns.h"
 #include "util.h"
-#include "mapleveldb/leveldbentitydatastreamprovider.h"
+#include "leveldbentitydatastreamprovider.h"
 #include "leveldb/db.h"
 #include <assert.h>
 #include <services.pb.h>
@@ -14,10 +14,19 @@
 #include <QFileInfo>
 #include <QLockFile>
 
+#define LDBSER_DELIM "!"
+#define KEY_PREFIX_CHECKOUT "co"
+#define KEY_PREFIX_COMMIT "obj!cm"
+#define KEY_PREFIX_TREE "obj!tr"
+#define KEY_PREFIX_ENTITY "obj!ent"
+#define KEY_PREFIX_ENTITY "blob!ed"
+#define KEY_PREFIX_TAG "obj!tag"
+#define KEY_PREFIX_BRANCH "ref!branch"
+
 namespace upns
 {
 
-MapLeveldbSerializer::MapLeveldbSerializer(const YAML::Node &config)
+LevelDBSerializer::LevelDBSerializer(const YAML::Node &config)
 {
     std::string databaseName;
     if(config["filename"])
@@ -52,21 +61,22 @@ MapLeveldbSerializer::MapLeveldbSerializer(const YAML::Node &config)
     assert(status.ok());
 }
 
-MapLeveldbSerializer::~MapLeveldbSerializer()
+LevelDBSerializer::~LevelDBSerializer()
 {
     // destruction of m_lockFile will unlock the database if previously acquired.
     delete m_db;
     delete m_lockFile;
 }
 
-upnsVec<MapIdentifier> upns::MapLeveldbSerializer::listMaps()
+upnsVec< upnsSharedPointer<Commit> > LevelDBSerializer::listCheckouts()
 {
-    upnsVec<MapIdentifier> ret;
+    upnsVec<upnsSharedPointer<Commit> > ret;
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
         const leveldb::Slice &key = it->key();
-        if(key.starts_with("branches!master"))
+        if(key.starts_with(KEY_PREFIX_CHECKOUT))
         {
+            todo slicetoid: get last 40 chars
             const MapIdentifier mi = sliceEndToId( key );
             ret.push_back( mi );
         }

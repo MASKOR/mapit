@@ -94,6 +94,13 @@ public:
      * @return
      */
     upnsSharedPointer<AbstractEntityData> getEntityData(const ObjectId &entityId);
+
+private:
+    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
+                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
+                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    AbstractMapSerializer* m_serializer;
 };
 
 }

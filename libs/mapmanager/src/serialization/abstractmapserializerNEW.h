@@ -21,8 +21,8 @@ public:
     AbstractMapSerializer();
     virtual ~AbstractMapSerializer();
 
-    bool canRead() = 0;
-    bool canWrite() = 0;
+    virtual bool canRead() = 0;
+    virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
     virtual StatusCode storeTree(upnsSharedPointer<Tree> &tree) = 0;
@@ -58,12 +58,6 @@ public:
      * @return
      */
     virtual StatusCode cleanUp() = 0;
-
-private:
-    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
-                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
-                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 };
 
 }
