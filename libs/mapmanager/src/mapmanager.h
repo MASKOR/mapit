@@ -37,40 +37,40 @@
  * doOperation(/*upnsSharedPointer<Map> targetMap, upnsSharedPointer<Layer> targetLayer, upnsString &operationName,* / upnsString config);
  */
 
-namespace upns
-{
+//namespace upns
+//{
 
-class MapManager
-{
-public:
-    MapManager(const YAML::Node &config);
-    ~MapManager();
-    upnsVec<MapIdentifier> listMaps();
-    MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
+//class MapManager
+//{
+//public:
+//    MapManager(const YAML::Node &config);
+//    ~MapManager();
+//    upnsVec<MapIdentifier> listMaps();
+//    MapVector getMaps(upnsVec<MapIdentifier> &mapIds);
 
-    /// convenience ///
-    upnsSharedPointer<Map> getMap( MapIdentifier mapId );
-    ///////////////////
+//    /// convenience ///
+//    upnsSharedPointer<Map> getMap( MapIdentifier mapId );
+//    ///////////////////
 
-    bool canRead();
-    bool canWrite();
+//    bool canRead();
+//    bool canWrite();
 
-    OperationResult doOperation(const OperationDescription &desc);
+//    OperationResult doOperation(const OperationDescription &desc);
 
-    CommitId commit();
-    /**
-    * @brief getMapService is used to retrieve the internal mapservice
-    * This Method exposes internal implementation and should not be used. (It is here for unit testing)
-    * TODO: Read book about testing. What to do when a unit test is the only place a method is needed to be public?
-    * TODO: The Test uses map service to write maps directly. Usually it would have to use mapmanager to do this.
-    *       Unit test would get bigger then.
-    * @return
-    */
-    MapService *getInternalMapService();
+//    CommitId commit();
+//    /**
+//    * @brief getMapService is used to retrieve the internal mapservice
+//    * This Method exposes internal implementation and should not be used. (It is here for unit testing)
+//    * TODO: Read book about testing. What to do when a unit test is the only place a method is needed to be public?
+//    * TODO: The Test uses map service to write maps directly. Usually it would have to use mapmanager to do this.
+//    *       Unit test would get bigger then.
+//    * @return
+//    */
+//    MapService *getInternalMapService();
 
-private:
-    MapService *m_innerService;
-};
+//private:
+//    MapService *m_innerService;
+//};
 
-}
+//}
 #endif

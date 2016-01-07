@@ -19,7 +19,7 @@
 #define KEY_PREFIX_COMMIT "obj!cm"
 #define KEY_PREFIX_TREE "obj!tr"
 #define KEY_PREFIX_ENTITY "obj!ent"
-#define KEY_PREFIX_ENTITY "blob!ed"
+#define KEY_PREFIX_DATA "blob!ed"
 #define KEY_PREFIX_TAG "obj!tag"
 #define KEY_PREFIX_BRANCH "ref!branch"
 

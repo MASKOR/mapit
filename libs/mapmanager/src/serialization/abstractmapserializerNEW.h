@@ -51,8 +51,15 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj) = 0;
     virtual StatusCode removeBranch(const ObjectId &oid) = 0;
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId) = 0;
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool readOnly = true) = 0;
 
+    virtual bool exists(const ObjectId &oid) = 0;
+    virtual bool exists(const CommitId &cid) = 0;
+    virtual bool isTree(const ObjectId &oid) = 0;
+    virtual bool isEntity(const ObjectId &oid) = 0;
+    virtual bool isCommit(const CommitId &oid) = 0;
+    virtual bool isCheckout(const CommitId &oid) = 0;
+    virtual bool isBranch(const CommitId &oid) = 0;
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
      * @return
