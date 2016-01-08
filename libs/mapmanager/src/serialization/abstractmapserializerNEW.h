@@ -25,13 +25,13 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
-    virtual StatusCode storeTree(upnsSharedPointer<Tree> &tree) = 0;
-    virtual StatusCode createTree(upnsSharedPointer<Tree> &tree) = 0;
+    virtual StatusCode storeTree(upnsSharedPointer<Tree> &obj) = 0;
+    virtual StatusCode createTree(upnsSharedPointer<Tree> &obj) = 0;
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
-    virtual StatusCode storeEntity(upnsSharedPointer<Entity> &entity) = 0;
-    virtual StatusCode createEntity(upnsSharedPointer<Entity> &entity) = 0;
+    virtual StatusCode storeEntity(upnsSharedPointer<Entity> &obj) = 0;
+    virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj) = 0;
     virtual StatusCode removeEntity(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Commit> getCommit(const ObjectId &oid) = 0;
@@ -39,6 +39,7 @@ public:
     virtual StatusCode createCommit(upnsSharedPointer<Commit> &obj) = 0;
     virtual StatusCode removeCommit(const ObjectId &oid) = 0;
 
+    virtual upnsVec< ObjectId > listCheckoutIds() = 0;
     virtual upnsVec< upnsSharedPointer<Commit> > listCheckouts() = 0;
     virtual upnsSharedPointer<Commit> getCheckoutCommit(const ObjectId &oid) = 0;
     virtual StatusCode storeCheckoutCommit(upnsSharedPointer<Commit> &obj) = 0;
@@ -54,7 +55,7 @@ public:
     virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool readOnly = true) = 0;
 
     virtual bool exists(const ObjectId &oid) = 0;
-    virtual bool exists(const CommitId &cid) = 0;
+    //virtual bool exists(const CommitId &cid) = 0;
     virtual bool isTree(const ObjectId &oid) = 0;
     virtual bool isEntity(const ObjectId &oid) = 0;
     virtual bool isCommit(const CommitId &oid) = 0;

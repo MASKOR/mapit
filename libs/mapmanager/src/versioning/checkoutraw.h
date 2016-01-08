@@ -3,10 +3,7 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "abstractentitydatastreamprovider.h"
-#include "../serialization/abstractmapserializerNEW.h"
 #include "entitydata.h"
-#include "checkoutimpl.h"
 
 namespace upns
 {
@@ -26,15 +23,7 @@ namespace upns
 class CheckoutRaw
 {
 public:
-    /**
-     * @brief Checkout Checkouts represent an editable state of a group of maps.
-     * @param serializer
-     * @param commitOrCheckoutId
-     */
-    CheckoutRaw(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId);
-    ~CheckoutRaw();
-
-    virtual StatusCode storeTree(ObjectId previous, Tree tree) = 42;
+    StatusCode storeTree(ObjectId previous, Tree tree);
     StatusCode createTree(ObjectId parent, Tree tree);
 
     upnsSharedPointer<Entity> createEntity(ObjectId parent);
@@ -51,7 +40,7 @@ public:
      * @param entityId
      * @return
      */
-    upnsSharedPointer<AbstractEntityData> getEntityData(const ObjectId &entityId, bool readOnly = true);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityData(const ObjectId &entityId, bool readOnly = true) = 0;
 };
 
 }

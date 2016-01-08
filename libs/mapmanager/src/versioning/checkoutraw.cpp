@@ -4,15 +4,6 @@
 namespace upns
 {
 
-CheckoutRaw::CheckoutRaw(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId)
-    :CheckoutImpl(serializer, commitOrCheckoutId)
-{
-}
-
-CheckoutRaw::~CheckoutRaw()
-{
-}
-
 StatusCode CheckoutRaw::storeTree(ObjectId previous, Tree tree)
 {
 }
@@ -30,9 +21,9 @@ void CheckoutRaw::setConflictSolved(ObjectId solved)
 
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutRaw::getEntityData(const ObjectId &entityId, bool readOnly)
-{
-    return CheckoutImpl::getEntityDataImpl(entityId, readOnly);
-}
+//upnsSharedPointer<AbstractEntityData> CheckoutRaw::getEntityData(const ObjectId &entityId, bool readOnly)
+//{
+//    return CheckoutImpl::getEntityDataImpl(entityId, readOnly);
+//}
 
 }

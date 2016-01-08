@@ -41,11 +41,12 @@ public:
     CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId);
     ~CheckoutImpl();
 
-    virtual bool isInConflictMode() = 0;
-    virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts() = 0;
-    virtual upnsSharedPointer<Tree> getRoot() = 0;
-    virtual upnsSharedPointer<Tree> getChild(ObjectId objectId) = 0;
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId) = 0;
+    virtual bool isInConflictMode();
+    virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
+    virtual upnsSharedPointer<Tree> getRoot();
+    virtual upnsSharedPointer<Tree> getChild(ObjectId objectId);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId);
+    virtual OperationResult doOperation(const OperationDescription &desc);
 protected:
     /**
      * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type

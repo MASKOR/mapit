@@ -1,31 +1,21 @@
 #include "operationenvironmentimpl.h"
+#include "versioning/checkoutraw.h"
 namespace upns
 {
 
 OperationEnvironmentImpl::OperationEnvironmentImpl(const OperationDescription &desc)
     :m_operationDesc( desc )
 {
-
 }
 
-void OperationEnvironmentImpl::setMapManager(MapManager *mapManager)
+void OperationEnvironmentImpl::setCheckout(CheckoutRaw *checkout)
 {
-    m_mapManager = mapManager;
+    m_checkout = checkout;
 }
 
-void OperationEnvironmentImpl::setMapService(MapService *mapService)
+CheckoutRaw *OperationEnvironmentImpl::getCheckout() const
 {
-    m_mapService = mapService;
-}
-
-MapManager *OperationEnvironmentImpl::mapManager() const
-{
-    return m_mapManager;
-}
-
-MapService *OperationEnvironmentImpl::mapServiceVersioned() const
-{
-    return m_mapService;
+    return m_checkout;
 }
 
 const OperationDescription *OperationEnvironmentImpl::getDescription() const

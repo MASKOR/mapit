@@ -5,22 +5,23 @@
 
 namespace upns
 {
+class CheckoutRaw;
 
 class OperationEnvironmentImpl : public OperationEnvironment
 {
 public:
     OperationEnvironmentImpl(const OperationDescription& desc);
-    void setMapManager(MapManager *mapManager);
-    void setMapService(MapService *mapService);
-    MapManager *mapManager() const;
-    MapService *mapServiceVersioned() const;
-    const OperationDescription *getDescription() const;
-    const OperationParameter *getParameter(const std::string &key) const;
-    void setOutputDescription(const OperationDescription out);
-    const OperationDescription& outputDescription() const;
+    void setCheckout(CheckoutRaw *checkout);
+
+    // OperationEnvironment Interface
+    virtual CheckoutRaw *getCheckout() const;
+    virtual const OperationDescription *getDescription() const;
+    virtual const OperationParameter *getParameter(const std::string &key) const;
+    virtual void setOutputDescription(OperationDescription);
+    virtual const OperationDescription& outputDescription() const;
+
 private:
-    MapManager *m_mapManager;
-    MapService *m_mapService;
+    CheckoutRaw *m_checkout;
     const OperationDescription m_operationDesc;
     OperationDescription m_outDesc;
 };

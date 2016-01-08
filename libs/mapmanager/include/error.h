@@ -1,3 +1,5 @@
+#ifndef UPNS_ERROR_H
+#define UPNS_ERROR_H
 
 #define UPNS_STATUS_OK 0
 
@@ -38,3 +40,5 @@ bool upnsCheckResultVector( T result )
 }
 
 }
+
+#endif

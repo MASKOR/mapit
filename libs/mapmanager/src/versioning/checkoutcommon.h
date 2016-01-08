@@ -1,5 +1,5 @@
-#ifndef CHECKOUT_H
-#define CHECKOUT_H
+#ifndef CHECKOUTCOMMON_H
+#define CHECKOUTCOMMON_H
 
 #include "upns_globals.h"
 

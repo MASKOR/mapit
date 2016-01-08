@@ -6,13 +6,14 @@
 #include <leveldb/slice.h>
 #include <boost/algorithm/string/replace.hpp>
 
+#define UPNS_ID_LEN 40
 namespace upns
 {
 
     inline std::string idToString(const upnsuint64 &id);
-    inline upnsuint64  stringToId(const char *id);
-    inline upnsuint64  stringEndToId(const std::string &id);
-    inline upnsuint64  sliceEndToId(const leveldb::Slice &id);
+    inline ObjectId stringToId(const char *id);
+    inline ObjectId stringEndToId(const std::string &id);
+    inline ObjectId sliceEndToId(const leveldb::Slice &id);
     inline upnsString  escapeName(const upnsString name);
     inline upnsString  unescapeName(const upnsString name);
 
@@ -24,20 +25,20 @@ namespace upns
         return std::string(reinterpret_cast<const char*>(&id), sizeof(upnsuint64));
     }
 
-    inline upnsuint64 stringToId(const char* id)
+    inline ObjectId stringToId(const char* id)
     {
-        return *reinterpret_cast<const upnsuint64*>(id);
+        return ObjectId( id );
     }
 
-    inline upnsuint64 stringEndToId(const std::string &id)
+    inline ObjectId stringEndToId(const std::string &id)
     {
-        const char* start = id.data() + (id.size() - sizeof(upnsuint64));
+        const char* start = id.data() + (id.size() - sizeof(char)*UPNS_ID_LEN);
         return stringToId( start );
     }
 
-    inline upnsuint64 sliceEndToId(const leveldb::Slice &id)
+    inline ObjectId sliceEndToId(const leveldb::Slice &id)
     {
-        const char* start = id.data() + (id.size() - sizeof(upnsuint64));
+        const char* start = id.data() + (id.size() - sizeof(char)*UPNS_ID_LEN);
         return stringToId( start );
     }
 

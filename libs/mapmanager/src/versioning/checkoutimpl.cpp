@@ -1,9 +1,14 @@
 #include "checkoutimpl.h"
 #include <dlfcn.h>
+#include <string>
+#include <algorithm>
+#include <log4cplus/logger.h>
+#include "module.h"
+#include "operationenvironmentimpl.h"
 
 namespace upns
 {
-
+typedef ModuleInfo* (*GetModuleInfo)();
 
 CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId)
     :m_serializer(serializer)
@@ -14,9 +19,9 @@ CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const CommitId com
     }
     else if(m_serializer->isCommit(commitOrCheckoutId))
     {
-        upnsSharedPointer<Commit> co = new Commit();
+        upnsSharedPointer<Commit> co(new Commit());
         co->add_parentcommitids(commitOrCheckoutId);
-        m_checkoutId = m_serializer->createCheckoutCommit();
+        m_checkoutId = m_serializer->createCheckoutCommit( co );
     }
 }
 
@@ -42,6 +47,47 @@ upnsSharedPointer<Tree> CheckoutImpl::getRoot()
 upnsSharedPointer<Tree> CheckoutImpl::getChild(ObjectId objectId)
 {
 
+}
+
+OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
+{
+    //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
+    OperationEnvironmentImpl env(desc);
+    env.setCheckout( this );
+#ifndef NDEBUG
+    upnsString debug = DEBUG_POSTFIX;
+#else
+    upnsString debug = "";
+#endif
+
+#ifdef _WIN32
+    upnsString prefix = "";
+    upnsString postfix = ".dll";
+#else
+    upnsString prefix = "lib";
+    upnsString postfix = ".so";
+#endif
+    std::stringstream filename;
+    filename << "./operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    if(desc.operatorversion())
+    {
+        filename << "." << desc.operatorversion();
+    }
+    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+    if (!handle) {
+        std::cerr << "Cannot open library: " << dlerror() << '\n';
+        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+    }
+    GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
+    ModuleInfo* info = getModInfo();
+    StatusCode result = info->operate( &env );
+    if(!upnsIsOk(result))
+    {
+        std::stringstream strm;
+        strm << "operator '" << desc.operatorname() << "' reported an error. (code:" << result << ")";
+        log_error(strm.str());
+    }
+    return OperationResult(result, env.outputDescription());
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataImpl(const ObjectId &entityId, bool readOnly)

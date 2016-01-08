@@ -26,25 +26,18 @@ class Checkout : public CheckoutCommon
 {
 public:
     /**
-     * @brief Checkout
-     * @param serializer
-     * @param commitOrCheckoutId
-     */
-    Checkout(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId);
-    ~Checkout();
-
-    /**
      * @brief doOperation Executes the Operator given in the description
      * @param desc
      * @return
      */
-    OperationResult doOperation(const OperationDescription &desc);
+    virtual OperationResult doOperation(const OperationDescription &desc) = 0;
+
     /**
      * @brief getEntityData Retrieves binary stream of entitydata which can be casted to concrete type. This is always read only!
      * @param entityId
      * @return
      */
-    upnsSharedPointer<AbstractEntityData> getEntityData(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityData(const ObjectId &entityId) = 0;
 };
 
 }
