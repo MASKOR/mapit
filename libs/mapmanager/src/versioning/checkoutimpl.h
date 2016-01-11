@@ -51,8 +51,8 @@ public:
     virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId);
     virtual upnsSharedPointer<AbstractEntityData> getEntityDataForWrite(const ObjectId &entityId);
 
-    virtual StatusCode storeTree(Path path, Tree tree);
-    virtual StatusCode createTree(Path path, Tree tree);
+    virtual StatusCode storeTree(const Path &path, Tree tree);
+    virtual StatusCode createTree(const Path &path, Tree tree);
     virtual upnsSharedPointer<Entity> createEntity(Path path, ObjectId parent);
     virtual void setConflictSolved(ObjectId solved);
 protected:

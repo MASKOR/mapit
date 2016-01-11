@@ -124,13 +124,13 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForWrite(const 
     return getEntityDataImpl(entityId, false);
 }
 
-StatusCode CheckoutImpl::storeTree(Path path, Tree tree)
+StatusCode CheckoutImpl::storeTree(const Path &path, Tree tree)
 {
 
     return m_serializer->storeTree()
 }
 
-StatusCode CheckoutImpl::createTree(Path path, Tree tree)
+StatusCode CheckoutImpl::createTree(const Path &path, Tree tree)
 {
 
 }
