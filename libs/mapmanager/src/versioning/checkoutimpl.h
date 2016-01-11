@@ -3,11 +3,11 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "abstractentitydatastreamprovider.h"
-#include "../serialization/abstractmapserializerNEW.h"
+#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include "modules/serialization/abstractmapserializerNEW.h"
 #include "entitydata.h"
-#include "checkout.h"
-#include "checkoutraw.h"
+#include "versioning/checkout.h"
+#include "modules/versioning/checkoutraw.h"
 
 namespace upns
 {
@@ -39,14 +39,22 @@ public:
      * @param commitOrCheckoutId
      */
     CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId);
+    CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch);
     ~CheckoutImpl();
 
     virtual bool isInConflictMode();
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
     virtual upnsSharedPointer<Tree> getRoot();
     virtual upnsSharedPointer<Tree> getChild(ObjectId objectId);
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId);
     virtual OperationResult doOperation(const OperationDescription &desc);
+
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForWrite(const ObjectId &entityId);
+
+    virtual StatusCode storeTree(Path path, Tree tree);
+    virtual StatusCode createTree(Path path, Tree tree);
+    virtual upnsSharedPointer<Entity> createEntity(Path path, ObjectId parent);
+    virtual void setConflictSolved(ObjectId solved);
 protected:
     /**
      * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
@@ -66,7 +74,11 @@ private:
     upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
                                                          upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
     AbstractMapSerializer* m_serializer;
+
+    // Rolling Commit, id is random and not yet the hash of commit. It has the commit, this checkout is based on as "parents"
     CommitId m_checkoutId;
+    // Branch, the checkout is based on, if any
+    upnsSharedPointer<Branch> m_branch;
 };
 
 }

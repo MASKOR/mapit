@@ -20,30 +20,33 @@ QList<QString> QmlMapManager::listMaps()
 {
     if(!m_mapManager) initialize();
     QList<QString> ret;
-    Q_FOREACH( const quint64 &ui64, m_mapManager->listMaps())
+    const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = m_mapManager->getRoot()->refs();
+    const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter( refs.cbegin() );
+    while( iter != refs.cend() )
     {
-        ret.push_back( QString::number( ui64 ) );
+        ret.push_back( QString::fromStdString(iter->first) );
     }
     return ret;//QList<qint32>::fromVector( upnsToQVector() );
 }
 
-QmlMap *QmlMapManager::getMap(quint64 mapId)
+QmlMap *QmlMapManager::getMap(const upns::ObjectId &mapId)
 {
-    if(!m_mapManager) initialize();
-    upns::upnsSharedPointer<upns::Map> map = m_mapManager->getMap(mapId);
-    return new QmlMap(map); // Qml takes ownership
+//    if(!m_mapManager) initialize();
+//    upns::upnsSharedPointer<upns::Tree> map = m_mapManager->getMap(mapId);
+//    return new QmlMap(map); // Qml takes ownership
+    return new QmlMap(0); // Qml takes ownership
 }
 
 bool QmlMapManager::canRead()
 {
     if(!m_mapManager) initialize();
-    return m_mapManager->canRead();
+    return true;//m_mapManager->canRead();
 }
 
 bool QmlMapManager::canWrite()
 {
     if(!m_mapManager) initialize();
-    return m_mapManager->canWrite();
+    return true;//m_mapManager->canWrite();
 }
 
 QJsonObject QmlMapManager::doOperation(const QJsonObject &desc)
@@ -57,7 +60,7 @@ QJsonObject QmlMapManager::doOperation(const QJsonObject &desc)
     return json;
 }
 
-upns::MapManager *QmlMapManager::getMapManager()
+upns::Checkout *QmlMapManager::getMapManager()
 {
     if(!m_mapManager) initialize();
     return m_mapManager;
@@ -71,7 +74,7 @@ void QmlMapManager::initialize()
     mapsource["name"] = "MapFileService";
     mapsource["filename"] = "test2.db";
     conf["mapsource"] = mapsource;
-    m_mapManager = new upns::MapManager(conf);
+    m_mapManager = NULL;//new upns::CheckoutImpl(conf);
 }
 
 QJsonObject QmlMapManager::operationDescriptionToJson(const upns::OperationDescription &desc) const

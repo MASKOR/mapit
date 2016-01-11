@@ -17,7 +17,7 @@ public:
 
     QString id() const
     {
-        return QString::number(m_entity->id());
+        return QString::fromStdString(m_entity->id());
     }
 
 public Q_SLOTS:
@@ -25,7 +25,7 @@ public Q_SLOTS:
 
     void setId(QString id)
     {
-        ::google::protobuf::int64 ident = id.toULongLong();
+        std::string ident( id.toStdString() ) ;
         if (m_entity->id() == ident)
             return;
 

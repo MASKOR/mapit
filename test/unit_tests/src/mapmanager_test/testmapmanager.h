@@ -1,9 +1,9 @@
-#ifndef __TESTMAPMANAGER_H
-#define __TESTMAPMANAGER_H
+#ifndef TESTMAPMANAGER_H
+#define TESTMAPMANAGER_H
 
 #include <QTest>
 
-#include "../../../libs/mapmanager/src/mapmanager.h"
+#include "../../../libs/mapmanager/src/versioning/repository.h"
 
 class TestMapManager : public QObject
 {
@@ -23,8 +23,7 @@ private slots:
     void testStoreMaps();
 
 private:
-    upns::MapManager *m_mapManager;
-    upns::MapService *m_mapService;
+    upns::Repository *m_repo;
 };
 
 #endif

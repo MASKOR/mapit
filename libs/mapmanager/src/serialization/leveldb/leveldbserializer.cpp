@@ -77,7 +77,7 @@ upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
 
 StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     obj->set_id(key);
     key = keyOfTree(key);
     return storeObject(key, obj);
@@ -85,9 +85,14 @@ StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj)
 
 StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfTree(key);
     return createObject(key, obj);
+}
+
+StatusCode LevelDBSerializer::removeTree(const ObjectId &oid)
+{
+    return removeObject(oid);
 }
 
 upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
@@ -98,16 +103,21 @@ upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
 
 StatusCode LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfEntity(key);
     return storeObject(key, obj);
 }
 
 StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfEntity(key);
     return createObject(key, obj);
+}
+
+StatusCode LevelDBSerializer::removeEntity(const ObjectId &oid)
+{
+    return removeObject(oid);
 }
 
 upnsSharedPointer<Commit> LevelDBSerializer::getCommit(const ObjectId &oid)
@@ -118,16 +128,21 @@ upnsSharedPointer<Commit> LevelDBSerializer::getCommit(const ObjectId &oid)
 
 StatusCode LevelDBSerializer::storeCommit(upnsSharedPointer<Commit> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfCommit(key);
     return createObject(key, obj);
 }
 
 StatusCode LevelDBSerializer::createCommit(upnsSharedPointer<Commit> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfCommit(key);
     return createObject(key, obj);
+}
+
+StatusCode LevelDBSerializer::removeCommit(const ObjectId &oid)
+{
+    return removeObject(oid);
 }
 
 upnsVec<ObjectId> LevelDBSerializer::listCheckoutIds()
@@ -173,16 +188,49 @@ upnsSharedPointer<Commit> LevelDBSerializer::getCheckoutCommit(const ObjectId &o
 
 StatusCode LevelDBSerializer::storeCheckoutCommit(upnsSharedPointer<Commit> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfCheckoutCommit(key);
     return createObject(key, obj);
 }
 
 StatusCode LevelDBSerializer::createCheckoutCommit(upnsSharedPointer<Commit> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfCheckoutCommit(key);
     return createObject(key, obj);
+}
+
+StatusCode LevelDBSerializer::removeCheckoutCommit(const ObjectId &oid)
+{
+    return removeObject(oid);
+}
+
+upnsVec<upnsSharedPointer<Branch> > LevelDBSerializer::listBranches()
+{
+    upnsVec<upnsSharedPointer<Branch> > ret;
+    leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
+    GenericEntry entry;
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+        const leveldb::Slice &key = it->key();
+        if(key.starts_with(KEY_PREFIX_BRANCH))
+        {
+            StatusCode s = getGenericEntry(key, entry);
+            if(!upnsIsOk( s ))
+            {
+                log_error("Parse error while listing branches");
+                continue;
+            }
+            if(entry.type() == MessageBranch)
+            {
+                upnsSharedPointer<Branch> br( new Branch() );
+                br->ParseFromString(entry.payload());
+                ret.push_back( br );
+            }
+        }
+    }
+    assert(it->status().ok());  // Check for any errors found during the scan
+    delete it;
+    return ret;
 }
 
 upnsSharedPointer<Branch> LevelDBSerializer::getBranch(const ObjectId &oid)
@@ -193,16 +241,21 @@ upnsSharedPointer<Branch> LevelDBSerializer::getBranch(const ObjectId &oid)
 
 StatusCode LevelDBSerializer::storeBranch(upnsSharedPointer<Branch> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfBranch(key);
     return createObject(key, obj);
 }
 
 StatusCode LevelDBSerializer::createBranch(upnsSharedPointer<Branch> &obj)
 {
-    std::string key = ::upns::hash(*static_cast<::google::protobuf::Message*>(obj.get()));
+    std::string key = ::upns::hash_toString(obj.get());
     key = keyOfBranch(key);
     return createObject(key, obj);
+}
+
+StatusCode LevelDBSerializer::removeBranch(const ObjectId &oid)
+{
+    return removeObject(oid);
 }
 
 std::string LevelDBSerializer::keyOfTree(const ObjectId &oid) const
@@ -318,65 +371,107 @@ std::string LevelDBSerializer::keyOfBranch(const ObjectId &oid) const
 //    return upnsIsOk(res.at(0).second)?newMap:upnsSharedPointer<Map>(NULL);
 //}
 
-MapResultsVector MapLeveldbSerializer::removeMaps(upnsVec<MapIdentifier> &mapIds)
+//MapResultsVector MapLeveldbSerializer::removeMaps(upnsVec<MapIdentifier> &mapIds)
+//{
+//    upnsVec<upnsPair<MapIdentifier, StatusCode> > ret;
+//    for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
+//    {
+//        std::string mapKey(this->mapKey( *iter ));
+
+//        // Get Map and all associated layers
+//        std::string value;
+//        leveldb::Status sread = m_db->Get(leveldb::ReadOptions(), mapKey, &value);
+
+//        Map map;
+//        if(!sread.ok() || !map.ParseFromString( value ))
+//        {
+//            ret.push_back(StatusPair(*iter, UPNS_STATUS_ERR_DB_PARSE_MAP));
+//            continue;
+//        }
+//        // Delete layers entity data
+//        bool layerDeletionSuccess = true;
+//        for(int i=0; i < map.layers_size() ; ++i)
+//        {
+//            Layer *layer = map.mutable_layers(i);
+//            if(layer->id() == 0)
+//            {
+//                log_error("found inconsistent data. Layer with id 0 found. Map: " + mapKey + ", Name: " + map.name());
+//                layerDeletionSuccess = false;
+//                continue;
+//            }
+//            for(int j=0; j < layer->entities_size() ; ++j)
+//            {
+//                Entity *entity = layer->mutable_entities(j);
+//                if(entity->id() == 0)
+//                {
+//                    log_error("found inconsistent data. Entity with id 0 found. Map: " + mapKey + ", Name: " + map.name()
+//                             + ", Layer: " + idToString(layer->id()));
+//                    layerDeletionSuccess = false;
+//                    continue;
+//                }
+//                std::string entityKey(this->entityKey( *iter, layer->id(), entity->id()));
+//                leveldb::Status slayer = m_db->Delete(leveldb::WriteOptions(), entityKey);
+//                layerDeletionSuccess &= slayer.ok();
+//            }
+//        }
+//        if(!layerDeletionSuccess)
+//        {
+//            ret.push_back(upnsPair<MapIdentifier, int>(*iter, UPNS_STATUS_ERR_DB_DELETE_LAYER_FROM_MAP));
+//            continue;
+//        }
+
+//        // Finally delete map only if everything went ok until here
+//        leveldb::Status sdel = m_db->Delete(leveldb::WriteOptions(), mapKey);
+//        ret.push_back(StatusPair(*iter, levelDbStatusToUpnsStatus( sdel )));
+//    }
+//    return ret;
+//}
+
+upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool readOnly)
 {
-    upnsVec<upnsPair<MapIdentifier, StatusCode> > ret;
-    for(upnsVec<MapIdentifier>::const_iterator iter(mapIds.begin()) ; iter != mapIds.end() ; iter++)
-    {
-        std::string mapKey(this->mapKey( *iter ));
-
-        // Get Map and all associated layers
-        std::string value;
-        leveldb::Status sread = m_db->Get(leveldb::ReadOptions(), mapKey, &value);
-
-        Map map;
-        if(!sread.ok() || !map.ParseFromString( value ))
-        {
-            ret.push_back(StatusPair(*iter, UPNS_STATUS_ERR_DB_PARSE_MAP));
-            continue;
-        }
-        // Delete layers entity data
-        bool layerDeletionSuccess = true;
-        for(int i=0; i < map.layers_size() ; ++i)
-        {
-            Layer *layer = map.mutable_layers(i);
-            if(layer->id() == 0)
-            {
-                log_error("found inconsistent data. Layer with id 0 found. Map: " + mapKey + ", Name: " + map.name());
-                layerDeletionSuccess = false;
-                continue;
-            }
-            for(int j=0; j < layer->entities_size() ; ++j)
-            {
-                Entity *entity = layer->mutable_entities(j);
-                if(entity->id() == 0)
-                {
-                    log_error("found inconsistent data. Entity with id 0 found. Map: " + mapKey + ", Name: " + map.name()
-                             + ", Layer: " + idToString(layer->id()));
-                    layerDeletionSuccess = false;
-                    continue;
-                }
-                std::string entityKey(this->entityKey( *iter, layer->id(), entity->id()));
-                leveldb::Status slayer = m_db->Delete(leveldb::WriteOptions(), entityKey);
-                layerDeletionSuccess &= slayer.ok();
-            }
-        }
-        if(!layerDeletionSuccess)
-        {
-            ret.push_back(upnsPair<MapIdentifier, int>(*iter, UPNS_STATUS_ERR_DB_DELETE_LAYER_FROM_MAP));
-            continue;
-        }
-
-        // Finally delete map only if everything went ok until here
-        leveldb::Status sdel = m_db->Delete(leveldb::WriteOptions(), mapKey);
-        ret.push_back(StatusPair(*iter, levelDbStatusToUpnsStatus( sdel )));
-    }
-    return ret;
+    //TODO: ensure readOnly and store boolean
+    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, keyOfEntityData(entityId)));
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId)
+StatusCode LevelDBSerializer::cleanUp()
 {
-    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, keyOfEntityData(entityId)));
+
+}
+
+MessageType LevelDBSerializer::typeOfObject(const ObjectId &oid)
+{
+}
+
+bool LevelDBSerializer::exists(const ObjectId &oid)
+{
+}
+
+bool LevelDBSerializer::isTree(const ObjectId &oid)
+{
+//    std::string k(keyOfTree(oid));
+//    std::string v;
+//    getObject(k, v);
+//    ::google::protobuf::Message::
+}
+
+bool LevelDBSerializer::isEntity(const ObjectId &oid)
+{
+
+}
+
+bool LevelDBSerializer::isCommit(const CommitId &oid)
+{
+
+}
+
+bool LevelDBSerializer::isCheckout(const CommitId &oid)
+{
+
+}
+
+bool LevelDBSerializer::isBranch(const CommitId &oid)
+{
+
 }
 
 bool LevelDBSerializer::canRead()
@@ -411,12 +506,12 @@ template <typename T>
 upnsSharedPointer< T > LevelDBSerializer::getObject(const std::string &key)
 {
     upnsSharedPointer< T > ret(new T);
-    std::string value;
-    StatusCode s = getObject(key, value);
+    GenericEntry value;
+    StatusCode s = getGenericEntry(key, value);
     if(!upnsIsOk( s )) return NULL;
-    if(! ret.ParseFromString( value ))
+    if(!ret->ParseFromString( value.payload() ))
     {
-        log_error("could not parse: " + key);
+        log_error("could not parse payload: " + key);
         return NULL;
     }
     return ret;
@@ -424,22 +519,27 @@ upnsSharedPointer< T > LevelDBSerializer::getObject(const std::string &key)
 
 StatusCode LevelDBSerializer::getObject(const std::string &key, std::string &value)
 {
+    return getObject(leveldb::Slice(key), value);
+}
+
+StatusCode LevelDBSerializer::getObject(const leveldb::Slice &key, std::string &value)
+{
     leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
      if(!s.ok())
      {
          if(s.IsNotFound())
          {
-             log_error("could not find map with id: " + QString::number(*iter).toStdString());
+             log_error("could not find map with id: " + key.data());
              return UPNS_STATUS_ERR_DB_NOT_FOUND;
          }
          else if(s.IsIOError())
          {
-             log_error("IO Error for map with id: " + QString::number(*iter).toStdString());
+             log_error("IO Error for map with id: " + key.data());
              return UPNS_STATUS_ERR_DB_IO_ERROR;
          }
          else if(s.IsCorruption())
          {
-             log_error("Corruption Error for map with id: " + QString::number(*iter).toStdString() + ", database key: " + key);
+             log_error("Corruption Error for map with id: " + key.data());
              return UPNS_STATUS_ERR_DB_CORRUPTION;
          }
          return UPNS_STATUS_ERR_DB_UNKNOWN;
@@ -447,9 +547,52 @@ StatusCode LevelDBSerializer::getObject(const std::string &key, std::string &val
      return UPNS_STATUS_OK;
 }
 
-StatusCode LevelDBSerializer::storeObject(const std::string &key, std::string &value)
+StatusCode LevelDBSerializer::getGenericEntryFromOid(const ObjectId &oid, GenericEntry &value)
 {
-    if( (*iter)->id() == 0 )
+    // Try all "syntaxes" of keys.
+    // This is not a nice solution. However, different key syntaxes are used to distinguish object types from each other and generate lists 'listCheckouts'.
+    // An alternative approach would store all objects with the same key and traverse though all objects and filter them in the 'list*' methods..
+    // TODO: Use common key structure and filter as said above. Delete this hacky loop.
+    StatusCode s;
+    std::string key;
+    std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
+            &LevelDBSerializer::keyOfTree,
+            &LevelDBSerializer::keyOfEntity,
+            //TODO: How will EntityData behave?
+            &LevelDBSerializer::keyOfEntityData,
+            &LevelDBSerializer::keyOfBranch,
+            &LevelDBSerializer::keyOfCommit,
+            &LevelDBSerializer::keyOfCheckoutCommit};
+    for(int i=0; i < sizeof(keyOfMethods)/sizeof(*keyOfMethods) ; ++i)
+    {
+        key = (*this.*(keyOfMethods[i]))(oid);
+        s = getGenericEntry(key, value);
+        if(upnsIsOk(s) || s != UPNS_STATUS_ENTITY_NOT_FOUND) return s;
+    }
+    return UPNS_STATUS_ENTITY_NOT_FOUND;
+}
+
+StatusCode LevelDBSerializer::getGenericEntry(const std::string &key, GenericEntry &value)
+{
+    return getGenericEntry(leveldb::Slice(key), value);
+}
+
+StatusCode LevelDBSerializer::getGenericEntry(const leveldb::Slice &key, GenericEntry &value)
+{
+    std::string str;
+    StatusCode s = getObject(key, str);
+    if(!upnsIsOk( s )) return UPNS_STATUS_ERR_DB_NOT_FOUND;
+    if(!value.ParseFromString( str ))
+    {
+        log_error("could not parse generic entry for: " + key.data());
+        return UPNS_STATUS_ERR_DB_PARSE;
+    }
+    return UPNS_STATUS_OK;
+}
+
+StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::string &value)
+{
+    if( key.empty() )
     {
         log_error("tried to store object with id 0");
         return UPNS_STATUS_INVALID_ARGUMENT;
@@ -458,7 +601,8 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, std::string &v
     // Get the previously stored map to check for correct version (optimistic locking)
     // Note: leveldb has no transactions. It is not guaranteed, that stuff is done between the next "Get" and "Put".
     // A guarantee can be given, if only one thread is used to access the database.
-    leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
+    std::string buff;
+    leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &buff);
     if(s.ok())
     {
         log_warn("tried to write existing object (object with same hash already stored): " + key);
@@ -476,9 +620,14 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, std::string &v
     return levelDbStatusToUpnsStatus(s);
 }
 
-StatusCode LevelDBSerializer::createObject(const std::string &key, std::string &value)
+StatusCode LevelDBSerializer::removeObject(const std::string &oid)
 {
-    if( (*iter)->id() == 0 )
+
+}
+
+StatusCode LevelDBSerializer::createObject(const std::string &key, const std::string &value)
+{
+    if( key.empty() )
     {
         log_error("tried to create object with id 0");
         return UPNS_STATUS_INVALID_ARGUMENT;
@@ -487,7 +636,8 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, std::string &
     // Get the previously stored map to check for correct version (optimistic locking)
     // Note: leveldb has no transactions. It is not guaranteed, that stuff is done between the next "Get" and "Put".
     // A guarantee can be given, if only one thread is used to access the database.
-    leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
+    std::string buff;
+    leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &buff);
     if(s.ok())
     {
         log_warn("tried to create existing object (object with same hash already stored): " + key);
@@ -510,7 +660,10 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
 {
     //(*iter)->set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch());
     //entity->set_id(generateId());
-    return createObject(key, value->SerializeAsString());
+    const ::google::protobuf::Descriptor* descriptor = value->GetDescriptor();
+    std::string ser = descriptor->name();
+    log_info("databaseval start:" + ser);
+    return createObject(key, ser + value->SerializeAsString());
 }
 
 template <typename T>

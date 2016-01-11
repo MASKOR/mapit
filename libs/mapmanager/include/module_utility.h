@@ -4,18 +4,20 @@
 #include "upns.h"
 #include "operationenvironment.h"
 #include "libs/upns_interface/services.pb.h"
+#include "modules/versioning/checkoutraw.h"
+
 namespace upns
 {
 
 // Shared pointer because map is not owned by any parent protobuf object
-upnsSharedPointer<Map> parseMap(const OperationEnvironment *env, const OperationParameter *param)
+upnsSharedPointer<Tree> parseMap(const OperationEnvironment *env, const OperationParameter *param)
 {
     if( param == NULL
         || param->mapval() == 0)
     {
         return NULL;
     }
-    upnsSharedPointer<Map> map = env->mapServiceVersioned()->getMap(param->mapval());
+    upnsSharedPointer<Tree> map = env->getCheckout()->getTree(param->mapval());
     assert( map->id() != 0 );
     return map;
 }

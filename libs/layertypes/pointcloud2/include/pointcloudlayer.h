@@ -1,8 +1,8 @@
-#ifndef __POINTCLOUDLAYER_H__
-#define __POINTCLOUDLAYER_H__
+#ifndef POINTCLOUDLAYER_H
+#define POINTCLOUDLAYER_H
 
 #include "entitydata.h"
-#include "abstractentitydatastreamprovider.h"
+#include "modules/serialization/abstractentitydatastreamprovider.h"
 #include <pcl/PCLPointCloud2.h>
 
 using namespace upns;

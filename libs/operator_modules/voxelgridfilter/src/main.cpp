@@ -6,6 +6,8 @@
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
 #include <boost/weak_ptr.hpp>
+#include "error.h"
+#include "modules/versioning/checkoutraw.h"
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
@@ -30,13 +32,13 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
 
-    upnsSharedPointer<Map> map = env->mapServiceVersioned()->getMap(target->mapval());
+    upnsSharedPointer<Tree> map = env->getCheckout()->getEntityDataForWrite(target->objectid());
     if(map == NULL)
     {
         std::stringstream strm;
         strm << "Map not found: " << target->mapval();
         log_error(strm.str());
-        return UPNS_STATUS_MAP_NOT_FOUND;
+        return UPNS_STATUS_ERR_DB_NOT_FOUND;
     }
     Layer* layer = NULL;
     for(int i=0; i < map->layers_size() ; ++i)

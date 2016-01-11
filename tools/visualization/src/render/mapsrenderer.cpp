@@ -88,7 +88,7 @@ bool MapsRenderer::isInitialized()
     return m_initialized;
 }
 
-void MapsRenderer::setMapmanager(upns::MapManager *mapman)
+void MapsRenderer::setMapmanager(upns::Checkout *mapman)
 {
     m_mapManager = mapman;
     if(m_initialized)

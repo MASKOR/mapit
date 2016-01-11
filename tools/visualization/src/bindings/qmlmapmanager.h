@@ -3,8 +3,9 @@
 
 #include <QtCore>
 #include <QJsonObject>
-#include "libs/mapmanager/src/mapmanager.h"
-#include "libs/upns_interface/services.pb.h"
+#include "upns_globals.h"
+#include "versioning/checkout.h"
+#include "services.pb.h"
 #include "qmlmap.h"
 
 class QmlMapManager : public QObject
@@ -18,7 +19,7 @@ public:
     ~QmlMapManager();
 
     Q_INVOKABLE QList<QString> listMaps();
-    Q_INVOKABLE QmlMap *getMap(quint64 mapId);
+    Q_INVOKABLE QmlMap *getMap(const upns::ObjectId &mapId);
 
     Q_INVOKABLE bool canRead();
     Q_INVOKABLE bool canWrite();
@@ -29,7 +30,7 @@ public:
         return m_config;
     }
 
-    upns::MapManager* getMapManager();
+    upns::Checkout *getMapManager();
 
 public Q_SLOTS:
     void setConfig(QJsonObject config)
@@ -46,7 +47,7 @@ Q_SIGNALS:
 
 private:
     QJsonObject m_config;
-    upns::MapManager *m_mapManager;
+    upns::Checkout *m_mapManager;
 
     void initialize();
     void yamlFromJsonObject(YAML::Node &yaml, const QJsonObject &json) const;

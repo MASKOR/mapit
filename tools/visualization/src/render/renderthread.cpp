@@ -33,7 +33,7 @@ RenderThread::~RenderThread()
     delete m_mapsRenderer;
 }
 
-upns::MapManager *RenderThread::mapManager() const
+upns::Checkout *RenderThread::mapManager() const
 {
     return m_mapManager;
 }
@@ -128,15 +128,15 @@ void RenderThread::shutDown()
     exit();
 }
 
-void RenderThread::setMapManager(upns::MapManager *mapManager)
+void RenderThread::setMapManager(upns::Checkout *mapManager)
 {
-    if (m_mapManager == mapManager)
-        return;
+//    if (m_mapManager == mapManager)
+//        return;
 
-    m_mapManager = mapManager;
-    if(m_mapsRenderer)
-        m_mapsRenderer->setMapmanager( mapManager );
-    Q_EMIT mapManagerChanged(mapManager);
+//    m_mapManager = mapManager;
+//    if(m_mapsRenderer)
+//        m_mapsRenderer->setMapmanager( mapManager );
+//    Q_EMIT mapManagerChanged(mapManager);
 }
 
 void RenderThread::setMapId(QString mapId)

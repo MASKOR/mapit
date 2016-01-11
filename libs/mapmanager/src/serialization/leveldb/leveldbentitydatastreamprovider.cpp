@@ -59,4 +59,36 @@ void LevelDBEntityDataStreamProvider::endWrite(upnsOStream *strm)
     delete strm;
 }
 
+upnsuint64 LevelDBEntityDataStreamProvider::getStreamSize() const
+{
+    leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
+    it->Seek(m_key);
+    assert(it->Valid());
+    leveldb::Slice slice = it->value();
+    delete it;
+    return slice.size();
+}
+
+void LevelDBEntityDataStreamProvider::setStreamSize(upnsuint64 streamSize)
+{
+    leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
+    it->Seek(m_key);
+    assert(it->Valid());
+    leveldb::Slice slice = it->value();
+    std::string data(slice.data());
+    data.resize(streamSize); //TODO: This may not be the most efficient way.
+    m_db->Put(leveldb::WriteOptions(), m_key, data);
+    delete it;
+}
+
+LockHandle LevelDBEntityDataStreamProvider::lock()
+{
+    //TODO: impl
+}
+
+void LevelDBEntityDataStreamProvider::unlock(LockHandle)
+{
+    //TODO: impl
+}
+
 }

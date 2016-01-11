@@ -11,7 +11,8 @@ namespace upns
 typedef ModuleInfo* (*GetModuleInfo)();
 
 CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId)
-    :m_serializer(serializer)
+    :m_serializer(serializer),
+      m_branch( NULL )
 {
     if(m_serializer->isCheckout(commitOrCheckoutId))
     {
@@ -21,6 +22,29 @@ CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const CommitId com
     {
         upnsSharedPointer<Commit> co(new Commit());
         co->add_parentcommitids(commitOrCheckoutId);
+        m_checkoutId = m_serializer->createCheckoutCommit( co );
+    }
+}
+
+CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch)
+    :m_serializer(serializer),
+      m_branch( branch )
+{
+    if(m_serializer->isCheckout(branch->commitid()))
+    {
+        m_checkoutId = branch->commitid();
+    }
+    else
+    {
+        upnsSharedPointer<Commit> co(new Commit());
+        if(m_serializer->isCommit(branch->commitid()))
+        {
+            co->add_parentcommitids(branch->commitid());
+        }
+        else
+        {
+            log_info("Initial Commit created, branch: " + branch->name());
+        }
         m_checkoutId = m_serializer->createCheckoutCommit( co );
     }
 }
@@ -88,6 +112,37 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
         log_error(strm.str());
     }
     return OperationResult(result, env.outputDescription());
+}
+
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnly(const ObjectId &entityId)
+{
+    return getEntityDataImpl(entityId, true);
+}
+
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForWrite(const ObjectId &entityId)
+{
+    return getEntityDataImpl(entityId, false);
+}
+
+StatusCode CheckoutImpl::storeTree(Path path, Tree tree)
+{
+
+    return m_serializer->storeTree()
+}
+
+StatusCode CheckoutImpl::createTree(Path path, Tree tree)
+{
+
+}
+
+upnsSharedPointer<Entity> CheckoutImpl::createEntity(Path path, ObjectId parent)
+{
+
+}
+
+void CheckoutImpl::setConflictSolved(ObjectId solved)
+{
+
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataImpl(const ObjectId &entityId, bool readOnly)

@@ -87,6 +87,7 @@ using StatusCode = upnsuint32;
 
 using CommitId = upnsString;
 using ObjectId = upnsString;
+using Path = upnsString;
 
 #define InvalidCommitId "invalidCId"
 #define InvalidObjectId "invalidOId"

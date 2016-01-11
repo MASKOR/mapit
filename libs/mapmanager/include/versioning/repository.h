@@ -3,18 +3,20 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "abstractentitydatastreamprovider.h"
-#include "../serialization/abstractmapserializerNEW.h"
+#include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
 #include "checkout.h"
+#include "yaml-cpp/yaml.h"
 
 namespace upns
 {
+class RepositoryPrivate;
 
 class Repository
 {
 public:
-    Repository(AbstractMapSerializer serializer);
+    Repository(const YAML::Node &config);
+    ~Repository();
 
     /**
      * @brief getCheckouts retrieves a list of all checkouts in the system.
@@ -38,7 +40,8 @@ public:
      * @param commit
      * @return new empty checkout object, representing exactly the state of <commit>.
      */
-    upnsSharedPointer<Checkout> checkout(const CommitRef commit);
+    upnsSharedPointer<Checkout> checkout(const CommitId &commit);
+    upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &commit);
 
     /**
      * @brief deleteCheckoutForced Deletes a checkout forever. This cannot be undone, like deleting changed files in git
@@ -60,6 +63,12 @@ public:
      * @return all Branches, names with their current HEAD commitIds.
      */
     upnsVec< upnsSharedPointer<Branch> > getBranches();
+
+    /**
+     * @brief getBranches List all Branches
+     * @return all Branches, names with their current HEAD commitIds.
+     */
+    upnsSharedPointer<Branch> createBranch(const upnsString &branchname);
 
     /**
      * @brief push alls branches to <repo>
@@ -104,6 +113,8 @@ public:
 
     bool canRead();
     bool canWrite();
+private:
+    RepositoryPrivate* m_p;
 };
 
 }

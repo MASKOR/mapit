@@ -10,7 +10,7 @@
 using namespace upns;
 
 using Strings = upnsVec<upnsString>;
-using Layers = upnsVec<Layer>;
+using Layers = upnsVec<Tree>;
 
 Q_DECLARE_METATYPE( Strings );
 Q_DECLARE_METATYPE( Layers );
@@ -38,12 +38,12 @@ void TestMapFileService::initTestCase()
     mapsource["filename"] = databaseName;
     conf["mapsource"] = mapsource;
 
-    m_mapService = new upns::MapLeveldbSerializer(mapsource);
+    m_repo = new upns::Repository(mapsource);
 }
 
 void TestMapFileService::cleanupTestCase()
 {
-    delete m_mapService;
+    delete m_repo;
 }
 
 void TestMapFileService::testListMaps_data()
@@ -52,14 +52,14 @@ void TestMapFileService::testListMaps_data()
     QTest::addColumn< Strings >("names");
     QTest::addColumn< Layers >("layers");
 
-    Layer testlayer1;
+    Tree testlayer1;
     testlayer1.set_name("testlayer1");
-    testlayer1.set_type(LayerType::POINTCLOUD2);
-    testlayer1.set_usagetype(LayerUsageType::LASER);
+    //testlayer1.set_type(LayerType::POINTCLOUD2);
+    //testlayer1.set_usagetype(LayerUsageType::LASER);
     Layer testlayer2;
     testlayer2.set_name("testlayer2");
-    testlayer2.set_type(LayerType::OCTOMAP);
-    testlayer2.set_usagetype(LayerUsageType::NAVIGATION);
+    //testlayer2.set_type(LayerType::OCTOMAP);
+    //testlayer2.set_usagetype(LayerUsageType::NAVIGATION);
 
     QTest::newRow("first")
             << Strings{ "hello"}
@@ -126,7 +126,8 @@ void TestMapFileService::testListMaps()
     QFETCH(Strings, names);
     QFETCH(Layers, layers);
 
-    upnsVec<MapIdentifier> maps = m_mapService->listMaps();
+    m_repo->getBranches();
+    upnsVec<MapIdentifier> maps = m_repo->listMaps();
     QCOMPARE(static_cast<int>(maps.size()), 0);
 
     // create maps

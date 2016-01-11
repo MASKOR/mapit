@@ -29,13 +29,33 @@ public:
      */
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts() = 0;
 
+    /**
+     * @brief getRoot get Entry point to all objects of this commit.
+     * @return
+     */
     virtual upnsSharedPointer<Tree> getRoot() = 0;
+
     /**
      * @brief getChild gets a Tree from repository. Tree must be reachable from this checkout (descendant of <root>)
+     * TODO: check if there are cases where this is needed
      * @param objectId
      * @return child
      */
-    virtual upnsSharedPointer<Tree> getChild(ObjectId objectId) = 0;
+    virtual upnsSharedPointer<Tree> getChild(const ObjectId &objectId) = 0;
+
+    /**
+     * @brief getTree
+     * @param path
+     * @return
+     */
+    virtual upnsSharedPointer<Tree> getTree(const Path &path) = 0;
+
+    /**
+     * @brief getEntity
+     * @param path
+     * @return
+     */
+    virtual upnsSharedPointer<Entity> getEntity(const Path &path) = 0;
 
     /**
      * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
@@ -47,26 +67,14 @@ public:
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId) = 0;
-// TODO: remove these methods to not blow up implementation or make them virtual. (No Implementations must be here in this class)
-//    /**
-//     * @brief getMap same as getChild, but can be used to make code more understandable
-//     * @param objectId
-//     * @return childMap
-//     */
-//    inline upnsSharedPointer<Tree> getMap(ObjectId objectId) { return getChild( objectId ); }
-//    /**
-//     * @brief getLayer same as getChild, but can be used to make code more understandable
-//     * @param objectId
-//     * @return childLayer
-//     */
-//    inline upnsSharedPointer<Tree> getLayer(ObjectId objectId) { return getChild( objectId ); }
-//    /**
-//     * @brief getEntity same as getChild, but can be used to make code more understandable
-//     * @param objectId
-//     * @return childEntity
-//     */
-//    inline upnsSharedPointer<Tree> getEntity(ObjectId objectId) { return getChild( objectId ); }
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const Path &entityId) = 0;
+
+    /**
+     * @brief getEntityDataConflictingReadOnly because a path is not enough to identify a conflicting entitydata, this method is introduced.
+     * @param entityId
+     * @return
+     */
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataConflictingReadOnly(const ObjectId &entityId) = 0;
 };
 
 }

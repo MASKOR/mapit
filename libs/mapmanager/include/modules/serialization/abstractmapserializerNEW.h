@@ -18,9 +18,6 @@ namespace upns
 class AbstractMapSerializer
 {
 public:
-    AbstractMapSerializer();
-    virtual ~AbstractMapSerializer();
-
     virtual bool canRead() = 0;
     virtual bool canWrite() = 0;
 
@@ -54,6 +51,7 @@ public:
 
     virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool readOnly = true) = 0;
 
+    virtual MessageType typeOfObject(const ObjectId &oid) = 0;
     virtual bool exists(const ObjectId &oid) = 0;
     //virtual bool exists(const CommitId &cid) = 0;
     virtual bool isTree(const ObjectId &oid) = 0;

@@ -1,10 +1,11 @@
-#ifndef __LEVELDBSERIALIZER_H
-#define __LEVELDBSERIALIZER_H
+#ifndef LEVELDBSERIALIZER_H
+#define LEVELDBSERIALIZER_H
 
 #include "upns_globals.h"
-#include "../abstractmapserializerNEW.h"
+#include "modules/serialization/abstractmapserializerNEW.h"
 #include "yaml-cpp/yaml.h"
-#include "abstractentitydatastreamprovider.h"
+#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include "leveldb/slice.h"
 
 class QLockFile;
 namespace leveldb {
@@ -57,7 +58,7 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj);
     virtual StatusCode removeBranch(const ObjectId &oid);
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool readOnly);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
@@ -65,6 +66,13 @@ public:
      */
     virtual StatusCode cleanUp();
 
+    virtual MessageType typeOfObject(const ObjectId &oid);
+    virtual bool exists(const ObjectId &oid);
+    virtual bool isTree(const ObjectId &oid);
+    virtual bool isEntity(const ObjectId &oid);
+    virtual bool isCommit(const CommitId &oid);
+    virtual bool isCheckout(const CommitId &oid);
+    virtual bool isBranch(const CommitId &oid);
 private:
     leveldb::DB* m_db;
 
@@ -79,7 +87,13 @@ private:
     std::string keyOfBranch(const ObjectId &oid) const;
 
     StatusCode getObject(const std::string &key, std::string &value);
-    StatusCode storeObject(const std::string &key, std::string &value);
+    StatusCode getObject(const leveldb::Slice &key, std::string &value);
+    StatusCode getGenericEntryFromOid(const ObjectId &oid, GenericEntry &value);
+    StatusCode getGenericEntry(const std::string &key, GenericEntry &value);
+    StatusCode getGenericEntry(const leveldb::Slice &key, GenericEntry &value);
+    StatusCode storeObject(const std::string &key, const std::string &value);
+    StatusCode createObject(const std::string &key, const std::string &value);
+    StatusCode removeObject(const std::string &oid);
 
     template <typename T>
     upnsSharedPointer<T> getObject(const std::string &key);
