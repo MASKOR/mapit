@@ -54,6 +54,7 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
         oa << *data;
     }
     m_streamProvider->endWrite(out);
+	return 0; //TODO: MSVC: What to return here?
 }
 
 upnsPointcloud2Ptr PointcloudEntitydata::getData(int lod)
@@ -101,7 +102,9 @@ void deleteWrappedLayerData(AbstractEntityData* ld)
     delete ld;
 }
 
-upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+//upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
-    return upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
+    //return upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
+    return static_cast<void*>(new upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData));
 }

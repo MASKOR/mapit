@@ -8,13 +8,15 @@
 using namespace upns;
 
 // Not a good idea because voxelgridfilter uses pcl smart pointers (bbost)
-using upnsPointcloud2Ptr = upnsSharedPointer<pcl::PCLPointCloud2>;
+typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
 //TODO: will not compile... guru meditation
 //using upnsPointcloud2Ptr = pcl::PCLPointCloud2Ptr;
 
 extern "C"
 {
-upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+	//TODO: Not possible in MSVC
+//upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 }
 
 class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>

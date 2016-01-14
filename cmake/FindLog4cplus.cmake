@@ -33,6 +33,7 @@ find_path(LOG4CPLUS_INCLUDE_DIR
     $ENV{LOG4CPLUS_ROOT}/include
     ${LOG4CPLUS_DIR}/include
     ${LOG4CPLUS_ROOT}/include
+	externals/log4cplus/include
 )
 
 if(Log4Cplus_USE_STATIC_LIBS)
@@ -60,6 +61,7 @@ find_library(LOG4CPLUS_LIBRARY_RELEASE
     $ENV{LOG4CPLUS_ROOT}/lib
     ${LOG4CPLUS_DIR}/lib
     ${LOG4CPLUS_ROOT}/lib
+	externals/log4cplus/src/.libs
   NO_DEFAULT_PATH
 )
 find_library(LOG4CPLUS_LIBRARY_DEBUG
@@ -77,13 +79,14 @@ find_library(LOG4CPLUS_LIBRARY_DEBUG
     $ENV{LOG4CPLUS_ROOT}/lib
     ${LOG4CPLUS_DIR}/lib
     ${LOG4CPLUS_ROOT}/lib
+	externals/log4cplus/src/.libs
   NO_DEFAULT_PATH
 )
 
 if(LOG4CPLUS_LIBRARY_DEBUG AND LOG4CPLUS_LIBRARY_RELEASE)
   set(LOG4CPLUS_LIBRARIES debug ${LOG4CPLUS_LIBRARY_DEBUG} optimized ${LOG4CPLUS_LIBRARY_RELEASE} CACHE STRING "Log4cplus Libraries")
 elseif(LOG4CPLUS_LIBRARY_RELEASE)
-  message(WARNING "log4cplus found no debuging found")
+  message(WARNING "log4cplus found no debugging found")
   set(LOG4CPLUS_LIBRARIES optimized ${LOG4CPLUS_LIBRARY_RELEASE} CACHE STRING "Log4cplus Libraries")
 else()
   message(WARNING "log4cplus not found")
@@ -99,4 +102,4 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Log4cplus DEFAULT_MSG LOG4CPLUS_LIBRARIES LOG4
 MARK_AS_ADVANCED(LOG4CPLUS_INCLUDE_DIR LOG4CPLUS_LIBRARIES LOG4CPLUS_LIBRARY_DEBUG LOG4CPLUS_LIBRARY_RELEASE)
 
 #TODO: put log4cplus in externals?
-#INCLUDE_DIRECTORIES(./log4cplus/include)
+INCLUDE_DIRECTORIES(../externals/log4cplus/include)

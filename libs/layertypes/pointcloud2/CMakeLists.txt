@@ -22,6 +22,7 @@ endif (NOT (DISABLE_PCL))
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
+include_directories(${PROJECT_SOURCE_DIR}/../../../externals/log4cplus/include/)
 
 use_protobuf()
 
