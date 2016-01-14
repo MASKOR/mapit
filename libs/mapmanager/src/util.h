@@ -42,6 +42,34 @@ namespace upns
         return stringToId( start );
     }
 
+    inline size_t indexOfLastUnescapedDelim(const std::string &key)
+    {
+        size_t idx = key.find_last_of('!');
+        do {
+            if(idx == 0) break;
+            if(idx == std::string::npos) break; // not found
+            if(key[idx-1] != '\\') break; // do not return last escaped delim
+            idx = key.find_last_of('!', idx-2);
+        } while(true);
+        return idx;
+    }
+
+    inline upnsString sliceEndToName(const leveldb::Slice &name)
+    {
+        size_t idx = indexOfLastUnescapedDelim(name.data());
+        idx++;
+        if(idx >= name.size() || idx == std::string::npos) return "";
+        return upnsString( name.data() + idx+1 );
+    }
+
+    inline upnsString stringEndToName(const std::string &name)
+    {
+        size_t idx = indexOfLastUnescapedDelim(name);
+        idx++;
+        if(idx >= name.length() || idx == std::string::npos) return "";
+        return upnsString( &(name[idx+1]) );
+    }
+
     inline upnsString escapeName(const upnsString name)
     {
         boost::replace_all_copy( name, "!", "\\!");

@@ -43,7 +43,7 @@ void TestRepository::cleanupTestCase()
 void TestRepository::testExampleCommit()
 {
     upnsSharedPointer<Branch> master(m_repo->createBranch("master"));
-    upnsSharedPointer<Checkout> co(m_repo->checkout(master));
+    upnsSharedPointer<Checkout> co(m_repo->createCheckout(master->commitid(), "testcheckout"));
 
     OperationDescription operationCreateTree;
     operationCreateTree.set_operatorname("load_pointcloud");

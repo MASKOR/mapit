@@ -42,22 +42,40 @@ Repository::~Repository()
     delete m_p;
 }
 
-upnsVec<upnsSharedPointer<Checkout> > Repository::getCheckouts()
+upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitId, const upnsString &name)
+{
+    if(m_p->m_serializer->isCommit(commitId))
+    {
+        upnsSharedPointer<CheckoutObj> co(upnsSharedPointer<CheckoutObj>(new CheckoutObj()));
+        co->mutable_commit()->add_parentcommitids(commitId);
+        m_p->m_serializer->createCheckoutCommit( co, name );
+        return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co));
+    }
+    return NULL;
+}
+
+upnsVec<upnsString> Repository::getCheckouts()
 {
 
 }
 
-upnsSharedPointer<Checkout> Repository::checkout(const upnsSharedPointer<Branch> &commit)
+//upnsSharedPointer<Checkout> Repository::checkout(const upnsSharedPointer<Branch> &commit)
+//{
+//    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, commit));
+//}
+
+upnsSharedPointer<Checkout> Repository::checkout(const upnsString &checkoutName)
 {
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, commit));
+    if(m_p->m_serializer->isCheckout(checkoutName))
+    {
+        upnsSharedPointer<CheckoutObj> co;
+        co = m_p->m_serializer->getCheckoutCommit(checkoutName);
+        return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co));
+    }
+    return NULL;
 }
 
-upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commit)
-{
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, commit));
-}
-
-StatusCode Repository::deleteCheckoutForced(const upnsSharedPointer<Checkout> checkout)
+StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
 {
 
 }

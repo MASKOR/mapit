@@ -30,7 +30,8 @@ class CheckoutRaw : public CheckoutCommon
 {
 public:
     /**
-     * @brief storeTree changes the tree at a given path. No conflict is generated.
+     * @brief storeTree changes the tree at a given path. No conflict is generated, the old version is overwritten.
+     * If there already was a conflict, a new sibling/candidate is created. Use setConflictSolved and choose an Object for the next version.
      * If NULL is given as a parameter, the tree is deleted.
      * The object at the given path must not be involved in a conflict.
      * New trees can be created with this method.
@@ -47,50 +48,43 @@ public:
      * @param tree
      * @return
      */
-    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Tree> tree) = 0;
+    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> tree) = 0;
 
     /**
-     * @brief createConflictSolvingTree creates a new tree at the given path. If there already is another tree/entity, a conflict is generated.
-     * Modules should only do this to resolve existing conflicts.
-     * @param path
+     * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.
+     * It can definitily not be read if entitydata is in conflict mode (Which one?).
+     * It may be tracked, if the stream is accessed for read. Only then, the read data might be generated, if it is not stored in the cache.
+     * If the stream is not read, Mapmanager can decide to overwrite the old stream directly and thus boost performance. However, operations which do not
+     * read it's data may be rare / should be kept rare.
+     * No conflict is generated, the old version is overwritten. If there was a conflict before, another candidate is added for this path/conflict.
      * @return
      */
-    virtual StatusCode createConflictSolvingTree(const Path &path, upnsSharedPointer<Tree> tree) = 0;
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &entity) = 0;
 
-    /**
-     * @brief createEntity creates a new tree at the given path. If there already is another tree/entity, a conflict is generated.
-     * Marks the conflict solved.
-     * @param path
-     * @return
-     */
-    virtual StatusCode createConflictSolvingEntity(const Path &path, upnsSharedPointer<Entity> entity) = 0;
+    //TODO: deprecated, use stroreXXX
+//    /**
+//     * @brief createConflictSolvingTree creates a new tree at the given path. If there already is another tree/entity, a conflict is generated.
+//     * Modules should only do this to resolve existing conflicts.
+//     * @param path
+//     * @return
+//     */
+//    virtual StatusCode createConflictSolvingTree(const Path &path, upnsSharedPointer<Tree> tree) = 0;
 
-    /**
-     * @brief setConflictSolved Used to choose one blob for a given path. The chosen oid can also be a new one which
-     * has been generated with create* by a "mergetool"-operation.
-     * @param solved
-     * @param oid
-     */
-    virtual void setConflictSolved(const Path &solved, const ObjectId &oid) = 0;
+//    /**
+//     * @brief createEntity creates a new tree at the given path. If there already is another tree/entity, a conflict is generated.
+//     * Marks the conflict solved.
+//     * @param path
+//     * @return
+//     */
+//    virtual StatusCode createConflictSolvingEntity(const Path &path, upnsSharedPointer<Entity> entity) = 0;
 
-    /**
-     * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
-     * After the internally used stream provider calls "endWrite()", the stream gets hashed and new ObjectIds are generated.
-     * Entity::id -> hash of stream
-     * Tree (layer) id -> child updated, rehash
-     * Tree (map  ) id -> child updated, rehash
-     * Tree (root ) id -> child updated, rehash
-     * @param entityId
-     * @return
-     */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForWrite(const Path &entity) = 0;
-
-    /**
-     * @brief getEntityDataConflictingForWrite get one of the conflicting entitydatas, change it and mark it as the solution for the conflict.
-     * @param entity
-     * @return
-     */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataConflictingSolvingForWrite(const Path &entity) = 0;
+    //TODO: deprecated, use above
+//    /**
+//     * @brief getEntityDataConflictingForWrite get one of the conflicting entitydatas, change it and mark it as the solution for the conflict.
+//     * @param entity
+//     * @return
+//     */
+//    virtual upnsSharedPointer<AbstractEntityData> getEntityDataConflictSolvingForWrite(const Path &entity) = 0;
 };
 
 }

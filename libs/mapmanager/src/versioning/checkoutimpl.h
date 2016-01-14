@@ -38,47 +38,46 @@ public:
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId);
-    CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch);
+    CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit);
+    //CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch);
     ~CheckoutImpl();
 
     virtual bool isInConflictMode();
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
     virtual upnsSharedPointer<Tree> getRoot();
-    virtual upnsSharedPointer<Tree> getChild(ObjectId objectId);
+    virtual upnsSharedPointer<Tree> getTree(const Path &path);
+    virtual upnsSharedPointer<Entity> getEntity(const Path &path);
+    virtual upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId);
+    virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
 
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &entityId);
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForWrite(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const Path &path);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnlyConflict(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &path);
 
-    virtual StatusCode storeTree(const Path &path, Tree tree);
-    virtual StatusCode createTree(const Path &path, Tree tree);
-    virtual upnsSharedPointer<Entity> createEntity(Path path, ObjectId parent);
-    virtual void setConflictSolved(ObjectId solved);
-protected:
-    /**
-     * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
-     * After the internally used stream provider calls "endWrite()", the stream gets hashed and new ObjectIds are generated.
-     * Entity::id -> hash of stream
-     * Tree (layer) id -> child updated, rehash
-     * Tree (map  ) id -> child updated, rehash
-     * Tree (root ) id -> child updated, rehash
-     * @param entityId
-     * @return
-     */
-    upnsSharedPointer<AbstractEntityData> getEntityDataImpl(const ObjectId &entityId, bool readOnly);
+    virtual StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);
+    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> tree);
+
+    virtual void setConflictSolved(const Path &path, const ObjectId &oid);
 
 private:
+    upnsSharedPointer<AbstractEntityData> getEntityDataImpl(const ObjectId &entityId, bool canRead, bool canWrite);
+
     upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
                                                          upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
     upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
                                                          upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
     AbstractMapSerializer* m_serializer;
 
-    // Rolling Commit, id is random and not yet the hash of commit. It has the commit, this checkout is based on as "parents"
-    CommitId m_checkoutId;
+    // Rolling Commit, id is random and not yet the hash of commit. This commit is exclusive for this checkout, this checkout is based on as "parents"
+    // TODO: maybe leave id out in every object
+    upnsSharedPointer<Commit>  m_commit;
+
     // Branch, the checkout is based on, if any
     upnsSharedPointer<Branch> m_branch;
+
+    // Name of the checkout
+    upnsString m_name;
 };
 
 }

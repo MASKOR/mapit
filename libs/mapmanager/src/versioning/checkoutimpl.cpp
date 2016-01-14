@@ -10,44 +10,44 @@ namespace upns
 {
 typedef ModuleInfo* (*GetModuleInfo)();
 
-CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId)
+CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit)
     :m_serializer(serializer),
-      m_branch( NULL )
+     m_branch( NULL )
 {
-    if(m_serializer->isCheckout(commitOrCheckoutId))
-    {
-        m_checkoutId = commitOrCheckoutId;
-    }
-    else if(m_serializer->isCommit(commitOrCheckoutId))
-    {
-        upnsSharedPointer<Commit> co(new Commit());
-        co->add_parentcommitids(commitOrCheckoutId);
-        m_checkoutId = m_serializer->createCheckoutCommit( co );
-    }
+//    if(m_serializer->isCheckout(checkoutCommit))
+//    {
+//        m_checkoutId = commitOrCheckoutId;
+//    }
+//    else if(m_serializer->isCommit(commitOrCheckoutId))
+//    {
+//        upnsSharedPointer<Commit> co(new Commit());
+//        co->add_parentcommitids(commitOrCheckoutId);
+//        m_checkoutId = m_serializer->createCheckoutCommit( co );
+//    }
 }
 
-CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch)
-    :m_serializer(serializer),
-      m_branch( branch )
-{
-    if(m_serializer->isCheckout(branch->commitid()))
-    {
-        m_checkoutId = branch->commitid();
-    }
-    else
-    {
-        upnsSharedPointer<Commit> co(new Commit());
-        if(m_serializer->isCommit(branch->commitid()))
-        {
-            co->add_parentcommitids(branch->commitid());
-        }
-        else
-        {
-            log_info("Initial Commit created, branch: " + branch->name());
-        }
-        m_checkoutId = m_serializer->createCheckoutCommit( co );
-    }
-}
+//CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch)
+//    :m_serializer(serializer),
+//      m_branch( branch )
+//{
+////    if(m_serializer->isCheckout(branch->commitid()))
+////    {
+////        m_checkoutId = branch->commitid();
+////    }
+////    else
+////    {
+////        upnsSharedPointer<Commit> co(new Commit());
+////        if(m_serializer->isCommit(branch->commitid()))
+////        {
+////            co->add_parentcommitids(branch->commitid());
+////        }
+////        else
+////        {
+////            log_info("Initial Commit created, branch: " + branch->name());
+////        }
+////        m_checkoutId = m_serializer->createCheckoutCommit( co );
+////    }
+//}
 
 CheckoutImpl::~CheckoutImpl()
 {
@@ -68,7 +68,22 @@ upnsSharedPointer<Tree> CheckoutImpl::getRoot()
 
 }
 
-upnsSharedPointer<Tree> CheckoutImpl::getChild(ObjectId objectId)
+upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
+{
+
+}
+
+upnsSharedPointer<Entity> CheckoutImpl::getEntity(const Path &path)
+{
+
+}
+
+upnsSharedPointer<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
+{
+
+}
+
+upnsSharedPointer<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId)
 {
 
 }
@@ -114,38 +129,39 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     return OperationResult(result, env.outputDescription());
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnly(const ObjectId &entityId)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnly(const Path &path)
 {
-    return getEntityDataImpl(entityId, true);
+    ObjectId oid;
+    return getEntityDataImpl(oid, true, false);
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForWrite(const ObjectId &entityId)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnlyConflict(const ObjectId &entityId)
 {
-    return getEntityDataImpl(entityId, false);
+    return getEntityDataImpl(entityId, false, true);
 }
 
-StatusCode CheckoutImpl::storeTree(const Path &path, Tree tree)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(const Path &path)
 {
-
-    return m_serializer->storeTree()
+    ObjectId oid;
+    return getEntityDataImpl(oid, true, true);
 }
 
-StatusCode CheckoutImpl::createTree(const Path &path, Tree tree)
+StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)
 {
-
+    //return m_serializer->storeTree();
 }
 
-upnsSharedPointer<Entity> CheckoutImpl::createEntity(Path path, ObjectId parent)
-{
-
-}
-
-void CheckoutImpl::setConflictSolved(ObjectId solved)
+StatusCode CheckoutImpl::storeEntity(const Path &path, upnsSharedPointer<Entity> tree)
 {
 
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataImpl(const ObjectId &entityId, bool readOnly)
+void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
+{
+
+}
+
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataImpl(const ObjectId &entityId, bool canRead, bool canWrite)
 {
     upnsSharedPointer<Entity> ent = m_serializer->getEntity( entityId );
     if( ent == NULL )
@@ -154,7 +170,7 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataImpl(const Obje
         return NULL;
     }
     assert( ent );
-    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), m_serializer->getStreamProvider(entityId, readOnly) ) ;
+    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), m_serializer->getStreamProvider(entityId, canRead, canWrite) ) ;
     return edata;
 }
 

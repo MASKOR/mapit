@@ -2,6 +2,7 @@
 #define CHECKOUTCOMMON_H
 
 #include "upns_globals.h"
+#include "services.pb.h"
 
 namespace upns
 {
@@ -30,18 +31,34 @@ public:
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts() = 0;
 
     /**
+     * @brief setConflictSolved Used to choose one blob for a given path. The chosen oid can also be a new one which
+     * has been generated with create* by a "mergetool"-operation.
+     * @param solved
+     * @param oid
+     */
+    virtual void setConflictSolved(const Path &path, const ObjectId &oid) = 0;
+
+    /**
      * @brief getRoot get Entry point to all objects of this commit.
      * @return
      */
     virtual upnsSharedPointer<Tree> getRoot() = 0;
 
     /**
-     * @brief getChild gets a Tree from repository. Tree must be reachable from this checkout (descendant of <root>)
-     * TODO: check if there are cases where this is needed
+     * @brief getTreeConflict gets a Tree from repository/checkout. Tree must be reachable from this checkout (descendant of <root>)
+     * This must only be used for conflicting objects. Use getTree otherwise
      * @param objectId
      * @return child
      */
-    virtual upnsSharedPointer<Tree> getChild(const ObjectId &objectId) = 0;
+    virtual upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId) = 0;
+
+    /**
+     * @brief getEntityConflict gets an Entity from repository/checkout. Entity must be reachable from this checkout (descendant of <root>)
+     * This must only be used for conflicting objects. Use getEntity otherwise
+     * @param objectId
+     * @return child
+     */
+    virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId) = 0;
 
     /**
      * @brief getTree
@@ -74,7 +91,7 @@ public:
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataConflictingReadOnly(const ObjectId &entityId) = 0;
+    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnlyConflict(const ObjectId &entityId) = 0;
 };
 
 }

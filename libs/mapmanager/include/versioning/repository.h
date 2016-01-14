@@ -18,6 +18,7 @@ public:
     Repository(const YAML::Node &config);
     ~Repository();
 
+    upnsSharedPointer<Checkout> createCheckout(const CommitId &commitId, const upnsString &name);
     /**
      * @brief getCheckouts retrieves a list of all checkouts in the system.
      * In contrast to git (with a single file tree), upns can checkout multiple versions at the same time.
@@ -26,7 +27,7 @@ public:
      * finish its work, so a new commit is generated (and the branch-tag is forwared). The the old commitId can be used.
      * @return all the checkouts
      */
-    upnsVec< upnsSharedPointer<Checkout> > getCheckouts();
+    upnsVec<upnsString> getCheckouts();
 
     /**
      * @brief checkout checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
@@ -40,15 +41,16 @@ public:
      * @param commit
      * @return new empty checkout object, representing exactly the state of <commit>.
      */
-    upnsSharedPointer<Checkout> checkout(const CommitId &commit);
-    upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &commit);
+    upnsSharedPointer<Checkout> checkout(const upnsString &checkoutName);
+    // when commiting we check if we are on a branch head. if so... update branch pointer
+    //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &commit);
 
     /**
      * @brief deleteCheckoutForced Deletes a checkout forever. This cannot be undone, like deleting changed files in git
      * @param checkout to delete
      * @return status
      */
-    StatusCode deleteCheckoutForced(const upnsSharedPointer<Checkout> checkout);
+    StatusCode deleteCheckoutForced(const upnsString &checkoutName);
 
     /**
      * @brief commit Commits checked out data. The checkout must not be used after committing it. TODO: checkout should be updated to be based on new commit.
