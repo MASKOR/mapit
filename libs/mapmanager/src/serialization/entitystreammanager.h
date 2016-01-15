@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "abstractentitydata.h"
-#include "modules/serialization/abstractmapserializerNEW.h" //< TODO: move. abstract serializer not needed by modules
+#include "serialization/abstractmapserializer.h"
 
 namespace upns {
 

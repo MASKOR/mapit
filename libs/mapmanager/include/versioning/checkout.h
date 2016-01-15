@@ -3,9 +3,6 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "modules/serialization/abstractmapserializerNEW.h"
-#include "entitydata.h"
 #include "checkoutcommon.h"
 
 namespace upns

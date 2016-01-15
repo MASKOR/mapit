@@ -4,7 +4,7 @@
 #include "upns_globals.h"
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "modules/serialization/abstractmapserializerNEW.h"
+#include "serialization/abstractmapserializer.h"
 #include "entitydata.h"
 #include "versioning/checkout.h"
 #include "modules/versioning/checkoutraw.h"
@@ -38,8 +38,7 @@ public:
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit);
-    //CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch);
+    CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, const upnsString &branchname = NULL);
     ~CheckoutImpl();
 
     virtual bool isInConflictMode();
@@ -61,6 +60,10 @@ public:
     virtual void setConflictSolved(const Path &path, const ObjectId &oid);
 
 private:
+
+    ObjectId oidForChild(upnsSharedPointer<Tree> tree, const std::string &name);
+    ObjectId oidForPath(const Path &path);
+    ObjectId createPath(const Path &path);
     AbstractMapSerializer* m_serializer;
 
     // Rolling Commit, id is random and not yet the hash of commit. This commit is exclusive for this checkout, this checkout is based on as "parents"
@@ -68,10 +71,12 @@ private:
     upnsSharedPointer<Commit>  m_commit;
 
     // Branch, the checkout is based on, if any
-    upnsSharedPointer<Branch> m_branch;
+    upnsString m_branchname;
 
     // Name of the checkout
     upnsString m_name;
+
+    upnsSharedPointer<CheckoutObj> m_checkout;
 };
 
 }

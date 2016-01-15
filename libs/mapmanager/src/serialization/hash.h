@@ -56,7 +56,7 @@ void hash(SHA256_CTX *ctx, const Tree &t)
 
 void hash(SHA256_CTX *ctx, const Branch &t)
 {
-    SHA256_Update(ctx, t.name().data(), t.name().length());
+    //SHA256_Update(ctx, t.name().data(), t.name().length());
     SHA256_Update(ctx, t.commitid().data(), t.commitid().length());
 }
 

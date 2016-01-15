@@ -18,7 +18,6 @@ public:
     Repository(const YAML::Node &config);
     ~Repository();
 
-    upnsSharedPointer<Checkout> createCheckout(const CommitId &commitId, const upnsString &name);
     /**
      * @brief getCheckouts retrieves a list of all checkouts in the system.
      * In contrast to git (with a single file tree), upns can checkout multiple versions at the same time.
@@ -36,6 +35,7 @@ public:
     upnsSharedPointer<CheckoutObj> getCheckout(const upnsString &name);
     upnsSharedPointer<Branch> getBranch(const upnsString &name);
     MessageType typeOfObject(const ObjectId &oid);
+
     /**
      * @brief getEntityDataReadOnly reads an object, without checkout
      * @param oid
@@ -43,6 +43,16 @@ public:
      */
     upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid);
 
+    /**
+     * @brief checkout creates a new checkout from a commit.
+     * name not existing: create new commit
+     * name already existing: error (returns null).
+     * @param commitId
+     * @param name
+     * @return
+     */
+    upnsSharedPointer<Checkout> checkout(const CommitId &commitIdOrBranchname, const upnsString &name);
+    //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &branch, const upnsString &name);
     /**
      * @brief checkout checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
      * Changes are not fully recorded at this level. Individual Stream-writes are recorded, without knowing the "OperationDescriptor".
@@ -79,12 +89,6 @@ public:
      * @return all Branches, names with their current HEAD commitIds.
      */
     upnsVec< upnsSharedPointer<Branch> > getBranches();
-
-    /**
-     * @brief getBranches List all Branches
-     * @return all Branches, names with their current HEAD commitIds.
-     */
-    upnsSharedPointer<Branch> createBranch(const upnsString &branchname);
 
     /**
      * @brief push alls branches to <repo>

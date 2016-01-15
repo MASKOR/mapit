@@ -7,13 +7,16 @@
 #include "operationenvironmentimpl.h"
 #include "serialization/entitystreammanager.h"
 
+#include <QDir>
+
 namespace upns
 {
 typedef ModuleInfo* (*GetModuleInfo)();
 
-CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit)
+CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj>  checkoutCommit, const upnsString &branchname)
     :m_serializer(serializer),
-     m_branch( NULL )
+     m_branchname( branchname ),
+     m_checkout(checkoutCommit)
 {
 //    if(m_serializer->isCheckout(checkoutCommit))
 //    {
@@ -108,13 +111,14 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     upnsString postfix = ".so";
 #endif
     std::stringstream filename;
-    filename << "./operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    filename << "./libs/operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
         filename << "." << desc.operatorversion();
     }
     void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
     if (!handle) {
+        std::cerr << QDir().currentPath().toStdString();
         std::cerr << "Cannot open library: " << dlerror() << '\n';
         return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
     }
@@ -160,6 +164,43 @@ StatusCode CheckoutImpl::storeEntity(const Path &path, upnsSharedPointer<Entity>
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 {
 
+}
+
+ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
+{
+    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
+    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
+    while(iter != refs.cend())
+    {
+        if(iter->first == name) return iter->second.id();
+        iter++;
+    }
+    return "";
+}
+
+ObjectId CheckoutImpl::oidForPath(const Path &path)
+{
+    m_checkout->commit().root;
+    upnsSharedPointer<Tree> current(getRoot());
+    Path p;
+    if(path[0] == '/')
+    {
+        p = path.substr(1);
+    }
+    else
+    {
+        p = path;
+    }
+    while(true)
+    {
+        size_t nextSlash = p.find_first_of('/');
+        assert(nextSlash != 0);
+        if(nextSlash == std::string::npos)
+        {
+            return "";
+        }
+
+    }
 }
 
 }

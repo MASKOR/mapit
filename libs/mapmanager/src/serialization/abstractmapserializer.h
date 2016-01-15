@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "abstractentitydatastreamprovider.h"
+#include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
 #include "error.h"
 
@@ -51,14 +51,14 @@ public:
 
     virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true, bool canWrite = false) = 0;
 
-    virtual MessageType typeOfObject(const ObjectId &oid) = 0;
-    virtual bool exists(const ObjectId &oid) = 0;
-    //virtual bool exists(const CommitId &cid) = 0;
-    virtual bool isTree(const ObjectId &oid) = 0;
-    virtual bool isEntity(const ObjectId &oid) = 0;
-    virtual bool isCommit(const CommitId &oid) = 0;
-    virtual bool isCheckout(const CommitId &oid) = 0;
-    virtual bool isBranch(const CommitId &oid) = 0;
+    virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
+    virtual bool exists(const ObjectId &oidOrName) = 0;
+
+//    virtual bool isTree(const ObjectId &oid) = 0;
+//    virtual bool isEntity(const ObjectId &oid) = 0;
+//    virtual bool isCommit(const CommitId &oid) = 0;
+//    virtual bool isCheckout(const CommitId &oid) = 0;
+//    virtual bool isBranch(const CommitId &oid) = 0;
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
      * @return

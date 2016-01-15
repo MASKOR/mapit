@@ -74,7 +74,7 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
 {
     GenericEntry entry;
     entry.set_type(MessageTree);
-    entry.set_allocated_tree(value.get());
+    *entry.mutable_tree() = *value;
     return createObject(key, entry.SerializeAsString());
 }
 template <>
@@ -82,7 +82,7 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
 {
     GenericEntry entry;
     entry.set_type(MessageEntity);
-    entry.set_allocated_entity(value.get());
+    *entry.mutable_entity() = *value;
     return createObject(key, entry.SerializeAsString());
 }
 template <>
@@ -90,7 +90,7 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
 {
     GenericEntry entry;
     entry.set_type(MessageCommit);
-    entry.set_allocated_commit(value.get());
+    *entry.mutable_commit() = *value;
     return createObject(key, entry.SerializeAsString());
 }
 template <>
@@ -98,7 +98,7 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
 {
     GenericEntry entry;
     entry.set_type(MessageCheckout);
-    entry.set_allocated_checkout(value.get());
+    *entry.mutable_checkout() = *value;
     return createObject(key, entry.SerializeAsString());
 }
 template <>
@@ -106,7 +106,7 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
 {
     GenericEntry entry;
     entry.set_type(MessageBranch);
-    entry.set_allocated_branch(value.get());
+    *entry.mutable_branch() = *value;
     return createObject(key, entry.SerializeAsString());
 }
 //template <typename T>
@@ -367,41 +367,54 @@ StatusCode LevelDBSerializer::cleanUp()
 
 }
 
-MessageType LevelDBSerializer::typeOfObject(const ObjectId &oid)
+MessageType LevelDBSerializer::typeOfObject(const ObjectId &oidOrName)
 {
 }
 
-bool LevelDBSerializer::exists(const ObjectId &oid)
+bool LevelDBSerializer::exists(const ObjectId &oidOrName)
 {
+    std::string key, value;
+    std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
+            &LevelDBSerializer::keyOfTree,
+            &LevelDBSerializer::keyOfEntity,
+            //TODO: How will EntityData behave?
+            &LevelDBSerializer::keyOfEntityData,
+            &LevelDBSerializer::keyOfBranch,
+            &LevelDBSerializer::keyOfCommit,
+            &LevelDBSerializer::keyOfCheckoutCommit};
+    for(int i=0; i < sizeof(keyOfMethods)/sizeof(*keyOfMethods) ; ++i)
+    {
+        key = (*this.*(keyOfMethods[i]))(oidOrName);
+        leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
+        if(s.ok()) return true;
+    }
+    return false;
 }
+//bool LevelDBSerializer::isTree(const ObjectId &oid)
+//{
+////    GenericEntry e;
+////    getGenericEntry(keyOfTree(oid),
+//}
 
-bool LevelDBSerializer::isTree(const ObjectId &oid)
-{
-//    std::string k(keyOfTree(oid));
-//    std::string v;
-//    getObject(k, v);
-//    ::google::protobuf::Message::
-}
+//bool LevelDBSerializer::isEntity(const ObjectId &oid)
+//{
 
-bool LevelDBSerializer::isEntity(const ObjectId &oid)
-{
+//}
 
-}
+//bool LevelDBSerializer::isCommit(const CommitId &oid)
+//{
 
-bool LevelDBSerializer::isCommit(const CommitId &oid)
-{
+//}
 
-}
+//bool LevelDBSerializer::isCheckout(const CommitId &oid)
+//{
 
-bool LevelDBSerializer::isCheckout(const CommitId &oid)
-{
+//}
 
-}
+//bool LevelDBSerializer::isBranch(const CommitId &oid)
+//{
 
-bool LevelDBSerializer::isBranch(const CommitId &oid)
-{
-
-}
+//}
 
 bool LevelDBSerializer::canRead()
 {
@@ -439,12 +452,14 @@ upnsSharedPointer< T > LevelDBSerializer::getObject(const std::string &key)
     if(!upnsIsOk( s )) return NULL;
 
     upnsSharedPointer< T > ret = fromGeneric<T>(value);
-    if(!ret)
-    {
-        log_error("could not parse payload: " + key);
-        return NULL;
-    }
     return ret;
+//    if(!ret)
+//    {
+//        //do not log here because it is okay to have null
+//        //log_error("could not parse payload: " + key);
+//        return NULL;
+//    }
+//    return ret;
 }
 
 StatusCode LevelDBSerializer::getObject(const std::string &key, std::string &value)
@@ -454,25 +469,26 @@ StatusCode LevelDBSerializer::getObject(const std::string &key, std::string &val
 
 StatusCode LevelDBSerializer::getObject(const leveldb::Slice &key, std::string &value)
 {
+    // do not log here, fails might be wanted. (leveldb has no "exists" method)
     leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
-     if(!s.ok())
-     {
-         if(s.IsNotFound())
-         {
-             log_error("could not find map with id: " + key.data());
-             return UPNS_STATUS_ERR_DB_NOT_FOUND;
-         }
-         else if(s.IsIOError())
-         {
-             log_error("IO Error for map with id: " + key.data());
-             return UPNS_STATUS_ERR_DB_IO_ERROR;
-         }
-         else if(s.IsCorruption())
-         {
-             log_error("Corruption Error for map with id: " + key.data());
-             return UPNS_STATUS_ERR_DB_CORRUPTION;
-         }
-         return UPNS_STATUS_ERR_DB_UNKNOWN;
+    if(!s.ok())
+    {
+        if(s.IsNotFound())
+        {
+            //log_error("could not find map with id: " + key.data());
+            return UPNS_STATUS_ERR_DB_NOT_FOUND;
+        }
+        else if(s.IsIOError())
+        {
+            //log_error("IO Error for map with id: " + key.data());
+            return UPNS_STATUS_ERR_DB_IO_ERROR;
+        }
+        else if(s.IsCorruption())
+        {
+            //log_error("Corruption Error for map with id: " + key.data());
+            return UPNS_STATUS_ERR_DB_CORRUPTION;
+        }
+        return UPNS_STATUS_ERR_DB_UNKNOWN;
      }
      return UPNS_STATUS_OK;
 }
@@ -482,7 +498,8 @@ StatusCode LevelDBSerializer::getGenericEntryFromOid(const ObjectId &oidOrName, 
     // Try all "syntaxes" of keys.
     // This is not a nice solution. However, different key syntaxes are used to distinguish object types from each other and generate lists 'listCheckouts'.
     // An alternative approach would store all objects with the same key and traverse though all objects and filter them in the 'list*' methods..
-    // TODO: Use common key structure and filter as said above. Delete this hacky loop.
+    // TODO: Think about using common key structure and filter as said above. Delete this hacky loop.
+    //       Maybe two different keytypes are needed for names and hashes
     StatusCode s;
     std::string key;
     std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
@@ -497,6 +514,8 @@ StatusCode LevelDBSerializer::getGenericEntryFromOid(const ObjectId &oidOrName, 
     {
         key = (*this.*(keyOfMethods[i]))(oidOrName);
         s = getGenericEntry(key, value);
+        // Break if entry was found or anything except "not found" happened.
+        // Note: If two types of objects share the same key-prefix this might be broken!
         if(upnsIsOk(s) || s != UPNS_STATUS_ENTITY_NOT_FOUND) return s;
     }
     return UPNS_STATUS_ENTITY_NOT_FOUND;

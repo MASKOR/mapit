@@ -42,8 +42,7 @@ void TestRepository::cleanupTestCase()
 
 void TestRepository::testExampleCommit()
 {
-    upnsSharedPointer<Branch> master(m_repo->createBranch("master"));
-    upnsSharedPointer<Checkout> co(m_repo->createCheckout(master->commitid(), "testcheckout"));
+    upnsSharedPointer<Checkout> co(m_repo->checkout("master", "testcheckout"));
 
     OperationDescription operationCreateTree;
     operationCreateTree.set_operatorname("load_pointcloud");
@@ -55,6 +54,7 @@ void TestRepository::testExampleCommit()
     target->set_strval("/testmap/testlayer/testentity");
     co->doOperation(operationCreateTree);
     m_repo->commit( co, "This is the commit message of a TestCommit");
+    std::cout << "Done" << std::endl;
 }
 
 DECLARE_TEST(TestRepository)

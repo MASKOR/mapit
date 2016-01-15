@@ -2,7 +2,7 @@
 #define LEVELDBSERIALIZER_H
 
 #include "upns_globals.h"
-#include "modules/serialization/abstractmapserializerNEW.h"
+#include "serialization/abstractmapserializer.h"
 #include "yaml-cpp/yaml.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "leveldb/slice.h"
@@ -66,13 +66,14 @@ public:
      */
     virtual StatusCode cleanUp();
 
-    virtual MessageType typeOfObject(const ObjectId &oid);
-    virtual bool exists(const ObjectId &oid);
-    virtual bool isTree(const ObjectId &oid);
-    virtual bool isEntity(const ObjectId &oid);
-    virtual bool isCommit(const CommitId &oid);
-    virtual bool isCheckout(const CommitId &oid);
-    virtual bool isBranch(const CommitId &oid);
+    virtual MessageType typeOfObject(const ObjectId &oidOrName);
+    virtual bool exists(const ObjectId &oidOrName);
+    // Please use getX and check for NULL!
+//    virtual bool isTree(const ObjectId &oid);
+//    virtual bool isEntity(const ObjectId &oid);
+//    virtual bool isCommit(const CommitId &oid);
+//    virtual bool isCheckout(const CommitId &oid);
+//    virtual bool isBranch(const CommitId &oid);
 private:
     leveldb::DB* m_db;
 

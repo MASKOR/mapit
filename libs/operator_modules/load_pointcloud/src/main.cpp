@@ -1,6 +1,6 @@
 #include "module.h"
 #include "libs/layertypes/pointcloud2/include/pointcloudlayer.h"
-#include "libs/mapmanager/src/mapmanager.h" //< TODO: use interface (something in include folder)!
+#include "modules/versioning/checkoutraw.h"
 #include "operationenvironment.h"
 #include "modules/versioning/checkoutraw.h"
 #include <iostream>
@@ -191,6 +191,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 //    assert( entity->id() != 0 );
 
     upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( "//TODO:THE/path" );
+
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
     entityData->setData( pc2 );
 
