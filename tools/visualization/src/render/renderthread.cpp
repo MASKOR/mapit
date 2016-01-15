@@ -33,10 +33,10 @@ RenderThread::~RenderThread()
     delete m_mapsRenderer;
 }
 
-upns::Checkout *RenderThread::mapManager() const
-{
-    return m_mapManager;
-}
+//upns::Repository *RenderThread::mapManager() const
+//{
+//    return m_mapManager;
+//}
 
 QString RenderThread::mapId() const
 {
@@ -56,11 +56,6 @@ qreal RenderThread::height() const
 QMatrix4x4 RenderThread::matrix() const
 {
     return m_matrix;
-}
-
-QString RenderThread::layerId() const
-{
-    return m_layerId;
 }
 
 void RenderThread::reloadMap()
@@ -89,8 +84,8 @@ void RenderThread::renderNext()
     }
     if( !m_mapsRenderer->isInitialized() )
     {
-        m_mapsRenderer->setMapId( mapId().toULongLong() );
-        m_mapsRenderer->setMapmanager( mapManager() );
+        m_mapsRenderer->setEntityId( upns::ObjectId(mapId().toStdString()) );
+        //m_mapsRenderer->setMapmanager( mapManager() );
         m_mapsRenderer->initialize();
     }
 
@@ -146,19 +141,8 @@ void RenderThread::setMapId(QString mapId)
 
     m_mapId = mapId;
     if(m_mapsRenderer)
-        m_mapsRenderer->setMapId( mapId.toULongLong() );
+        m_mapsRenderer->setEntityId( mapId.toStdString() );
     Q_EMIT mapIdChanged(mapId);
-}
-
-void RenderThread::setLayerId(QString layerId)
-{
-    if (m_layerId == layerId)
-        return;
-
-    m_layerId = layerId;
-    if(m_mapsRenderer)
-        m_mapsRenderer->setLayerId( layerId.toULongLong() );
-    Q_EMIT layerIdChanged(layerId);
 }
 
 void RenderThread::setWidth(qreal width)

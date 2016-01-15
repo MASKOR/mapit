@@ -3,6 +3,8 @@
 #include "modules/serialization/abstractmapserializerNEW.h"
 #include "serialization/leveldb/leveldbserializer.h"
 #include "versioning/checkoutimpl.h"
+#include "serialization/entitystreammanager.h"
+
 namespace upns
 {
 class RepositoryPrivate
@@ -54,15 +56,47 @@ upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitId,
     return NULL;
 }
 
-upnsVec<upnsString> Repository::getCheckouts()
+upnsVec<upnsString> Repository::listCheckoutNames()
 {
-
+    return m_p->m_serializer->listCheckoutNames();
 }
 
-//upnsSharedPointer<Checkout> Repository::checkout(const upnsSharedPointer<Branch> &commit)
-//{
-//    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, commit));
-//}
+upnsSharedPointer<Tree> Repository::getTree(const ObjectId &oid)
+{
+    return m_p->m_serializer->getTree(oid);
+}
+
+upnsSharedPointer<Entity> Repository::getEntity(const ObjectId oid)
+{
+    return m_p->m_serializer->getEntity(oid);
+}
+
+upnsSharedPointer<Commit> Repository::getCommit(const ObjectId &oid)
+{
+    return m_p->m_serializer->getCommit(oid);
+}
+
+upnsSharedPointer<CheckoutObj> Repository::getCheckout(const upnsString &name)
+{
+    return m_p->m_serializer->getCheckoutCommit(name);
+}
+
+upnsSharedPointer<Branch> Repository::getBranch(const upnsString &name)
+{
+    return m_p->m_serializer->getBranch(name);
+}
+
+MessageType Repository::typeOfObject(const ObjectId &oid)
+{
+    return m_p->m_serializer->typeOfObject(oid);
+}
+
+upnsSharedPointer<AbstractEntityData> Repository::getEntityDataReadOnly(const ObjectId &oid)
+{
+    // For entitydata it is not enough to call serializer directly.
+    // Moreover special classes need to be created by layertype plugins.
+    return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true, false);
+}
 
 upnsSharedPointer<Checkout> Repository::checkout(const upnsString &checkoutName)
 {

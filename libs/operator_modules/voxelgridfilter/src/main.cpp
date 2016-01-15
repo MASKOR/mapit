@@ -56,16 +56,16 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 //            break;
 //        }
 //    }
-    if( layer == NULL )
-    {
-        log_error("layer was not found.");
-        return UPNS_STATUS_LAYER_NOT_FOUND;
-    }
-    if(layer->type() != LayerType::POINTCLOUD2)
-    {
-        log_error("not a pointcloud layer. Can not load pointcloud into this layer.");
-        return UPNS_STATUS_LAYER_TYPE_MISMATCH;
-    }
+//    if( layer == NULL )
+//    {
+//        log_error("layer was not found.");
+//        return UPNS_STATUS_LAYER_NOT_FOUND;
+//    }
+//    if(layer->type() != LayerType::POINTCLOUD2)
+//    {
+//        log_error("not a pointcloud layer. Can not load pointcloud into this layer.");
+//        return UPNS_STATUS_LAYER_TYPE_MISMATCH;
+//    }
 
 //    const Entity *entity = NULL;
 //    if(target->entityval() == 0)
@@ -121,9 +121,9 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     out.set_operatorversion(OPERATOR_VERSION);
     OperationParameter *outTarget = out.add_params();
     outTarget->set_key("target");
-    outTarget->set_mapval( map->id() );
-    outTarget->set_layerval( layer->id() );
-    outTarget->set_entityval( entity->id() );
+//    outTarget->set_mapval( map->id() );
+//    outTarget->set_layerval( layer->id() );
+//    outTarget->set_entityval( entity->id() );
     OperationParameter *outMapname = out.add_params();
     outMapname->set_key("leafsize");
     outMapname->set_realval( leafSize );

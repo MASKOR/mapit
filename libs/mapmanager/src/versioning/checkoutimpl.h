@@ -61,12 +61,6 @@ public:
     virtual void setConflictSolved(const Path &path, const ObjectId &oid);
 
 private:
-    upnsSharedPointer<AbstractEntityData> getEntityDataImpl(const ObjectId &entityId, bool canRead, bool canWrite);
-
-    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
-                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-    upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
-                                                         upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
     AbstractMapSerializer* m_serializer;
 
     // Rolling Commit, id is random and not yet the hash of commit. This commit is exclusive for this checkout, this checkout is based on as "parents"

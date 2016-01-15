@@ -27,7 +27,21 @@ public:
      * finish its work, so a new commit is generated (and the branch-tag is forwared). The the old commitId can be used.
      * @return all the checkouts
      */
-    upnsVec<upnsString> getCheckouts();
+    upnsVec<upnsString> listCheckoutNames();
+
+
+    upnsSharedPointer<Tree> getTree(const ObjectId &oid);
+    upnsSharedPointer<Entity> getEntity(const ObjectId oid);
+    upnsSharedPointer<Commit> getCommit(const ObjectId &oid);
+    upnsSharedPointer<CheckoutObj> getCheckout(const upnsString &name);
+    upnsSharedPointer<Branch> getBranch(const upnsString &name);
+    MessageType typeOfObject(const ObjectId &oid);
+    /**
+     * @brief getEntityDataReadOnly reads an object, without checkout
+     * @param oid
+     * @return
+     */
+    upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid);
 
     /**
      * @brief checkout checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
