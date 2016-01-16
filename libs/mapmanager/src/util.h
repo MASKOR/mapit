@@ -4,7 +4,7 @@
 #include "upns_globals.h"
 #include <string>
 #include <leveldb/slice.h>
-#include <boost/algorithm/string/replace.hpp>
+#include <algorithm>
 
 #define UPNS_ID_LEN 40
 namespace upns
@@ -14,8 +14,8 @@ namespace upns
     inline ObjectId stringToId(const char *id);
     inline ObjectId stringEndToId(const std::string &id);
     inline ObjectId sliceEndToId(const leveldb::Slice &id);
-    inline upnsString  escapeName(const upnsString name);
-    inline upnsString  unescapeName(const upnsString name);
+    inline upnsString  escapeName(const upnsString &name);
+    inline upnsString  unescapeName(const upnsString &name);
 
     inline upnsuint64  generateId();
 
@@ -42,15 +42,15 @@ namespace upns
         return stringToId( start );
     }
 
-    inline upnsString escapeName(const upnsString name)
+    inline upnsString escapeName(const upnsString &name)
     {
-        boost::replace_all_copy( name, "!", "\\!");
+        std::replace( name.begin(), name.end(), "!", "\\!");
         return name;
     }
 
-    inline upnsString unescapeName(const upnsString name)
+    inline upnsString unescapeName(const upnsString &name)
     {
-        boost::replace_all_copy( name, "\\!", "!");
+        std::replace( name.begin(), name.end(), "\\!", "!");
         return name;
     }
 
