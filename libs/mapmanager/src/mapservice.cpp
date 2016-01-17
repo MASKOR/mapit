@@ -182,5 +182,20 @@
 //    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
 //    return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
 //}
+//#ifdef _WIN32
+//    upnsString prefix = "";
+//    upnsString postfix = ".dll";
+//#else
+//    upnsString prefix = "lib";
+//    upnsString postfix = ".so";
+//#endif
+//    void* handle = dlopen((upnsString("./libs/layertypes_collection/") + prefix + layertypeName + debug + postfix).c_str(), RTLD_NOW);
+//    if (!handle) {
+//        std::cerr << "Cannot open library: " << dlerror() << '\n';
+//        return upnsSharedPointer<AbstractEntityData>(NULL);
+//    }
+//    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
+//    return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
+//}
 
 //}

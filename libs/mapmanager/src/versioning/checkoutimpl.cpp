@@ -36,22 +36,22 @@ CheckoutImpl::~CheckoutImpl()
 
 bool CheckoutImpl::isInConflictMode()
 {
-
+    return false;
 }
 
 upnsVec<upnsSharedPointer<Conflict> > CheckoutImpl::getPendingConflicts()
 {
-
+    return upnsVec<upnsSharedPointer<Conflict> >();
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getRoot()
 {
-
+    return NULL;
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getChild(ObjectId objectId)
 {
-
+    return NULL;
 }
 
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
@@ -154,12 +154,26 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::wrapEntityOfType(upnsString 
     upnsString prefix = "lib";
     upnsString postfix = ".so";
 #endif
-    void* handle = dlopen((upnsString("./layertypes/") + prefix + layertypeName + debug + postfix).c_str(), RTLD_NOW);
+    std::stringstream filename("./layertypes/");
+    filename << prefix << layertypeName << debug << postfix;
+#ifdef _WIN32
+    HMODULE handle = LoadLibrary(filename.str().c_str());
+#else
+    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+#endif
     if (!handle) {
+#ifdef _WIN32
+#else
         std::cerr << "Cannot open library: " << dlerror() << '\n';
+#endif
         return upnsSharedPointer<AbstractEntityData>(NULL);
     }
+#ifdef _WIN32
+    //FARPROC getModInfo = GetProcAddress(handle,"createEntityData");
+    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)GetProcAddress(handle,"createEntityData");
+#else
     WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
+#endif
     return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
 }
 

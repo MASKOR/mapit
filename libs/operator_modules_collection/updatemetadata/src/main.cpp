@@ -1,5 +1,5 @@
 #include "module.h"
-#include "libs/layertypes/pointcloud2/include/pointcloudlayer.h"
+#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 #include "libs/mapmanager/src/mapmanager.h" //< TODO: use interface (something in include folder)!
 #include "operationenvironment.h"
 #include <iostream>

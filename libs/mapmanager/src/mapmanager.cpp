@@ -131,5 +131,34 @@
 //    }
 //    return OperationResult(result, env.outputDescription());
 //}
+//#ifdef _WIN32
+//    upnsString prefix = "";
+//    upnsString postfix = ".dll";
+//#else
+//    upnsString prefix = "lib";
+//    upnsString postfix = ".so";
+//#endif
+//    std::stringstream filename;
+//    filename << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+//    if(desc.operatorversion())
+//    {
+//        filename << "." << desc.operatorversion();
+//    }
+//    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+//    if (!handle) {
+//        std::cerr << "Cannot open library: " << dlerror() << '\n';
+//        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+//    }
+//    GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
+//    ModuleInfo* info = getModInfo();
+//    StatusCode result = info->operate( &env );
+//    if(!upnsIsOk(result))
+//    {
+//        std::stringstream strm;
+//        strm << "operator '" << desc.operatorname() << "' reported an error. (code:" << result << ")";
+//        log_error(strm.str());
+//    }
+//    return OperationResult(result, env.outputDescription());
+//}
 
 //}

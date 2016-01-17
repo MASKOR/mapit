@@ -60,7 +60,7 @@ FOREACH(subdir ${SUBDIRS})
 
 add_custom_command(
     TARGET ${subdir} POST_BUILD
-    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/data
+    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/data
 )
 
 add_custom_command(
