@@ -44,13 +44,15 @@ namespace upns
 
     inline upnsString escapeName(const upnsString &name)
     {
-        std::replace( name.begin(), name.end(), "!", "\\!");
+        //TODO not yet used
+        //std::replace( name.begin(), name.end(), "!", "\\!");
         return name;
     }
 
     inline upnsString unescapeName(const upnsString &name)
     {
-        std::replace( name.begin(), name.end(), "\\!", "!");
+        //TODO not yet used
+        //std::replace( name.begin(), name.end(), "\\!", "!");
         return name;
     }
 

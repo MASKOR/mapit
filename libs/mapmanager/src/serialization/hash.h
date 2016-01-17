@@ -5,6 +5,7 @@
 #include "services.pb.h"
 #include <google/protobuf/message.h>
 #include <string>
+#include <sstream>
 #include <functional>
 
 namespace upns {
@@ -31,7 +32,7 @@ ObjectId hash(const Tree &t)
     while(iter != t.refs().cend())
     {
         finalHash_temp_todo ^= std::hash<std::string>()(iter->first)    << (count);
-        finalHash_temp_todo ^= hash(iter->second)                  << (count+1);
+        //finalHash_temp_todo ^= hash(iter->second)                  << (count+1);
         iter++;
         count++;
     }

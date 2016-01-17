@@ -1,6 +1,11 @@
 #include "checkoutimpl.h"
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dlfcn.h>
+#endif
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <log4cplus/logger.h>
 #include "module.h"
@@ -73,12 +78,24 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     {
         filename << "." << desc.operatorversion();
     }
+#ifdef _WIN32
+    HMODULE handle = LoadLibrary(filename.str().c_str());
+#else
     void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+#endif
     if (!handle) {
+#ifdef _WIN32
+#else
         std::cerr << "Cannot open library: " << dlerror() << '\n';
+#endif
         return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
     }
+#ifdef _WIN32
+    //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");
+    GetModuleInfo getModInfo = (GetModuleInfo)GetProcAddress(handle,"getModuleInfo");
+#else
     GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
+#endif
     ModuleInfo* info = getModInfo();
     StatusCode result = info->operate( &env );
     if(!upnsIsOk(result))

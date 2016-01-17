@@ -19,6 +19,7 @@
 #endif
 
 #include <log4cplus/logger.h>
+#include <log4cplus/loggingmacros.h>
 #ifdef UPNS_DEBUG
     #ifdef USE_QT_STRUCTURES
         #define log_error(msg) do{LOG4CPLUS_ERROR(log4cplus::Logger::getInstance("main"), std::string() + msg); qassert_x(false, "upns", msg); break;}while(true)

@@ -79,8 +79,8 @@ endif(ENABLE_VISUALIZATION)
 include(ExternalProject) # ExternalProject_Add
 
 set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/libs/yaml-cpp-0.5.2" CACHE PATH "yaml installation path with lib and include subdir")
-set(YAML_CPP_INCLUDE ${YAML_CPP_INSTALL_DIR}/include)
-set(YAML_CPP_LIB_DIR ${YAML_CPP_INSTALL_DIR}/lib)
+set(YAML_CPP_INCLUDE "${YAML_CPP_INSTALL_DIR}/include" CACHE PATH "yaml include dir")
+set(YAML_CPP_LIB_DIR "${YAML_CPP_INSTALL_DIR}/lib" CACHE PATH "yaml lib dir")
 
 #add_subdirectory(externals/yaml-cpp)
 

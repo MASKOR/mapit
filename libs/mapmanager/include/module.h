@@ -3,7 +3,7 @@
 
 #include "upns.h"
 #include "entitydata.h"
-#include <boost/config.hpp>
+//#include <boost/config.hpp>
 #include "libs/upns_interface/services.pb.h"
 
 // Always export. Headernot needed for import, because of dynamic loading at runtime.
