@@ -84,17 +84,17 @@ upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
 
 upnsSharedPointer<Entity> CheckoutImpl::getEntity(const Path &path)
 {
-
+    return NULL;
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
 {
-
+    return NULL;
 }
 
 upnsSharedPointer<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId)
 {
-
+    return NULL;
 }
 
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
@@ -170,11 +170,12 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(co
 StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)
 {
     //return m_serializer->storeTree();
+    return 0;
 }
 
 StatusCode CheckoutImpl::storeEntity(const Path &path, upnsSharedPointer<Entity> tree)
 {
-
+    return 0;
 }
 
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
@@ -184,7 +185,7 @@ void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 
 ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
 {
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
+    const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
     {
@@ -196,7 +197,7 @@ ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::st
 
 ObjectId CheckoutImpl::oidForPath(const Path &path)
 {
-    m_checkout->commit().root;
+//    m_checkout->commit().root;
     upnsSharedPointer<Tree> current(getRoot());
     Path p;
     if(path[0] == '/')

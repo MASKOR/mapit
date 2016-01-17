@@ -14,12 +14,14 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 include_directories(${UPNS_INTERFACE_INCLUDE})
-find_package(PCL REQUIRED COMPONENTS common io)
+find_package(PCL 1.7 REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+
+use_protobuf()
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} upns_interface upns_mapmanager)

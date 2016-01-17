@@ -7,6 +7,13 @@
 
 using namespace upns;
 
+// TODO: Is import case needed? (dynmic linking?)
+#ifdef _WIN32
+#define MODULE_EXPORT __declspec(dllexport)
+#else
+#define MODULE_EXPORT // empty
+#endif
+
 // Not a good idea because voxelgridfilter uses pcl smart pointers (bbost)
 typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
 //TODO: will not compile... guru meditation
@@ -16,7 +23,7 @@ extern "C"
 {
 	//TODO: Not possible in MSVC
 //upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+MODULE_EXPORT void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 }
 
 class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>

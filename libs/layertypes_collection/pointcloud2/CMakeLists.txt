@@ -18,6 +18,7 @@ else( NOT (DISABLE_PCL))
     #set(PCL_CUSTOM_LIB ${Boost_SYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY} )
 endif (NOT (DISABLE_PCL))
 
+link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
@@ -31,7 +32,7 @@ file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} ${PCL_CUSTOM_SRC} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB}  )
 
 #target_link_libraries(${PROJECT_NAME} Qt5::Core )
 

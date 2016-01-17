@@ -21,9 +21,13 @@ macro(use_leveldb)
 #if( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
 #execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/leveldb)
 #endif( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
-
+if (WIN32)
+link_directories(${EXTERNALS_DIR}/windows/lib-msvc2013-md-64)
+include_directories(${EXTERNALS_DIR}/windows/include)
+else()
 link_directories(${EXTERNALS_DIR}/leveldb)
 include_directories(${EXTERNALS_DIR}/leveldb/include)
+endif()
 
 set(LEVELDB_LIB leveldb)
 
@@ -32,6 +36,8 @@ endmacro(use_leveldb)
 macro(use_protobuf)
 
 find_package(Protobuf)
+
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 if(NOT EXISTS ${PROTOBUF_INCLUDE_DIRS})
     #Note: if this hangs, protobuf may does not support multithreaded build ( -j 8 )
     #execute_process(COMMAND ./configure WORKING_DIRECTORY ${EXTERNALS_DIR}/protobuf)

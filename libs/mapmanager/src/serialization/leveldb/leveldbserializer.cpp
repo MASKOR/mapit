@@ -364,11 +364,13 @@ upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStream
 
 StatusCode LevelDBSerializer::cleanUp()
 {
-
+    return 0;
 }
 
 MessageType LevelDBSerializer::typeOfObject(const ObjectId &oidOrName)
 {
+    //TODO
+    return MessageBranch;
 }
 
 bool LevelDBSerializer::exists(const ObjectId &oidOrName)
@@ -571,7 +573,7 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::str
 
 StatusCode LevelDBSerializer::removeObject(const std::string &oid)
 {
-
+    return 0;
 }
 
 StatusCode LevelDBSerializer::createObject(const std::string &key, const std::string &value)

@@ -7,7 +7,7 @@
 #include "libs/upns_interface/services.pb.h"
 
 // Always export. Headernot needed for import, because of dynamic loading at runtime.
-#ifdef WIN32
+#ifdef _WIN32
 #define MODULE_EXPORT __declspec(dllexport)
 #else
 #define MODULE_EXPORT // empty
@@ -55,8 +55,8 @@ struct ModuleInfo
   extern "C" { \
       MODULE_EXPORT ModuleInfo* getModuleInfo() \
       { \
-          static ModuleInfo info = { BOOST_COMPILER, \
-                                 BOOST_COMPILER_CONFIG, \
+          static ModuleInfo info = { "BOOST_COMPILER", \
+                                 "BOOST_COMPILER_CONFIG", \
                                  __DATE__, \
                                  __TIME__, \
                                  moduleName, \

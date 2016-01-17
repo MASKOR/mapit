@@ -22,6 +22,9 @@ else( NOT (DISABLE_PCL))
 #set(PCL_CUSTOM_LIB ${Boost_SYSTEM_LIBRARY})
 endif (NOT (DISABLE_PCL))
 
+include_directories(${YAML_CPP_INCLUDE})
+use_protobuf()
+
 #file(GLOB_RECURSE UPNS_TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 #add_executable(${PROJECT_NAME} ${SRC_LIST} ${UPNS_TEST_SOURCES} )
@@ -63,20 +66,29 @@ FOREACH(subdir ${SUBDIRS})
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} ${PCL_CUSTOM_SRC})
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} )
 
-add_custom_command(
-    TARGET ${subdir} POST_BUILD
-    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
-)
+  execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
+  )
+  execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/test/unit_tests/libs
+  )
+  execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
+  )
+#add_custom_command(
+#    TARGET ${subdir} POST_BUILD
+#    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
+#)
 
-add_custom_command(
-    TARGET ${subdir} POST_BUILD
-    COMMAND ln -sfT ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/test/unit_tests/libs
-)
+#add_custom_command(
+#    TARGET ${subdir} POST_BUILD
+#    COMMAND ln -sfT ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/test/unit_tests/libs
+#)
 
-add_custom_command(
-    TARGET ${subdir} POST_BUILD
-    COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
-)
+#add_custom_command(
+#    TARGET ${subdir} POST_BUILD
+#    COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
+#)
 ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} ${PCL_CUSTOM_SRC} )
