@@ -4,7 +4,7 @@
 #include "upns_globals.h"
 #include <string>
 #include <leveldb/slice.h>
-#include <boost/algorithm/string/replace.hpp>
+//#include <boost/algorithm/string/replace.hpp>
 
 #define UPNS_ID_LEN 40
 namespace upns
@@ -44,13 +44,13 @@ namespace upns
 
     inline upnsString escapeName(const upnsString name)
     {
-        boost::replace_all_copy( name, "!", "\\!");
+        //TEMP: merge correctly boost::replace_all_copy( name, "!", "\\!");
         return name;
     }
 
     inline upnsString unescapeName(const upnsString name)
     {
-        boost::replace_all_copy( name, "\\!", "!");
+        //TEMP: merge correctly boost::replace_all_copy( name, "\\!", "!");
         return name;
     }
 

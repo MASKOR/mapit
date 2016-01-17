@@ -4,6 +4,7 @@ aux_source_directory(. SRC_LIST)
 
 set(CMAKE_AUTOMOC ON)
 
+set(LEVELDB_LIB "${EXTERNALS_DIR}/leveldb/libleveldb.so" CACHE FILEPATH "leveldb lib")
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
 use_leveldb()
@@ -22,6 +23,6 @@ include_directories(${YAML_CPP_INCLUDE})
 file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_MM_SOURCES} )
-target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${EXTERNALS_DIR}/leveldb/libleveldb.so log4cplus)
+target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/)

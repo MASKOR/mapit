@@ -6,7 +6,7 @@ class static_init
 public:
     static_init()
     {
-        srand (time(NULL));
+        srand (0);//time(NULL));
     }
 };
 

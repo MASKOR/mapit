@@ -18,9 +18,9 @@ endmacro(use_grpc)
 
 macro(use_leveldb)
 
-if( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
-execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/leveldb)
-endif( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
+#if( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
+#execute_process(COMMAND make -j${PROCESSOR_COUNT} WORKING_DIRECTORY ${EXTERNALS_DIR}/leveldb)
+#endif( NOT EXISTS ${EXTERNALS_DIR}/leveldb/libleveldb.so )
 
 link_directories(${EXTERNALS_DIR}/leveldb)
 include_directories(${EXTERNALS_DIR}/leveldb/include)

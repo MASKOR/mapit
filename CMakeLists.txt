@@ -56,6 +56,8 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
+include_directories(${LOG4CPLUS_INCLUDE_DIR})
+include_directories(${BOOST_INCLUDE_DIR})
 
 set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
 
@@ -76,23 +78,25 @@ endif(ENABLE_VISUALIZATION)
 
 include(ExternalProject) # ExternalProject_Add
 
-set(YAML_CPP_INSTALL_DIR ${PROJECT_SOURCE_DIR}/externals/libs/yaml-cpp-0.5.2)
+set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/libs/yaml-cpp-0.5.2" CACHE PATH "yaml installation path with lib and include subdir")
 set(YAML_CPP_INCLUDE ${YAML_CPP_INSTALL_DIR}/include)
 set(YAML_CPP_LIB_DIR ${YAML_CPP_INSTALL_DIR}/lib)
 
-ExternalProject_Add(
-    yaml-cpp
-    URL
-    "https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.tar.gz"
-    CONFIGURE_COMMAND
-    ""
-    BUILD_COMMAND
-    mkdir -p build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=${YAML_CPP_INSTALL_DIR} .. && make
-    BUILD_IN_SOURCE
-    1
-    INSTALL_COMMAND
-    cd build && make install
-)
+#add_subdirectory(externals/yaml-cpp)
+
+#ExternalProject_Add(
+#    yaml-cpp
+#    URL
+#    "https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.tar.gz"
+#    CONFIGURE_COMMAND
+#    ""
+#    BUILD_COMMAND
+#    mkdir -p build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=${YAML_CPP_INSTALL_DIR} .. && make
+#    BUILD_IN_SOURCE
+#    1
+#    INSTALL_COMMAND
+#    cd build && make install
+#)
 
 # make data visible in qtcreator
 add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})

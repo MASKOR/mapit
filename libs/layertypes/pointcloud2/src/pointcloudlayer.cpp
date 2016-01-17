@@ -1,8 +1,8 @@
 #include "pointcloudlayer.h"
 #include "pointcloudhelper.h"
 #include <sstream>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
 
 PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
@@ -32,11 +32,12 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
 {
     if(m_pointcloud == NULL)
     {
-        m_pointcloud = upnsPointcloud2Ptr(new pcl::PCLPointCloud2);
+        m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
         upnsIStream *in = m_streamProvider->startRead();
         {
-            ::boost::archive::text_iarchive ia(*in);
-            ia >> *m_pointcloud;
+            //::boost::archive::text_iarchive ia(*in);
+            //ia >> *m_pointcloud;
+            in->read(reinterpret_cast<char*>(m_pointcloud.get()), sizeof(::pcl::PCLPointCloud2));
         }
         m_streamProvider->endRead(in);
     }
@@ -50,8 +51,9 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 {
     upnsOStream *out = m_streamProvider->startWrite();
     {
-        ::boost::archive::text_oarchive oa(*out);
-        oa << *data;
+        out->write(reinterpret_cast<char*>(data.get()), sizeof(::pcl::PCLPointCloud2));
+//        ::boost::archive::text_oarchive oa(*out);
+//        oa << *data;
     }
     m_streamProvider->endWrite(out);
 	return 0; //TODO: MSVC: What to return here?
