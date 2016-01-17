@@ -3,9 +3,6 @@
 
 #include "upns_globals.h"
 #include "services.pb.h"
-#include "abstractentitydatastreamprovider.h"
-#include "../serialization/abstractmapserializerNEW.h"
-#include "entitydata.h"
 #include "checkoutcommon.h"
 
 namespace upns
@@ -31,13 +28,6 @@ public:
      * @return
      */
     virtual OperationResult doOperation(const OperationDescription &desc) = 0;
-
-    /**
-     * @brief getEntityData Retrieves binary stream of entitydata which can be casted to concrete type. This is always read only!
-     * @param entityId
-     * @return
-     */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityData(const ObjectId &entityId) = 0;
 };
 
 }

@@ -5,7 +5,8 @@
 #include <QOpenGLFunctions>
 #include <QVector>
 
-#include "libs/mapmanager/src/mapmanager.h"
+#include "versioning/checkout.h"
+#include "versioning/repository.h"
 
 class MapsRenderer : protected QOpenGLFunctions
 {
@@ -17,9 +18,9 @@ public:
     void initialize();
     bool isInitialized();
 
-    void setMapmanager(upns::MapManager *mapman);
-    void setMapId( upns::MapIdentifier mapId);
-    void setLayerId(upns::LayerIdentifier layerId);
+    void setMapmanager(upns::Repository *mapman);
+    void setEntityId( upns::ObjectId mapId);
+    //void setLayerId(upns::LayerIdentifier layerId);
     void setMatrix( const QMatrix4x4 &mat );
     void reloadMap();
 private:
@@ -35,9 +36,8 @@ private:
     int normalAttr1;
     int matrixUniform1;
 
-    upns::MapManager *m_mapManager;
-    upns::MapIdentifier m_mapId;
-    upns::LayerIdentifier m_layerId;
+    upns::Repository *m_mapManager;
+    upns::ObjectId m_mapId;
     bool m_initialized;
 };
 

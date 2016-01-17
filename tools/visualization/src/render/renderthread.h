@@ -5,6 +5,7 @@
 #include <QOffscreenSurface>
 #include <QMatrix4x4>
 #include "../bindings/qmlmapmanager.h"
+#include "versioning/repository.h"
 
 class MapsRenderer;
 
@@ -17,8 +18,7 @@ class RenderThread : public QThread
 {
     Q_OBJECT
     Q_PROPERTY(QString mapId READ mapId WRITE setMapId NOTIFY mapIdChanged)
-    Q_PROPERTY(QString layerId READ layerId WRITE setLayerId NOTIFY layerIdChanged)
-    Q_PROPERTY(upns::MapManager *mapManager READ mapManager WRITE setMapManager NOTIFY mapManagerChanged)
+    //Q_PROPERTY(upns::Repository *mapManager READ mapManager WRITE setMapManager NOTIFY mapManagerChanged)
     Q_PROPERTY(qreal width READ width WRITE setWidth NOTIFY widthChanged)
     Q_PROPERTY(qreal height READ height WRITE setHeight NOTIFY heightChanged)
     Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
@@ -31,10 +31,9 @@ public:
     QOffscreenSurface *surface;
     QOpenGLContext *context;
 
-    upns::MapManager * mapManager() const;
+    //upns::Repository *mapManager() const;
 
     QString mapId() const;
-    QString layerId() const;
     qreal width() const;
     qreal height() const;
     QMatrix4x4 matrix() const;
@@ -44,9 +43,8 @@ public Q_SLOTS:
     void renderNext();
     void shutDown();
 
-    void setMapManager(upns::MapManager * mapManager);
+    void setMapManager(upns::Checkout * mapManager);
     void setMapId(QString mapId);
-    void setLayerId(QString layerId);
     void setWidth(qreal width);
     void setHeight(qreal height);
     void setMatrix(QMatrix4x4 matrix);
@@ -54,7 +52,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void textureReady(int id, const QSize &size);
 
-    void mapManagerChanged(upns::MapManager * mapManager);
+    void mapManagerChanged(upns::Checkout * mapManager);
     void mapIdChanged(QString mapId);
     void widthChanged(qreal width);
     void heightChanged(qreal height);
@@ -67,9 +65,8 @@ private:
 
     MapsRenderer *m_mapsRenderer;
     QSize m_size;
-    upns::MapManager *m_mapManager;
+    upns::Checkout *m_mapManager;
     QString m_mapId;
-    QString m_layerId;
     QMatrix4x4 m_matrix;
 };
 

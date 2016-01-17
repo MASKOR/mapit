@@ -10,25 +10,53 @@
 #include <log4cplus/logger.h>
 #include "module.h"
 #include "operationenvironmentimpl.h"
+#include "serialization/entitystreammanager.h"
+
+#include <QDir>
 
 namespace upns
 {
 typedef ModuleInfo* (*GetModuleInfo)();
 
-CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const CommitId commitOrCheckoutId)
-    :m_serializer(serializer)
+CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj>  checkoutCommit, const upnsString &branchname)
+    :m_serializer(serializer),
+     m_branchname( branchname ),
+     m_checkout(checkoutCommit)
 {
-    if(m_serializer->isCheckout(commitOrCheckoutId))
-    {
-        m_checkoutId = commitOrCheckoutId;
-    }
-    else if(m_serializer->isCommit(commitOrCheckoutId))
-    {
-        upnsSharedPointer<Commit> co(new Commit());
-        co->add_parentcommitids(commitOrCheckoutId);
-        m_checkoutId = m_serializer->createCheckoutCommit( co );
-    }
+//    if(m_serializer->isCheckout(checkoutCommit))
+//    {
+//        m_checkoutId = commitOrCheckoutId;
+//    }
+//    else if(m_serializer->isCommit(commitOrCheckoutId))
+//    {
+//        upnsSharedPointer<Commit> co(new Commit());
+//        co->add_parentcommitids(commitOrCheckoutId);
+//        m_checkoutId = m_serializer->createCheckoutCommit( co );
+//    }
 }
+
+//CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch)
+//    :m_serializer(serializer),
+//      m_branch( branch )
+//{
+////    if(m_serializer->isCheckout(branch->commitid()))
+////    {
+////        m_checkoutId = branch->commitid();
+////    }
+////    else
+////    {
+////        upnsSharedPointer<Commit> co(new Commit());
+////        if(m_serializer->isCommit(branch->commitid()))
+////        {
+////            co->add_parentcommitids(branch->commitid());
+////        }
+////        else
+////        {
+////            log_info("Initial Commit created, branch: " + branch->name());
+////        }
+////        m_checkoutId = m_serializer->createCheckoutCommit( co );
+////    }
+//}
 
 CheckoutImpl::~CheckoutImpl()
 {
@@ -49,9 +77,24 @@ upnsSharedPointer<Tree> CheckoutImpl::getRoot()
     return NULL;
 }
 
-upnsSharedPointer<Tree> CheckoutImpl::getChild(ObjectId objectId)
+upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
 {
     return NULL;
+}
+
+upnsSharedPointer<Entity> CheckoutImpl::getEntity(const Path &path)
+{
+
+}
+
+upnsSharedPointer<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
+{
+
+}
+
+upnsSharedPointer<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId)
+{
+
 }
 
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
@@ -73,7 +116,7 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     upnsString postfix = ".so";
 #endif
     std::stringstream filename;
-    filename << "./operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    filename << "./libs/operator_modules/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
         filename << "." << desc.operatorversion();
@@ -107,74 +150,73 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     return OperationResult(result, env.outputDescription());
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataImpl(const ObjectId &entityId, bool readOnly)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnly(const Path &path)
 {
-    upnsSharedPointer<Entity> ent = m_serializer->getEntity( entityId );
-    if( ent == NULL )
-    {
-        log_error("Entity not found." + entityId);
-        return NULL;
-    }
-    assert( ent );
-    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), m_serializer->getStreamProvider(entityId, readOnly) ) ;
-    return edata;
+    ObjectId oid;
+    return EntityStreamManager::getEntityDataImpl(m_serializer, oid, true, false);
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::wrapEntityOfType(LayerType type,
-                                                                   upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnlyConflict(const ObjectId &entityId)
 {
-    upnsString layerName;
-    switch(type)
-    {
-    case POINTCLOUD2:
-    {
-        layerName = "layertype_pointcloud2";
-        break;
-    }
-    default:
-        log_error("Unknown layertype: " + std::to_string(type));
-        return upnsSharedPointer<AbstractEntityData>(NULL);
-    }
-    return wrapEntityOfType( layerName, streamProvider );
+    return EntityStreamManager::getEntityDataImpl(m_serializer, entityId, false, true);
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::wrapEntityOfType(upnsString layertypeName,
-                                                                  upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(const Path &path)
 {
-#ifndef NDEBUG
-    upnsString debug = DEBUG_POSTFIX;
-#else
-    upnsString debug = "";
-#endif
+    ObjectId oid;
+    return EntityStreamManager::getEntityDataImpl(m_serializer, oid, true, true);
+}
 
-#ifdef _WIN32
-    upnsString prefix = "";
-    upnsString postfix = ".dll";
-#else
-    upnsString prefix = "lib";
-    upnsString postfix = ".so";
-#endif
-    std::stringstream filename("./layertypes/");
-    filename << prefix << layertypeName << debug << postfix;
-#ifdef _WIN32
-    HMODULE handle = LoadLibrary(filename.str().c_str());
-#else
-    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
-#endif
-    if (!handle) {
-#ifdef _WIN32
-#else
-        std::cerr << "Cannot open library: " << dlerror() << '\n';
-#endif
-        return upnsSharedPointer<AbstractEntityData>(NULL);
+StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)
+{
+    //return m_serializer->storeTree();
+}
+
+StatusCode CheckoutImpl::storeEntity(const Path &path, upnsSharedPointer<Entity> tree)
+{
+
+}
+
+void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
+{
+
+}
+
+ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
+{
+    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
+    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
+    while(iter != refs.cend())
+    {
+        if(iter->first == name) return iter->second.id();
+        iter++;
     }
-#ifdef _WIN32
-    //FARPROC getModInfo = GetProcAddress(handle,"createEntityData");
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)GetProcAddress(handle,"createEntityData");
-#else
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
-#endif
-    return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
+    return "";
+}
+
+ObjectId CheckoutImpl::oidForPath(const Path &path)
+{
+    m_checkout->commit().root;
+    upnsSharedPointer<Tree> current(getRoot());
+    Path p;
+    if(path[0] == '/')
+    {
+        p = path.substr(1);
+    }
+    else
+    {
+        p = path;
+    }
+    while(true)
+    {
+        size_t nextSlash = p.find_first_of('/');
+        assert(nextSlash != 0);
+        if(nextSlash == std::string::npos)
+        {
+            return "";
+        }
+
+    }
 }
 
 }

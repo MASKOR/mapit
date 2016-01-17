@@ -76,7 +76,7 @@ void MapsRenderer::initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-    if(m_mapManager && m_mapId != 0)
+    if(m_mapManager && !m_mapId.empty() )
     {
         createGeometry();
     }
@@ -88,7 +88,7 @@ bool MapsRenderer::isInitialized()
     return m_initialized;
 }
 
-void MapsRenderer::setMapmanager(upns::MapManager *mapman)
+void MapsRenderer::setMapmanager(upns::Repository *mapman)
 {
     m_mapManager = mapman;
     if(m_initialized)
@@ -97,18 +97,9 @@ void MapsRenderer::setMapmanager(upns::MapManager *mapman)
     }
 }
 
-void MapsRenderer::setMapId(upns::MapIdentifier mapId)
+void MapsRenderer::setEntityId(upns::ObjectId mapId)
 {
     m_mapId = mapId;
-    if(m_initialized)
-    {
-        createGeometry();
-    }
-}
-
-void MapsRenderer::setLayerId(LayerIdentifier layerId)
-{
-    m_layerId = layerId;
     if(m_initialized)
     {
         createGeometry();
@@ -159,25 +150,25 @@ void MapsRenderer::createGeometry()
     vertices.clear();
     normals.clear();
 
-    upns::upnsSharedPointer<upns::Map> map = m_mapManager->getInternalMapService()->getMap(m_mapId);
-    const Layer* layer = NULL;
-    for(int i=0 ; i < map->layers_size() ; ++i)
-    {
-        const upns::Layer& l = map->layers(i);
-        if(l.id() == m_layerId)
-        {
-            layer = &l;
-            break;
-        }
-    }
-    if(layer == NULL)
-    {
-        log_error("tried to visualize wrong mapId and layerId. Map with "
-                  "Id: " + QString::number(m_mapId).toStdString() + " does not "
-                  "contain layer: " + QString::number(m_layerId).toStdString());
-        return;
-    }
-    upns::upnsSharedPointer<upns::AbstractEntityData> aed = m_mapManager->getInternalMapService()->getEntityData(m_mapId, layer->id(), layer->entities(0).id());
+//    upns::upnsSharedPointer<upns::Map> map = m_mapManager->getEntityDataReadOnly()->getTree(m_mapId);
+//    const Layer* layer = NULL;
+//    for(int i=0 ; i < map->layers_size() ; ++i)
+//    {
+//        const upns::Layer& l = map->layers(i);
+//        if(l.id() == m_layerId)
+//        {
+//            layer = &l;
+//            break;
+//        }
+//    }
+//    if(layer == NULL)
+//    {
+//        log_error("tried to visualize wrong mapId and layerId. Map with "
+//                  "Id: " + QString::number(m_mapId).toStdString() + " does not "
+//                  "contain layer: " + QString::number(m_layerId).toStdString());
+//        return;
+//    }
+    upns::upnsSharedPointer<upns::AbstractEntityData> aed = m_mapManager->getEntityDataReadOnly(m_mapId);
     upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(aed);
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 

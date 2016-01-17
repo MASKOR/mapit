@@ -103,6 +103,7 @@ typedef upnsuint32 StatusCode;
 
 typedef upnsString CommitId;
 typedef upnsString ObjectId;
+typedef upnsString Path;
 
 #define InvalidCommitId "invalidCId"
 #define InvalidObjectId "invalidOId"
