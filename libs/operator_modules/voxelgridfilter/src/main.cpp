@@ -5,7 +5,6 @@
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
-#include <boost/weak_ptr.hpp>
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
