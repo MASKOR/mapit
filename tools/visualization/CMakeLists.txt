@@ -23,6 +23,7 @@ set(CMAKE_AUTOMOC ON)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
+include_directories(${YAML_CPP_INCLUDE})
 
 find_package(Qt5Qml 5.4 REQUIRED)
 find_package(Qt5Widgets 5.4 REQUIRED)

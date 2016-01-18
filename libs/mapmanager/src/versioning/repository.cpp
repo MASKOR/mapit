@@ -105,7 +105,7 @@ upnsSharedPointer<Tree> Repository::getTree(const ObjectId &oid)
     return m_p->m_serializer->getTree(oid);
 }
 
-upnsSharedPointer<Entity> Repository::getEntity(const ObjectId oid)
+upnsSharedPointer<Entity> Repository::getEntity(const ObjectId &oid)
 {
     return m_p->m_serializer->getEntity(oid);
 }

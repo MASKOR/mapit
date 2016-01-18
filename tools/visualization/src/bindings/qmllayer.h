@@ -3,7 +3,7 @@
 
 #include <QtCore>
 #include <QJsonObject>
-#include "libs/mapmanager/src/mapmanager.h"
+#include "libs/mapmanager/include/versioning/checkout.h"
 #include "libs/upns_interface/services.pb.h"
 #include <QQmlListProperty>
 #include "qmlentity.h"

@@ -30,7 +30,7 @@ public:
 
 
     upnsSharedPointer<Tree> getTree(const ObjectId &oid);
-    upnsSharedPointer<Entity> getEntity(const ObjectId oid);
+    upnsSharedPointer<Entity> getEntity(const ObjectId &oid);
     upnsSharedPointer<Commit> getCommit(const ObjectId &oid);
     upnsSharedPointer<CheckoutObj> getCheckout(const upnsString &name);
     upnsSharedPointer<Branch> getBranch(const upnsString &name);

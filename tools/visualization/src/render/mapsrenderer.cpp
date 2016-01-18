@@ -3,7 +3,7 @@
 #include <QtMath>
 #include "upns_globals.h"
 #include "libs/upns_interface/services.pb.h"
-#include "libs/mapmanager/src/mapmanager.h"
+#include "libs/mapmanager/include/versioning/checkout.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>

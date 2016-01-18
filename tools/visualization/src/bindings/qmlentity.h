@@ -3,7 +3,7 @@
 
 #include <QtCore>
 #include <QJsonObject>
-#include "libs/mapmanager/src/mapmanager.h"
+#include "libs/mapmanager/include/versioning/checkout.h"
 #include "libs/upns_interface/services.pb.h"
 #include <QQmlListProperty>
 
@@ -15,29 +15,8 @@ class QmlEntity : public QObject
 public:
     QmlEntity(upns::Entity *obj);
 
-    QString id() const
-    {
-        return QString::fromStdString(m_entity->id());
-    }
-
 public Q_SLOTS:
 
-
-    void setId(QString id)
-    {
-        std::string ident( id.toStdString() ) ;
-        if (m_entity->id() == ident)
-            return;
-
-        m_entity->set_id(ident);
-        Q_EMIT idChanged(id);
-    }
-
-Q_SIGNALS:
-    void idChanged(QString id);
-
-private:
-    upns::Entity *m_entity;
 };
 
 #endif

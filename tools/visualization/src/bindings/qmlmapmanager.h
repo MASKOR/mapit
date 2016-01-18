@@ -7,6 +7,7 @@
 #include "versioning/checkout.h"
 #include "services.pb.h"
 #include "qmlmap.h"
+#include "yaml-cpp/yaml.h"
 
 class QmlMapManager : public QObject
 {
