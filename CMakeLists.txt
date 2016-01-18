@@ -57,6 +57,7 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 include_directories(${LOG4CPLUS_INCLUDE_DIR})
+include_directories(${UPNS_ROOT_DIR}/externals/include)
 #include_directories(${BOOST_INCLUDE_DIR})
 
 set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
@@ -81,6 +82,8 @@ include(ExternalProject) # ExternalProject_Add
 set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/libs/yaml-cpp-0.5.2" CACHE PATH "yaml installation path with lib and include subdir")
 set(YAML_CPP_INCLUDE "${YAML_CPP_INSTALL_DIR}/include" CACHE PATH "yaml include dir")
 set(YAML_CPP_LIB_DIR "${YAML_CPP_INSTALL_DIR}/lib" CACHE PATH "yaml lib dir")
+set(YAML_CPP_LIBRARIES "${YAML_CPP_LIB_DIR}/libyaml-cpp.so" CACHE FILEPATH "yaml lib")
+
 set(BOOST_ADDITIONAL_LINK_DIRECTORY "somewhere" CACHE PATH "yaml lib dir")
 link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
 #add_subdirectory(externals/yaml-cpp)
