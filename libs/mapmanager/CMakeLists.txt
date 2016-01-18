@@ -4,6 +4,16 @@ aux_source_directory(. SRC_LIST)
 
 set(CMAKE_AUTOMOC ON)
 
+#FindBoost is a stupid bitch which is incapable of handling cmake cache variables correctly.
+#use custom variables for boost
+#find_package(Boost COMPONENTS filesystem system date_time)
+set(BOOST_LIB_FILESYSTEM_DEBUG "libboost_filesystem-vc120-gd-1_55.lib" CACHE FILEPATH "")
+set(BOOST_LIB_FILESYSTEM_RELEASE "libboost_filesystem-vc120-1_55.lib" CACHE FILEPATH "")
+set(BOOST_LIB_SYSTEM_DEBUG "libboost_system-vc120-gd-1_55.lib" CACHE FILEPATH "")
+set(BOOST_LIB_SYSTEM_RELEASE "libboost_system-vc120-1_55.lib" CACHE FILEPATH "")
+set(BOOST_LIB_DATE_TIME_DEBUG "libboost_date_time-vc120-gd-1_55.lib" CACHE FILEPATH "")
+set(BOOST_LIB_DATE_TIME_RELEASE "libboost_date_time-vc120-1_55.lib" CACHE FILEPATH "")
+
 # TODO: Introduce FindXXX Scripts streamline librar loading for upns
 # Take into account linux and windows. Packet manager installations, "externals" folder installations
 set(LEVELDB_LIB_RELEASE "${EXTERNALS_DIR}/leveldb/libleveldb.so" CACHE FILEPATH "leveldb lib")
@@ -11,16 +21,19 @@ set(LEVELDB_LIB_DEBUG "${EXTERNALS_DIR}/leveldb/libleveldbd.so" CACHE FILEPATH "
 #set(YAML_LIB_RELEASE "yaml-cpp" CACHE FILEPATH "yaml-cpp md lib")
 #set(YAML_LIB_DEBUG "yaml-cppd" CACHE FILEPATH "yaml-cpp md lib")
 
-if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
+if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
     set(LEVELDB_LIBRARIES ${LEVELDB_LIB_DEBUG})
     #set(YAML_CPP_LIBRARIES ${YAML_LIB_DEBUG})
     #set(LOG4CPLUS_LIBRARIES ${LOG4CPLUS_LIBRARY_DEBUG}) #Note: I dont know why this must be done manually for log4cplus with its findscript (windows)
-else (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+    set(BOOST_LIBRARIES_ADDITION "${BOOST_LIB_FILESYSTEM_DEBUG}" "${BOOST_LIB_SYSTEM_DEBUG}" "${BOOST_LIB_DATE_TIME_DEBUG}")
+else (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
     set(LEVELDB_LIBRARIES ${LEVELDB_LIB_RELEASE})
     #set(YAML_CPP_LIBRARIES ${LOG4CPLUS_LIB2_DEBUG})
     #set(LOG4CPLUS_LIBRARIES ${LOG4CPLUS_LIBRARY_RELEASE})
-endif (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-
+    set(BOOST_LIBRARIES_ADDITION "${BOOST_LIB_FILESYSTEM_RELEASE}" "${BOOST_LIB_SYSTEM_RELEASE}" "${BOOST_LIB_DATE_TIME_RELEASE}")
+endif (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
+message("BOOST_LIBRARIES_ADDITION " ${BOOST_LIBRARIES_ADDITION})
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
 use_leveldb()
@@ -30,8 +43,6 @@ use_protobuf()
 link_directories(${EXTERNALS_DIR}/leveldb)
 link_directories(${YAML_CPP_LIB_DIR})
 
-
-find_package(Boost COMPONENTS filesystem system date_time)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
@@ -49,7 +60,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 #TODO: what is dl lib?
 #target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
 #target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
-target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${BOOST_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${BOOST_LIBRARIES_ADDITION})
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_55.lib)

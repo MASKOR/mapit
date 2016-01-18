@@ -64,7 +64,7 @@ FOREACH(subdir ${SUBDIRS})
   SET(AllUnitTestCPP ${AllUnitTestCPP} ${CurrentUnitTestCPP})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} ${PCL_CUSTOM_SRC})
-  target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} )
+  target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES} )
 
   execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
@@ -92,5 +92,5 @@ FOREACH(subdir ${SUBDIRS})
 ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} ${PCL_CUSTOM_SRC} )
-target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} )
+target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES} )
 add_test(TestAll ${EXECUTABLE_OUTPUT_PATH}/TestAll)

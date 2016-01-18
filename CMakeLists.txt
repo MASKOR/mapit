@@ -84,7 +84,7 @@ set(YAML_CPP_INCLUDE "${YAML_CPP_INSTALL_DIR}/include" CACHE PATH "yaml include 
 set(YAML_CPP_LIB_DIR "${YAML_CPP_INSTALL_DIR}/lib" CACHE PATH "yaml lib dir")
 set(YAML_CPP_LIBRARIES "${YAML_CPP_LIB_DIR}/libyaml-cpp.so" CACHE FILEPATH "yaml lib")
 
-set(BOOST_ADDITIONAL_LINK_DIRECTORY "somewhere" CACHE PATH "yaml lib dir")
+set(BOOST_ADDITIONAL_LINK_DIRECTORY "somewhere" CACHE PATH "")
 link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
 #add_subdirectory(externals/yaml-cpp)
 
