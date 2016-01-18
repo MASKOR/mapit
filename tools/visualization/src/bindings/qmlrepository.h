@@ -4,6 +4,12 @@
 #include <QtCore>
 #include <QJsonObject>
 #include "libs/mapmanager/include/versioning/repository.h"
+#include "qmltree.h"
+#include "qmlentity.h"
+#include "qmlcommit.h"
+#include "qmlcheckoutinfo.h"
+#include "qmlcheckout.h"
+#include "qmlbranch.h"
 
 class QmlRepository : public QObject
 {
@@ -13,11 +19,11 @@ public:
 
     Q_INVOKABLE QStringList listCheckoutNames();
 
-    Q_INVOKABLE QmlTree getTree(QString oid);
-    Q_INVOKABLE QmlEntity getEntity(QString oid);
-    Q_INVOKABLE QmlCommit getCommit(QString oid);
-    Q_INVOKABLE QmlCheckoutInfo getCheckout(QString name);
-    Q_INVOKABLE QmlBranch getBranch(QString name);
+    Q_INVOKABLE QmlTree *getTree(QString oid);
+    Q_INVOKABLE QmlEntity *getEntity(QString oid);
+    Q_INVOKABLE QmlCommit *getCommit(QString oid);
+    Q_INVOKABLE QmlCheckoutInfo *getCheckout(QString name);
+    Q_INVOKABLE QmlBranch *getBranch(QString name);
     //MessageType typeOfObject(const ObjectId &oid);
 
     // upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid);

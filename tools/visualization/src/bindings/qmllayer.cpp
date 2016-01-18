@@ -24,6 +24,7 @@ QmlEntity *QmlLayer::addEntity()
 //    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > *e = this->m_layer->mutable_refs();
 //    m_entities.append( new QmlEntity(e) );
 //    return m_entities.back();
+    return NULL;
 }
 
 //void QmlLayer::entities_append(QQmlListProperty<QmlEntity> *property, QmlEntity *value)

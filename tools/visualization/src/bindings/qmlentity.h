@@ -10,7 +10,7 @@
 class QmlEntity : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString id READ id WRITE setId NOTIFY idChanged)
+    //Q_PROPERTY(QString id READ id WRITE setId NOTIFY idChanged)
 
 public:
     QmlEntity(upns::Entity *obj);

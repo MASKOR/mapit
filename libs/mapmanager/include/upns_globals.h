@@ -55,13 +55,11 @@ typedef std::string upnsString;
 typedef float upnsReal;
 typedef std::istream upnsIStream;
 typedef std::ostream upnsOStream;
-#ifdef _MSC_VER
-// workaround for at least msvc 2012
-#define upnsVec std::vector
-#else
+
+// woha! works since VC 2013...
 template <typename T>
 using upnsVec = std::vector<T>;
-#endif
+
 #ifdef USE_BOOST_STRUCTURES
 template<typename T>
 using upnsSharedPointer = boost::shared_ptr<T>;
@@ -71,26 +69,16 @@ upnsSharedPointer<T> static_pointer_cast(upnsSharedPointer<U> const & r)
     return boost::static_pointer_cast<T>(r);
 }
 #else
-#ifdef _MSC_VER
-// workaround for at least msvc 2012
-#define upnsSharedPointer std::shared_ptr
-#else
 template<typename T>
 using upnsSharedPointer = std::shared_ptr<T>;
-#endif
 template<class T, class U>
 upnsSharedPointer<T> static_pointer_cast(upnsSharedPointer<U> const & r)
 {
     return std::static_pointer_cast<T>(r);
 }
 #endif
-#ifdef _MSC_VER
-// workaround for at least msvc 2012
-#define upnsPair std::pair
-#else
 template <typename T1, typename T2>
 using upnsPair = std::pair<T1, T2>;
-#endif
 #endif
 
 typedef upnsString CommitId;

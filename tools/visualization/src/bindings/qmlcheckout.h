@@ -8,7 +8,7 @@
 class QmlCheckout : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QJsonObject config READ config WRITE setConfig NOTIFY configChanged)
+   // Q_PROPERTY(QJsonObject config READ config WRITE setConfig NOTIFY configChanged)
 
 public:
     Q_INVOKABLE int doOperation(const QJsonObject &desc);

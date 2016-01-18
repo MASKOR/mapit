@@ -34,7 +34,7 @@ QmlMap *QmlMapManager::getMap(const upns::ObjectId &mapId)
 //    if(!m_mapManager) initialize();
 //    upns::upnsSharedPointer<upns::Tree> map = m_mapManager->getMap(mapId);
 //    return new QmlMap(map); // Qml takes ownership
-    return new QmlMap(0); // Qml takes ownership
+    return new QmlMap(); // Qml takes ownership
 }
 
 bool QmlMapManager::canRead()
