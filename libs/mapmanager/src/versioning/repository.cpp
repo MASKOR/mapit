@@ -72,22 +72,24 @@ upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranc
     upnsString branchName;
     if(branch != NULL)
     {
-        branch = m_p->m_serializer->getBranch(commitIdOrBranchname);
-        assert( branch != NULL );
         // assert: empty, if this is the inial commit and "master"
         assert( branch->commitid().empty() || m_p->m_serializer->getCommit(branch->commitid()) != NULL );
         commitId = branch->commitid();
         branchName = commitIdOrBranchname;
     }
-    else if(m_p->m_serializer->getCommit(commitIdOrBranchname) != NULL)
-    {
-        commitId = commitIdOrBranchname;
-        branchName = "";
-    }
     else
     {
-        log_info("given commitIdOrBranchname was not a commitId or branchname.");
-        return NULL;
+        upnsSharedPointer<Commit> commit(m_p->m_serializer->getCommit(commitIdOrBranchname));
+        if(commit != NULL)
+        {
+            commitId = commitIdOrBranchname;
+            branchName = "";
+        }
+        else
+        {
+            log_info("given commitIdOrBranchname was not a commitId or branchname.");
+            return NULL;
+        }
     }
     co = upnsSharedPointer<CheckoutObj>(new CheckoutObj());
     co->mutable_commit()->add_parentcommitids(commitId);
