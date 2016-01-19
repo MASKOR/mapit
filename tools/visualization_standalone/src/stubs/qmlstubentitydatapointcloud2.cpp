@@ -14,5 +14,5 @@ void QmlEntitydataPointcloud2::setFilename(QString filename)
 
     //TODO: Thread Copy stuff
     m_entitydata = upns::EntityStreamManager::getEntityDataImpl(&m_fileSerializer, filename.toStdString(), true, true);
-    Q_EMIT updated(m_entitydata);
+    Q_EMIT updated();
 }

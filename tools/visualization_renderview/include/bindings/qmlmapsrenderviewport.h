@@ -41,40 +41,16 @@ public Q_SLOTS:
         Q_EMIT matrixChanged(matrix);
     }
 
-    void setEntitydata(QmlEntitydata * entitydata)
-    {
-        if (m_entitydata == entitydata)
-            return;
-        if(m_entitydata)
-        {
-//            if(m_connectionToEntityData != NULL)
-//            {
-//                disconnect(*m_connectionToEntityData);
-//                m_connectionToEntityData = NULL;
-//            }
-            disconnect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
-        }
-        m_entitydata = entitydata;
-        if(m_entitydata)
-        {
-//            upns::upnsSharedPointer<QMetaObject::Connection> con( new QMetaObject::Connection(
-//                        connect(m_entitydata,
-//                                &QmlEntitydata::updated,
-//                                this,
-//                                [&](){this->entitydataChanged(m_entitydata);})));
-//            m_connectionToEntityData = con;
-            connect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
-        }
-        Q_EMIT entitydataChanged(entitydata);
-    }
+    void setEntitydata(QmlEntitydata * entitydata);
 
 Q_SIGNALS:
-    void needsReload();
 
     void matrixChanged(QMatrix4x4 matrix);
 
     void entitydataChanged(QmlEntitydata * entitydata);
+    void updated(upns::upnsSharedPointer<upns::AbstractEntityData> entitydata);
 
+    void needsReload();
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
 
@@ -82,7 +58,7 @@ private:
     RenderThread *m_renderThread;
     QMatrix4x4 m_matrix;
     QmlEntitydata * m_entitydata;
-    //upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
+    upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
 };
 
 #endif // MapsRenderer_H

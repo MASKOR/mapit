@@ -13,7 +13,7 @@ public:
     QmlEntitydata();
     upns::upnsSharedPointer<upns::AbstractEntityData> getEntityData() { return m_entitydata; }
 Q_SIGNALS:
-    void updated(upns::upnsSharedPointer<upns::AbstractEntityData> entitydata);
+    void updated();
 
 protected:
     upns::upnsSharedPointer<upns::AbstractEntityData> m_entitydata;

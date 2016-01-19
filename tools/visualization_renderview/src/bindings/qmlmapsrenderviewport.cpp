@@ -17,8 +17,8 @@
 QList<QThread *> QmlMapsRenderViewport::threads;
 
 QmlMapsRenderViewport::QmlMapsRenderViewport()
-    : m_renderThread(0)//,
-      //m_connectionToEntityData(NULL)
+    : m_renderThread(0),
+      m_connectionToEntityData(NULL)
 {
     setFlag(ItemHasContents, true);
     m_renderThread = new RenderThread(QSize(width(), height()));
@@ -99,6 +99,34 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
 void QmlMapsRenderViewport::reload()
 {
     Q_EMIT needsReload();
+}
+
+void QmlMapsRenderViewport::setEntitydata(QmlEntitydata *entitydata)
+{
+    if (m_entitydata == entitydata)
+        return;
+    if(m_entitydata)
+    {
+        if(m_connectionToEntityData != NULL)
+        {
+            disconnect(*m_connectionToEntityData);
+            m_connectionToEntityData = NULL;
+        }
+        //            disconnect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
+    }
+    m_entitydata = entitydata;
+    if(m_entitydata)
+    {
+        upns::upnsSharedPointer<QMetaObject::Connection> con( new QMetaObject::Connection(
+                                                                  connect(m_entitydata,
+                                                                          &QmlEntitydata::updated,
+                                                                          m_renderThread,
+                                                                          [&](){m_renderThread->setEntitydata(m_entitydata);})));
+        m_connectionToEntityData = con;
+        //            connect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
+        //            connect(this, &QmlEntitydata::updated, this, &RenderThread::updated);
+    }
+    Q_EMIT entitydataChanged(entitydata);
 }
 
 #include "qmlmapsrenderviewport.moc"
