@@ -10,9 +10,8 @@
 #include <pcl/point_types.h>
 
 MapsRenderer::MapsRenderer()
-    :m_mapManager(),
-      m_mapId( "" ),
-      m_initialized( false )
+    :m_entitydata( NULL ),
+     m_initialized( false )
 {
 }
 
@@ -76,7 +75,7 @@ void MapsRenderer::initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-    if(m_mapManager && !m_mapId.empty() )
+    if( m_entitydata != NULL )
     {
         createGeometry();
     }
@@ -88,22 +87,10 @@ bool MapsRenderer::isInitialized()
     return m_initialized;
 }
 
-void MapsRenderer::setMapmanager(upns::Repository *mapman)
+void MapsRenderer::setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData)
 {
-    m_mapManager = mapman;
-    if(m_initialized)
-    {
-        createGeometry();
-    }
-}
-
-void MapsRenderer::setEntityId(upns::ObjectId mapId)
-{
-    m_mapId = mapId;
-    if(m_initialized)
-    {
-        createGeometry();
-    }
+    m_entitydata = entityData;
+    createGeometry();
 }
 
 void MapsRenderer::setMatrix(const QMatrix4x4 &mat)
@@ -111,7 +98,7 @@ void MapsRenderer::setMatrix(const QMatrix4x4 &mat)
     m_matrix = mat;
 }
 
-void MapsRenderer::reloadMap()
+void MapsRenderer::reload()
 {
     if(m_initialized)
     {
@@ -146,30 +133,11 @@ void MapsRenderer::render()
 
 void MapsRenderer::createGeometry()
 {
-    assert(m_mapManager);
+    assert(m_entitydata != NULL);
     vertices.clear();
     normals.clear();
 
-//    upns::upnsSharedPointer<upns::Map> map = m_mapManager->getEntityDataReadOnly()->getTree(m_mapId);
-//    const Layer* layer = NULL;
-//    for(int i=0 ; i < map->layers_size() ; ++i)
-//    {
-//        const upns::Layer& l = map->layers(i);
-//        if(l.id() == m_layerId)
-//        {
-//            layer = &l;
-//            break;
-//        }
-//    }
-//    if(layer == NULL)
-//    {
-//        log_error("tried to visualize wrong mapId and layerId. Map with "
-//                  "Id: " + QString::number(m_mapId).toStdString() + " does not "
-//                  "contain layer: " + QString::number(m_layerId).toStdString());
-//        return;
-//    }
-    upns::upnsSharedPointer<upns::AbstractEntityData> aed = m_mapManager->getEntityDataReadOnly(m_mapId);
-    upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(aed);
+    upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(m_entitydata);
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 
 
@@ -182,5 +150,5 @@ void MapsRenderer::createGeometry()
       const pcl::PointXYZ& pt = cloud->points[i];
       vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
     }
-    qDebug() << "Map loaded:" << vertices.size() << "points.";
+    qDebug() << "Entity loaded:" << vertices.size() << "points.";
 }

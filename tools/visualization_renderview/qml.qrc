@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/components/qmldir</file>
+        <file>qml/operators/ButtonDefaultOperation.qml</file>
+        <file>qml/operators/ButtonLoadPointcloud.qml</file>
+        <file>qml/operators/ButtonVoxelGridFilter.qml</file>
+    </qresource>
+</RCC>

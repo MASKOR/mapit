@@ -1,4 +1,4 @@
-#include "entitystreammanager.h"
+#include "serialization/entitystreammanager.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -24,8 +24,8 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
     upnsString prefix = "lib";
     upnsString postfix = ".so";
 #endif
-    std::stringstream filename("./layertypes/");
-    filename << prefix << layertypeName << debug << postfix;
+    std::stringstream filename;
+    filename << "./libs/layertypes_collection/" << prefix << layertypeName << debug << postfix;
 #ifdef _WIN32
     HMODULE handle = LoadLibrary(filename.str().c_str());
 #else

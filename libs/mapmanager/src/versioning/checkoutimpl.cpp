@@ -74,17 +74,19 @@ upnsVec<upnsSharedPointer<Conflict> > CheckoutImpl::getPendingConflicts()
 
 upnsSharedPointer<Tree> CheckoutImpl::getRoot()
 {
-    return NULL;
+    return m_serializer->getTree(m_commit->root());
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
 {
-    return NULL;
+    ObjectId oid = oidForPath(path);
+    return m_serializer->getTree(oid);
 }
 
 upnsSharedPointer<Entity> CheckoutImpl::getEntity(const Path &path)
 {
-    return NULL;
+    ObjectId oid = oidForPath(path);
+    return m_serializer->getEntity(oid);
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
@@ -185,11 +187,15 @@ void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 
 ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
 {
+    assert(tree != NULL);
     const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
     {
-        if(iter->first == name) return iter->second.id();
+        if(iter->first == name)
+        {
+            return iter->second.id();
+        }
         iter++;
     }
     return "";
@@ -197,8 +203,7 @@ ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::st
 
 ObjectId CheckoutImpl::oidForPath(const Path &path)
 {
-//    m_checkout->commit().root;
-    upnsSharedPointer<Tree> current(getRoot());
+    // path p has no beginning / and always trailing /
     Path p;
     if(path[0] == '/')
     {
@@ -208,15 +213,32 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
     {
         p = path;
     }
+    if(p.length() != 0 && p[p.length()-1] != '/')
+    {
+        p += "/";
+    }
+    ObjectId oid(m_commit->root());
+    upnsSharedPointer<Tree> current;
+    size_t lastSlash = 0;
     while(true)
     {
-        size_t nextSlash = p.find_first_of('/');
-        assert(nextSlash != 0);
-        if(nextSlash == std::string::npos)
+        size_t nextSlash = p.find_first_of('/', lastSlash);
+        assert(nextSlash != std::string::npos);
+        if(nextSlash == p.length()-1)
         {
+            // last slash found
+            return oid;
+        }
+        current = m_serializer->getTree(oid);
+        if(current == NULL)
+        {
+            // if the path is not yet finished and there is a non tree
+            log_error("Element not found or non-Tree was part of path: " + p + " (" + p.substr(lastSlash, nextSlash) + ") Oid: " + oid);
             return "";
         }
-
+        oid = oidForChild(current, p.substr(lastSlash, nextSlash));
+        assert(nextSlash+1 <= p.length()-1);
+        lastSlash = nextSlash+1;
     }
 }
 

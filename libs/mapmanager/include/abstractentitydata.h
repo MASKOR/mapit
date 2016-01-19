@@ -1,5 +1,5 @@
-#ifndef __ABSTRACTLAYERDATA_H
-#define __ABSTRACTLAYERDATA_H
+#ifndef ABSTRACTLAYERDATA_H
+#define ABSTRACTLAYERDATA_H
 
 #include "upns_globals.h"
 #include "libs/upns_interface/services.pb.h"

@@ -12,8 +12,9 @@ namespace upns
 
 /**
  * @brief The AbstractMapSerializer class capsulates data access. From outside maps and entities can be read/written.
- * However, the enduser use a more convenient interface (versioning). This class is abstract and must be implemented by a
- * concrete class which has access to a storage (harddrive, files, netrwork, database, other MapSerializer, ...).
+ * However, the enduser should use a more convenient interface (versioning). This class is abstract and must be implemented by a
+ * concrete class which has access to a storage (harddrive, files, network, database, other MapSerializer, ...).
+ * Mapmanager is the only code that should know about this interface. It is located in the "include" folder for tests and stubs.
  */
 class AbstractMapSerializer
 {

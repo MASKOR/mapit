@@ -21,7 +21,7 @@ typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
 
 extern "C"
 {
-	//TODO: Not possible in MSVC
+        //TODO: Not possible in MSVC
 //upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 MODULE_EXPORT void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 }
