@@ -36,7 +36,7 @@ void MapsRenderer::initialize()
 {
     initializeOpenGLFunctions();
 
-    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    glClearColor(1.0f, 0.1f, 0.2f, 1.0f);
 
     QOpenGLShader *vshader1 = new QOpenGLShader(QOpenGLShader::Vertex, &program1);
     const char *vsrc1 =
@@ -109,7 +109,7 @@ void MapsRenderer::reload()
     }
 }
 
-void MapsRenderer::render()
+void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
 {
     if(!m_initialized) return;
     glDepthMask(true);
@@ -126,7 +126,7 @@ void MapsRenderer::render()
     glEnable(GL_DEPTH_TEST);
 
     program1.bind();
-    program1.setUniformValue(matrixUniform1, m_matrix);
+    program1.setUniformValue(matrixUniform1, proj*view*m_matrix);
     drawPointcloud();
     program1.release();
 
