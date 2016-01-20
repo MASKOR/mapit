@@ -117,8 +117,10 @@ ApplicationWindow {
             //mapId: mapsList.currentMapId
             //layerId: mapLayers.currentLayerId
             entitydata: EntityDataPointcloud2 {
-                filename: "data/bunny.pcd"
+                //filename: "data/bunny.pcd"
+                filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
             }
+            vrmode: true
             property var pos: Qt.vector3d(0.0,0.0,0.0)
             property var offsX: 0.0
             property var offsY: 0.0
@@ -188,7 +190,7 @@ ApplicationWindow {
                 property real ax
                 property real ay
                 onWheel: {
-                    drawingArea.zoom *= Math.pow(2.0, wheel.angleDelta.y*0.01)
+                    drawingArea.zoom *= Math.pow(2.0, wheel.angleDelta.y*0.001)
                 }
                 function pressedButtonsChanged() {
                     var leftButton = screenMouse.pressedButtons & Qt.LeftButton

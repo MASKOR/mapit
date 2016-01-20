@@ -25,8 +25,10 @@ void MapsRenderer::drawPointcloud()
     program1.enableAttributeArray(normalAttr1);
     program1.enableAttributeArray(vertexAttr1);
     program1.setAttributeArray(vertexAttr1, vertices.constData());
-    //program1.setAttributeArray(normalAttr1, normals.constData());
+    program1.setAttributeArray(normalAttr1, normals.constData());
+    program1.setAttributeArray(colorAttr1, colors.constData());
     glDrawArrays(GL_POINTS, 0, vertices.size());
+    program1.disableAttributeArray(colorAttr1);
     program1.disableAttributeArray(normalAttr1);
     program1.disableAttributeArray(vertexAttr1);
 }
@@ -42,25 +44,27 @@ void MapsRenderer::initialize()
     const char *vsrc1 =
         "attribute highp vec4 vertex;\n"
         "attribute mediump vec3 normal;\n"
+        "attribute mediump vec3 color;\n"
         "uniform mediump mat4 matrix;\n"
-        "varying mediump vec4 color;\n"
+        "varying mediump vec4 color_frag;\n"
         "void main(void)\n"
         "{\n"
-        "    vec3 toLight = normalize(vec3(0.0, 0.3, 1.0));\n"
-        "    float angle = max(dot(toLight, toLight), 0.0);\n"
-        "    vec3 col = vec3(0.10, 1.0, 0.0);\n"
-        "    color = vec4(col * 0.2 + col * 0.8 * angle, 1.0);\n"
-        "    color = clamp(color, 0.0, 1.0);\n"
+        //"    vec3 toLight = normalize(vec3(0.0, 0.3, 1.0));\n"
+        //"    float angle = max(dot(toLight, toLight), 0.0);\n"
+        //"    vec3 col = vec3(0.10, 1.0, 0.0);\n"
+        //"    color = vec4(col * 0.2 + col * 0.8 * angle, 1.0);\n"
+        "    color_frag.rgb = clamp(color, 0.0, 1.0);\n"
+        "    color_frag.a = 1.0;\n"
         "    gl_Position = matrix * vertex;\n"
         "}\n";
     vshader1->compileSourceCode(vsrc1);
 
     QOpenGLShader *fshader1 = new QOpenGLShader(QOpenGLShader::Fragment, &program1);
     const char *fsrc1 =
-        "varying mediump vec4 color;\n"
+        "varying mediump vec4 color_frag;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_FragColor = color;\n"
+        "    gl_FragColor = color_frag;\n"
         "}\n";
     fshader1->compileSourceCode(fsrc1);
 
@@ -70,6 +74,7 @@ void MapsRenderer::initialize()
 
     vertexAttr1 = program1.attributeLocation("vertex");
     normalAttr1 = program1.attributeLocation("normal");
+    colorAttr1 = program1.attributeLocation("color");
     matrixUniform1 = program1.uniformLocation("matrix");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -139,19 +144,24 @@ void MapsRenderer::createGeometry()
     assert(m_entitydata != NULL);
     vertices.clear();
     normals.clear();
+    colors.clear();
 
     upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(m_entitydata);
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
     pcl::fromPCLPointCloud2(*pc2, *cloud);
 
     vertices.reserve(cloud->points.size());
+    normals.reserve(cloud->points.size());
+    colors.reserve(cloud->points.size());
     for(int i=0; i<cloud->points.size(); i++)
     {
-      const pcl::PointXYZ& pt = cloud->points[i];
+      const pcl::PointXYZRGBNormal& pt = cloud->points[i];
       vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
+      normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
+      colors << QVector3D(pt.r, pt.g, pt.b);
     }
     qDebug() << "Entity loaded:" << vertices.size() << "points.";
 }

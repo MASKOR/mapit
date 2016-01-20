@@ -128,6 +128,19 @@ void QmlMapsRenderViewport::setEntitydata(QmlEntitydata *entitydata)
     }
     Q_EMIT entitydataChanged(entitydata);
 }
+void QmlMapsRenderViewport::setVrmode(bool vrmode)
+{
+    if (m_vrmode == vrmode)
+        return;
+
+    m_vrmode = vrmode;
+    if(m_renderThread)
+    {
+        m_renderThread->setVrmode(vrmode);
+    }
+    Q_EMIT vrmodeChanged(vrmode);
+}
 
 #include "qmlmapsrenderviewport.moc"
+
 

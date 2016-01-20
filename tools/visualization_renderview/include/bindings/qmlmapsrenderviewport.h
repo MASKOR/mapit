@@ -12,6 +12,8 @@ class QmlMapsRenderViewport : public QQuickItem
     Q_OBJECT
     Q_PROPERTY(QmlEntitydata *entitydata READ entitydata WRITE setEntitydata NOTIFY entitydataChanged)
     Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
+    Q_PROPERTY(bool vrmode READ vrmode WRITE setVrmode NOTIFY vrmodeChanged)
+    Q_PROPERTY(QVector3D headDirection READ headDirection NOTIFY headDirectionChanged)
 
 public:
     QmlMapsRenderViewport();
@@ -26,6 +28,16 @@ public:
     QmlEntitydata * entitydata() const
     {
         return m_entitydata;
+    }
+
+    bool vrmode() const
+    {
+        return m_vrmode;
+    }
+
+    QVector3D headDirection() const
+    {
+        return m_headDirection;
     }
 
 public Q_SLOTS:
@@ -43,6 +55,17 @@ public Q_SLOTS:
 
     void setEntitydata(QmlEntitydata * entitydata);
 
+    void setVrmode(bool vrmode);
+
+    void setHeadDirection(QVector3D headDirection)
+    {
+        if (m_headDirection == headDirection)
+            return;
+
+        m_headDirection = headDirection;
+        Q_EMIT headDirectionChanged(headDirection);
+    }
+
 Q_SIGNALS:
 
     void matrixChanged(QMatrix4x4 matrix);
@@ -51,6 +74,10 @@ Q_SIGNALS:
     void updated(upns::upnsSharedPointer<upns::AbstractEntityData> entitydata);
 
     void needsReload();
+    void vrmodeChanged(bool vrmode);
+
+    void headDirectionChanged(QVector3D headDirection);
+
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
 
@@ -59,6 +86,8 @@ private:
     QMatrix4x4 m_matrix;
     QmlEntitydata * m_entitydata;
     upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
+    bool m_vrmode;
+    QVector3D m_headDirection;
 };
 
 #endif // MapsRenderer_H

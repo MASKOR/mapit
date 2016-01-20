@@ -76,8 +76,8 @@ add_custom_target(resourceFilesVizStandalone ALL ${CMAKE_COMMAND} -E echo "nop" 
 if(WIN32)
 #target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb ${BOOST_LIBRARIES_ADDITION})
 target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES_ADDITION}
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_56.lib
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_56.lib)
+    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
+    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib)
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
 else(WIN32)
   target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})

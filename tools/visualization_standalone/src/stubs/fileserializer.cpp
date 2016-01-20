@@ -3,6 +3,7 @@
 #include <fstream>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
 #include "libs/layertypes_collection/pointcloud2/src/pointcloudhelper.h"
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -29,18 +30,27 @@ public:
         //Note: Usually this is not the place meant to contain pointcloud logic.
         pcl::PCLPointCloud2 pc2;
 
-        pcl::PCDReader reader;
-        if ( reader.read(m_filename, pc2) < 0 )
+        if(m_filename.substr(m_filename.length()-4, std::string::npos) == ".pcd")
         {
-            log_error("Couldn't read file" + m_filename);
-            return NULL;
+            pcl::PCDReader reader;
+            if ( reader.read(m_filename, pc2) < 0 )
+            {
+                log_error("Couldn't read file" + m_filename);
+                return NULL;
+            }
+        }
+        else
+        {
+            pcl::PLYReader reader;
+            if ( reader.read(m_filename, pc2) < 0 )
+            {
+                log_error("Couldn't read file" + m_filename);
+                return NULL;
+            }
         }
         std::iostream *is = new std::stringstream();
-        //::boost::archive::text_iarchive ia(*in);
-        //ia >> *m_pointcloud;
         ::boost::archive::text_oarchive oa(*is);
         oa << pc2;
-        //std::ifstream *is = new std::ifstream(m_filename.c_str(), std::ifstream::binary);
         return is;
     }
     void endRead(upnsIStream *strm)

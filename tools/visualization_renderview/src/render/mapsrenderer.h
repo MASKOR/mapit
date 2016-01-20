@@ -29,9 +29,11 @@ private:
 
     QVector<QVector3D> vertices;
     QVector<QVector3D> normals;
+    QVector<QVector3D> colors;
     QOpenGLShaderProgram program1;
     int vertexAttr1;
     int normalAttr1;
+    int colorAttr1;
     int matrixUniform1;
 
     bool m_initialized;
