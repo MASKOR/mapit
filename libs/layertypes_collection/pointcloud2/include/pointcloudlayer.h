@@ -21,9 +21,10 @@ typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
 
 extern "C"
 {
-        //TODO: Not possible in MSVC
-//upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-MODULE_EXPORT void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+//Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
+//MODULE_EXPORT upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+//MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntityData> streamProvider);
 }
 
 class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>

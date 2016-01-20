@@ -106,62 +106,6 @@ ApplicationWindow {
             }
         }
     }
-
-//    SplitView {
-//        anchors.fill: parent
-//        orientation: Qt.Horizontal
-
-//        Item {
-//            width: 300
-//            Layout.minimumWidth: 100
-//            Layout.maximumWidth: Number.MAX_VALUE
-//            //Layout.fillHeight: true
-//            //anchors.fill: parent //TODO: proper resizing
-//            ColumnLayout {
-//                anchors.fill: parent
-//                ButtonLoadPointcloud {
-//                    Layout.minimumWidth: 100
-//                    Layout.fillWidth: true
-//                    inputMapId: Globals.mapIdsModel.get(mapsList.currentIndex).mapId
-//                    onOutputMapIdChanged: {
-//                        mapsList.currentMapId = outputMapId
-//                        Globals.reload(true)
-//                        drawingArea.reload()
-//                    }
-//                }
-//                ButtonVoxelGridFilter {
-//                    Layout.minimumWidth: 100
-//                    Layout.fillWidth: true
-//                    inputMapId: mapsList.currentMapId
-//                    onOutputMapIdChanged: {
-//                        mapsList.currentMapId = outputMapId
-//                        Globals.reload(true)
-//                        drawingArea.reload()
-//                    }
-//                }
-//                MapsListView {
-//                    id: mapsList
-//                    Layout.fillHeight: true
-//                    Layout.minimumWidth: 100
-//                    Layout.fillWidth: true
-////                    Rectangle {
-////                        anchors.fill: parent
-////                        border.width:  2
-////                        border.color: "red"
-////                    }
-//                }
-//                Text {
-//                    text: "Layers"
-//                }
-//                MapLayerView {
-//                    id: mapLayers
-//                    Layout.fillWidth: true
-//                    Layout.minimumWidth: 100
-//                    Layout.preferredHeight: 200
-//                    mapId: mapsList.currentMapId
-//                }
-//            }
-//        }
     GridLayout {
         anchors.fill: parent
         MapsRenderViewport {
@@ -300,7 +244,6 @@ ApplicationWindow {
             }
         }
     }
-//    }
     SystemPalette {
         id: palette
     }

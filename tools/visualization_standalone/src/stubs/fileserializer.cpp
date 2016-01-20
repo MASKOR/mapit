@@ -1,9 +1,20 @@
 #include "fileserializer.h"
 #include <iostream>
 #include <fstream>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/io/pcd_io.h>
+#include "libs/layertypes_collection/pointcloud2/src/pointcloudhelper.h"
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 namespace upns
 {
+struct membuf: std::streambuf {
+    membuf(char* base, std::ptrdiff_t n) {
+        this->setg(base, base, base + n);
+    }
+};
 class FileEntityDataStreamProvider : public AbstractEntityDataStreamProvider
 {
     upnsString m_filename;
@@ -15,14 +26,28 @@ public:
     bool isReadWriteSame() { return true; }
     upnsIStream *startRead(upnsuint64 start, upnsuint64 len)
     {
-        std::ifstream *is = new std::ifstream(m_filename.c_str(), std::ifstream::binary);
+        //Note: Usually this is not the place meant to contain pointcloud logic.
+        pcl::PCLPointCloud2 pc2;
+
+        pcl::PCDReader reader;
+        if ( reader.read(m_filename, pc2) < 0 )
+        {
+            log_error("Couldn't read file" + m_filename);
+            return NULL;
+        }
+        std::iostream *is = new std::stringstream();
+        //::boost::archive::text_iarchive ia(*in);
+        //ia >> *m_pointcloud;
+        ::boost::archive::text_oarchive oa(*is);
+        oa << pc2;
+        //std::ifstream *is = new std::ifstream(m_filename.c_str(), std::ifstream::binary);
         return is;
     }
     void endRead(upnsIStream *strm)
     {
-        std::ifstream *is = static_cast<std::ifstream*>(strm);
-        is->close();
-        delete is;
+        //std::ifstream *is = static_cast<std::ifstream*>(strm);
+        //is->close();
+        delete strm;
     }
     upnsOStream *startWrite(upnsuint64 start, upnsuint64 len)
     {

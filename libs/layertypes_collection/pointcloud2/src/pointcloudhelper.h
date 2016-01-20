@@ -1,11 +1,11 @@
-#ifndef __POINTCLOUDHELPER_H__
-#define __POINTCLOUDHELPER_H__
+#ifndef POINTCLOUDHELPER_H
+#define POINTCLOUDHELPER_H
 
 #include <pcl/PCLPointCloud2.h>
-
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
-//#include <boost/serialization/vector.hpp>
+#define BOOST_NO_EXCEPTIONS
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 namespace pcl {
 

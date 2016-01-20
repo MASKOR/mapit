@@ -33,6 +33,8 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
 #endif
     if (!handle) {
 #ifdef _WIN32
+        DWORD dw = GetLastError();
+        std::cerr << "Cannot open library: " << filename.str() <<  "errorcode: " << dw << '\n';
 #else
         std::cerr << "Cannot open library: " << dlerror() << '\n';
 #endif
@@ -40,11 +42,14 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
     }
 #ifdef _WIN32
     //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)GetProcAddress(handle,"createEntityData");
+    CreateEntitydataFunc wrap = (CreateEntitydataFunc)GetProcAddress(handle,"createEntitydata");
 #else
-    WrapLayerTypeFunc wrap = (WrapLayerTypeFunc)dlsym(handle, "createEntityData");
+    CreateEntitydataFunc wrap = (CreateEntitydataFunc)dlsym(handle, "createEntitydata");
 #endif
-    return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
+    upnsSharedPointer<AbstractEntityData> ret;
+    wrap(&ret, streamProvider);
+    return ret;
+    //return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
 }
 
 upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,

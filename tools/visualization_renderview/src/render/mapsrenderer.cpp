@@ -90,7 +90,10 @@ bool MapsRenderer::isInitialized()
 void MapsRenderer::setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData)
 {
     m_entitydata = entityData;
-    createGeometry();
+    if(m_initialized && m_entitydata != NULL)
+    {
+        createGeometry();
+    }
 }
 
 void MapsRenderer::setMatrix(const QMatrix4x4 &mat)

@@ -140,6 +140,7 @@ void RenderThread::setEntitydata(QmlEntitydata *entitydata)
         return;
 
     m_entitydata = entitydata;
+    m_mapsRenderer->setEntityData(m_entitydata->getEntityData());
     Q_EMIT entitydataChanged(entitydata);
 }
 

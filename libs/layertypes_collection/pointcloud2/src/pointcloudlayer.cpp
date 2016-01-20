@@ -1,8 +1,8 @@
 #include "pointcloudlayer.h"
 #include "pointcloudhelper.h"
 #include <sstream>
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
@@ -35,9 +35,15 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
         m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
         upnsIStream *in = m_streamProvider->startRead();
         {
-            //::boost::archive::text_iarchive ia(*in);
-            //ia >> *m_pointcloud;
-            in->read(reinterpret_cast<char*>(m_pointcloud.get()), sizeof(::pcl::PCLPointCloud2));
+            //TODO
+            ::boost::archive::text_iarchive ia(*in);
+            ia >> *m_pointcloud;
+//            std::copy(myVector.begin(), myVector.end(), std::ostreambuf_iterator<char>(FILE));
+
+//            std::istreambuf_iterator iter(in);
+//            std::copy(iter.begin(), iter.end(), std::back_inserter(m_pointcloud->fields));
+//            std::copy(iter.begin(), iter.end(), std::back_inserter(m_pointcloud->data));
+//            in->read(reinterpret_cast<char*>(m_pointcloud.get()), sizeof(::pcl::PCLPointCloud2));
         }
         m_streamProvider->endRead(in);
     }
@@ -51,9 +57,11 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 {
     upnsOStream *out = m_streamProvider->startWrite();
     {
-        out->write(reinterpret_cast<char*>(data.get()), sizeof(::pcl::PCLPointCloud2));
-//        ::boost::archive::text_oarchive oa(*out);
-//        oa << *data;
+        //TODO
+//        out << *data;
+//        out->write(reinterpret_cast<char*>(data.get()), sizeof(::pcl::PCLPointCloud2));
+        ::boost::archive::text_oarchive oa(*out);
+        oa << *data;
     }
     m_streamProvider->endWrite(out);
 	return 0; //TODO: MSVC: What to return here?
@@ -99,14 +107,19 @@ int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsR
     //TODO
     return 0;
 }
-void deleteWrappedLayerData(AbstractEntityData* ld)
+//void deleteEntitydata(void* ld)
+void deleteEntitydata(AbstractEntityData *ld)
 {
-    delete ld;
+    PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
+    delete p;
 }
-
-//upnsSharedPointer<AbstractEntityData> createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-void* createEntityData(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+// Win32 does not like anything but void pointers handled between libraries
+// For Unix there would be a hack to use a "custom deleter" which is given be the library to clean up the created memory
+// the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
+//upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+//void* createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
     //return upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    return static_cast<void*>(new upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData));
+    *out = upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
 }

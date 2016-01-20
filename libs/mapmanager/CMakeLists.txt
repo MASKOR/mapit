@@ -7,8 +7,8 @@ set(CMAKE_AUTOMOC ON)
 #FindBoost is a stupid bitch which is incapable of handling cmake cache variables correctly.
 #use custom variables for boost
 #find_package(Boost COMPONENTS filesystem system date_time)
-set(BOOST_LIB_FILESYSTEM_DEBUG "libboost_filesystem-vc120-gd-1_55.lib" CACHE FILEPATH "")
-set(BOOST_LIB_FILESYSTEM_RELEASE "libboost_filesystem-vc120-1_55.lib" CACHE FILEPATH "")
+set(BOOST_LIB_FILESYSTEM_DEBUG "libboost_filesystem-vc120-gd-1_56.lib" CACHE FILEPATH "")
+set(BOOST_LIB_FILESYSTEM_RELEASE "libboost_filesystem-vc120-1_56.lib" CACHE FILEPATH "")
 set(BOOST_LIB_SYSTEM_DEBUG "libboost_system-vc120-gd-1_55.lib" CACHE FILEPATH "")
 set(BOOST_LIB_SYSTEM_RELEASE "libboost_system-vc120-1_55.lib" CACHE FILEPATH "")
 set(BOOST_LIB_DATE_TIME_DEBUG "libboost_date_time-vc120-gd-1_55.lib" CACHE FILEPATH "")

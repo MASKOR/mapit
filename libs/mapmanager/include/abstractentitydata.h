@@ -19,7 +19,9 @@ extern "C"
  * important that the returned shared pointer has a custom deleter. In most cases this deleter will only call "delete"
  * for the previously allocated LayerData. See \sa PointcloudLayerdata for an example.
  */
-typedef upnsSharedPointer<AbstractEntityData> (*WrapLayerTypeFunc)(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+typedef void (*CreateEntitydataFunc)(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+//typedef upnsSharedPointer<AbstractEntityData> (*CreateEntitydataFunc)( upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+//typedef upnsSharedPointer<AbstractEntityData> (*DeleteEntityFunc)(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
 }
 
 /**
