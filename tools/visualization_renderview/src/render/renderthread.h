@@ -63,6 +63,9 @@ public Q_SLOTS:
 
     void setVrmode(bool vrmode)
     {
+#ifndef VRMODE
+        assert(!vrmode);
+#endif
         if (m_vrmode == vrmode)
             return;
 

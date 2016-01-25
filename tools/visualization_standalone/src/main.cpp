@@ -86,10 +86,6 @@ int main(int argc, char *argv[])
 //    std::cout << "done" << std::endl;
 //    return 0;
 
-(??)int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
-(??)//int WINAPI WinMain(int argc, char *argv[])
-(??)//int main(int argc, char *argv[])
-(??){
 //    std::string folder("data/");
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> all;
 //    all = convert(folder + "Aligned_FARO_Scan_072.ply", 54.81013, -121.84754, 156.20739);
