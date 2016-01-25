@@ -15,6 +15,12 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/conversions.h>
+#include <QCoreApplication>
+
+#ifdef _WIN32
+//#include <QtPlugin>
+//Q_IMPORT_PLUGIN (QWindowsIntegrationPlugin);
+#endif
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -46,6 +52,43 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y
 }
 int main(int argc, char *argv[])
 {
+//    pcl::PCLPointCloud2 pc2;
+//    pcl::PCDReader reader;
+//    if ( reader.read("data/fh/000000.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file0");
+//        return 1;
+//    }
+//    pcl::PointCloud<pcl::PointXYZRGB> c1all;
+//    pcl::PointCloud<pcl::PointXYZRGB> c1;
+//    if ( reader.read("data/fh/000001.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file1");
+//        return 1;
+//    }
+//    pcl::fromPCLPointCloud2(pc2, c1all);
+//    if ( reader.read("data/fh/000002.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file2");
+//        return 1;
+//    }
+//    pcl::fromPCLPointCloud2(pc2, c1);
+//    c1all += c1;
+//    if ( reader.read("data/fh/000003.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file3");
+//        return 1;
+//    }
+//    pcl::fromPCLPointCloud2(pc2, c1);
+//    c1all += c1;
+//    pcl::PCDWriter writer;
+//    if ( writer.write(std::string("data/fh/all.pcd"), c1all) < 0 )
+//    {
+//        std::cout << "temp";
+//    }
+//    std::cout << "done" << std::endl;
+//    return 0;
+
 //    std::string folder("data/");
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> all;
 //    all = convert(folder + "Aligned_FARO_Scan_072.ply", 54.81013, -121.84754, 156.20739);
@@ -83,6 +126,7 @@ int main(int argc, char *argv[])
     //TODO: Use QGuiApplication when this bug iss fixed: https://bugreports.qt.io/browse/QTBUG-39437
     //QGuiApplication app(argc, argv);
 
+    QApplication::addLibraryPath("./");
     QApplication app(argc, argv);
 
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
