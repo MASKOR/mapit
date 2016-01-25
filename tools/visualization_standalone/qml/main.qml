@@ -126,7 +126,7 @@ ApplicationWindow {
             entitydata: EntityDataPointcloud2 {
                 //filename: "data/bunny.pcd"
                 //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
-                filename: "data/fh2.pcd"
+                filename: "data/fh/all.pcd"
             }
             vrmode: true
             property var pos: Qt.vector3d(0.0,0.0,0.0)

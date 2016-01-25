@@ -30,7 +30,6 @@ else( NOT (DISABLE_PCL))
 endif (NOT (DISABLE_PCL))
 
 link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
-
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
@@ -41,10 +40,10 @@ endif(WIN32)
 
 use_protobuf()
 
+# TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} ${PCL_CUSTOM_SRC} ${BOOST_LIBRARIES_ADDITION2} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} )
 

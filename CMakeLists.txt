@@ -1,27 +1,25 @@
-#cmake_minimum_required(VERSION 3.0) # for hunter
-#set(HUNTER_SKIP_LOCK ON)
-#set(HUNTER_ROOT ${PROJECT_SOURCE_DIR}/hunter)
-#include("cmake/HunterGate.cmake")
 
-#HunterGate(
-#    URL "https://github.com/ruslo/hunter/archive/v0.12.24.tar.gz"
-#    SHA1 "a25a7fa55c204a8126efd1f48593a662925b26da"
-#)
+# TODO: Cleanup Cmake
+# 1) Put all frameworks in root cmake once. Make them optional. PCL, Boost (some components may be required for mapmanager), OpenVdb, Assimp
+# 2) compile some operators/layertypes only if these frameworks are found
+# 3) Make pcl cmake silent? Remove its clumsy output
+# 4) Output which frameworks were found and wich projects will/will not be built.
+# 5) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames.
+# 6)
 
-# Note: DISABLE_PCL does not yet work with minimal custom headers of pcl.
-# At least components io and common are needed
 project(upns)
 cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
+if(NOT WIN32)
 # c++11 for grpc dependencies
 add_definitions(-std=c++11)
+endif(NOT WIN32)
 
 add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
 
 set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
-add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
 # add custom cmake scripts. i.e. FindProcessorCount...
 set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
@@ -30,9 +28,19 @@ set(CMAKE_MODULE_PATH
 include(externals)
 include(FindLog4cplus)
 
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# These scripts will publish variables to be set (e.g. using cmake-gui).
+# They also publish macros (custom_target_use_XXX(${TARGET}) ) wich add header and libraries to target.
+# If the framework was not found, readable output is given about what to do.
+include(custom_add_boost)
+include(custom_add_log4cplus)
+include(custom_add_protobuf)
+include(custom_add_yamlcpp)
+include(custom_add_leveldb)
+include(custom_add_pcl)
+include(custom_add_assimp)
+include(custom_add_openvdb)
+
 set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
 
 set(UPNS_QTVERSION)
 include(FindProcessorCount)

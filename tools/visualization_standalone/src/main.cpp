@@ -47,11 +47,49 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y
     }
     return c1;
 }
-
-//int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
-//int WINAPI WinMain(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
+//    pcl::PCLPointCloud2 pc2;
+//    pcl::PCDReader reader;
+//    if ( reader.read("data/fh/000000.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file0");
+//        return 1;
+//    }
+//    pcl::PointCloud<pcl::PointXYZRGB> c1all;
+//    pcl::PointCloud<pcl::PointXYZRGB> c1;
+//    if ( reader.read("data/fh/000001.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file1");
+//        return 1;
+//    }
+//    pcl::fromPCLPointCloud2(pc2, c1all);
+//    if ( reader.read("data/fh/000002.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file2");
+//        return 1;
+//    }
+//    pcl::fromPCLPointCloud2(pc2, c1);
+//    c1all += c1;
+//    if ( reader.read("data/fh/000003.pcd", pc2) < 0 )
+//    {
+//        log_error("Couldn't read file3");
+//        return 1;
+//    }
+//    pcl::fromPCLPointCloud2(pc2, c1);
+//    c1all += c1;
+//    pcl::PCDWriter writer;
+//    if ( writer.write(std::string("data/fh/all.pcd"), c1all) < 0 )
+//    {
+//        std::cout << "temp";
+//    }
+//    std::cout << "done" << std::endl;
+//    return 0;
+
+(??)int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
+(??)//int WINAPI WinMain(int argc, char *argv[])
+(??)//int main(int argc, char *argv[])
+(??){
 //    std::string folder("data/");
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> all;
 //    all = convert(folder + "Aligned_FARO_Scan_072.ply", 54.81013, -121.84754, 156.20739);
@@ -125,9 +163,6 @@ int main(int argc, char *argv[])
     log4cplus::PropertyConfigurator config("logging.properties");
     config.configure();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
-    //QGuiApplication app(argc, argv);
-//    int argc=1;
-//    char *argv[] = {"temp"};
     QApplication app(argc, argv);
 
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
@@ -141,3 +176,12 @@ int main(int argc, char *argv[])
     int result = app.exec();
     return result;
 }
+
+#ifdef _WIN32
+int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR argv, int argc)
+{
+//    int argc=1;
+//    char *argv[] = {"temp"};
+    return main(argc, &argv);
+}
+#endif
