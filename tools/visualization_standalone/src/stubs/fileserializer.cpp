@@ -29,29 +29,38 @@ public:
     {
         //Note: Usually this is not the place meant to contain pointcloud logic.
         pcl::PCLPointCloud2 pc2;
-
-        if(m_filename.substr(m_filename.length()-4, std::string::npos) == ".pcd")
-        {
-            pcl::PCDReader reader;
-            if ( reader.read(m_filename, pc2) < 0 )
+        std::string cachename = m_filename + ".cache";
+        if (FILE *file = fopen(cachename.c_str(), "r")) {
+            fclose(file);
+            return new std::ifstream(cachename);
+        } else {
+            if(m_filename.substr(m_filename.length()-4, std::string::npos) == ".pcd")
             {
-                log_error("Couldn't read file" + m_filename);
-                return NULL;
+                pcl::PCDReader reader;
+                if ( reader.read(m_filename, pc2) < 0 )
+                {
+                    log_error("Couldn't read file" + m_filename);
+                    return NULL;
+                }
             }
-        }
-        else
-        {
-            pcl::PLYReader reader;
-            if ( reader.read(m_filename, pc2) < 0 )
+            else
             {
-                log_error("Couldn't read file" + m_filename);
-                return NULL;
+                pcl::PLYReader reader;
+                if ( reader.read(m_filename, pc2) < 0 )
+                {
+                    log_error("Couldn't read file" + m_filename);
+                    return NULL;
+                }
             }
+            std::ofstream cacheout(cachename);
+            std::iostream *is = new std::stringstream();
+            ::boost::archive::text_oarchive oa(*is);
+            oa << pc2;
+            cacheout << is->rdbuf();
+            is->clear();
+            is->seekg(0, std::ios::beg);
+            return is;
         }
-        std::iostream *is = new std::stringstream();
-        ::boost::archive::text_oarchive oa(*is);
-        oa << pc2;
-        return is;
     }
     void endRead(upnsIStream *strm)
     {

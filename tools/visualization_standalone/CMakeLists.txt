@@ -76,8 +76,8 @@ add_custom_target(resourceFilesVizStandalone ALL ${CMAKE_COMMAND} -E echo "nop" 
 if(WIN32)
 #target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb ${BOOST_LIBRARIES_ADDITION})
 target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES_ADDITION}
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib)
+    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_56.lib
+    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_56.lib)
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
 else(WIN32)
   target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
@@ -90,7 +90,7 @@ file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
 
 if(WIN32)
-    message("Please Create Symlinc MANUALLY")
+    message("Please Create Symlinc MANUALLY (see visualization_standalone cmake:93")
     # Steps, Windows takes to not let us create symlinks:
     # 1) cmake does not have a platform agnostic way
     # 2) usermanagement: user has not the privileges to create a stupid symlink

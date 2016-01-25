@@ -66,8 +66,8 @@ FOREACH(subdir ${SUBDIRS})
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} ${PCL_CUSTOM_SRC})
   message("TODO:DEBUG:ALLBOOSTS " ${BOOST_LIBRARIES})
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES}
-      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib )
+      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_56.lib
+      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_56.lib )
 
   execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
@@ -96,6 +96,6 @@ ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} ${PCL_CUSTOM_SRC} )
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES}
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib)
+    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_56.lib
+    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_56.lib)
 add_test(TestAll ${EXECUTABLE_OUTPUT_PATH}/TestAll)

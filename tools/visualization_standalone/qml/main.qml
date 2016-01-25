@@ -120,7 +120,7 @@ ApplicationWindow {
                 //filename: "data/bunny.pcd"
                 filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
             }
-            vrmode: true
+            vrmode: false
             property var pos: Qt.vector3d(0.0,0.0,0.0)
             property var offsX: 0.0
             property var offsY: 0.0

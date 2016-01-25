@@ -44,10 +44,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y
     }
     return c1;
 }
-
-int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
-//int WINAPI WinMain(int argc, char *argv[])
-//int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 //    std::string folder("data/");
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> all;
@@ -85,8 +82,7 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
     config.configure();
     //TODO: Use QGuiApplication when this bug iss fixed: https://bugreports.qt.io/browse/QTBUG-39437
     //QGuiApplication app(argc, argv);
-    int argc=1;
-    char *argv[] = {"temp"};
+
     QApplication app(argc, argv);
 
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
@@ -100,3 +96,12 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
     int result = app.exec();
     return result;
 }
+
+#ifdef _WIN32
+int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR argv, int argc)
+{
+//    int argc=1;
+//    char *argv[] = {"temp"};
+    return main(argc, &argv);
+}
+#endif
