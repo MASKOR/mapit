@@ -13,13 +13,16 @@
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
 
+#ifdef VRMODE
 #include <Kernel/OVR_System.h>
 #include <OVR_CAPI_GL.h>
 #include <Extras/OVR_Math.h>
+#endif
 
 #include "mapsrenderer.h"
 #include "bindings/qmlmapsrenderviewport.h"
 
+#ifdef VRMODE
 ////Copy Paste OVR
 //--------------------------------------------------------------------------
 struct DepthBuffer
@@ -195,7 +198,7 @@ struct TextureBuffer
     }
 };
 ////
-
+#endif
 
 RenderThread::RenderThread(const QSize &size)
     : surface(0)
@@ -205,14 +208,18 @@ RenderThread::RenderThread(const QSize &size)
     , m_vrInitialized(false)
     , m_size(size)
     , m_entitydata(NULL)
+    #ifdef VRMODE
     , m_mirrorTexture(nullptr)
     , m_mirrorFBO( 0 )
+    #endif
     , m_vrmode( false )
 {
+#ifdef VRMODE
     m_eyeRenderTexture[0] = nullptr;
     m_eyeRenderTexture[1] = nullptr;
     m_eyeDepthBuffer[0] = nullptr;
     m_eyeDepthBuffer[1] = nullptr;
+#endif
     QmlMapsRenderViewport::threads << this;
     m_mapsRenderer = new MapsRenderer();
 }
@@ -239,14 +246,18 @@ QMatrix4x4 RenderThread::matrix() const
 
 void RenderThread::renderNext()
 {
+#ifdef VRMODE
     if(m_vrmode)
     {
         renderNextVR();
     }
     else
     {
+#endif
         renderNextNonVR();
+#ifdef VRMODE
     }
+#endif
 }
 
 void RenderThread::renderNextNonVR()
@@ -288,6 +299,7 @@ void RenderThread::renderNextNonVR()
     Q_EMIT textureReady(m_displayFbo->texture(), m_size);
 }
 
+#ifdef VRMODE
 void RenderThread::renderNextVR()
 {
     context->makeCurrent(surface);
@@ -442,7 +454,9 @@ void RenderThread::renderNextVR()
     qSwap(m_renderFbo, m_displayFbo);
 
     Q_EMIT textureReady(m_displayFbo->texture(), m_size);
+
 }
+#endif
 
 void RenderThread::shutDown()
 {
@@ -501,6 +515,7 @@ void RenderThread::setEntitydata(QmlEntitydata *entitydata)
     Q_EMIT entitydataChanged(entitydata);
 }
 
+#ifdef VRMODE
 void RenderThread::initVR()
 {
     ovrResult result = ovr_Initialize(nullptr);
@@ -558,6 +573,7 @@ void RenderThread::initVR()
 //    Done:
     return;
 }
+#endif
 
 QmlEntitydata *RenderThread::entitydata() const
 {

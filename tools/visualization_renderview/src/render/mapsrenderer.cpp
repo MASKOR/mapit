@@ -24,6 +24,7 @@ void MapsRenderer::drawPointcloud()
 {
     program1.enableAttributeArray(normalAttr1);
     program1.enableAttributeArray(vertexAttr1);
+    program1.enableAttributeArray(colorAttr1);
     program1.setAttributeArray(vertexAttr1, vertices.constData());
     program1.setAttributeArray(normalAttr1, normals.constData());
     program1.setAttributeArray(colorAttr1, colors.constData());
@@ -161,7 +162,7 @@ void MapsRenderer::createGeometry()
       const pcl::PointXYZRGBNormal& pt = cloud->points[i];
       vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
       normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
-      colors << QVector3D(pt.r, pt.g, pt.b);
+      colors << QVector3D(pt.r/255.f, pt.g/255.f, pt.b/255.f);
     }
     qDebug() << "Entity loaded:" << vertices.size() << "points.";
 }

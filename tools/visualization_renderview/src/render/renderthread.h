@@ -6,7 +6,9 @@
 #include <QMatrix4x4>
 #include "bindings/qmlentitydata.h"
 
+#ifdef VRMODE
 #include <OVR_CAPI_GL.h>
+#endif
 class MapsRenderer;
 
 class TextureBuffer;
@@ -46,7 +48,9 @@ public:
 
 public Q_SLOTS:
     void reload();
+    #ifdef VRMODE
     void renderNextVR();
+    #endif
     void renderNextNonVR();
     void renderNext();
     void shutDown();
@@ -81,12 +85,13 @@ private:
     QOpenGLFramebufferObject *m_renderFbo;
     QOpenGLFramebufferObject *m_displayFbo;
 
-    void initVR();
     bool m_vrInitialized;
     QSize m_size;
     QMatrix4x4 m_matrix;
     QmlEntitydata *m_entitydata;
     MapsRenderer *m_mapsRenderer;
+#ifdef VRMODE
+void initVR();
     ovrEyeRenderDesc m_eyeRenderDesc[2];
     ovrHmd m_HMD;
     TextureBuffer *m_eyeRenderTexture[2];
@@ -94,6 +99,7 @@ private:
     ovrGLTexture  *m_mirrorTexture;
     GLuint         m_mirrorFBO;
     ovrHmdDesc m_hmdDesc;
+#endif
     bool m_vrmode;
 };
 

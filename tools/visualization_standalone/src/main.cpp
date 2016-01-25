@@ -10,11 +10,14 @@
 #include <log4cplus/loggingmacros.h>
 #include <log4cplus/configurator.h>
 #include "stubs/qmlstubentitydatapointcloud2.h"
-#include <Windows.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/conversions.h>
+#include <pcl/common/centroid.h>
+#include <pcl/point_types.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/search/kdtree.h>
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -45,9 +48,9 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y
     return c1;
 }
 
-int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
+//int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
 //int WINAPI WinMain(int argc, char *argv[])
-//int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 //    std::string folder("data/");
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> all;
@@ -67,6 +70,46 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
 //    convert(folder + "Aligned_FARO_Scan_088.ply",-3.37326, -104.19804, 158.26798);
 //    convert(folder + "Aligned_FARO_Scan_089.ply",15.84941, -116.74751, 158.86091);
 
+//    std::string fn("data/fh.pcd");
+//    pcl::PointCloud<pcl::PointXYZRGB>::Ptr c1(new pcl::PointCloud<pcl::PointXYZRGB>);
+//    pcl::PCLPointCloud2 pc2;
+//    pcl::PCDReader reader;
+//    reader.read(fn, pc2);
+//    pcl::fromPCLPointCloud2(pc2, *c1);
+//    Eigen::Vector4f centroid;
+//    pcl::compute3DCentroid (*c1, centroid);
+//    std::vector<pcl::PointXYZRGB, Eigen::aligned_allocator<pcl::PointXYZRGB> >::iterator iter(c1->points.begin());
+//    while(iter != c1->points.end())
+//    {
+//        iter->x -= centroid[0];
+//        iter->y -= centroid[1];
+//        iter->z -= centroid[2];
+//        ++iter;
+//    }
+//    pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> ne;
+//    ne.setInputCloud (c1);
+
+//    // Create an empty kdtree representation, and pass it to the normal estimation object.
+//    // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
+//    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB> ());
+//    ne.setSearchMethod (tree);
+
+//    // Output datasets
+//    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+
+//    // Use all neighbors in a sphere of radius 3cm
+//    ne.setRadiusSearch (0.03);
+
+//    // Compute the features
+//    ne.compute (*cloud_normals);
+//    pcl::PointCloud<pcl::PointXYZRGBNormal> out;
+//    pcl::concatenateFields (*c1, *cloud_normals, out);
+//    pcl::PCDWriter writer;
+//    if ( writer.write(std::string(fn + "_moved"), out) < 0 )
+//    {
+//        std::cout << "temp";
+//    }
+//    std::cout << "done";
 
 //    pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
 //    sor.setInputCloud (cloud);
@@ -79,14 +122,12 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR, int)
 //        std::cout << "temp";
 //    }
 
-    std::cout << "done";
-
     log4cplus::PropertyConfigurator config("logging.properties");
     config.configure();
-    //TODO: Use QGuiApplication when this bug iss fixed: https://bugreports.qt.io/browse/QTBUG-39437
+    //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     //QGuiApplication app(argc, argv);
-    int argc=1;
-    char *argv[] = {"temp"};
+//    int argc=1;
+//    char *argv[] = {"temp"};
     QApplication app(argc, argv);
 
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");

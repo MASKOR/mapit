@@ -41,7 +41,6 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
         return upnsSharedPointer<AbstractEntityData>(NULL);
     }
 #ifdef _WIN32
-    //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");
     CreateEntitydataFunc wrap = (CreateEntitydataFunc)GetProcAddress(handle,"createEntitydata");
 #else
     CreateEntitydataFunc wrap = (CreateEntitydataFunc)dlsym(handle, "createEntitydata");

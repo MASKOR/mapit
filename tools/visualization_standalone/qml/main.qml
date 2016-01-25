@@ -87,6 +87,13 @@ ApplicationWindow {
                 checkable: true
                 checked: true
             }
+            MenuSeparator { }
+            MenuItem {
+                id: centerFixed
+                text: qsTr("Center fixed to view")
+                checkable: true
+                checked: true
+            }
         }
         Menu {
             title: qsTr("&Window")
@@ -118,7 +125,8 @@ ApplicationWindow {
             //layerId: mapLayers.currentLayerId
             entitydata: EntityDataPointcloud2 {
                 //filename: "data/bunny.pcd"
-                filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
+                //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
+                filename: "data/fh2.pcd"
             }
             vrmode: true
             property var pos: Qt.vector3d(0.0,0.0,0.0)
