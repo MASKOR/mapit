@@ -14,6 +14,8 @@ class QmlMapsRenderViewport : public QQuickItem
     Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
     Q_PROPERTY(bool vrmode READ vrmode WRITE setVrmode NOTIFY vrmodeChanged)
     Q_PROPERTY(QVector3D headDirection READ headDirection NOTIFY headDirectionChanged)
+    Q_PROPERTY(QMatrix4x4 headMatrix READ headMatrix NOTIFY headMatrixChanged)
+    Q_PROPERTY(QMatrix4x4 headOrientation READ headOrientation NOTIFY headOrientationChanged)
 
 public:
     QmlMapsRenderViewport();
@@ -40,6 +42,16 @@ public:
         return m_headDirection;
     }
 
+    QMatrix4x4 headMatrix() const
+    {
+        return m_headMatrix;
+    }
+
+    QMatrix4x4 headOrientation() const
+    {
+        return m_headOrientation;
+    }
+
 public Q_SLOTS:
     void ready();
     void reload();
@@ -57,17 +69,7 @@ public Q_SLOTS:
 
     void setVrmode(bool vrmode);
 
-    void setHeadDirection(QVector3D headDirection)
-    {
-        if (m_headDirection == headDirection)
-            return;
-
-        m_headDirection = headDirection;
-        Q_EMIT headDirectionChanged(headDirection);
-    }
-
 Q_SIGNALS:
-
     void matrixChanged(QMatrix4x4 matrix);
 
     void entitydataChanged(QmlEntitydata * entitydata);
@@ -77,9 +79,16 @@ Q_SIGNALS:
     void vrmodeChanged(bool vrmode);
 
     void headDirectionChanged(QVector3D headDirection);
+    void headMatrixChanged(QMatrix4x4 headMatrix);
+    void headOrientationChanged(QMatrix4x4 headOrientation);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
+
+private Q_SLOTS:
+    void setHeadDirection(QVector3D headDirection);
+    void setHeadOrientation(QMatrix4x4 headOrientation);
+    void setHeadMatrix(QMatrix4x4 headMatrix);
 
 private:
     RenderThread *m_renderThread;
@@ -88,6 +97,8 @@ private:
     upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
     bool m_vrmode;
     QVector3D m_headDirection;
+    QMatrix4x4 m_headMatrix;
+    QMatrix4x4 m_headOrientation;
 };
 
 #endif // MapsRenderer_H

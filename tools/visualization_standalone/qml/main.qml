@@ -157,35 +157,110 @@ ApplicationWindow {
                 color: "white"
                 visible: showCenter.checked
             }
+            Text {
+                color: "white"
+                id: name
+                text: "Pos: " + drawingArea.torsoPos.x + ", " + drawingArea.torsoPos.y + ", " + drawingArea.torsoPos.z + ")"
+            }
 
-            property var rotX: Qt.matrix4x4(
-                                   Math.cos(angleX), 0.0, -Math.sin(angleX), 0.0,
-                                   0.0,              1.0, 0.0,               0.0,
-                                   Math.sin(angleX), 0.0, Math.cos(angleX),  0.0,
-                                   0.0,              0.0, 0.0,               1.0)
-            property var rotY: Qt.matrix4x4(
-                                   1.0,              0.0, 0.0,               0.0,
-                                   0.0, Math.cos(angleY), -Math.sin(angleY), 0.0,
-                                   0.0, Math.sin(angleY),  Math.cos(angleY), 0.0,
-                                   0.0,              0.0, 0.0              , 1.0)
-            // center of rotation
-            property var posMat: Qt.matrix4x4(
-                                     1.0, 0.0, 0.0, pos.x,
-                                     0.0, 1.0, 0.0, pos.y,
-                                     0.0, 0.0, 1.0, pos.z,
+//            property var rotX: Qt.matrix4x4(
+//                                   Math.cos(angleX), 0.0, -Math.sin(angleX), 0.0,
+//                                   0.0,              1.0, 0.0,               0.0,
+//                                   Math.sin(angleX), 0.0, Math.cos(angleX),  0.0,
+//                                   0.0,              0.0, 0.0,               1.0)
+//            property var rotY: Qt.matrix4x4(
+//                                   1.0,              0.0, 0.0,               0.0,
+//                                   0.0, Math.cos(angleY), -Math.sin(angleY), 0.0,
+//                                   0.0, Math.sin(angleY),  Math.cos(angleY), 0.0,
+//                                   0.0,              0.0, 0.0              , 1.0)
+//            // center of rotation
+//            property var posMat: Qt.matrix4x4(
+//                                     1.0, 0.0, 0.0, pos.x,
+//                                     0.0, 1.0, 0.0, pos.y,
+//                                     0.0, 0.0, 1.0, pos.z,
+//                                     0.0, 0.0, 0.0, 1.0)
+//            // offset while translating
+//            property var offsMat: Qt.matrix4x4(
+//                                     1.0, 0.0, 0.0, offsX,
+//                                     0.0, 1.0, 0.0, offsY,
+//                                     0.0, 0.0, 1.0, 0.0,
+//                                     0.0, 0.0, 0.0, 1.0)
+//            property var zoomMat: Qt.matrix4x4(
+//                                   zoom, 0.0,  0.0, 0.0,
+//                                   0.0,  zoom, 0.0, 0.0,
+//                                   0.0,  0.0, zoom, 0.0,
+//                                   0.0,  0.0,  0.0, 1.0)
+//            matrix: zoomMat.times(offsMat).times(rotY).times(rotX).times(posMat)
+
+            property bool moveAlongHeadDirection: true // move where head shows or where torso shows?
+            property bool fixedUpVector: true
+            property var upVector: Qt.vector3d(0.0,1.0,0.0)
+            property var forwardVector: Qt.vector3d(0.0,0.0,-1.0)
+            property var rightVector: upVector.crossProduct(forwardVector)
+//            property var rightVector: Qt.vector3d(upVector.y*forwardVector.z - upVector.z*forwardVector.y,
+//                                                  upVector.z*forwardVector.x - upVector.x*forwardVector.z,
+//                                                  upVector.x*forwardVector.y - upVector.y*forwardVector.x)
+            property var torsoPos: Qt.vector3d(0.0,0.0,0.0)
+            property var torsoPositionMatrix: Qt.matrix4x4(
+                                     1.0, 0.0, 0.0, torsoPos.x,
+                                     0.0, 1.0, 0.0, torsoPos.y,
+                                     0.0, 0.0, 1.0, torsoPos.z,
                                      0.0, 0.0, 0.0, 1.0)
-            // offset while translating
-            property var offsMat: Qt.matrix4x4(
-                                     1.0, 0.0, 0.0, offsX,
-                                     0.0, 1.0, 0.0, offsY,
-                                     0.0, 0.0, 1.0, 0.0,
-                                     0.0, 0.0, 0.0, 1.0)
-            property var zoomMat: Qt.matrix4x4(
-                                   zoom, 0.0,  0.0, 0.0,
-                                   0.0,  zoom, 0.0, 0.0,
-                                   0.0,  0.0, zoom, 0.0,
-                                   0.0,  0.0,  0.0, 1.0)
-            matrix: offsMat.times(rotY).times(rotX).times(posMat).times(zoomMat)
+            property var torsoOrientation: Qt.matrix4x4(
+                                               1.0, 0.0, 0.0, 0.0,
+                                               0.0, 1.0, 0.0, 0.0,
+                                               0.0, 0.0, 1.0, 0.0,
+                                               0.0, 0.0, 0.0, 1.0)
+//                                     rightVector.x,     rightVector.y,      rightVector.z,   0.0,
+//                                     upVector.x,        upVector.y,         upVector.z,      0.0,
+//                                     forwardVector.x,   forwardVector.y,    forwardVector.z, 0.0,
+//                                     0.0,               0.0,                0.0,             1.0)
+
+            // inverse head matrix
+            property var headOrientationInverse: headOrientation.transposed()
+
+            // orientation to yaw and pitch around (always view)
+            property var rotationOrientation: headOrientationInverse.times(torsoOrientation)
+
+            // orientation to move along (may be torso or head)
+            property var moveOrientation: moveAlongHeadDirection?rotationOrientation:torsoOrientation
+
+            // output
+            matrix: torsoOrientation.times(torsoPositionMatrix);
+
+            function move(side, up, forward) {
+                torsoPos = torsoPos.plus(moveOrientation.row(0).toVector3d().times(-side))
+                torsoPos = torsoPos.plus(moveOrientation.row(1).toVector3d().times(up))
+                torsoPos = torsoPos.plus(moveOrientation.row(2).toVector3d().times(forward))
+            }
+
+            function rotateYaw(yaw) {
+                var yawMat = Qt.matrix4x4(
+                    Math.cos(yaw),    0.0, -Math.sin(yaw),    0.0,
+                    0.0,              1.0, 0.0,               0.0,
+                    Math.sin(yaw),    0.0, Math.cos(yaw),     0.0,
+                    0.0,              0.0, 0.0,               1.0)
+                torsoOrientation = headOrientation.times(yawMat.times(headOrientationInverse.times(torsoOrientation)))
+
+                //forwardVector = yawMat.times(forwardVector.toVector4d()).toVector3d()
+                // fore_(i+1) = inv(head) * rot * head * fore_i
+//                forwardVector = headOrientation.times(yawMat.times(headOrientationInverse.times(forwardVector.toVector4d()))).toVector3d()
+//                forwardVector = forwardVector.normalized()
+            }
+            function rotatePitch(pitch) {
+                var pitchMat = Qt.matrix4x4(
+                   1.0,              0.0, 0.0,               0.0,
+                   0.0,  Math.cos(pitch),  -Math.sin(pitch), 0.0,
+                   0.0,  Math.sin(pitch),   Math.cos(pitch), 0.0,
+                   0.0,              0.0, 0.0              , 1.0)
+                torsoOrientation = headOrientation.times(pitchMat.times(headOrientationInverse.times(torsoOrientation)))
+//                //forwardVector = pitchMat.times(forwardVector.toVector4d()).toVector3d()
+//                forwardVector = headOrientation.times(pitchMat.times(headOrientationInverse.times(forwardVector.toVector4d()))).toVector3d()
+//                //forwardVector = headOrientationInverse.times(pitchMat).times(rotationOrientation.row(2)).toVector3d()
+//                upVector = forwardVector.crossProduct(rightVector)
+//                forwardVector = forwardVector.normalized()
+//                upVector = upVector.normalized()
+            }
             MouseArea {
                 id: screenMouse
                 anchors.fill: parent
@@ -198,7 +273,8 @@ ApplicationWindow {
                 property real ax
                 property real ay
                 onWheel: {
-                    drawingArea.zoom *= Math.pow(2.0, wheel.angleDelta.y*0.001)
+                    drawingArea.move(0.0, 0.0, wheel.angleDelta.y*0.001);
+                    //drawingArea.zoom *= Math.pow(2.0, wheel.angleDelta.y*0.001)
                 }
                 function pressedButtonsChanged() {
                     var leftButton = screenMouse.pressedButtons & Qt.LeftButton
@@ -228,12 +304,14 @@ ApplicationWindow {
                 onTranslatingChanged: {
                     if(!translating) {
                         if(drawingArea.offsX !== 0.0 || drawingArea.offsY !== 0.0) {
-                            var finalRotationMatrix = drawingArea.rotY.times(drawingArea.rotX)
-                            var posV4 = finalRotationMatrix.inverted().times(Qt.vector4d(drawingArea.offsX,
-                                                                              drawingArea.offsY,
-                                                                                            0.0,
-                                                                                            1.0))
-                            drawingArea.pos = drawingArea.pos.plus(Qt.vector3d(posV4.x, posV4.y, posV4.z))
+//                            console.log("moving: " + drawingArea.offsX + ", " + drawingArea.offsY);
+//                            drawingArea.move(drawingArea.offsX, drawingArea.offsY, 0.0);
+//                            var finalRotationMatrix = drawingArea.rotY.times(drawingArea.rotX)
+//                            var posV4 = finalRotationMatrix.inverted().times(Qt.vector4d(drawingArea.offsX,
+//                                                                              drawingArea.offsY,
+//                                                                                            0.0,
+//                                                                                            1.0))
+//                            drawingArea.pos = drawingArea.pos.plus(Qt.vector3d(posV4.x, posV4.y, posV4.z))
 
                             drawingArea.offsX = 0.0
                             drawingArea.offsY = 0.0
@@ -244,12 +322,17 @@ ApplicationWindow {
                     var movementx = (mx - mouseX) * 0.05
                     var movementy = (my - mouseY) * 0.05
                     if(rotating) {
-                        drawingArea.angleX = ax + movementx
-                        drawingArea.angleY = ay + movementy
+                        drawingArea.rotateYaw(-movementx*0.1, 0.0, 0.0);
+                        drawingArea.rotatePitch(movementy*0.1, 0.0, 0.0);
+//                        drawingArea.angleX = ax + movementx
+//                        drawingArea.angleY = ay + movementy
                     } else if(translating) {
-                        drawingArea.offsX = movementx*-0.1
-                        drawingArea.offsY = movementy*-0.1
+                        drawingArea.move(movementx, movementy, 0.0);
+//                        drawingArea.offsX = movementx*-0.1
+//                        drawingArea.offsY = movementy*-0.1
                     }
+                    mx = mouseX
+                    my = mouseY
                 }
             }
         }

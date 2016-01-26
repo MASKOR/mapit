@@ -26,6 +26,9 @@ class RenderThread : public QThread
     Q_PROPERTY(qreal height READ height WRITE setHeight NOTIFY heightChanged)
     Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
     Q_PROPERTY(bool vrmode READ vrmode WRITE setVrmode NOTIFY vrmodeChanged)
+//    Q_PROPERTY(QMatrix4x4 headMatrix READ headMatrix WRITE setHeadMatrix NOTIFY headMatrixChanged)
+//    Q_PROPERTY(QVector3D headDirection READ headDirection WRITE setHeadDirection NOTIFY headDirectionChanged)
+//    Q_PROPERTY(QMatrix4x4 headOrientation READ headOrientation NOTIFY headOrientationChanged)
 
 public:
     RenderThread(const QSize &size);
@@ -45,6 +48,21 @@ public:
     {
         return m_vrmode;
     }
+
+//    QMatrix4x4 headMatrix() const
+//    {
+//        return m_headMatrix;
+//    }
+
+//    QVector3D headDirection() const
+//    {
+//        return m_headDirection;
+//    }
+
+//    QMatrix4x4 headOrientation() const
+//    {
+//        return m_headOrientation;
+//    }
 
 public Q_SLOTS:
     void reload();
@@ -84,7 +102,16 @@ Q_SIGNALS:
 
     void vrmodeChanged(bool vrmode);
 
+    void headMatrixChanged(QMatrix4x4 headMatrix);
+    void headDirectionChanged(QVector3D headDirection);
+    void headOrientationChanged(QMatrix4x4 headOrientation);
+
+private Q_SLOTS:
+    void setHeadOrientation(QMatrix4x4 headOrientation);
+    void setHeadMatrix(QMatrix4x4 headMatrix);
+    void setHeadDirection(QVector3D headDirection);
 private:
+
     QOpenGLFramebufferObject *m_renderFbo;
     QOpenGLFramebufferObject *m_displayFbo;
 
@@ -104,6 +131,9 @@ void initVR();
     ovrHmdDesc m_hmdDesc;
 #endif
     bool m_vrmode;
+//    QMatrix4x4 m_headMatrix;
+//    QVector3D m_headDirection;
+//    QMatrix4x4 m_headOrientation;
 };
 
 #endif // MapsRenderer_H

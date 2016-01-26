@@ -27,6 +27,9 @@ QmlMapsRenderViewport::QmlMapsRenderViewport()
     connect(this, &QQuickItem::heightChanged, m_renderThread, [&](){m_renderThread->setHeight(height());});
     connect(this, &QmlMapsRenderViewport::needsReload, m_renderThread, &RenderThread::reload);
     connect(this, &QmlMapsRenderViewport::matrixChanged, m_renderThread, &RenderThread::setMatrix);
+    connect(m_renderThread, &RenderThread::headDirectionChanged, this, &QmlMapsRenderViewport::setHeadDirection);
+    connect(m_renderThread, &RenderThread::headMatrixChanged, this, &QmlMapsRenderViewport::setHeadMatrix);
+    connect(m_renderThread, &RenderThread::headOrientationChanged, this, &QmlMapsRenderViewport::setHeadOrientation);
 }
 
 void QmlMapsRenderViewport::ready()
@@ -139,6 +142,33 @@ void QmlMapsRenderViewport::setVrmode(bool vrmode)
         m_renderThread->setVrmode(vrmode);
     }
     Q_EMIT vrmodeChanged(vrmode);
+}
+
+void QmlMapsRenderViewport::setHeadDirection(QVector3D headDirection)
+{
+    if (m_headDirection == headDirection)
+        return;
+
+    m_headDirection = headDirection;
+    Q_EMIT headDirectionChanged(headDirection);
+}
+
+void QmlMapsRenderViewport::setHeadOrientation(QMatrix4x4 headOrientation)
+{
+    if (m_headOrientation == headOrientation)
+        return;
+
+    m_headOrientation = headOrientation;
+    Q_EMIT headOrientationChanged(headOrientation);
+}
+
+void QmlMapsRenderViewport::setHeadMatrix(QMatrix4x4 headMatrix)
+{
+    if (m_headMatrix == headMatrix)
+        return;
+
+    m_headMatrix = headMatrix;
+    Q_EMIT headMatrixChanged(headMatrix);
 }
 
 #include "qmlmapsrenderviewport.moc"

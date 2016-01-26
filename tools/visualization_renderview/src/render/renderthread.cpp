@@ -368,18 +368,26 @@ void RenderThread::renderNextVR()
 
             // Get view and projection matrices
             OVR::Matrix4f rollPitchYaw = OVR::Matrix4f::RotationY(Yaw);
-            OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(EyeRenderPose[eye].Orientation);
+            OVR::Quatf orientation(EyeRenderPose[eye].Orientation);
+            OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(orientation);
             OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
             OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
             OVR::Vector3f shiftedEyePos = Pos2 + rollPitchYaw.Transform(EyeRenderPose[eye].Position);
 
             OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
             OVR::Matrix4f proj = ovrMatrix4f_Projection(m_hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_RightHanded);
+            QMatrix4x4 qview(&view.M[0][0]);
+            QMatrix4x4 qproj(&proj.M[0][0]);
 
+            QMatrix4x4 qorientation(&finalRollPitchYaw.M[0][0]);//QQuaternion(orientation.w, orientation.x, orientation.y, orientation.z));
+            QVector3D qdir(finalForward.x, finalForward.y, finalForward.z);
+            setHeadMatrix(qview);
+            setHeadDirection(qdir);
+            setHeadOrientation(qorientation);
             // Render world
             //roomScene->Render(view, proj);
             //context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
-            m_mapsRenderer->render(QMatrix4x4(&view.M[0][0]), QMatrix4x4(&proj.M[0][0]));
+            m_mapsRenderer->render(qview, qproj);
 
             // Avoids an error when calling SetAndClearRenderSurface during next iteration.
             // Without this, during the next while loop iteration SetAndClearRenderSurface
@@ -425,19 +433,12 @@ void RenderThread::renderNextVR()
     funcs.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderFbo->handle());
     GLint w = m_mirrorTexture->OGL.Header.TextureSize.w;
     GLint h = m_mirrorTexture->OGL.Header.TextureSize.h;
-    funcs.glBlitFramebuffer(0, h, w, 0,
+    funcs.glBlitFramebuffer(0, 0, w, h,
                       0, 0, w, h,
                       GL_COLOR_BUFFER_BIT, GL_NEAREST);
     funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 //    SwapBuffers(Platform.hDC);
-
-
-
-
-
-
-
 
 
     m_renderFbo->bind();
@@ -513,6 +514,33 @@ void RenderThread::setEntitydata(QmlEntitydata *entitydata)
     m_entitydata = entitydata;
     m_mapsRenderer->setEntityData(m_entitydata->getEntityData());
     Q_EMIT entitydataChanged(entitydata);
+}
+
+void RenderThread::setHeadOrientation(QMatrix4x4 headOrientation)
+{
+//    if (m_headOrientation == headOrientation)
+//        return;
+
+//    m_headOrientation = headOrientation;
+    Q_EMIT headOrientationChanged(headOrientation);
+}
+
+void RenderThread::setHeadMatrix(QMatrix4x4 headMatrix)
+{
+//    if (m_headMatrix == headMatrix)
+//        return;
+
+//    m_headMatrix = headMatrix;
+    Q_EMIT headMatrixChanged(headMatrix);
+}
+
+void RenderThread::setHeadDirection(QVector3D headDirection)
+{
+//    if (m_headDirection == headDirection)
+//        return;
+
+//    m_headDirection = headDirection;
+    Q_EMIT headDirectionChanged(headDirection);
 }
 
 #ifdef VRMODE
