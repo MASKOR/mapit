@@ -244,8 +244,7 @@ ApplicationWindow {
                     0.0,              1.0, 0.0,               0.0,
                     Math.sin(yaw),    0.0, Math.cos(yaw),     0.0,
                     0.0,              0.0, 0.0,               1.0)
-                inp = headOrientation.times(yawMat.times(headOrientationInverse.times(inp)))
-                return inp
+                return headOrientation.times(yawMat.times(headOrientationInverse.times(inp)))
             }
             function rotatePitch(pitch, inp) {
                 var pitchMat = Qt.matrix4x4(
@@ -253,8 +252,7 @@ ApplicationWindow {
                    0.0,  Math.cos(pitch),  -Math.sin(pitch), 0.0,
                    0.0,  Math.sin(pitch),   Math.cos(pitch), 0.0,
                    0.0,              0.0, 0.0              , 1.0)
-                inp = headOrientation.times(pitchMat.times(headOrientationInverse.times(inp)))
-                return inp
+                return headOrientation.times(pitchMat.times(headOrientationInverse.times(inp)))
             }
 
             // prohibit banking
@@ -265,8 +263,8 @@ ApplicationWindow {
                 var forward = inp.row(2).toVector3d() // keep forward direction
 
                 // orthonormalize
-                side = forward.crossProduct(upvec).normalized()
-                upvec = side.crossProduct(forward).normalized()
+                side = upvec.crossProduct(forward).normalized()
+                upvec = forward.crossProduct(side).normalized()
                 inp.m21 = upvec.x ; inp.m22 = upvec.y ; inp.m23 = upvec.z
                 inp.m11 = side.x  ; inp.m12 = side.y  ; inp.m13 = side.z
                 return inp
@@ -311,14 +309,15 @@ ApplicationWindow {
                     var movementy = (my - mouseY) * 0.05
                     if(rotating) {
                         var tmp = drawingArea.torsoOrientation
-                        tmp = drawingArea.rotateYaw(movementx*0.1, tmp);
-                        tmp = drawingArea.rotatePitch(movementy*0.1, tmp);
+                        tmp = drawingArea.rotateYaw(movementx*0.1, tmp)
+                        tmp = drawingArea.rotatePitch(-movementy*0.1, tmp)
                         if(fixedUpvec.checked)
                         {
-                            drawingArea.torsoOrientation = drawingArea.fixSidevector(tmp)
+                            tmp = drawingArea.fixSidevector(tmp)
                         }
+                        drawingArea.torsoOrientation = tmp
                     } else if(translating) {
-                        drawingArea.move(movementx, movementy, 0.0);
+                        drawingArea.move(movementx, movementy, 0.0)
                     }
                     mx = mouseX
                     my = mouseY

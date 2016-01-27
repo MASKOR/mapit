@@ -291,9 +291,13 @@ void RenderThread::renderNextNonVR()
     QMatrix4x4 view;
     view.setToIdentity();
     mat.perspective(45.0f, ((float)m_size.width())/(float)m_size.height(), 1.0, 1000.0 );
+    QMatrix4x4 flipY;
+    flipY.setToIdentity();
+    flipY.data()[4+1] = -1.f;
+    mat *= flipY;
     setHeadMatrix(view);
     setHeadDirection(QVector3D(0.0,0.0,1.0));
-    setHeadOrientation(mat);
+    setHeadOrientation(view);
     m_mapsRenderer->render(view, mat );
 
     // We need to flush the contents to the FBO before posting
@@ -381,7 +385,7 @@ void RenderThread::renderNextVR()
             OVR::Matrix4f finalRollPitchYaw = rollPitchYaw * OVR::Matrix4f(orientation);
             OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
             OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
-            OVR::Vector3f shiftedEyePos = Pos2 + rollPitchYaw.Transform(EyeRenderPose[eye].Position);
+            OVR::Vector3f shiftedEyePos = /*Pos2 +*/ rollPitchYaw.Transform(EyeRenderPose[eye].Position);
 
             OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
             OVR::Matrix4f proj = ovrMatrix4f_Projection(m_hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_RightHanded);
