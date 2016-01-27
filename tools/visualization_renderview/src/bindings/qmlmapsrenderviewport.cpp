@@ -19,6 +19,7 @@ QList<QThread *> QmlMapsRenderViewport::threads;
 QmlMapsRenderViewport::QmlMapsRenderViewport()
     : m_renderThread(0),
       m_connectionToEntityData(NULL),
+      m_vrmode( false ),
       m_running( false )
 {
     setFlag(ItemHasContents, true);
@@ -138,15 +139,17 @@ void QmlMapsRenderViewport::setEntitydata(QmlEntitydata *entitydata)
 }
 void QmlMapsRenderViewport::setVrmode(bool vrmode)
 {
+#ifdef VRMODE
     if (m_vrmode == vrmode)
         return;
-
     m_vrmode = vrmode;
     if(m_renderThread)
     {
         m_renderThread->setVrmode(vrmode);
     }
+    assert(!vrmode);
     Q_EMIT vrmodeChanged(vrmode);
+#endif
 }
 
 void QmlMapsRenderViewport::setHeadDirection(QVector3D headDirection)

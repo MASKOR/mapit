@@ -17,7 +17,9 @@ add_definitions(-std=c++11)
 endif(NOT WIN32)
 
 add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
+if(${VRMODE})
 add_definitions(-DVRMODE="${VRMODE}")
+endif(${VRMODE})
 
 set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
