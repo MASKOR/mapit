@@ -44,35 +44,15 @@ void MapsRenderer::initialize()
 
     QOpenGLFunctions_4_1_Core funcs;
     funcs.initializeOpenGLFunctions();
-    funcs.glPointSize(4.f);
+    //funcs.glPointSize(8.f);
+    funcs.glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    funcs.glEnable(GL_POINT_SPRITE); // for gl_PointCoord. If not enabled, gl_PointCoord will always be 0
 
     QOpenGLShader *vshader1 = new QOpenGLShader(QOpenGLShader::Vertex, &program1);
-    const char *vsrc1 =
-        "attribute highp vec4 vertex;\n"
-        "attribute mediump vec3 normal;\n"
-        "attribute mediump vec3 color;\n"
-        "uniform mediump mat4 matrix;\n"
-        "varying mediump vec4 color_frag;\n"
-        "void main(void)\n"
-        "{\n"
-        //"    vec3 toLight = normalize(vec3(0.0, 0.3, 1.0));\n"
-        //"    float angle = max(dot(toLight, toLight), 0.0);\n"
-        //"    vec3 col = vec3(0.10, 1.0, 0.0);\n"
-        //"    color = vec4(col * 0.2 + col * 0.8 * angle, 1.0);\n"
-        "    color_frag.rgb = clamp(color, 0.0, 1.0);\n"
-        "    color_frag.a = 1.0;\n"
-        "    gl_Position = matrix * vertex;\n"
-        "}\n";
-    vshader1->compileSourceCode(vsrc1);
+    vshader1->compileSourceFile("resources/shader/pointcloud.vs");
 
     QOpenGLShader *fshader1 = new QOpenGLShader(QOpenGLShader::Fragment, &program1);
-    const char *fsrc1 =
-        "varying mediump vec4 color_frag;\n"
-        "void main(void)\n"
-        "{\n"
-        "    gl_FragColor = color_frag;\n"
-        "}\n";
-    fshader1->compileSourceCode(fsrc1);
+    fshader1->compileSourceFile("resources/shader/pointcloud.fs");
 
     program1.addShader(vshader1);
     program1.addShader(fshader1);
@@ -81,7 +61,12 @@ void MapsRenderer::initialize()
     vertexAttr1 = program1.attributeLocation("vertex");
     normalAttr1 = program1.attributeLocation("normal");
     colorAttr1 = program1.attributeLocation("color");
-    matrixUniform1 = program1.uniformLocation("matrix");
+
+    matrixUniformModelView = program1.uniformLocation("modelviewmatrix");
+    matrixUniformProj = program1.uniformLocation("projectionmatrix");
+    matrixUniformProjInv = program1.uniformLocation("projectioninvmatrix");
+    matrixUniformModelViewNormal = program1.uniformLocation("modelviewnormalmatrix");
+    screenSizeUniform = program1.uniformLocation("viewport");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -120,6 +105,11 @@ void MapsRenderer::reload()
     }
 }
 
+void MapsRenderer::setScreenSize(const QSizeF &size)
+{
+    m_screenSize = size;
+}
+
 void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
 {
     if(!m_initialized) return;
@@ -137,7 +127,12 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
     glEnable(GL_DEPTH_TEST);
 
     program1.bind();
-    program1.setUniformValue(matrixUniform1, proj*view*m_matrix);
+    QMatrix4x4 modelview(view*m_matrix);
+    program1.setUniformValue(matrixUniformModelView, modelview);
+    program1.setUniformValue(matrixUniformProj, proj);
+    program1.setUniformValue(matrixUniformProjInv, proj.inverted());
+    program1.setUniformValue(matrixUniformModelViewNormal, modelview.normalMatrix());
+    program1.setUniformValue(screenSizeUniform, m_screenSize);
     drawPointcloud();
     program1.release();
 

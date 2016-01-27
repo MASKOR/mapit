@@ -247,22 +247,6 @@ QMatrix4x4 RenderThread::matrix() const
 
 void RenderThread::renderNext()
 {
-#ifdef VRMODE
-    if(m_vrmode)
-    {
-        renderNextVR();
-    }
-    else
-    {
-#endif
-        renderNextNonVR();
-#ifdef VRMODE
-    }
-#endif
-}
-
-void RenderThread::renderNextNonVR()
-{
     context->makeCurrent(surface);
     if(m_renderFbo && m_renderFbo->size() != m_size)
     {
@@ -285,6 +269,31 @@ void RenderThread::renderNextNonVR()
         m_mapsRenderer->initialize();
         setRunning(true);
     }
+#ifdef VRMODE
+    if(m_vrmode)
+    {
+        renderNextVR();
+    }
+    else
+    {
+#endif
+        renderNextNonVR();
+#ifdef VRMODE
+    }
+#endif
+    // We need to flush the contents to the FBO before posting
+    // the texture to the other thread, otherwise, we might
+    // get unexpected results.
+    context->functions()->glFlush();
+
+    m_renderFbo->bindDefault();
+    qSwap(m_renderFbo, m_displayFbo);
+
+    Q_EMIT textureReady(m_displayFbo->texture(), m_size);
+}
+
+void RenderThread::renderNextNonVR()
+{
     m_renderFbo->bind();
     context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
     QMatrix4x4 mat;
@@ -299,63 +308,20 @@ void RenderThread::renderNextNonVR()
     setHeadDirection(QVector3D(0.0,0.0,1.0));
     setHeadOrientation(view);
     m_mapsRenderer->render(view, mat );
-
-    // We need to flush the contents to the FBO before posting
-    // the texture to the other thread, otherwise, we might
-    // get unexpected results.
-    context->functions()->glFlush();
-
-    m_renderFbo->bindDefault();
-    qSwap(m_renderFbo, m_displayFbo);
-
-    Q_EMIT textureReady(m_displayFbo->texture(), m_size);
 }
 
 #ifdef VRMODE
 void RenderThread::renderNextVR()
 {
-    context->makeCurrent(surface);
-
     if(!m_vrInitialized)
     {
         initVR();
     }
-    if(m_renderFbo && m_renderFbo->size() != m_size)
-    {
-        delete m_renderFbo;
-        m_renderFbo = NULL;
-        delete m_displayFbo;
-        m_displayFbo = NULL;
-    }
-    if (!m_renderFbo)
-    {
-        // Initialize the buffers and renderer
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        m_renderFbo = new QOpenGLFramebufferObject(m_size, format);
-        m_displayFbo = new QOpenGLFramebufferObject(m_size, format);
-    }
-    if( !m_mapsRenderer->isInitialized() && entitydata() != NULL && entitydata()->getEntityData() != NULL)
-    {
-        m_mapsRenderer->setEntityData(entitydata()->getEntityData());
-        m_mapsRenderer->initialize();
-        setRunning(true);
-    }
-
-
-
-
 
     static float Yaw(3.141592f);
-//    if (Platform.Key[VK_LEFT])  Yaw += 0.02f;
-//    if (Platform.Key[VK_RIGHT]) Yaw -= 0.02f;
 
     // Keyboard inputs to adjust player position
-    static OVR::Vector3f Pos2(0.0f,1.6f,-5.0f);
-//    if (Platform.Key['W']||Platform.Key[VK_UP])     Pos2+=Matrix4f::RotationY(Yaw).Transform(Vector3f(0,0,-0.05f));
-//    if (Platform.Key['S']||Platform.Key[VK_DOWN])   Pos2+=Matrix4f::RotationY(Yaw).Transform(Vector3f(0,0,+0.05f));
-//    if (Platform.Key['D'])                          Pos2+=Matrix4f::RotationY(Yaw).Transform(Vector3f(+0.05f,0,0));
-//    if (Platform.Key['A'])                          Pos2+=Matrix4f::RotationY(Yaw).Transform(Vector3f(-0.05f,0,0));
+//    static OVR::Vector3f Pos2(0.0f,1.6f,-5.0f);
 //    Pos2.y = ovr_GetFloat(HMD, OVR_KEY_EYE_HEIGHT, Pos2.y);
 
     // Get eye poses, feeding in correct IPD offset
@@ -475,22 +441,7 @@ void RenderThread::renderNextVR()
     }
 //    SwapBuffers(Platform.hDC);
 
-
     m_renderFbo->bind();
-    //context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
-
-    //m_mapsRenderer->render();
-
-    // We need to flush the contents to the FBO before posting
-    // the texture to the other thread, otherwise, we might
-    // get unexpected results.
-    context->functions()->glFlush();
-
-    m_renderFbo->bindDefault();
-    qSwap(m_renderFbo, m_displayFbo);
-
-    Q_EMIT textureReady(m_displayFbo->texture(), m_size);
-
 }
 #endif
 
@@ -518,6 +469,7 @@ void RenderThread::setWidth(qreal width)
         return;
 
     m_size.setWidth(width);
+    m_mapsRenderer->setScreenSize(m_size);
     Q_EMIT widthChanged(width);
 }
 
@@ -527,6 +479,7 @@ void RenderThread::setHeight(qreal height)
         return;
 
     m_size.setHeight(height);
+    m_mapsRenderer->setScreenSize(m_size);
     Q_EMIT heightChanged(height);
 }
 

@@ -21,6 +21,7 @@ public:
     void setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData);
     void setMatrix( const QMatrix4x4 &mat );
     void reload();
+    void setScreenSize(const QSizeF &size);
 private:
     QMatrix4x4   m_matrix;
 
@@ -34,10 +35,15 @@ private:
     int vertexAttr1;
     int normalAttr1;
     int colorAttr1;
-    int matrixUniform1;
+    int matrixUniformModelView;
+    int matrixUniformProj;
+    int matrixUniformProjInv;
+    int matrixUniformModelViewNormal;
+    int screenSizeUniform;
 
     bool m_initialized;
     upns::upnsSharedPointer<upns::AbstractEntityData> m_entitydata;
+    QSizeF m_screenSize;
 };
 
 #endif

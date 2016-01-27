@@ -62,8 +62,10 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 
 set(DataDir ${PROJECT_SOURCE_DIR}/data)
-file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
+
+set(ResourceDir ${PROJECT_SOURCE_DIR}/resources)
+file(GLOB_RECURSE Resources_All ${ResourceDir}/*)
 
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
@@ -115,8 +117,10 @@ link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
 #    cd build && make install
 #)
 
-# make data visible in qtcreator
-add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})
+# Note: QtCreator crashes when text is searched and it starts to search in Gigabytes of Pointclouds
+# make data and resources visible in qtcreator
+#add_custom_target(dataFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})
+add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add resources to qt project. nop" SOURCES ${Resources_All})
 
 #target_link_libraries(${PROJECT_NAME} )
 
