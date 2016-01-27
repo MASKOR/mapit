@@ -212,7 +212,8 @@ RenderThread::RenderThread(const QSize &size)
     , m_mirrorTexture(nullptr)
     , m_mirrorFBO( 0 )
     #endif
-    , m_vrmode( false )
+    , m_vrmode( false ),
+      m_running( false )
 {
 #ifdef VRMODE
     m_eyeRenderTexture[0] = nullptr;
@@ -282,6 +283,7 @@ void RenderThread::renderNextNonVR()
     {
         m_mapsRenderer->setEntityData(entitydata()->getEntityData());
         m_mapsRenderer->initialize();
+        setRunning(true);
     }
     m_renderFbo->bind();
     context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
@@ -327,6 +329,7 @@ void RenderThread::renderNextVR()
     {
         m_mapsRenderer->setEntityData(entitydata()->getEntityData());
         m_mapsRenderer->initialize();
+        setRunning(true);
     }
 
 
@@ -428,16 +431,35 @@ void RenderThread::renderNextVR()
 
     QOpenGLFunctions_4_1_Core funcs;
     funcs.initializeOpenGLFunctions();
-    // Blit mirror texture to back buffer
-    funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-    funcs.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderFbo->handle());
-    GLint w = m_mirrorTexture->OGL.Header.TextureSize.w;
-    GLint h = m_mirrorTexture->OGL.Header.TextureSize.h;
-    funcs.glBlitFramebuffer(0, 0, w, h,
-                      0, 0, w, h,
-                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    if(m_mirrorEnabled)
+    {
+        // Blit mirror texture to back buffer
+        GLint w;
+        GLint h;
+        if(m_mirrorDistorsion)
+        {
+            w = m_eyeRenderTexture[1]->texSize.w;
+            h = m_eyeRenderTexture[1]->texSize.h;
+        }
+        else if(m_mirrorRightEye)
+        {
+            w = m_eyeRenderTexture[0]->texSize.w;
+            h = m_eyeRenderTexture[0]->texSize.h;
+        }
+        else
+        {
+            w = m_mirrorTexture->OGL.Header.TextureSize.w;
+            h = m_mirrorTexture->OGL.Header.TextureSize.h;
+        }
+        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
 
+
+        funcs.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderFbo->handle());
+        funcs.glBlitFramebuffer(0, 0, w, h,
+                          0, 0, w, h,
+                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    }
 //    SwapBuffers(Platform.hDC);
 
 
@@ -516,12 +538,82 @@ void RenderThread::setEntitydata(QmlEntitydata *entitydata)
     Q_EMIT entitydataChanged(entitydata);
 }
 
+void RenderThread::setMirrorEnabled(bool mirrorEnabled)
+{
+    if (m_mirrorEnabled == mirrorEnabled)
+        return;
+
+    m_mirrorEnabled = mirrorEnabled;
+    Q_EMIT mirrorEnabledChanged(mirrorEnabled);
+}
+
+void RenderThread::setMirrorDistorsion(bool mirrorDistorsion)
+{
+    if (m_mirrorDistorsion == mirrorDistorsion)
+        return;
+
+    m_mirrorDistorsion = mirrorDistorsion;
+    if(m_mirrorDistorsion)
+    {
+        QOpenGLFunctions_4_1_Core funcs;
+        funcs.initializeOpenGLFunctions();
+        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+        funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
+        funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    }
+    Q_EMIT mirrorDistorsionChanged(mirrorDistorsion);
+}
+
+void RenderThread::setMirrorRightEye(bool mirrorRightEye)
+{
+    if (m_mirrorRightEye == mirrorRightEye)
+        return;
+
+    m_mirrorRightEye = mirrorRightEye;
+    if(!m_mirrorDistorsion)
+    {
+//        if(m_mirrorRightEye)
+//        {
+//            QOpenGLFunctions_4_1_Core funcs;
+//            funcs.initializeOpenGLFunctions();
+//            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+//            funcs.glGenFramebuffers(1, &m_mirrorFBO);
+//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+//            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[1]->texId, 0);
+//            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+//        }
+//        else
+//        {
+//            QOpenGLFunctions_4_1_Core funcs;
+//            funcs.initializeOpenGLFunctions();
+//            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+//            funcs.glGenFramebuffers(1, &m_mirrorFBO);
+//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+//            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[0]->texId, 0);
+//            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+//        }
+    }
+    Q_EMIT mirrorRightEyeChanged(mirrorRightEye);
+}
+
+void RenderThread::setRunning(bool running)
+{
+    if (m_running == running)
+        return;
+
+    m_running = running;
+    Q_EMIT runningChanged(running);
+}
+
 void RenderThread::setHeadOrientation(QMatrix4x4 headOrientation)
 {
-//    if (m_headOrientation == headOrientation)
-//        return;
+    //    if (m_headOrientation == headOrientation)
+    //        return;
 
-//    m_headOrientation = headOrientation;
+    //    m_headOrientation = headOrientation;
     Q_EMIT headOrientationChanged(headOrientation);
 }
 

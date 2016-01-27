@@ -18,6 +18,12 @@
 #include <pcl/point_types.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/search/kdtree.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/octree/octree_pointcloud_pointvector.h>
+#include <pcl/octree/octree_pointcloud.h>
+#include <math.h>
+#include <pcl/octree/octree_impl.h>
+#include <QDir>
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -49,37 +55,27 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y
 }
 int main(int argc, char *argv[])
 {
+//    std::string prefix = "data/fh/";
+//    const char* files[]={"000000.pcd", "000001.pcd", "000002.pcd", "000003.pcd", "000004.pcd", "000005.pcd",
+//                       "000006.pcd", "000007.pcd", "000008.pcd", "000009.pcd", "000010.pcd", "000011.pcd"};
 //    pcl::PCLPointCloud2 pc2;
 //    pcl::PCDReader reader;
-//    if ( reader.read("data/fh/000000.pcd", pc2) < 0 )
-//    {
-//        log_error("Couldn't read file0");
-//        return 1;
-//    }
 //    pcl::PointCloud<pcl::PointXYZRGB> c1all;
 //    pcl::PointCloud<pcl::PointXYZRGB> c1;
-//    if ( reader.read("data/fh/000001.pcd", pc2) < 0 )
+//    for(int i=0 ; i<sizeof(files)/sizeof(files[0]) ; ++i)
 //    {
-//        log_error("Couldn't read file1");
-//        return 1;
+//        if ( reader.read(prefix + files[i], pc2) < 0 )
+//        {
+//            log_error("Couldn't read file0");
+//            return 1;
+//        }
+//        pcl::fromPCLPointCloud2(pc2, c1);
+//        c1all += c1;
+//        std::cout << files[i] << " added." << std::endl;
 //    }
-//    pcl::fromPCLPointCloud2(pc2, c1all);
-//    if ( reader.read("data/fh/000002.pcd", pc2) < 0 )
-//    {
-//        log_error("Couldn't read file2");
-//        return 1;
-//    }
-//    pcl::fromPCLPointCloud2(pc2, c1);
-//    c1all += c1;
-//    if ( reader.read("data/fh/000003.pcd", pc2) < 0 )
-//    {
-//        log_error("Couldn't read file3");
-//        return 1;
-//    }
-//    pcl::fromPCLPointCloud2(pc2, c1);
-//    c1all += c1;
+
 //    pcl::PCDWriter writer;
-//    if ( writer.write(std::string("data/fh/all.pcd"), c1all) < 0 )
+//    if ( writer.writeBinary(std::string("data/fh/all2.pcd"), c1all) < 0 )
 //    {
 //        std::cout << "temp";
 //    }
@@ -103,25 +99,91 @@ int main(int argc, char *argv[])
 //    convert(folder + "Aligned_FARO_Scan_087.ply",-7.15781, -74.05119, 157.84985);
 //    convert(folder + "Aligned_FARO_Scan_088.ply",-3.37326, -104.19804, 158.26798);
 //    convert(folder + "Aligned_FARO_Scan_089.ply",15.84941, -116.74751, 158.86091);
-
-//    std::string fn("data/fh.pcd");
+//////////
+//    std::string fn("data/fh/all2.pcd");
 //    pcl::PointCloud<pcl::PointXYZRGB>::Ptr c1(new pcl::PointCloud<pcl::PointXYZRGB>);
 //    pcl::PCLPointCloud2 pc2;
 //    pcl::PCDReader reader;
+//    std::cout << "start reading " << fn << std::endl;
 //    reader.read(fn, pc2);
+//    std::cout << "read " << std::endl;
 //    pcl::fromPCLPointCloud2(pc2, *c1);
+//    std::cout << "pc1 " << std::endl;
 //    Eigen::Vector4f centroid;
 //    pcl::compute3DCentroid (*c1, centroid);
 //    std::vector<pcl::PointXYZRGB, Eigen::aligned_allocator<pcl::PointXYZRGB> >::iterator iter(c1->points.begin());
+//    pcl::PointCloud<pcl::PointXYZRGB>::Ptr c2(new pcl::PointCloud<pcl::PointXYZRGB>);
+//    float dist=0;
 //    while(iter != c1->points.end())
 //    {
-//        iter->x -= centroid[0];
-//        iter->y -= centroid[1];
-//        iter->z -= centroid[2];
+//        pcl::PointXYZRGB p;
+//        p.x = iter->x - centroid[0];
+//        p.y = iter->z - centroid[2]; //swap y z
+//        p.z = iter->y - centroid[1];
+//        float newdist = sqrt(p.x*p.x+p.y*p.y+p.z*p.z);
+//        if(newdist > 200.0f)
+//        {
+//            ++iter;
+//            continue;
+//        }
+//        dist = std::max(dist, newdist);
+//        p.rgba = iter->rgba;
+//        c2->push_back(p);
 //        ++iter;
 //    }
+//    std::cout << "dist: " << dist;
+//    std::cout << "moved " << std::endl;
+//    pcl::PCDWriter writer;
+//    if ( writer.writeBinary(std::string(fn + "_moved_swap"), *c1) < 0 )
+//    {
+//        std::cout << "temp";
+//    }
+//    std::cout << "written " << std::endl;
+
+//    pcl::PointCloud<pcl::PointXYZRGB>::Ptr filtered(new pcl::PointCloud<pcl::PointXYZRGB>);
+//    pcl::PointCloud<pcl::PointXYZRGB>::Ptr filtered_part(new pcl::PointCloud<pcl::PointXYZRGB>);
+
+//    pcl::octree::OctreePointCloudPointVector<pcl::PointXYZRGB> pOctree (2.0);
+//    pOctree.setInputCloud(c1);
+//    pOctree.addPointsFromInputCloud();
+
+//    pcl::octree::OctreePointCloud< pcl::PointXYZRGB >::LeafNodeIterator pOctreeIterator(&pOctree);
+
+//    pcl::IndicesPtr indexVector (new std::vector<int>);
+
+//    while (pOctreeIterator != pOctree.leaf_end())
+//    {
+//        std::cout << ".";
+//        std::cout.flush();
+//        indexVector->clear();
+//        pOctreeIterator.getLeafContainer().getPointIndices(*indexVector);
+//        //pOctreeIterator.getData(*indexVector);
+
+//        pcl::VoxelGrid<pcl::PointXYZRGB> pGrid;
+//        //pGrid.setLeafSize(0.007, 0.007, 0.007); // 0.007 is possible and leads to 1.8gig cache file. When loaded, right eye blinks
+//        pGrid.setLeafSize(0.02, 0.02, 0.02);
+
+//        pGrid.setInputCloud(c1);
+//        pGrid.setIndices(indexVector);
+
+//        pGrid.filter(*filtered_part);
+//        *filtered += *filtered_part;
+//        ++pOctreeIterator;
+//    }
+
+////    pcl::VoxelGrid<pcl::PointXYZRGB> sor;
+////    sor.setInputCloud (c1);
+////    sor.setLeafSize (0.20f, 0.20f, 0.20f);
+////    sor.filter (*filtered);
+
+//    std::cout << "voxed" << std::endl;
+//    if ( writer.writeBinary(std::string(fn + "_voxed20"), *filtered) < 0 )
+//    {
+//        std::cout << "temp";
+//    }
+//    std::cout << "2" << std::endl;
 //    pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> ne;
-//    ne.setInputCloud (c1);
+//    ne.setInputCloud (filtered);
 
 //    // Create an empty kdtree representation, and pass it to the normal estimation object.
 //    // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
@@ -132,31 +194,29 @@ int main(int argc, char *argv[])
 //    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
 
 //    // Use all neighbors in a sphere of radius 3cm
-//    ne.setRadiusSearch (0.03);
+//    ne.setRadiusSearch (0.01);
 
 //    // Compute the features
 //    ne.compute (*cloud_normals);
+//    std::cout << "got normals " << std::endl;
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> out;
-//    pcl::concatenateFields (*c1, *cloud_normals, out);
-//    pcl::PCDWriter writer;
-//    if ( writer.write(std::string(fn + "_moved"), out) < 0 )
+//    pcl::concatenateFields (*filtered, *cloud_normals, out);
+//    std::cout << "concated " << std::endl;
+//    if ( writer.writeBinary(std::string(fn + "_normed20"), out) < 0 )
 //    {
 //        std::cout << "temp";
 //    }
-//    std::cout << "done";
+//    std::cout << "done writing 1.";
 
-//    pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
-//    sor.setInputCloud (cloud);
-//    sor.setLeafSize (0.01f, 0.01f, 0.01f);
-//    sor.filter (*cloud_filtered);
-
-//    pcl::PLYWriter writer;
-//    if ( writer.write(folder + "all_pointclouds.ply", all) < 0 )
+//    pcl::PCDWriter writer2;
+//    if ( writer2.writeBinary("data/fh/all_pointclouds20.pcd", out) < 0 )
 //    {
 //        std::cout << "temp";
 //    }
 
-    log4cplus::PropertyConfigurator config("logging.properties");
+//    std::cout << "fin";
+//    return 0;
+    log4cplus::PropertyConfigurator config((QDir::currentPath() + "/logging.properties").toStdString().c_str());
     config.configure();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);

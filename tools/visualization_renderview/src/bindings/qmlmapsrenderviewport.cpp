@@ -18,7 +18,8 @@ QList<QThread *> QmlMapsRenderViewport::threads;
 
 QmlMapsRenderViewport::QmlMapsRenderViewport()
     : m_renderThread(0),
-      m_connectionToEntityData(NULL)
+      m_connectionToEntityData(NULL),
+      m_running( false )
 {
     setFlag(ItemHasContents, true);
     m_renderThread = new RenderThread(QSize(width(), height()));
@@ -27,9 +28,13 @@ QmlMapsRenderViewport::QmlMapsRenderViewport()
     connect(this, &QQuickItem::heightChanged, m_renderThread, [&](){m_renderThread->setHeight(height());});
     connect(this, &QmlMapsRenderViewport::needsReload, m_renderThread, &RenderThread::reload);
     connect(this, &QmlMapsRenderViewport::matrixChanged, m_renderThread, &RenderThread::setMatrix);
+    connect(this, &QmlMapsRenderViewport::mirrorEnabledChanged, m_renderThread, &RenderThread::setMirrorEnabled);
+    connect(this, &QmlMapsRenderViewport::mirrorDistorsionChanged, m_renderThread, &RenderThread::setMirrorDistorsion);
+    connect(this, &QmlMapsRenderViewport::mirrorRightEyeChanged, m_renderThread, &RenderThread::setMirrorRightEye);
     connect(m_renderThread, &RenderThread::headDirectionChanged, this, &QmlMapsRenderViewport::setHeadDirection);
     connect(m_renderThread, &RenderThread::headMatrixChanged, this, &QmlMapsRenderViewport::setHeadMatrix);
     connect(m_renderThread, &RenderThread::headOrientationChanged, this, &QmlMapsRenderViewport::setHeadOrientation);
+    connect(m_renderThread, &RenderThread::runningChanged, this, &QmlMapsRenderViewport::setRunning);
 }
 
 void QmlMapsRenderViewport::ready()
@@ -169,6 +174,15 @@ void QmlMapsRenderViewport::setHeadMatrix(QMatrix4x4 headMatrix)
 
     m_headMatrix = headMatrix;
     Q_EMIT headMatrixChanged(headMatrix);
+}
+
+void QmlMapsRenderViewport::setRunning(bool running)
+{
+    if (m_running == running)
+        return;
+
+    m_running = running;
+    Q_EMIT runningChanged(running);
 }
 
 #include "qmlmapsrenderviewport.moc"

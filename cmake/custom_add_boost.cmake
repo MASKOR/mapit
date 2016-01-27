@@ -22,6 +22,23 @@
 
 macro(custom_set_vars_boost)
     if (WIN32)
+        set(BOOST_CUSTOM_PATH "E:\devel\boost_1_56_0\lib64-msvc-12.0" CACHE PATH "let it point to all the libs")
+        if(BOOST_CUSTOM_PATH)
+            set(Boost_CHRONO_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_chrono-vc120-mt-gd-1_56.lib")
+            set(Boost_CHRONO_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_chrono-vc120-mt-1_56.lib")
+            set(Boost_DATE_TIME_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_date_time-vc120-mt-gd-1_56.lib")
+            set(Boost_DATE_TIME_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_date_time-vc120-mt-1_56.lib")
+            set(Boost_FILESYSTEM_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_filesystem-vc120-mt-gd-1_56.lib")
+            set(Boost_FILESYSTEM_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_filesystem-vc120-mt-1_56.lib")
+            set(Boost_IOSTREAMS_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_iostreams-vc120-mt-gd-1_56.lib")
+            set(Boost_IOSTREAMS_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_iostreams-vc120-mt-1_56.lib")
+            set(Boost_SERIALIZATION_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_serialization-vc120-mt-gd-1_56.lib")
+            set(Boost_SERIALIZATION_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_serialization-vc120-mt-1_56.lib")
+            set(Boost_SYSTEM_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_system-vc120-mt-gd-1_56.lib")
+            set(Boost_SYSTEM_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_system-vc120-mt-1_56.lib")
+            set(Boost_THREAD_LIBRARY_DEBUG "${BOOST_CUSTOM_PATH}/libboost_thread-vc120-mt-gd-1_56.lib")
+            set(Boost_THREAD_LIBRARY_RELEASE "${BOOST_CUSTOM_PATH}/libboost_thread-vc120-mt-1_56.lib")
+        endif(BOOST_CUSTOM_PATH)
 
     else()
 

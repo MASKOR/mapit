@@ -16,6 +16,10 @@ class QmlMapsRenderViewport : public QQuickItem
     Q_PROPERTY(QVector3D headDirection READ headDirection NOTIFY headDirectionChanged)
     Q_PROPERTY(QMatrix4x4 headMatrix READ headMatrix NOTIFY headMatrixChanged)
     Q_PROPERTY(QMatrix4x4 headOrientation READ headOrientation NOTIFY headOrientationChanged)
+    Q_PROPERTY(bool mirrorEnabled READ mirrorEnabled WRITE setMirrorEnabled NOTIFY mirrorEnabledChanged)
+    Q_PROPERTY(bool mirrorDistorsion READ mirrorDistorsion WRITE setMirrorDistorsion NOTIFY mirrorDistorsionChanged)
+    Q_PROPERTY(bool mirrorRightEye READ mirrorRightEye WRITE setMirrorRightEye NOTIFY mirrorRightEyeChanged)
+    Q_PROPERTY(bool running READ running NOTIFY runningChanged)
 
 public:
     QmlMapsRenderViewport();
@@ -52,6 +56,26 @@ public:
         return m_headOrientation;
     }
 
+    bool mirrorEnabled() const
+    {
+        return m_mirrorEnabled;
+    }
+
+    bool mirrorDistorsion() const
+    {
+        return m_mirrorDistorsion;
+    }
+
+    bool mirrorRightEye() const
+    {
+        return m_mirrorRightEye;
+    }
+
+    bool running() const
+    {
+        return m_running;
+    }
+
 public Q_SLOTS:
     void ready();
     void reload();
@@ -69,6 +93,34 @@ public Q_SLOTS:
 
     void setVrmode(bool vrmode);
 
+    void setMirrorEnabled(bool mirrorEnabled)
+    {
+        if (m_mirrorEnabled == mirrorEnabled)
+            return;
+
+        m_mirrorEnabled = mirrorEnabled;
+        Q_EMIT mirrorEnabledChanged(mirrorEnabled);
+    }
+
+    void setMirrorDistorsion(bool mirrorDistorsion)
+    {
+        if (m_mirrorDistorsion == mirrorDistorsion)
+            return;
+
+        m_mirrorDistorsion = mirrorDistorsion;
+        Q_EMIT mirrorDistorsionChanged(mirrorDistorsion);
+    }
+
+    void setMirrorRightEye(bool mirrorRightEye)
+    {
+        if (m_mirrorRightEye == mirrorRightEye)
+            return;
+
+        m_mirrorRightEye = mirrorRightEye;
+        Q_EMIT mirrorRightEyeChanged(mirrorRightEye);
+    }
+
+
 Q_SIGNALS:
     void matrixChanged(QMatrix4x4 matrix);
 
@@ -82,6 +134,14 @@ Q_SIGNALS:
     void headMatrixChanged(QMatrix4x4 headMatrix);
     void headOrientationChanged(QMatrix4x4 headOrientation);
 
+    void mirrorEnabledChanged(bool mirrorEnabled);
+
+    void mirrorDistorsionChanged(bool mirrorDistorsion);
+
+    void mirrorRightEyeChanged(bool mirrorRightEye);
+
+    void runningChanged(bool running);
+
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
 
@@ -89,6 +149,7 @@ private Q_SLOTS:
     void setHeadDirection(QVector3D headDirection);
     void setHeadOrientation(QMatrix4x4 headOrientation);
     void setHeadMatrix(QMatrix4x4 headMatrix);
+    void setRunning(bool running);
 
 private:
     RenderThread *m_renderThread;
@@ -99,6 +160,10 @@ private:
     QVector3D m_headDirection;
     QMatrix4x4 m_headMatrix;
     QMatrix4x4 m_headOrientation;
+    bool m_mirrorEnabled;
+    bool m_mirrorDistorsion;
+    bool m_mirrorRightEye;
+    bool m_running;
 };
 
 #endif // MapsRenderer_H

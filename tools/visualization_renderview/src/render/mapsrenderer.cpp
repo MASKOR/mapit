@@ -1,6 +1,7 @@
 #include "mapsrenderer.h"
 
 #include <QtMath>
+#include <QOpenGLFunctions_4_1_Core>
 #include "upns_globals.h"
 #include "libs/upns_interface/services.pb.h"
 #include "libs/mapmanager/include/versioning/checkout.h"
@@ -40,6 +41,10 @@ void MapsRenderer::initialize()
     initializeOpenGLFunctions();
 
     glClearColor(1.0f, 0.1f, 0.2f, 1.0f);
+
+    QOpenGLFunctions_4_1_Core funcs;
+    funcs.initializeOpenGLFunctions();
+    funcs.glPointSize(4.f);
 
     QOpenGLShader *vshader1 = new QOpenGLShader(QOpenGLShader::Vertex, &program1);
     const char *vsrc1 =
