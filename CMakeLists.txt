@@ -43,6 +43,9 @@ include(custom_add_pcl)
 include(custom_add_assimp)
 include(custom_add_openvdb)
 
+custom_set_vars_boost()
+find_package(Boost COMPONENTS filesystem system date_time serialization)
+
 set(CMAKE_AUTOMOC ON)
 
 set(UPNS_QTVERSION)

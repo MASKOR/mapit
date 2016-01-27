@@ -8,19 +8,11 @@ find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
 
-if(NOT (DISABLE_PCL))
+custom_set_vars_boost()
 find_package(PCL REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-else( NOT (DISABLE_PCL))
-#find_package(Eigen3 REQUIRED)
-#include_directories(${EIGEN3_INCLUDE_DIR})
-#set(PCL_CUSTOM_ROOT ${UPNS_ROOT_DIR}/externals/pcl-custom/include)
-#include_directories(${PCL_CUSTOM_ROOT})
-#FILE(GLOB PCL_CUSTOM_SRC ${PCL_CUSTOM_ROOT}/impl/* ${PCL_CUSTOM_ROOT}/common/impl/* ${PCL_CUSTOM_ROOT}/io/impl/*)
-#set(PCL_CUSTOM_LIB ${Boost_SYSTEM_LIBRARY})
-endif (NOT (DISABLE_PCL))
 
 include_directories(${YAML_CPP_INCLUDE})
 use_protobuf()
@@ -64,15 +56,10 @@ FOREACH(subdir ${SUBDIRS})
   SET(AllUnitTestCPP ${AllUnitTestCPP} ${CurrentUnitTestCPP})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} ${PCL_CUSTOM_SRC})
-  message("TODO:DEBUG:ALLBOOSTS " ${BOOST_LIBRARIES})
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES})
 
-  if(WIN32)
-    target_link_libraries(${subdir}
-      C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-      C:/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
-      C:/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
-  endif()
+  #custom_target_use_boost(${subdir})
+  find_package(Boost COMPONENTS filesystem system date_time)
 
   execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
@@ -100,11 +87,14 @@ FOREACH(subdir ${SUBDIRS})
 ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} ${PCL_CUSTOM_SRC} )
+
+#custom_target_use_boost(${subdir})
+find_package(Boost COMPONENTS filesystem system date_time)
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES})
-if(WIN32)
-target_link_libraries(TestAll
-    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-    C:/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
-    C:/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
-endif()
+#if(WIN32)
+#target_link_libraries(TestAll
+#    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
+#    C:/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
+#    C:/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
+#endif()
 add_test(TestAll ${EXECUTABLE_OUTPUT_PATH}/TestAll)
