@@ -201,7 +201,7 @@ ApplicationWindow {
             Text {
                 color: "white"
                 id: name
-                text: "Pos: " + drawingArea.torsoPos.x + ", " + drawingArea.torsoPos.y + ", " + drawingArea.torsoPos.z + ")"
+                text: "Pos: (" + drawingArea.torsoPos.x + ", " + drawingArea.torsoPos.y + ", " + drawingArea.torsoPos.z + ")"
             }
 
             property bool moveAlongHeadDirection: true // move where head shows or where torso shows?

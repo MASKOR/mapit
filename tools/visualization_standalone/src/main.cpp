@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 //    std::cout << "dist: " << dist;
 //    std::cout << "moved " << std::endl;
 //    pcl::PCDWriter writer;
-//    if ( writer.writeBinary(std::string(fn + "_moved_swap"), *c1) < 0 )
+//    if ( writer.writeBinary(std::string(fn + "_moved_swap"), *c2) < 0 )
 //    {
 //        std::cout << "temp";
 //    }
@@ -143,8 +143,8 @@ int main(int argc, char *argv[])
 //    pcl::PointCloud<pcl::PointXYZRGB>::Ptr filtered(new pcl::PointCloud<pcl::PointXYZRGB>);
 //    pcl::PointCloud<pcl::PointXYZRGB>::Ptr filtered_part(new pcl::PointCloud<pcl::PointXYZRGB>);
 
-//    pcl::octree::OctreePointCloudPointVector<pcl::PointXYZRGB> pOctree (2.0);
-//    pOctree.setInputCloud(c1);
+//    pcl::octree::OctreePointCloudPointVector<pcl::PointXYZRGB> pOctree (20.0);
+//    pOctree.setInputCloud(c2);
 //    pOctree.addPointsFromInputCloud();
 
 //    pcl::octree::OctreePointCloud< pcl::PointXYZRGB >::LeafNodeIterator pOctreeIterator(&pOctree);
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 //        //pGrid.setLeafSize(0.007, 0.007, 0.007); // 0.007 is possible and leads to 1.8gig cache file. When loaded, right eye blinks
 //        pGrid.setLeafSize(0.02, 0.02, 0.02);
 
-//        pGrid.setInputCloud(c1);
+//        pGrid.setInputCloud(c2);
 //        pGrid.setIndices(indexVector);
 
 //        pGrid.filter(*filtered_part);
@@ -216,6 +216,7 @@ int main(int argc, char *argv[])
 
 //    std::cout << "fin";
 //    return 0;
+
     log4cplus::PropertyConfigurator config((QDir::currentPath() + "/logging.properties").toStdString().c_str());
     config.configure();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
