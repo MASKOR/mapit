@@ -566,6 +566,7 @@ void RenderThread::setMirrorDistorsion(bool mirrorDistorsion)
         return;
 
     m_mirrorDistorsion = mirrorDistorsion;
+#ifdef VRMODE
     if(m_mirrorDistorsion)
     {
         QOpenGLFunctions_4_1_Core funcs;
@@ -575,6 +576,7 @@ void RenderThread::setMirrorDistorsion(bool mirrorDistorsion)
         funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
         funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     }
+#endif
     Q_EMIT mirrorDistorsionChanged(mirrorDistorsion);
 }
 
