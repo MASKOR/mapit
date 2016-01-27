@@ -174,8 +174,8 @@ ApplicationWindow {
             entitydata: EntityDataPointcloud2 {
                 //filename: "data/bunny.pcd"
                 //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
-                //filename: "data/fh/all.pcd"
-                filename: "data/fh/all_pointclouds20.pcd"
+                filename: "data/fh/000000.pcd"
+                //filename: "data/fh/all_pointclouds20.pcd"
             }
             vrmode: vrModeEnabled.checked
             mirrorEnabled: !vrMirrorOff.checked
@@ -230,7 +230,6 @@ ApplicationWindow {
             property var moveOrientation: moveAlongHeadDirection?rotationOrientation:torsoOrientation
 
             // output
-            // Note this is not solved with a binding to avoid stuttering. Only set once at end of calculation.
             matrix: torsoOrientation.times(torsoPositionMatrix);
 
             function move(side, up, forward) {
@@ -282,7 +281,7 @@ ApplicationWindow {
                 property real mx
                 property real my
                 onWheel: {
-                    drawingArea.move(0.0, 0.0, wheel.angleDelta.y*0.001);
+                    drawingArea.move(0.0, 0.0, wheel.angleDelta.y*0.1);
                 }
                 function pressedButtonsChanged() {
                     var leftButton = screenMouse.pressedButtons & Qt.LeftButton

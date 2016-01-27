@@ -288,7 +288,13 @@ void RenderThread::renderNextNonVR()
     m_renderFbo->bind();
     context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
     QMatrix4x4 mat;
-    m_mapsRenderer->render(mat, mat );
+    QMatrix4x4 view;
+    view.setToIdentity();
+    mat.perspective(45.0f, ((float)m_size.width())/(float)m_size.height(), 1.0, 1000.0 );
+    setHeadMatrix(view);
+    setHeadDirection(QVector3D(0.0,0.0,1.0));
+    setHeadOrientation(mat);
+    m_mapsRenderer->render(view, mat );
 
     // We need to flush the contents to the FBO before posting
     // the texture to the other thread, otherwise, we might
@@ -384,9 +390,12 @@ void RenderThread::renderNextVR()
 
             QMatrix4x4 qorientation(&finalRollPitchYaw.M[0][0]);//QQuaternion(orientation.w, orientation.x, orientation.y, orientation.z));
             QVector3D qdir(finalForward.x, finalForward.y, finalForward.z);
-            setHeadMatrix(qview);
-            setHeadDirection(qdir);
-            setHeadOrientation(qorientation);
+            if(eye == 1)
+            {
+                setHeadMatrix(qview);
+                setHeadDirection(qdir);
+                setHeadOrientation(qorientation);
+            }
             // Render world
             //roomScene->Render(view, proj);
             //context->functions()->glViewport(0, 0, m_size.width(), m_size.height());

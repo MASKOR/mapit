@@ -69,9 +69,9 @@ FOREACH(subdir ${SUBDIRS})
 
   if(WIN32)
     target_link_libraries(${subdir}
-      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
-      E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
+      C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
+      C:/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
+      C:/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
   endif()
 
   execute_process(
@@ -103,8 +103,8 @@ add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} ${PCL_CUST
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES})
 if(WIN32)
 target_link_libraries(TestAll
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
-    E:/devel/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
+    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
+    C:/boost_1_56_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-1_56.lib
+    C:/boost_1_56_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-1_56.lib)
 endif()
 add_test(TestAll ${EXECUTABLE_OUTPUT_PATH}/TestAll)

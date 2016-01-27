@@ -207,7 +207,6 @@ int main(int argc, char *argv[])
 //        std::cout << "temp";
 //    }
 //    std::cout << "done writing 1.";
-
 //    pcl::PCDWriter writer2;
 //    if ( writer2.writeBinary("data/fh/all_pointclouds20.pcd", out) < 0 )
 //    {
