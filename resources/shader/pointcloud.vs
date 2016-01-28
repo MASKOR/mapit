@@ -7,7 +7,8 @@ uniform mediump mat4 projectionmatrix;
 uniform mediump mat3 modelviewnormalmatrix;
 out mediump vec4 color_frag;
 out mediump vec3 viewnormal;
-const float pointSize = 128.0;
+out mediump float pointsize;
+const float pointSizeMultiplier = 128.0;
 /*
 out float a, b, c, d, e, f;
 function projectSphere( vec3 o, float r, float fov,
@@ -38,5 +39,6 @@ void main(void)
     viewnormal = modelviewnormalmatrix * normal;
     gl_Position = projectionmatrix * viewSpacePos;
     float dist = length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
-    gl_PointSize = pointSize / dist;
+    pointsize = pointSizeMultiplier / dist;
+    gl_PointSize = pointsize;
 }

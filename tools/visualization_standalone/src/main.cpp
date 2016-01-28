@@ -100,26 +100,32 @@ int main(int argc, char *argv[])
 //    convert(folder + "Aligned_FARO_Scan_088.ply",-3.37326, -104.19804, 158.26798);
 //    convert(folder + "Aligned_FARO_Scan_089.ply",15.84941, -116.74751, 158.86091);
 //////////
-//    std::string fn("data/fh/all2.pcd");
-//    pcl::PointCloud<pcl::PointXYZRGB>::Ptr c1(new pcl::PointCloud<pcl::PointXYZRGB>);
-//    pcl::PCLPointCloud2 pc2;
-//    pcl::PCDReader reader;
-//    std::cout << "start reading " << fn << std::endl;
-//    reader.read(fn, pc2);
-//    std::cout << "read " << std::endl;
-//    pcl::fromPCLPointCloud2(pc2, *c1);
-//    std::cout << "pc1 " << std::endl;
-//    Eigen::Vector4f centroid;
-//    pcl::compute3DCentroid (*c1, centroid);
-//    std::vector<pcl::PointXYZRGB, Eigen::aligned_allocator<pcl::PointXYZRGB> >::iterator iter(c1->points.begin());
-//    pcl::PointCloud<pcl::PointXYZRGB>::Ptr c2(new pcl::PointCloud<pcl::PointXYZRGB>);
-//    float dist=0;
-//    while(iter != c1->points.end())
-//    {
-//        pcl::PointXYZRGB p;
-//        p.x = iter->x - centroid[0];
-//        p.y = iter->z - centroid[2]; //swap y z
-//        p.z = iter->y - centroid[1];
+    std::string fn("data/fh/all_pointclouds20_norm.pcd");
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr c1(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+    pcl::PCLPointCloud2 pc2;
+    pcl::PCDReader reader;
+    std::cout << "start reading " << fn << std::endl;
+    reader.read(fn, pc2);
+    std::cout << "read " << std::endl;
+    pcl::fromPCLPointCloud2(pc2, *c1);
+    std::cout << "pc1 " << std::endl;
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid (*c1, centroid);
+    std::vector<pcl::PointXYZRGBNormal, Eigen::aligned_allocator<pcl::PointXYZRGBNormal> >::iterator iter(c1->points.begin());
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr c2(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+    float dist=0;
+    int max = 150000;
+    while(iter != c1->points.end())
+    {
+        //max--;
+        if(max == 0) break;
+        pcl::PointXYZRGBNormal p;
+        p.x = iter->x - centroid[0];
+        p.y =  iter->z - centroid[2]; // swap y z
+        p.z =  iter->y - centroid[1];
+        p.normal_x = iter->normal_x;
+        p.normal_y = iter->normal_z;
+        p.normal_z = iter->normal_y;
 //        float newdist = sqrt(p.x*p.x+p.y*p.y+p.z*p.z);
 //        if(newdist > 200.0f)
 //        {
@@ -127,18 +133,18 @@ int main(int argc, char *argv[])
 //            continue;
 //        }
 //        dist = std::max(dist, newdist);
-//        p.rgba = iter->rgba;
-//        c2->push_back(p);
-//        ++iter;
-//    }
-//    std::cout << "dist: " << dist;
-//    std::cout << "moved " << std::endl;
-//    pcl::PCDWriter writer;
-//    if ( writer.writeBinary(std::string(fn + "_moved_swap"), *c2) < 0 )
-//    {
-//        std::cout << "temp";
-//    }
-//    std::cout << "written " << std::endl;
+        p.rgba = iter->rgba;
+        c2->push_back(p);
+        ++iter;
+    }
+    std::cout << "dist: " << dist;
+    std::cout << "moved " << std::endl;
+    pcl::PCDWriter writer;
+    if ( writer.writeBinary(std::string(fn + "_flipped"), *c2) < 0 )
+    {
+        std::cout << "temp";
+    }
+    std::cout << "written " << std::endl;
 
 //    pcl::PointCloud<pcl::PointXYZRGB>::Ptr filtered(new pcl::PointCloud<pcl::PointXYZRGB>);
 //    pcl::PointCloud<pcl::PointXYZRGB>::Ptr filtered_part(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -194,7 +200,7 @@ int main(int argc, char *argv[])
 //    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
 
 //    // Use all neighbors in a sphere of radius 3cm
-//    ne.setRadiusSearch (0.01);
+//    ne.setRadiusSearch (1.1);
 
 //    // Compute the features
 //    ne.compute (*cloud_normals);
@@ -202,13 +208,8 @@ int main(int argc, char *argv[])
 //    pcl::PointCloud<pcl::PointXYZRGBNormal> out;
 //    pcl::concatenateFields (*filtered, *cloud_normals, out);
 //    std::cout << "concated " << std::endl;
-//    if ( writer.writeBinary(std::string(fn + "_normed20"), out) < 0 )
-//    {
-//        std::cout << "temp";
-//    }
 //    std::cout << "done writing 1.";
-//    pcl::PCDWriter writer2;
-//    if ( writer2.writeBinary("data/fh/all_pointclouds20.pcd", out) < 0 )
+//    if ( writer.writeBinary("data/fh/all_pointclouds20_norm2.pcd", out) < 0 )
 //    {
 //        std::cout << "temp";
 //    }

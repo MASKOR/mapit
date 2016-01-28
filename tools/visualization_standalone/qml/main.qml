@@ -174,8 +174,8 @@ ApplicationWindow {
             entitydata: EntityDataPointcloud2 {
                 //filename: "data/bunny.pcd"
                 //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
-                filename: "data/fh/000000.pcd"
-                //filename: "data/fh/all_pointclouds20.pcd"
+                //filename: "data/fh/000000.pcd"
+                filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
             }
             vrmode: vrModeEnabled.checked
             mirrorEnabled: !vrMirrorOff.checked

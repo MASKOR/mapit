@@ -1,6 +1,7 @@
 #version 150
 in mediump vec4 color_frag;
 in mediump vec3 viewnormal;
+in mediump float pointsize;
 out vec4 fragColor;
 uniform mediump mat4 modelviewmatrix;
 uniform mediump mat4 projectioninvmatrix;
@@ -12,8 +13,14 @@ void main(void)
 ///        / (viewport.zw) - 1.0, -1.0, 1.0);
 ///    vec4 p_eye = projection_matrix_inv * p_ndc;
 ///    vec3 qn = p_eye.xyz / p_eye.w;
-    float dist = distance(gl_PointCoord, vec2(0.5));
+    vec3 proju = cross(viewnormal, vec3(0.0,0.0,1.0)); // on screen TODO: To camera
+    vec3 projv = cross(viewnormal, proju); // most compressed axis
+    vec2 coord = gl_PointCoord - vec2(0.5);
+    coord = proju.xy*coord.x+projv.xy*coord.y;
+    coord *= coord;
+    float dist = dot(coord, vec2(4.0));
+    //float dist = distance(gl_PointCoord, vec2(0.5));
     if(dist > 0.5) discard;
     //float impl = res.a*p.x*p.x + res.b*p.y*p.y + res.c*p.x*p.y + res.d*p.x + res.e*p.y + res.f;
-    fragColor = color_frag;
+    fragColor = vec4(viewnormal, 1.0);//color_frag;
 }
