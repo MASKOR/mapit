@@ -279,7 +279,7 @@ ApplicationWindow {
                 property real mx
                 property real my
                 onWheel: {
-                    drawingArea.move(0.0, 0.0, wheel.angleDelta.y*0.1);
+                    drawingArea.move(0.0, 0.0, wheel.angleDelta.y*0.01);
                 }
                 function pressedButtonsChanged() {
                     var leftButton = screenMouse.pressedButtons & Qt.LeftButton
