@@ -1,7 +1,6 @@
-#version 150
+#version 400
 in mediump vec4 color_frag;
 in mediump vec3 viewnormal;
-in mediump float pointsize;
 in mediump vec3 viewPoint;
 out vec4 fragColor;
 uniform mediump mat4 modelviewmatrix;
@@ -36,7 +35,7 @@ void main(void)
     pos = pos3d.xy;
     pos *= pos;
 
-    float radSmall = normal.z/length(normal.xy);
+    float radSmall = min(1.0,normal.z/length(normal.xy));
 
     float dist = pos.x + pos.y*(1.0/(radSmall*radSmall));
     //float innerDist = dot(pos, 1.0 / (ab * ab));
