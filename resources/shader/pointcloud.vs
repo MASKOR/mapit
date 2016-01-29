@@ -9,6 +9,7 @@ out mediump vec4 color_frag;
 out mediump vec3 viewnormal;
 out mediump vec3 viewPoint;
 uniform mediump float pointsize;
+uniform mediump float distanceDetail;
 //in int gl_VertexID;
 void main(void)
 {
@@ -22,7 +23,7 @@ void main(void)
     float dist = length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
 
     float d3 = max(0.0, dist-20.0);
-    int nthPoint = max(1,int(pow(d3,2.0)*0.02));
+    int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));
     float finalSize = mix(0.0, pointsize / dist, float(mod(gl_VertexID, nthPoint)==0));
     gl_PointSize = finalSize;
 }

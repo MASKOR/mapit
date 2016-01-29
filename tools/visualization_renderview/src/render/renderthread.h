@@ -31,6 +31,7 @@ class RenderThread : public QThread
     Q_PROPERTY(bool mirrorDistorsion READ mirrorDistorsion WRITE setMirrorDistorsion NOTIFY mirrorDistorsionChanged)
     Q_PROPERTY(bool mirrorRightEye READ mirrorRightEye WRITE setMirrorRightEye NOTIFY mirrorRightEyeChanged)
     Q_PROPERTY(qreal pointSize READ pointSize WRITE setPointSize NOTIFY pointSizeChanged)
+    Q_PROPERTY(qreal distanceDetail READ distanceDetail WRITE setDistanceDetail NOTIFY distanceDetailChanged)
     Q_PROPERTY(QString filename READ filename WRITE setFilename NOTIFY filenameChanged)
 //    Q_PROPERTY(QMatrix4x4 headMatrix READ headMatrix WRITE setHeadMatrix NOTIFY headMatrixChanged)
 //    Q_PROPERTY(QVector3D headDirection READ headDirection WRITE setHeadDirection NOTIFY headDirectionChanged)
@@ -101,6 +102,11 @@ public:
         return m_filename;
     }
 
+    qreal distanceDetail() const
+    {
+        return m_distanceDetail;
+    }
+
 public Q_SLOTS:
     void onMessageLogged( QOpenGLDebugMessage message);
     void reload();
@@ -139,7 +145,11 @@ public Q_SLOTS:
 
     void setFilename(QString filename);
 
+    void setDistanceDetail(qreal distanceDetail);
+
 Q_SIGNALS:
+    void updated();
+
     void textureReady(int id, const QSize &size);
 
     void widthChanged(qreal width);
@@ -165,6 +175,8 @@ Q_SIGNALS:
     void pointSizeChanged(qreal pointSize);
 
     void filenameChanged(QString filename);
+
+    void distanceDetailChanged(qreal distanceDetail);
 
 private Q_SLOTS:
     void setHeadOrientation(QMatrix4x4 headOrientation);
@@ -203,6 +215,7 @@ void initVR();
     qreal m_pointSize;
     QString m_filename;
     QOpenGLDebugLogger m_logger;
+    qreal m_distanceDetail;
 };
 
 #endif // MapsRenderer_H

@@ -27,6 +27,7 @@ public:
     void reload();
     void setScreenSize(const QSizeF &size);
     void setPointSize(const float size);
+    void setDistanceDetail(const float detail);
     void setFilename(const QString &filename);
 private:
     QMatrix4x4   m_matrix;
@@ -54,6 +55,7 @@ private:
     int matrixUniformModelViewNormal;
     int screenSizeUniform;
     int pointSizeUniform;
+    int distanceDetailUniform;
 
     bool m_initialized;
     upns::upnsSharedPointer<upns::AbstractEntityData> m_entitydata;

@@ -35,6 +35,7 @@ QmlMapsRenderViewport::QmlMapsRenderViewport()
     connect(this, &QmlMapsRenderViewport::mirrorDistorsionChanged, m_renderThread, &RenderThread::setMirrorDistorsion);
     connect(this, &QmlMapsRenderViewport::mirrorRightEyeChanged, m_renderThread, &RenderThread::setMirrorRightEye);
     connect(this, &QmlMapsRenderViewport::pointSizeChanged, m_renderThread, &RenderThread::setPointSize);
+    connect(this, &QmlMapsRenderViewport::distanceDetailChanged, m_renderThread, &RenderThread::setDistanceDetail);
     connect(m_renderThread, &RenderThread::headDirectionChanged, this, &QmlMapsRenderViewport::setHeadDirection);
     connect(m_renderThread, &RenderThread::headMatrixChanged, this, &QmlMapsRenderViewport::setHeadMatrix);
     connect(m_renderThread, &RenderThread::headOrientationChanged, this, &QmlMapsRenderViewport::setHeadOrientation);
@@ -80,6 +81,7 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
     if (!node) {
         node = new TextureNode(window());
 
+        //TODO: VR wants to update faster!
         /* Set up connections to get the production of FBO textures in sync with vsync on the
          * rendering thread.
          *
@@ -98,6 +100,7 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
         connect(node, SIGNAL(pendingNewTexture()), window(), SLOT(update()), Qt::QueuedConnection);
         connect(window(), SIGNAL(beforeRendering()), node, SLOT(prepareNode()), Qt::DirectConnection);
         connect(node, SIGNAL(textureInUse()), m_renderThread, SLOT(renderNext()), Qt::QueuedConnection);
+        connect(m_renderThread, SIGNAL(updated()), this, SLOT(emitFrame()), Qt::QueuedConnection);
 
         // Get the production of FBO textures started..
         QMetaObject::invokeMethod(m_renderThread, "renderNext", Qt::QueuedConnection);
@@ -153,6 +156,11 @@ void QmlMapsRenderViewport::setVrmode(bool vrmode)
     assert(!vrmode);
     Q_EMIT vrmodeChanged(vrmode);
 #endif
+}
+
+void QmlMapsRenderViewport::emitFrame()
+{
+    Q_EMIT frame();
 }
 
 void QmlMapsRenderViewport::setHeadDirection(QVector3D headDirection)

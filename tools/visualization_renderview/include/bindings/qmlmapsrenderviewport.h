@@ -22,6 +22,7 @@ class QmlMapsRenderViewport : public QQuickItem
     Q_PROPERTY(bool mirrorRightEye READ mirrorRightEye WRITE setMirrorRightEye NOTIFY mirrorRightEyeChanged)
     Q_PROPERTY(bool running READ running NOTIFY runningChanged)
     Q_PROPERTY(qreal pointSize READ pointSize WRITE setPointSize NOTIFY pointSizeChanged)
+    Q_PROPERTY(qreal distanceDetail READ distanceDetail WRITE setDistanceDetail NOTIFY distanceDetailChanged)
 
 public:
     QmlMapsRenderViewport();
@@ -88,6 +89,11 @@ public:
         return m_filename;
     }
 
+    qreal distanceDetail() const
+    {
+        return m_distanceDetail;
+    }
+
 public Q_SLOTS:
     void ready();
     void reload();
@@ -151,7 +157,20 @@ public Q_SLOTS:
         Q_EMIT filenameChanged(filename);
     }
 
+    void setDistanceDetail(qreal distanceDetail)
+    {
+        if (m_distanceDetail == distanceDetail)
+            return;
+
+        m_distanceDetail = distanceDetail;
+        Q_EMIT distanceDetailChanged(distanceDetail);
+    }
+
+    void emitFrame();
+
 Q_SIGNALS:
+    void frame();
+
     void matrixChanged(QMatrix4x4 matrix);
 
     void entitydataChanged(QmlEntitydata * entitydata);
@@ -175,6 +194,8 @@ Q_SIGNALS:
     void pointSizeChanged(qreal pointSize);
 
     void filenameChanged(QString filename);
+
+    void distanceDetailChanged(qreal distanceDetail);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
@@ -200,6 +221,7 @@ private:
     bool m_running;
     qreal m_pointSize;
     QString m_filename;
+    qreal m_distanceDetail;
 };
 
 #endif // MapsRenderer_H

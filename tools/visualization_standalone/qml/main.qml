@@ -187,6 +187,9 @@ ApplicationWindow {
             mirrorDistorsion: vrMirrorDistorsion.checked
             mirrorRightEye: vrMirrorRight.checked
 
+            onFrame: {
+                xboxController.onFrame()
+            }
             Rectangle {
                 x: parent.width/2
                 y: parent.height/2-5
@@ -338,9 +341,9 @@ ApplicationWindow {
                 }
                 focus: true
                 Keys.onPressed: {
-                    var speed = 1;
+                    var speed = xboxController.speed;
                     if (event.key === Qt.Key_Shift) {
-                        speed *= 10;
+                        speed *= 2;
                     }
                     if (event.key === Qt.Key_Left || event.key === Qt.Key_A) {
                         drawingArea.move(speed, 0.0, 0.0);
@@ -377,6 +380,57 @@ ApplicationWindow {
                     }
                     if (event.key === Qt.Key_J) {
                         drawingArea.pointSize = Math.max(1.0,drawingArea.pointSize-1);
+                    }
+                }
+                XBoxController {
+                    property bool invertYAxis: true
+                    property real speed: (buttonB?0.01:0.1) + buttonA * 1.0
+                    property real movForward: (stickRY + triggerRight - triggerLeft) * speed
+                    property real movRight: stickRX*speed
+                    property real rotY: stickLY*0.02 * (1.0 + invertYAxis * -2.0)
+                    property real rotX: stickLX*-0.02
+                    property real pointSizeGrowth: dpadRight - dpadLeft
+                    property real distanceDetailChange: dpadUp - dpadDown
+                    property real distanceDetailInv: 1.0
+                    id: xboxController
+                    onButtonStartChanged: {
+                        drawingArea.vrmode = buttonBack
+                    }
+                    onButtonBackChanged: {
+                        if(buttonBack) {
+                            invertYAxis = !invertYAxis
+                        }
+                    }
+                    onLeftThumbChanged: {
+                        if(leftThumb) {
+                            fixedUpvec.checked = !fixedUpvec.checked
+                        }
+                    }
+                    onLeftShoulderChanged: {
+                        if(rightShoulder) {
+                            drawingArea.pointSize = 64.0;
+                            drawingArea.distanceDetail = 1.0;
+                            drawingArea.torsoPos.x = 0.0;
+                            drawingArea.torsoPos.y = 0.0;
+                            drawingArea.torsoPos.z = 0.0;
+                        }
+                    }
+                    function onFrame() {
+                        update()
+                        drawingArea.pointSize += pointSizeGrowth
+                        distanceDetailInv += distanceDetailChange*0.1
+                        distanceDetailInv = Math.max(0.01, distanceDetailInv)
+                        drawingArea.distanceDetail = 1.0/distanceDetailInv
+                        drawingArea.move(-movRight, 0.0, movForward)
+
+                        var tmp = drawingArea.torsoOrientation
+                        tmp = drawingArea.rotateYaw(rotX, tmp)
+                        tmp = drawingArea.rotatePitch(rotY, tmp)
+                        if(drawingArea.fixedUpVector)
+                        {
+                            tmp = drawingArea.fixSidevector(tmp)
+                        }
+                        drawingArea.torsoOrientation = tmp
                     }
                 }
             }

@@ -212,8 +212,10 @@ RenderThread::RenderThread(const QSize &size)
     , m_mirrorTexture(nullptr)
     , m_mirrorFBO( 0 )
     #endif
-    , m_vrmode( false ),
-      m_running( false )
+    , m_vrmode( false )
+    , m_running( false )
+    , m_pointSize( 64.f )
+    , m_distanceDetail( 1.f )
 {
 #ifdef VRMODE
     m_eyeRenderTexture[0] = nullptr;
@@ -247,6 +249,7 @@ QMatrix4x4 RenderThread::matrix() const
 
 void RenderThread::renderNext()
 {
+    Q_EMIT updated();
     context->makeCurrent(surface);
     if(m_renderFbo && m_renderFbo->size() != m_size)
     {
@@ -610,6 +613,16 @@ void RenderThread::setFilename(QString filename)
     Q_EMIT filenameChanged(filename);
 }
 
+void RenderThread::setDistanceDetail(qreal distanceDetail)
+{
+    if (m_distanceDetail == distanceDetail)
+        return;
+
+    m_distanceDetail = distanceDetail;
+    m_mapsRenderer->setDistanceDetail(distanceDetail);
+    Q_EMIT distanceDetailChanged(distanceDetail);
+}
+
 void RenderThread::setRunning(bool running)
 {
     if (m_running == running)
@@ -621,6 +634,7 @@ void RenderThread::setRunning(bool running)
 
 void RenderThread::resetMirror()
 {
+#ifdef VRMODE
     context->makeCurrent(surface);
     //ovrSizei windowSize = { m_hmdDesc.Resolution.w / 2, m_hmdDesc.Resolution.h / 2 };
     ovrSizei windowSize = { m_size.width(), m_size.height() };
@@ -653,6 +667,7 @@ void RenderThread::resetMirror()
     funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
     funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
     funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+#endif
 }
 
 void RenderThread::setHeadOrientation(QMatrix4x4 headOrientation)

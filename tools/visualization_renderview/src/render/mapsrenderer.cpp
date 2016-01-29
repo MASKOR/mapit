@@ -72,9 +72,11 @@ void MapsRenderer::initialize()
     matrixUniformModelViewNormal = m_shaderProgram.uniformLocation("modelviewnormalmatrix");
     pointSizeUniform = m_shaderProgram.uniformLocation("pointsize");
     screenSizeUniform = m_shaderProgram.uniformLocation("viewport");
+    distanceDetailUniform = m_shaderProgram.uniformLocation("distanceDetail");
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue(pointSizeUniform, 64.0f);
+    m_shaderProgram.setUniformValue(distanceDetailUniform, 1.0f);
     m_shaderProgram.release();
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -127,6 +129,13 @@ void MapsRenderer::setPointSize(const float size)
 {
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue(pointSizeUniform, size);
+    m_shaderProgram.release();
+}
+
+void MapsRenderer::setDistanceDetail(const float detail)
+{
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue(distanceDetailUniform, detail);
     m_shaderProgram.release();
 }
 
