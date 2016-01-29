@@ -2,7 +2,13 @@
 
 
 // *** XBox 360 controller ***
+if Xinput.Exists then {
+    debug = "Found XBox 360 controller"
+} else {
+    debug = "No XBox 360 controller found"
+}
 
+keyboard.I = joystick.AnyButton
 // settings
 var.RYInverted = false
 var.MouseSpeed = 20

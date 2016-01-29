@@ -24,6 +24,10 @@
 #include <math.h>
 #include <pcl/octree/octree_impl.h>
 #include <QDir>
+#ifdef _WIN32
+#include <xinput.h>
+#endif
+
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -219,7 +223,19 @@ int main(int argc, char *argv[])
 
 //    std::cout << "fin";
 //    return 0;
+#ifdef _WIN32
+    // rudimentary XBOX 360 controller support taken
+    // from: https://katyscode.wordpress.com/2013/08/30/xinput-tutorial-part-1-adding-gamepad-support-to-your-windows-game/
+    XINPUT_STATE state;
+    ZeroMemory(&state, sizeof(XINPUT_STATE));
 
+    if (XInputGetState(0, &state) == ERROR_SUCCESS) {
+        std::cout << "Found Xbox 360." << std::endl;
+    }
+    else {
+        std::cout << "No Xbox 360 controller found." << std::endl;
+    }
+#endif
     log4cplus::PropertyConfigurator config((QDir::currentPath() + "/logging.properties").toStdString().c_str());
     config.configure();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437

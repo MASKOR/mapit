@@ -173,6 +173,7 @@ private Q_SLOTS:
     void setRunning(bool running);
 private:
 
+    void resetMirror();
     QOpenGLFramebufferObject *m_renderFbo;
     QOpenGLFramebufferObject *m_displayFbo;
 

@@ -180,6 +180,8 @@ ApplicationWindow {
 //                filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
 //            }
             filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
+
+            //filename: "data/Rover.pcd"
             vrmode: vrModeEnabled.checked
             mirrorEnabled: !vrMirrorOff.checked
             mirrorDistorsion: vrMirrorDistorsion.checked
@@ -300,7 +302,7 @@ ApplicationWindow {
                     if(leftButton && !rightButton) {
                         rotating = true
                         translating = false
-                    } else if(middleButton || leftButton && rightButton) {
+                    } else if (middleButton || leftButton && rightButton) {
                         rotating = false
                         translating = true
                     } else {
@@ -365,7 +367,7 @@ ApplicationWindow {
                     if (event.key === Qt.Key_E) {
                         bank = 0.1;
                     }
-                    if( bank !== 0) {
+                    if (bank !== 0) {
                         var tmp = drawingArea.torsoOrientation
                         tmp = drawingArea.rotateBank(bank, tmp)
                         drawingArea.torsoOrientation = tmp

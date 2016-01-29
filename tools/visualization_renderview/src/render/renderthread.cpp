@@ -491,6 +491,7 @@ void RenderThread::setWidth(qreal width)
 
     m_size.setWidth(width);
     m_mapsRenderer->setScreenSize(m_size);
+    if(m_vrInitialized) resetMirror();
     Q_EMIT widthChanged(width);
 }
 
@@ -501,6 +502,7 @@ void RenderThread::setHeight(qreal height)
 
     m_size.setHeight(height);
     m_mapsRenderer->setScreenSize(m_size);
+    if(m_vrInitialized) resetMirror();
     Q_EMIT heightChanged(height);
 }
 
@@ -617,6 +619,42 @@ void RenderThread::setRunning(bool running)
     Q_EMIT runningChanged(running);
 }
 
+void RenderThread::resetMirror()
+{
+    context->makeCurrent(surface);
+    //ovrSizei windowSize = { m_hmdDesc.Resolution.w / 2, m_hmdDesc.Resolution.h / 2 };
+    ovrSizei windowSize = { m_size.width(), m_size.height() };
+
+    if(m_mirrorTexture)
+    {
+       ovr_DestroyMirrorTexture(m_HMD, reinterpret_cast<ovrTexture*>(&m_mirrorTexture));
+       m_mirrorTexture = nullptr;
+    }
+    // Create mirror texture and an FBO used to copy mirror texture to back buffer
+    ovrResult result = ovr_CreateMirrorTextureGL(m_HMD, GL_SRGB8_ALPHA8, windowSize.w, windowSize.h, reinterpret_cast<ovrTexture**>(&m_mirrorTexture));
+    if (!OVR_SUCCESS(result))
+    {
+        std::cout << "Failed to create mirror" << std::endl;
+        if (true) return;// goto Done;
+        //VALIDATE(false, "Failed to create mirror texture.");
+    }
+    std::cout << "New Width:" << m_mirrorTexture->OGL.Header.TextureSize.w << " H: " << m_mirrorTexture->OGL.Header.TextureSize.h << std::endl;
+
+
+    QOpenGLFunctions_4_1_Core funcs;
+    funcs.initializeOpenGLFunctions();
+    // Configure the mirror read buffer
+    if(m_mirrorFBO)
+    {
+        funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+    }
+    funcs.glGenFramebuffers(1, &m_mirrorFBO);
+    funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+    funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
+    funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+    funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+}
+
 void RenderThread::setHeadOrientation(QMatrix4x4 headOrientation)
 {
     //    if (m_headOrientation == headOrientation)
@@ -662,8 +700,6 @@ void RenderThread::initVR()
 
     m_hmdDesc = ovr_GetHmdDesc(m_HMD);
 
-    //ovrSizei windowSize = { m_hmdDesc.Resolution.w / 2, m_hmdDesc.Resolution.h / 2 };
-    ovrSizei windowSize = { m_size.width(), m_size.height() };
 
     // Make eye render buffers
     for (int eye = 0; eye < 2; ++eye)
@@ -679,24 +715,7 @@ void RenderThread::initVR()
         }
     }
 
-    // Create mirror texture and an FBO used to copy mirror texture to back buffer
-    result = ovr_CreateMirrorTextureGL(m_HMD, GL_SRGB8_ALPHA8, windowSize.w, windowSize.h, reinterpret_cast<ovrTexture**>(&m_mirrorTexture));
-    if (!OVR_SUCCESS(result))
-    {
-        if (true) return;// goto Done;
-        //VALIDATE(false, "Failed to create mirror texture.");
-    }
-
-
-
-    QOpenGLFunctions_4_1_Core funcs;
-    funcs.initializeOpenGLFunctions();
-    // Configure the mirror read buffer
-    funcs.glGenFramebuffers(1, &m_mirrorFBO);
-    funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-    funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
-    funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-    funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    resetMirror();
 
     m_eyeRenderDesc[0] = ovr_GetRenderDesc(m_HMD, ovrEye_Left, m_hmdDesc.DefaultEyeFov[0]);
     m_eyeRenderDesc[1] = ovr_GetRenderDesc(m_HMD, ovrEye_Right, m_hmdDesc.DefaultEyeFov[1]);
