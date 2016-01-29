@@ -383,6 +383,16 @@ ApplicationWindow {
                     }
                 }
                 XBoxController {
+                    property int demoPoint: 0
+                    property var demoPoints: [
+                        Qt.vector3d(93.25, -44.73, 1.38),
+                        Qt.vector3d(90.464, 6.01, 1.328),
+                        Qt.vector3d(21.472, 4.797, 51.95),
+                        Qt.vector3d(-29.691, 2.997, 32.143),
+                        Qt.vector3d(-18.7, -4.452, 13.941),
+                        Qt.vector3d(-67.83, -3.13, 54.82),
+                        Qt.vector3d(9.6, -7.84, 39.78)
+                    ]
                     property bool invertYAxis: true
                     property real speed: (buttonB?0.01:0.1) + buttonA * 1.0
                     property real movForward: (stickRY + triggerRight - triggerLeft) * speed
@@ -394,9 +404,11 @@ ApplicationWindow {
                     property real distanceDetailInv: 1.0
                     id: xboxController
                     onButtonStartChanged: {
-                        drawingArea.vrmode = buttonBack
+                        if(buttonStart) {
+                            drawingArea.vrmode = !drawingArea.vrmode
+                        }
                     }
-                    onButtonBackChanged: {
+                    onLeftShoulderChanged: {
                         if(buttonBack) {
                             invertYAxis = !invertYAxis
                         }
@@ -406,14 +418,23 @@ ApplicationWindow {
                             fixedUpvec.checked = !fixedUpvec.checked
                         }
                     }
-                    onLeftShoulderChanged: {
-                        if(rightShoulder) {
-                            drawingArea.pointSize = 64.0;
-                            drawingArea.distanceDetail = 1.0;
-                            drawingArea.torsoPos.x = 0.0;
-                            drawingArea.torsoPos.y = 0.0;
-                            drawingArea.torsoPos.z = 0.0;
+                    onButtonBackChanged: {
+                        if(buttonBack) {
+                            demoPoint++
+                            if(demoPoint >= demoPoints.length) {
+                                demoPoint = 0
+                            }
+                            drawingArea.pointSize = 64.0
+                            if(demoPoint == 0) {
+                                drawingArea.distanceDetail = 10.0
+                            } else {
+                                drawingArea.distanceDetail = 1.0
+                            }
+                            drawingArea.torsoPos = demoPoints[demoPoint]
                         }
+                    }
+                    Component.onCompleted: {
+                        drawingArea.torsoPos = demoPoints[demoPoint]
                     }
                     function onFrame() {
                         update()

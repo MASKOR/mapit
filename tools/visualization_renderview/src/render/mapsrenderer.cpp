@@ -76,7 +76,7 @@ void MapsRenderer::initialize()
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue(pointSizeUniform, 64.0f);
-    m_shaderProgram.setUniformValue(distanceDetailUniform, 1.0f);
+    m_shaderProgram.setUniformValue(distanceDetailUniform, 0.05f);
     m_shaderProgram.release();
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );

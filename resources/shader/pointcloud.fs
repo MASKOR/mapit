@@ -22,9 +22,9 @@ void main(void)
     //float dist = distance(gl_PointCoord, vec2(0.5));
 
     vec3 normal = normalize(viewnormal);
-    if(normal.z<0.0)
+    if(normal.z>0.0)
     {
-        //normal = -normal;
+        normal = -normal;
     }
     vec2 pos = (gl_PointCoord.xy - vec2(0.5))*2.0;
 

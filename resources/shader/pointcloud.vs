@@ -14,6 +14,10 @@ uniform mediump float distanceDetail;
 void main(void)
 {
     color_frag.rgb = clamp(color, 0.0, 1.0);
+    float litMul = smoothstep(1.59, 1.73, length(color));
+    float lit = dot(normal, normalize(vec3(0.1,-0.5, 0.1)));
+    lit = smoothstep(-1.0, 1.0, lit);
+    color_frag.rgb *= mix(1.0, lit, litMul);
     //color_frag.a = 1.0;
     //color_frag = vec4(gl_VertexID, float(gl_VertexID)*0.01, float(gl_VertexID)*0.001, 1.0);
     vec4 viewSpacePos = modelviewmatrix * vertex;
