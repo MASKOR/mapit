@@ -1,0 +1,59 @@
+﻿// UPNS GlovePIE script
+
+
+// *** XBox 360 controller ***
+
+// settings
+var.RYInverted = false
+var.MouseSpeed = 20
+var.LdeadX = 0.4
+var.LdeadY = 0.4
+var.RdeadX = 0.4
+var.RdeadY = 0.4
+
+// left stick
+keyboard.W = Xinput.Joy1Y > var.LdeadY
+keyboard.S = Xinput.Joy1Y < -var.LdeadY
+keyboard.A = Xinput.Joy1X < -var.LdeadX
+keyboard.D = Xinput.Joy1X > var.LdeadX
+
+// right stick
+if Xinput.Joy2X < -var.RdeadX or Xinput.Joy2X > var.RdeadX then {
+    Mouse.DirectInputX = Mouse.DirectInputX + var.MouseSpeed * deadzone(Xinput.Joy2X)
+}
+if var.RYInverted = true then {
+    if Xinput.Joy2Y < -var.RdeadY or Xinput.Joy2Y > var.RdeadY then {
+        Mouse.DirectInputY = Mouse.DirectInputY + var.MouseSpeed * deadzone(Xinput.Joy2Y)
+    }
+} else {
+    if Xinput.Joy2Y < -var.RdeadY or Xinput.Joy2Y > var.RdeadY then {
+        Mouse.DirectInputY = Mouse.DirectInputY - var.MouseSpeed * deadzone(Xinput.Joy2Y)
+    }
+}
+
+// dpad
+keyboard.R = Xinput.Up
+keyboard.Q = Xinput.Left
+keyboard.F = Xinput.Down
+keyboard.E = Xinput.Right
+
+// buttons
+keyboard.Shift = Xinput.A
+keyboard.Ctrl = Xinput.B
+keyboard.3 = Xinput.Y
+keyboard.4 = Xinput.X
+keyboard.Escape = Xinput.start
+keyboard.BackSpace = Xinput.back
+
+// bumpers
+keyboard.1 = Xinput.LeftShoulder
+keyboard.2 = Xinput.RightShoulder
+
+// triggers
+mouse.RightButton = Xinput.LeftTrigger
+mouse.LeftButton = Xinput.RightTrigger
+
+// stick clicks
+keyboard.J = Xinput.LeftThumb
+keyboard.H = Xinput.RightThumb
+
