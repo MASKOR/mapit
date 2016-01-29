@@ -8,22 +8,21 @@ uniform mediump mat3 modelviewnormalmatrix;
 out mediump vec4 color_frag;
 out mediump vec3 viewnormal;
 out mediump vec3 viewPoint;
-const float pointSizeMultiplier = 96.0;
-in int gl_VertexID;
+uniform mediump float pointsize;
+//in int gl_VertexID;
 void main(void)
 {
     color_frag.rgb = clamp(color, 0.0, 1.0);
-    color_frag.a = 1.0;
-    color_frag = vec4(gl_VertexID, gl_VertexID*0.01, gl_VertexID*0.001, 1.0);
+    //color_frag.a = 1.0;
+    //color_frag = vec4(gl_VertexID, float(gl_VertexID)*0.01, float(gl_VertexID)*0.001, 1.0);
     vec4 viewSpacePos = modelviewmatrix * vertex;
     viewPoint = viewSpacePos.xyz;
     viewnormal = modelviewnormalmatrix * normal;
     gl_Position = projectionmatrix * viewSpacePos;
     float dist = length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
-    float pointsize = pointSizeMultiplier / dist;
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = 15;//max(1,int(pow(d3,2.0)*10.1));
-    float finalSize = mix(0.0, pointsize, float(mod(gl_VertexID,nthPoint)==0));
+    float finalSize = mix(0.0, pointsize / dist, float(mod(gl_VertexID,nthPoint)==0));
     gl_PointSize = finalSize;
 }

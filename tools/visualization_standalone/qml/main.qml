@@ -171,12 +171,15 @@ ApplicationWindow {
             Layout.minimumWidth: 50
             Layout.fillWidth: true
             Layout.fillHeight: true
-            entitydata: EntityDataPointcloud2 {
-                //filename: "data/bunny.pcd"
-                //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
-                //filename: "data/fh/000000.pcd"
-                filename: "data/fh/all_pointclouds20_norm_flipped_mini.pcd"
-            }
+//            entitydata: EntityDataPointcloud2 {
+//                //filename: "data/bunny.pcd"
+//                //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
+//                //filename: "data/fh/000000.pcd"
+
+//                //filename: "data/fh/all_pointclouds20_mini_norm.pcd"
+//                filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
+//            }
+            filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
             vrmode: vrModeEnabled.checked
             mirrorEnabled: !vrMirrorOff.checked
             mirrorDistorsion: vrMirrorDistorsion.checked
@@ -205,7 +208,7 @@ ApplicationWindow {
             }
 
             property bool moveAlongHeadDirection: true // move where head shows or where torso shows?
-            property bool fixedUpVector: true
+            property alias fixedUpVector: fixedUpvec.checked
 
             property var torsoPos: Qt.vector3d(0.0,0.0,0.0)
             property var torsoPositionMatrix: Qt.matrix4x4(
@@ -253,6 +256,15 @@ ApplicationWindow {
                    0.0,  Math.sin(pitch),   Math.cos(pitch), 0.0,
                    0.0,              0.0, 0.0              , 1.0)
                 return headOrientation.times(pitchMat.times(headOrientationInverse.times(inp)))
+            }
+            function rotateBank(bank, inp) {
+                if(fixedUpVector) return headOrientation;
+                var bankMat = Qt.matrix4x4(
+                   Math.cos(bank), -Math.sin(bank),  0.0, 0.0,
+                   Math.sin(bank),  Math.cos(bank),  0.0, 0.0,
+                   0.0,             0.0,             1.0, 0.0,
+                   0.0,             0.0,             0.0, 1.0)
+                return headOrientation.times(bankMat.times(headOrientationInverse.times(inp)))
             }
 
             // prohibit banking
@@ -311,7 +323,7 @@ ApplicationWindow {
                         var tmp = drawingArea.torsoOrientation
                         tmp = drawingArea.rotateYaw(movementx*0.1, tmp)
                         tmp = drawingArea.rotatePitch(-movementy*0.1, tmp)
-                        if(fixedUpvec.checked)
+                        if(drawingArea.fixedUpVector)
                         {
                             tmp = drawingArea.fixSidevector(tmp)
                         }
@@ -322,9 +334,53 @@ ApplicationWindow {
                     mx = mouseX
                     my = mouseY
                 }
+                focus: true
+                Keys.onPressed: {
+                    var speed = 1;
+                    if (event.key === Qt.Key_Shift) {
+                        speed *= 10;
+                    }
+                    if (event.key === Qt.Key_Left || event.key === Qt.Key_A) {
+                        drawingArea.move(speed, 0.0, 0.0);
+                    }
+                    if (event.key === Qt.Key_Right || event.key === Qt.Key_D) {
+                        drawingArea.move(-speed, 0.0, 0.0);
+                    }
+                    if (event.key === Qt.Key_Up || event.key === Qt.Key_W) {
+                        drawingArea.move(0.0, 0.0, speed);
+                    }
+                    if (event.key === Qt.Key_Down || event.key === Qt.Key_S) {
+                        drawingArea.move(0.0, 0.0, -speed);
+                    }
+                    if (event.key === Qt.Key_Y) {
+                        drawingArea.move(0.0, -speed, 0.0);
+                    }
+                    if (event.key === Qt.Key_X) {
+                        drawingArea.move(0.0, speed, 0.0);
+                    }
+                    var bank = 0;
+                    if (event.key === Qt.Key_Q) {
+                        bank = -0.1;
+                    }
+                    if (event.key === Qt.Key_E) {
+                        bank = 0.1;
+                    }
+                    if( bank !== 0) {
+                        var tmp = drawingArea.torsoOrientation
+                        tmp = drawingArea.rotateBank(bank, tmp)
+                        drawingArea.torsoOrientation = tmp
+                    }
+                    if (event.key === Qt.Key_H) {
+                        drawingArea.pointSize++
+                    }
+                    if (event.key === Qt.Key_J) {
+                        drawingArea.pointSize = Math.max(1.0,drawingArea.pointSize-1);
+                    }
+                }
             }
         }
     }
+
     SystemPalette {
         id: palette
     }

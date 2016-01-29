@@ -8,6 +8,7 @@
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
 
 MapsRenderer::MapsRenderer()
@@ -66,7 +67,12 @@ void MapsRenderer::initialize()
     matrixUniformProj = program1.uniformLocation("projectionmatrix");
     matrixUniformProjInv = program1.uniformLocation("projectioninvmatrix");
     matrixUniformModelViewNormal = program1.uniformLocation("modelviewnormalmatrix");
+    pointSizeUniform = program1.uniformLocation("pointsize");
     screenSizeUniform = program1.uniformLocation("viewport");
+
+    program1.bind();
+    program1.setUniformValue(pointSizeUniform, 64.0f);
+    program1.release();
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -74,6 +80,10 @@ void MapsRenderer::initialize()
     if( m_entitydata != NULL )
     {
         createGeometry();
+    }
+    else // else workaround fast pcd loading
+    {
+        createGeometry(m_filename);
     }
     m_initialized = true;
 }
@@ -110,6 +120,22 @@ void MapsRenderer::setScreenSize(const QSizeF &size)
     m_screenSize = size;
 }
 
+void MapsRenderer::setPointSize(const float size)
+{
+    program1.bind();
+    program1.setUniformValue(pointSizeUniform, size);
+    program1.release();
+}
+
+void MapsRenderer::setFilename(const QString &filename)
+{
+    m_filename = filename;
+    if(m_initialized)
+    {
+        createGeometry(filename);
+    }
+}
+
 void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
 {
     if(!m_initialized) return;
@@ -142,6 +168,14 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
 
 void MapsRenderer::createGeometry()
 {
+    std::cout << "Creating to load pointcloud" << std::endl;
+    if(m_entitydata == NULL)
+    {
+        // Workaround
+        createGeometry(m_filename);
+        return;
+    }
+
     assert(m_entitydata != NULL);
     vertices.clear();
     normals.clear();
@@ -163,6 +197,53 @@ void MapsRenderer::createGeometry()
       vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
       normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
       colors << QVector3D(pt.r/255.f, pt.g/255.f, pt.b/255.f);
+    }
+    qDebug() << "Entity loaded:" << vertices.size() << "points.";
+}
+
+void MapsRenderer::createGeometry(QString filename)
+{
+    std::cout << "Starting to load pointcloud" << std::endl;
+    assert(m_entitydata != NULL);
+    vertices.clear();
+    normals.clear();
+    colors.clear();
+
+    pcl::PCLPointCloud2 pc2;
+    if(filename.endsWith(".pcd"))
+    {
+        pcl::PCDReader reader;
+        if ( reader.read(filename.toStdString(), pc2) < 0 )
+        {
+            log_error("Couldn't read file" + filename.toStdString());
+            return;
+        }
+    }
+    else
+    {
+        pcl::PLYReader reader;
+        if ( reader.read(filename.toStdString(), pc2) < 0 )
+        {
+            log_error("Couldn't read file" + filename.toStdString());
+            return;
+        }
+    }
+    std::cout << "Done loading pointcloud" << std::endl;
+
+
+
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+    pcl::fromPCLPointCloud2(pc2, *cloud);
+
+    vertices.reserve(cloud->points.size());
+    normals.reserve(cloud->points.size());
+    colors.reserve(cloud->points.size());
+    for(int i=0; i<cloud->points.size(); i++)
+    {
+        const pcl::PointXYZRGBNormal& pt = cloud->points[i];
+        vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
+        normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
+        colors << QVector3D(pt.r/255.f, pt.g/255.f, pt.b/255.f);
     }
     qDebug() << "Entity loaded:" << vertices.size() << "points.";
 }

@@ -11,6 +11,7 @@ class QmlMapsRenderViewport : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QmlEntitydata *entitydata READ entitydata WRITE setEntitydata NOTIFY entitydataChanged)
+    Q_PROPERTY(QString filename READ filename WRITE setFilename NOTIFY filenameChanged)
     Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
     Q_PROPERTY(bool vrmode READ vrmode WRITE setVrmode NOTIFY vrmodeChanged)
     Q_PROPERTY(QVector3D headDirection READ headDirection NOTIFY headDirectionChanged)
@@ -20,6 +21,7 @@ class QmlMapsRenderViewport : public QQuickItem
     Q_PROPERTY(bool mirrorDistorsion READ mirrorDistorsion WRITE setMirrorDistorsion NOTIFY mirrorDistorsionChanged)
     Q_PROPERTY(bool mirrorRightEye READ mirrorRightEye WRITE setMirrorRightEye NOTIFY mirrorRightEyeChanged)
     Q_PROPERTY(bool running READ running NOTIFY runningChanged)
+    Q_PROPERTY(qreal pointSize READ pointSize WRITE setPointSize NOTIFY pointSizeChanged)
 
 public:
     QmlMapsRenderViewport();
@@ -76,6 +78,16 @@ public:
         return m_running;
     }
 
+    qreal pointSize() const
+    {
+        return m_pointSize;
+    }
+
+    QString filename() const
+    {
+        return m_filename;
+    }
+
 public Q_SLOTS:
     void ready();
     void reload();
@@ -121,6 +133,24 @@ public Q_SLOTS:
     }
 
 
+    void setPointSize(qreal pointSize)
+    {
+        if (m_pointSize == pointSize)
+            return;
+
+        m_pointSize = pointSize;
+        Q_EMIT pointSizeChanged(pointSize);
+    }
+
+    void setFilename(QString filename)
+    {
+        if (m_filename == filename)
+            return;
+
+        m_filename = filename;
+        Q_EMIT filenameChanged(filename);
+    }
+
 Q_SIGNALS:
     void matrixChanged(QMatrix4x4 matrix);
 
@@ -141,6 +171,10 @@ Q_SIGNALS:
     void mirrorRightEyeChanged(bool mirrorRightEye);
 
     void runningChanged(bool running);
+
+    void pointSizeChanged(qreal pointSize);
+
+    void filenameChanged(QString filename);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
@@ -164,6 +198,8 @@ private:
     bool m_mirrorDistorsion;
     bool m_mirrorRightEye;
     bool m_running;
+    qreal m_pointSize;
+    QString m_filename;
 };
 
 #endif // MapsRenderer_H

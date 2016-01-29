@@ -20,11 +20,13 @@ QmlMapsRenderViewport::QmlMapsRenderViewport()
     : m_renderThread(0),
       m_connectionToEntityData(NULL),
       m_vrmode( false ),
-      m_running( false )
+      m_running( false ),
+      m_pointSize( 64 )
 {
     setFlag(ItemHasContents, true);
     m_renderThread = new RenderThread(QSize(width(), height()));
     connect(this, &QmlMapsRenderViewport::entitydataChanged, m_renderThread, &RenderThread::setEntitydata);
+    connect(this, &QmlMapsRenderViewport::filenameChanged, m_renderThread, &RenderThread::setFilename);
     connect(this, &QQuickItem::widthChanged, m_renderThread, [&](){m_renderThread->setWidth(width());});
     connect(this, &QQuickItem::heightChanged, m_renderThread, [&](){m_renderThread->setHeight(height());});
     connect(this, &QmlMapsRenderViewport::needsReload, m_renderThread, &RenderThread::reload);
@@ -32,6 +34,7 @@ QmlMapsRenderViewport::QmlMapsRenderViewport()
     connect(this, &QmlMapsRenderViewport::mirrorEnabledChanged, m_renderThread, &RenderThread::setMirrorEnabled);
     connect(this, &QmlMapsRenderViewport::mirrorDistorsionChanged, m_renderThread, &RenderThread::setMirrorDistorsion);
     connect(this, &QmlMapsRenderViewport::mirrorRightEyeChanged, m_renderThread, &RenderThread::setMirrorRightEye);
+    connect(this, &QmlMapsRenderViewport::pointSizeChanged, m_renderThread, &RenderThread::setPointSize);
     connect(m_renderThread, &RenderThread::headDirectionChanged, this, &QmlMapsRenderViewport::setHeadDirection);
     connect(m_renderThread, &RenderThread::headMatrixChanged, this, &QmlMapsRenderViewport::setHeadMatrix);
     connect(m_renderThread, &RenderThread::headOrientationChanged, this, &QmlMapsRenderViewport::setHeadOrientation);

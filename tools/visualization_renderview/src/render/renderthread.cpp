@@ -269,6 +269,12 @@ void RenderThread::renderNext()
         m_mapsRenderer->initialize();
         setRunning(true);
     }
+    else if( !m_mapsRenderer->isInitialized() && !filename().isEmpty()) // elseif workaround
+    {
+        m_mapsRenderer->setFilename(filename());
+        m_mapsRenderer->initialize();
+        setRunning(true);
+    }
 #ifdef VRMODE
     if(m_vrmode)
     {
@@ -565,6 +571,26 @@ void RenderThread::setMirrorRightEye(bool mirrorRightEye)
 //        }
     }
     Q_EMIT mirrorRightEyeChanged(mirrorRightEye);
+}
+
+void RenderThread::setPointSize(qreal pointSize)
+{
+    if (m_pointSize == pointSize)
+        return;
+
+    m_pointSize = pointSize;
+    m_mapsRenderer->setPointSize(pointSize);
+    Q_EMIT pointSizeChanged(pointSize);
+}
+
+void RenderThread::setFilename(QString filename)
+{
+    if (m_filename == filename)
+        return;
+
+    m_filename = filename;
+    m_mapsRenderer->setFilename(filename);
+    Q_EMIT filenameChanged(filename);
 }
 
 void RenderThread::setRunning(bool running)
