@@ -24,16 +24,19 @@ MapsRenderer::~MapsRenderer()
 
 void MapsRenderer::drawPointcloud()
 {
-    program1.enableAttributeArray(normalAttr1);
-    program1.enableAttributeArray(vertexAttr1);
-    program1.enableAttributeArray(colorAttr1);
-    program1.setAttributeArray(vertexAttr1, vertices.constData());
-    program1.setAttributeArray(normalAttr1, normals.constData());
-    program1.setAttributeArray(colorAttr1, colors.constData());
-    glDrawArrays(GL_POINTS, 0, vertices.size());
-    program1.disableAttributeArray(colorAttr1);
-    program1.disableAttributeArray(normalAttr1);
-    program1.disableAttributeArray(vertexAttr1);
+    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+    glDrawArrays(GL_POINTS, 0, m_pointcloudSize);
+    //glDrawElements(GL_POINTS, m_pointcloudSize, GL_UNSIGNED_SHORT, NULL);
+//    program1.enableAttributeArray(normalAttr1);
+//    program1.enableAttributeArray(vertexAttr1);
+//    program1.enableAttributeArray(colorAttr1);
+//    program1.setAttributeArray(vertexAttr1, vertices.constData());
+//    program1.setAttributeArray(normalAttr1, normals.constData());
+//    program1.setAttributeArray(colorAttr1, colors.constData());
+//    glDrawArrays(GL_POINTS, 0, vertices.size());
+//    program1.disableAttributeArray(colorAttr1);
+//    program1.disableAttributeArray(normalAttr1);
+//    program1.disableAttributeArray(vertexAttr1);
 }
 
 
@@ -49,30 +52,30 @@ void MapsRenderer::initialize()
     funcs.glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     funcs.glEnable(GL_POINT_SPRITE); // for gl_PointCoord. If not enabled, gl_PointCoord will always be 0
 
-    QOpenGLShader *vshader1 = new QOpenGLShader(QOpenGLShader::Vertex, &program1);
+    QOpenGLShader *vshader1 = new QOpenGLShader(QOpenGLShader::Vertex, &m_shaderProgram);
     vshader1->compileSourceFile("resources/shader/pointcloud.vs");
 
-    QOpenGLShader *fshader1 = new QOpenGLShader(QOpenGLShader::Fragment, &program1);
+    QOpenGLShader *fshader1 = new QOpenGLShader(QOpenGLShader::Fragment, &m_shaderProgram);
     fshader1->compileSourceFile("resources/shader/pointcloud.fs");
 
-    program1.addShader(vshader1);
-    program1.addShader(fshader1);
-    program1.link();
+    m_shaderProgram.addShader(vshader1);
+    m_shaderProgram.addShader(fshader1);
+    m_shaderProgram.link();
 
-    vertexAttr1 = program1.attributeLocation("vertex");
-    normalAttr1 = program1.attributeLocation("normal");
-    colorAttr1 = program1.attributeLocation("color");
+    m_positionAttr = m_shaderProgram.attributeLocation("vertex");
+    m_normalAttr = m_shaderProgram.attributeLocation("normal");
+    m_colorAttr = m_shaderProgram.attributeLocation("color");
 
-    matrixUniformModelView = program1.uniformLocation("modelviewmatrix");
-    matrixUniformProj = program1.uniformLocation("projectionmatrix");
-    matrixUniformProjInv = program1.uniformLocation("projectioninvmatrix");
-    matrixUniformModelViewNormal = program1.uniformLocation("modelviewnormalmatrix");
-    pointSizeUniform = program1.uniformLocation("pointsize");
-    screenSizeUniform = program1.uniformLocation("viewport");
+    matrixUniformModelView = m_shaderProgram.uniformLocation("modelviewmatrix");
+    matrixUniformProj = m_shaderProgram.uniformLocation("projectionmatrix");
+    matrixUniformProjInv = m_shaderProgram.uniformLocation("projectioninvmatrix");
+    matrixUniformModelViewNormal = m_shaderProgram.uniformLocation("modelviewnormalmatrix");
+    pointSizeUniform = m_shaderProgram.uniformLocation("pointsize");
+    screenSizeUniform = m_shaderProgram.uniformLocation("viewport");
 
-    program1.bind();
-    program1.setUniformValue(pointSizeUniform, 64.0f);
-    program1.release();
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue(pointSizeUniform, 64.0f);
+    m_shaderProgram.release();
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -122,9 +125,9 @@ void MapsRenderer::setScreenSize(const QSizeF &size)
 
 void MapsRenderer::setPointSize(const float size)
 {
-    program1.bind();
-    program1.setUniformValue(pointSizeUniform, size);
-    program1.release();
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue(pointSizeUniform, size);
+    m_shaderProgram.release();
 }
 
 void MapsRenderer::setFilename(const QString &filename)
@@ -152,15 +155,15 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-    program1.bind();
+    m_shaderProgram.bind();
     QMatrix4x4 modelview(view*m_matrix);
-    program1.setUniformValue(matrixUniformModelView, modelview);
-    program1.setUniformValue(matrixUniformProj, proj);
-    program1.setUniformValue(matrixUniformProjInv, proj.inverted());
-    program1.setUniformValue(matrixUniformModelViewNormal, modelview.normalMatrix());
-    program1.setUniformValue(screenSizeUniform, m_screenSize);
+    m_shaderProgram.setUniformValue(matrixUniformModelView, modelview);
+    m_shaderProgram.setUniformValue(matrixUniformProj, proj);
+    m_shaderProgram.setUniformValue(matrixUniformProjInv, proj.inverted());
+    m_shaderProgram.setUniformValue(matrixUniformModelViewNormal, modelview.normalMatrix());
+    m_shaderProgram.setUniformValue(screenSizeUniform, m_screenSize);
     drawPointcloud();
-    program1.release();
+    m_shaderProgram.release();
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -168,47 +171,22 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
 
 void MapsRenderer::createGeometry()
 {
-    std::cout << "Creating to load pointcloud" << std::endl;
     if(m_entitydata == NULL)
     {
         // Workaround
         createGeometry(m_filename);
         return;
     }
-
     assert(m_entitydata != NULL);
-    vertices.clear();
-    normals.clear();
-    colors.clear();
 
     upns::upnsSharedPointer<PointcloudEntitydata> pcdData = upns::static_pointer_cast<PointcloudEntitydata>(m_entitydata);
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 
-
-    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-    pcl::fromPCLPointCloud2(*pc2, *cloud);
-
-    vertices.reserve(cloud->points.size());
-    normals.reserve(cloud->points.size());
-    colors.reserve(cloud->points.size());
-    for(int i=0; i<cloud->points.size(); i++)
-    {
-      const pcl::PointXYZRGBNormal& pt = cloud->points[i];
-      vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
-      normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
-      colors << QVector3D(pt.r/255.f, pt.g/255.f, pt.b/255.f);
-    }
-    qDebug() << "Entity loaded:" << vertices.size() << "points.";
+    createGeometry(*pc2);
 }
 
 void MapsRenderer::createGeometry(QString filename)
 {
-    std::cout << "Starting to load pointcloud" << std::endl;
-    assert(m_entitydata != NULL);
-    vertices.clear();
-    normals.clear();
-    colors.clear();
-
     pcl::PCLPointCloud2 pc2;
     if(filename.endsWith(".pcd"))
     {
@@ -228,22 +206,89 @@ void MapsRenderer::createGeometry(QString filename)
             return;
         }
     }
-    std::cout << "Done loading pointcloud" << std::endl;
+    createGeometry(pc2);
+}
 
+//void MapsRenderer::createGeometry(pcl::PCLPointCloud2 &pointcoud)
+//{
+//    vertices.clear();
+//    normals.clear();
+//    colors.clear();
 
+//    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+//    pcl::fromPCLPointCloud2(pc2, *cloud);
 
+//    vertices.reserve(cloud->points.size());
+//    normals.reserve(cloud->points.size());
+//    colors.reserve(cloud->points.size());
+//    for(int i=0; i<cloud->points.size(); i++)
+//    {
+//        const pcl::PointXYZRGBNormal& pt = cloud->points[i];
+//        vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
+//        normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
+//        colors << QVector3D(pt.r/255.f, pt.g/255.f, pt.b/255.f);
+//    }
+//    qDebug() << "Entity loaded:" << vertices.size() << "points.";
+//}
+
+void MapsRenderer::createGeometry(pcl::PCLPointCloud2 &pointcoud)
+{
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-    pcl::fromPCLPointCloud2(pc2, *cloud);
+    pcl::fromPCLPointCloud2(pointcoud, *cloud);
 
-    vertices.reserve(cloud->points.size());
-    normals.reserve(cloud->points.size());
-    colors.reserve(cloud->points.size());
-    for(int i=0; i<cloud->points.size(); i++)
+    m_pointcloudSize = cloud->points.size();
+    // Create VAO for first object to render
+    m_vao.create();
+    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+
+    // Setup VBOs and IBO (use QOpenGLBuffer to buffer data,
+    // specify format, usage hint etc). These will be
+    // remembered by the currently bound VAO
+    m_positionBuffer.create();
+    m_positionBuffer.setUsagePattern( QOpenGLBuffer::StaticDraw );
+    m_positionBuffer.bind();
+    m_positionBuffer.allocate( m_pointcloudSize * 3 * sizeof( float ) );
+    m_shaderProgram.enableAttributeArray( m_positionAttr );
+    m_shaderProgram.setAttributeBuffer( m_positionAttr, GL_FLOAT, 0, 3 );
+    GLfloat *positions = static_cast<GLfloat*>(m_positionBuffer.map( QOpenGLBuffer::WriteOnly ));
+
+    m_colorBuffer.create();
+    m_colorBuffer.setUsagePattern( QOpenGLBuffer::StaticDraw );
+    m_colorBuffer.bind();
+    m_colorBuffer.allocate( m_pointcloudSize * 3 * sizeof( float ) );
+    m_shaderProgram.enableAttributeArray( m_colorAttr );
+    m_shaderProgram.setAttributeBuffer( m_colorAttr, GL_FLOAT, 0, 3 );
+    GLfloat *colors = static_cast<GLfloat*>(m_colorBuffer.map( QOpenGLBuffer::WriteOnly ));
+
+    m_normalBuffer.create();
+    m_normalBuffer.setUsagePattern( QOpenGLBuffer::StaticDraw );
+    m_normalBuffer.bind();
+    m_normalBuffer.allocate( m_pointcloudSize * 3 * sizeof( float ) );
+    m_shaderProgram.enableAttributeArray( m_normalAttr );
+    m_shaderProgram.setAttributeBuffer( m_normalAttr, GL_FLOAT, 0, 3 );
+    GLfloat *normals = static_cast<GLfloat*>(m_normalBuffer.map( QOpenGLBuffer::WriteOnly ));
+
+    for(int i=0; i<m_pointcloudSize; i++)
     {
         const pcl::PointXYZRGBNormal& pt = cloud->points[i];
-        vertices << QVector3D(pt.data[0], pt.data[1], pt.data[2]);
-        normals << QVector3D(pt.normal_x, pt.normal_y, pt.normal_z);
-        colors << QVector3D(pt.r/255.f, pt.g/255.f, pt.b/255.f);
+        positions[i*3  ] = pt.data[0];
+        positions[i*3+1] = pt.data[1];
+        positions[i*3+2] = pt.data[2];
+        normals[i*3  ] = pt.normal_x;
+        normals[i*3+1] = pt.normal_y;
+        normals[i*3+2] = pt.normal_z;
+        colors[i*3  ] = pt.r/255.f;
+        colors[i*3+1] = pt.g/255.f;
+        colors[i*3+2] = pt.b/255.f;
     }
-    qDebug() << "Entity loaded:" << vertices.size() << "points.";
+    m_positionBuffer.bind();
+    m_positionBuffer.unmap();
+    m_colorBuffer.bind();
+    m_colorBuffer.unmap();
+    m_normalBuffer.bind();
+    m_normalBuffer.unmap();
+
+    //m_normalBuffer.release();
+
+    qDebug() << "Entity loaded:" << m_pointcloudSize << "points.";
 }

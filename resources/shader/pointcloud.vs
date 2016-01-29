@@ -23,6 +23,6 @@ void main(void)
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = 15;//max(1,int(pow(d3,2.0)*10.1));
-    float finalSize = mix(0.0, pointsize / dist, float(mod(gl_VertexID,nthPoint)==0));
+    float finalSize = mix(0.0, pointsize / dist, float(mod(gl_VertexID, nthPoint)==0));
     gl_PointSize = finalSize;
 }

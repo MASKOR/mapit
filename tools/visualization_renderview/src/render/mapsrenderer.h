@@ -3,10 +3,14 @@
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
 #include <QVector>
 
 #include "abstractentitydata.h"
 #include "bindings/qmlentitydata.h"
+
+#include <pcl/PCLPointCloud2.h> //< Note: Only for workaround boost::serialization
 
 class MapsRenderer : protected QOpenGLFunctions
 {
@@ -30,14 +34,20 @@ private:
     void drawPointcloud();
     void createGeometry();
     void createGeometry(QString filename);
+    void createGeometry(pcl::PCLPointCloud2 &pointcoud);
 
     QVector<QVector3D> vertices;
     QVector<QVector3D> normals;
     QVector<QVector3D> colors;
-    QOpenGLShaderProgram program1;
-    int vertexAttr1;
-    int normalAttr1;
-    int colorAttr1;
+    QOpenGLShaderProgram m_shaderProgram;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_positionBuffer;
+    QOpenGLBuffer m_colorBuffer;
+    QOpenGLBuffer m_normalBuffer;
+
+    int m_positionAttr;
+    int m_normalAttr;
+    int m_colorAttr;
     int matrixUniformModelView;
     int matrixUniformProj;
     int matrixUniformProjInv;
@@ -50,7 +60,7 @@ private:
     //Note: Filenames are a workaround, as long as stubs are used and as long as boost::serialization is used and too slow
     QString m_filename;
     QSizeF m_screenSize;
-
+    unsigned int m_pointcloudSize;
 };
 
 #endif

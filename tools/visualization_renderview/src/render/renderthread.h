@@ -5,6 +5,7 @@
 #include <QOffscreenSurface>
 #include <QMatrix4x4>
 #include "bindings/qmlentitydata.h"
+#include <QOpenGLDebugMessage>
 
 #ifdef VRMODE
 #include <OVR_CAPI_GL.h>
@@ -101,6 +102,7 @@ public:
     }
 
 public Q_SLOTS:
+    void onMessageLogged( QOpenGLDebugMessage message);
     void reload();
     #ifdef VRMODE
     void renderNextVR();
@@ -199,6 +201,7 @@ void initVR();
     bool m_running;
     qreal m_pointSize;
     QString m_filename;
+    QOpenGLDebugLogger m_logger;
 };
 
 #endif // MapsRenderer_H

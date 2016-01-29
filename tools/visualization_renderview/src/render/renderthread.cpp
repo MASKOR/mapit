@@ -257,6 +257,21 @@ void RenderThread::renderNext()
     }
     if (!m_renderFbo)
     {
+#ifndef RELEASE
+        if ( m_logger.initialize() ) {
+            connect( &m_logger, &QOpenGLDebugLogger::messageLogged,
+                        this, &RenderThread::onMessageLogged,
+                        Qt::DirectConnection );
+            m_logger.startLogging( QOpenGLDebugLogger::SynchronousLogging );
+            m_logger.enableMessages();
+            QVector<uint> disabledMessages;
+            disabledMessages.push_back(131185); //Buffer Detailed Info
+            disabledMessages.push_back(131204); // Texture has mipmaps, filter is inconsistent with mipmaps (framebuffer?)
+            //disabledMessages.push_back(131218);
+            disabledMessages.push_back(131184);
+            m_logger.disableMessages(disabledMessages);
+        }
+#endif
         // Initialize the buffers and renderer
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
@@ -629,6 +644,11 @@ void RenderThread::setHeadDirection(QVector3D headDirection)
     Q_EMIT headDirectionChanged(headDirection);
 }
 
+void RenderThread::onMessageLogged(QOpenGLDebugMessage message)
+{
+    qDebug() << message;
+}
+
 #ifdef VRMODE
 void RenderThread::initVR()
 {
@@ -666,6 +686,8 @@ void RenderThread::initVR()
         if (true) return;// goto Done;
         //VALIDATE(false, "Failed to create mirror texture.");
     }
+
+
 
     QOpenGLFunctions_4_1_Core funcs;
     funcs.initializeOpenGLFunctions();
