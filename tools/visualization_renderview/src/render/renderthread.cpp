@@ -337,6 +337,57 @@ void RenderThread::renderNextNonVR()
 #ifdef VRMODE
 void RenderThread::renderNextVR()
 {
+    qDebug() << "sync";
+    if(!m_vrInitialized)
+    {
+        initVR();
+    }
+    //isVisible = (result == ovrSuccess);
+
+    QOpenGLFunctions_4_1_Core funcs;
+    funcs.initializeOpenGLFunctions();
+    if(m_mirrorEnabled)
+    {
+        // Blit mirror texture to back buffer
+        GLint w;
+        GLint h;
+        if(m_mirrorDistorsion)
+        {
+            w = m_eyeRenderTexture[1]->texSize.w;
+            h = m_eyeRenderTexture[1]->texSize.h;
+        }
+        else if(m_mirrorRightEye)
+        {
+            w = m_eyeRenderTexture[0]->texSize.w;
+            h = m_eyeRenderTexture[0]->texSize.h;
+        }
+        else
+        {
+            w = m_mirrorTexture->OGL.Header.TextureSize.w;
+            h = m_mirrorTexture->OGL.Header.TextureSize.h;
+        }
+        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+
+
+        funcs.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderFbo->handle());
+        funcs.glBlitFramebuffer(0, 0, w, h,
+                          0, 0, w, h,
+                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    }
+//    SwapBuffers(Platform.hDC);
+
+    m_renderFbo->bind();
+}
+
+void RenderThread::vrThreadMainloop()
+{
+    qDebug() << "frame";
+    if(!m_running)
+    {
+        Q_EMIT frameFinished();
+        return;
+    }
     if(!m_vrInitialized)
     {
         initVR();
@@ -427,45 +478,13 @@ void RenderThread::renderNextVR()
     ovrLayerHeader* layers = &ld.Header;
     ovrResult result = ovr_SubmitFrame(m_HMD, 0, &viewScaleDesc, &layers, 1);
     // exit the rendering loop if submit returns an error, will retry on ovrError_DisplayLost
-    if (!OVR_SUCCESS(result)) return;
-//        goto Done;
-
-    //isVisible = (result == ovrSuccess);
-
-    QOpenGLFunctions_4_1_Core funcs;
-    funcs.initializeOpenGLFunctions();
-    if(m_mirrorEnabled)
+    if (!OVR_SUCCESS(result))
     {
-        // Blit mirror texture to back buffer
-        GLint w;
-        GLint h;
-        if(m_mirrorDistorsion)
-        {
-            w = m_eyeRenderTexture[1]->texSize.w;
-            h = m_eyeRenderTexture[1]->texSize.h;
-        }
-        else if(m_mirrorRightEye)
-        {
-            w = m_eyeRenderTexture[0]->texSize.w;
-            h = m_eyeRenderTexture[0]->texSize.h;
-        }
-        else
-        {
-            w = m_mirrorTexture->OGL.Header.TextureSize.w;
-            h = m_mirrorTexture->OGL.Header.TextureSize.h;
-        }
-        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-
-
-        funcs.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderFbo->handle());
-        funcs.glBlitFramebuffer(0, 0, w, h,
-                          0, 0, w, h,
-                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        qDebug() << "err submit frame";
+        Q_EMIT frameFinished();
+        return;
     }
-//    SwapBuffers(Platform.hDC);
-
-    m_renderFbo->bind();
+    Q_EMIT frameFinished();
 }
 #endif
 
@@ -528,6 +547,29 @@ void RenderThread::setEntitydata(QmlEntitydata *entitydata)
     m_entitydata = entitydata;
     m_mapsRenderer->setEntityData(m_entitydata->getEntityData());
     Q_EMIT entitydataChanged(entitydata);
+}
+
+void RenderThread::setVrmode(bool vrmode)
+{
+#ifndef VRMODE
+    assert(!vrmode);
+#endif
+    if (m_vrmode == vrmode)
+        return;
+
+    m_vrmode = vrmode;
+    if(m_vrmode)
+    {
+        qDebug() << "con";
+        m_vrConnection = connect(this, &RenderThread::frameFinished, this, &RenderThread::vrThreadMainloop, Qt::QueuedConnection);
+        Q_EMIT frameFinished();
+    }
+    else
+    {
+        qDebug() << "discon";
+        disconnect(m_vrConnection);
+    }
+    Q_EMIT vrmodeChanged(vrmode);
 }
 
 void RenderThread::setMirrorEnabled(bool mirrorEnabled)
@@ -705,6 +747,7 @@ void RenderThread::onMessageLogged(QOpenGLDebugMessage message)
 #ifdef VRMODE
 void RenderThread::initVR()
 {
+    qDebug() << "init";
     ovrResult result = ovr_Initialize(nullptr);
     if (!OVR_SUCCESS(result))
         return;

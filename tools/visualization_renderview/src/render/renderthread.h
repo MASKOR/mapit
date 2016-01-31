@@ -112,6 +112,7 @@ public Q_SLOTS:
     void reload();
     #ifdef VRMODE
     void renderNextVR();
+    void vrThreadMainloop();
     #endif
     void renderNextNonVR();
     void renderNext();
@@ -120,44 +121,25 @@ public Q_SLOTS:
     void setWidth(qreal width);
     void setHeight(qreal height);
     void setMatrix(QMatrix4x4 matrix);
-
     void setEntitydata(QmlEntitydata *entitydata);
-
-    void setVrmode(bool vrmode)
-    {
-#ifndef VRMODE
-        assert(!vrmode);
-#endif
-        if (m_vrmode == vrmode)
-            return;
-
-        m_vrmode = vrmode;
-        Q_EMIT vrmodeChanged(vrmode);
-    }
-
+    void setVrmode(bool vrmode);
     void setMirrorEnabled(bool mirrorEnabled);
-
     void setMirrorDistorsion(bool mirrorDistorsion);
-
     void setMirrorRightEye(bool mirrorRightEye);
-
     void setPointSize(qreal pointSize);
-
     void setFilename(QString filename);
-
     void setDistanceDetail(qreal distanceDetail);
 
 Q_SIGNALS:
     void updated();
+    void frameFinished();
 
     void textureReady(int id, const QSize &size);
 
     void widthChanged(qreal width);
     void heightChanged(qreal height);
     void matrixChanged(QMatrix4x4 matrix);
-
     void entitydataChanged(QmlEntitydata *entitydata);
-
     void vrmodeChanged(bool vrmode);
 
     void headMatrixChanged(QMatrix4x4 headMatrix);
@@ -165,17 +147,11 @@ Q_SIGNALS:
     void headOrientationChanged(QMatrix4x4 headOrientation);
 
     void mirrorEnabledChanged(bool mirrorEnabled);
-
     void mirrorDistorsionChanged(bool mirrorDistorsion);
-
     void mirrorRightEyeChanged(bool mirrorRightEye);
-
     void runningChanged(bool running);
-
     void pointSizeChanged(qreal pointSize);
-
     void filenameChanged(QString filename);
-
     void distanceDetailChanged(qreal distanceDetail);
 
 private Q_SLOTS:
@@ -203,6 +179,7 @@ void initVR();
     ovrGLTexture  *m_mirrorTexture;
     GLuint         m_mirrorFBO;
     ovrHmdDesc m_hmdDesc;
+    QMetaObject::Connection m_vrConnection;
 #endif
     bool m_vrmode;
 //    QMatrix4x4 m_headMatrix;

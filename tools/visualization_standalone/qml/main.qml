@@ -48,38 +48,38 @@ ApplicationWindow {
         }
         Menu {
             title: qsTr("&View")
-            MenuItem {
-                id: detailHiItem
-                text: qsTr("&Hi Detail")
-                checkable: true
-                checked: true
-                onCheckedChanged: {
-                }
-            }
-            MenuItem {
-                id: detailMidtem
-                text: qsTr("&Mid Detail")
-                checkable: true
-                checked: false
-                onCheckedChanged: {
-                }
-            }
-            MenuItem {
-                id: detailLoItem
-                text: qsTr("&Low Detail")
-                checkable: true
-                checked: false
-                onCheckedChanged: {
-                }
-            }
+//            MenuItem {
+//                id: detailHiItem
+//                text: qsTr("&Hi Detail")
+//                checkable: true
+//                checked: true
+//                onCheckedChanged: {
+//                }
+//            }
+//            MenuItem {
+//                id: detailMidtem
+//                text: qsTr("&Mid Detail")
+//                checkable: true
+//                checked: false
+//                onCheckedChanged: {
+//                }
+//            }
+//            MenuItem {
+//                id: detailLoItem
+//                text: qsTr("&Low Detail")
+//                checkable: true
+//                checked: false
+//                onCheckedChanged: {
+//                }
+//            }
             MenuSeparator { }
-            MenuItem {
-                id: executeItem
-                text: qsTr("Lower Detail when &moving")
-                enabled: false
-                onTriggered: {
-                }
-            }
+//            MenuItem {
+//                id: executeItem
+//                text: qsTr("Lower Detail when &moving")
+//                enabled: false
+//                onTriggered: {
+//                }
+//            }
             MenuSeparator { }
             MenuItem {
                 id: showCenter
@@ -88,15 +88,22 @@ ApplicationWindow {
                 checked: true
             }
             MenuSeparator { }
+//            MenuItem {
+//                id: centerFixed
+//                text: qsTr("Torso Yaw fixed to view")
+//                checkable: true
+//                checked: true
+//            }
             MenuItem {
-                id: centerFixed
-                text: qsTr("Center fixed to view")
+                id: fixedUpvec
+                text: qsTr("Fixed Upvector")
                 checkable: true
                 checked: true
             }
             MenuItem {
-                id: fixedUpvec
-                text: qsTr("Fixed Upvector")
+                id: invertY
+                text: qsTr("Invert Y Axis")
+                enabled: !fixedUpvec.checked
                 checkable: true
                 checked: true
             }
@@ -252,9 +259,13 @@ ApplicationWindow {
                     0.0,              1.0, 0.0,               0.0,
                     Math.sin(yaw),    0.0, Math.cos(yaw),     0.0,
                     0.0,              0.0, 0.0,               1.0)
-                return headOrientation.times(yawMat.times(headOrientationInverse.times(inp)))
+                if(fixedUpVector)
+                    return yawMat.times(inp);
+                else
+                    return headOrientation.times(yawMat.times(headOrientationInverse.times(inp)))
             }
             function rotatePitch(pitch, inp) {
+                if(fixedUpVector) return inp;
                 var pitchMat = Qt.matrix4x4(
                    1.0,              0.0, 0.0,               0.0,
                    0.0,  Math.cos(pitch),  -Math.sin(pitch), 0.0,
@@ -263,7 +274,7 @@ ApplicationWindow {
                 return headOrientation.times(pitchMat.times(headOrientationInverse.times(inp)))
             }
             function rotateBank(bank, inp) {
-                if(fixedUpVector) return headOrientation;
+                if(fixedUpVector) return inp;
                 var bankMat = Qt.matrix4x4(
                    Math.cos(bank), -Math.sin(bank),  0.0, 0.0,
                    Math.sin(bank),  Math.cos(bank),  0.0, 0.0,
@@ -273,7 +284,7 @@ ApplicationWindow {
             }
 
             // prohibit banking
-            function fixSidevector(inp) {
+            function fixUpvector(inp) {
                 // Not yet working
                 var side // not needed for read
                 var upvec = Qt.vector3d(0.0, 1.0, 0.0); // constrain upvector
@@ -282,8 +293,10 @@ ApplicationWindow {
                 // orthonormalize
                 side = upvec.crossProduct(forward).normalized()
                 upvec = forward.crossProduct(side).normalized()
-                inp.m21 = upvec.x ; inp.m22 = upvec.y ; inp.m23 = upvec.z
-                inp.m11 = side.x  ; inp.m12 = side.y  ; inp.m13 = side.z
+                forward = side.crossProduct(upvec).normalized()
+                inp.m11 = side.x     ; inp.m12 = side.y     ; inp.m13 = side.z
+                inp.m21 = upvec.x    ; inp.m22 = upvec.y    ; inp.m23 = upvec.z
+                inp.m31 = forward.x  ; inp.m32 = forward.y  ; inp.m33 = forward.z
                 return inp
             }
             MouseArea {
@@ -330,7 +343,7 @@ ApplicationWindow {
                         tmp = drawingArea.rotatePitch(-movementy*0.1, tmp)
                         if(drawingArea.fixedUpVector)
                         {
-                            tmp = drawingArea.fixSidevector(tmp)
+                            tmp = drawingArea.fixUpvector(tmp)
                         }
                         drawingArea.torsoOrientation = tmp
                     } else if(translating) {
@@ -393,11 +406,10 @@ ApplicationWindow {
                         Qt.vector3d(-67.83, -3.13, 54.82),
                         Qt.vector3d(9.6, -7.84, 39.78)
                     ]
-                    property bool invertYAxis: true
                     property real speed: (buttonB?0.01:0.1) + buttonA * 1.0
                     property real movForward: (stickRY + triggerRight - triggerLeft) * speed
                     property real movRight: stickRX*speed
-                    property real rotY: stickLY*0.02 * (1.0 + invertYAxis * -2.0)
+                    property real rotY: stickLY*-0.02 * (1.0 + invertY.checked * -2.0)
                     property real rotX: stickLX*-0.02
                     property real pointSizeGrowth: dpadRight - dpadLeft
                     property real distanceDetailChange: dpadUp - dpadDown
@@ -410,7 +422,7 @@ ApplicationWindow {
                     }
                     onLeftShoulderChanged: {
                         if(buttonBack) {
-                            invertYAxis = !invertYAxis
+                            invertY.checked = !invertY.checked
                         }
                     }
                     onLeftThumbChanged: {
@@ -449,7 +461,7 @@ ApplicationWindow {
                         tmp = drawingArea.rotatePitch(rotY, tmp)
                         if(drawingArea.fixedUpVector)
                         {
-                            tmp = drawingArea.fixSidevector(tmp)
+                            tmp = drawingArea.fixUpvector(tmp)
                         }
                         drawingArea.torsoOrientation = tmp
                     }

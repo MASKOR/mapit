@@ -67,8 +67,8 @@ void XBoxController::update()
     setTriggerLeft(static_cast<float>(m_state.Gamepad.bLeftTrigger) / 255.f);
     setTriggerRight(static_cast<float>( m_state.Gamepad.bRightTrigger) / 255.f);
 
-    float deadzoneX = 0.15f;
-    float deadzoneY = 0.15f;
+    float deadzoneX = 0.25f;
+    float deadzoneY = 0.25f;
     float leftStickX = fmaxf(-1, static_cast<float>( m_state.Gamepad.sThumbLX) / 32767.f);
     float leftStickY = fmaxf(-1, static_cast<float>( m_state.Gamepad.sThumbLY) / 32767.f);
 
