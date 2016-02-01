@@ -17,29 +17,18 @@
 QList<QThread *> QmlMapsRenderViewport::threads;
 
 QmlMapsRenderViewport::QmlMapsRenderViewport()
-    : m_renderThread(0),
-      m_connectionToEntityData(NULL),
-      m_vrmode( false ),
-      m_running( false ),
-      m_pointSize( 64 )
+    : m_renderThread(0)
 {
     setFlag(ItemHasContents, true);
-    m_renderThread = new RenderThread(QSize(width(), height()));
-    connect(this, &QmlMapsRenderViewport::entitydataChanged, m_renderThread, &RenderThread::setEntitydata);
-    connect(this, &QmlMapsRenderViewport::filenameChanged, m_renderThread, &RenderThread::setFilename);
-    connect(this, &QQuickItem::widthChanged, m_renderThread, [&](){m_renderThread->setWidth(width());});
-    connect(this, &QQuickItem::heightChanged, m_renderThread, [&](){m_renderThread->setHeight(height());});
-    connect(this, &QmlMapsRenderViewport::needsReload, m_renderThread, &RenderThread::reload);
-    connect(this, &QmlMapsRenderViewport::matrixChanged, m_renderThread, &RenderThread::setMatrix);
-    connect(this, &QmlMapsRenderViewport::mirrorEnabledChanged, m_renderThread, &RenderThread::setMirrorEnabled);
-    connect(this, &QmlMapsRenderViewport::mirrorDistorsionChanged, m_renderThread, &RenderThread::setMirrorDistorsion);
-    connect(this, &QmlMapsRenderViewport::mirrorRightEyeChanged, m_renderThread, &RenderThread::setMirrorRightEye);
-    connect(this, &QmlMapsRenderViewport::pointSizeChanged, m_renderThread, &RenderThread::setPointSize);
-    connect(this, &QmlMapsRenderViewport::distanceDetailChanged, m_renderThread, &RenderThread::setDistanceDetail);
-    connect(m_renderThread, &RenderThread::headDirectionChanged, this, &QmlMapsRenderViewport::setHeadDirection);
-    connect(m_renderThread, &RenderThread::headMatrixChanged, this, &QmlMapsRenderViewport::setHeadMatrix);
-    connect(m_renderThread, &RenderThread::headOrientationChanged, this, &QmlMapsRenderViewport::setHeadOrientation);
-    connect(m_renderThread, &RenderThread::runningChanged, this, &QmlMapsRenderViewport::setRunning);
+    m_renderThread = new RenderThread();
+
+    m_renderThread->renderdata()->connectReadInputFrom(renderdata());
+    m_renderThread->renderdata()->connectWriteOutputTo(renderdata());
+    m_renderThread->renderdata()->connectReadInputWidthHeightFrom(this);
+
+    connect(renderdata(), &Renderdata::entitydataChanged, this, [&](QmlEntitydata *entitydata) {
+
+    });
 }
 
 void QmlMapsRenderViewport::ready()
@@ -53,7 +42,7 @@ void QmlMapsRenderViewport::ready()
     connect(window(), SIGNAL(sceneGraphInvalidated()), m_renderThread, SLOT(shutDown()), Qt::QueuedConnection);
 
     m_renderThread->start();
-    update();
+    QQuickItem::update();
 }
 
 QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
@@ -81,7 +70,6 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
     if (!node) {
         node = new TextureNode(window());
 
-        //TODO: VR wants to update faster!
         /* Set up connections to get the production of FBO textures in sync with vsync on the
          * rendering thread.
          *
@@ -111,93 +99,93 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
     return node;
 }
 
-void QmlMapsRenderViewport::reload()
-{
-    Q_EMIT needsReload();
-}
+//void QmlMapsRenderViewport::reload()
+//{
+//    //TODO: Q_EMIT needsReload();
+//}
 
-void QmlMapsRenderViewport::setEntitydata(QmlEntitydata *entitydata)
-{
-    if (m_entitydata == entitydata)
-        return;
-    if(m_entitydata)
-    {
-        if(m_connectionToEntityData != NULL)
-        {
-            disconnect(*m_connectionToEntityData);
-            m_connectionToEntityData = NULL;
-        }
-        //            disconnect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
-    }
-    m_entitydata = entitydata;
-    if(m_entitydata)
-    {
-        upns::upnsSharedPointer<QMetaObject::Connection> con( new QMetaObject::Connection(
-                                                                  connect(m_entitydata,
-                                                                          &QmlEntitydata::updated,
-                                                                          m_renderThread,
-                                                                          [&](){m_renderThread->setEntitydata(m_entitydata);})));
-        m_connectionToEntityData = con;
-        //            connect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
-        //            connect(this, &QmlEntitydata::updated, this, &RenderThread::updated);
-    }
-    Q_EMIT entitydataChanged(entitydata);
-}
-void QmlMapsRenderViewport::setVrmode(bool vrmode)
-{
-#ifdef VRMODE
-    if (m_vrmode == vrmode)
-        return;
-    m_vrmode = vrmode;
-    if(m_renderThread)
-    {
-        m_renderThread->setVrmode(vrmode);
-    }
-    assert(!vrmode);
-    Q_EMIT vrmodeChanged(vrmode);
-#endif
-}
+//void QmlMapsRenderViewport::setEntitydata(QmlEntitydata *entitydata)
+//{
+//    if (m_entitydata == entitydata)
+//        return;
+//    if(m_entitydata)
+//    {
+//        if(m_connectionToEntityData != NULL)
+//        {
+//            disconnect(*m_connectionToEntityData);
+//            m_connectionToEntityData = NULL;
+//        }
+//        //            disconnect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
+//    }
+//    m_entitydata = entitydata;
+//    if(m_entitydata)
+//    {
+//        upns::upnsSharedPointer<QMetaObject::Connection> con( new QMetaObject::Connection(
+//                                                                  connect(m_entitydata,
+//                                                                          &QmlEntitydata::updated,
+//                                                                          m_renderThread,
+//                                                                          [&](){m_renderThread->setEntitydata(m_entitydata);})));
+//        m_connectionToEntityData = con;
+//        //            connect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
+//        //            connect(this, &QmlEntitydata::updated, this, &RenderThread::updated);
+//    }
+//    Q_EMIT entitydataChanged(entitydata);
+//}
+//void QmlMapsRenderViewport::setVrmode(bool vrmode)
+//{
+//#ifdef VRMODE
+//    if (m_vrmode == vrmode)
+//        return;
+//    m_vrmode = vrmode;
+//    if(m_renderThread)
+//    {
+//        m_renderThread->setVrmode(vrmode);
+//    }
+//    assert(!vrmode);
+//    Q_EMIT vrmodeChanged(vrmode);
+//#endif
+//}
 
 void QmlMapsRenderViewport::emitFrame()
 {
     Q_EMIT frame();
 }
 
-void QmlMapsRenderViewport::setHeadDirection(QVector3D headDirection)
-{
-    if (m_headDirection == headDirection)
-        return;
+//void QmlMapsRenderViewport::setHeadDirection(QVector3D headDirection)
+//{
+//    if (m_headDirection == headDirection)
+//        return;
 
-    m_headDirection = headDirection;
-    Q_EMIT headDirectionChanged(headDirection);
-}
+//    m_headDirection = headDirection;
+//    Q_EMIT headDirectionChanged(headDirection);
+//}
 
-void QmlMapsRenderViewport::setHeadOrientation(QMatrix4x4 headOrientation)
-{
-    if (m_headOrientation == headOrientation)
-        return;
+//void QmlMapsRenderViewport::setHeadOrientation(QMatrix4x4 headOrientation)
+//{
+//    if (m_headOrientation == headOrientation)
+//        return;
 
-    m_headOrientation = headOrientation;
-    Q_EMIT headOrientationChanged(headOrientation);
-}
+//    m_headOrientation = headOrientation;
+//    Q_EMIT headOrientationChanged(headOrientation);
+//}
 
-void QmlMapsRenderViewport::setHeadMatrix(QMatrix4x4 headMatrix)
-{
-    if (m_headMatrix == headMatrix)
-        return;
+//void QmlMapsRenderViewport::setHeadMatrix(QMatrix4x4 headMatrix)
+//{
+//    if (m_headMatrix == headMatrix)
+//        return;
 
-    m_headMatrix = headMatrix;
-    Q_EMIT headMatrixChanged(headMatrix);
-}
+//    m_headMatrix = headMatrix;
+//    Q_EMIT headMatrixChanged(headMatrix);
+//}
 
-void QmlMapsRenderViewport::setRunning(bool running)
-{
-    if (m_running == running)
-        return;
+//void QmlMapsRenderViewport::setRunning(bool running)
+//{
+//    if (m_running == running)
+//        return;
 
-    m_running = running;
-    Q_EMIT runningChanged(running);
-}
+//    m_running = running;
+//    Q_EMIT runningChanged(running);
+//}
 
 #include "qmlmapsrenderviewport.moc"
 

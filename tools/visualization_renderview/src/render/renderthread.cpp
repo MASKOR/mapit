@@ -200,22 +200,16 @@ struct TextureBuffer
 ////
 #endif
 
-RenderThread::RenderThread(const QSize &size)
+RenderThread::RenderThread()
     : surface(0)
     , context(0)
     , m_renderFbo(0)
     , m_displayFbo(0)
     , m_vrInitialized(false)
-    , m_size(size)
-    , m_entitydata(NULL)
     #ifdef VRMODE
     , m_mirrorTexture(nullptr)
     , m_mirrorFBO( 0 )
     #endif
-    , m_vrmode( false )
-    , m_running( false )
-    , m_pointSize( 64.f )
-    , m_distanceDetail( 1.f )
 {
 #ifdef VRMODE
     m_eyeRenderTexture[0] = nullptr;
@@ -224,7 +218,25 @@ RenderThread::RenderThread(const QSize &size)
     m_eyeDepthBuffer[1] = nullptr;
 #endif
     QmlMapsRenderViewport::threads << this;
-    m_mapsRenderer = new MapsRenderer();
+    m_mapsRenderer = new MapsRenderer(&m_renderdata);
+    connect(renderdata(), &Renderdata::vrmodeChanged, this, [&](bool vrmode) {
+        if(vrmode)
+        {
+            upns::upnsSharedPointer<QMetaObject::Connection> con(new QMetaObject::Connection(
+                connect(this,
+                        &RenderThread::frameFinished,
+                        this,
+                        &RenderThread::vrThreadMainloop,
+                        Qt::QueuedConnection)));
+            m_vrMainLoopConnection = con;
+            Q_EMIT frameFinished();
+        }
+        else
+        {
+            disconnect(*m_vrMainLoopConnection);
+            m_vrMainLoopConnection = nullptr;
+        }
+    });
 }
 
 RenderThread::~RenderThread()
@@ -232,69 +244,38 @@ RenderThread::~RenderThread()
     delete m_mapsRenderer;
 }
 
-qreal RenderThread::width() const
-{
-    return m_size.width();
-}
-
-qreal RenderThread::height() const
-{
-    return m_size.height();
-}
-
-QMatrix4x4 RenderThread::matrix() const
-{
-    return m_matrix;
-}
-
 void RenderThread::renderNext()
 {
     Q_EMIT updated();
     context->makeCurrent(surface);
-    if(m_renderFbo && m_renderFbo->size() != m_size)
+
+    if(m_renderFbo)
     {
-        delete m_renderFbo;
-        m_renderFbo = NULL;
-        delete m_displayFbo;
-        m_displayFbo = NULL;
-    }
-    if (!m_renderFbo)
-    {
-#ifndef RELEASE
-        if ( m_logger.initialize() ) {
-            connect( &m_logger, &QOpenGLDebugLogger::messageLogged,
-                        this, &RenderThread::onMessageLogged,
-                        Qt::DirectConnection );
-            m_logger.startLogging( QOpenGLDebugLogger::SynchronousLogging );
-            m_logger.enableMessages();
-            QVector<uint> disabledMessages;
-            disabledMessages.push_back(131185); //Buffer Detailed Info
-            disabledMessages.push_back(131204); // Texture has mipmaps, filter is inconsistent with mipmaps (framebuffer?)
-            //disabledMessages.push_back(131218);
-            disabledMessages.push_back(131184);
-            m_logger.disableMessages(disabledMessages);
+        if(  (m_renderFbo->size().width()  != m_renderdata.width()
+           || m_renderFbo->size().height() != m_renderdata.height()) )
+        {
+            delete m_renderFbo;
+            m_renderFbo = NULL;
+            delete m_displayFbo;
+            m_displayFbo = NULL;
         }
-#endif
+    }
+    else
+    {
         // Initialize the buffers and renderer
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        m_renderFbo = new QOpenGLFramebufferObject(m_size, format);
-        m_displayFbo = new QOpenGLFramebufferObject(m_size, format);
+        m_renderFbo = new QOpenGLFramebufferObject(QSize(m_renderdata.width(), m_renderdata.height()), format);
+        m_displayFbo = new QOpenGLFramebufferObject(QSize(m_renderdata.width(), m_renderdata.height()), format);
+
     }
-    if( !m_mapsRenderer->isInitialized() && entitydata() != NULL && entitydata()->getEntityData() != NULL)
+    if( !m_mapsRenderer->isInitialized() )
     {
-        m_mapsRenderer->setEntityData(entitydata()->getEntityData());
-        m_mapsRenderer->initialize();
-        setRunning(true);
+        initialize();
     }
-    else if( !m_mapsRenderer->isInitialized() && !filename().isEmpty()) // elseif workaround
-    {
-        m_mapsRenderer->setFilename(filename());
-        m_mapsRenderer->initialize();
-        setRunning(true);
-    }
+
 #ifdef VRMODE
-    if(m_vrmode)
+    if(m_renderdata.vrmode())
     {
         renderNextVR();
     }
@@ -313,24 +294,24 @@ void RenderThread::renderNext()
     m_renderFbo->bindDefault();
     qSwap(m_renderFbo, m_displayFbo);
 
-    Q_EMIT textureReady(m_displayFbo->texture(), m_size);
+    Q_EMIT textureReady(m_displayFbo->texture(), QSize(m_renderdata.width(), m_renderdata.height()));
 }
 
 void RenderThread::renderNextNonVR()
 {
     m_renderFbo->bind();
-    context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
+    context->functions()->glViewport(0, 0, m_renderdata.width(), m_renderdata.height());
     QMatrix4x4 mat;
     QMatrix4x4 view;
     view.setToIdentity();
-    mat.perspective(45.0f, ((float)m_size.width())/(float)m_size.height(), 1.0, 1000.0 );
+    mat.perspective(45.0f, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
     QMatrix4x4 flipY;
     flipY.setToIdentity();
     flipY.data()[4+1] = -1.f;
     mat *= flipY;
-    setHeadMatrix(view);
-    setHeadDirection(QVector3D(0.0,0.0,1.0));
-    setHeadOrientation(view);
+    renderdata()->setHeadMatrix(view);
+    renderdata()->setHeadDirection(QVector3D(0.0,0.0,1.0));
+    renderdata()->setHeadOrientation(view);
     m_mapsRenderer->render(view, mat );
 }
 
@@ -346,17 +327,17 @@ void RenderThread::renderNextVR()
 
     QOpenGLFunctions_4_1_Core funcs;
     funcs.initializeOpenGLFunctions();
-    if(m_mirrorEnabled)
+    if(m_renderdata.mirrorEnabled())
     {
         // Blit mirror texture to back buffer
         GLint w;
         GLint h;
-        if(m_mirrorDistorsion)
+        if(m_renderdata.mirrorDistorsion())
         {
             w = m_eyeRenderTexture[1]->texSize.w;
             h = m_eyeRenderTexture[1]->texSize.h;
         }
-        else if(m_mirrorRightEye)
+        else if(m_renderdata.mirrorRightEye())
         {
             w = m_eyeRenderTexture[0]->texSize.w;
             h = m_eyeRenderTexture[0]->texSize.h;
@@ -383,7 +364,7 @@ void RenderThread::renderNextVR()
 void RenderThread::vrThreadMainloop()
 {
     qDebug() << "frame";
-    if(!m_running)
+    if(!m_renderdata.running())
     {
         Q_EMIT frameFinished();
         return;
@@ -437,9 +418,9 @@ void RenderThread::vrThreadMainloop()
             QVector3D qdir(finalForward.x, finalForward.y, finalForward.z);
             if(eye == 1)
             {
-                setHeadMatrix(qview);
-                setHeadDirection(qdir);
-                setHeadOrientation(qorientation);
+                renderdata()->setHeadMatrix(qview);
+                renderdata()->setHeadDirection(qdir);
+                renderdata()->setHeadOrientation(qorientation);
             }
             // Render world
             //roomScene->Render(view, proj);
@@ -506,180 +487,209 @@ void RenderThread::shutDown()
     exit();
 }
 
-void RenderThread::setWidth(qreal width)
+void RenderThread::initialize()
 {
-    if (m_size.width() == width)
-        return;
-
-    m_size.setWidth(width);
-    m_mapsRenderer->setScreenSize(m_size);
-    if(m_vrInitialized) resetMirror();
-    Q_EMIT widthChanged(width);
-}
-
-void RenderThread::setHeight(qreal height)
-{
-    if (m_size.height() == height)
-        return;
-
-    m_size.setHeight(height);
-    m_mapsRenderer->setScreenSize(m_size);
-    if(m_vrInitialized) resetMirror();
-    Q_EMIT heightChanged(height);
-}
-
-void RenderThread::setMatrix(QMatrix4x4 matrix)
-{
-    if (m_matrix == matrix)
-        return;
-
-    m_matrix = matrix;
-    if(m_mapsRenderer)
-        m_mapsRenderer->setMatrix( matrix );
-    Q_EMIT matrixChanged(matrix);
-}
-
-void RenderThread::setEntitydata(QmlEntitydata *entitydata)
-{
-    if (m_entitydata == entitydata)
-        return;
-
-    m_entitydata = entitydata;
-    m_mapsRenderer->setEntityData(m_entitydata->getEntityData());
-    Q_EMIT entitydataChanged(entitydata);
-}
-
-void RenderThread::setVrmode(bool vrmode)
-{
-#ifndef VRMODE
-    assert(!vrmode);
+#ifndef RELEASE
+        if ( m_logger.initialize() ) {
+            connect( &m_logger, &QOpenGLDebugLogger::messageLogged,
+                        this, &RenderThread::onMessageLogged,
+                        Qt::DirectConnection );
+            m_logger.startLogging( QOpenGLDebugLogger::SynchronousLogging );
+            m_logger.enableMessages();
+            QVector<uint> disabledMessages;
+            disabledMessages.push_back(131185); //Buffer Detailed Info
+            disabledMessages.push_back(131204); // Texture has mipmaps, filter is inconsistent with mipmaps (framebuffer?)
+            //disabledMessages.push_back(131218);
+            disabledMessages.push_back(131184);
+            m_logger.disableMessages(disabledMessages);
+        }
 #endif
-    if (m_vrmode == vrmode)
-        return;
-
-    m_vrmode = vrmode;
-    if(m_vrmode)
-    {
-        qDebug() << "con";
-        m_vrConnection = connect(this, &RenderThread::frameFinished, this, &RenderThread::vrThreadMainloop, Qt::QueuedConnection);
-        Q_EMIT frameFinished();
-    }
-    else
-    {
-        qDebug() << "discon";
-        disconnect(m_vrConnection);
-    }
-    Q_EMIT vrmodeChanged(vrmode);
-}
-
-void RenderThread::setMirrorEnabled(bool mirrorEnabled)
-{
-    if (m_mirrorEnabled == mirrorEnabled)
-        return;
-
-    m_mirrorEnabled = mirrorEnabled;
-    Q_EMIT mirrorEnabledChanged(mirrorEnabled);
-}
-
-void RenderThread::setMirrorDistorsion(bool mirrorDistorsion)
-{
-    if (m_mirrorDistorsion == mirrorDistorsion)
-        return;
-
-    m_mirrorDistorsion = mirrorDistorsion;
-#ifdef VRMODE
-    if(m_mirrorDistorsion)
-    {
-        QOpenGLFunctions_4_1_Core funcs;
-        funcs.initializeOpenGLFunctions();
-        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-        funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
-        funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    }
-#endif
-    Q_EMIT mirrorDistorsionChanged(mirrorDistorsion);
-}
-
-void RenderThread::setMirrorRightEye(bool mirrorRightEye)
-{
-    if (m_mirrorRightEye == mirrorRightEye)
-        return;
-
-    m_mirrorRightEye = mirrorRightEye;
-    if(!m_mirrorDistorsion)
-    {
-//        if(m_mirrorRightEye)
+//        if( m_renderdata.entitydata() != NULL && m_renderdata.entitydata()->getEntityData() != NULL)
 //        {
-//            QOpenGLFunctions_4_1_Core funcs;
-//            funcs.initializeOpenGLFunctions();
-//            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
-//            funcs.glGenFramebuffers(1, &m_mirrorFBO);
-//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-//            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[1]->texId, 0);
-//            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+//            m_mapsRenderer->setEntityData(m_renderdata.entitydata()->getEntityData());
 //        }
-//        else
+//        else if(!m_renderdata.filename().isEmpty()) // elseif workaround
 //        {
-//            QOpenGLFunctions_4_1_Core funcs;
-//            funcs.initializeOpenGLFunctions();
-//            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
-//            funcs.glGenFramebuffers(1, &m_mirrorFBO);
-//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-//            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[0]->texId, 0);
-//            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-//            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+//            m_mapsRenderer->setFilename(m_renderdata.filename());
 //        }
-    }
-    Q_EMIT mirrorRightEyeChanged(mirrorRightEye);
+        m_mapsRenderer->initialize();
+        m_renderdata.setRunning(true);
 }
 
-void RenderThread::setPointSize(qreal pointSize)
-{
-    if (m_pointSize == pointSize)
-        return;
+//void RenderThread::setWidth(qreal width)
+//{
+//    if (m_size.width() == width)
+//        return;
 
-    m_pointSize = pointSize;
-    m_mapsRenderer->setPointSize(pointSize);
-    Q_EMIT pointSizeChanged(pointSize);
-}
+//    m_size.setWidth(width);
+//    m_mapsRenderer->setScreenSize(m_size);
+//    if(m_vrInitialized) resetMirror();
+//    Q_EMIT widthChanged(width);
+//}
 
-void RenderThread::setFilename(QString filename)
-{
-    if (m_filename == filename)
-        return;
+//void RenderThread::setHeight(qreal height)
+//{
+//    if (m_size.height() == height)
+//        return;
 
-    m_filename = filename;
-    m_mapsRenderer->setFilename(filename);
-    Q_EMIT filenameChanged(filename);
-}
+//    m_size.setHeight(height);
+//    m_mapsRenderer->setScreenSize(m_size);
+//    if(m_vrInitialized) resetMirror();
+//    Q_EMIT heightChanged(height);
+//}
 
-void RenderThread::setDistanceDetail(qreal distanceDetail)
-{
-    if (m_distanceDetail == distanceDetail)
-        return;
+//void RenderThread::setMatrix(QMatrix4x4 matrix)
+//{
+//    if (m_matrix == matrix)
+//        return;
 
-    m_distanceDetail = distanceDetail;
-    m_mapsRenderer->setDistanceDetail(distanceDetail);
-    Q_EMIT distanceDetailChanged(distanceDetail);
-}
+//    m_matrix = matrix;
+//    if(m_mapsRenderer)
+//        m_mapsRenderer->setMatrix( matrix );
+//    Q_EMIT matrixChanged(matrix);
+//}
 
-void RenderThread::setRunning(bool running)
-{
-    if (m_running == running)
-        return;
+//void RenderThread::setEntitydata(QmlEntitydata *entitydata)
+//{
+//    if (m_entitydata == entitydata)
+//        return;
 
-    m_running = running;
-    Q_EMIT runningChanged(running);
-}
+//    m_entitydata = entitydata;
+//    m_mapsRenderer->setEntityData(m_entitydata->getEntityData());
+//    Q_EMIT entitydataChanged(entitydata);
+//}
+
+//void RenderThread::setVrmode(bool vrmode)
+//{
+//#ifndef VRMODE
+//    assert(!vrmode);
+//#endif
+//    if (m_vrmode == vrmode)
+//        return;
+
+//    m_vrmode = vrmode;
+//    if(m_vrmode)
+//    {
+//        qDebug() << "con";
+//        m_vrMainLoopConnection = connect(this, &RenderThread::frameFinished, this, &RenderThread::vrThreadMainloop, Qt::QueuedConnection);
+//        Q_EMIT frameFinished();
+//    }
+//    else
+//    {
+//        qDebug() << "discon";
+//        disconnect(m_vrMainLoopConnection);
+//    }
+//    Q_EMIT vrmodeChanged(vrmode);
+//}
+
+//void RenderThread::setMirrorEnabled(bool mirrorEnabled)
+//{
+//    if (m_mirrorEnabled == mirrorEnabled)
+//        return;
+
+//    m_mirrorEnabled = mirrorEnabled;
+//    Q_EMIT mirrorEnabledChanged(mirrorEnabled);
+//}
+
+//void RenderThread::setMirrorDistorsion(bool mirrorDistorsion)
+//{
+//    if (m_mirrorDistorsion == mirrorDistorsion)
+//        return;
+
+//    m_mirrorDistorsion = mirrorDistorsion;
+//#ifdef VRMODE
+//    if(m_mirrorDistorsion)
+//    {
+//        QOpenGLFunctions_4_1_Core funcs;
+//        funcs.initializeOpenGLFunctions();
+//        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+//        funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
+//        funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+//    }
+//#endif
+//    Q_EMIT mirrorDistorsionChanged(mirrorDistorsion);
+//}
+
+//void RenderThread::setMirrorRightEye(bool mirrorRightEye)
+//{
+//    if (m_mirrorRightEye == mirrorRightEye)
+//        return;
+
+//    m_mirrorRightEye = mirrorRightEye;
+//    if(!m_mirrorDistorsion)
+//    {
+////        if(m_mirrorRightEye)
+////        {
+////            QOpenGLFunctions_4_1_Core funcs;
+////            funcs.initializeOpenGLFunctions();
+////            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+////            funcs.glGenFramebuffers(1, &m_mirrorFBO);
+////            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+////            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[1]->texId, 0);
+////            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+////            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+////        }
+////        else
+////        {
+////            QOpenGLFunctions_4_1_Core funcs;
+////            funcs.initializeOpenGLFunctions();
+////            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+////            funcs.glGenFramebuffers(1, &m_mirrorFBO);
+////            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+////            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[0]->texId, 0);
+////            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+////            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+////        }
+//    }
+//    Q_EMIT mirrorRightEyeChanged(mirrorRightEye);
+//}
+
+//void RenderThread::setPointSize(qreal pointSize)
+//{
+//    if (m_pointSize == pointSize)
+//        return;
+
+//    m_pointSize = pointSize;
+//    m_mapsRenderer->setPointSize(pointSize);
+//    Q_EMIT pointSizeChanged(pointSize);
+//}
+
+//void RenderThread::setFilename(QString filename)
+//{
+//    if (m_filename == filename)
+//        return;
+
+//    m_filename = filename;
+//    m_mapsRenderer->setFilename(filename);
+//    Q_EMIT filenameChanged(filename);
+//}
+
+//void RenderThread::setDistanceDetail(qreal distanceDetail)
+//{
+//    if (m_distanceDetail == distanceDetail)
+//        return;
+
+//    m_distanceDetail = distanceDetail;
+//    m_mapsRenderer->setDistanceDetail(distanceDetail);
+//    Q_EMIT distanceDetailChanged(distanceDetail);
+//}
+
+//void RenderThread::setRunning(bool running)
+//{
+//    if (m_running == running)
+//        return;
+
+//    m_running = running;
+//    Q_EMIT runningChanged(running);
+//}
 
 void RenderThread::resetMirror()
 {
 #ifdef VRMODE
     context->makeCurrent(surface);
     //ovrSizei windowSize = { m_hmdDesc.Resolution.w / 2, m_hmdDesc.Resolution.h / 2 };
-    ovrSizei windowSize = { m_size.width(), m_size.height() };
+    ovrSizei windowSize = { m_renderdata.width(), m_renderdata.height() };
 
     if(m_mirrorTexture)
     {
@@ -712,32 +722,32 @@ void RenderThread::resetMirror()
 #endif
 }
 
-void RenderThread::setHeadOrientation(QMatrix4x4 headOrientation)
-{
-    //    if (m_headOrientation == headOrientation)
-    //        return;
+//void RenderThread::setHeadOrientation(QMatrix4x4 headOrientation)
+//{
+//    //    if (m_headOrientation == headOrientation)
+//    //        return;
 
-    //    m_headOrientation = headOrientation;
-    Q_EMIT headOrientationChanged(headOrientation);
-}
+//    //    m_headOrientation = headOrientation;
+//    Q_EMIT headOrientationChanged(headOrientation);
+//}
 
-void RenderThread::setHeadMatrix(QMatrix4x4 headMatrix)
-{
-//    if (m_headMatrix == headMatrix)
-//        return;
+//void RenderThread::setHeadMatrix(QMatrix4x4 headMatrix)
+//{
+////    if (m_headMatrix == headMatrix)
+////        return;
 
-//    m_headMatrix = headMatrix;
-    Q_EMIT headMatrixChanged(headMatrix);
-}
+////    m_headMatrix = headMatrix;
+//    Q_EMIT headMatrixChanged(headMatrix);
+//}
 
-void RenderThread::setHeadDirection(QVector3D headDirection)
-{
-//    if (m_headDirection == headDirection)
-//        return;
+//void RenderThread::setHeadDirection(QVector3D headDirection)
+//{
+////    if (m_headDirection == headDirection)
+////        return;
 
-//    m_headDirection = headDirection;
-    Q_EMIT headDirectionChanged(headDirection);
-}
+////    m_headDirection = headDirection;
+//    Q_EMIT headDirectionChanged(headDirection);
+//}
 
 void RenderThread::onMessageLogged(QOpenGLDebugMessage message)
 {
@@ -788,10 +798,10 @@ void RenderThread::initVR()
 }
 #endif
 
-QmlEntitydata *RenderThread::entitydata() const
-{
-    return m_entitydata;
-}
+//QmlEntitydata *RenderThread::entitydata() const
+//{
+//    return m_entitydata;
+//}
 
 void RenderThread::reload()
 {

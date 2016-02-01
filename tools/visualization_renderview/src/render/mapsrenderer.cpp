@@ -3,6 +3,7 @@
 #include <QtMath>
 #include <QOpenGLFunctions_4_1_Core>
 #include "upns_globals.h"
+#include "bindings/qmlentitydata.h"
 #include "libs/upns_interface/services.pb.h"
 #include "libs/mapmanager/include/versioning/checkout.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
@@ -11,10 +12,25 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
 
-MapsRenderer::MapsRenderer()
-    :m_entitydata( NULL ),
-     m_initialized( false )
+MapsRenderer::MapsRenderer(Renderdata *renderdata)
+    :m_initialized( false ),
+     m_entitydata( NULL ),
+     m_pointcloudSize(0),
+     m_renderdata(renderdata)
 {
+    QObject::connect(m_renderdata, &Renderdata::entitydataChanged, [&](QmlEntitydata *entitydata){
+        m_entitydata = entitydata->getEntityData();
+        if(m_initialized && m_entitydata != NULL)
+        {
+            createGeometry();
+        }
+    });
+    QObject::connect(m_renderdata, &Renderdata::filenameChanged, [&](QString filename){
+        if(m_initialized)
+        {
+            createGeometry(filename);
+        }
+    });
 }
 
 MapsRenderer::~MapsRenderer()
@@ -82,13 +98,14 @@ void MapsRenderer::initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-    if( m_entitydata != NULL )
+    if( m_renderdata->entitydata() != NULL && m_renderdata->entitydata()->getEntityData() != NULL )
     {
+        m_entitydata = m_renderdata->entitydata()->getEntityData();
         createGeometry();
     }
     else // else workaround fast pcd loading
     {
-        createGeometry(m_filename);
+        createGeometry(m_renderdata->filename());
     }
     m_initialized = true;
 }
@@ -98,19 +115,19 @@ bool MapsRenderer::isInitialized()
     return m_initialized;
 }
 
-void MapsRenderer::setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData)
-{
-    m_entitydata = entityData;
-    if(m_initialized && m_entitydata != NULL)
-    {
-        createGeometry();
-    }
-}
+//void MapsRenderer::setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData)
+//{
+//    m_entitydata = entityData;
+//    if(m_initialized && m_entitydata != NULL)
+//    {
+//        createGeometry();
+//    }
+//}
 
-void MapsRenderer::setMatrix(const QMatrix4x4 &mat)
-{
-    m_matrix = mat;
-}
+//void MapsRenderer::setMatrix(const QMatrix4x4 &mat)
+//{
+//    m_matrix = mat;
+//}
 
 void MapsRenderer::reload()
 {
@@ -120,33 +137,33 @@ void MapsRenderer::reload()
     }
 }
 
-void MapsRenderer::setScreenSize(const QSizeF &size)
-{
-    m_screenSize = size;
-}
+//void MapsRenderer::setScreenSize(const QSizeF &size)
+//{
+//    m_screenSize = size;
+//}
 
-void MapsRenderer::setPointSize(const float size)
-{
-    m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue(pointSizeUniform, size);
-    m_shaderProgram.release();
-}
+//void MapsRenderer::setPointSize(const float size)
+//{
+//    m_shaderProgram.bind();
+//    m_shaderProgram.setUniformValue(pointSizeUniform, m_renderdata->pointSize());
+//    m_shaderProgram.release();
+//}
 
-void MapsRenderer::setDistanceDetail(const float detail)
-{
-    m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue(distanceDetailUniform, detail);
-    m_shaderProgram.release();
-}
+//void MapsRenderer::setDistanceDetail(const float detail)
+//{
+//    m_shaderProgram.bind();
+//    m_shaderProgram.setUniformValue(distanceDetailUniform, m_renderdata->distanceDetail());
+//    m_shaderProgram.release();
+//}
 
-void MapsRenderer::setFilename(const QString &filename)
-{
-    m_filename = filename;
-    if(m_initialized)
-    {
-        createGeometry(filename);
-    }
-}
+//void MapsRenderer::setFilename(const QString &filename)
+//{
+//    m_filename = filename;
+//    if(m_initialized)
+//    {
+//        createGeometry(filename);
+//    }
+//}
 
 void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
 {
@@ -165,12 +182,14 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
     glEnable(GL_DEPTH_TEST);
 
     m_shaderProgram.bind();
-    QMatrix4x4 modelview(view*m_matrix);
+    QMatrix4x4 modelview(view*m_renderdata->matrix());
+    m_shaderProgram.setUniformValue(pointSizeUniform, static_cast<float>(m_renderdata->pointSize()));
+    m_shaderProgram.setUniformValue(distanceDetailUniform, static_cast<float>(m_renderdata->distanceDetail()));
     m_shaderProgram.setUniformValue(matrixUniformModelView, modelview);
     m_shaderProgram.setUniformValue(matrixUniformProj, proj);
     m_shaderProgram.setUniformValue(matrixUniformProjInv, proj.inverted());
     m_shaderProgram.setUniformValue(matrixUniformModelViewNormal, modelview.normalMatrix());
-    m_shaderProgram.setUniformValue(screenSizeUniform, m_screenSize);
+    m_shaderProgram.setUniformValue(screenSizeUniform, QSizeF(m_renderdata->width(), m_renderdata->height()));
     drawPointcloud();
     m_shaderProgram.release();
 
@@ -183,7 +202,7 @@ void MapsRenderer::createGeometry()
     if(m_entitydata == NULL)
     {
         // Workaround
-        createGeometry(m_filename);
+        createGeometry(m_renderdata->filename());
         return;
     }
     assert(m_entitydata != NULL);

@@ -9,28 +9,29 @@
 
 #include "abstractentitydata.h"
 #include "bindings/qmlentitydata.h"
+#include "bindings/renderdata.h"
 
 #include <pcl/PCLPointCloud2.h> //< Note: Only for workaround boost::serialization
 
 class MapsRenderer : protected QOpenGLFunctions
 {
 public:
-    MapsRenderer();
+    MapsRenderer(Renderdata *renderdata);
     ~MapsRenderer();
 
     void render(const QMatrix4x4 &view, const QMatrix4x4 &proj);
     void initialize();
     bool isInitialized();
 
-    void setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData);
-    void setMatrix( const QMatrix4x4 &mat );
+//    void setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData);
+//    void setMatrix( const QMatrix4x4 &mat );
     void reload();
-    void setScreenSize(const QSizeF &size);
-    void setPointSize(const float size);
-    void setDistanceDetail(const float detail);
-    void setFilename(const QString &filename);
+//    void setScreenSize(const QSizeF &size);
+//    void setPointSize(const float size);
+//    void setDistanceDetail(const float detail);
+//    void setFilename(const QString &filename);
 private:
-    QMatrix4x4   m_matrix;
+//    QMatrix4x4   m_matrix;
 
     void drawPointcloud();
     void createGeometry();
@@ -59,10 +60,11 @@ private:
 
     bool m_initialized;
     upns::upnsSharedPointer<upns::AbstractEntityData> m_entitydata;
-    //Note: Filenames are a workaround, as long as stubs are used and as long as boost::serialization is used and too slow
-    QString m_filename;
-    QSizeF m_screenSize;
+//    //Note: Filenames are a workaround, as long as stubs are used and as long as boost::serialization is used and too slow
+//    QString m_filename;
+//    QSizeF m_screenSize;
     unsigned int m_pointcloudSize;
+    Renderdata *m_renderdata;
 };
 
 #endif

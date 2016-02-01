@@ -13,163 +13,9 @@ ApplicationWindow {
     width: 640
     height: 480
     visible: true
-    menuBar: MenuBar {
-        Menu {
-            title: qsTr("&File")
-            MenuItem {
-                text: qsTr("&Open Project")
-                onTriggered: openFileDialog.open()
-            }
-            MenuItem {
-                text: qsTr("&Commit")
-                onTriggered: saveFileDialog.open()
-            }
-            MenuItem {
-                text: qsTr("Save Project &As")
-                onTriggered: saveFileDialog.open()
-            }
-            MenuItem {
-                text: qsTr("E&xit")
-                onTriggered: Qt.quit();
-            }
-        }
-        Menu {
-            title: qsTr("&Edit")
-            MenuItem {
-                text: qsTr("&Copy")
-                onTriggered: console.log("not yet implemented.");
-            }
-            MenuItem {
-                text: qsTr("&Paste")
-                onTriggered: {
-
-                }
-            }
-        }
-        Menu {
-            title: qsTr("&View")
-//            MenuItem {
-//                id: detailHiItem
-//                text: qsTr("&Hi Detail")
-//                checkable: true
-//                checked: true
-//                onCheckedChanged: {
-//                }
-//            }
-//            MenuItem {
-//                id: detailMidtem
-//                text: qsTr("&Mid Detail")
-//                checkable: true
-//                checked: false
-//                onCheckedChanged: {
-//                }
-//            }
-//            MenuItem {
-//                id: detailLoItem
-//                text: qsTr("&Low Detail")
-//                checkable: true
-//                checked: false
-//                onCheckedChanged: {
-//                }
-//            }
-            MenuSeparator { }
-//            MenuItem {
-//                id: executeItem
-//                text: qsTr("Lower Detail when &moving")
-//                enabled: false
-//                onTriggered: {
-//                }
-//            }
-            MenuSeparator { }
-            MenuItem {
-                id: showCenter
-                text: qsTr("Show Center &Cross")
-                checkable: true
-                checked: true
-            }
-            MenuSeparator { }
-//            MenuItem {
-//                id: centerFixed
-//                text: qsTr("Torso Yaw fixed to view")
-//                checkable: true
-//                checked: true
-//            }
-            MenuItem {
-                id: fixedUpvec
-                text: qsTr("Fixed Upvector")
-                checkable: true
-                checked: true
-            }
-            MenuItem {
-                id: invertY
-                text: qsTr("Invert Y Axis")
-                enabled: !fixedUpvec.checked
-                checkable: true
-                checked: true
-            }
-            MenuSeparator { }
-            MenuItem {
-                id: vrModeEnabled
-                text: qsTr("Enable VR")
-                checkable: true
-                checked: true
-            }
-            Menu {
-                id: vrMirror
-                title: qsTr("Mirror VR")
-                enabled: vrModeEnabled.checked
-                ExclusiveGroup {
-                    id: mirrorGroup
-                }
-                MenuItem {
-                    id: vrMirrorOff
-                    text: qsTr("No Mirror")
-                    checkable: drawingArea.running
-                    checked: false
-                    exclusiveGroup: mirrorGroup
-                }
-                MenuItem {
-                    id: vrMirrorDistorsion
-                    text: qsTr("Distorsion")
-                    checkable: drawingArea.running
-                    checked: true
-                    exclusiveGroup: mirrorGroup
-                }
-                MenuItem {
-                    id: vrMirrorRight
-                    text: qsTr("Right Eye")
-                    enabled: false
-                    checkable: false && drawingArea.running // not yet available
-                    checked: false
-                    exclusiveGroup: mirrorGroup
-                }
-                MenuItem {
-                    id: vrMirrorLeft
-                    text: qsTr("Left Eye")
-                    enabled: false
-                    checkable: false && drawingArea.running // not yet available
-                    checked: false
-                    exclusiveGroup: mirrorGroup
-                }
-            }
-        }
-        Menu {
-            title: qsTr("&Window")
-            MenuItem {
-                text: qsTr("Show &Operations Pane")
-                checkable: true
-                checked: true
-                onCheckedChanged: {
-                }
-            }
-            MenuItem {
-                text: qsTr("Show &Maps/Layers Pane")
-                checkable: true
-                checked: false
-                onCheckedChanged: {
-                }
-            }
-        }
+    menuBar: MainMenubar {
+        id: menubar
+        uiEnabled: drawingArea.renderdata.running
     }
     GridLayout {
         anchors.fill: parent
@@ -179,20 +25,14 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.fillHeight: true
 //            entitydata: EntityDataPointcloud2 {
-//                //filename: "data/bunny.pcd"
-//                //filename: "data/alignedRGB_FH/Aligned_FARO_Scan_072.ply"
-//                //filename: "data/fh/000000.pcd"
-
-//                //filename: "data/fh/all_pointclouds20_mini_norm.pcd"
 //                filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
 //            }
-            filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
-
-            //filename: "data/Rover.pcd"
-            vrmode: vrModeEnabled.checked
-            mirrorEnabled: !vrMirrorOff.checked
-            mirrorDistorsion: vrMirrorDistorsion.checked
-            mirrorRightEye: vrMirrorRight.checked
+            renderdata.filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
+            //renderdata.filename: "data/Rover.pcd"
+            renderdata.vrmode: menubar.enableVr
+            renderdata.mirrorEnabled: menubar.mirrorEnabled
+            renderdata.mirrorDistorsion: menubar.mirrorDistorsion
+            renderdata.mirrorRightEye: menubar.mirrorRightEye
 
             onFrame: {
                 xboxController.onFrame()
@@ -203,7 +43,7 @@ ApplicationWindow {
                 width: 1
                 height: 11
                 color: "white"
-                visible: showCenter.checked
+                visible: menubar.showCenterCross
             }
             Rectangle {
                 x: parent.width/2-5
@@ -211,94 +51,21 @@ ApplicationWindow {
                 width: 11
                 height: 1
                 color: "white"
-                visible: showCenter.checked
+                visible: menubar.showCenterCross
             }
             Text {
                 color: "white"
                 id: name
-                text: "Pos: (" + drawingArea.torsoPos.x + ", " + drawingArea.torsoPos.y + ", " + drawingArea.torsoPos.z + ")"
+                text: "Pos: (" + camera.torsoPos.x + ", " + camera.torsoPos.y + ", " + camera.torsoPos.z + ")"
             }
 
-            property bool moveAlongHeadDirection: true // move where head shows or where torso shows?
-            property alias fixedUpVector: fixedUpvec.checked
-
-            property var torsoPos: Qt.vector3d(0.0,0.0,0.0)
-            property var torsoPositionMatrix: Qt.matrix4x4(
-                                     1.0, 0.0, 0.0, torsoPos.x,
-                                     0.0, 1.0, 0.0, torsoPos.y,
-                                     0.0, 0.0, 1.0, torsoPos.z,
-                                     0.0, 0.0, 0.0, 1.0)
-            property var torsoOrientation: Qt.matrix4x4(
-                                               1.0, 0.0, 0.0, 0.0,
-                                               0.0, 1.0, 0.0, 0.0,
-                                               0.0, 0.0, 1.0, 0.0,
-                                               0.0, 0.0, 0.0, 1.0)
-
-
-            // inverse head matrix
-            property var headOrientationInverse: headOrientation.transposed()
-
-            // orientation to yaw and pitch around (always view)
-            property var rotationOrientation: headOrientationInverse.times(torsoOrientation)
-
-            // orientation to move along (may be torso or head)
-            property var moveOrientation: moveAlongHeadDirection?rotationOrientation:torsoOrientation
-
-            // output
-            matrix: torsoOrientation.times(torsoPositionMatrix);
-
-            function move(side, up, forward) {
-                torsoPos = torsoPos.plus(moveOrientation.row(0).toVector3d().times(side))
-                torsoPos = torsoPos.plus(moveOrientation.row(1).toVector3d().times(up))
-                torsoPos = torsoPos.plus(moveOrientation.row(2).toVector3d().times(forward))
+            renderdata.matrix: camera.matrix
+            Camera {
+                id: camera
+                fixedUpVector: menubar.fixUpvector
+                headOrientation: drawingArea.renderdata.headOrientation
             }
 
-            function rotateYaw(yaw, inp) {
-                var yawMat = Qt.matrix4x4(
-                    Math.cos(yaw),    0.0, -Math.sin(yaw),    0.0,
-                    0.0,              1.0, 0.0,               0.0,
-                    Math.sin(yaw),    0.0, Math.cos(yaw),     0.0,
-                    0.0,              0.0, 0.0,               1.0)
-                if(fixedUpVector)
-                    return yawMat.times(inp);
-                else
-                    return headOrientation.times(yawMat.times(headOrientationInverse.times(inp)))
-            }
-            function rotatePitch(pitch, inp) {
-                if(fixedUpVector) return inp;
-                var pitchMat = Qt.matrix4x4(
-                   1.0,              0.0, 0.0,               0.0,
-                   0.0,  Math.cos(pitch),  -Math.sin(pitch), 0.0,
-                   0.0,  Math.sin(pitch),   Math.cos(pitch), 0.0,
-                   0.0,              0.0, 0.0              , 1.0)
-                return headOrientation.times(pitchMat.times(headOrientationInverse.times(inp)))
-            }
-            function rotateBank(bank, inp) {
-                if(fixedUpVector) return inp;
-                var bankMat = Qt.matrix4x4(
-                   Math.cos(bank), -Math.sin(bank),  0.0, 0.0,
-                   Math.sin(bank),  Math.cos(bank),  0.0, 0.0,
-                   0.0,             0.0,             1.0, 0.0,
-                   0.0,             0.0,             0.0, 1.0)
-                return headOrientation.times(bankMat.times(headOrientationInverse.times(inp)))
-            }
-
-            // prohibit banking
-            function fixUpvector(inp) {
-                // Not yet working
-                var side // not needed for read
-                var upvec = Qt.vector3d(0.0, 1.0, 0.0); // constrain upvector
-                var forward = inp.row(2).toVector3d() // keep forward direction
-
-                // orthonormalize
-                side = upvec.crossProduct(forward).normalized()
-                upvec = forward.crossProduct(side).normalized()
-                forward = side.crossProduct(upvec).normalized()
-                inp.m11 = side.x     ; inp.m12 = side.y     ; inp.m13 = side.z
-                inp.m21 = upvec.x    ; inp.m22 = upvec.y    ; inp.m23 = upvec.z
-                inp.m31 = forward.x  ; inp.m32 = forward.y  ; inp.m33 = forward.z
-                return inp
-            }
             MouseArea {
                 id: screenMouse
                 anchors.fill: parent
@@ -309,7 +76,7 @@ ApplicationWindow {
                 property real mx
                 property real my
                 onWheel: {
-                    drawingArea.move(0.0, 0.0, wheel.angleDelta.y*0.01);
+                    camera.move(0.0, 0.0, wheel.angleDelta.y*0.01);
                 }
                 function pressedButtonsChanged() {
                     var leftButton = screenMouse.pressedButtons & Qt.LeftButton
@@ -338,16 +105,11 @@ ApplicationWindow {
                     var movementx = (mx - mouseX) * 0.05
                     var movementy = (my - mouseY) * 0.05
                     if(rotating) {
-                        var tmp = drawingArea.torsoOrientation
-                        tmp = drawingArea.rotateYaw(movementx*0.1, tmp)
-                        tmp = drawingArea.rotatePitch(-movementy*0.1, tmp)
-                        if(drawingArea.fixedUpVector)
-                        {
-                            tmp = drawingArea.fixUpvector(tmp)
-                        }
-                        drawingArea.torsoOrientation = tmp
+                        camera.rotateYaw(movementx*0.1)
+                        camera.rotatePitch(-movementy*0.1)
+                        camera.finishMovement();
                     } else if(translating) {
-                        drawingArea.move(movementx, movementy, 0.0)
+                        camera.move(movementx, movementy, 0.0)
                     }
                     mx = mouseX
                     my = mouseY
@@ -359,22 +121,22 @@ ApplicationWindow {
                         speed *= 2;
                     }
                     if (event.key === Qt.Key_Left || event.key === Qt.Key_A) {
-                        drawingArea.move(speed, 0.0, 0.0);
+                        camera.move(speed, 0.0, 0.0);
                     }
                     if (event.key === Qt.Key_Right || event.key === Qt.Key_D) {
-                        drawingArea.move(-speed, 0.0, 0.0);
+                        camera.move(-speed, 0.0, 0.0);
                     }
                     if (event.key === Qt.Key_Up || event.key === Qt.Key_W) {
-                        drawingArea.move(0.0, 0.0, speed);
+                        camera.move(0.0, 0.0, speed);
                     }
                     if (event.key === Qt.Key_Down || event.key === Qt.Key_S) {
-                        drawingArea.move(0.0, 0.0, -speed);
+                        camera.move(0.0, 0.0, -speed);
                     }
                     if (event.key === Qt.Key_Y) {
-                        drawingArea.move(0.0, -speed, 0.0);
+                        camera.move(0.0, -speed, 0.0);
                     }
                     if (event.key === Qt.Key_X) {
-                        drawingArea.move(0.0, speed, 0.0);
+                        camera.move(0.0, speed, 0.0);
                     }
                     var bank = 0;
                     if (event.key === Qt.Key_Q) {
@@ -384,15 +146,14 @@ ApplicationWindow {
                         bank = 0.1;
                     }
                     if (bank !== 0) {
-                        var tmp = drawingArea.torsoOrientation
-                        tmp = drawingArea.rotateBank(bank, tmp)
-                        drawingArea.torsoOrientation = tmp
+                        tmp = camera.rotateBank(bank)
+                        camera.finishMovement();
                     }
                     if (event.key === Qt.Key_H) {
-                        drawingArea.pointSize++
+                        drawingArea.renderdata.pointSize++
                     }
                     if (event.key === Qt.Key_J) {
-                        drawingArea.pointSize = Math.max(1.0,drawingArea.pointSize-1);
+                        drawingArea.renderdata.pointSize = Math.max(1.0,drawingArea.renderdata.pointSize-1);
                     }
                 }
                 XBoxController {
@@ -409,7 +170,7 @@ ApplicationWindow {
                     property real speed: (buttonB?0.01:0.1) + buttonA * 1.0
                     property real movForward: (stickRY + triggerRight - triggerLeft) * speed
                     property real movRight: stickRX*speed
-                    property real rotY: stickLY*-0.02 * (1.0 + invertY.checked * -2.0)
+                    property real rotY: stickLY*-0.02 * (1.0 + menubar.invertYAxis * -2.0)
                     property real rotX: stickLX*-0.02
                     property real pointSizeGrowth: dpadRight - dpadLeft
                     property real distanceDetailChange: dpadUp - dpadDown
@@ -417,7 +178,7 @@ ApplicationWindow {
                     id: xboxController
                     onButtonStartChanged: {
                         if(buttonStart) {
-                            drawingArea.vrmode = !drawingArea.vrmode
+                            drawingArea.renderdata.vrmode = !drawingArea.renderdata.vrmode
                         }
                     }
                     onLeftShoulderChanged: {
@@ -436,34 +197,28 @@ ApplicationWindow {
                             if(demoPoint >= demoPoints.length) {
                                 demoPoint = 0
                             }
-                            drawingArea.pointSize = 64.0
+                            drawingArea.renderdata.pointSize = 64.0
                             if(demoPoint == 0) {
-                                drawingArea.distanceDetail = 10.0
+                                drawingArea.renderdata.distanceDetail = 10.0
                             } else {
-                                drawingArea.distanceDetail = 1.0
+                                drawingArea.renderdata.distanceDetail = 1.0
                             }
-                            drawingArea.torsoPos = demoPoints[demoPoint]
+                            camera.torsoPos = demoPoints[demoPoint]
                         }
                     }
                     Component.onCompleted: {
-                        drawingArea.torsoPos = demoPoints[demoPoint]
+                        camera.torsoPos = demoPoints[demoPoint]
                     }
                     function onFrame() {
                         update()
-                        drawingArea.pointSize += pointSizeGrowth
+                        drawingArea.renderdata.pointSize += pointSizeGrowth
                         distanceDetailInv += distanceDetailChange*0.1
                         distanceDetailInv = Math.max(0.01, distanceDetailInv)
-                        drawingArea.distanceDetail = 1.0/distanceDetailInv
-                        drawingArea.move(-movRight, 0.0, movForward)
-
-                        var tmp = drawingArea.torsoOrientation
-                        tmp = drawingArea.rotateYaw(rotX, tmp)
-                        tmp = drawingArea.rotatePitch(rotY, tmp)
-                        if(drawingArea.fixedUpVector)
-                        {
-                            tmp = drawingArea.fixUpvector(tmp)
-                        }
-                        drawingArea.torsoOrientation = tmp
+                        drawingArea.renderdata.distanceDetail = 1.0/distanceDetailInv
+                        camera.move(-movRight, 0.0, movForward)
+                        camera.rotateYaw(rotX)
+                        camera.rotatePitch(rotY)
+                        camera.finishMovement()
                     }
                 }
             }

@@ -25,6 +25,7 @@
 #include <pcl/octree/octree_impl.h>
 #include <QDir>
 #include "controls/xboxcontroller.h"
+#include "bindings/renderdata.h"
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -226,6 +227,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
+    qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "EntityData");
     qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntityDataPointcloud2");
     qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");

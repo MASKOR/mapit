@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>qml/Camera.qml</file>
+        <file>qml/MainMenubar.qml</file>
+        <file>qml/VisualizationSettings.qml</file>
     </qresource>
 </RCC>
