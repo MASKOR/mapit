@@ -122,6 +122,7 @@ ApplicationWindow {
                     my = mouseY
                 }
                 focus: true
+                property var distanceDetailKeyboardTemp: 0.0
                 Keys.onPressed: {
                     var speed = xboxController.speed;
                     if (event.key === Qt.Key_Shift) {
@@ -162,6 +163,12 @@ ApplicationWindow {
                     if (event.key === Qt.Key_J) {
                         drawingArea.renderdata.pointSize = Math.max(1.0,drawingArea.renderdata.pointSize-1);
                     }
+                    if (event.key === Qt.Key_K) {
+                        distanceDetailKeyboardTemp--;
+                    }
+                    if (event.key === Qt.Key_L) {
+                        distanceDetailKeyboardTemp++;
+                    }
                 }
                 XBoxController {
                     property int demoPoint: 0
@@ -180,7 +187,7 @@ ApplicationWindow {
                     property real rotY: stickLY*-0.02 * (1.0 + menubar.invertYAxis * -2.0)
                     property real rotX: stickLX*-0.02
                     property real pointSizeGrowth: dpadRight - dpadLeft
-                    property real distanceDetailChange: dpadUp - dpadDown
+                    property real distanceDetailChange: dpadUp - dpadDown + screenMouse.distanceDetailKeyboardTemp
                     property real distanceDetailInv: 1.0
                     id: xboxController
                     onButtonStartChanged: {

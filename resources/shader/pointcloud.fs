@@ -10,7 +10,7 @@ uniform mediump vec2 viewport; //TODO: wz!
 void main(void)
 {
     vec3 normal = normalize(viewnormal);
-    if(normal.z>0.0)
+    if(normal.z<0.0)
     {
         normal = -normal;
     }
