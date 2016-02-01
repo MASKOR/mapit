@@ -13,6 +13,7 @@ MenuBar {
     property alias mirrorRightEye: vrMirrorRight.checked
     property alias mirrorLeftEye: vrMirrorLeft.checked
     property bool uiEnabled
+    property bool vrAvailable: true
     Menu {
         title: qsTr("&File")
         MenuItem {
@@ -110,7 +111,8 @@ MenuBar {
         MenuItem {
             id: vrModeEnabled
             text: qsTr("Enable VR")
-            checkable: true
+            enabled: vrAvailable
+            checkable: vrAvailable
             checked: true
         }
         Menu {

@@ -219,6 +219,7 @@ RenderThread::RenderThread()
 #endif
     QmlMapsRenderViewport::threads << this;
     m_mapsRenderer = new MapsRenderer(&m_renderdata);
+#ifdef VRMODE
     connect(renderdata(), &Renderdata::vrmodeChanged, this, [&](bool vrmode) {
         if(vrmode)
         {
@@ -237,6 +238,7 @@ RenderThread::RenderThread()
             m_vrMainLoopConnection = nullptr;
         }
     });
+#endif
 }
 
 RenderThread::~RenderThread()
@@ -260,7 +262,7 @@ void RenderThread::renderNext()
             m_displayFbo = NULL;
         }
     }
-    else
+    if(!m_renderFbo)
     {
         // Initialize the buffers and renderer
         QOpenGLFramebufferObjectFormat format;

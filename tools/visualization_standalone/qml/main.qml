@@ -30,6 +30,13 @@ ApplicationWindow {
             renderdata.filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
             //renderdata.filename: "data/Rover.pcd"
             renderdata.vrmode: menubar.enableVr
+            Component.onCompleted: {
+                if(renderdata.vrmode === false) {
+                    menubar.vrAvailable = false
+                    menubar.enableVr = false
+                    menubar.fixUpvector = false
+                }
+            }
             renderdata.mirrorEnabled: menubar.mirrorEnabled
             renderdata.mirrorDistorsion: menubar.mirrorDistorsion
             renderdata.mirrorRightEye: menubar.mirrorRightEye
