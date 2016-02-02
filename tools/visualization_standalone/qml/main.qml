@@ -60,6 +60,14 @@ ApplicationWindow {
                 color: "white"
                 visible: menubar.showCenterCross
             }
+            AxisGizmo {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                width: 100
+                height: 100
+                finalTransform: drawingArea.finalTransform
+            }
             Text {
                 color: "white"
                 id: name

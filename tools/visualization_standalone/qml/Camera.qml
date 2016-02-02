@@ -68,14 +68,24 @@ Item {
            0.0,             0.0,             0.0, 1.0)
         torsoOrientation = headOrientation.times(bankMat.times(headOrientationInverse.times(torsoOrientation)))
     }
+    property var gimbalLockBorder: 0.01
+    property var gimbalLockCos: Qt.vector3d(0.0,1.0,0.0).dotProduct(Qt.vector3d(0.0,1.0-gimbalLockBorder,0.0))
 
     // prohibit banking (and pitch)
-    function fixUpvector() {
+    function fixUpvector(dir) {
         // Not yet working
         var side // not needed for read
         var upvec = Qt.vector3d(0.0, 1.0, 0.0); // constrain upvector
         var forward = torsoOrientation.row(2).toVector3d() // keep forward direction
-
+        var dotUpForw = upvec.dotProduct(forward)
+        if(Math.abs(dotUpForw) > gimbalLockCos) {
+            // Gimbal Lock imminent
+            // Note: It would be nice, if we had a direction here.
+            // Because this is not the case, the forward vector must be "beamed" back.
+            side = torsoOrientation.row(0).toVector3d()
+            var minimalForw = upvec.times(-1).crossProduct(torsoOrientation.row(0).toVector3d()).normalized()
+            forward = Qt.vector3d(0.0, dotUpForw<0?-1:1, 0.0).plus(minimalForw.times(gimbalLockBorder*15));
+        }
         // orthonormalize
         side = upvec.crossProduct(forward).normalized()
         upvec = forward.crossProduct(side).normalized()
