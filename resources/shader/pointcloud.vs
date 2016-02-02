@@ -22,9 +22,9 @@ void main(void)
     //color_frag = vec4(gl_VertexID, float(gl_VertexID)*0.01, float(gl_VertexID)*0.001, 1.0);
     vec4 viewSpacePos = modelviewmatrix * vertex;
     viewPoint = viewSpacePos.xyz;
-    viewnormal = modelviewnormalmatrix * (normal*vec3(1.0,-1.0,1.0));
+    viewnormal = modelviewnormalmatrix * (normal*vec3(1.0,1.0,1.0));
     gl_Position = projectionmatrix * viewSpacePos;
-    float dist = length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
+    float dist = gl_Position.w;//length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));

@@ -9,6 +9,7 @@ Item {
         Rectangle {
             width: 1
             height: root.width/2*(1.0-Math.abs(finalTransform.column(0).z))
+            //height: root.width/2*(1.0-Math.abs(finalTransform.column(0).toVector3d().dotProduct(Qt.vector3d(0.0,0.0,1.0))))
             color: "red"
             transformOrigin: Item.TopLeft
             rotation: Math.atan2(finalTransform.column(0).x, finalTransform.column(0).y)*(180.0/Math.PI) + (finalTransform.column(0).z<0?0:Math.PI)
