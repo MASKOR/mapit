@@ -86,6 +86,7 @@ void initVR();
     Renderdata m_renderdata;
     boost::timer m_timer;
     int m_framecount;
+    int m_frameIndex;
     double m_frametimes[FRAMES_AVERAGE_WINDOW];
 };
 

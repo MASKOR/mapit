@@ -208,6 +208,7 @@ RenderThread::RenderThread()
     , m_displayFbo(0)
     , m_vrInitialized(false)
     , m_framecount(0)
+    , m_frameIndex(0)
     #ifdef VRMODE
     , m_mirrorTexture(nullptr)
     , m_mirrorFBO( 0 )
@@ -369,6 +370,7 @@ void RenderThread::renderNextVR()
 
 void RenderThread::vrThreadMainloop()
 {
+    m_frameIndex++;
     //qDebug() << "frame";
     if(!m_renderdata.running())
     {
@@ -391,7 +393,7 @@ void RenderThread::vrThreadMainloop()
                                                 m_eyeRenderDesc[1].HmdToEyeViewOffset };
     ovrPosef                  EyeRenderPose[2];
 
-    double           ftiming = ovr_GetPredictedDisplayTime(m_HMD, 0);
+    double           ftiming = ovr_GetPredictedDisplayTime(m_HMD, m_frameIndex);
     // Keeping sensorSampleTime as close to ovr_GetTrackingState as possible - fed into the layer
     double           sensorSampleTime = ovr_GetTimeInSeconds();
     ovrTrackingState hmdState = ovr_GetTrackingState(m_HMD, ftiming, ovrTrue);
