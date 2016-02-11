@@ -19,6 +19,7 @@
 #include <Extras/OVR_Math.h>
 #endif
 
+#include <numeric>
 #include "mapsrenderer.h"
 #include "bindings/qmlmapsrenderviewport.h"
 
@@ -206,6 +207,7 @@ RenderThread::RenderThread()
     , m_renderFbo(0)
     , m_displayFbo(0)
     , m_vrInitialized(false)
+    , m_framecount(0)
     #ifdef VRMODE
     , m_mirrorTexture(nullptr)
     , m_mirrorFBO( 0 )
@@ -217,6 +219,7 @@ RenderThread::RenderThread()
     m_eyeDepthBuffer[0] = nullptr;
     m_eyeDepthBuffer[1] = nullptr;
 #endif
+    m_timer.restart();
     QmlMapsRenderViewport::threads << this;
     m_mapsRenderer = new MapsRenderer(&m_renderdata);
     connect(renderdata(), &Renderdata::vrmodeChanged, this, [&](bool vrmode) {
@@ -304,7 +307,7 @@ void RenderThread::renderNextNonVR()
     QMatrix4x4 mat;
     QMatrix4x4 view;
     view.setToIdentity();
-    mat.perspective(45.0f, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
+    mat.perspective(90.0f, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
     QMatrix4x4 flipY;
     flipY.setToIdentity();
     flipY.data()[4+1] = -1.f;
@@ -312,13 +315,14 @@ void RenderThread::renderNextNonVR()
     renderdata()->setHeadMatrix(view);
     renderdata()->setHeadDirection(QVector3D(0.0,0.0,1.0));
     renderdata()->setHeadOrientation(view);
-    m_mapsRenderer->render(view, mat );
+    QVector4D vps(m_renderdata.width(), m_renderdata.height(), 1.0f, 1000.0f);
+    m_mapsRenderer->render(view, mat, vps );
 }
 
 #ifdef VRMODE
 void RenderThread::renderNextVR()
 {
-    qDebug() << "sync";
+    //qDebug() << "sync";
     if(!m_vrInitialized)
     {
         initVR();
@@ -363,7 +367,7 @@ void RenderThread::renderNextVR()
 
 void RenderThread::vrThreadMainloop()
 {
-    qDebug() << "frame";
+    //qDebug() << "frame";
     if(!m_renderdata.running())
     {
         Q_EMIT frameFinished();
@@ -425,7 +429,8 @@ void RenderThread::vrThreadMainloop()
             // Render world
             //roomScene->Render(view, proj);
             //context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
-            m_mapsRenderer->render(qview, qproj);
+            QVector4D vps(m_eyeRenderTexture[eye]->texSize.w, m_eyeRenderTexture[eye]->texSize.h, 0.2f, 1000.0f);
+            m_mapsRenderer->render(qview, qproj, vps);
 
             // Avoids an error when calling SetAndClearRenderSurface during next iteration.
             // Without this, during the next while loop iteration SetAndClearRenderSurface
@@ -458,6 +463,31 @@ void RenderThread::vrThreadMainloop()
 
     ovrLayerHeader* layers = &ld.Header;
     ovrResult result = ovr_SubmitFrame(m_HMD, 0, &viewScaleDesc, &layers, 1);
+
+    m_frametimes[m_framecount] = m_timer.elapsed();
+    m_framecount++;
+    if(m_framecount == FRAMES_AVERAGE_WINDOW)
+    {
+        m_framecount = 0;
+        double mint=std::numeric_limits<double>::max(), maxt=0.0;
+        std::vector<double> sorted(FRAMES_AVERAGE_WINDOW-1);
+        for(int i=0;i<(FRAMES_AVERAGE_WINDOW-1);++i)
+        {
+            auto diff = m_frametimes[i+1]-m_frametimes[i];
+            sorted.push_back(diff);
+            mint = std::min(diff, mint);
+            maxt = std::max(diff, maxt);
+        }
+        std::sort(sorted.begin(), sorted.end());
+        auto median = sorted[FRAMES_AVERAGE_WINDOW/2];
+        double avg = m_frametimes[FRAMES_AVERAGE_WINDOW-1]-m_frametimes[0];
+        qDebug() << "FPS:" << static_cast<double>(FRAMES_AVERAGE_WINDOW)/avg
+                 << "(t_avg:" << avg
+                 << "(t_med:" << median
+                 << ",t_min:" << mint
+                 << ",t_min:" << maxt << ")" ;
+        m_timer.restart();
+    }
     // exit the rendering loop if submit returns an error, will retry on ovrError_DisplayLost
     if (!OVR_SUCCESS(result))
     {

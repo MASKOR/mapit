@@ -10,8 +10,8 @@ import fhac.upns 1.0
 
 ApplicationWindow {
     title: qsTr("Map Visualization")
-    width: 640
-    height: 480
+    width: 1200
+    height: 800
     visible: true
     menuBar: MainMenubar {
         id: menubar

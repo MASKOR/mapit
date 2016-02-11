@@ -30,8 +30,16 @@ void Renderdata::connectReadInputWidthHeightFrom(Renderdata *other)
 
 void Renderdata::connectReadInputWidthHeightFrom(QQuickItem *other)
 {
-    connect(other, &QQuickItem::widthChanged, this, [other, this](){this->setWidth(other->width());});
-    connect(other, &QQuickItem::heightChanged, this, [other, this](){this->setHeight(other->height());});
+    connect(other, &QQuickItem::widthChanged, this, [other, this]()
+    {
+        //if(this->vrmode())
+            this->setWidth(other->width());
+    });
+    connect(other, &QQuickItem::heightChanged, this, [other, this]()
+    {
+        //if(this->vrmode())
+            this->setHeight(other->height());
+    });
 }
 
 void Renderdata::connectReadInputFrom(Renderdata *other)

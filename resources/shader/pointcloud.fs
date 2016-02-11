@@ -5,7 +5,16 @@ in mediump vec3 viewPoint;
 out vec4 fragColor;
 uniform mediump mat4 modelviewmatrix;
 uniform mediump mat4 projectioninvmatrix;
-uniform mediump vec2 viewport; //TODO: wz!
+uniform mediump vec4 viewport; //TODO: wz! and: do not use, incorrect for oculus!
+
+vec3 unproj(vec3 p, vec3 n)
+{
+    vec2 xy = gl_FragCoord.xyz/viewport.xy;
+    vec4 v_screen = vec4(xy, 0.0, 1.0 );
+    vec4 v_homo = inverse(gl_ProjectionMatrix) * 2.0*(v_screen-vec4(0.5));
+    vec3 v_eye = v_homo.xyz / v_homo.w; //transfer from homogeneous coordinates
+    return v_eye;
+}
 
 void main(void)
 {
@@ -27,11 +36,12 @@ void main(void)
 
     //float dist = dot(pos, 1.0 / (radii * radii));
     float dist = pos.x + pos.y*(1.0/(radSmall*radSmall));
-    float innerDelta = fwidth(dist) * 0.8;
+    float innerDelta = fwidth(dist);
 
-    float innerAlpha = smoothstep(1.0 - innerDelta, 1.0 + innerDelta, dist);
+    float innerAlpha = 1.0-smoothstep(1.0 - innerDelta, 1.0 + innerDelta, dist);
 
-    if(dist > 0.5) discard;
     //float impl = res.a*p.x*p.x + res.b*p.y*p.y + res.c*p.x*p.y + res.d*p.x + res.e*p.y + res.f;
     fragColor = color_frag;
+    fragColor.a = innerAlpha;
+    if(fragColor.a < 0.01) discard;
 }

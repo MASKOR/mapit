@@ -165,7 +165,7 @@ void MapsRenderer::reload()
 //    }
 //}
 
-void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
+void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize)
 {
     if(!m_initialized) return;
     glDepthMask(true);
@@ -180,6 +180,8 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
     glCullFace(GL_FRONT);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_shaderProgram.bind();
     QMatrix4x4 modelview(view*m_renderdata->matrix());
@@ -189,7 +191,7 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj)
     m_shaderProgram.setUniformValue(matrixUniformProj, proj);
     m_shaderProgram.setUniformValue(matrixUniformProjInv, proj.inverted());
     m_shaderProgram.setUniformValue(matrixUniformModelViewNormal, modelview.normalMatrix());
-    m_shaderProgram.setUniformValue(screenSizeUniform, QSizeF(m_renderdata->width(), m_renderdata->height()));
+    m_shaderProgram.setUniformValue(screenSizeUniform, viewportSize);
     drawPointcloud();
     m_shaderProgram.release();
 

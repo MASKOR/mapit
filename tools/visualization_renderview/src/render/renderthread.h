@@ -7,10 +7,13 @@
 #include "bindings/qmlentitydata.h"
 #include <QOpenGLDebugMessage>
 #include "bindings/renderdata.h"
+#include <boost/timer.hpp>
 
 #ifdef VRMODE
 #include <OVR_CAPI_GL.h>
 #endif
+
+#define FRAMES_AVERAGE_WINDOW 100
 class MapsRenderer;
 
 class TextureBuffer;
@@ -81,6 +84,9 @@ void initVR();
 #endif
     QOpenGLDebugLogger m_logger;
     Renderdata m_renderdata;
+    boost::timer m_timer;
+    int m_framecount;
+    double m_frametimes[FRAMES_AVERAGE_WINDOW];
 };
 
 #endif // MapsRenderer_H

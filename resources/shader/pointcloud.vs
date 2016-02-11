@@ -11,6 +11,17 @@ out mediump vec3 viewPoint;
 uniform mediump float pointsize;
 uniform mediump float distanceDetail;
 //in int gl_VertexID;
+
+//TODO:
+// 1) Go "finalSize" to right in viewspace -> project.
+// 2) Go "finalSize" to left  in viewspace -> project.
+// 3) Go "finalSize" to top/bottom  in viewspace -> project.
+// 4) Maximum is gl_PointSize
+// 5) Frag: Unproject pixel to surfel coords. (ray? bring ray from projection to viewspace)
+// 6) test radius
+
+//vec2 project(vec3)
+
 void main(void)
 {
     color_frag.rgb = clamp(color, 0.0, 1.0);
@@ -24,10 +35,22 @@ void main(void)
     viewPoint = viewSpacePos.xyz;
     viewnormal = modelviewnormalmatrix * normal;
     gl_Position = projectionmatrix * viewSpacePos;
-    float dist = length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
+    float dist = gl_Position.w;//length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));
-    float finalSize = mix(0.0, pointsize / dist, float(mod(gl_VertexID, nthPoint)==0));
+    float finalSize = pointsize / dist;
+
+    //vec2 pos2d = gl_Position.xy/gl_Position.w;
+    //pos2d *= vec2(1280/2, 800); // DK1 vec2(1920/2, 1080); // DK2
+
+    finalSize = mix(0.0, finalSize, float(mod(gl_VertexID, nthPoint)==0));
     gl_PointSize = finalSize;
+
+    //int winX = (int) Math.round((( point3D.getX() + 1 ) / 2.0) *
+    //                                   width );
+    //      //we calculate -point3D.getY() because the screen Y axis is
+    //      //oriented top->down
+    //      int winY = (int) Math.round((( 1 - point3D.getY() ) / 2.0) *
+    //                                   height );
 }

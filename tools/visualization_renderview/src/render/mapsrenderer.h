@@ -19,7 +19,7 @@ public:
     MapsRenderer(Renderdata *renderdata);
     ~MapsRenderer();
 
-    void render(const QMatrix4x4 &view, const QMatrix4x4 &proj);
+    void render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize);
     void initialize();
     bool isInitialized();
 
