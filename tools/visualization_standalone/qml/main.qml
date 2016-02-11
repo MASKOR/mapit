@@ -30,6 +30,13 @@ ApplicationWindow {
             renderdata.filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
             //renderdata.filename: "data/Rover.pcd"
             renderdata.vrmode: menubar.enableVr
+            Component.onCompleted: {
+                if(renderdata.vrmode === false) {
+                    menubar.vrAvailable = false
+                    menubar.enableVr = false
+                    menubar.fixUpvector = false
+                }
+            }
             renderdata.mirrorEnabled: menubar.mirrorEnabled
             renderdata.mirrorDistorsion: menubar.mirrorDistorsion
             renderdata.mirrorRightEye: menubar.mirrorRightEye
@@ -52,6 +59,14 @@ ApplicationWindow {
                 height: 1
                 color: "white"
                 visible: menubar.showCenterCross
+            }
+            AxisGizmo {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                width: 100
+                height: 100
+                finalTransform: drawingArea.finalTransform
             }
             Text {
                 color: "white"
@@ -115,6 +130,7 @@ ApplicationWindow {
                     my = mouseY
                 }
                 focus: true
+                property var distanceDetailKeyboardTemp: 0.0
                 Keys.onPressed: {
                     var speed = xboxController.speed;
                     if (event.key === Qt.Key_Shift) {
@@ -155,6 +171,12 @@ ApplicationWindow {
                     if (event.key === Qt.Key_J) {
                         drawingArea.renderdata.pointSize = Math.max(1.0,drawingArea.renderdata.pointSize-1);
                     }
+                    if (event.key === Qt.Key_K) {
+                        distanceDetailKeyboardTemp--;
+                    }
+                    if (event.key === Qt.Key_L) {
+                        distanceDetailKeyboardTemp++;
+                    }
                 }
                 XBoxController {
                     property int demoPoint: 0
@@ -173,7 +195,7 @@ ApplicationWindow {
                     property real rotY: stickLY*-0.02 * (1.0 + menubar.invertYAxis * -2.0)
                     property real rotX: stickLX*-0.02
                     property real pointSizeGrowth: dpadRight - dpadLeft
-                    property real distanceDetailChange: dpadUp - dpadDown
+                    property real distanceDetailChange: dpadUp - dpadDown + screenMouse.distanceDetailKeyboardTemp
                     property real distanceDetailInv: 1.0
                     id: xboxController
                     onButtonStartChanged: {

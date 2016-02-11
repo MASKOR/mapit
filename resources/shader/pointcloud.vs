@@ -33,7 +33,7 @@ void main(void)
     //color_frag = vec4(gl_VertexID, float(gl_VertexID)*0.01, float(gl_VertexID)*0.001, 1.0);
     vec4 viewSpacePos = modelviewmatrix * vertex;
     viewPoint = viewSpacePos.xyz;
-    viewnormal = modelviewnormalmatrix * normal;
+    viewnormal = modelviewnormalmatrix * (normal*vec3(1.0,1.0,1.0));
     gl_Position = projectionmatrix * viewSpacePos;
     float dist = gl_Position.w;//length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
 

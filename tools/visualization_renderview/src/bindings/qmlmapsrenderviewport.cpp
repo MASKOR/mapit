@@ -29,6 +29,13 @@ QmlMapsRenderViewport::QmlMapsRenderViewport()
     connect(renderdata(), &Renderdata::entitydataChanged, this, [&](QmlEntitydata *entitydata) {
 
     });
+    connect(renderdata(), &Renderdata::matrixChanged, this, &QmlMapsRenderViewport::finalTransformChanged);
+    connect(renderdata(), &Renderdata::headOrientationChanged, this, &QmlMapsRenderViewport::finalTransformChanged);
+}
+
+QMatrix4x4 QmlMapsRenderViewport::finalTransform() const
+{
+    return m_renderdata.headOrientation()*m_renderdata.matrix();//QMatrix4x4((m_renderdata.headOrientation()*m_renderdata.matrix()).normalMatrix());
 }
 
 void QmlMapsRenderViewport::ready()

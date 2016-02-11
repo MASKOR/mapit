@@ -195,7 +195,11 @@ void Renderdata::setVrmode(bool vrmode)
     if (m_vrmode == vrmode)
         return;
 
+#ifdef VRMODE
     m_vrmode = vrmode;
+#else
+    m_vrmode = false;
+#endif
     Q_EMIT vrmodeChanged(vrmode);
 }
 

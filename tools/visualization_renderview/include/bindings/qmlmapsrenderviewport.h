@@ -5,6 +5,7 @@
 #include <QMatrix4x4>
 #include "bindings/qmlentitydata.h"
 #include "renderdata.h"
+#include <QTransform>
 
 class RenderThread;
 
@@ -12,6 +13,7 @@ class QmlMapsRenderViewport : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(Renderdata *renderdata READ renderdata NOTIFY renderdataChanged)
+    Q_PROPERTY(QMatrix4x4 finalTransform READ finalTransform NOTIFY finalTransformChanged)
 public:
     QmlMapsRenderViewport();
 
@@ -22,6 +24,8 @@ public:
         return &m_renderdata;
     }
 
+    QMatrix4x4 finalTransform() const;
+
 public Q_SLOTS:
     void ready();
     //TODO void reload();
@@ -31,6 +35,8 @@ Q_SIGNALS:
     void frame();
 
     void renderdataChanged(Renderdata * renderdata);
+
+    void finalTransformChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);

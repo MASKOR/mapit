@@ -43,13 +43,19 @@ void XBoxController::update()
     }
     else
     {
-        ZeroMemory(&m_state, sizeof(XINPUT_STATE));
-
+#ifdef _WIN32
+        memset(&m_state, 0, sizeof(XINPUT_STATE));
+#endif
+#ifdef _WIN32
         if (XInputGetState(m_controllerId, &m_state) != ERROR_SUCCESS)
+#else
+        if(false) // TODO
+#endif
         {
             std::cout << "Error. Could not read Controller Number: " << m_controllerId << std::endl;
         }
     }
+#ifdef _WIN32
     setButtonA((m_state.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0);
     setButtonB((m_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0);
     setButtonX((m_state.Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0);
@@ -90,6 +96,10 @@ void XBoxController::update()
     if (deadzoneY > 0) rightStickY /= 1 - deadzoneY;
     setStickRX(rightStickX);
     setStickRY(rightStickY);
+#else
+    // TODO
+    // Also: Make "deadzone" configurable.
+#endif
 }
 
 bool XBoxController::initialize()
