@@ -180,8 +180,8 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVecto
     glCullFace(GL_FRONT);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_shaderProgram.bind();
     QMatrix4x4 modelview(view*m_renderdata->matrix());

@@ -15,6 +15,7 @@
 
 #ifdef VRMODE
 #include <Kernel/OVR_System.h>
+#include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 #include <Extras/OVR_Math.h>
 #endif
@@ -24,8 +25,80 @@
 #include "bindings/qmlmapsrenderviewport.h"
 
 #ifdef VRMODE
+//GLfloat viewports[4*4] = {
+//0.0f, 0.0f, w_2f, h_2f,
+//w_2f, 0.0f, w_2f, h_2f,
+//0.0f, h_2f, w_2f, h_2f,
+//w_2f, h_2f, w_2f, h_2f
+//};
+//gl.ViewportArray(0, 4, viewports);
+//gl_ViewportIndex
 ////Copy Paste OVR
 //--------------------------------------------------------------------------
+//struct StereoTexture
+//{
+//    GLuint        texIdDepth;
+
+//    ovrHmd              hmd;
+//    ovrSwapTextureSet*  TextureSet;
+//    GLuint              texId;
+//    GLuint              fboId;
+//    OVR::Sizei          texSize;
+
+//    StereoTexture(OVR::Sizei size, int sampleCount, int mipLevels, int sampleCount)
+//    {
+//        QOpenGLFunctions_4_1_Core funcs;
+//        funcs.initializeOpenGLFunctions();
+//        OVR_ASSERT(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
+
+//        funcs.glGenTextures(2, &texIdDepth);
+//        funcs.glBindTexture(GL_TEXTURE_2D_ARRAY, texIdDepth);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+//        GLenum internalFormat = GL_DEPTH_COMPONENT24;
+//        GLenum type = GL_UNSIGNED_INT;
+//        if (true)//GLE_ARB_depth_buffer_float)
+//        {
+//            internalFormat = GL_DEPTH_COMPONENT32F;
+//            type = GL_FLOAT;
+//        }
+
+//        funcs.glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, size.w, size.h, 2, 0, GL_DEPTH_COMPONENT, type, NULL);
+
+
+
+//        funcs.glGenTextures(2, &texId);
+//        funcs.glBindTexture(GL_TEXTURE_2D_ARRAY, texId);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+//        GLenum internalFormat = GL_DEPTH_COMPONENT24;
+//        GLenum type = GL_UNSIGNED_INT;
+//        if (true)//GLE_ARB_depth_buffer_float)
+//        {
+//            internalFormat = GL_DEPTH_COMPONENT32F;
+//            type = GL_FLOAT;
+//        }
+
+//        funcs.glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, size.w, size.h, 2, 0, GL_DEPTH_COMPONENT, type, NULL);
+//    }
+//    ~StereoTexture()
+//    {
+//        if (texId)
+//        {
+//            QOpenGLFunctions_4_1_Core funcs;
+//            funcs.initializeOpenGLFunctions();
+//            funcs.glDeleteTextures(1, &texId);
+//            texId = 0;
+//        }
+//    }
+//};
+
 struct DepthBuffer
 {
     GLuint        texId;
