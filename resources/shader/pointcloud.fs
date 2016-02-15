@@ -8,6 +8,7 @@ noperspective in highp vec4 Ap;
 noperspective in highp vec4 Bp;
 noperspective in highp vec4 Cp;
 noperspective in highp vec4 Dp;
+in mediump float pointSize_frag;
 out vec4 fragColor;
 uniform mediump mat4 modelviewmatrix;
 uniform mediump mat4 projectionmatrix;
@@ -24,18 +25,74 @@ vec3 unproj(vec3 p, vec3 n)
     return v_eye;
 }*/
 
+void rayIntersection( in vec4 plane, in vec3 p, in vec3 dir, out vec3 intersection, out float distance )
+{
+    float dNV = dot( plane.xyz, dir );
+
+    vec3 q = plane.xyz * plane.w;
+    float t = dot( plane.xyz, ( q - p ) ) / dNV;
+    intersection = p + ( dir * t );
+    distance = length( intersection - p );
+}
+
 void main(void)
 {
-/*    vec3 normal = normalize(viewnormal);
-    if(normal.z<0.0)
-    {
-        normal = -normal;
-    }*/
+    vec3 normal = normalize(viewnormal);
+    //if(normal.z<0.0)
+    //{
+        //normal = -normal;
+    //}
+
+    vec3 ndcPos;
+    ndcPos.xy = gl_FragCoord.xy / viewport.xy;
+    ndcPos.z = viewPoint.z; // or gl_FragCoord.z
+    ndcPos -= 0.5;
+    ndcPos *= 2.0;
+    vec4 clipPos;
+    clipPos.w = (2.0 * viewport.z * viewport.w / ((viewport.z + viewport.w) + ndcPos.z * (viewport.z - viewport.w)));
+    clipPos.xyz = ndcPos * clipPos.w;
+    vec4 eyePos = projectioninvmatrix * clipPos;
+
+//    vec3 eyePos = vec3(viewPoint.xy+(gl_PointCoord.xy - vec2(0.5))*2.0, viewPoint.z); //< this is not enough. perspective division was skipped?
+/*    vec3 ndcPos2;
+    ndcPos2.xy = gl_FragCoord.xy / viewport.xy;
+    ndcPos2.z = viewport.w; // or gl_FragCoord.z
+    ndcPos2 -= 0.5;
+    ndcPos2 *= 2.0;
+    vec4 clipPos2;
+    clipPos2.w = (2.0 * viewport.z * viewport.w / ((viewport.z + viewport.w) + ndcPos2.z * (viewport.z - viewport.w)));
+    clipPos2.xyz = ndcPos2 * clipPos2.w;
+    vec4 eyePos2 = projectioninvmatrix * clipPos2;*/
+
+
+    vec3 ray_dir = normalize(eyePos.xyz);
+    //vec3 ray_dir = normalize(viewPoint.xyz);
+    //fragColor.rgb = normalize(viewPoint.xyz).xyz-ray_dir.xyz;
+    //fragColor.b = 1.0;
+    //t = -( N.O + d ) / ( N.D )
+
+    float t = - ( dot(normalize(normal), viewPoint)) / dot(normalize(normal), ray_dir);
+    vec3 p = ray_dir * -t;
+    float theDist = length(cross(ray_dir, viewPoint));
+    theDist = distance(p,viewPoint);
+    fragColor.r = length(cross(ray_dir, viewPoint));
+    fragColor.g = length(cross(ray_dir, viewPoint))*0.1;
+    fragColor.b = length(cross(ray_dir, viewPoint))*10.1;
+    float alpha = 1.0-theDist*10.0;
+    //vec3 p;
+    //float dist22;
+    //rayIntersection(vec4(viewnormal, length(viewPoint)), vec3(0.0), ray_dir, p, dist22);
+//    float alpha = 10.0-distance(p, viewPoint);
+    //fragColor.b = alpha;
 /*    //normal.y = -normal.y;
 
     // project in orthogonal coordinate system. This fits good for points near screen center and is bad at edges.
 
     vec2 pos = (gl_PointCoord.xy - vec2(0.5))*2.0;
+
+
+
+
     pos = (-pos.x*normalize(tang.xy))+pos.y*normalize(bitang.xy);
     pos *= pos;
 
@@ -51,7 +108,7 @@ void main(void)
     //float impl = res.a*p.x*p.x + res.b*p.y*p.y + res.c*p.x*p.y + res.d*p.x + res.e*p.y + res.f;
     fragColor = color_frag;
     fragColor.a = innerAlpha;
-    if(fragColor.a < 0.01) discard;*/
+    if(fragColor.a < 0.01) discard;* /
 
     highp vec2 p=(gl_FragCoord.xy/viewport.xy)*2.0-1.0;
     highp vec2 uv, uv2;
@@ -124,7 +181,7 @@ void main(void)
     else {
              alpha = step(l,1.);                        // circles in patch coords
     }
-
+*/
     fragColor.rgb = color_frag.rgb;
     fragColor.a = alpha;
     //fragColor.a = innerAlpha;

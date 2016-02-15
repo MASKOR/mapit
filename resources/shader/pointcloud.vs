@@ -10,6 +10,7 @@ noperspective out highp vec3 viewnormal;
 noperspective out highp vec3 tang;
 noperspective out highp vec3 bitang;
 out mediump vec3 viewPoint;
+out mediump float pointSize_frag;
 noperspective out highp vec4 Ap;
 noperspective out highp vec4 Bp;
 noperspective out highp vec4 Cp;

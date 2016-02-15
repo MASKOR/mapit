@@ -383,7 +383,7 @@ void RenderThread::renderNextNonVR()
     QMatrix4x4 mat;
     QMatrix4x4 view;
     view.setToIdentity();
-    mat.perspective(90.0f, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
+    mat.perspective(110.0f, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
     QMatrix4x4 flipY;
     flipY.setToIdentity();
     flipY.data()[4+1] = -1.f;
