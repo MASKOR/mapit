@@ -87,11 +87,14 @@ void MapsRenderer::initialize()
     matrixUniformProjInv = m_shaderProgram.uniformLocation("projectioninvmatrix");
     matrixUniformModelViewNormal = m_shaderProgram.uniformLocation("modelviewnormalmatrix");
     pointSizeUniform = m_shaderProgram.uniformLocation("pointsize");
+    discUniform = m_shaderProgram.uniformLocation("discrender");
     screenSizeUniform = m_shaderProgram.uniformLocation("viewport");
     distanceDetailUniform = m_shaderProgram.uniformLocation("distanceDetail");
+    heightOfNearPlaneUniform = m_shaderProgram.uniformLocation("heightOfNearPlane");
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue(pointSizeUniform, 64.0f);
+    m_shaderProgram.setUniformValue(discUniform, true);
     m_shaderProgram.setUniformValue(distanceDetailUniform, 0.05f);
     m_shaderProgram.release();
 
@@ -165,7 +168,7 @@ void MapsRenderer::reload()
 //    }
 //}
 
-void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize)
+void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize, float heightOfNearPlane)
 {
     if(!m_initialized) return;
     glDepthMask(true);
@@ -186,12 +189,14 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVecto
     m_shaderProgram.bind();
     QMatrix4x4 modelview(view*m_renderdata->matrix());
     m_shaderProgram.setUniformValue(pointSizeUniform, static_cast<float>(m_renderdata->pointSize()));
+    m_shaderProgram.setUniformValue(discUniform, static_cast<bool>(m_renderdata->disc()));
     m_shaderProgram.setUniformValue(distanceDetailUniform, static_cast<float>(m_renderdata->distanceDetail()));
     m_shaderProgram.setUniformValue(matrixUniformModelView, modelview);
     m_shaderProgram.setUniformValue(matrixUniformProj, proj);
     m_shaderProgram.setUniformValue(matrixUniformProjInv, proj.inverted());
     m_shaderProgram.setUniformValue(matrixUniformModelViewNormal, modelview.normalMatrix());
     m_shaderProgram.setUniformValue(screenSizeUniform, viewportSize);
+    m_shaderProgram.setUniformValue(heightOfNearPlaneUniform, heightOfNearPlane);
     drawPointcloud();
     m_shaderProgram.release();
 

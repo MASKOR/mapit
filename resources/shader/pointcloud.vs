@@ -17,6 +17,8 @@ noperspective out highp vec4 Cp;
 noperspective out highp vec4 Dp;
 uniform mediump float pointsize;
 uniform mediump float distanceDetail;
+uniform mediump float heightOfNearPlane;
+uniform highp vec4 viewport; //TODO: wz! and: do not use, incorrect for oculus!
 //in int gl_VertexID;
 
 //TODO:
@@ -60,9 +62,14 @@ void main(void)
     Dp.xy = Dp.xy*0.5+0.5;*/
     float dist = gl_Position.w;//length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
 
+//float fovy = fov; // degrees
+//float heightOfNearPlane = viewport.y / (2.0*tan(0.5*fovy*3.14159265/180.0));
+
+
+
     float d3 = max(0.0, dist-20.0);
     int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));
-    float finalSize = pointsize / dist;// + (csize.x+csize.y)*0.0001;
+    float finalSize = heightOfNearPlane * pointsize / dist;// + (csize.x+csize.y)*0.0001;
 
     //vec2 pos2d = gl_Position.xy/gl_Position.w;
     //pos2d *= vec2(1280/2, 800); // DK1 vec2(1920/2, 1080); // DK2

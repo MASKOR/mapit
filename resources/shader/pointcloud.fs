@@ -9,6 +9,7 @@ noperspective in highp vec4 Bp;
 noperspective in highp vec4 Cp;
 noperspective in highp vec4 Dp;
 uniform mediump float pointsize;
+uniform bool discrender;
 in mediump float pointSize_frag;
 out vec4 fragColor;
 uniform mediump mat4 modelviewmatrix;
@@ -42,22 +43,43 @@ void main(void)
     clipPos2.xyz = ndcPos2 * clipPos2.w;
     vec4 eyePos2 = projectioninvmatrix * clipPos2;*/
 
-
-
+    vec3 normal = normalize(viewnormal);
+    float alpha;
+    if(discrender)
+    {
     // line plane intersection
     // t = ( dot(N,O) + d ) / ( dot(N,D) )
     // p = O + t*D
     // vec3 O = vec3(0.0);
-    vec3 normal = normalize(viewnormal);
-    vec3 ray_dir = normalize(eyePos.xyz);
+    vec4 ray_dir = normalize(eyePos);
     float d = dot(normal, viewPoint);
-    float t = d / dot(normal, ray_dir);
-    vec3 p = t * ray_dir;
-    //float dist = length(cross(ray_dir, viewPoint)); //< sphere
-    float dist = distance(p,viewPoint); //< disc
-    float alpha = pointsize-dist*1000.0;
+    float t = d / dot(normal, ray_dir.xyz);
+    vec4 p = t * ray_dir;
+    float distSphere = length(cross(ray_dir.xyz, viewPoint)); //< sphere
+    float distDisc = distance(p.xyz,viewPoint); //< disc
+    float dist = distDisc;//mix(distSphere, distDisc, discrender);
+    //dist *= 1000.0; //< why?
+    alpha = pointsize-dist;
+    }
+    else
+    {
+        vec2 pos = (gl_PointCoord.xy - vec2(0.5))*2.0;
+        alpha = float(length(pos)<1.0);
+        //float radSmall = min(1.0,dot(normalize(viewPoint), normal));
+        //vec2 pos = (gl_PointCoord.xy - vec2(0.5))*2.0;
+        //pos = (-pos.x*normalize(tang.xy))+pos.y*normalize(bitang.xy);
+        //pos *= pos;
+        //float dist = pos.x + pos.y*(1.0/(radSmall*radSmall));
+        //alpha = 1.0-dist;
+    }
 
     fragColor.rgb = color_frag.rgb;
     fragColor.a = alpha;
     if(fragColor.a < 0.1) discard;
+    // todo: fix
+    //vec4 reprojeced_ndc_pos = projectionmatrix * -p;
+    //float ndc_depth = reprojeced_ndc_pos.z / reprojeced_ndc_pos.w;
+
+    //float depth = (((viewport.w-viewport.z) * ndc_depth) + viewport.z + viewport.w) / 2.0;
+    //gl_FragDepth = depth;
 }
