@@ -11,13 +11,15 @@ Renderdata::Renderdata()
     m_mirrorEnabled( true ),
     m_mirrorDistorsion( true ),
     m_mirrorRightEye( false ),
-    m_pointSize( 64.f ),
+    m_pointSize( 0.05f ),
     m_distanceDetail( 1.f ),
     m_filename( "" ),
     m_headMatrix( ),
     m_headDirection( ),
     m_headOrientation( ),
     m_running( false ),
+    m_disc(true),
+    m_fov(45.0f),
     m_connectionToEntityData( nullptr )
 {
 }
@@ -54,6 +56,8 @@ void Renderdata::connectReadInputFrom(Renderdata *other)
     connect(other, &Renderdata::mirrorRightEyeChanged, this, &Renderdata::setMirrorRightEye);
     connect(other, &Renderdata::pointSizeChanged, this, &Renderdata::setPointSize);
     connect(other, &Renderdata::distanceDetailChanged, this, &Renderdata::setDistanceDetail);
+    connect(other, &Renderdata::discChanged, this, &Renderdata::setDisc);
+    connect(other, &Renderdata::fovChanged, this, &Renderdata::setFov);
 }
 
 void Renderdata::connectWriteOutputTo(Renderdata *other)
@@ -137,6 +141,16 @@ QMatrix4x4 Renderdata::headOrientation() const
 bool Renderdata::running() const
 {
     return m_running;
+}
+
+bool Renderdata::disc() const
+{
+    return m_disc;
+}
+
+float Renderdata::fov() const
+{
+    return m_fov;
 }
 
 void Renderdata::setEntitydata(QmlEntitydata *entitydata)
@@ -255,6 +269,24 @@ void Renderdata::setFilename(QString filename)
 
     m_filename = filename;
     Q_EMIT filenameChanged(filename);
+}
+
+void Renderdata::setDisc(bool disc)
+{
+    if (m_disc == disc)
+        return;
+
+    m_disc = disc;
+    Q_EMIT discChanged(disc);
+}
+
+void Renderdata::setFov(float fov)
+{
+    if (m_fov == fov)
+        return;
+
+    m_fov = fov;
+    Q_EMIT fovChanged(fov);
 }
 
 void Renderdata::setHeadMatrix(QMatrix4x4 headMatrix)
