@@ -370,13 +370,13 @@ void RenderThread::renderNextVR()
 
 void RenderThread::vrThreadMainloop()
 {
-    m_frameIndex++;
     //qDebug() << "frame";
     if(!m_renderdata.running())
     {
         Q_EMIT frameFinished();
         return;
     }
+    m_frameIndex++;
     if(!m_vrInitialized)
     {
         initVR();
