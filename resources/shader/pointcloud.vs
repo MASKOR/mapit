@@ -70,7 +70,7 @@ void main(void)
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));
-    float finalSize = heightOfNearPlaneInv * pointsize / dist;
+    float finalSize = heightOfNearPlaneInv * pointsize * 2.0 / dist; // < todo: heightOfNearPlaneInv has a wrong name it is not what it is named after!
 
     //vec2 pos2d = gl_Position.xy/gl_Position.w;
     //pos2d *= vec2(1280/2, 800); // DK1 vec2(1920/2, 1080); // DK2

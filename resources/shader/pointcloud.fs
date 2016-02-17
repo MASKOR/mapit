@@ -67,7 +67,7 @@ void main(void)
     float distDisc = distance(p.xyz,viewPoint); //< disc
     float dist = distDisc;//mix(distSphere, distDisc, discrender);
     //dist *= 1000.0; //< why?
-    alpha = pointsize*2.0-dist;
+    alpha = pointsize-dist;
     }
     else
     {

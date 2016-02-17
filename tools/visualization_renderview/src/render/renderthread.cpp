@@ -390,7 +390,8 @@ void RenderThread::renderNextNonVR()
     QMatrix4x4 view;
     view.setToIdentity();
     float fov = renderdata()->fov();
-    mat.perspective(fov, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
+    float nearClip = 1.5;
+    mat.perspective(fov, ((float)m_renderdata.width())/(float)m_renderdata.height(), nearClip, 1000.0 );
     QMatrix4x4 flipY;
     flipY.setToIdentity();
     flipY.data()[4+1] = -1.f;
@@ -398,11 +399,11 @@ void RenderThread::renderNextNonVR()
     renderdata()->setHeadMatrix(view);
     renderdata()->setHeadDirection(QVector3D(0.0,0.0,1.0));
     renderdata()->setHeadOrientation(view);
-    QVector4D vps(m_renderdata.width(), m_renderdata.height(), 1.0f, 1000.0f);
+    QVector4D vps(m_renderdata.width(), m_renderdata.height(), nearClip, 1000.0f);
 
 
     float fovy = fov; // degrees
-    float heightOfNearPlane = vps.z() * vps.y() * 2.0 / (tan(0.5*fovy*3.14159265/180.0));
+    float heightOfNearPlane = vps.y() / (2.0*tan(0.5*fovy*3.14159265/180.0));
     qDebug() << "fov:" << fovy << "2*tan:" << (2.0*tan(0.5*fovy*3.14159265/180.0)) << "hi" << heightOfNearPlane;
     m_mapsRenderer->render(view, mat, vps, heightOfNearPlane);
 }
@@ -549,7 +550,7 @@ void RenderThread::vrThreadMainloop()
             //float left = nearClip * m_hmdDesc.DefaultEyeFov[eye].LeftTan;
             //float right = nearClip * m_hmdDesc.DefaultEyeFov[eye].RightTan;
             qDebug() << "t" << top << "b" << bottom << "r" << right << "l" << left << "2*tan:" << (top+bottom) << "hi:" << vps.y()/(top+bottom);
-            m_mapsRenderer->render(qview, qproj, vps, vps.y() / (top+bottom));
+            m_mapsRenderer->render(qview, qproj, vps,  vps.y() / (top+bottom));
 
             // Avoids an error when calling SetAndClearRenderSurface during next iteration.
             // Without this, during the next while loop iteration SetAndClearRenderSurface
