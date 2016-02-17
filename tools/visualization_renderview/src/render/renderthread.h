@@ -87,7 +87,7 @@ void initVR();
     boost::timer m_timer;
     int m_framecount;
     int m_frameIndex;
-    double m_frametimes[FRAMES_AVERAGE_WINDOW];
+    double m_frametimes[FRAMES_AVERAGE_WINDOW][3];
 };
 
 #endif // MapsRenderer_H

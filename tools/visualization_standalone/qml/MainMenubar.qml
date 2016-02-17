@@ -140,16 +140,16 @@ MenuBar {
             MenuItem {
                 id: vrMirrorRight
                 text: qsTr("Right Eye")
-                enabled: false
-                checkable: false && uiEnabled // not yet available
+               // enabled: false
+                checkable: uiEnabled // not yet available
                 checked: false
                 exclusiveGroup: mirrorGroup
             }
             MenuItem {
                 id: vrMirrorLeft
                 text: qsTr("Left Eye")
-                enabled: false
-                checkable: false && uiEnabled // not yet available
+                //enabled: false
+                checkable: uiEnabled // not yet available
                 checked: false
                 exclusiveGroup: mirrorGroup
             }

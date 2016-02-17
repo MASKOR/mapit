@@ -242,6 +242,12 @@ RenderThread::RenderThread()
             m_vrMainLoopConnection = nullptr;
         }
     });
+//    connect(renderdata(), &Renderdata::mirrorDistorsionChanged, this, [&](bool b) {
+//        resetMirror();
+//    });
+//    connect(renderdata(), &Renderdata::mirrorRightEyeChanged, this, [&](bool b) {
+//        resetMirror();
+//    });
 #endif
 }
 
@@ -343,18 +349,39 @@ void RenderThread::renderNextVR()
         {
             w = m_eyeRenderTexture[1]->texSize.w;
             h = m_eyeRenderTexture[1]->texSize.h;
+
+            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
         }
         else if(m_renderdata.mirrorRightEye())
         {
             w = m_eyeRenderTexture[0]->texSize.w;
             h = m_eyeRenderTexture[0]->texSize.h;
+            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_eyeRenderTexture[0]->fboId);
+//            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+//            funcs.glGenFramebuffers(1, &m_mirrorFBO);
+//            funcs.glBindFramebuffer(GL_FRAMEBUFFER, m_mirrorFBO);
+//            auto tex = reinterpret_cast<ovrGLTexture*>(&m_eyeRenderTexture[0]->TextureSet->Textures[m_eyeRenderTexture[0]->TextureSet->CurrentIndex]);
+//            funcs.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->OGL.TexId, 0);
+//            funcs.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//            //funcs.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dbuffer->texId, 0);
         }
         else
         {
             w = m_mirrorTexture->OGL.Header.TextureSize.w;
             h = m_mirrorTexture->OGL.Header.TextureSize.h;
+            funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_eyeRenderTexture[1]->fboId);
+//            w = m_eyeRenderTexture[1]->texSize.w;
+//            h = m_eyeRenderTexture[1]->texSize.h;
+//            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
+//            funcs.glGenFramebuffers(1, &m_mirrorFBO);
+//            funcs.glBindFramebuffer(GL_FRAMEBUFFER, m_mirrorFBO);
+//            auto tex = reinterpret_cast<ovrGLTexture*>(&m_eyeRenderTexture[1]->TextureSet->Textures[m_eyeRenderTexture[1]->TextureSet->CurrentIndex]);
+//            funcs.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->OGL.TexId, 0);
+//            funcs.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            //funcs.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dbuffer->texId, 0);
         }
-        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
+
+        //funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
 
 
         funcs.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderFbo->handle());
@@ -396,6 +423,7 @@ void RenderThread::vrThreadMainloop()
     double           ftiming = ovr_GetPredictedDisplayTime(m_HMD, m_frameIndex);
     // Keeping sensorSampleTime as close to ovr_GetTrackingState as possible - fed into the layer
     double           sensorSampleTime = ovr_GetTimeInSeconds();
+    m_frametimes[m_framecount][2] = m_timer.elapsed();
     ovrTrackingState hmdState = ovr_GetTrackingState(m_HMD, ftiming, ovrTrue);
     ovr_CalcEyePoses(hmdState.HeadPose.ThePose, ViewOffset, EyeRenderPose);
 
@@ -466,31 +494,31 @@ void RenderThread::vrThreadMainloop()
     }
 
     ovrLayerHeader* layers = &ld.Header;
-    ovrResult result = ovr_SubmitFrame(m_HMD, 0, &viewScaleDesc, &layers, 1);
+    ovrResult result = ovr_SubmitFrame(m_HMD, m_frameIndex, &viewScaleDesc, &layers, 1);
 
-    m_frametimes[m_framecount] = m_timer.elapsed();
+    m_frametimes[m_framecount][0] = m_timer.elapsed();
     m_framecount++;
     if(m_framecount == FRAMES_AVERAGE_WINDOW)
     {
+        m_timer.restart();
         m_framecount = 0;
         double mint=std::numeric_limits<double>::max(), maxt=0.0;
         std::vector<double> sorted(FRAMES_AVERAGE_WINDOW-1);
         for(int i=0;i<(FRAMES_AVERAGE_WINDOW-1);++i)
         {
-            auto diff = m_frametimes[i+1]-m_frametimes[i];
-            sorted.push_back(diff);
+            auto diff = m_frametimes[i+1][0]-m_frametimes[i][0];
+            sorted[i] = diff;
             mint = std::min(diff, mint);
             maxt = std::max(diff, maxt);
         }
         std::sort(sorted.begin(), sorted.end());
         auto median = sorted[FRAMES_AVERAGE_WINDOW/2];
-        double avg = m_frametimes[FRAMES_AVERAGE_WINDOW-1]-m_frametimes[0];
+        double avg = m_frametimes[FRAMES_AVERAGE_WINDOW-1][0]-m_frametimes[0][0];
         qDebug() << "FPS:" << static_cast<double>(FRAMES_AVERAGE_WINDOW)/avg
-                 << "(t_avg:" << avg
+                 << "(t_avg:" << avg/FRAMES_AVERAGE_WINDOW
                  << "(t_med:" << median
                  << ",t_min:" << mint
-                 << ",t_min:" << maxt << ")" ;
-        m_timer.restart();
+                 << ",t_max:" << maxt << ")" ;
     }
     // exit the rendering loop if submit returns an error, will retry on ovrError_DisplayLost
     if (!OVR_SUCCESS(result))
@@ -721,14 +749,16 @@ void RenderThread::initialize()
 void RenderThread::resetMirror()
 {
 #ifdef VRMODE
+    if(!m_vrInitialized) return;
     context->makeCurrent(surface);
     //ovrSizei windowSize = { m_hmdDesc.Resolution.w / 2, m_hmdDesc.Resolution.h / 2 };
     ovrSizei windowSize = { m_renderdata.width(), m_renderdata.height() };
 
     if(m_mirrorTexture)
     {
-       ovr_DestroyMirrorTexture(m_HMD, reinterpret_cast<ovrTexture*>(&m_mirrorTexture));
-       m_mirrorTexture = nullptr;
+        //return; //TODO: does not yet work
+        ovr_DestroyMirrorTexture(m_HMD, reinterpret_cast<ovrTexture*>(&m_mirrorTexture));
+        m_mirrorTexture = nullptr;
     }
     // Create mirror texture and an FBO used to copy mirror texture to back buffer
     ovrResult result = ovr_CreateMirrorTextureGL(m_HMD, GL_SRGB8_ALPHA8, windowSize.w, windowSize.h, reinterpret_cast<ovrTexture**>(&m_mirrorTexture));
@@ -750,8 +780,24 @@ void RenderThread::resetMirror()
     }
     funcs.glGenFramebuffers(1, &m_mirrorFBO);
     funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
-    funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
-    funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//    if(m_renderdata.mirrorDistorsion())
+//    {
+        funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
+        funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//    }
+//    else
+//    {
+//        if(m_renderdata.mirrorRightEye())
+//        {
+//            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[1]->texId, 0);
+//            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//        }
+//        else
+//        {
+//            funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_eyeRenderTexture[0]->texId, 0);
+//            //funcs.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//        }
+//    }
     funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 #endif
 }
@@ -817,6 +863,7 @@ void RenderThread::initVR()
         }
     }
 
+    m_vrInitialized = true;
     resetMirror();
 
     m_eyeRenderDesc[0] = ovr_GetRenderDesc(m_HMD, ovrEye_Left, m_hmdDesc.DefaultEyeFov[0]);
@@ -826,7 +873,6 @@ void RenderThread::initVR()
 //    wglSwapIntervalEXT(0);
 
 
-    m_vrInitialized = true;
 //    Done:
     return;
 }
