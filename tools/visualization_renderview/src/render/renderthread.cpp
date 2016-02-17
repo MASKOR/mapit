@@ -15,6 +15,7 @@
 
 #ifdef VRMODE
 #include <Kernel/OVR_System.h>
+#include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 #include <Extras/OVR_Math.h>
 #endif
@@ -24,8 +25,80 @@
 #include "bindings/qmlmapsrenderviewport.h"
 
 #ifdef VRMODE
+//GLfloat viewports[4*4] = {
+//0.0f, 0.0f, w_2f, h_2f,
+//w_2f, 0.0f, w_2f, h_2f,
+//0.0f, h_2f, w_2f, h_2f,
+//w_2f, h_2f, w_2f, h_2f
+//};
+//gl.ViewportArray(0, 4, viewports);
+//gl_ViewportIndex
 ////Copy Paste OVR
 //--------------------------------------------------------------------------
+//struct StereoTexture
+//{
+//    GLuint        texIdDepth;
+
+//    ovrHmd              hmd;
+//    ovrSwapTextureSet*  TextureSet;
+//    GLuint              texId;
+//    GLuint              fboId;
+//    OVR::Sizei          texSize;
+
+//    StereoTexture(OVR::Sizei size, int sampleCount, int mipLevels, int sampleCount)
+//    {
+//        QOpenGLFunctions_4_1_Core funcs;
+//        funcs.initializeOpenGLFunctions();
+//        OVR_ASSERT(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
+
+//        funcs.glGenTextures(2, &texIdDepth);
+//        funcs.glBindTexture(GL_TEXTURE_2D_ARRAY, texIdDepth);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+//        GLenum internalFormat = GL_DEPTH_COMPONENT24;
+//        GLenum type = GL_UNSIGNED_INT;
+//        if (true)//GLE_ARB_depth_buffer_float)
+//        {
+//            internalFormat = GL_DEPTH_COMPONENT32F;
+//            type = GL_FLOAT;
+//        }
+
+//        funcs.glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, size.w, size.h, 2, 0, GL_DEPTH_COMPONENT, type, NULL);
+
+
+
+//        funcs.glGenTextures(2, &texId);
+//        funcs.glBindTexture(GL_TEXTURE_2D_ARRAY, texId);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        funcs.glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+//        GLenum internalFormat = GL_DEPTH_COMPONENT24;
+//        GLenum type = GL_UNSIGNED_INT;
+//        if (true)//GLE_ARB_depth_buffer_float)
+//        {
+//            internalFormat = GL_DEPTH_COMPONENT32F;
+//            type = GL_FLOAT;
+//        }
+
+//        funcs.glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internalFormat, size.w, size.h, 2, 0, GL_DEPTH_COMPONENT, type, NULL);
+//    }
+//    ~StereoTexture()
+//    {
+//        if (texId)
+//        {
+//            QOpenGLFunctions_4_1_Core funcs;
+//            funcs.initializeOpenGLFunctions();
+//            funcs.glDeleteTextures(1, &texId);
+//            texId = 0;
+//        }
+//    }
+//};
+
 struct DepthBuffer
 {
     GLuint        texId;
@@ -316,7 +389,8 @@ void RenderThread::renderNextNonVR()
     QMatrix4x4 mat;
     QMatrix4x4 view;
     view.setToIdentity();
-    mat.perspective(90.0f, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
+    float fov = renderdata()->fov();
+    mat.perspective(fov, ((float)m_renderdata.width())/(float)m_renderdata.height(), 1.0, 1000.0 );
     QMatrix4x4 flipY;
     flipY.setToIdentity();
     flipY.data()[4+1] = -1.f;
@@ -325,7 +399,12 @@ void RenderThread::renderNextNonVR()
     renderdata()->setHeadDirection(QVector3D(0.0,0.0,1.0));
     renderdata()->setHeadOrientation(view);
     QVector4D vps(m_renderdata.width(), m_renderdata.height(), 1.0f, 1000.0f);
-    m_mapsRenderer->render(view, mat, vps );
+
+
+    float fovy = fov; // degrees
+    float heightOfNearPlane = vps.y() / (2.0*tan(0.5*fovy*3.14159265/180.0));
+    qDebug() << "fov:" << fovy << "2*tan:" << (2.0*tan(0.5*fovy*3.14159265/180.0)) << "hi" << heightOfNearPlane;
+    m_mapsRenderer->render(view, mat, vps, heightOfNearPlane);
 }
 
 #ifdef VRMODE
@@ -397,9 +476,10 @@ void RenderThread::renderNextVR()
 
 void RenderThread::vrThreadMainloop()
 {
+
     m_frameIndex++;
     //qDebug() << "frame";
-    if(!m_renderdata.running())
+    if(!m_renderdata.running() || !m_renderdata.vrmode())
     {
         Q_EMIT frameFinished();
         return;
@@ -446,7 +526,8 @@ void RenderThread::vrThreadMainloop()
             OVR::Vector3f shiftedEyePos = /*Pos2 +*/ rollPitchYaw.Transform(EyeRenderPose[eye].Position);
 
             OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
-            OVR::Matrix4f proj = ovrMatrix4f_Projection(m_hmdDesc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_RightHanded);
+            float nearClip = 0.2f;
+            OVR::Matrix4f proj = ovrMatrix4f_Projection(m_hmdDesc.DefaultEyeFov[eye], nearClip, 1000.0f, ovrProjection_RightHanded);
             QMatrix4x4 qview(&view.M[0][0]);
             QMatrix4x4 qproj(&proj.M[0][0]);
 
@@ -462,7 +543,13 @@ void RenderThread::vrThreadMainloop()
             //roomScene->Render(view, proj);
             //context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
             QVector4D vps(m_eyeRenderTexture[eye]->texSize.w, m_eyeRenderTexture[eye]->texSize.h, 0.2f, 1000.0f);
-            m_mapsRenderer->render(qview, qproj, vps);
+
+            float top = nearClip * m_hmdDesc.DefaultEyeFov[eye].UpTan;
+            float bottom = nearClip * m_hmdDesc.DefaultEyeFov[eye].DownTan;
+            float left = nearClip * m_hmdDesc.DefaultEyeFov[eye].LeftTan;
+            float right = nearClip * m_hmdDesc.DefaultEyeFov[eye].RightTan;
+            qDebug() << "t" << top << "b" << bottom << "r" << right << "l" << left << "2*tan:" << (top+bottom) << "hi:" << vps.y()/(top+bottom);
+            m_mapsRenderer->render(qview, qproj, vps, vps.y()/(top+bottom));
 
             // Avoids an error when calling SetAndClearRenderSurface during next iteration.
             // Without this, during the next while loop iteration SetAndClearRenderSurface

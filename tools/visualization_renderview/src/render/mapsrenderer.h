@@ -19,7 +19,7 @@ public:
     MapsRenderer(Renderdata *renderdata);
     ~MapsRenderer();
 
-    void render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize);
+    void render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize, float heightOfNearPlane);
     void initialize();
     bool isInitialized();
 
@@ -56,6 +56,8 @@ private:
     int matrixUniformModelViewNormal;
     int screenSizeUniform;
     int pointSizeUniform;
+    int heightOfNearPlaneUniform;
+    bool discUniform;
     int distanceDetailUniform;
 
     bool m_initialized;

@@ -166,16 +166,25 @@ ApplicationWindow {
                         camera.finishMovement();
                     }
                     if (event.key === Qt.Key_H) {
-                        drawingArea.renderdata.pointSize++
+                        drawingArea.renderdata.pointSize += 0.01
                     }
                     if (event.key === Qt.Key_J) {
-                        drawingArea.renderdata.pointSize = Math.max(1.0,drawingArea.renderdata.pointSize-1);
+                        drawingArea.renderdata.pointSize = Math.max(0.01,drawingArea.renderdata.pointSize-0.01);
                     }
                     if (event.key === Qt.Key_K) {
                         distanceDetailKeyboardTemp--;
                     }
                     if (event.key === Qt.Key_L) {
                         distanceDetailKeyboardTemp++;
+                    }
+                    if (event.key === Qt.Key_M) {
+                        drawingArea.renderdata.disc = !drawingArea.renderdata.disc;
+                    }
+                    if (event.key === Qt.Key_B) {
+                        drawingArea.renderdata.fov++;
+                    }
+                    if (event.key === Qt.Key_N) {
+                        drawingArea.renderdata.fov--;
                     }
                 }
                 XBoxController {
