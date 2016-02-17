@@ -4,10 +4,10 @@ in highp vec3 viewnormal;
 in highp vec3 tang;
 in highp vec3 bitang;
 in mediump vec3 viewPoint;
-noperspective in highp vec4 Ap;
-noperspective in highp vec4 Bp;
-noperspective in highp vec4 Cp;
-noperspective in highp vec4 Dp;
+in highp vec4 Ap;
+in highp vec4 Bp;
+in highp vec4 Cp;
+in highp vec4 Dp;
 uniform mediump float pointsize;
 uniform bool discrender;
 in mediump float pointSize_frag;
@@ -67,7 +67,7 @@ void main(void)
     float distDisc = distance(p.xyz,viewPoint); //< disc
     float dist = distDisc;//mix(distSphere, distDisc, discrender);
     //dist *= 1000.0; //< why?
-    alpha = pointsize-dist;
+    alpha = pointsize*2.0-dist;
     }
     else
     {
@@ -79,11 +79,14 @@ void main(void)
         //pos *= pos;
         //float dist = pos.x + pos.y*(1.0/(radSmall*radSmall));
         //alpha = 1.0-dist;
+
+//FOR SQUARES
+        //alpha = 1.0;
     }
 
     fragColor.rgb = color_frag.rgb;
     fragColor.a = alpha;
-    if(fragColor.a < 0.1) discard;
+    if(fragColor.a <= 0.0) discard;
     // todo: fix
     //vec4 reprojeced_ndc_pos = projectionmatrix * -p;
     //float ndc_depth = reprojeced_ndc_pos.z / reprojeced_ndc_pos.w;
