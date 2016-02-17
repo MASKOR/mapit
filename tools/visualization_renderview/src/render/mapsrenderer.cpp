@@ -90,7 +90,7 @@ void MapsRenderer::initialize()
     discUniform = m_shaderProgram.uniformLocation("discrender");
     screenSizeUniform = m_shaderProgram.uniformLocation("viewport");
     distanceDetailUniform = m_shaderProgram.uniformLocation("distanceDetail");
-    heightOfNearPlaneUniform = m_shaderProgram.uniformLocation("heightOfNearPlane");
+    heightOfNearPlaneUniform = m_shaderProgram.uniformLocation("heightOfNearPlaneInv");
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue(pointSizeUniform, 64.0f);

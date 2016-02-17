@@ -396,7 +396,7 @@ void RenderThread::renderNextNonVR()
 
 
     float fovy = fov; // degrees
-    float heightOfNearPlane = vps.y() / (2.0*tan(0.5*fovy*3.14159265/180.0));
+    float heightOfNearPlane = vps.z() * vps.y() * 2.0 / (tan(0.5*fovy*3.14159265/180.0));
     qDebug() << "fov:" << fovy << "2*tan:" << (2.0*tan(0.5*fovy*3.14159265/180.0)) << "hi" << heightOfNearPlane;
     m_mapsRenderer->render(view, mat, vps, heightOfNearPlane);
 }
@@ -514,14 +514,14 @@ void RenderThread::vrThreadMainloop()
             // Render world
             //roomScene->Render(view, proj);
             //context->functions()->glViewport(0, 0, m_size.width(), m_size.height());
-            QVector4D vps(m_eyeRenderTexture[eye]->texSize.w, m_eyeRenderTexture[eye]->texSize.h, 0.2f, 1000.0f);
+            QVector4D vps(m_eyeRenderTexture[eye]->texSize.w, m_eyeRenderTexture[eye]->texSize.h, nearClip, 1000.0f);
 
-            float top = nearClip * m_hmdDesc.DefaultEyeFov[eye].UpTan;
-            float bottom = nearClip * m_hmdDesc.DefaultEyeFov[eye].DownTan;
-            float left = nearClip * m_hmdDesc.DefaultEyeFov[eye].LeftTan;
-            float right = nearClip * m_hmdDesc.DefaultEyeFov[eye].RightTan;
+            float top = m_hmdDesc.DefaultEyeFov[eye].UpTan;
+            float bottom = m_hmdDesc.DefaultEyeFov[eye].DownTan;
+            //float left = nearClip * m_hmdDesc.DefaultEyeFov[eye].LeftTan;
+            //float right = nearClip * m_hmdDesc.DefaultEyeFov[eye].RightTan;
             qDebug() << "t" << top << "b" << bottom << "r" << right << "l" << left << "2*tan:" << (top+bottom) << "hi:" << vps.y()/(top+bottom);
-            m_mapsRenderer->render(qview, qproj, vps, vps.y()/(top+bottom));
+            m_mapsRenderer->render(qview, qproj, vps, vps.y() / (top+bottom));
 
             // Avoids an error when calling SetAndClearRenderSurface during next iteration.
             // Without this, during the next while loop iteration SetAndClearRenderSurface

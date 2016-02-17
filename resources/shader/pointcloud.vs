@@ -11,13 +11,14 @@ out highp vec3 tang;
 out highp vec3 bitang;
 out mediump vec3 viewPoint;
 out mediump float pointSize_frag;
+uniform bool discrender;
 out highp vec4 Ap;
 out highp vec4 Bp;
 out highp vec4 Cp;
 out highp vec4 Dp;
 uniform mediump float pointsize;
 uniform mediump float distanceDetail;
-uniform mediump float heightOfNearPlane;
+uniform mediump float heightOfNearPlaneInv;
 uniform highp vec4 viewport; //TODO: wz! and: do not use, incorrect for oculus!
 //in int gl_VertexID;
 
@@ -63,19 +64,24 @@ void main(void)
     float dist = gl_Position.w;//length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
 
 //float fovy = fov; // degrees
-//float heightOfNearPlane = viewport.y / (2.0*tan(0.5*fovy*3.14159265/180.0));
+//float heightOfNearPlaneInv = viewport.y / (2.0*tan(0.5*fovy*3.14159265/180.0));
 
 
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));
-    float finalSize = heightOfNearPlane * pointsize / dist;// + (csize.x+csize.y)*0.0001;
+    float finalSize = heightOfNearPlaneInv * pointsize / dist;
 
     //vec2 pos2d = gl_Position.xy/gl_Position.w;
     //pos2d *= vec2(1280/2, 800); // DK1 vec2(1920/2, 1080); // DK2
 
     finalSize = mix(0.0, finalSize, float(mod(gl_VertexID, nthPoint)==0));
     gl_PointSize = finalSize;
+
+//FOR SQUARES
+    //if(!discrender) gl_PointSize = pointsize*200.0;
+
+
 
     //int winX = (int) Math.round((( point3D.getX() + 1 ) / 2.0) *
     //                                   width );
