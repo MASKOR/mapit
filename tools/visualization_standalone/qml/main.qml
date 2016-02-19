@@ -276,6 +276,23 @@ ApplicationWindow {
         }
     }
 
+    Timer {
+        id: tmr
+        repeat: true
+        interval: 2000
+        running: true
+        onTriggered: {
+            if( drawingArea.renderdata.disc === 0 ){
+                drawingArea.renderdata.disc = 1
+            } else if( drawingArea.renderdata.disc === 1 ){
+                drawingArea.renderdata.disc = 2
+            } else if( drawingArea.renderdata.disc === 2 ) {
+                drawingArea.renderdata.disc = 0
+            }
+        }
+
+    }
+
     SystemPalette {
         id: palette
     }
