@@ -61,7 +61,8 @@ void main(void)
     Bp.xy = Bp.xy*0.5+0.5;
     Cp.xy = Cp.xy*0.5+0.5;
     Dp.xy = Dp.xy*0.5+0.5;*/
-    float dist = gl_Position.w;//length(viewSpacePos.xyz); // camera in viewspace is at (0,0,0)
+
+    float dist = -viewSpacePos.z; // == gl_Position.w
 
 //float fovy = fov; // degrees
 //float heightOfNearPlaneInv = viewport.y / (2.0*tan(0.5*fovy*3.14159265/180.0));
