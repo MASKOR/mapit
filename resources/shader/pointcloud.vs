@@ -11,7 +11,7 @@ out highp vec3 tang;
 out highp vec3 bitang;
 out mediump vec3 viewPoint;
 out mediump float pointSize_frag;
-uniform bool discrender;
+uniform int discrender;
 out highp vec4 Ap;
 out highp vec4 Bp;
 out highp vec4 Cp;
@@ -35,10 +35,10 @@ uniform highp vec4 viewport; //TODO: wz! and: do not use, incorrect for oculus!
 void main(void)
 {
     color_frag.rgb = clamp(color, 0.0, 1.0);
-    float litMul = smoothstep(1.59, 1.73, length(color));
-    float lit = dot(normal, normalize(vec3(0.1,-0.5, 0.1)));
-    lit = smoothstep(-1.0, 1.0, lit);
-    color_frag.rgb *= mix(1.0, lit, litMul);
+    //float litMul = smoothstep(1.59, 1.73, length(color));
+    //float lit = dot(normal, normalize(vec3(0.1,-0.5, 0.1)));
+    //lit = smoothstep(-1.0, 1.0, lit);
+    //color_frag.rgb *= mix(1.0, lit, litMul);
     //color_frag.a = 1.0;
     //color_frag = vec4(gl_VertexID, float(gl_VertexID)*0.01, float(gl_VertexID)*0.001, 1.0);
     highp vec4 viewSpacePos = modelviewmatrix * vertex;
@@ -71,17 +71,19 @@ void main(void)
 
     float d3 = max(0.0, dist-20.0);
     int nthPoint = max(1,int(pow(d3,2.0)*0.02*distanceDetail));
+    nthPoint += 10;
     float finalSize = heightOfNearPlaneInv * pointsize * 2.0 / dist; // < todo: heightOfNearPlaneInv has a wrong name it is not what it is named after!
 
     //vec2 pos2d = gl_Position.xy/gl_Position.w;
     //pos2d *= vec2(1280/2, 800); // DK1 vec2(1920/2, 1080); // DK2
 
+
+    if(discrender == 0) finalSize += max(0.0,length(gl_Position.xy/gl_Position.w)*20.0*(7.0-gl_Position.w));
+    if(discrender > 3) finalSize = min(5, pointsize*200.0);
     finalSize = mix(0.0, finalSize, float(mod(gl_VertexID, nthPoint)==0));
     gl_PointSize = finalSize;
 
-//FOR SQUARES
-    //if(!discrender) gl_PointSize = pointsize*200.0;
-
+    if(distance(color.rgb, vec3(1.0)) < 0.001) gl_PointSize = 0.0;
 
 
     //int winX = (int) Math.round((( point3D.getX() + 1 ) / 2.0) *

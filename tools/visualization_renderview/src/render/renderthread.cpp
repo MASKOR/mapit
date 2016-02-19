@@ -390,7 +390,7 @@ void RenderThread::renderNextNonVR()
     QMatrix4x4 view;
     view.setToIdentity();
     float fov = renderdata()->fov();
-    float nearClip = 1.5;
+    float nearClip = 0.5;
     mat.perspective(fov, ((float)m_renderdata.width())/(float)m_renderdata.height(), nearClip, 1000.0 );
     QMatrix4x4 flipY;
     flipY.setToIdentity();
@@ -404,8 +404,34 @@ void RenderThread::renderNextNonVR()
 
     float fovy = fov; // degrees
     float heightOfNearPlane = vps.y() / (2.0*tan(0.5*fovy*3.14159265/180.0));
-    qDebug() << "fov:" << fovy << "2*tan:" << (2.0*tan(0.5*fovy*3.14159265/180.0)) << "hi" << heightOfNearPlane;
+    //qDebug() << "fov:" << fovy << "2*tan:" << (2.0*tan(0.5*fovy*3.14159265/180.0)) << "hi" << heightOfNearPlane;
     m_mapsRenderer->render(view, mat, vps, heightOfNearPlane);
+
+
+    m_frametimes[m_framecount][0] = m_timer.elapsed();
+    m_framecount++;
+    if(m_framecount == FRAMES_AVERAGE_WINDOW)
+    {
+        m_timer.restart();
+        m_framecount = 0;
+        double mint=std::numeric_limits<double>::max(), maxt=0.0;
+        std::vector<double> sorted(FRAMES_AVERAGE_WINDOW-1);
+        for(int i=0;i<(FRAMES_AVERAGE_WINDOW-1);++i)
+        {
+            auto diff = m_frametimes[i+1][0]-m_frametimes[i][0];
+            sorted[i] = diff;
+            mint = std::min(diff, mint);
+            maxt = std::max(diff, maxt);
+        }
+        std::sort(sorted.begin(), sorted.end());
+        auto median = sorted[FRAMES_AVERAGE_WINDOW/2];
+        double avg = m_frametimes[FRAMES_AVERAGE_WINDOW-1][0]-m_frametimes[0][0];
+        qDebug() << "FPS:" << static_cast<double>(FRAMES_AVERAGE_WINDOW)/avg
+                 << "(t_avg:" << avg/FRAMES_AVERAGE_WINDOW
+                 << "(t_med:" << median
+                 << ",t_min:" << mint
+                 << ",t_max:" << maxt << ")" ;
+    }
 }
 
 #ifdef VRMODE
@@ -549,7 +575,7 @@ void RenderThread::vrThreadMainloop()
             float bottom = m_hmdDesc.DefaultEyeFov[eye].DownTan;
             //float left = nearClip * m_hmdDesc.DefaultEyeFov[eye].LeftTan;
             //float right = nearClip * m_hmdDesc.DefaultEyeFov[eye].RightTan;
-            qDebug() << "t" << top << "b" << bottom << "r" << right << "l" << left << "2*tan:" << (top+bottom) << "hi:" << vps.y()/(top+bottom);
+            //qDebug() << "t" << top << "b" << bottom << "r" << right << "l" << left << "2*tan:" << (top+bottom) << "hi:" << vps.y()/(top+bottom);
             m_mapsRenderer->render(qview, qproj, vps,  vps.y() / (top+bottom));
 
             // Avoids an error when calling SetAndClearRenderSurface during next iteration.

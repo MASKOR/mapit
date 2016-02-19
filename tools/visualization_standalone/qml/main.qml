@@ -60,19 +60,19 @@ ApplicationWindow {
                 color: "white"
                 visible: menubar.showCenterCross
             }
-            AxisGizmo {
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                anchors.margins: 10
-                width: 100
-                height: 100
-                finalTransform: drawingArea.finalTransform
-            }
-            Text {
-                color: "white"
-                id: name
-                text: "Pos: (" + camera.torsoPos.x + ", " + camera.torsoPos.y + ", " + camera.torsoPos.z + ")"
-            }
+//            AxisGizmo {
+//                anchors.right: parent.right
+//                anchors.bottom: parent.bottom
+//                anchors.margins: 10
+//                width: 100
+//                height: 100
+//                finalTransform: drawingArea.finalTransform
+//            }
+//            Text {
+//                color: "white"
+//                id: name
+//                text: "Pos: (" + camera.torsoPos.x + ", " + camera.torsoPos.y + ", " + camera.torsoPos.z + ")"
+//            }
 
             renderdata.matrix: camera.matrix
             Camera {
@@ -169,7 +169,7 @@ ApplicationWindow {
                         drawingArea.renderdata.pointSize += 0.01
                     }
                     if (event.key === Qt.Key_J) {
-                        drawingArea.renderdata.pointSize = Math.max(0.01,drawingArea.renderdata.pointSize-0.01);
+                        drawingArea.renderdata.pointSize = Math.max(0.005,drawingArea.renderdata.pointSize-0.005);
                     }
                     if (event.key === Qt.Key_K) {
                         distanceDetailKeyboardTemp--;
@@ -178,12 +178,32 @@ ApplicationWindow {
                         distanceDetailKeyboardTemp++;
                     }
                     if (event.key === Qt.Key_M) {
-                        drawingArea.renderdata.disc = !drawingArea.renderdata.disc;
+                        drawingArea.renderdata.disc = (drawingArea.renderdata.disc+1)%8;
+                        console.log("disc: " + drawingArea.renderdata.disc);
+                        var cons = drawingArea.renderdata.disc > 3
+                        if(cons) {
+                            console.log("disc: constant");
+                        }
+                        if(drawingArea.renderdata.disc%4 == 0) {
+                            //if(cons) drawingArea.renderdata.disc++;
+                            console.log("disc: ray-cast");
+                        }
+                        if(drawingArea.renderdata.disc%4 == 1) {
+                            console.log("disc: circle");
+                        }
+                        if(drawingArea.renderdata.disc%4 == 2) {
+                            console.log("disc: ellipse");
+                        }
+                        if(drawingArea.renderdata.disc%4 == 3) {
+                            console.log("disc: square");
+                        }
                     }
                     if (event.key === Qt.Key_B) {
+                        console.log("fov: " + drawingArea.renderdata.fov);
                         drawingArea.renderdata.fov++;
                     }
                     if (event.key === Qt.Key_N) {
+                        console.log("fov: " + drawingArea.renderdata.fov);
                         drawingArea.renderdata.fov--;
                     }
                 }

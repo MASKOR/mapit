@@ -173,7 +173,8 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVecto
     if(!m_initialized) return;
     glDepthMask(true);
 
-    glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+    //glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+    glClearColor(1.f, 1.f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -189,7 +190,7 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVecto
     m_shaderProgram.bind();
     QMatrix4x4 modelview(view*m_renderdata->matrix());
     m_shaderProgram.setUniformValue(pointSizeUniform, static_cast<float>(m_renderdata->pointSize()));
-    m_shaderProgram.setUniformValue(discUniform, static_cast<bool>(m_renderdata->disc()));
+    m_shaderProgram.setUniformValue(discUniform, static_cast<int>(m_renderdata->disc()));
     m_shaderProgram.setUniformValue(distanceDetailUniform, static_cast<float>(m_renderdata->distanceDetail()));
     m_shaderProgram.setUniformValue(matrixUniformModelView, modelview);
     m_shaderProgram.setUniformValue(matrixUniformProj, proj);

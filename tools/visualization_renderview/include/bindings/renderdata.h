@@ -29,7 +29,7 @@ class Renderdata : public QObject
     Q_PROPERTY(QVector3D headDirection READ headDirection NOTIFY headDirectionChanged)
     Q_PROPERTY(QMatrix4x4 headOrientation READ headOrientation NOTIFY headOrientationChanged)
     Q_PROPERTY(bool running READ running NOTIFY runningChanged)
-    Q_PROPERTY(bool disc READ disc WRITE setDisc NOTIFY discChanged)
+    Q_PROPERTY(int disc READ disc WRITE setDisc NOTIFY discChanged)
     Q_PROPERTY(float fov READ fov WRITE setFov NOTIFY fovChanged)
 
 public:
@@ -54,7 +54,7 @@ public:
     QVector3D headDirection() const;
     QMatrix4x4 headOrientation() const;
     bool running() const;
-    bool disc() const;
+    int disc() const;
     float fov() const;
 
 public Q_SLOTS:
@@ -69,7 +69,7 @@ public Q_SLOTS:
     void setPointSize(qreal pointSize);
     void setDistanceDetail(qreal distanceDetail);
     void setFilename(QString filename);
-    void setDisc(bool disc);
+    void setDisc(int disc);
     void setFov(float fov);
 
 protected Q_SLOTS:
@@ -97,7 +97,7 @@ Q_SIGNALS:
     void headDirectionChanged(QVector3D headDirection);
     void headOrientationChanged(QMatrix4x4 headOrientation);
     void runningChanged(bool running);
-    void discChanged(bool disc);
+    void discChanged(int disc);
     void fovChanged(float fov);
 
 private:
@@ -116,7 +116,7 @@ private:
     QVector3D m_headDirection;
     QMatrix4x4 m_headOrientation;
     bool m_running;
-    bool m_disc;
+    int m_disc;
     float m_fov;
     upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
 

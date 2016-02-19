@@ -18,7 +18,7 @@ Renderdata::Renderdata()
     m_headDirection( ),
     m_headOrientation( ),
     m_running( false ),
-    m_disc(true),
+    m_disc(0),
     m_fov(45.0f),
     m_connectionToEntityData( nullptr )
 {
@@ -143,7 +143,7 @@ bool Renderdata::running() const
     return m_running;
 }
 
-bool Renderdata::disc() const
+int Renderdata::disc() const
 {
     return m_disc;
 }
@@ -271,7 +271,7 @@ void Renderdata::setFilename(QString filename)
     Q_EMIT filenameChanged(filename);
 }
 
-void Renderdata::setDisc(bool disc)
+void Renderdata::setDisc(int disc)
 {
     if (m_disc == disc)
         return;

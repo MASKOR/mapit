@@ -9,7 +9,7 @@ in highp vec4 Bp;
 in highp vec4 Cp;
 in highp vec4 Dp;
 uniform mediump float pointsize;
-uniform bool discrender;
+uniform int discrender;
 in mediump float pointSize_frag;
 out vec4 fragColor;
 uniform mediump mat4 modelviewmatrix;
@@ -53,7 +53,8 @@ void main(void)
     vec4 eyePos2 = projectioninvmatrix * clipPos2;*/
     vec3 normal = normalize(viewnormal);
     float alpha;
-    if(discrender)
+    int dr = int(mod(float(discrender),4.0));
+    if(dr == 0)
     {
     // line plane intersection
     // t = ( dot(N,O) + d ) / ( dot(N,D) )
@@ -68,8 +69,10 @@ void main(void)
     float dist = distDisc;//mix(distSphere, distDisc, discrender);
     //dist *= 1000.0; //< why?
     alpha = pointsize-dist;
+    vec4 pp = projectionmatrix*p;
+    //gl_FragDepth = (pp.z/-pp.w);//1.0/(pp.z/pp.w)*viewport.w*viewport.z/(viewport.w-viewport.z)+(viewport.w/(viewport.w-viewport.z));
     }
-    else
+    else if(dr == 1)
     {
         vec2 pos = (gl_PointCoord.xy - vec2(0.5))*2.0;
         alpha = float(length(pos)<1.0);
@@ -82,6 +85,31 @@ void main(void)
 
 //FOR SQUARES
         //alpha = 1.0;
+    }
+    else if(dr == 2)
+    {
+    vec2 pos = (gl_PointCoord.xy - vec2(0.5))*2.0;
+
+    // project in orthogonal coordinate system. This fits good for points near screen center and is bad at edges.
+    //vec3 tang1 = normalize(cross(normal, vec3(0.0,0.0,1.0))); //longest radius
+    //vec3 bitang1 = normalize(cross(tang, normal)); //smallest radius
+
+    pos = (-pos.x*normalize(tang.xy))+pos.y*normalize(bitang.xy);
+    pos *= pos;
+
+    //float radSmall = min(1.0,normal.z/length(normal.xy));
+    float radSmall = dot(normalize(viewPoint), normal);
+
+    //float dist = dot(pos, 1.0 / (radii * radii));
+    float dist = pos.x + pos.y*(1.0/(radSmall*radSmall));
+    //float innerDelta = fwidth(dist);
+
+    alpha = max(0.0,1.0-dist);
+
+    }
+    else if(dr == 3)
+    {
+        alpha = 1.0;
     }
 
     fragColor.rgb = color_frag.rgb;
