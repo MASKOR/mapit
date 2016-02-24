@@ -2,20 +2,39 @@
 #  There is no find-script. Leveldb is strictly loaded from upns externals.
 # How can be compiled manually?
 #  On Windows do not follow the "windows" instructions but use cmake.
+#  Linux:
+#    make.
+#    ignore debug building...
 
 macro(custom_set_vars_leveldb)
+
     if (WIN32)
-    link_directories(${EXTERNALS_DIR}/windows/lib-msvc2013-md-64)
-    include_directories(${EXTERNALS_DIR}/windows/include)
+        set(LEVELDB_LIBRARY_DIRECTORY "${EXTERNALS_DIR}/windows/lib-msvc2013-md-64" CACHE FILEPATH "leveldb lib")
+        set(LEVELDB_INCLUDE_DIRECTORY "${EXTERNALS_DIR}/windows/include" CACHE FILEPATH "leveldb lib")
+        set(LEVELDB_LIB_RELEASE "${LEVELDB_LIBRARY_DIRECTORY}/libleveldb.lib" CACHE FILEPATH "leveldb lib")
+        set(LEVELDB_LIB_DEBUG "${LEVELDB_LIBRARY_DIRECTORY}/libleveldbd.lib" CACHE FILEPATH "leveldb lib")
     else()
-    link_directories(${EXTERNALS_DIR}/leveldb)
-    include_directories(${EXTERNALS_DIR}/leveldb/include)
+        set(LEVELDB_LIBRARY_DIRECTORY "${EXTERNALS_DIR}/leveldb/" CACHE FILEPATH "leveldb lib")
+        set(LEVELDB_INCLUDE_DIRECTORY "${EXTERNALS_DIR}/leveldb/include" CACHE FILEPATH "leveldb lib")
+        set(LEVELDB_LIB_RELEASE "${LEVELDB_LIBRARY_DIRECTORY}/libleveldb.so" CACHE FILEPATH "leveldb lib")
+        set(LEVELDB_LIB_DEBUG "${LEVELDB_LIBRARY_DIRECTORY}/libleveldb.so" CACHE FILEPATH "leveldb lib") # Note: "d" is not there after default make. so don't use it by default
     endif()
 
-    set(CUSTOM_LIBRARIES_LEVELDB leveldb)
+    #link_directories(${EXTERNALS_DIR}/windows/lib-msvc2013-md-64)
+
+    string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
+    if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
+        set(LEVELDB_LIBRARIES ${LEVELDB_LIB_DEBUG})
+    else()
+        set(LEVELDB_LIBRARIES ${LEVELDB_LIB_RELEASE})
+    endif()
+
 endmacro(custom_set_vars_leveldb)
 
 macro(custom_target_use_leveldb TARGET)
-    custom_add_vars_leveldb()
-    target_link_library(${TARGET} ${CUSTOM_LIBRARIES_LEVELDB})
+    custom_set_vars_leveldb()
+    include_directories(${LEVELDB_INCLUDE_DIRECTORY})
+    # if the target is has a public interface which requires all dependent targets to use leveldb (header):
+    #target_include_directory(#{LEVELDB_INCLUDE_DIRECTORY})
+    target_link_library(${TARGET} ${LEVELDB_LIBRARIES})
 endmacro(custom_target_use_leveldb)

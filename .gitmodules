@@ -13,3 +13,6 @@
 [submodule "externals/log4cplus"]
 	path = externals/log4cplus
 	url = https://github.com/log4cplus/log4cplus.git
+[submodule "externals/yaml-cpp"]
+	path = externals/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

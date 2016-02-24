@@ -12,10 +12,10 @@ set(CMAKE_AUTOMOC ON)
 #set(BOOST_LIB_DATE_TIME_DEBUG "libboost_date_time-vc120-gd-1_55.lib" CACHE FILEPATH "")
 #set(BOOST_LIB_DATE_TIME_RELEASE "libboost_date_time-vc120-1_55.lib" CACHE FILEPATH "")
 
-# TODO: Introduce FindXXX Scripts streamline librar loading for upns
+# TODO: Introduce FindXXX Scripts streamline library loading for upns
 # Take into account linux and windows. Packet manager installations, "externals" folder installations
 set(LEVELDB_LIB_RELEASE "${EXTERNALS_DIR}/leveldb/libleveldb.so" CACHE FILEPATH "leveldb lib")
-set(LEVELDB_LIB_DEBUG "${EXTERNALS_DIR}/leveldb/libleveldbd.so" CACHE FILEPATH "leveldb lib")
+set(LEVELDB_LIB_DEBUG "${EXTERNALS_DIR}/leveldb/libleveldb.so" CACHE FILEPATH "leveldb lib")
 #set(YAML_LIB_RELEASE "yaml-cpp" CACHE FILEPATH "yaml-cpp md lib")
 #set(YAML_LIB_DEBUG "yaml-cppd" CACHE FILEPATH "yaml-cpp md lib")
 
