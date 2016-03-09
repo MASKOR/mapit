@@ -173,8 +173,8 @@ void MapsRenderer::render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVecto
     if(!m_initialized) return;
     glDepthMask(true);
 
-    //glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
-    glClearColor(1.f, 1.f, 1.0f, 1.0f);
+    glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+    //glClearColor(1.f, 1.f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );

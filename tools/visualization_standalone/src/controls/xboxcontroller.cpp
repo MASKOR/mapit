@@ -53,6 +53,7 @@ void XBoxController::update()
 #endif
         {
             std::cout << "Error. Could not read Controller Number: " << m_controllerId << std::endl;
+            setControllerId(-1);
         }
     }
 #ifdef _WIN32
@@ -111,7 +112,7 @@ bool XBoxController::initialize()
 
         if (XInputGetState(i, &m_state) == ERROR_SUCCESS)
         {
-            m_controllerId = i;
+            setControllerId(i);
             std::cout << "Found Xbox 360." << std::endl;
             return true;
         }

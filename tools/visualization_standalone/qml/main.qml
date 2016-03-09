@@ -60,20 +60,146 @@ ApplicationWindow {
                 color: "white"
                 visible: menubar.showCenterCross
             }
-//            AxisGizmo {
-//                anchors.right: parent.right
-//                anchors.bottom: parent.bottom
-//                anchors.margins: 10
-//                width: 100
-//                height: 100
-//                finalTransform: drawingArea.finalTransform
-//            }
-//            Text {
-//                color: "white"
-//                id: name
-//                text: "Pos: (" + camera.torsoPos.x + ", " + camera.torsoPos.y + ", " + camera.torsoPos.z + ")"
-//            }
+            AxisGizmo {
+                id: gizmo
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                width: 100
+                height: 100
+                finalTransform: drawingArea.finalTransform
+                property bool showing: true
+                opacity: showing
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+            }
+            Text {
+                id: f1info
+                text: "F1: " + (hud.showing?"Hide":"Show") + " Help"
+                state: hud.showing?"Show":"Hide"
+                states: [
+                        State {name: "Show"},
+                        State {name: "Hide"}
+                    ]
+                transitions: [
+                        Transition {
+                            id: hideHudTransition
+                            to: "Hide"
+                            ParallelAnimation {
+                                ColorAnimation {
+                                    target:f1info;
+                                    property: "color"
+                                    to: "white"
+                                    duration: 200
+                                }
+                                SequentialAnimation {
+                                    NumberAnimation {
+                                        target:f1info;
+                                        property:"opacity"
+                                        to:1.0
+                                        duration: 5000
+                                    }
+                                    NumberAnimation {
+                                        target:f1info;
+                                        property:"opacity"
+                                        to:0.0
+                                        duration: 1000
+                                    }
+                                }
+                            }
+                        },
+                        Transition {
+                            to: "Show"
+                            ParallelAnimation {
+                                ColorAnimation {
+                                    target:f1info;
+                                    property: "color"
+                                    to: "grey"
+                                    duration: 200
+                                }
+                                NumberAnimation {
+                                    target:f1info;
+                                    property:"opacity"
+                                    to: 1.0
+                                    duration: 200
+                                }
+                            }
+                        }
+                    ]
+            }
+            Item {
+                id: hud
+                anchors.top: f1info.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                property bool showing: true
+                opacity: showing
+                Component.onCompleted: {
+                    showing = false
+                }
 
+                Behavior on opacity {
+                    NumberAnimation { duration: 200 }
+                }
+                Text {
+                    anchors.top: hud.top
+                    id: controllerText
+                    text: "Controller " + (xboxController.controllerId==-1?"not ":"") + "found"
+                    color: xboxController.controllerId==-1?"red":"green"
+                }
+                Text {
+                    id: posText
+                    anchors.top: controllerText.bottom
+                    color: "white"
+                    text: "Pos: (" + camera.torsoPos.x + ", " + camera.torsoPos.y + ", " + camera.torsoPos.z + ")"
+                }
+                Text {
+                    id: help
+                    anchors.top: posText.bottom
+                    //font.bold: true
+                    style: Text.Outline
+                    styleColor: "black"
+                    textFormat: Text.RichText
+                    text: "\n<br/><b>Controller:</b>\n<br/>" +
+                          "L-Stick: Rotate\n<br/>" +
+                          "R-Stick: Move\n<br/>" +
+                          "L-Trigger: Forward\n<br/>" +
+                          "R-Trigger: Backward\n<br/>" +
+                          "Select: Go to Demopoint and Reset (Demopoint: <font color=\"#00FF00\">" + (xboxController.demoPoint + 1) + "</font>)\n<br/>" +
+                          "DPad Right/Left: Change Pointsize\n<br/>" +
+                          "DPad Up/Down: Change LOD (<font color=\"#00FF00\">" + drawingArea.renderdata.distanceDetail.toFixed(1) + "</font>)\n<br/>" +
+                          "A-Button: Move Faster\n" +
+                          "LeftThumb: Fix Upvector (<font color=\"#00FF00\">" + (menubar.fixUpvector?"":"not ") + "fixed</font>)\n<br/>" +
+                          "Start: <font color=\"#00FF00\">" + (drawingArea.renderdata.vrmode?"Disable":"Enable") + "</font> VR\n<br/>" +
+                          "Left Shoulder Button: Invert Y Axis for Stick (<font color=\"#00FF00\">" + (menubar.fixUpvector?"fixed":((menubar.invertYAxis?"":"not ") + "inverted")) + "</font>)\n\n<br/><br/>" +
+                          "<b>Keyboard:</b>\n<br/>" +
+                          "F2: <font color=\"#00FF00\">"+(gizmo.showing?"Hide":"Show")+"</font> Gizmo\n<br/>" +
+                          "F3: <font color=\"#00FF00\">"+ (menubar.showCenterCross?"Hide":"Show") +"</font> Center Cross\n<br/>" +
+                          "Shift: Move Faster\n<br/>" +
+                          "Left/Right/UpDown/W/A/S/D: Move\n<br/>" +
+                          "Y/X: Move Up/Down\n<br/>" +
+                          "Q/E: Rotate (Banking)\n<br/>" +
+                          "H/J: Change Point Size (<font color=\"#00FF00\">" + drawingArea.renderdata.pointSize.toFixed(2) + "</font>)\n<br/>" +
+                          "K/L: Lod rate (<font color=\"#00FF00\">" + screenMouse.distanceDetailKeyboardTemp + "</font>)\n<br/>" +
+                          "M: Change Point Render Mode (<font color=\"#00FF00\">" + screenMouse.renderModeName + "</font>)\n<br/>" +
+                          "B/N: Change Fov (<font color=\"#00FF00\">" + drawingArea.renderdata.fov.toFixed(1) + "°</font>)\n\n<br/><br/>" +
+                          "<b>Mouse:</b>\n<br/>" +
+                          "Middle: Move perpendicular to view direction\n<br/>" +
+                          "Wheel: Zoom"
+                    color: "white"
+                }
+//                Text {
+//                    x: help.x+2
+//                    y: help.y+2
+//                    z: help.z-1
+//                    font.bold: true
+//                    text: help.text
+//                    color: "black"
+//                }
+            }
             renderdata.matrix: camera.matrix
             Camera {
                 id: camera
@@ -131,8 +257,18 @@ ApplicationWindow {
                 }
                 focus: true
                 property var distanceDetailKeyboardTemp: 0.0
+                property var renderModeName: "disc: ray-cast (FH Aachen)"
                 Keys.onPressed: {
                     var speed = xboxController.speed;
+                    if (event.key === Qt.Key_F1) {
+                        hud.showing = !hud.showing
+                    }
+                    if (event.key === Qt.Key_F2) {
+                        gizmo.showing = !gizmo.showing
+                    }
+                    if (event.key === Qt.Key_F3) {
+                        menubar.showCenterCross = !menubar.showCenterCross
+                    }
                     if (event.key === Qt.Key_Shift) {
                         speed *= 2;
                     }
@@ -179,24 +315,27 @@ ApplicationWindow {
                     }
                     if (event.key === Qt.Key_M) {
                         drawingArea.renderdata.disc = (drawingArea.renderdata.disc+1)%8;
-                        console.log("disc: " + drawingArea.renderdata.disc);
                         var cons = drawingArea.renderdata.disc > 3
                         if(cons) {
-                            console.log("disc: constant");
+                            renderModeName = "constant ";
+                        } else {
+                            renderModeName = "perspective scaled ";
                         }
+
                         if(drawingArea.renderdata.disc%4 == 0) {
                             //if(cons) drawingArea.renderdata.disc++;
-                            console.log("disc: ray-cast");
+                            renderModeName += "disc: ray-cast (FH Aachen)";
                         }
                         if(drawingArea.renderdata.disc%4 == 1) {
-                            console.log("disc: circle");
+                            renderModeName += "disc: circle";
                         }
                         if(drawingArea.renderdata.disc%4 == 2) {
-                            console.log("disc: ellipse");
+                            renderModeName += "disc: ellipse";
                         }
                         if(drawingArea.renderdata.disc%4 == 3) {
-                            console.log("disc: square");
+                            renderModeName += "disc: square";
                         }
+                        console.log(renderModeName);
                     }
                     if (event.key === Qt.Key_B) {
                         console.log("fov: " + drawingArea.renderdata.fov);
@@ -207,7 +346,9 @@ ApplicationWindow {
                         drawingArea.renderdata.fov--;
                     }
                 }
+
                 XBoxController {
+                    id: xboxController
                     property int demoPoint: 0
                     property var demoPoints: [
                         Qt.vector3d(93.25, -44.73, 1.38),
@@ -223,23 +364,22 @@ ApplicationWindow {
                     property real movRight: stickRX*speed
                     property real rotY: stickLY*-0.02 * (1.0 + menubar.invertYAxis * -2.0)
                     property real rotX: stickLX*-0.02
-                    property real pointSizeGrowth: dpadRight - dpadLeft
+                    property real pointSizeGrowth: (dpadRight - dpadLeft) * 0.05
                     property real distanceDetailChange: dpadUp - dpadDown + screenMouse.distanceDetailKeyboardTemp
                     property real distanceDetailInv: 1.0
-                    id: xboxController
                     onButtonStartChanged: {
                         if(buttonStart) {
                             drawingArea.renderdata.vrmode = !drawingArea.renderdata.vrmode
                         }
                     }
                     onLeftShoulderChanged: {
-                        if(buttonBack) {
-                            invertY.checked = !invertY.checked
+                        if(leftShoulder) {
+                            menubar.invertYAxis = !menubar.invertYAxis
                         }
                     }
                     onLeftThumbChanged: {
                         if(leftThumb) {
-                            fixedUpvec.checked = !fixedUpvec.checked
+                            menubar.fixUpvector = !menubar.fixUpvector
                         }
                     }
                     onButtonBackChanged: {
@@ -248,12 +388,13 @@ ApplicationWindow {
                             if(demoPoint >= demoPoints.length) {
                                 demoPoint = 0
                             }
-                            drawingArea.renderdata.pointSize = 64.0
+                            drawingArea.renderdata.pointSize = 0.064
                             if(demoPoint == 0) {
                                 drawingArea.renderdata.distanceDetail = 10.0
                             } else {
                                 drawingArea.renderdata.distanceDetail = 1.0
                             }
+                            screenMouse.distanceDetailKeyboardTemp = 0.0
                             camera.torsoPos = demoPoints[demoPoint]
                         }
                     }
@@ -280,7 +421,7 @@ ApplicationWindow {
         id: tmr
         repeat: true
         interval: 2000
-        running: true
+        running: false
         onTriggered: {
             if( drawingArea.renderdata.disc === 0 ){
                 drawingArea.renderdata.disc = 1
