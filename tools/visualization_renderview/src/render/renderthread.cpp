@@ -8,7 +8,7 @@
 #include <QOpenGLFramebufferObject>
 #include <QGuiApplication>
 #include <QOffscreenSurface>
-#include <QOpenGLFunctions_4_1_Core>
+#include <QOpenGLFunctions_3_0>
 
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
@@ -47,7 +47,7 @@
 
 //    StereoTexture(OVR::Sizei size, int sampleCount, int mipLevels, int sampleCount)
 //    {
-//        QOpenGLFunctions_4_1_Core funcs;
+//        QOpenGLFunctions_3_0 funcs;
 //        funcs.initializeOpenGLFunctions();
 //        OVR_ASSERT(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
 
@@ -91,7 +91,7 @@
 //    {
 //        if (texId)
 //        {
-//            QOpenGLFunctions_4_1_Core funcs;
+//            QOpenGLFunctions_3_0 funcs;
 //            funcs.initializeOpenGLFunctions();
 //            funcs.glDeleteTextures(1, &texId);
 //            texId = 0;
@@ -105,7 +105,7 @@ struct DepthBuffer
 
     DepthBuffer(OVR::Sizei size, int sampleCount)
     {
-        QOpenGLFunctions_4_1_Core funcs;
+        QOpenGLFunctions_3_0 funcs;
         funcs.initializeOpenGLFunctions();
         OVR_ASSERT(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
 
@@ -130,7 +130,7 @@ struct DepthBuffer
     {
         if (texId)
         {
-            QOpenGLFunctions_4_1_Core funcs;
+            QOpenGLFunctions_3_0 funcs;
             funcs.initializeOpenGLFunctions();
             funcs.glDeleteTextures(1, &texId);
             texId = 0;
@@ -155,7 +155,7 @@ struct TextureBuffer
         OVR_ASSERT(sampleCount <= 1); // The code doesn't currently handle MSAA textures.
 
         texSize = size;
-        QOpenGLFunctions_4_1_Core funcs;
+        QOpenGLFunctions_3_0 funcs;
         funcs.initializeOpenGLFunctions();
 
         if (displayableOnHmd)
@@ -223,7 +223,7 @@ struct TextureBuffer
 
     ~TextureBuffer()
     {
-        QOpenGLFunctions_4_1_Core funcs;
+        QOpenGLFunctions_3_0 funcs;
         funcs.initializeOpenGLFunctions();
         if (TextureSet)
         {
@@ -249,7 +249,7 @@ struct TextureBuffer
 
     void SetAndClearRenderSurface(DepthBuffer* dbuffer)
     {
-        QOpenGLFunctions_4_1_Core funcs;
+        QOpenGLFunctions_3_0 funcs;
         funcs.initializeOpenGLFunctions();
         auto tex = reinterpret_cast<ovrGLTexture*>(&TextureSet->Textures[TextureSet->CurrentIndex]);
 
@@ -264,7 +264,7 @@ struct TextureBuffer
 
     void UnsetRenderSurface()
     {
-        QOpenGLFunctions_4_1_Core funcs;
+        QOpenGLFunctions_3_0 funcs;
         funcs.initializeOpenGLFunctions();
         funcs.glBindFramebuffer(GL_FRAMEBUFFER, fboId);
         funcs.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
@@ -444,7 +444,7 @@ void RenderThread::renderNextVR()
     }
     //isVisible = (result == ovrSuccess);
 
-    QOpenGLFunctions_4_1_Core funcs;
+    QOpenGLFunctions_3_0 funcs;
     funcs.initializeOpenGLFunctions();
     if(m_renderdata.mirrorEnabled())
     {
@@ -776,7 +776,7 @@ void RenderThread::initialize()
 //#ifdef VRMODE
 //    if(m_mirrorDistorsion)
 //    {
-//        QOpenGLFunctions_4_1_Core funcs;
+//        QOpenGLFunctions_3_0 funcs;
 //        funcs.initializeOpenGLFunctions();
 //        funcs.glBindFramebuffer(GL_READ_FRAMEBUFFER, m_mirrorFBO);
 //        funcs.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mirrorTexture->OGL.TexId, 0);
@@ -797,7 +797,7 @@ void RenderThread::initialize()
 //    {
 ////        if(m_mirrorRightEye)
 ////        {
-////            QOpenGLFunctions_4_1_Core funcs;
+////            QOpenGLFunctions_3_0 funcs;
 ////            funcs.initializeOpenGLFunctions();
 ////            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
 ////            funcs.glGenFramebuffers(1, &m_mirrorFBO);
@@ -808,7 +808,7 @@ void RenderThread::initialize()
 ////        }
 ////        else
 ////        {
-////            QOpenGLFunctions_4_1_Core funcs;
+////            QOpenGLFunctions_3_0 funcs;
 ////            funcs.initializeOpenGLFunctions();
 ////            funcs.glDeleteFramebuffers(1, &m_mirrorFBO);
 ////            funcs.glGenFramebuffers(1, &m_mirrorFBO);
@@ -885,7 +885,7 @@ void RenderThread::resetMirror()
     std::cout << "New Width:" << m_mirrorTexture->OGL.Header.TextureSize.w << " H: " << m_mirrorTexture->OGL.Header.TextureSize.h << std::endl;
 
 
-    QOpenGLFunctions_4_1_Core funcs;
+    QOpenGLFunctions_3_0 funcs;
     funcs.initializeOpenGLFunctions();
     // Configure the mirror read buffer
     if(m_mirrorFBO)

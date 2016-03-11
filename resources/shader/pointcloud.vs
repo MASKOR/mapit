@@ -1,4 +1,4 @@
-#version 400
+#version 130
 in highp vec4 vertex;
 in mediump vec3 normal;
 in mediump vec3 color;

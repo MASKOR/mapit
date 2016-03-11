@@ -1,4 +1,4 @@
-#version 400
+#version 130
 in mediump vec4 color_frag;
 in highp vec3 viewnormal;
 in highp vec3 tang;

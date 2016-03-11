@@ -1,7 +1,7 @@
 #include "mapsrenderer.h"
 
 #include <QtMath>
-#include <QOpenGLFunctions_4_1_Core>
+#include <QOpenGLFunctions_3_0>
 #include "upns_globals.h"
 #include "bindings/qmlentitydata.h"
 #include "libs/upns_interface/services.pb.h"
@@ -62,7 +62,7 @@ void MapsRenderer::initialize()
 
     glClearColor(1.0f, 0.1f, 0.2f, 1.0f);
 
-    QOpenGLFunctions_4_1_Core funcs;
+    QOpenGLFunctions_3_0 funcs;
     funcs.initializeOpenGLFunctions();
     //funcs.glPointSize(8.f);
     funcs.glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
