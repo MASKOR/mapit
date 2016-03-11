@@ -3,6 +3,7 @@ import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0
 
 import fhac.upns 1.0
 //import "components"
@@ -191,6 +192,18 @@ ApplicationWindow {
                           "Wheel: Zoom"
                     color: "white"
                 }
+                Rectangle {
+                    anchors.fill: help
+                    z: help.z - 1
+                    anchors.margins: -5
+                    color: Qt.rgba(0, 0, 0, 0.5)
+                }
+//                FastBlur {
+//                    anchors.fill: help
+//                    source: drawingArea
+//                    radius: 64
+//                    cached: false
+//                }
 //                Text {
 //                    x: help.x+2
 //                    y: help.y+2
