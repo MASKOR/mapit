@@ -57,7 +57,7 @@ private:
     int screenSizeUniform;
     int pointSizeUniform;
     int heightOfNearPlaneUniform;
-    bool discUniform;
+    int discUniform;
     int distanceDetailUniform;
 
     bool m_initialized;

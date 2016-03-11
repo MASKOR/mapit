@@ -94,7 +94,7 @@ void MapsRenderer::initialize()
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue(pointSizeUniform, 64.0f);
-    m_shaderProgram.setUniformValue(discUniform, true);
+    m_shaderProgram.setUniformValue(discUniform, static_cast<int>(0));
     m_shaderProgram.setUniformValue(distanceDetailUniform, 0.05f);
     m_shaderProgram.release();
 
