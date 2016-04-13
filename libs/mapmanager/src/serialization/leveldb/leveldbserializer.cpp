@@ -10,7 +10,6 @@
 #include "error.h"
 #include "../hash.h"
 
-#include <QDebug>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QLockFile>

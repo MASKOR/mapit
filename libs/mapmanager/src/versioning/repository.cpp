@@ -74,6 +74,10 @@ upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranc
     {
         // assert: empty, if this is the inial commit and "master"
         assert( branch->commitid().empty() || m_p->m_serializer->getCommit(branch->commitid()) != NULL );
+        if(branch->commitid().empty())
+        {
+            log_info("empty repository. checking out initial master");
+        }
         commitId = branch->commitid();
         branchName = commitIdOrBranchname;
     }
@@ -92,9 +96,9 @@ upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranc
         }
     }
     co = upnsSharedPointer<CheckoutObj>(new CheckoutObj());
-    co->mutable_commit()->add_parentcommitids(commitId);
+    co->mutable_rollingcommit()->add_parentcommitids(commitId);
     m_p->m_serializer->createCheckoutCommit( co, name );
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, branchName));
+    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
 }
 
 upnsVec<upnsString> Repository::listCheckoutNames()
@@ -147,7 +151,7 @@ upnsSharedPointer<Checkout> Repository::checkout(const upnsString &checkoutName)
         log_info("Checkout does not exist: " + checkoutName);
         return NULL;
     }
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co));
+    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, checkoutName));
 }
 
 StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
@@ -195,6 +199,26 @@ upnsSharedPointer<Checkout> Repository::merge(const CommitId mine, const CommitI
 upnsVec<upnsPair<CommitId, ObjectId> > Repository::ancestors(const CommitId &commitId, const ObjectId &objectId, const int level)
 {
     return upnsVec<upnsPair<CommitId, ObjectId> >();
+}
+
+StatusCode Repository::init()
+{
+    upnsVec< upnsSharedPointer<Branch> > branches(m_p->m_serializer->listBranches());
+    if(!branches.empty())
+    {
+        return UPNS_STATUS_REPOSITORY_NOT_EMPTY;
+    }
+    upnsVec< upnsString > cos(m_p->m_serializer->listCheckoutNames());
+    if(!cos.empty())
+    {
+        return UPNS_STATUS_REPOSITORY_NOT_EMPTY;
+    }
+//    upnsSharedPointer<Commit> initialCommit(new Commit);
+//    initialCommit->set_commitid(""); //TODO: make sure this is traditionally really 0x0
+//    m_p->m_serializer->createBranch(masterBranch, "master");
+    upnsSharedPointer<Branch> masterBranch(new Branch);
+    masterBranch->set_commitid(""); //TODO: make sure this is traditionally really 0x0
+    m_p->m_serializer->createBranch(masterBranch, "master");
 }
 
 bool Repository::canRead()

@@ -33,6 +33,7 @@ void TestRepository::initTestCase()
     conf["mapsource"] = mapsource;
 
     m_repo = new upns::Repository(conf);
+    m_repo->init();
 }
 
 void TestRepository::cleanupTestCase()
