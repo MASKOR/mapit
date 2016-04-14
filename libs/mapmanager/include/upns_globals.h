@@ -91,6 +91,10 @@ typedef upnsuint32 StatusCode;
 
 typedef upnsString CommitId;
 typedef upnsString ObjectId;
+
+// Path do not need to start with "/".
+// Empty "directories" are not allowed ("//").
+// Trailing "/" are omitted.
 typedef upnsString Path;
 
 #define InvalidCommitId "invalidCId"

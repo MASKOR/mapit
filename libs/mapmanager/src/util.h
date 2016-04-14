@@ -5,6 +5,7 @@
 #include <string>
 #include <leveldb/slice.h>
 #include <algorithm>
+#include <google/protobuf/repeated_field.h>
 
 #define UPNS_ID_LEN 40
 namespace upns
@@ -19,6 +20,7 @@ namespace upns
 
     inline upnsuint64  generateId();
 
+    bool protobufContains(::google::protobuf::RepeatedPtrField<std::string> *field, const ::std::string &str);
 
     inline std::string idToString(const upnsuint64 &id)
     {

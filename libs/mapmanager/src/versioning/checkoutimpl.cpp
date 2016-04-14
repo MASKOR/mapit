@@ -204,6 +204,31 @@ ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::st
 
 ObjectId CheckoutImpl::oidForPath(const Path &path)
 {
+    Path p = preparePath(path);
+    ObjectId oid(m_checkout->rollingcommit().root());
+    upnsSharedPointer<Tree> current = m_serializer->getTree(oid);
+    upnsSharedPointer<Entity> currentEntity;
+    forEachPathSegment(p,
+    [&](upnsString seg, bool isLast)
+    {
+        if(current == NULL) return false; // can not go futher
+        if(seg.empty()) return false; // "//" not allowed
+        oid = oidForChild(current, seg);
+        if(oid.empty()) return false; // path invalid
+        if(isLast) return false; // we are done
+        current = m_serializer->getTree(oid);
+        return true; // continue thru path
+    },
+    [](upnsString seg, bool isLast)
+    {
+        assert(false);
+        return false;
+    });
+    return oid;
+}
+
+Path CheckoutImpl::preparePath(const Path &path)
+{
     // path p has no beginning / and always trailing /
     Path p = path;
     while(p[0] == '/')
@@ -214,34 +239,23 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
     {
         p += "/";
     }
-    ObjectId oid(m_checkout->rollingcommit().root());
-    upnsSharedPointer<Tree> current;
-    size_t lastSlash = 0;
-    while(true)
-    {
-        size_t nextSlash = p.find_first_of('/', lastSlash);
-        assert(nextSlash != std::string::npos);
-        if(nextSlash == p.length()-1)
-        {
-            // last slash found
-            return oid;
-        }
-        current = m_serializer->getTree(oid);
-        if(current == NULL)
-        {
-            // if the path is not yet finished and there is a non tree
-            log_error("Element not found or non-Tree was part of path: " + p + " (" + p.substr(lastSlash, nextSlash) + ") Oid: " + oid);
-            return "";
-        }
-        oid = oidForChild(current, p.substr(lastSlash, nextSlash));
-        assert(nextSlash+1 <= p.length()-1);
-        lastSlash = nextSlash+1;
-    }
+    return p;
 }
 
-StatusCode CheckoutImpl::forEachPathSegment(const Path &path, std::function<bool (upnsString)> before, std::function<bool (upnsString)> after)
+bool CheckoutImpl::forEachPathSegment(const Path &path,
+                                      std::function<bool (upnsString, size_t, bool)> before, std::function<bool (upnsString, size_t, bool)> after, const int start)
 {
-
+    size_t nextSlash = path.find_first_of('/', start);
+    upnsString segment(path.substr(start, nextSlash));
+    bool isLast = nextSlash != std::string::npos || nextSlash != path.length()-1;
+    if(!before(segment, nextSlash, isLast)) return false;
+    if(isLast)
+    {
+        StatusCode s = forEachPathSegment(path, before, after, nextSlash+1);
+        if(upnsIsOk(s)); return s;
+    }
+    if(!after(segment, nextSlash, isLast)) return false;
+    return true;
 }
 
 upnsString CheckoutImpl::transientOid(const upnsString &path)
@@ -250,16 +264,30 @@ upnsString CheckoutImpl::transientOid(const upnsString &path)
     return "path_"+m_name+"_"+path;
 }
 
+// TODO: Object-classes are seperated (entity, tree, ...) and are here unified again.
+// On the lowest level they are now unified. TODO: provide unified interface to them (template).
 template <>
-StatusCode CheckoutImpl::createLeafObject<Tree>(upnsSharedPointer<Tree> leafObject)
+StatusCode CheckoutImpl::createObject<Tree>(upnsSharedPointer<Tree> leafObject)
 {
     return m_serializer->createTree(leafObject);
 }
 
 template <>
-StatusCode CheckoutImpl::createLeafObject<Entity>(upnsSharedPointer<Entity> leafObject)
+StatusCode CheckoutImpl::createObject<Entity>(upnsSharedPointer<Entity> leafObject)
 {
     return m_serializer->createEntity(leafObject);
+}
+
+template <>
+StatusCode CheckoutImpl::storeObject<Tree>(upnsSharedPointer<Tree> leafObject)
+{
+    return m_serializer->storeTree(leafObject);
+}
+
+template <>
+StatusCode CheckoutImpl::storeObject<Entity>(upnsSharedPointer<Entity> leafObject)
+{
+    return m_serializer->storeEntity(leafObject);
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Entity> obj,
@@ -270,6 +298,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Entity> obj,
     assert(obj != NULL);
     if(!beforeEntity(obj)) return UPNS_STATUS_OK;
     if(!afterEntity(obj)) return UPNS_STATUS_OK;
+    return UPNS_STATUS_OK;
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj,
@@ -310,6 +339,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj,
         iter++;
     }
     if(!afterTree(obj)) return UPNS_STATUS_OK;
+    return UPNS_STATUS_OK;
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Commit> obj,
@@ -323,6 +353,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Commit> obj,
     StatusCode s = depthFirstSearch(tree, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
     if(!upnsIsOk(s)) return s;
     if(!afterCommit(obj)) return UPNS_STATUS_OK;
+    return UPNS_STATUS_OK;
 }
 
 }
