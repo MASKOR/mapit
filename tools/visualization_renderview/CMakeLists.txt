@@ -26,10 +26,12 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
 include_directories(${YAML_CPP_INCLUDE})
 
-find_package(Qt5Qml 5.5 REQUIRED)
-find_package(Qt5Widgets 5.5 REQUIRED)
-find_package(Qt5Quick 5.5 REQUIRED)
-
+#find_package(Qt5Qml 5.5 REQUIRED)
+#find_package(Qt5Widgets 5.5 REQUIRED)
+#find_package(Qt5Quick 5.5 REQUIRED)
+find_package(Qt5Qml REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Quick REQUIRED)
 
 string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
 if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
