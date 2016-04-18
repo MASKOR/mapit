@@ -31,10 +31,11 @@ macro(custom_set_vars_leveldb)
 
 endmacro(custom_set_vars_leveldb)
 
-macro(custom_target_use_leveldb TARGET)
-    custom_set_vars_leveldb()
-    include_directories(${LEVELDB_INCLUDE_DIRECTORY})
-    # if the target is has a public interface which requires all dependent targets to use leveldb (header):
-    #target_include_directory(#{LEVELDB_INCLUDE_DIRECTORY})
-    target_link_library(${TARGET} ${LEVELDB_LIBRARIES})
-endmacro(custom_target_use_leveldb)
+#leads to Cannot specify link libraries for target "databasebump" which is not built by this project.
+#macro(custom_target_use_leveldb TARGET)
+#    custom_set_vars_leveldb()
+#    include_directories(${LEVELDB_INCLUDE_DIRECTORY})
+#    # if the target is has a public interface which requires all dependent targets to use leveldb (header):
+#    #target_include_directory(#{LEVELDB_INCLUDE_DIRECTORY})
+#    target_link_libraries(${TARGET} ${LEVELDB_LIBRARIES})
+#endmacro(custom_target_use_leveldb)

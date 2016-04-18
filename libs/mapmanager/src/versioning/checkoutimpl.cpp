@@ -21,6 +21,7 @@ typedef ModuleInfo* (*GetModuleInfo)();
 CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj>  checkoutCommit, upnsString name, const upnsString branchname)
     :m_serializer(serializer),
      m_branchname( branchname ),
+     m_name(name),
      m_checkout(checkoutCommit),
      m_nextTransientOid("0")
 {
@@ -209,7 +210,7 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
     upnsSharedPointer<Tree> current = m_serializer->getTree(oid);
     upnsSharedPointer<Entity> currentEntity;
     forEachPathSegment(p,
-    [&](upnsString seg, bool isLast)
+    [&](upnsString seg, size_t idx, bool isLast)
     {
         if(current == NULL) return false; // can not go futher
         if(seg.empty()) return false; // "//" not allowed
@@ -219,7 +220,7 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
         current = m_serializer->getTree(oid);
         return true; // continue thru path
     },
-    [](upnsString seg, bool isLast)
+    [](upnsString seg, size_t idx, bool isLast)
     {
         assert(false);
         return false;
@@ -246,15 +247,23 @@ bool CheckoutImpl::forEachPathSegment(const Path &path,
                                       std::function<bool (upnsString, size_t, bool)> before, std::function<bool (upnsString, size_t, bool)> after, const int start)
 {
     size_t nextSlash = path.find_first_of('/', start);
-    upnsString segment(path.substr(start, nextSlash));
-    bool isLast = nextSlash != std::string::npos || nextSlash != path.length()-1;
-    if(!before(segment, nextSlash, isLast)) return false;
-    if(isLast)
+    upnsString segment(path.substr(start, nextSlash-start));
+    bool isLast = nextSlash == std::string::npos || nextSlash == path.length()-1;
+    if(!before(segment, nextSlash+1, isLast))
     {
-        StatusCode s = forEachPathSegment(path, before, after, nextSlash+1);
-        if(upnsIsOk(s)); return s;
+        return false;
     }
-    if(!after(segment, nextSlash, isLast)) return false;
+    if(!isLast)
+    {
+        if(!forEachPathSegment(path, before, after, nextSlash+1))
+        {
+            return false;
+        }
+    }
+    if(!after(segment, nextSlash+1, isLast))
+    {
+        return false;
+    }
     return true;
 }
 
@@ -269,25 +278,25 @@ upnsString CheckoutImpl::transientOid(const upnsString &path)
 template <>
 StatusCode CheckoutImpl::createObject<Tree>(upnsSharedPointer<Tree> leafObject)
 {
-    return m_serializer->createTree(leafObject);
+    return m_serializer->createTree(leafObject, true);
 }
 
 template <>
 StatusCode CheckoutImpl::createObject<Entity>(upnsSharedPointer<Entity> leafObject)
 {
-    return m_serializer->createEntity(leafObject);
+    return m_serializer->createEntity(leafObject, true);
 }
 
 template <>
 StatusCode CheckoutImpl::storeObject<Tree>(upnsSharedPointer<Tree> leafObject)
 {
-    return m_serializer->storeTree(leafObject);
+    return m_serializer->storeTree(leafObject, true);
 }
 
 template <>
 StatusCode CheckoutImpl::storeObject<Entity>(upnsSharedPointer<Entity> leafObject)
 {
-    return m_serializer->storeEntity(leafObject);
+    return m_serializer->storeEntity(leafObject, true);
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Entity> obj,

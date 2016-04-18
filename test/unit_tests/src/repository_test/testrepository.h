@@ -15,7 +15,9 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testExampleCommit();
+    void testCreateCheckout();
+    void testGetCheckout();
+    void testCommit();
 
 private:
     upns::Repository *m_repo;

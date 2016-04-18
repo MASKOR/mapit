@@ -51,10 +51,10 @@ public:
      * @param name
      * @return
      */
-    upnsSharedPointer<Checkout> checkout(const CommitId &commitIdOrBranchname, const upnsString &name);
+    upnsSharedPointer<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name);
     //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &branch, const upnsString &name);
     /**
-     * @brief checkout checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
+     * @brief checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
      * Changes are not fully recorded at this level. Individual Stream-writes are recorded, without knowing the "OperationDescriptor".
      * This enables operator-modules to use the "Checkout"-Class for their implementations. Another level must version append this
      * versioning information to contain also "OperationDescriptor".
@@ -65,7 +65,7 @@ public:
      * @param commit
      * @return new empty checkout object, representing exactly the state of <commit>.
      */
-    upnsSharedPointer<Checkout> checkout(const upnsString &checkoutName);
+    upnsSharedPointer<Checkout> createCheckout(const upnsString &checkoutName);
     // when commiting we check if we are on a branch head. if so... update branch pointer
     //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &commit);
 

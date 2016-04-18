@@ -52,8 +52,10 @@ set(UPNS_QTVERSION)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
-set(CMAKE_C_FLAGS_DEBUG "-DUPNS_DEBUG")
-
+string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
+if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
+    add_definitions("-DUPNS_DEBUG")
+endif()
 # Note: Dependency management is yet a mess. Some projects are contained in externals folder.
 # other projects are downloaded by cmake and installed
 # other projects must be installed on host system
@@ -87,6 +89,7 @@ add_subdirectory(libs/layertypes_collection)
 #add_subdirectory(commandlinetool_mapman)
 #add_subdirectory(externals)
 #add_subdirectory(externals/yaml-cpp)
+add_subdirectory(tools/databasedump)
 if(ENABLE_VISUALIZATION)
   #add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_renderview)

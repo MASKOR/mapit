@@ -134,17 +134,34 @@ upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj)
+StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj, bool transient)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    obj->set_id(key);
+    std::string key;
+    if(transient)
+    {
+        key = obj->id();
+    }
+    else
+    {
+        key = ::upns::hash_toString(obj.get());
+        obj->set_id(key);
+    }
     key = keyOfTree(key);
     return storeObject(key, obj);
 }
 
-StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj)
+StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj, bool transient)
 {
-    std::string key = ::upns::hash_toString(obj.get());
+    std::string key;
+    if(transient)
+    {
+        key = obj->id();
+    }
+    else
+    {
+        key = ::upns::hash_toString(obj.get());
+        obj->set_id(key);
+    }
     key = keyOfTree(key);
     return createObject(key, obj);
 }
@@ -160,16 +177,34 @@ upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
+StatusCode LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj, bool transient)
 {
-    std::string key = ::upns::hash_toString(obj.get());
+    std::string key;
+    if(transient)
+    {
+        key = obj->id();
+    }
+    else
+    {
+        key = ::upns::hash_toString(obj.get());
+        obj->set_id(key);
+    }
     key = keyOfEntity(key);
     return storeObject(key, obj);
 }
 
-StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj)
+StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj, bool transient)
 {
-    std::string key = ::upns::hash_toString(obj.get());
+    std::string key;
+    if(transient)
+    {
+        key = obj->id();
+    }
+    else
+    {
+        key = ::upns::hash_toString(obj.get());
+        obj->set_id(key);
+    }
     key = keyOfEntity(key);
     return createObject(key, obj);
 }
@@ -641,6 +676,22 @@ upnsSharedPointer<Branch> LevelDBSerializer::fromGeneric(const GenericEntry &fro
     if(from.type() != MessageBranch) return NULL;
     return upnsSharedPointer< Branch >(new Branch(from.branch()));
 }
+
+void upns::LevelDBSerializer::debugDump()
+{
+    leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
+    it->SeekToFirst();
+    std::cout << "--> ";
+    while(it->Valid())
+    {
+        std::string key(it->key().data());
+        std::string value(it->value().data());
+        std::cout << key.c_str() << " : " << value.c_str() << std::endl;
+        std::cout << "--> ";
+        it->Next();
+    }
+}
+
 //template <>
 //upnsSharedPointer<bytes> LevelDBSerializer::fromGeneric(const GenericEntry &from)
 //{

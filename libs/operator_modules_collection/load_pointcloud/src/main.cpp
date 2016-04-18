@@ -57,7 +57,9 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     {
         entityname += "/";
     }
-    env->getCheckout()->storeEntity(entityname, upnsSharedPointer<Entity>(new Entity));
+    upnsSharedPointer<Entity> pclEntity(new Entity);
+    pclEntity->set_type(POINTCLOUD2);
+    env->getCheckout()->storeEntity(entityname, pclEntity);
     upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( entityname );
 
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);

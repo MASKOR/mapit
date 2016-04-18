@@ -23,13 +23,13 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
-    virtual StatusCode storeTree(upnsSharedPointer<Tree> &obj) = 0;
-    virtual StatusCode createTree(upnsSharedPointer<Tree> &obj) = 0;
+    virtual StatusCode storeTree(upnsSharedPointer<Tree> &obj, bool transient = false) = 0;
+    virtual StatusCode createTree(upnsSharedPointer<Tree> &obj, bool transient = false) = 0;
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
-    virtual StatusCode storeEntity(upnsSharedPointer<Entity> &obj) = 0;
-    virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj) = 0;
+    virtual StatusCode storeEntity(upnsSharedPointer<Entity> &obj, bool transient = false) = 0;
+    virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj, bool transient = false) = 0;
     virtual StatusCode removeEntity(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Commit> getCommit(const ObjectId &oid) = 0;
@@ -65,6 +65,9 @@ public:
      * @return
      */
     virtual StatusCode cleanUp() = 0;
+#ifdef UPNS_DEBUG
+    virtual void debugDump() = 0;
+#endif
 };
 
 }

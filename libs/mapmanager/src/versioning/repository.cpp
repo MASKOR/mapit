@@ -4,6 +4,7 @@
 #include "serialization/leveldb/leveldbserializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"
+#include <QMap>
 
 namespace upns
 {
@@ -59,7 +60,7 @@ Repository::~Repository()
     delete m_p;
 }
 
-upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranchname, const upnsString &name)
+upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
     if(co != NULL)
@@ -97,7 +98,11 @@ upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranc
     }
     co = upnsSharedPointer<CheckoutObj>(new CheckoutObj());
     co->mutable_rollingcommit()->add_parentcommitids(commitId);
-    m_p->m_serializer->createCheckoutCommit( co, name );
+    StatusCode s = m_p->m_serializer->createCheckoutCommit( co, name );
+    if(!upnsIsOk(s))
+    {
+        log_error("Could not create checkout.");
+    }
     return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
 }
 
@@ -143,7 +148,7 @@ upnsSharedPointer<AbstractEntityData> Repository::getEntityDataReadOnly(const Ob
     return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true, false);
 }
 
-upnsSharedPointer<Checkout> Repository::checkout(const upnsString &checkoutName)
+upnsSharedPointer<Checkout> Repository::createCheckout(const upnsString &checkoutName)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
     if(co == NULL)
@@ -168,6 +173,11 @@ StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
 
 CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const upnsString msg)
 {
+//    CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
+//    QMap<::std::string, ::std::string> oldToNewIds;
+//    co->depthFirstSearch([&](upnsSharedPointer<Commit> obj){}, [&](upnsSharedPointer<Commit> obj){},
+//                             upnsSharedPointer<Tree> obj){}, [&](upnsSharedPointer<Tree> obj){},
+//                             upnsSharedPointer<Entity> obj){}, [&](upnsSharedPointer<Entity> obj){},
     return "";
 }
 
