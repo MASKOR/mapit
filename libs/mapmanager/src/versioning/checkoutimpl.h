@@ -41,7 +41,7 @@ public:
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = NULL);
+    CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
     ~CheckoutImpl();
 
     virtual bool isInConflictMode();
@@ -64,6 +64,10 @@ public:
 
     template <typename T>
     inline upnsString generateTransientOid(const upnsSharedPointer<T> &obj);
+
+    StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>)> beforeTree, std::function<bool(upnsSharedPointer<Tree>)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>)> afterEntity);
 private:
 
     ObjectId oidForChild(upnsSharedPointer<Tree> tree, const std::string &name);
@@ -128,7 +132,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     upnsSharedPointer<Tree> current;
     bool rootMissing = m_checkout->rollingcommit().root().empty();
     bool rootNotExclusive = m_checkout->transientoidstoorigin().count(oid) == 0;
-
+//TODO: in second unittest, root is still missing
     // if there is no root directory, checkout must be empty and have nothing transient
     assert(!rootMissing || rootMissing && m_checkout->transientoidstoorigin_size() == 0);
     if(rootMissing || rootNotExclusive)

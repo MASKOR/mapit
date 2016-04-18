@@ -187,6 +187,19 @@ void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 
 }
 
+StatusCode CheckoutImpl::depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>)> beforeCommit, std::function<bool (upnsSharedPointer<Commit>)> afterCommit,
+                                          std::function<bool (upnsSharedPointer<Tree>)> beforeTree, std::function<bool (upnsSharedPointer<Tree>)> afterTree,
+                                          std::function<bool (upnsSharedPointer<Entity>)> beforeEntity, std::function<bool (upnsSharedPointer<Entity>)> afterEntity)
+{
+    upnsSharedPointer<Commit> rootCommit(new Commit(m_checkout->rollingcommit()));
+    return depthFirstSearch(rootCommit, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+}
+
+//upnsSharedPointer<CheckoutObj> CheckoutImpl::getCheckoutObj()
+//{
+//    return m_checkout;
+//}
+
 ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
 {
     assert(tree != NULL);

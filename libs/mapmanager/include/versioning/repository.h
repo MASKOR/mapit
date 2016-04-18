@@ -32,7 +32,7 @@ public:
     upnsSharedPointer<Tree> getTree(const ObjectId &oid);
     upnsSharedPointer<Entity> getEntity(const ObjectId &oid);
     upnsSharedPointer<Commit> getCommit(const ObjectId &oid);
-    upnsSharedPointer<CheckoutObj> getCheckout(const upnsString &name);
+    upnsSharedPointer<CheckoutObj> getCheckoutObj(const upnsString &name);
     upnsSharedPointer<Branch> getBranch(const upnsString &name);
     MessageType typeOfObject(const ObjectId &oid);
 
@@ -65,7 +65,7 @@ public:
      * @param commit
      * @return new empty checkout object, representing exactly the state of <commit>.
      */
-    upnsSharedPointer<Checkout> createCheckout(const upnsString &checkoutName);
+    upnsSharedPointer<Checkout> getCheckout(const upnsString &checkoutName);
     // when commiting we check if we are on a branch head. if so... update branch pointer
     //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &commit);
 

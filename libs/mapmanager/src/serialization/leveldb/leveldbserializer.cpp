@@ -575,6 +575,11 @@ StatusCode LevelDBSerializer::getGenericEntry(const leveldb::Slice &key, Generic
     return UPNS_STATUS_OK;
 }
 
+StatusCode LevelDBSerializer::removeObject(const std::string &oid)
+{
+    return 0;
+}
+
 StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::string &value)
 {
     if( key.empty() )
@@ -603,11 +608,6 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::str
         s = m_db->Put(leveldb::WriteOptions(), key, value);
     }
     return levelDbStatusToUpnsStatus(s);
-}
-
-StatusCode LevelDBSerializer::removeObject(const std::string &oid)
-{
-    return 0;
 }
 
 StatusCode LevelDBSerializer::createObject(const std::string &key, const std::string &value)

@@ -11,6 +11,14 @@ using namespace upns;
 
 void TestRepository::init()
 {
+}
+
+void TestRepository::cleanup()
+{
+}
+
+void TestRepository::initTestCase()
+{
     const char* databaseName = "test.db";
     QDir dir(databaseName);
     if(dir.exists())
@@ -28,17 +36,10 @@ void TestRepository::init()
     m_repo->init();
 }
 
-void TestRepository::cleanup()
-{
-}
-
-void TestRepository::initTestCase()
-{
-}
-
 void TestRepository::cleanupTestCase()
 {
     delete m_repo;
+    m_repo = NULL;
 }
 
 void TestRepository::testCreateCheckout()
@@ -58,7 +59,7 @@ void TestRepository::testCreateCheckout()
 
 void TestRepository::testGetCheckout()
 {
-    upnsSharedPointer<Checkout> co(m_repo->getCheckout("master", "testcheckout"));
+    upnsSharedPointer<Checkout> co(m_repo->getCheckout("testcheckout"));
 
     OperationDescription operationCreateTree;
     operationCreateTree.set_operatorname("load_pointcloud");
@@ -73,7 +74,7 @@ void TestRepository::testGetCheckout()
 
 void TestRepository::testCommit()
 {
-    upnsSharedPointer<Checkout> co(m_repo->getCheckout("master", "testcheckout"));
+    upnsSharedPointer<Checkout> co(m_repo->getCheckout("testcheckout"));
     m_repo->commit( co, "This is the commit message of a TestCommit");
 }
 
