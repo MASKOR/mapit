@@ -108,17 +108,17 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     OperationEnvironmentImpl env(desc);
     env.setCheckout( this );
 #ifndef NDEBUG
-    upnsString debug = DEBUG_POSTFIX;
+    upnsString debug(DEBUG_POSTFIX);
 #else
-    upnsString debug = "";
+    upnsString debug("");
 #endif
 
 #ifdef _WIN32
-    upnsString prefix = "";
-    upnsString postfix = ".dll";
+    upnsString prefix("");
+    upnsString postfix(".dll");
 #else
-    upnsString prefix = "lib";
-    upnsString postfix = ".so";
+    upnsString prefix("lib");
+    upnsString postfix(".so");
 #endif
     std::stringstream filename;
     filename << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
@@ -207,7 +207,8 @@ ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::st
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
     {
-        if(iter->first == name)
+        const ::std::string &refname(iter->first);
+        if(refname == name)
         {
             return iter->second.id();
         }
@@ -219,18 +220,22 @@ ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::st
 ObjectId CheckoutImpl::oidForPath(const Path &path)
 {
     Path p = preparePath(path);
+    std::cout << "p: " << p << std::endl;
     ObjectId oid(m_checkout->rollingcommit().root());
     upnsSharedPointer<Tree> current = m_serializer->getTree(oid);
     upnsSharedPointer<Entity> currentEntity;
     forEachPathSegment(p,
     [&](upnsString seg, size_t idx, bool isLast)
     {
+        std::cout << "oid: " << oid << ", currid: " << current->id() << ", seg: " << seg;
         if(current == NULL) return false; // can not go futher
         if(seg.empty()) return false; // "//" not allowed
         oid = oidForChild(current, seg);
+        std::cout << ", oid child: " << oid;
         if(oid.empty()) return false; // path invalid
         if(isLast) return false; // we are done
         current = m_serializer->getTree(oid);
+        std::cout << ", child currid" << current->id() << std::endl;
         return true; // continue thru path
     },
     [](upnsString seg, size_t idx, bool isLast)

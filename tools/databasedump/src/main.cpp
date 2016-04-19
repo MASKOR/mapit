@@ -23,4 +23,5 @@ int main(int argc, char *argv[])
         std::cout << key.c_str() << " : " << value.c_str() << std::endl;
         it->Next();
     }
+    delete it;
 }

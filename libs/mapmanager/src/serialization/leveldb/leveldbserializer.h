@@ -111,6 +111,9 @@ private:
 
     template <typename T>
     StatusCode createObject(const std::string &key, upnsSharedPointer<T> value);
+
+    template <typename T>
+    void dump(upnsSharedPointer<T> value);
 };
 
 }

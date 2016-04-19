@@ -125,14 +125,15 @@ private:
 template <typename T>
 StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> createLeaf)
 {
+    std::cout << "\nPRE\n\n";
+    m_serializer->debugDump();
     StatusCode s;
     Path p = preparePath(path);
     upnsVec<upnsPair<upnsSharedPointer<Tree>, bool> > exclusiveTreePath;
     ObjectId oid;
     upnsSharedPointer<Tree> current;
     bool rootMissing = m_checkout->rollingcommit().root().empty();
-    bool rootNotExclusive = m_checkout->transientoidstoorigin().count(oid) == 0;
-//TODO: in second unittest, root is still missing
+    bool rootNotExclusive = m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root()) == 0;
     // if there is no root directory, checkout must be empty and have nothing transient
     assert(!rootMissing || rootMissing && m_checkout->transientoidstoorigin_size() == 0);
     if(rootMissing || rootNotExclusive)
@@ -168,6 +169,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
         exclusiveTreePath.push_back(upnsPair<upnsSharedPointer<Tree>, bool>(current, false));
     }
 
+    std::cout << "\nROOT\n\n";
+    m_serializer->debugDump();
     bool leafWasStored = false;
     forEachPathSegment(p,
     [&](upnsString seg, size_t idx, bool isLast)
@@ -263,16 +266,20 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     },
     [&](upnsString seg, size_t idx, bool isLast)
     {
+        std::cout << "DBG: " << seg << ", last: " << isLast << ", i: " << exclusiveTreePath.size() << std::endl;
         if(leafWasStored && isLast) // leaf already created in "before"
         {
             oid = createLeaf->id();
+            assert(!oid.empty());
         }
         else
         {
             upnsPair<upnsSharedPointer<Tree>, bool> obj = exclusiveTreePath.back();
+            std::cout << "Stack id: " << obj.first->id() << std::endl;
             exclusiveTreePath.pop_back();
             current = obj.first;
             oid = current->id();
+            assert(!oid.empty());
             if(obj.second)
             {
                 s = m_serializer->createTree(current, true);
@@ -289,18 +296,21 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
             }
         }
         upnsSharedPointer<Tree> parent = exclusiveTreePath.back().first;
+        std::cout << "Parent id: " << parent->id() << std::endl;
+        std::cout << "Oid: " << oid << std::endl;
+        std::cout << "seg: " << seg << std::endl;
+        std::cout << "Done" << std::endl;
         ObjectReference oref;
         oref.set_id(oid);
         oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch());
         assert(parent);
         parent->mutable_refs()
                 ->insert( ::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>( seg, oref));
-        log_info("dbg: Added obj " + p
-                 + "name: " + seg
-                 + "id: " + oid);
         return true;
     });
 
+    std::cout << "\nPOST\n\n";
+    m_serializer->debugDump();
     // store/create root
     upnsPair<upnsSharedPointer<Tree>, bool> obj = exclusiveTreePath.back();
     exclusiveTreePath.pop_back();
@@ -313,9 +323,13 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
         s = m_serializer->storeTree(obj.first, true);
     }
     if(!upnsIsOk(s)) return s;
+    std::cout << "\nPREFIN\n\n";
+    m_serializer->debugDump();
 
     // update checkout commit
     s = m_serializer->storeCheckoutCommit(m_checkout, m_name);
+    std::cout << "\nFIN\n\n";
+    m_serializer->debugDump();
     return s;
 }
 
