@@ -208,9 +208,13 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
     },
     [&](upnsSharedPointer<Entity> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid)
     {
-        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeEntity(obj);
+        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntityData(oid);
         if(upnsIsOk(!soid.first)) return false;
-        // TODO: store entitydata
+        //TODO: Put old->New for entitydata (How?!?)
+        //oldToNewIds.insert(oid, soid.second);
+        obj->set_dataid(soid.second);
+        soid = m_p->m_serializer->storeEntity(obj);
+        if(upnsIsOk(!soid.first)) return false;
         oldToNewIds.insert(oid, soid.second);
         return true;
     });

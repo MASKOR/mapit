@@ -422,7 +422,29 @@ std::string LevelDBSerializer::keyOfBranch(const upnsString &name) const
 upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
 {
     //TODO: ensure readOnly and store booleans
-    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, keyOfEntityData(entityId)));
+    std::string writekey(keyOfEntityData(entityId));
+    std::string readkey;
+    // If entityId is transient, there might exists a corresponding entityData transient which must be read from.
+    if(exists(writekey))
+    {
+        readkey = writekey;
+    }
+    else
+    {
+        upnsSharedPointer<Entity> e(getEntity(entityId));
+        assert(e);
+        if(e->dataid().empty())
+        {
+            // the entity is persistent and has stored the data of hashed entitydata (which can only be read).
+            readkey = e->dataid();
+        }
+        else
+        {
+            // the entity is not persistent, so the calculated write key is used.
+            readkey = writekey;
+        }
+    }
+    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, readkey, writekey));
 }
 
 StatusCode LevelDBSerializer::cleanUp()
@@ -479,6 +501,34 @@ bool LevelDBSerializer::exists(const ObjectId &oidOrName)
         if(s.ok()) return true;
     }
     return false;
+}
+
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::persistTransientEntityData(const ObjectId &entityId)
+{
+    std::string source(keyOfEntityData(entityId));
+    std::string ed;
+    leveldb::Status sdb = m_db->Get(leveldb::ReadOptions(), source, &ed);
+    if(sdb.IsNotFound()) return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, "");
+    StatusCode s(levelDbStatusToUpnsStatus(sdb));
+    if(!upnsIsOk(s)) return upnsPair<StatusCode, ObjectId>(s, "");
+    ObjectId hash = ::upns::hash_toString(ed);
+    std::string dest(keyOfEntityData(hash));
+    sdb = m_db->Get(leveldb::ReadOptions(), dest, &ed);
+    // only if it is not found, we must write
+    // if it is upnsOk, duplicate was found!
+    if(sdb.IsNotFound())
+    {
+        sdb = m_db->Put(leveldb::WriteOptions(), dest, ed);
+    }
+    s = levelDbStatusToUpnsStatus(sdb);
+    if(upnsIsOk(s))
+    {
+        return upnsPair<StatusCode, ObjectId>(s, hash);
+    }
+    else
+    {
+        return upnsPair<StatusCode, ObjectId>(s, "");
+    }
 }
 //bool LevelDBSerializer::isTree(const ObjectId &oid)
 //{

@@ -68,12 +68,15 @@ public:
      */
     virtual StatusCode cleanUp();
 
+    virtual MessageType typeOfObject(const ObjectId &oidOrName);
+    virtual bool exists(const ObjectId &oidOrName);
+
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId);
+
+
 #ifdef UPNS_DEBUG
     virtual void debugDump();
 #endif
-
-    virtual MessageType typeOfObject(const ObjectId &oidOrName);
-    virtual bool exists(const ObjectId &oidOrName);
     // Please use getX and check for NULL!
 //    virtual bool isTree(const ObjectId &oid);
 //    virtual bool isEntity(const ObjectId &oid);

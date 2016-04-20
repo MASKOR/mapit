@@ -4,12 +4,13 @@
 
 namespace upns {
 
-LevelDBEntityDataStreamProvider::LevelDBEntityDataStreamProvider(leveldb::DB *db, const std::string &key)
+LevelDBEntityDataStreamProvider::LevelDBEntityDataStreamProvider(leveldb::DB *db, const std::string &readkey, const std::string &writekey)
     :m_db(db),
-     m_key(key)
+     m_readkey(readkey),
+     m_writekey(writekey)
 {
     assert(m_db != NULL);
-    assert(!m_key.empty());
+    //assert(!m_readkey.empty());
 }
 
 bool LevelDBEntityDataStreamProvider::isCached()
@@ -25,7 +26,7 @@ bool LevelDBEntityDataStreamProvider::isReadWriteSame()
 upnsIStream* upns::LevelDBEntityDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
-    it->Seek(m_key);
+    it->Seek(m_readkey);
     assert(it->Valid());
     leveldb::Slice slice = it->value();
     delete it;
@@ -54,15 +55,16 @@ upnsOStream *upns::LevelDBEntityDataStreamProvider::startWrite(upnsuint64 start,
 void LevelDBEntityDataStreamProvider::endWrite(upnsOStream *strm)
 {
     //TODO: add locking
+    //TODO: copying if not the whole stream was read
     std::ostringstream *osstrm = static_cast<std::ostringstream *>(strm);
-    m_db->Put(leveldb::WriteOptions(), m_key, osstrm->str());
+    m_db->Put(leveldb::WriteOptions(), m_writekey, osstrm->str());
     delete strm;
 }
 
 upnsuint64 LevelDBEntityDataStreamProvider::getStreamSize() const
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
-    it->Seek(m_key);
+    it->Seek(m_writekey);
     assert(it->Valid());
     leveldb::Slice slice = it->value();
     delete it;
@@ -72,12 +74,12 @@ upnsuint64 LevelDBEntityDataStreamProvider::getStreamSize() const
 void LevelDBEntityDataStreamProvider::setStreamSize(upnsuint64 streamSize)
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
-    it->Seek(m_key);
+    it->Seek(m_writekey);
     assert(it->Valid());
     leveldb::Slice slice = it->value();
     std::string data(slice.data());
     data.resize(streamSize); //TODO: This may not be the most efficient way.
-    m_db->Put(leveldb::WriteOptions(), m_key, data);
+    m_db->Put(leveldb::WriteOptions(), m_writekey, data);
     delete it;
 }
 

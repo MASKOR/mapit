@@ -60,6 +60,7 @@ public:
     virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
 
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId) = 0;
 //    virtual bool isTree(const ObjectId &oid) = 0;
 //    virtual bool isEntity(const ObjectId &oid) = 0;
 //    virtual bool isCommit(const CommitId &oid) = 0;

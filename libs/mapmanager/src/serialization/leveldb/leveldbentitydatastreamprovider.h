@@ -10,7 +10,7 @@ namespace upns
 class LevelDBEntityDataStreamProvider : public AbstractEntityDataStreamProvider
 {
 public:
-    LevelDBEntityDataStreamProvider(leveldb::DB *db, const std::string &key);
+    LevelDBEntityDataStreamProvider(leveldb::DB *db, const std::string &readkey, const std::string &writekey);
     bool isCached();
     bool isReadWriteSame();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 len);
@@ -23,7 +23,8 @@ public:
     void unlock(LockHandle);
 private:
     leveldb::DB *m_db;
-    std::string m_key;
+    std::string m_readkey;
+    std::string m_writekey;
 };
 
 }
