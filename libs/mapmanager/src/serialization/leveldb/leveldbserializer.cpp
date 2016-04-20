@@ -74,7 +74,6 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
     GenericEntry entry;
     entry.set_type(MessageTree);
     *entry.mutable_tree() = *value;
-    std::cout << "DBGWRITE: " << key << " -> " << value->id() << std::endl;
     return createObject(key, entry.SerializeAsString());
 }
 template <>
@@ -109,25 +108,46 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
     *entry.mutable_branch() = *value;
     return createObject(key, entry.SerializeAsString());
 }
-//template <typename T>
-//StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPointer<bytes> value)
-//{
-//    GenericEntry entry;
-//    entry.set_type(Message);
-//    entry.set_allocated_(value.get());
-//    return createObject(key, entry->SerializeAsString());
-//}
-//TODO: not needed anymore
-//template <typename T>
-//StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPointer<T> value)
-//{
-//    //(*iter)->set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch());
-//    //entity->set_id(generateId());
-////    const ::google::protobuf::Descriptor* descriptor = value->GetDescriptor();
-////    std::string ser = descriptor->name();
-////    log_info("databaseval start:" + ser);
-////    return createObject(key, ser + value->SerializeAsString());
-//}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Tree> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageTree);
+    *entry.mutable_tree() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Entity> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageEntity);
+    *entry.mutable_entity() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Commit> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageCommit);
+    *entry.mutable_commit() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<CheckoutObj> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageCheckout);
+    *entry.mutable_checkout() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Branch> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageBranch);
+    *entry.mutable_branch() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
 
 upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
 {
@@ -148,7 +168,6 @@ StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj, bool trans
         obj->set_id(key);
     }
     key = keyOfTree(key);
-    std::cout << "DBGWRITE: " << key << " -> " << obj->id() << std::endl;
     return storeObject(key, obj);
 }
 
@@ -270,7 +289,7 @@ upnsVec< upnsSharedPointer<CheckoutObj> > LevelDBSerializer::listCheckouts()
             bool s = co->ParseFromArray(it->value().data(), it->value().size());
             if(!s)
             {
-                log_error("Fatal error (protobuf) while parsing: " + key);
+                log_error("Fatal error (protobuf) while parsing: " + std::string(key.data(), key.size()));
             }
             ret.push_back( co );
         }
@@ -409,8 +428,33 @@ StatusCode LevelDBSerializer::cleanUp()
 
 MessageType LevelDBSerializer::typeOfObject(const ObjectId &oidOrName)
 {
-    //TODO
-    return MessageBranch;
+    std::string key, value;
+    std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
+            &LevelDBSerializer::keyOfTree,
+            &LevelDBSerializer::keyOfEntity,
+            //TODO: How will EntityData behave?
+            &LevelDBSerializer::keyOfEntityData,
+            &LevelDBSerializer::keyOfBranch,
+            &LevelDBSerializer::keyOfCommit,
+            &LevelDBSerializer::keyOfCheckoutCommit};
+    MessageType types[] = { MessageTree,
+                            MessageEntity,
+                            MessageEntityData,
+                            MessageBranch,
+                            MessageCommit,
+                            MessageCheckout };
+    for(int i=0; i < sizeof(keyOfMethods)/sizeof(*keyOfMethods) ; ++i)
+    {
+        key = (*this.*(keyOfMethods[i]))(oidOrName);
+        leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
+#ifdef UPNS_DEBUG
+        GenericEntry entr;
+        entr.ParseFromString( value );
+        assert(entr.type() == types[i]);
+#endif
+        if(s.ok()) return types[i];
+    }
+    return MessageEmpty;
 }
 
 bool LevelDBSerializer::exists(const ObjectId &oidOrName)
@@ -648,12 +692,6 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, const std::st
     return levelDbStatusToUpnsStatus(s);
 }
 
-template <typename T>
-StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<T> value)
-{
-    return storeObject(key, value->SerializeAsString());
-}
-
 template <>
 upnsSharedPointer<Tree> LevelDBSerializer::fromGeneric(const GenericEntry &from)
 {
@@ -744,7 +782,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Entity> value)
 
 void upns::LevelDBSerializer::debugDump()
 {
-    std::cout << "Full Database Dump:" << std::endl;
+    std::cout << "Full Database Dump:\n -Note that this relies on correct assumption about protobuf types!" << std::endl;
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
     it->SeekToFirst();
     GenericEntry entry;
@@ -792,7 +830,7 @@ void upns::LevelDBSerializer::debugDump()
         }
         else
         {
-            std::cout << "    -->    <binary or protobuf failure>";
+            std::cout << "    -->    <binary>";
             std::cout << std::endl;
             std::cout << std::string(it->value().data(), it->value().size());
             std::cout << std::endl;

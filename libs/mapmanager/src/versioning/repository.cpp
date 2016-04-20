@@ -217,6 +217,7 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
     {
         log_error("error while commiting");
     }
+    m_p->m_serializer->debugDump();
     return ret;
 }
 

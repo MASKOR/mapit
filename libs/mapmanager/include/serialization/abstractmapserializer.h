@@ -23,6 +23,9 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
+    // Note: storing and creating is only distinguished for transient oid (paths). When
+    //       Hashes are used, the system does not know if a tree/entity with the same hash
+    //       already exists or if it is a new tree/entity
     virtual StatusCode storeTree(upnsSharedPointer<Tree> &obj, bool transient = false) = 0;
     virtual StatusCode createTree(upnsSharedPointer<Tree> &obj, bool transient = false) = 0;
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
