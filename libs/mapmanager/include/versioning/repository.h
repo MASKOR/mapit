@@ -131,14 +131,6 @@ public:
      */
     upnsVec< upnsPair<CommitId, ObjectId> > ancestors(const CommitId &commitId, const ObjectId &objectId, const int level = 0);
 
-    /**
-     * @brief initialized the repository.
-     * This must be called exactly once for new repositories.
-     * It creates a master branch with an empty root tree.
-     * @return
-     */
-    StatusCode init();
-
     bool canRead();
     bool canWrite();
 private:

@@ -256,26 +256,6 @@ upnsVec<upnsPair<CommitId, ObjectId> > Repository::ancestors(const CommitId &com
     return upnsVec<upnsPair<CommitId, ObjectId> >();
 }
 
-StatusCode Repository::init()
-{
-    upnsVec< upnsSharedPointer<Branch> > branches(m_p->m_serializer->listBranches());
-    if(!branches.empty())
-    {
-        return UPNS_STATUS_REPOSITORY_NOT_EMPTY;
-    }
-    upnsVec< upnsString > cos(m_p->m_serializer->listCheckoutNames());
-    if(!cos.empty())
-    {
-        return UPNS_STATUS_REPOSITORY_NOT_EMPTY;
-    }
-//    upnsSharedPointer<Commit> initialCommit(new Commit);
-//    initialCommit->set_commitid(""); //TODO: make sure this is traditionally really 0x0
-//    m_p->m_serializer->createBranch(masterBranch, "master");
-    upnsSharedPointer<Branch> masterBranch(new Branch);
-    masterBranch->set_commitid(""); //TODO: make sure this is traditionally really 0x0
-    m_p->m_serializer->createBranch(masterBranch, "master");
-}
-
 bool Repository::canRead()
 {
     return true;

@@ -18,6 +18,7 @@ private slots:
     void testCreateCheckout();
     void testGetCheckout();
     void testCommit();
+    void testVoxelgridfilter();
 
 private:
     upns::Repository *m_repo;

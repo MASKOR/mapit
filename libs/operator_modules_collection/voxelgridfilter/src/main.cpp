@@ -20,85 +20,9 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     {
         leafSize = 0.01f;
     }
-
     const OperationParameter* target = env->getParameter("target");
 
-    if(     target == NULL
-            || target->mapval()   == 0 && target->layerval()  != 0)
-            //|| target->layerval()  == 0
-    {
-        log_error("wrong combination of target ids was set. Valid: map and layer; map, layer and entity");
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-
-    upnsSharedPointer<Tree> map = env->getCheckout()->getTree(target->objectid());
-    if(map == NULL)
-    {
-        std::stringstream strm;
-        strm << "Map not found: " << target->mapval();
-        log_error(strm.str());
-        return UPNS_STATUS_ERR_DB_NOT_FOUND;
-    }
-    upnsSharedPointer<Tree> layer = env->getCheckout()->getTree(target->objectid());
-//    for(int i=0; i < map->layers_size() ; ++i)
-//    {
-//        Layer *l = map->mutable_layers(i);
-//        if(l->id() == target->layerval())
-//        {
-//            layer = l;
-//            break;
-//        }
-//        else if(target->layerval() == 0 && l->type() == upns::POINTCLOUD2)
-//        {
-//            //TODO: this branch is TEMP. Do not 'randomly' choose first pcd layer but throw error. For testing only
-//            layer = l;
-//            break;
-//        }
-//    }
-//    if( layer == NULL )
-//    {
-//        log_error("layer was not found.");
-//        return UPNS_STATUS_LAYER_NOT_FOUND;
-//    }
-//    if(layer->type() != LayerType::POINTCLOUD2)
-//    {
-//        log_error("not a pointcloud layer. Can not load pointcloud into this layer.");
-//        return UPNS_STATUS_LAYER_TYPE_MISMATCH;
-//    }
-
-//    const Entity *entity = NULL;
-//    if(target->entityval() == 0)
-//    {
-//        // TODO: use all entities, not just first
-//        if( layer->entities_size() == 1)
-//        entity = &layer->entities(0);
-//    }
-//    else
-//    {
-//        for(int i=0; i < layer->entities_size() ; ++i)
-//        {
-//            const Entity &e = layer->entities(i);
-//            if(e.id() == target->entityval())
-//            {
-//                entity = &e;
-//                break;
-//            }
-//        }
-//        if( entity == NULL )
-//        {
-//            log_error("entity was not found.");
-//            return UPNS_STATUS_ENTITY_NOT_FOUND;
-//        }
-//    }
-//    assert( map->id() != 0 );
-//    assert( layer->id() != 0 );
-//    assert( entity->id() != 0 );
-
-    // How to do writes?
-    // Get the stream for read/write. If it is not readable, there is an conflict. Should never happen!
-    // If the operation decides to not read it (call startRead()), mapmanager will know this and may boost performance!
-
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite("//TODO/PATH");
+    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite(target->strval());
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
