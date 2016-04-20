@@ -7,6 +7,7 @@
 #include <services.pb.h>
 #include <stdlib.h>
 #include <time.h>
+#include <algorithm>
 #include "error.h"
 #include "../hash.h"
 
@@ -155,37 +156,38 @@ upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj, bool transient)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj)
 {
-    std::string key;
-    if(transient)
-    {
-        key = obj->id();
-    }
-    else
-    {
-        key = ::upns::hash_toString(obj.get());
-        obj->set_id(key);
-    }
-    key = keyOfTree(key);
-    return storeObject(key, obj);
+    ObjectId oid;
+    oid = ::upns::hash_toString(obj.get());
+    std::string key = keyOfTree(oid);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, oid);
 }
 
-StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj, bool transient)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId)
 {
     std::string key;
-    if(transient)
-    {
-        key = obj->id();
-    }
-    else
-    {
-        key = ::upns::hash_toString(obj.get());
-        obj->set_id(key);
-    }
-    key = keyOfTree(key);
-    return createObject(key, obj);
+    key = keyOfTree(transientId);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, transientId);
 }
+
+//StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj)
+//{
+//    std::string key;
+//    if(transient)
+//    {
+//        key = obj->id();
+//    }
+//    else
+//    {
+//        key = ::upns::hash_toString(obj.get());
+//        obj->set_id(key);
+//    }
+//    key = keyOfTree(key);
+//    return createObject(key, obj);
+//}
 
 StatusCode LevelDBSerializer::removeTree(const ObjectId &oid)
 {
@@ -198,37 +200,37 @@ upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj, bool transient)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
 {
-    std::string key;
-    if(transient)
-    {
-        key = obj->id();
-    }
-    else
-    {
-        key = ::upns::hash_toString(obj.get());
-        obj->set_id(key);
-    }
-    key = keyOfEntity(key);
-    return storeObject(key, obj);
+    ObjectId oid = ::upns::hash_toString(obj.get());
+    std::string key = keyOfEntity(oid);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, oid);
 }
 
-StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj, bool transient)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId)
 {
     std::string key;
-    if(transient)
-    {
-        key = obj->id();
-    }
-    else
-    {
-        key = ::upns::hash_toString(obj.get());
-        obj->set_id(key);
-    }
-    key = keyOfEntity(key);
-    return createObject(key, obj);
+    key = keyOfEntity(transientId);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, transientId);
 }
+
+//StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj, bool transient)
+//{
+//    std::string key;
+//    if(transient)
+//    {
+//        key = obj->id();
+//    }
+//    else
+//    {
+//        key = ::upns::hash_toString(obj.get());
+//        obj->set_id(key);
+//    }
+//    key = keyOfEntity(key);
+//    return createObject(key, obj);
+//}
 
 StatusCode LevelDBSerializer::removeEntity(const ObjectId &oid)
 {
@@ -241,18 +243,20 @@ upnsSharedPointer<Commit> LevelDBSerializer::getCommit(const ObjectId &oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeCommit(upnsSharedPointer<Commit> &obj)
-{
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfCommit(key);
-    return createObject(key, obj);
-}
+//upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeCommit(upnsSharedPointer<Commit> &obj)
+//{
+//    ObjectId oid = ::upns::hash_toString(obj.get());
+//    std::string key = keyOfCommit(oid);
+//    StatusCode s = createObject(key, obj);
+//    return upnsPair<StatusCode, ObjectId>(s, oid);
+//}
 
-StatusCode LevelDBSerializer::createCommit(upnsSharedPointer<Commit> &obj)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::createCommit(upnsSharedPointer<Commit> &obj)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfCommit(key);
-    return createObject(key, obj);
+    ObjectId oid = ::upns::hash_toString(obj.get());
+    std::string key = keyOfCommit(oid);
+    StatusCode s = createObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, oid);
 }
 
 StatusCode LevelDBSerializer::removeCommit(const ObjectId &oid)
@@ -630,6 +634,12 @@ StatusCode LevelDBSerializer::removeObject(const std::string &oid)
     return 0;
 }
 
+ObjectId LevelDBSerializer::transientOid(const upnsString &path)
+{
+    //TODO: escape "_" in name
+    return "path_"+path;
+}
+
 //TODO: store and create is the same at serializer level. An Object with the same oid may already exist.
 StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::string &value)
 {
@@ -733,7 +743,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Branch> value)
 template <>
 void LevelDBSerializer::dump(upnsSharedPointer<Commit> value)
 {
-    std::cout << "Commit { commitid: \"" << value->commitid() << "\", root: \"" << value->root() << "\", parentcommitids: [ ";
+    std::cout << "Commit { root: \"" << value->root() << "\", parentcommitids: [ ";
     for(int i=0; i< value->parentcommitids_size() ; ++i)
     {
         std::cout << "\"" << value->parentcommitids(i) << "\"";
@@ -759,7 +769,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<CheckoutObj> value)
 template <>
 void LevelDBSerializer::dump(upnsSharedPointer<Tree> value)
 {
-    std::cout << "Tree { id: \"" << value->id() << "\", refs: [";
+    std::cout << "Tree { refs: [";
     const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = value->refs();
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
@@ -776,7 +786,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Tree> value)
 template <>
 void LevelDBSerializer::dump(upnsSharedPointer<Entity> value)
 {
-    std::cout << "Entity { id: \"" << value->id() << "\" }";
+    std::cout << "Entity { dataid: \"" << value->dataid() << "\", type: " << value->type() << ", usagetype: " << value->usagetype() << " }";
     std::cout << std::endl;
 }
 
@@ -832,7 +842,7 @@ void upns::LevelDBSerializer::debugDump()
         {
             std::cout << "    -->    <binary>";
             std::cout << std::endl;
-            std::cout << std::string(it->value().data(), it->value().size());
+            std::cout << std::string(it->value().data(), std::min(it->value().size(), static_cast<size_t>(200)));
             std::cout << std::endl;
         }
         it->Next();

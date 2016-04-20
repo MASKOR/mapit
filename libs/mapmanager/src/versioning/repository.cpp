@@ -177,18 +177,19 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     QMap< ::std::string, ::std::string> oldToNewIds;
     CommitId ret;
-    StatusCode s = co->depthFirstSearch([&](upnsSharedPointer<Commit> obj){return true;}, [&](upnsSharedPointer<Commit> obj)
+    StatusCode s = co->depthFirstSearch([&](upnsSharedPointer<Commit> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid)
     {
         ::std::string rootId(obj->root());
         assert(oldToNewIds.contains(rootId));
         obj->set_root(oldToNewIds.value(rootId));
         //TODO: Lots of todos here (Metadata)
         //ci->add_parentcommitids(co->m_checkout->mutable_);
-        m_p->m_serializer->createCommit(obj);
-        ret = obj->commitid();
+        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
+        if(upnsIsOk(!soid.first)) return false;
+        ret = soid.second;
         return true;
     },
-    [&](upnsSharedPointer<Tree> obj){return true;}, [&](upnsSharedPointer<Tree> obj)
+    [&](upnsSharedPointer<Tree> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Tree> obj, const ObjectId& oid)
     {
         assert(obj != NULL);
         ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
@@ -200,17 +201,17 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
             iter->second.set_id(oldToNewIds.value(id));
             iter++;
         }
-        ::std::string prevId(obj->id());
-        //TODO: may fail if object already exists. If object with same hash already exits, skip.
-        m_p->m_serializer->createTree(obj);
-        oldToNewIds.insert(prevId, obj->id());
+        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeTree(obj);
+        if(upnsIsOk(!soid.first)) return false;
+        oldToNewIds.insert(oid, soid.second);
         return true;
     },
-    [&](upnsSharedPointer<Entity> obj){return true;}, [&](upnsSharedPointer<Entity> obj)
+    [&](upnsSharedPointer<Entity> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid)
     {
-        ::std::string prevId(obj->id());
-        m_p->m_serializer->createEntity(obj);
-        oldToNewIds.insert(prevId, obj->id());
+        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeEntity(obj);
+        if(upnsIsOk(!soid.first)) return false;
+        // TODO: store entitydata
+        oldToNewIds.insert(oid, soid.second);
         return true;
     });
     if(!upnsIsOk(s))
