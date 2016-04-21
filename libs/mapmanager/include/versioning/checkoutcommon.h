@@ -93,6 +93,22 @@ public:
      * @return
      */
     virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnlyConflict(const ObjectId &entityId) = 0;
+
+    /**
+     * @brief depthFirstSearch goes through all reachable elements with a DFS. If one of the callbacks returns false, all other descending
+     * callbacks are skipped. If this happens in a "before" callback, also the "after" callback is skipped. TODO: Add proper skipping,
+     * of all elements, after "false".
+     * @param beforeCommit
+     * @param afterCommit
+     * @param beforeTree
+     * @param afterTree
+     * @param beforeEntity
+     * @param afterEntity
+     * @return
+     */
+    virtual StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity) = 0;
 };
 
 }

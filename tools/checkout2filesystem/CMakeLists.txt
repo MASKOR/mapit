@@ -18,6 +18,7 @@ set(CMAKE_AUTOMOC ON)
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
 
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
+find_package(Qt5Widgets ${UPNS_QTVERSION} REQUIRED)
 
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
@@ -25,6 +26,8 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 custom_set_vars_leveldb()
 include_directories(${LEVELDB_INCLUDE_DIRECTORY})
 
+
+custom_set_vars_yamlcpp()
 include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
@@ -38,4 +41,4 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} uuid ${libzip} ${BOOST_LIBRARIES_ADDITION})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES})

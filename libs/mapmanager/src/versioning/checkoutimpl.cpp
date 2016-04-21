@@ -187,12 +187,12 @@ void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool (upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                          std::function<bool (upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool (upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                          std::function<bool (upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool (upnsSharedPointer<Entity>, const ObjectId&)> afterEntity)
+StatusCode CheckoutImpl::depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool (upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                          std::function<bool (upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool (upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                          std::function<bool (upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool (upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity)
 {
     upnsSharedPointer<Commit> rootCommit(new Commit(m_checkout->rollingcommit()));
-    StatusCode s = depthFirstSearch(rootCommit, "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    StatusCode s = depthFirstSearch(rootCommit, "", "/", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
     *m_checkout->mutable_rollingcommit() = *rootCommit;
     return s;
 }
@@ -308,47 +308,56 @@ upnsPair<StatusCode, ObjectId> CheckoutImpl::storeObject<Entity>(upnsSharedPoint
     return m_serializer->storeEntityTransient(leafObject, transId);
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Entity> obj, const ObjectId& oid,
-                                                  std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                                  std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                                  std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity)
+StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path &path,
+                                                  std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                                  std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                                  std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity)
 {
     assert(obj != NULL);
-    if(!beforeEntity(obj, oid)) return UPNS_STATUS_OK;
+    if(!beforeEntity(obj, oid, path))
+    {
+        afterEntity(obj, oid, path);
+        return UPNS_STATUS_OK;
+    }
     //TODO: EntityData!
-    if(!afterEntity(obj, oid)) return UPNS_STATUS_OK;
+    if(!afterEntity(obj, oid, path)) return UPNS_STATUS_OK;
     return UPNS_STATUS_OK;
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const ObjectId& oid,
-                                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity)
+StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path &path,
+                                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity)
 {
     assert(obj != NULL);
-    if(!beforeTree(obj, oid)) return UPNS_STATUS_OK;
+    if(!beforeTree(obj, oid, path))
+    {
+        afterTree(obj, oid, path);
+        return UPNS_STATUS_OK;
+    }
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
     while(iter != refs.cend())
     {
         const ObjectId &childoid = iter->second.id();
+        const Path &childpath = path + "/" + iter->first;
         MessageType t = m_serializer->typeOfObject(childoid);
         if(t == MessageType::MessageCommit)
         {
             upnsSharedPointer<Commit> commit(m_serializer->getCommit(childoid));
-            StatusCode s = depthFirstSearch(commit, childoid, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+            StatusCode s = depthFirstSearch(commit, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!upnsIsOk(s)) return s;
         }
         else if(t == MessageType::MessageTree)
         {
             upnsSharedPointer<Tree> tree(m_serializer->getTree(childoid));
-            StatusCode s = depthFirstSearch(tree, childoid, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+            StatusCode s = depthFirstSearch(tree, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!upnsIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
             upnsSharedPointer<Entity> entity(m_serializer->getEntity(childoid));
-            StatusCode s = depthFirstSearch(entity, childoid, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+            StatusCode s = depthFirstSearch(entity, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!upnsIsOk(s)) return s;
         }
         else
@@ -358,21 +367,25 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const Obj
         }
         iter++;
     }
-    if(!afterTree(obj, oid)) return UPNS_STATUS_OK;
+    if(!afterTree(obj, oid, path)) return UPNS_STATUS_OK;
     return UPNS_STATUS_OK;
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid,
-                                                  std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                                  std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                                  std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity)
+StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path &path,
+                                                  std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                                  std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                                  std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity)
 {
     assert(obj != NULL);
-    if(!beforeCommit(obj, oid)) return UPNS_STATUS_OK;
+    if(!beforeCommit(obj, oid, path))
+    {
+        afterCommit(obj, oid, path);
+        return UPNS_STATUS_OK;
+    }
     upnsSharedPointer<Tree> tree(m_serializer->getTree(obj->root()));
-    StatusCode s = depthFirstSearch(tree, obj->root(), beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    StatusCode s = depthFirstSearch(tree, obj->root(), "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
     if(!upnsIsOk(s)) return s;
-    if(!afterCommit(obj, oid)) return UPNS_STATUS_OK;
+    if(!afterCommit(obj, oid, path)) return UPNS_STATUS_OK;
     return UPNS_STATUS_OK;
 }
 

@@ -107,6 +107,16 @@ int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsR
     //TODO
     return 0;
 }
+
+upnsIStream *PointcloudEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+{
+    m_streamProvider->startRead(start, len);
+}
+
+void PointcloudEntitydata::endRead(upnsIStream *strm)
+{
+    m_streamProvider->endRead(strm);
+}
 //void deleteEntitydata(void* ld)
 void deleteEntitydata(AbstractEntityData *ld)
 {

@@ -73,10 +73,14 @@ public:
     int getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                              upnsReal &x2, upnsReal &y2, upnsReal &z2);
 
+    upnsIStream *startReadBytes(upnsuint64 start, upnsuint64 len);
+    void endRead(upnsIStream *strm);
+
 private:
     upnsSharedPointer<AbstractEntityDataStreamProvider> m_streamProvider;
     //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
     upnsPointcloud2Ptr m_pointcloud;
+
 
 };
 

@@ -65,9 +65,9 @@ public:
     template <typename T>
     inline upnsString generateTransientOid(const upnsSharedPointer<T> &obj);
 
-    StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity);
+    StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
 private:
 
     ObjectId oidForChild(upnsSharedPointer<Tree> tree, const std::string &name);
@@ -88,20 +88,20 @@ private:
      * Does not work for branches. Does not visit EntityData (must be done manually).
      * If before return false, after will not be executed.
      */
-    StatusCode depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid,
-                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity);
+    StatusCode depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path &path,
+                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
 
-    StatusCode depthFirstSearch(upnsSharedPointer<Tree> obj, const ObjectId& oid,
-                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity);
+    StatusCode depthFirstSearch(upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path &path,
+                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
 
-    StatusCode depthFirstSearch(upnsSharedPointer<Entity> obj, const ObjectId& oid,
-                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&)> afterCommit,
-                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&)> afterTree,
-                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&)> afterEntity);
+    StatusCode depthFirstSearch(upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path &path,
+                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
 
     inline upnsString transientOid(const upnsString &path);
     AbstractMapSerializer* m_serializer;

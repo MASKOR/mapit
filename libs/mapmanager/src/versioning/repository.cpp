@@ -177,47 +177,48 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     QMap< ::std::string, ::std::string> oldToNewIds;
     CommitId ret;
-    StatusCode s = co->depthFirstSearch([&](upnsSharedPointer<Commit> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid)
-    {
-        ::std::string rootId(obj->root());
-        assert(oldToNewIds.contains(rootId));
-        obj->set_root(oldToNewIds.value(rootId));
-        //TODO: Lots of todos here (Metadata)
-        //ci->add_parentcommitids(co->m_checkout->mutable_);
-        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
-        if(upnsIsOk(!soid.first)) return false;
-        ret = soid.second;
-        return true;
-    },
-    [&](upnsSharedPointer<Tree> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Tree> obj, const ObjectId& oid)
-    {
-        assert(obj != NULL);
-        ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
-        ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
-        while(iter != refs.end())
+    StatusCode s = co->depthFirstSearch(
+        [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p)
         {
-            ::std::string id(iter->second.id());
-            assert(oldToNewIds.contains(id));
-            iter->second.set_id(oldToNewIds.value(id));
-            iter++;
-        }
-        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeTree(obj);
-        if(upnsIsOk(!soid.first)) return false;
-        oldToNewIds.insert(oid, soid.second);
-        return true;
-    },
-    [&](upnsSharedPointer<Entity> obj, const ObjectId& oid){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid)
-    {
-        upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntityData(oid);
-        if(upnsIsOk(!soid.first)) return false;
-        //TODO: Put old->New for entitydata (How?!?)
-        //oldToNewIds.insert(oid, soid.second);
-        obj->set_dataid(soid.second);
-        soid = m_p->m_serializer->storeEntity(obj);
-        if(upnsIsOk(!soid.first)) return false;
-        oldToNewIds.insert(oid, soid.second);
-        return true;
-    });
+            ::std::string rootId(obj->root());
+            assert(oldToNewIds.contains(rootId));
+            obj->set_root(oldToNewIds.value(rootId));
+            //TODO: Lots of todos here (Metadata)
+            //ci->add_parentcommitids(co->m_checkout->mutable_);
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
+            if(upnsIsOk(!soid.first)) return false;
+            ret = soid.second;
+            return true;
+        },
+        [&](upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path& p)
+        {
+            assert(obj != NULL);
+            ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
+            ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
+            while(iter != refs.end())
+            {
+                ::std::string id(iter->second.id());
+                assert(oldToNewIds.contains(id));
+                iter->second.set_id(oldToNewIds.value(id));
+                iter++;
+            }
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeTree(obj);
+            if(upnsIsOk(!soid.first)) return false;
+            oldToNewIds.insert(oid, soid.second);
+            return true;
+        },
+        [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p)
+        {
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntityData(oid);
+            if(upnsIsOk(!soid.first)) return false;
+            //TODO: Put old->New for entitydata (How?!?)
+            //oldToNewIds.insert(oid, soid.second);
+            obj->set_dataid(soid.second);
+            soid = m_p->m_serializer->storeEntity(obj);
+            if(upnsIsOk(!soid.first)) return false;
+            oldToNewIds.insert(oid, soid.second);
+            return true;
+        });
     if(!upnsIsOk(s))
     {
         log_error("error while commiting");
