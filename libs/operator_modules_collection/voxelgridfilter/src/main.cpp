@@ -7,23 +7,24 @@
 #include <memory>
 #include "error.h"
 #include "modules/versioning/checkoutraw.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    const OperationParameter* leafsizeParam = env->getParameter("leafsize");
-    float leafSize;
-    if(leafsizeParam != NULL && leafsizeParam->realval() != 0.0f)
-    {
-        leafSize = leafsizeParam->realval();
-    }
-    else
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
+
+    double leafSize = params["leafsize"].toDouble();
+    if(leafSize == 0.0)
     {
         leafSize = 0.01f;
     }
-    const OperationParameter* target = env->getParameter("target");
 
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite(target->strval());
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
+    std::string target = params["target"].toString().toStdString();
+
+    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
+    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntityData );
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
@@ -42,15 +43,15 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);
     out.set_operatorversion(OPERATOR_VERSION);
-    OperationParameter *outTarget = out.add_params();
-    outTarget->set_key("target");
-//    outTarget->set_mapval( map->id() );
-//    outTarget->set_layerval( layer->id() );
-//    outTarget->set_entityval( entity->id() );
-    OperationParameter *outMapname = out.add_params();
-    outMapname->set_key("leafsize");
-    outMapname->set_realval( leafSize );
-    env->setOutputDescription( out );
+//    OperationParameter *outTarget = out.add_params();
+//    outTarget->set_key("target");
+////    outTarget->set_mapval( map->id() );
+////    outTarget->set_layerval( layer->id() );
+////    outTarget->set_entityval( entity->id() );
+//    OperationParameter *outMapname = out.add_params();
+//    outMapname->set_key("leafsize");
+//    outMapname->set_realval( leafSize );
+    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

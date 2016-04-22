@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QString>
 #include "yaml-cpp/yaml.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
 using namespace upns;
 
@@ -47,12 +49,12 @@ void TestRepository::testCreateCheckout()
 
     OperationDescription operationCreateTree;
     operationCreateTree.set_operatorname("load_pointcloud");
-    OperationParameter *filename = operationCreateTree.add_params();
-    filename->set_key("filename");
-    filename->set_strval("data/bunny.pcd");
-    OperationParameter *target = operationCreateTree.add_params();
-    target->set_key("target");
-    target->set_strval("/testmap/testlayer/testentity");
+    QJsonObject params;
+    params["filename"] = "data/bunny.pcd";
+    params["target"] = "/testmap/testlayer/testentity";
+    QJsonDocument paramsDoc;
+    paramsDoc.setObject( params );
+    operationCreateTree.set_params( paramsDoc.toJson().toStdString() );
     co->doOperation(operationCreateTree);
 }
 
@@ -62,12 +64,12 @@ void TestRepository::testGetCheckout()
 
     OperationDescription operation;
     operation.set_operatorname("load_pointcloud");
-    OperationParameter *filename = operation.add_params();
-    filename->set_key("filename");
-    filename->set_strval("data/bunny.pcd");
-    OperationParameter *target = operation.add_params();
-    target->set_key("target");
-    target->set_strval("/testmap/testlayer/secondentity");
+    QJsonObject params;
+    params["filename"] = "data/bunny.pcd";
+    params["target"] = "/testmap/testlayer/secondentity";
+    QJsonDocument paramsDoc;
+    paramsDoc.setObject( params );
+    operation.set_params( paramsDoc.toJson().toStdString() );
     co->doOperation(operation);
 }
 
@@ -82,12 +84,12 @@ void TestRepository::testVoxelgridfilter()
     upnsSharedPointer<Checkout> co(m_repo->getCheckout("testcheckout"));
     OperationDescription operation;
     operation.set_operatorname("voxelgridfilter");
-    OperationParameter *filename = operation.add_params();
-    filename->set_key("leafsize");
-    filename->set_realval(0.01);
-    OperationParameter *target = operation.add_params();
-    target->set_key("target");
-    target->set_strval("/testmap/testlayer/secondentity");
+    QJsonObject params;
+    params["leafsize"] = 0.01;
+    params["target"] = "/testmap/testlayer/secondentity";
+    QJsonDocument paramsDoc;
+    paramsDoc.setObject( params );
+    operation.set_params( paramsDoc.toJson().toStdString() );
     co->doOperation(operation);
     m_repo->commit( co, "Two different pointclouds inside");
 }

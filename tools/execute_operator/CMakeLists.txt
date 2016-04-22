@@ -1,4 +1,4 @@
-project(checkout2filesystem)
+project(execute_operator)
 cmake_minimum_required(VERSION 2.8)
 
 include(../cmake/custom_add_leveldb)
@@ -26,7 +26,6 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 custom_set_vars_leveldb()
 include_directories(${LEVELDB_INCLUDE_DIRECTORY})
 
-
 custom_set_vars_yamlcpp()
 include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -48,6 +47,9 @@ endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/data
+)
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
 )

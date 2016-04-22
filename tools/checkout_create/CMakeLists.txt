@@ -1,4 +1,4 @@
-project(checkout2filesystem)
+project(checkout_create)
 cmake_minimum_required(VERSION 2.8)
 
 include(../cmake/custom_add_leveldb)
@@ -25,7 +25,6 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
 custom_set_vars_leveldb()
 include_directories(${LEVELDB_INCLUDE_DIRECTORY})
-
 
 custom_set_vars_yamlcpp()
 include_directories(${YAML_CPP_INCLUDE})

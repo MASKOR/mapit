@@ -23,22 +23,14 @@ const OperationDescription *OperationEnvironmentImpl::getDescription() const
     return &m_operationDesc;
 }
 
-const OperationParameter *OperationEnvironmentImpl::getParameter(const std::string &key) const
+const std::string& OperationEnvironmentImpl::getParameters() const
 {
-    for(int p=0; p < m_operationDesc.params_size() ; ++p)
-    {
-        const OperationParameter *param = &m_operationDesc.params(p);
-        if(param->key() == key)
-        {
-            return param;
-        }
-    }
-    return NULL;
+    return m_operationDesc.params();
 }
 
-void OperationEnvironmentImpl::setOutputDescription(OperationDescription out)
+void OperationEnvironmentImpl::setOutputDescription(const std::string& out)
 {
-    m_outDesc = out;
+    m_outDesc.set_params(out);
 }
 
 const OperationDescription &OperationEnvironmentImpl::outputDescription() const

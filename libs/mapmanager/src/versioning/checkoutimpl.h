@@ -210,6 +210,11 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 {
                     // put tree in vector and do nothing
                     upnsSharedPointer<Tree> tree(m_serializer->getTree(oid));
+                    if(tree == NULL)
+                    {
+                        log_error("Segment of path was not a tree");
+                        return false;
+                    }
                     exclusiveTreePath.push_back( tree );
                     current = tree;
                 }
@@ -232,7 +237,11 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 {
                     // copy existing tree under transient oid
                     upnsSharedPointer<Tree> tree(m_serializer->getTree(oid));
-                    assert(tree);
+                    if(tree == NULL)
+                    {
+                        log_error("Segment of path was not a tree");
+                        return false;
+                    }
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(transOid, oid));
                     exclusiveTreePath.push_back( tree );

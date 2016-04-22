@@ -192,7 +192,7 @@ StatusCode CheckoutImpl::depthFirstSearch(std::function<bool (upnsSharedPointer<
                                           std::function<bool (upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool (upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity)
 {
     upnsSharedPointer<Commit> rootCommit(new Commit(m_checkout->rollingcommit()));
-    StatusCode s = depthFirstSearch(rootCommit, "", "/", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    StatusCode s = depthFirstSearch(rootCommit, "", "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
     *m_checkout->mutable_rollingcommit() = *rootCommit;
     return s;
 }

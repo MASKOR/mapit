@@ -8,6 +8,9 @@
 #include <pcl/point_types.h>
 #include <memory>
 #include "error.h"
+#include "param.pb.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
 bool field_present(const std::string& name, const  std::vector<pcl::PCLPointField>& flist){
     for(int i=0; i<flist.size(); i++){
@@ -32,39 +35,35 @@ void chooseDefaultRepresentation ( const std::vector<pcl::PCLPointField>& flist 
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    const upns::OperationParameter *paramFilename = env->getParameter("filename");
-    if(paramFilename == NULL)
-    {
-        log_error("No filename of PCD file given.");
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    std::string filename = paramFilename->strval();
-
+//    LoadPointcloudParams params;
+//    params.ParseFromString( env->getParameters() );
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
     upnsPointcloud2Ptr pc2( new pcl::PCLPointCloud2);
 
     pcl::PCDReader reader;
+    std::string filename = params["filename"].toString().toStdString();
+    if(filename.empty())
+    {
+        log_error("parameter \"filename\" missing");
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
     if ( reader.read(filename, *pc2) < 0 )
     {
         log_error("Couldn't read file" + filename);
         return UPNS_STATUS_FILE_NOT_FOUND;
     }
 
-    const OperationParameter* target = env->getParameter("target");
+    std::string target = params["target"].toString().toStdString();
 
-    Path entityname = target->strval();
-
-    if(!entityname.empty() && entityname.at(entityname.length()-1) == '/')
-    {
-        entityname += "/";
-    }
     upnsSharedPointer<Entity> pclEntity(new Entity);
     pclEntity->set_type(POINTCLOUD2);
-    StatusCode s = env->getCheckout()->storeEntity(entityname, pclEntity);
+    StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( entityname );
+    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
 
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
     entityData->setData( pc2 );
@@ -72,15 +71,15 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);
     out.set_operatorversion(OPERATOR_VERSION);
-    OperationParameter *outTarget = out.add_params();
-    outTarget->set_key("target");
-//    outTarget->set_mapval( map->id() );
-//    outTarget->set_layerval( layer->id() );
-//    outTarget->set_entityval( entity->id() );
-    OperationParameter *outMapname = out.add_params();
-    outMapname->set_key("mapname");
+//    OperationParameter *outTarget = out.add_params();
+//    outTarget->set_key("target");
+////    outTarget->set_mapval( map->id() );
+////    outTarget->set_layerval( layer->id() );
+////    outTarget->set_entityval( entity->id() );
+//    OperationParameter *outMapname = out.add_params();
+//    outMapname->set_key("mapname");
 //    outMapname->set_strval( map->name() );
-    env->setOutputDescription( out );
+    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 
