@@ -25,6 +25,16 @@ namespace upns {
 //void hash(SHA256_CTX *ctx, const Commit::ObjectIdList &t);
 //void hash(SHA256_CTX *ctx, const Commit::ObjectIdPair &t);
 
+ObjectId hash_toString(const std::string &t)
+{
+    return sha256(t);
+//    SHA256_CTX shaCtx;
+//    SHA256_Init(&shaCtx);
+//    hash(&shaCtx, *t);
+//    char szBuff[256];
+//    SHA256_Final(reinterpret_cast<unsigned char*>(szBuff), &shaCtx);
+//    return std::string(szBuff);
+}
 template<typename T>
 ObjectId hash_toString(const T *t)
 {

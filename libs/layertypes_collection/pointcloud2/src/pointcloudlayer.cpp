@@ -3,6 +3,15 @@
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <pcl/compression/octree_pointcloud_compression.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/io/pcd_io.h>
+
+template <typename T>
+class not_deleter {
+public:
+  void operator()(T* ptr){}
+};
 
 PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
@@ -36,8 +45,9 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
         upnsIStream *in = m_streamProvider->startRead();
         {
             //TODO
-            ::boost::archive::text_iarchive ia(*in);
-            ia >> *m_pointcloud;
+//            ::boost::archive::text_iarchive ia(*in);
+//            ia >> *m_pointcloud;
+            readPointcloudFromStream( *in, *m_pointcloud );
 //            std::copy(myVector.begin(), myVector.end(), std::ostreambuf_iterator<char>(FILE));
 
 //            std::istreambuf_iterator iter(in);
@@ -60,8 +70,12 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
         //TODO
 //        out << *data;
 //        out->write(reinterpret_cast<char*>(data.get()), sizeof(::pcl::PCLPointCloud2));
-        ::boost::archive::text_oarchive oa(*out);
-        oa << *data;
+//        ::boost::archive::text_oarchive oa(*out);
+//        oa << *data;
+//        pcl::io::OctreePointCloudCompression<pcl::PCLPointCloud2> encoder;
+//        boost::shared_ptr<const pcl::PCLPointCloud2> ptr(data.get(), not_deleter<pcl::PCLPointCloud2>());
+//        encoder.encodePointCloud(ptr, *out);
+        writeBinaryCompressed( *out, *data );
     }
     m_streamProvider->endWrite(out);
 	return 0; //TODO: MSVC: What to return here?
@@ -106,6 +120,16 @@ int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsR
 {
     //TODO
     return 0;
+}
+
+upnsIStream *PointcloudEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+{
+    m_streamProvider->startRead(start, len);
+}
+
+void PointcloudEntitydata::endRead(upnsIStream *strm)
+{
+    m_streamProvider->endRead(strm);
 }
 //void deleteEntitydata(void* ld)
 void deleteEntitydata(AbstractEntityData *ld)

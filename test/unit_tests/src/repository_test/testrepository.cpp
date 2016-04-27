@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QString>
 #include "yaml-cpp/yaml.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
 using namespace upns;
 
@@ -38,23 +40,61 @@ void TestRepository::initTestCase()
 void TestRepository::cleanupTestCase()
 {
     delete m_repo;
+    m_repo = NULL;
 }
 
-void TestRepository::testExampleCommit()
+void TestRepository::testCreateCheckout()
 {
-    upnsSharedPointer<Checkout> co(m_repo->checkout("master", "testcheckout"));
+    upnsSharedPointer<Checkout> co(m_repo->createCheckout("master", "testcheckout"));
 
     OperationDescription operationCreateTree;
     operationCreateTree.set_operatorname("load_pointcloud");
-    OperationParameter *filename = operationCreateTree.add_params();
-    filename->set_key("filename");
-    filename->set_strval("data/bunny.pcd");
-    OperationParameter *target = operationCreateTree.add_params();
-    target->set_key("target");
-    target->set_strval("/testmap/testlayer/testentity");
+    QJsonObject params;
+    params["filename"] = "data/bunny.pcd";
+    params["target"] = "/testmap/testlayer/testentity";
+    QJsonDocument paramsDoc;
+    paramsDoc.setObject( params );
+    operationCreateTree.set_params( paramsDoc.toJson().toStdString() );
     co->doOperation(operationCreateTree);
-    m_repo->commit( co, "This is the commit message of a TestCommit");
-    std::cout << "Done" << std::endl;
 }
+
+void TestRepository::testGetCheckout()
+{
+    upnsSharedPointer<Checkout> co(m_repo->getCheckout("testcheckout"));
+
+    OperationDescription operation;
+    operation.set_operatorname("load_pointcloud");
+    QJsonObject params;
+    params["filename"] = "data/bunny.pcd";
+    params["target"] = "/testmap/testlayer/secondentity";
+    QJsonDocument paramsDoc;
+    paramsDoc.setObject( params );
+    operation.set_params( paramsDoc.toJson().toStdString() );
+    co->doOperation(operation);
+}
+
+void TestRepository::testCommit()
+{
+    upnsSharedPointer<Checkout> co(m_repo->getCheckout("testcheckout"));
+    m_repo->commit( co, "This is the commit message of a TestCommit");
+}
+
+void TestRepository::testVoxelgridfilter()
+{
+    upnsSharedPointer<Checkout> co(m_repo->getCheckout("testcheckout"));
+    OperationDescription operation;
+    operation.set_operatorname("voxelgridfilter");
+    QJsonObject params;
+    params["leafsize"] = 0.01;
+    params["target"] = "/testmap/testlayer/secondentity";
+    QJsonDocument paramsDoc;
+    paramsDoc.setObject( params );
+    operation.set_params( paramsDoc.toJson().toStdString() );
+    co->doOperation(operation);
+    m_repo->commit( co, "Two different pointclouds inside");
+}
+
+
+
 
 DECLARE_TEST(TestRepository)

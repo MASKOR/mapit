@@ -7,10 +7,10 @@
 #include <services.pb.h>
 #include <stdlib.h>
 #include <time.h>
+#include <algorithm>
 #include "error.h"
 #include "../hash.h"
 
-#include <QDebug>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QLockFile>
@@ -109,25 +109,46 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPoi
     *entry.mutable_branch() = *value;
     return createObject(key, entry.SerializeAsString());
 }
-//template <typename T>
-//StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPointer<bytes> value)
-//{
-//    GenericEntry entry;
-//    entry.set_type(Message);
-//    entry.set_allocated_(value.get());
-//    return createObject(key, entry->SerializeAsString());
-//}
-//TODO: not needed anymore
-//template <typename T>
-//StatusCode LevelDBSerializer::createObject(const std::string &key, upnsSharedPointer<T> value)
-//{
-//    //(*iter)->set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch());
-//    //entity->set_id(generateId());
-////    const ::google::protobuf::Descriptor* descriptor = value->GetDescriptor();
-////    std::string ser = descriptor->name();
-////    log_info("databaseval start:" + ser);
-////    return createObject(key, ser + value->SerializeAsString());
-//}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Tree> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageTree);
+    *entry.mutable_tree() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Entity> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageEntity);
+    *entry.mutable_entity() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Commit> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageCommit);
+    *entry.mutable_commit() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<CheckoutObj> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageCheckout);
+    *entry.mutable_checkout() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
+template <>
+StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<Branch> value)
+{
+    GenericEntry entry;
+    entry.set_type(MessageBranch);
+    *entry.mutable_branch() = *value;
+    return storeObject(key, entry.SerializeAsString());
+}
 
 upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
 {
@@ -135,20 +156,38 @@ upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeTree(upnsSharedPointer<Tree> &obj)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    obj->set_id(key);
-    key = keyOfTree(key);
-    return storeObject(key, obj);
+    ObjectId oid;
+    oid = ::upns::hash_toString(obj.get());
+    std::string key = keyOfTree(oid);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, oid);
 }
 
-StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfTree(key);
-    return createObject(key, obj);
+    std::string key;
+    key = keyOfTree(transientId);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, transientId);
 }
+
+//StatusCode LevelDBSerializer::createTree(upnsSharedPointer<Tree> &obj)
+//{
+//    std::string key;
+//    if(transient)
+//    {
+//        key = obj->id();
+//    }
+//    else
+//    {
+//        key = ::upns::hash_toString(obj.get());
+//        obj->set_id(key);
+//    }
+//    key = keyOfTree(key);
+//    return createObject(key, obj);
+//}
 
 StatusCode LevelDBSerializer::removeTree(const ObjectId &oid)
 {
@@ -161,19 +200,37 @@ upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfEntity(key);
-    return storeObject(key, obj);
+    ObjectId oid = ::upns::hash_toString(obj.get());
+    std::string key = keyOfEntity(oid);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, oid);
 }
 
-StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfEntity(key);
-    return createObject(key, obj);
+    std::string key;
+    key = keyOfEntity(transientId);
+    StatusCode s = storeObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, transientId);
 }
+
+//StatusCode LevelDBSerializer::createEntity(upnsSharedPointer<Entity> &obj, bool transient)
+//{
+//    std::string key;
+//    if(transient)
+//    {
+//        key = obj->id();
+//    }
+//    else
+//    {
+//        key = ::upns::hash_toString(obj.get());
+//        obj->set_id(key);
+//    }
+//    key = keyOfEntity(key);
+//    return createObject(key, obj);
+//}
 
 StatusCode LevelDBSerializer::removeEntity(const ObjectId &oid)
 {
@@ -186,18 +243,20 @@ upnsSharedPointer<Commit> LevelDBSerializer::getCommit(const ObjectId &oid)
     return ret;
 }
 
-StatusCode LevelDBSerializer::storeCommit(upnsSharedPointer<Commit> &obj)
-{
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfCommit(key);
-    return createObject(key, obj);
-}
+//upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeCommit(upnsSharedPointer<Commit> &obj)
+//{
+//    ObjectId oid = ::upns::hash_toString(obj.get());
+//    std::string key = keyOfCommit(oid);
+//    StatusCode s = createObject(key, obj);
+//    return upnsPair<StatusCode, ObjectId>(s, oid);
+//}
 
-StatusCode LevelDBSerializer::createCommit(upnsSharedPointer<Commit> &obj)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::createCommit(upnsSharedPointer<Commit> &obj)
 {
-    std::string key = ::upns::hash_toString(obj.get());
-    key = keyOfCommit(key);
-    return createObject(key, obj);
+    ObjectId oid = ::upns::hash_toString(obj.get());
+    std::string key = keyOfCommit(oid);
+    StatusCode s = createObject(key, obj);
+    return upnsPair<StatusCode, ObjectId>(s, oid);
 }
 
 StatusCode LevelDBSerializer::removeCommit(const ObjectId &oid)
@@ -231,7 +290,11 @@ upnsVec< upnsSharedPointer<CheckoutObj> > LevelDBSerializer::listCheckouts()
         if(key.starts_with(KEY_PREFIX_CHECKOUT))
         {
             upnsSharedPointer<CheckoutObj> co( new CheckoutObj() );
-            co->ParseFromString(it->value().data());
+            bool s = co->ParseFromArray(it->value().data(), it->value().size());
+            if(!s)
+            {
+                log_error("Fatal error (protobuf) while parsing: " + std::string(key.data(), key.size()));
+            }
             ret.push_back( co );
         }
     }
@@ -359,7 +422,29 @@ std::string LevelDBSerializer::keyOfBranch(const upnsString &name) const
 upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
 {
     //TODO: ensure readOnly and store booleans
-    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, keyOfEntityData(entityId)));
+    std::string writekey(keyOfEntityData(entityId));
+    std::string readkey;
+    // If entityId is transient, there might exists a corresponding entityData transient which must be read from.
+    if(exists(writekey))
+    {
+        readkey = writekey;
+    }
+    else
+    {
+        upnsSharedPointer<Entity> e(getEntity(entityId));
+        assert(e);
+        if(e->dataid().empty())
+        {
+            // the entity is persistent and has stored the data of hashed entitydata (which can only be read).
+            readkey = e->dataid();
+        }
+        else
+        {
+            // the entity is not persistent, so the calculated write key is used.
+            readkey = writekey;
+        }
+    }
+    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, readkey, writekey));
 }
 
 StatusCode LevelDBSerializer::cleanUp()
@@ -369,8 +454,33 @@ StatusCode LevelDBSerializer::cleanUp()
 
 MessageType LevelDBSerializer::typeOfObject(const ObjectId &oidOrName)
 {
-    //TODO
-    return MessageBranch;
+    std::string key, value;
+    std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
+            &LevelDBSerializer::keyOfTree,
+            &LevelDBSerializer::keyOfEntity,
+            //TODO: How will EntityData behave?
+            &LevelDBSerializer::keyOfEntityData,
+            &LevelDBSerializer::keyOfBranch,
+            &LevelDBSerializer::keyOfCommit,
+            &LevelDBSerializer::keyOfCheckoutCommit};
+    MessageType types[] = { MessageTree,
+                            MessageEntity,
+                            MessageEntityData,
+                            MessageBranch,
+                            MessageCommit,
+                            MessageCheckout };
+    for(int i=0; i < sizeof(keyOfMethods)/sizeof(*keyOfMethods) ; ++i)
+    {
+        key = (*this.*(keyOfMethods[i]))(oidOrName);
+        leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &value);
+#ifdef UPNS_DEBUG
+        GenericEntry entr;
+        entr.ParseFromString( value );
+        assert(entr.type() == types[i]);
+#endif
+        if(s.ok()) return types[i];
+    }
+    return MessageEmpty;
 }
 
 bool LevelDBSerializer::exists(const ObjectId &oidOrName)
@@ -391,6 +501,34 @@ bool LevelDBSerializer::exists(const ObjectId &oidOrName)
         if(s.ok()) return true;
     }
     return false;
+}
+
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::persistTransientEntityData(const ObjectId &entityId)
+{
+    std::string source(keyOfEntityData(entityId));
+    std::string ed;
+    leveldb::Status sdb = m_db->Get(leveldb::ReadOptions(), source, &ed);
+    if(sdb.IsNotFound()) return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, "");
+    StatusCode s(levelDbStatusToUpnsStatus(sdb));
+    if(!upnsIsOk(s)) return upnsPair<StatusCode, ObjectId>(s, "");
+    ObjectId hash = ::upns::hash_toString(ed);
+    std::string dest(keyOfEntityData(hash));
+    sdb = m_db->Get(leveldb::ReadOptions(), dest, &ed);
+    // only if it is not found, we must write
+    // if it is upnsOk, duplicate was found!
+    if(sdb.IsNotFound())
+    {
+        sdb = m_db->Put(leveldb::WriteOptions(), dest, ed);
+    }
+    s = levelDbStatusToUpnsStatus(sdb);
+    if(upnsIsOk(s))
+    {
+        return upnsPair<StatusCode, ObjectId>(s, hash);
+    }
+    else
+    {
+        return upnsPair<StatusCode, ObjectId>(s, "");
+    }
 }
 //bool LevelDBSerializer::isTree(const ObjectId &oid)
 //{
@@ -541,6 +679,18 @@ StatusCode LevelDBSerializer::getGenericEntry(const leveldb::Slice &key, Generic
     return UPNS_STATUS_OK;
 }
 
+StatusCode LevelDBSerializer::removeObject(const std::string &oid)
+{
+    return 0;
+}
+
+ObjectId LevelDBSerializer::transientOid(const upnsString &path)
+{
+    //TODO: escape "_" in name
+    return "path_"+path;
+}
+
+//TODO: store and create is the same at serializer level. An Object with the same oid may already exist.
 StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::string &value)
 {
     if( key.empty() )
@@ -552,30 +702,26 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, const std::str
     // Get the previously stored map to check for correct version (optimistic locking)
     // Note: leveldb has no transactions. It is not guaranteed, that stuff is done between the next "Get" and "Put".
     // A guarantee can be given, if only one thread is used to access the database.
-    std::string buff;
-    leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &buff);
-    if(s.ok())
-    {
-        log_warn("tried to write existing object (object with same hash already stored): " + key);
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    if( !s.IsNotFound() )
-    {
-        log_warn("Error while storing object " + key);
-    }
-    else
-    {
+    //std::string buff;
+    //leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &buff);
+//    if(s.ok())
+//    {
+//        log_warn("tried to write existing object (object with same hash already stored): " + key);
+//        return UPNS_STATUS_INVALID_ARGUMENT;
+//    }
+    //if( !s.ok() && !s.IsNotFound() )
+    //{
+    //    log_warn("Error while storing object " + key);
+    //}
+    //else
+    //{
         // Not Found! Everything ok here, value has new key/hash
-        s = m_db->Put(leveldb::WriteOptions(), key, value);
-    }
+        leveldb::Status s = m_db->Put(leveldb::WriteOptions(), key, value);
+    //}
     return levelDbStatusToUpnsStatus(s);
 }
 
-StatusCode LevelDBSerializer::removeObject(const std::string &oid)
-{
-    return 0;
-}
-
+//TODO: store and create is the same at serializer level. An Object with the same oid may already exist.
 StatusCode LevelDBSerializer::createObject(const std::string &key, const std::string &value)
 {
     if( key.empty() )
@@ -587,29 +733,23 @@ StatusCode LevelDBSerializer::createObject(const std::string &key, const std::st
     // Get the previously stored map to check for correct version (optimistic locking)
     // Note: leveldb has no transactions. It is not guaranteed, that stuff is done between the next "Get" and "Put".
     // A guarantee can be given, if only one thread is used to access the database.
-    std::string buff;
-    leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &buff);
-    if(s.ok())
-    {
-        log_warn("tried to create existing object (object with same hash already stored): " + key);
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    if( !s.IsNotFound() )
-    {
-        log_warn("Error while storing object " + key);
-    }
-    else
-    {
+    //std::string buff;
+    //leveldb::Status s = m_db->Get(leveldb::ReadOptions(), key, &buff);
+//    if(s.ok())
+//    {
+//        log_warn("tried to create existing object (object with same hash already stored): " + key);
+//        return UPNS_STATUS_INVALID_ARGUMENT;
+//    }
+//    if( !s.ok() && !s.IsNotFound() )
+//    {
+//        log_warn("Error while storing object " + key);
+//    }
+//    else
+//    {
         // Not Found! Everything ok here, value has new key/hash
-        s = m_db->Put(leveldb::WriteOptions(), key, value);
-    }
+        leveldb::Status s = m_db->Put(leveldb::WriteOptions(), key, value);
+//    }
     return levelDbStatusToUpnsStatus(s);
-}
-
-template <typename T>
-StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPointer<T> value)
-{
-    return storeObject(key, value->SerializeAsString());
 }
 
 template <>
@@ -642,6 +782,125 @@ upnsSharedPointer<Branch> LevelDBSerializer::fromGeneric(const GenericEntry &fro
     if(from.type() != MessageBranch) return NULL;
     return upnsSharedPointer< Branch >(new Branch(from.branch()));
 }
+
+template <>
+void LevelDBSerializer::dump(upnsSharedPointer<Branch> value)
+{
+    std::cout << "Branch { commitid: \"" << value->commitid() << "\" }";
+    std::cout << std::endl;
+}
+
+template <>
+void LevelDBSerializer::dump(upnsSharedPointer<Commit> value)
+{
+    std::cout << "Commit { root: \"" << value->root() << "\", parentcommitids: [ ";
+    for(int i=0; i< value->parentcommitids_size() ; ++i)
+    {
+        std::cout << "\"" << value->parentcommitids(i) << "\"";
+        if(i < value->parentcommitids_size()-1)
+        {
+            std::cout << " ,";
+        }
+    }
+    std::cout << " ] }";
+    std::cout << std::endl;
+}
+
+template <>
+void LevelDBSerializer::dump(upnsSharedPointer<CheckoutObj> value)
+{
+    std::cout << "Checkout { rollingcommit: { ";
+    dump(upnsSharedPointer<Commit>(new Commit(value->rollingcommit())));
+    std::cout << "} }";
+    std::cout << std::endl;
+}
+
+
+template <>
+void LevelDBSerializer::dump(upnsSharedPointer<Tree> value)
+{
+    std::cout << "Tree { refs: [";
+    const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = value->refs();
+    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
+    while(iter != refs.cend())
+    {
+        std::cout << std::endl;
+        const ::std::string &refname(iter->first);
+        std::cout << "\t(" << refname << " | " << iter->second.id() << ", " << QDateTime::fromMSecsSinceEpoch(iter->second.lastchange()).toString().toStdString() << ")";
+        iter++;
+    }
+    std::cout << "]\n}";
+    std::cout << std::endl;
+}
+
+template <>
+void LevelDBSerializer::dump(upnsSharedPointer<Entity> value)
+{
+    std::cout << "Entity { dataid: \"" << value->dataid() << "\", type: " << value->type() << ", usagetype: " << value->usagetype() << " }";
+    std::cout << std::endl;
+}
+
+void upns::LevelDBSerializer::debugDump()
+{
+    std::cout << "Full Database Dump:\n -Note that this relies on correct assumption about protobuf types!" << std::endl;
+    leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
+    it->SeekToFirst();
+    GenericEntry entry;
+    while(it->Valid())
+    {
+        std::string key(it->key().data(), it->key().size());
+        std::cout << "--> " << key;
+        bool s = entry.ParseFromArray( it->value().data(), it->value().size() );
+        if(s)
+        {
+            std::cout << std::endl;
+            if(entry.type() == MessageBranch)
+            {
+                dump(fromGeneric<Branch>(entry));
+            }
+            else if(entry.type() == MessageCommit)
+            {
+                dump(fromGeneric<Commit>(entry));
+            }
+            else if(entry.type() == MessageCheckout)
+            {
+                dump(fromGeneric<CheckoutObj>(entry));
+            }
+            else if(entry.type() == MessageTree)
+            {
+                dump(fromGeneric<Tree>(entry));
+            }
+            else if(entry.type() == MessageEntity)
+            {
+                dump(fromGeneric<Entity>(entry));
+            }
+            else if(entry.type() == MessageEntityData)
+            {
+                //in this case parse will fail
+                std::cout << "<data>";
+            }
+            else if(entry.type() == MessageEmpty)
+            {
+                std::cout << "<empty>";
+            }
+            else
+            {
+                std::cout << "<unknown>";
+            }
+        }
+        else
+        {
+            std::cout << "    -->    <binary>";
+            std::cout << std::endl;
+            std::cout << std::string(it->value().data(), std::min(it->value().size(), static_cast<size_t>(200)));
+            std::cout << std::endl;
+        }
+        it->Next();
+    }
+    delete it;
+    std::cout << std::endl;
+}
+
 //template <>
 //upnsSharedPointer<bytes> LevelDBSerializer::fromGeneric(const GenericEntry &from)
 //{

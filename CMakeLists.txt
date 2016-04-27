@@ -42,6 +42,7 @@ include(custom_add_leveldb)
 include(custom_add_pcl)
 include(custom_add_assimp)
 include(custom_add_openvdb)
+include(process_protobuf)
 
 custom_set_vars_boost()
 find_package(Boost COMPONENTS filesystem system date_time serialization)
@@ -52,8 +53,10 @@ set(UPNS_QTVERSION)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
-set(CMAKE_C_FLAGS_DEBUG "-DUPNS_DEBUG")
-
+string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
+if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
+    add_definitions("-DUPNS_DEBUG")
+endif()
 # Note: Dependency management is yet a mess. Some projects are contained in externals folder.
 # other projects are downloaded by cmake and installed
 # other projects must be installed on host system
@@ -87,6 +90,10 @@ add_subdirectory(libs/layertypes_collection)
 #add_subdirectory(commandlinetool_mapman)
 #add_subdirectory(externals)
 #add_subdirectory(externals/yaml-cpp)
+add_subdirectory(tools/databasedump)
+add_subdirectory(tools/checkout2filesystem)
+add_subdirectory(tools/execute_operator)
+add_subdirectory(tools/checkout_create)
 if(ENABLE_VISUALIZATION)
   #add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_renderview)

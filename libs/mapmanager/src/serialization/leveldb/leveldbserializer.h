@@ -31,18 +31,20 @@ public:
     virtual bool canWrite();
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid);
-    virtual StatusCode storeTree(upnsSharedPointer<Tree> &obj);
-    virtual StatusCode createTree(upnsSharedPointer<Tree> &obj);
+    virtual upnsPair<StatusCode, ObjectId> storeTree(upnsSharedPointer<Tree> &obj);
+    virtual upnsPair<StatusCode, ObjectId> storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId);
+    //virtual upnsPair<StatusCode, ObjectId> createTreeTransient(upnsSharedPointer<Tree> &obj, const Path &path);
     virtual StatusCode removeTree(const ObjectId &oid);
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid);
-    virtual StatusCode storeEntity(upnsSharedPointer<Entity> &obj);
-    virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj);
+    virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj);
+    virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId);
+    //virtual StatusCode createEntityTransient(upnsSharedPointer<Entity> &obj);
     virtual StatusCode removeEntity(const ObjectId &oid);
 
     virtual upnsSharedPointer<Commit> getCommit(const ObjectId &oid);
-    virtual StatusCode storeCommit(upnsSharedPointer<Commit> &obj);
-    virtual StatusCode createCommit(upnsSharedPointer<Commit> &obj);
+    //virtual upnsPair<StatusCode, ObjectId> storeCommit(upnsSharedPointer<Commit> &obj);
+    virtual upnsPair<StatusCode, ObjectId> createCommit(upnsSharedPointer<Commit> &obj);
     virtual StatusCode removeCommit(const ObjectId &oid);
 
     virtual upnsVec< upnsString > listCheckoutNames();
@@ -68,6 +70,13 @@ public:
 
     virtual MessageType typeOfObject(const ObjectId &oidOrName);
     virtual bool exists(const ObjectId &oidOrName);
+
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId);
+
+
+#ifdef UPNS_DEBUG
+    virtual void debugDump();
+#endif
     // Please use getX and check for NULL!
 //    virtual bool isTree(const ObjectId &oid);
 //    virtual bool isEntity(const ObjectId &oid);
@@ -107,6 +116,10 @@ private:
 
     template <typename T>
     StatusCode createObject(const std::string &key, upnsSharedPointer<T> value);
+
+    ObjectId transientOid(const upnsString &path);
+    template <typename T>
+    void dump(upnsSharedPointer<T> value);
 };
 
 }

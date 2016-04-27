@@ -4,6 +4,8 @@
 #include "serialization/leveldb/leveldbserializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"
+#include <QHash>
+#include <QMap>
 
 namespace upns
 {
@@ -59,7 +61,7 @@ Repository::~Repository()
     delete m_p;
 }
 
-upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranchname, const upnsString &name)
+upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
     if(co != NULL)
@@ -74,6 +76,10 @@ upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranc
     {
         // assert: empty, if this is the inial commit and "master"
         assert( branch->commitid().empty() || m_p->m_serializer->getCommit(branch->commitid()) != NULL );
+        if(branch->commitid().empty())
+        {
+            log_info("empty repository. checking out initial master");
+        }
         commitId = branch->commitid();
         branchName = commitIdOrBranchname;
     }
@@ -92,9 +98,13 @@ upnsSharedPointer<Checkout> Repository::checkout(const CommitId &commitIdOrBranc
         }
     }
     co = upnsSharedPointer<CheckoutObj>(new CheckoutObj());
-    co->mutable_commit()->add_parentcommitids(commitId);
-    m_p->m_serializer->createCheckoutCommit( co, name );
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, branchName));
+    co->mutable_rollingcommit()->add_parentcommitids(commitId);
+    StatusCode s = m_p->m_serializer->createCheckoutCommit( co, name );
+    if(!upnsIsOk(s))
+    {
+        log_error("Could not create checkout.");
+    }
+    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
 }
 
 upnsVec<upnsString> Repository::listCheckoutNames()
@@ -117,7 +127,7 @@ upnsSharedPointer<Commit> Repository::getCommit(const ObjectId &oid)
     return m_p->m_serializer->getCommit(oid);
 }
 
-upnsSharedPointer<CheckoutObj> Repository::getCheckout(const upnsString &name)
+upnsSharedPointer<CheckoutObj> Repository::getCheckoutObj(const upnsString &name)
 {
     return m_p->m_serializer->getCheckoutCommit(name);
 }
@@ -139,7 +149,7 @@ upnsSharedPointer<AbstractEntityData> Repository::getEntityDataReadOnly(const Ob
     return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true, false);
 }
 
-upnsSharedPointer<Checkout> Repository::checkout(const upnsString &checkoutName)
+upnsSharedPointer<Checkout> Repository::getCheckout(const upnsString &checkoutName)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
     if(co == NULL)
@@ -147,7 +157,7 @@ upnsSharedPointer<Checkout> Repository::checkout(const upnsString &checkoutName)
         log_info("Checkout does not exist: " + checkoutName);
         return NULL;
     }
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co));
+    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, checkoutName));
 }
 
 StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
@@ -164,7 +174,57 @@ StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
 
 CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const upnsString msg)
 {
-    return "";
+    CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
+    QMap< ::std::string, ::std::string> oldToNewIds;
+    CommitId ret;
+    StatusCode s = co->depthFirstSearch(
+        [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p)
+        {
+            ::std::string rootId(obj->root());
+            assert(oldToNewIds.contains(rootId));
+            obj->set_root(oldToNewIds.value(rootId));
+            //TODO: Lots of todos here (Metadata)
+            //ci->add_parentcommitids(co->m_checkout->mutable_);
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
+            if(upnsIsOk(!soid.first)) return false;
+            ret = soid.second;
+            return true;
+        },
+        [&](upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path& p)
+        {
+            assert(obj != NULL);
+            ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
+            ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
+            while(iter != refs.end())
+            {
+                ::std::string id(iter->second.id());
+                assert(oldToNewIds.contains(id));
+                iter->second.set_id(oldToNewIds.value(id));
+                iter++;
+            }
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeTree(obj);
+            if(upnsIsOk(!soid.first)) return false;
+            oldToNewIds.insert(oid, soid.second);
+            return true;
+        },
+        [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p)
+        {
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntityData(oid);
+            if(upnsIsOk(!soid.first)) return false;
+            //TODO: Put old->New for entitydata (How?!?)
+            //oldToNewIds.insert(oid, soid.second);
+            obj->set_dataid(soid.second);
+            soid = m_p->m_serializer->storeEntity(obj);
+            if(upnsIsOk(!soid.first)) return false;
+            oldToNewIds.insert(oid, soid.second);
+            return true;
+        });
+    if(!upnsIsOk(s))
+    {
+        log_error("error while commiting");
+    }
+    m_p->m_serializer->debugDump();
+    return ret;
 }
 
 upnsVec<upnsSharedPointer<Branch> > Repository::getBranches()

@@ -16,8 +16,8 @@ public:
     // OperationEnvironment Interface
     virtual CheckoutRaw *getCheckout() const;
     virtual const OperationDescription *getDescription() const;
-    virtual const OperationParameter *getParameter(const std::string &key) const;
-    virtual void setOutputDescription(OperationDescription);
+    virtual const std::string& getParameters() const;
+    virtual void setOutputDescription(const std::string& out);
     virtual const OperationDescription& outputDescription() const;
 
 private:

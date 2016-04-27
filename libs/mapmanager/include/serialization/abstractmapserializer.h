@@ -23,18 +23,23 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
-    virtual StatusCode storeTree(upnsSharedPointer<Tree> &obj) = 0;
-    virtual StatusCode createTree(upnsSharedPointer<Tree> &obj) = 0;
+    // Note: storing and creating is only distinguished for transient oid (paths). When
+    //       Hashes are used, the system does not know if a tree/entity with the same hash
+    //       already exists or if it is a new tree/entity
+    virtual upnsPair<StatusCode, ObjectId> storeTree(upnsSharedPointer<Tree> &obj) = 0;
+    virtual upnsPair<StatusCode, ObjectId> storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId) = 0;
+    //virtual StatusCode createTree(upnsSharedPointer<Tree> &obj) = 0;
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
-    virtual StatusCode storeEntity(upnsSharedPointer<Entity> &obj) = 0;
-    virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj) = 0;
+    virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj) = 0;
+    virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId) = 0;
+    //virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj) = 0;
     virtual StatusCode removeEntity(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Commit> getCommit(const ObjectId &oid) = 0;
-    virtual StatusCode storeCommit(upnsSharedPointer<Commit> &obj) = 0;
-    virtual StatusCode createCommit(upnsSharedPointer<Commit> &obj) = 0;
+    //virtual StatusCode storeCommit(upnsSharedPointer<Commit> &obj) = 0;
+    virtual upnsPair<StatusCode, ObjectId> createCommit(upnsSharedPointer<Commit> &obj) = 0;
     virtual StatusCode removeCommit(const ObjectId &oid) = 0;
 
     virtual upnsVec< upnsString > listCheckoutNames() = 0;
@@ -55,6 +60,7 @@ public:
     virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
 
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId) = 0;
 //    virtual bool isTree(const ObjectId &oid) = 0;
 //    virtual bool isEntity(const ObjectId &oid) = 0;
 //    virtual bool isCommit(const CommitId &oid) = 0;
@@ -65,6 +71,9 @@ public:
      * @return
      */
     virtual StatusCode cleanUp() = 0;
+#ifdef UPNS_DEBUG
+    virtual void debugDump() = 0;
+#endif
 };
 
 }

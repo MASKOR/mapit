@@ -21,10 +21,24 @@ add_definitions(${PCL_DEFINITIONS})
 
 file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
-use_protobuf()
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} upns_interface upns_mapmanager)
+#### Protobuf ####
+
+set(PROTOFILE "messages/param.proto")
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/${PROTOFILE})
+set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
+
+##################
+
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} )
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager Qt5::Core)
+
+#process_protobuf_post()
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}
