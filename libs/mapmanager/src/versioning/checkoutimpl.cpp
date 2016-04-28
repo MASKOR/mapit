@@ -197,10 +197,15 @@ StatusCode CheckoutImpl::depthFirstSearch(std::function<bool (upnsSharedPointer<
     return s;
 }
 
-//upnsSharedPointer<CheckoutObj> CheckoutImpl::getCheckoutObj()
-//{
-//    return m_checkout;
-//}
+upnsSharedPointer<CheckoutObj> CheckoutImpl::getCheckoutObj()
+{
+    return m_checkout;
+}
+
+const upnsString &CheckoutImpl::getName() const
+{
+    return m_name;
+}
 
 ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
 {
@@ -383,10 +388,33 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Commit> obj, const O
         return UPNS_STATUS_OK;
     }
     upnsSharedPointer<Tree> tree(m_serializer->getTree(obj->root()));
-    StatusCode s = depthFirstSearch(tree, obj->root(), "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-    if(!upnsIsOk(s)) return s;
+    if( !obj->root().empty() )
+    {
+        StatusCode s = depthFirstSearch(tree, obj->root(), "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+        if(!upnsIsOk(s)) return s;
+    }
     if(!afterCommit(obj, oid, path)) return UPNS_STATUS_OK;
     return UPNS_STATUS_OK;
+}
+
+upnsSharedPointer<upns::Branch> upns::CheckoutImpl::getParentBranch()
+{
+    upnsSharedPointer<upns::Branch> branch;
+    if(!m_branchname.empty())
+    {
+        branch = m_serializer->getBranch(m_branchname);
+    }
+    return branch;
+}
+
+upnsVec<CommitId> CheckoutImpl::getParentCommitIds()
+{
+    upnsVec<CommitId> ret;
+    for(int i=0 ; i<m_checkout->rollingcommit().parentcommitids_size() ; ++i)
+    {
+        ret.push_back(m_checkout->rollingcommit().parentcommitids(i));
+    }
+    return ret;
 }
 
 }

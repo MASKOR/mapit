@@ -62,12 +62,17 @@ public:
 
     virtual void setConflictSolved(const Path &path, const ObjectId &oid);
 
+    virtual upnsSharedPointer<Branch> getParentBranch();
+    virtual upnsVec<CommitId> getParentCommitIds();
+
     template <typename T>
     inline upnsString generateTransientOid(const upnsSharedPointer<T> &obj);
 
     StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
                                 std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
                                 std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
+    upnsSharedPointer<CheckoutObj> getCheckoutObj();
+    const upnsString& getName() const;
 private:
 
     ObjectId oidForChild(upnsSharedPointer<Tree> tree, const std::string &name);

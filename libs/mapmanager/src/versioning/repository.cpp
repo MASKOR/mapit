@@ -172,7 +172,7 @@ StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
     return m_p->m_serializer->removeCheckoutCommit(checkoutName);
 }
 
-CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const upnsString msg)
+CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, upnsString msg)
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     QMap< ::std::string, ::std::string> oldToNewIds;
@@ -181,10 +181,24 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
         [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p)
         {
             ::std::string rootId(obj->root());
-            assert(oldToNewIds.contains(rootId));
-            obj->set_root(oldToNewIds.value(rootId));
+            assert(rootId.empty() || oldToNewIds.contains(rootId));
+            if(rootId.empty() && oldToNewIds.contains(rootId))
+            {
+                log_warn("commit empty checkout on empty parent commit (no root)");
+            }
+            else
+            {
+                obj->set_root(oldToNewIds.value(rootId));
+            }
             //TODO: Lots of todos here (Metadata)
-            //ci->add_parentcommitids(co->m_checkout->mutable_);
+            if(msg.find_last_of('\n') != msg.length()-1)
+            {
+                msg += "\n";
+            }
+            obj->set_commitmessage(msg);
+            obj->set_datetime(QDateTime::currentDateTime().toMSecsSinceEpoch());
+            obj->set_author("tester <test@maskor.fh-aachen.de>");
+
             upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
             if(upnsIsOk(!soid.first)) return false;
             ret = soid.second;
@@ -223,7 +237,24 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, const up
     {
         log_error("error while commiting");
     }
-    m_p->m_serializer->debugDump();
+    //TODO: What to do with old ids?
+    ::upns::Commit *ci = co->getCheckoutObj()->mutable_rollingcommit();
+    ci->clear_author();
+    ci->clear_commitmessage();
+    ci->clear_datetime();
+    ci->clear_detailedtransitions();
+    ci->clear_ops();
+    ci->clear_parentcommitids();
+    //ci->clear_root();
+    ci->clear_transitions();
+    ci->add_parentcommitids(ret);
+    upnsSharedPointer<CheckoutObj> obj(co->getCheckoutObj());
+    s = m_p->m_serializer->storeCheckoutCommit(obj, co->getName());
+    if(!upnsIsOk(s))
+    {
+        log_error("Error during commit. Could not update current checkout.");
+    }
+    //m_p->m_serializer->debugDump();
     return ret;
 }
 

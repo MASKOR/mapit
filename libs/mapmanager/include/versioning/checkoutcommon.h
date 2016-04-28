@@ -76,6 +76,18 @@ public:
     virtual upnsSharedPointer<Entity> getEntity(const Path &path) = 0;
 
     /**
+     * @brief getParentBranch
+     * @return
+     */
+    virtual upnsSharedPointer<Branch> getParentBranch() = 0;
+
+    /**
+     * @brief getParentCommitIds. This is the parrent of the current rolling commit
+     * @return
+     */
+    virtual upnsVec<CommitId> getParentCommitIds() = 0;
+
+    /**
      * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
      * After the internally used stream provider calls "endWrite()", the stream gets hashed and new ObjectIds are generated.
      * Entity::id -> hash of stream

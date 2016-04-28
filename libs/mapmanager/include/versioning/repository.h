@@ -82,7 +82,7 @@ public:
      * @param msg
      * @return commitId of new commit.
      */
-    CommitId commit(const upnsSharedPointer<Checkout> checkout, const upnsString msg);
+    CommitId commit(const upnsSharedPointer<Checkout> checkout, upnsString msg);
 
     /**
      * @brief getBranches List all Branches
