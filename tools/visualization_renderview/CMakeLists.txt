@@ -76,6 +76,8 @@ set(DataDir ${PROJECT_SOURCE_DIR}/data)
 file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
+include_directories(${PROJECT_SOURCE_DIR}/include/bindings)
+
 add_library(${PROJECT_NAME}  ${SRC_LIST}
                                 ${UPNS_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}

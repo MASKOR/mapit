@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
     qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "EntityData");
-    qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntityDataPointcloud2");
+    //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntityDataPointcloud2");
     qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
     //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
 

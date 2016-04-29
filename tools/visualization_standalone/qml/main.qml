@@ -19,6 +19,10 @@ ApplicationWindow {
         uiEnabled: drawingArea.renderdata.running
     }
     GridLayout {
+        Repository {
+            id: repo
+            conf: "../repo.yaml"
+        }
         anchors.fill: parent
         MapsRenderViewport {
             id: drawingArea
@@ -28,6 +32,7 @@ ApplicationWindow {
 //            entitydata: EntityDataPointcloud2 {
 //                filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
 //            }
+            renderdata.entitydata: repo.getCheckout("testcheckout").getEntityData("testmap/testlayer/testentity")
             renderdata.filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
             //renderdata.filename: "data/Rover.pcd"
             renderdata.vrmode: menubar.enableVr

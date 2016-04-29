@@ -1,7 +1,12 @@
 #include "qmlcheckout.h"
 
 
-int QmlCheckout::doOperation(const QJsonObject &desc)
+QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
 {
     return 7;
+}
+
+bool QmlCheckout::isInConflictMode() const
+{
+    return m_isInConflictMode;
 }

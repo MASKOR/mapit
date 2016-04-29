@@ -21,7 +21,7 @@ QmlCommit *QmlRepository::getCommit(QString oid)
     return NULL;
 }
 
-QmlCheckoutInfo *QmlRepository::getCheckout(QString name)
+QmlCheckout *QmlRepository::getCheckout(QString name)
 {
     return NULL;
 }
@@ -31,12 +31,12 @@ QmlBranch *QmlRepository::getBranch(QString name)
     return NULL;
 }
 
-QmlCheckout *QmlRepository::checkout(QString commitIdOrBranchname, QString name)
+QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString name)
 {
     return NULL;
 }
 
-QmlCheckout *QmlRepository::checkout(QString checkoutName)
+QmlCheckout *QmlRepository::getCheckout(QString checkoutName)
 {
     return NULL;
 }
@@ -49,4 +49,23 @@ bool QmlRepository::canRead()
 bool QmlRepository::canWrite()
 {
     return true;
+}
+
+void QmlRepository::setConf(QString conf)
+{
+    if (m_conf == conf)
+        return;
+
+    m_conf = conf;
+    Q_EMIT confChanged(conf);
+}
+
+QString QmlRepository::conf() const
+{
+    return m_conf;
+}
+
+QStringList QmlRepository::checkoutNames() const
+{
+    return m_checkoutNames;
 }

@@ -1,15 +1,17 @@
-#ifndef QMLCOMMIT_H
-#define QMLCOMMIT_H
+#ifndef QMLCOMMIT
+#define QMLCOMMIT
 
 #include <QtCore>
-#include <QJsonObject>
+#include "upns.h"
 #include "libs/upns_interface/services.pb.h"
 
 class QmlCommit : public QObject
 {
     Q_OBJECT
-
 public:
+
+protected:
+    upns::upnsSharedPointer< upns::Commit > m_commit;
 };
 
 #endif

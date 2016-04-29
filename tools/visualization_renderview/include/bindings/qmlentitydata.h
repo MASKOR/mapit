@@ -1,5 +1,5 @@
-#ifndef QMLENTITYDATASTREAMPROVIDER
-#define QMLENTITYDATASTREAMPROVIDER
+#ifndef QMLENTITYDATA
+#define QMLENTITYDATA
 
 #include <QtCore>
 #include <QJsonObject>
