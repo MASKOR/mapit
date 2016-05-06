@@ -180,7 +180,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     {
         // root exists and can exclusively be altered
         ObjectId oid = m_checkout->rollingcommit().root();
-        current = m_serializer->getTree(oid);
+        current = m_serializer->getTreeTransient(oid);
         exclusiveTreePath.push_back( current );
     }
 
@@ -231,7 +231,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // put tree in vector and do nothing
-                    upnsSharedPointer<Tree> tree(m_serializer->getTree(oid));
+                    upnsSharedPointer<Tree> tree(m_serializer->getTreeTransient(oid));
                     if(tree == NULL)
                     {
                         log_error("Segment of path was not a tree");

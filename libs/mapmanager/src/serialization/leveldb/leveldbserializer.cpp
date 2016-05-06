@@ -156,6 +156,12 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPoin
     return storeObject(key, entry.SerializeAsString());
 }
 
+upnsSharedPointer<Tree>
+LevelDBSerializer::getTreeTransient(const ObjectId &transientId)
+{
+  return getTree(transientId);
+}
+
 upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
 {
     upnsSharedPointer<Tree> ret = getObject<Tree>( keyOfTree( oid ) );

@@ -77,7 +77,7 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
 
 upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataImpl(AbstractMapSerializer* serializer, const ObjectId &entityId, bool canRead, bool canWrite)
 {
-    upnsSharedPointer<Entity> ent = serializer->getEntity( entityId );
+    upnsSharedPointer<Entity> ent = serializer->getEntityTransient( entityId );
     if( ent == NULL )
     {
         log_error("Entity not found." + entityId);

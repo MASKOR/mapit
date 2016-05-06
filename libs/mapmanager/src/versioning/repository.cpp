@@ -2,6 +2,7 @@
 #include "yaml-cpp/yaml.h"
 #include "serialization/abstractmapserializer.h"
 #include "serialization/leveldb/leveldbserializer.h"
+#include "serialization/file_system/fs_serializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"
 #include <QHash>
@@ -30,7 +31,8 @@ class RepositoryPrivate
                 AbstractMapSerializer *mser = NULL;
                 if(mapsrcnam == "mapfileservice")
                 {
-                    m_serializer = new LevelDBSerializer(mapsource);
+                    //m_serializer = new LevelDBSerializer(mapsource);
+                    m_p->m_serializer = new FSSerializer(mapsource);
                 } else {
                     log_error("mapsource '" + mapsrcnam + "' was not found.");
                 }
@@ -78,7 +80,7 @@ upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitIdO
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
     if(co != NULL)
     {
-        log_info("Checkout with this name already exist: " + name);
+        log_error("Checkout with this name already exist: " + name);
         return NULL;
     }
     upnsSharedPointer<Branch> branch(m_p->m_serializer->getBranch(commitIdOrBranchname));
@@ -105,7 +107,7 @@ upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitIdO
         }
         else
         {
-            log_info("given commitIdOrBranchname was not a commitId or branchname.");
+            log_error("given commitIdOrBranchname was not a commitId or branchname.");
             return NULL;
         }
     }

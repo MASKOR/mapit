@@ -1,31 +1,48 @@
-#ifndef LEVELDBSERIALIZER_H
-#define LEVELDBSERIALIZER_H
+#ifndef FS_SERIALIZER_H
+#define FS_SERIALIZER_H
 
 #include "upns_globals.h"
 #include "serialization/abstractmapserializer.h"
 #include "yaml-cpp/yaml.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "leveldb/slice.h"
+#include <boost/filesystem.hpp>
 
 class QLockFile;
 namespace leveldb {
-    class DB;
-    class Status;
+  class DB;
+  class Status;
 }
+namespace fs = boost::filesystem;
 
 namespace upns
 {
 
-/**
+  /**
  * @brief The LevelDBSerializer class stores all data using leveldb.
  *
  */
 
-class LevelDBSerializer : public AbstractMapSerializer
-{
-public:
-    LevelDBSerializer(const YAML::Node &config);
-    virtual ~LevelDBSerializer();
+  class FSSerializer : public AbstractMapSerializer
+  {
+  private:
+    static const std::string _PREFIX_MAPIT_;
+    static const std::string _PREFIX_TREE_;
+    static const std::string _PREFIX_ENTITY_;
+    static const std::string _PREFIX_CHECKOUTS_;
+    static const std::string _PREFIX_BRANCHES_;
+    static const std::string _PREFIX_COMMIT_;
+
+    static const std::string _FILE_CHECKOUT_;
+  private:
+    fs::path repo_;
+  private:
+    void fs_check_create(fs::path path);
+    void fs_write(fs::path path, std::string value);
+    void fs_read(fs::path path, upnsSharedPointer<GenericEntry> entry);
+  public:
+
+    FSSerializer(const YAML::Node &config);
+    virtual ~FSSerializer();
 
     virtual bool canRead();
     virtual bool canWrite();
@@ -38,6 +55,7 @@ public:
     virtual StatusCode removeTree(const ObjectId &oid);
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid);
+    virtual upnsSharedPointer<Entity> getEntityTransient(const ObjectId oid);
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj);
     virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId);
     //virtual StatusCode createEntityTransient(upnsSharedPointer<Entity> &obj);
@@ -73,55 +91,10 @@ public:
     virtual bool exists(const ObjectId &oidOrName);
 
     virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId);
-
-
 #ifdef UPNS_DEBUG
     virtual void debugDump();
 #endif
-    // Please use getX and check for NULL!
-//    virtual bool isTree(const ObjectId &oid);
-//    virtual bool isEntity(const ObjectId &oid);
-//    virtual bool isCommit(const CommitId &oid);
-//    virtual bool isCheckout(const CommitId &oid);
-//    virtual bool isBranch(const CommitId &oid);
-private:
-    leveldb::DB* m_db;
-
-    StatusCode levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
-    //QLockFile *m_lockFile;
-
-    std::string keyOfTree(const ObjectId &oid) const;
-    std::string keyOfEntity(const ObjectId &oid) const;
-    std::string keyOfEntityData(const ObjectId &oid) const;
-    std::string keyOfCommit(const ObjectId &oid) const;
-    std::string keyOfCheckoutCommit(const upnsString &name) const;
-    std::string keyOfBranch(const upnsString &name) const;
-
-    StatusCode getObject(const std::string &key, std::string &value);
-    StatusCode getObject(const leveldb::Slice &key, std::string &value);
-    StatusCode getGenericEntryFromOid(const ObjectId &oidOrName, GenericEntry &value);
-    StatusCode getGenericEntry(const std::string &key, GenericEntry &value);
-    StatusCode getGenericEntry(const leveldb::Slice &key, GenericEntry &value);
-    StatusCode storeObject(const std::string &key, const std::string &value);
-    StatusCode createObject(const std::string &key, const std::string &value);
-    StatusCode removeObject(const std::string &oid);
-
-    template <typename T>
-    upnsSharedPointer<T> getObject(const std::string &key);
-
-    template <typename T>
-    upnsSharedPointer<T> fromGeneric(const GenericEntry &from);
-
-    template <typename T>
-    StatusCode storeObject(const std::string &key, upnsSharedPointer<T> value);
-
-    template <typename T>
-    StatusCode createObject(const std::string &key, upnsSharedPointer<T> value);
-
-    ObjectId transientOid(const upnsString &path);
-    template <typename T>
-    void dump(upnsSharedPointer<T> value);
-};
+  };
 
 }
 #endif
