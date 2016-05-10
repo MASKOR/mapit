@@ -367,7 +367,6 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const Obj
         }
         else
         {
-            m_serializer->debugDump();
             log_error("Unsupported type during depth search " + iter->first);
         }
         iter++;

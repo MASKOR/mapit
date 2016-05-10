@@ -840,6 +840,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Entity> value)
     std::cout << std::endl;
 }
 
+#ifdef UPNS_DEBUG
 void upns::LevelDBSerializer::debugDump()
 {
     std::cout << "Full Database Dump:\n -Note that this relies on correct assumption about protobuf types!" << std::endl;
@@ -900,6 +901,7 @@ void upns::LevelDBSerializer::debugDump()
     delete it;
     std::cout << std::endl;
 }
+#endif
 
 //template <>
 //upnsSharedPointer<bytes> LevelDBSerializer::fromGeneric(const GenericEntry &from)

@@ -11,7 +11,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 
-link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
+#link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)

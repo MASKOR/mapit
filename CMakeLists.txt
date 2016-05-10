@@ -106,13 +106,13 @@ endif(ENABLE_VISUALIZATION)
 
 include(ExternalProject) # ExternalProject_Add
 
-set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp" CACHE PATH "yaml installation path with lib and include subdir")
+set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp/build" CACHE PATH "yaml installation path with lib and include subdir")
 set(YAML_CPP_INCLUDE "${YAML_CPP_INSTALL_DIR}/include" CACHE PATH "yaml include dir")
 set(YAML_CPP_LIB_DIR "${YAML_CPP_INSTALL_DIR}" CACHE PATH "yaml lib dir")
 set(YAML_CPP_LIBRARIES "${YAML_CPP_LIB_DIR}/libyaml-cpp.a" CACHE FILEPATH "yaml lib")
 
-set(BOOST_ADDITIONAL_LINK_DIRECTORY "somewhere" CACHE PATH "")
-link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
+#set(BOOST_ADDITIONAL_LINK_DIRECTORY "somewhere" CACHE PATH "")
+#link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
 #add_subdirectory(externals/yaml-cpp)
 
 #ExternalProject_Add(

@@ -3,7 +3,7 @@
 
 QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
 {
-    return 7;
+    return "";
 }
 
 bool QmlCheckout::isInConflictMode() const
