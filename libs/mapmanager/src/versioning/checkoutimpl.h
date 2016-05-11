@@ -75,13 +75,35 @@ public:
     const upnsString& getName() const;
 private:
 
+    /**
+     * @brief oidForChild Used to convert path to oids.
+     * @param tree parent
+     * @param name of the child (path segment, without slashes)
+     * @return Oid or empty oid
+     */
     ObjectId oidForChild(upnsSharedPointer<Tree> tree, const std::string &name);
+
+    /**
+     * @brief oidForPath Used to convert path to oids.
+     * @param path beginning with root dir of checkout. Checkout must not be part of path. Can have leading or trailing slashes.
+     * @return Oid or empty oid
+     */
     ObjectId oidForPath(const Path &path);
+
+    // helper, used to ensure slashes at beginning and end
     Path preparePath(const Path &path);
+
+    /**
+     * @brief createPath If checkout wants to write to a path, it must be created. The leaf can be a tree or entity. This is not a trivial function, but should be easy to use from the outside.
+     * @param path path to create in the checkout.
+     * @param createLeaf null, if the leaf exists as non-exclusive tree/entity. Can also be a new entity. Can also be a tree (e.g. copy/move operation).
+     */
     template <typename T>
     StatusCode createPath(const Path &path, upnsSharedPointer<T> createLeaf = upnsSharedPointer<T>(nullptr));
-//    template <typename T>
-//    upnsPair<StatusCode, ObjectId> createObject(upnsSharedPointer<T> leafObject, const ObjectId &transId);
+
+    /**
+     * @brief Stores all kind of objects at a path.
+     */
     template <typename T>
     upnsPair<StatusCode, ObjectId> storeObject(upnsSharedPointer<T> leafObject, const ObjectId &transId);
 
@@ -89,7 +111,7 @@ private:
                                   std::function<bool(upnsString, size_t, bool)> before, std::function<bool(upnsString, size_t, bool)> after, const int start = 0);
 
     /**
-     * Depth first search for Commit, Tree and Entity.
+     * @brief Depth first search for Commit, Tree and Entity.
      * Does not work for branches. Does not visit EntityData (must be done manually).
      * If before return false, after will not be executed.
      */
@@ -108,12 +130,7 @@ private:
                                 std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
                                 std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
 
-    inline upnsString transientOid(const upnsString &path);
     AbstractMapSerializer* m_serializer;
-
-    // Rolling Commit, id is random and not yet the hash of commit. This commit is exclusive for this checkout, this checkout is based on as "parents"
-    // TODO: maybe leave id out in every object
-    //upnsSharedPointer<Commit>  m_commit;
 
     // Branch, the checkout is based on, if any
     upnsString m_branchname;

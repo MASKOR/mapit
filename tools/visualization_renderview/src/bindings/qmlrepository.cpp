@@ -1,9 +1,9 @@
 #include "qmlrepository.h"
 
 
-QStringList QmlRepository::listCheckoutNames()
+QStringList QmlRepository::listCheckoutNames() const
 {
-    return QStringList();
+    return checkoutNames();
 }
 
 QmlTree *QmlRepository::getTree(QString oid)
@@ -17,11 +17,6 @@ QmlEntity *QmlRepository::getEntity(QString oid)
 }
 
 QmlCommit *QmlRepository::getCommit(QString oid)
-{
-    return NULL;
-}
-
-QmlCheckout *QmlRepository::getCheckout(QString name)
 {
     return NULL;
 }
@@ -63,9 +58,4 @@ void QmlRepository::setConf(QString conf)
 QString QmlRepository::conf() const
 {
     return m_conf;
-}
-
-QStringList QmlRepository::checkoutNames() const
-{
-    return m_checkoutNames;
 }

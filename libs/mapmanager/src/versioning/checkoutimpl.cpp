@@ -210,6 +210,7 @@ const upnsString &CheckoutImpl::getName() const
 ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::string &name)
 {
     assert(tree != NULL);
+    assert(!name.empty());
     const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
     ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
@@ -226,6 +227,7 @@ ObjectId CheckoutImpl::oidForChild(upnsSharedPointer<Tree> tree, const ::std::st
 
 ObjectId CheckoutImpl::oidForPath(const Path &path)
 {
+    assert(!path.empty());
     Path p = preparePath(path);
     ObjectId oid(m_checkout->rollingcommit().root());
     upnsSharedPointer<Tree> current = m_serializer->getTree(oid);

@@ -94,7 +94,12 @@ public:
 
     QString conf() const;
 
-    QStringList checkoutNames() const;
+    QStringList listCheckoutNames() const;
+
+    QStringList checkoutNames() const
+    {
+        return m_checkoutNames;
+    }
 
 public Q_SLOTS:
     void setConf(QString conf);
@@ -109,7 +114,7 @@ protected:
 
 private:
     QString m_conf;
-    QList<QString> m_checkoutNames;
+    QStringList m_checkoutNames;
 };
 
 #endif
