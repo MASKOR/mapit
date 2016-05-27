@@ -5,7 +5,7 @@
 # 3) Make pcl cmake silent? Remove its clumsy output
 # 4) Output which frameworks were found and wich projects will/will not be built.
 # 5) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames.
-# 6)
+# 6) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
 
 project(upns)
 cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
