@@ -14,8 +14,28 @@ class RepositoryPrivate
     RepositoryPrivate():m_serializer(NULL){}
     AbstractMapSerializer* m_serializer;
 
-    void initialize()
+    void initialize(const YAML::Node &config)
     {
+        if(const YAML::Node mapsource = config["mapsource"])
+        {
+            if(const YAML::Node mapsourceName = mapsource["name"])
+            {
+                std::string mapsrcnam = mapsourceName.as<std::string>();
+                std::transform(mapsrcnam.begin(), mapsrcnam.end(), mapsrcnam.begin(), ::tolower);
+                AbstractMapSerializer *mser = NULL;
+                if(mapsrcnam == "mapfileservice")
+                {
+                    m_serializer = new LevelDBSerializer(mapsource);
+                } else {
+                    log_error("mapsource '" + mapsrcnam + "' was not found.");
+                }
+            } else {
+                log_error("'mapsource' has no 'name' in config");
+            }
+        } else {
+            log_error("Key 'mapsource' not given in config");
+        }
+        assert(m_serializer);
         // Check if anything exists in the database
         // Note: There might be commits or objects which are not recognized here.
         // TODO: forbid to delete last branch for this to work. Checkouts might all be deleted.
@@ -30,30 +50,17 @@ class RepositoryPrivate
     friend class Repository;
 };
 
+Repository::Repository(const upnsString &filename)
+    :m_p(new RepositoryPrivate)
+{
+    YAML::Node config = YAML::LoadFile(filename);
+    m_p->initialize(config);
+}
+
 Repository::Repository(const YAML::Node &config)
     :m_p(new RepositoryPrivate)
 {
-    if(const YAML::Node mapsource = config["mapsource"])
-    {
-        if(const YAML::Node mapsourceName = mapsource["name"])
-        {
-            std::string mapsrcnam = mapsourceName.as<std::string>();
-            std::transform(mapsrcnam.begin(), mapsrcnam.end(), mapsrcnam.begin(), ::tolower);
-            AbstractMapSerializer *mser = NULL;
-            if(mapsrcnam == "mapfileservice")
-            {
-                m_p->m_serializer = new LevelDBSerializer(mapsource);
-            } else {
-                log_error("mapsource '" + mapsrcnam + "' was not found.");
-            }
-        } else {
-            log_error("'mapsource' has no 'name' in config");
-        }
-    } else {
-        log_error("Key 'mapsource' not given in config");
-    }
-    assert(m_p->m_serializer);
-    m_p->initialize();
+    m_p->initialize(config);
 }
 
 Repository::~Repository()

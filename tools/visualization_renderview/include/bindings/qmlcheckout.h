@@ -19,6 +19,9 @@ class QmlCheckout : public QObject
     Q_PROPERTY(bool isInConflictMode READ isInConflictMode NOTIFY isInConflictModeChanged)
 
 public:
+    QmlCheckout();
+    QmlCheckout( upns::upnsSharedPointer<upns::Checkout> &co );
+
     QString doOperation(QString operatorname, const QJsonObject &desc);
 
     //upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts() = 0;
@@ -37,7 +40,7 @@ public:
 
     QmlBranch* getParentBranch();
 
-    QString getParentCommitIds();
+    QStringList getParentCommitIds();
 
     QmlEntitydata* getEntityDataReadOnly(QString entityId);
 
@@ -45,6 +48,7 @@ public:
 
     bool isInConflictMode() const;
 
+    upns::upnsSharedPointer<upns::Checkout> getCheckoutObj() { return m_checkout; }
 Q_SIGNALS:
     void isInConflictModeChanged(bool isInConflictMode);
 

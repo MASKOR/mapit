@@ -1,5 +1,5 @@
-#ifndef QMLREPOSITORY
-#define QMLREPOSITORY
+#ifndef QMLREPOSITORY_H
+#define QMLREPOSITORY_H
 
 #include <QtCore>
 #include "qmltree.h"
@@ -18,13 +18,14 @@ class QmlRepository : public QObject
     Q_PROPERTY(QString conf READ conf WRITE setConf NOTIFY confChanged)
 
 public:
-    QmlTree* getTree(QString oid);
-    QmlEntity* getEntity(QString oid);
-    QmlCommit* getCommit(QString oid);
-    QmlCheckout* getCheckoutObj(QString name);
-    QmlBranch* getBranch(QString name);
-    QString typeOfObject(QString oid);
-    QmlEntitydata* getEntityDataReadOnly(QString oid);
+    QmlRepository();
+    Q_INVOKABLE QmlTree* getTree(QString oid);
+    Q_INVOKABLE QmlEntity* getEntity(QString oid);
+    Q_INVOKABLE QmlCommit* getCommit(QString oid);
+    //Q_INVOKABLE QmlCheckout* getCheckoutObj(QString name);
+    Q_INVOKABLE QmlBranch* getBranch(QString name);
+    Q_INVOKABLE QString typeOfObject(QString oid);
+    Q_INVOKABLE QmlEntitydata* getEntityDataReadOnly(QString oid);
 
     /**
      * @brief checkout creates a new checkout from a commit.
@@ -34,40 +35,40 @@ public:
      * @param name
      * @return
      */
-    QmlCheckout* createCheckout(QString commitIdOrBranchname, QString name);
+    Q_INVOKABLE QmlCheckout* createCheckout(QString commitIdOrBranchname, QString name);
 
-    QmlCheckout* getCheckout(QString checkoutName);
+    Q_INVOKABLE QmlCheckout* getCheckout(QString checkoutName);
 
-    QString deleteCheckoutForced(QString checkoutName);
+    Q_INVOKABLE bool deleteCheckoutForced(QString checkoutName);
 
-    QString commit(QmlCheckout* checkout, QString msg);
+    Q_INVOKABLE QString commit(QmlCheckout* checkout, QString msg);
 
     /**
      * @brief getBranches List all Branches
      * @return all Branches, names with their current HEAD commitIds.
      */
-    QList< QmlBranch* > getBranches();
+    Q_INVOKABLE QList< QmlBranch* > getBranches();
 
     /**
      * @brief push alls branches to <repo>
      * @param repo Other Repository with AbstractMapSerializer (maybe Network behind it?)
      * @return status
      */
-    QString push(QmlRepository *repo);
+    Q_INVOKABLE QString push(QmlRepository *repo);
 
     /**
      * @brief pull TODO: same as <repo>.push(this) ???
      * @param repo
      * @return status
      */
-    QString pull(QmlRepository *repo);
+    Q_INVOKABLE QString pull(QmlRepository *repo);
 
     /**
      * @brief parseCommitRef Utility function to parse userinput like "origin/master~~^"
      * @param commitRef string
      * @return found commitId or InvalidCommitId
      */
-    QString parseCommitRef(QString commitRef);
+    Q_INVOKABLE QString parseCommitRef(QString commitRef);
 
     /**
      * @brief merge two commits. TODO: merge vs. rebase. Based on Changed data or "replay" operations.
@@ -76,7 +77,7 @@ public:
      * @param base
      * @return A checkout in conflict mode.
      */
-    QmlCheckout* merge(QString mine, QString theirs, QString base);
+    Q_INVOKABLE QmlCheckout* merge(QString mine, QString theirs, QString base);
 
     /**
      * @brief ancestors retrieves all (or all until <level>) ancestors of an object. Note that a merged object has more parent.
@@ -87,14 +88,14 @@ public:
      * @param level
      * @return A List off commits with objectsIds, the complete (or up to <level>) history of an object
      */
-    QMap< QString, QString > ancestors(QString commitId, QString objectId, qint32 level = 0);
+    Q_INVOKABLE QMap< QString, QString > ancestors(QString commitId, QString objectId, qint32 level = 0);
 
-    bool canRead();
-    bool canWrite();
+    Q_INVOKABLE bool canRead();
+    Q_INVOKABLE bool canWrite();
 
     QString conf() const;
 
-    QStringList listCheckoutNames() const;
+    Q_INVOKABLE QStringList listCheckoutNames() const;
 
     QStringList checkoutNames() const
     {
@@ -110,7 +111,7 @@ Q_SIGNALS:
     void checkoutNamesChanged(QStringList checkoutNames);
 
 protected:
-    upns::Repository m_repository;
+    upns::upnsSharedPointer<upns::Repository> m_repository;
 
 private:
     QString m_conf;

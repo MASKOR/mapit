@@ -11,6 +11,7 @@ class QmlEntitydata : public QObject
     Q_OBJECT
 public:
     QmlEntitydata();
+    QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntityData> &entitydata);
     upns::upnsSharedPointer<upns::AbstractEntityData> getEntityData() { return m_entitydata; }
 Q_SIGNALS:
     void updated();

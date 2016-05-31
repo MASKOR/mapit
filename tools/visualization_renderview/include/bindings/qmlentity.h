@@ -9,10 +9,11 @@ class QmlEntity : public QObject
 {
     Q_OBJECT
 public:
+    QmlEntity();
     QmlEntity(upns::upnsSharedPointer<upns::Entity> &obj);
 
 protected:
-    upns::Entity m_entity;
+    upns::upnsSharedPointer<upns::Entity> m_entity;
 };
 
 #endif

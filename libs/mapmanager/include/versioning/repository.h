@@ -15,6 +15,7 @@ class RepositoryPrivate;
 class Repository
 {
 public:
+    Repository(const upnsString &filename);
     Repository(const YAML::Node &config);
     ~Repository();
 

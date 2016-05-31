@@ -26,6 +26,13 @@
 #include <QDir>
 #include "controls/xboxcontroller.h"
 #include "bindings/renderdata.h"
+#include "bindings/qmlrepository.h"
+#include "bindings/qmlcheckout.h"
+#include "bindings/qmlcommit.h"
+#include "bindings/qmltree.h"
+#include "bindings/qmlentity.h"
+#include "bindings/qmlentitydata.h"
+#include "bindings/qmlbranch.h"
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -232,6 +239,14 @@ int main(int argc, char *argv[])
     //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntityDataPointcloud2");
     qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
     //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
+
+    qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
+    qmlRegisterType<QmlCheckout>("fhac.upns", 1, 0, "Checkout");
+    qmlRegisterType<QmlCommit>("fhac.upns", 1, 0, "Commit");
+    qmlRegisterType<QmlTree>("fhac.upns", 1, 0, "Tree");
+    qmlRegisterType<QmlEntity>("fhac.upns", 1, 0, "Entity");
+    qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
+    qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
