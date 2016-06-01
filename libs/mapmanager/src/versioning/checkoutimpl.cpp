@@ -155,12 +155,12 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     return OperationResult(result, env.outputDescription());
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnly(const Path &path)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
     return EntityStreamManager::getEntityDataImpl(m_serializer, oidForPath(path), true, false);
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataReadOnlyConflict(const ObjectId &entityId)
+upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
 {
     return EntityStreamManager::getEntityDataImpl(m_serializer, entityId, false, true);
 }

@@ -223,6 +223,7 @@ void MapsRenderer::createGeometry()
 
 void MapsRenderer::createGeometry(QString filename)
 {
+    if(filename.isEmpty()) return;
     pcl::PCLPointCloud2 pc2;
     if(filename.endsWith(".pcd"))
     {

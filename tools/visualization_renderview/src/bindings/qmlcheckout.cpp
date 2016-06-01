@@ -77,17 +77,17 @@ QStringList QmlCheckout::getParentCommitIds()
     return allIds;
 }
 
-QmlEntitydata *QmlCheckout::getEntityDataReadOnly(QString entityId)
+QmlEntitydata *QmlCheckout::getEntitydataReadOnly(QString path)
 {
-    upns::upnsString oid = entityId.toStdString();
-    upns::upnsSharedPointer<upns::AbstractEntityData> ent(m_checkout->getEntityDataReadOnly(oid));
+    upns::upnsString p = path.toStdString();
+    upns::upnsSharedPointer<upns::AbstractEntityData> ent(m_checkout->getEntitydataReadOnly(p));
     return new QmlEntitydata(ent);
 }
 
-QmlEntitydata *QmlCheckout::getEntityDataReadOnlyConflict(QString entityId)
+QmlEntitydata *QmlCheckout::getEntitydataReadOnlyConflict(QString entityId)
 {
     upns::upnsString oid = entityId.toStdString();
-    upns::upnsSharedPointer<upns::AbstractEntityData> ent(m_checkout->getEntityDataReadOnlyConflict(oid));
+    upns::upnsSharedPointer<upns::AbstractEntityData> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
     return new QmlEntitydata(ent);
 }
 

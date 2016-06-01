@@ -97,14 +97,14 @@ public:
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const Path &entityId) = 0;
+    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnly(const Path &entityId) = 0;
 
     /**
      * @brief getEntityDataConflictingReadOnly because a path is not enough to identify a conflicting entitydata, this method is introduced.
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnlyConflict(const ObjectId &entityId) = 0;
+    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnlyConflict(const ObjectId &entityId) = 0;
 
     /**
      * @brief depthFirstSearch goes through all reachable elements with a DFS. If one of the callbacks returns false, all other descending

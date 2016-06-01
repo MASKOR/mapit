@@ -53,8 +53,8 @@ public:
     virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
 
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const Path &path);
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnlyConflict(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnly(const Path &path);
+    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnlyConflict(const ObjectId &entityId);
     virtual upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &path);
 
     virtual StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);

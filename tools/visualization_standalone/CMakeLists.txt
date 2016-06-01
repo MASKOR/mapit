@@ -1,4 +1,4 @@
-project(upns_visualization_standalone)
+project(visualization_standalone)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
@@ -136,4 +136,22 @@ execute_process(
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/tools/visualization_standalone/logging.properties
 )
+
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/visualization_standalone/repo.yaml
+)
+
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/bin/data
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/bin/libs
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/bin/repo.yaml
+)
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
+)
 endif(WIN32)
+

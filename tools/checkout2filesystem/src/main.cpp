@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
             }
             if(current.open(QFile::WriteOnly))
             {
-                upns::upnsSharedPointer<upns::AbstractEntityData> reader = co->getEntityDataReadOnly(path);
+                upns::upnsSharedPointer<upns::AbstractEntityData> reader = co->getEntitydataReadOnly(path);
                 upns::upnsIStream *istrm = reader->startReadBytes();
                 char buffer[4096];
                 while (istrm->read(buffer, sizeof(buffer)))

@@ -22,31 +22,31 @@ public:
     QmlCheckout();
     QmlCheckout( upns::upnsSharedPointer<upns::Checkout> &co );
 
-    QString doOperation(QString operatorname, const QJsonObject &desc);
+    Q_INVOKABLE QString doOperation(QString operatorname, const QJsonObject &desc);
 
     //upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts() = 0;
 
-    void setConflictSolved(QString path, QString oid);
+    Q_INVOKABLE void setConflictSolved(QString path, QString oid);
 
-    QmlTree* getRoot();
+    Q_INVOKABLE QmlTree* getRoot();
 
-    QmlTree* getTreeConflict(QString objectId);
+    Q_INVOKABLE QmlTree* getTreeConflict(QString objectId);
 
-    QmlEntity* getEntityConflict(QString objectId);
+    Q_INVOKABLE QmlEntity* getEntityConflict(QString objectId);
 
-    QmlTree* getTree(QString path);
+    Q_INVOKABLE QmlTree* getTree(QString path);
 
-    QmlEntity* getEntity(QString path);
+    Q_INVOKABLE QmlEntity* getEntity(QString path);
 
-    QmlBranch* getParentBranch();
+    Q_INVOKABLE QmlBranch* getParentBranch();
 
-    QStringList getParentCommitIds();
+    Q_INVOKABLE QStringList getParentCommitIds();
 
-    QmlEntitydata* getEntityDataReadOnly(QString entityId);
+    Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString path);
 
-    QmlEntitydata* getEntityDataReadOnlyConflict(QString entityId);
+    Q_INVOKABLE QmlEntitydata* getEntitydataReadOnlyConflict(QString entityId);
 
-    bool isInConflictMode() const;
+    Q_INVOKABLE bool isInConflictMode() const;
 
     upns::upnsSharedPointer<upns::Checkout> getCheckoutObj() { return m_checkout; }
 Q_SIGNALS:
