@@ -11,6 +11,8 @@ project(upns)
 cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
+set (CMAKE_CXX_STANDARD 11)
+
 if(NOT WIN32)
 # c++11 for grpc dependencies
 add_definitions(-std=c++11)

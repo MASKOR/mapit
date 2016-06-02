@@ -31,6 +31,13 @@ find_package(Qt5Core 5.5 REQUIRED)
 find_package(Qt5Qml 5.5 REQUIRED)
 find_package(Qt5Widgets 5.5 REQUIRED)
 find_package(Qt5Quick 5.5 REQUIRED)
+find_package(Qt53DCore REQUIRED)
+find_package(Qt53DInput REQUIRED)
+find_package(Qt53DLogic REQUIRED)
+find_package(Qt53DQuick REQUIRED)
+find_package(Qt53DRender REQUIRED)
+find_package(Qt53DQuickInput REQUIRED)
+find_package(Qt53DQuickRender REQUIRED)
 
 
 if(NOT (DISABLE_PCL))

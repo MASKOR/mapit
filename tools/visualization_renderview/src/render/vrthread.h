@@ -4,6 +4,7 @@
 #include <QOpenGLFramebufferObject>
 #include <QOffscreenSurface>
 #include <QMatrix4x4>
+#include <QThread>
 #include "bindings/qmlentitydata.h"
 #include <QOpenGLDebugMessage>
 

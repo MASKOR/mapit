@@ -4,10 +4,17 @@ import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
+import QtQuick.Scene3D 2.0
+import Qt3D.Core 2.0 as Q3D
+import Qt3D.Render 2.0 as Q3DRender
+import Qt3D.Input 2.0
+//import Qt3D.Extras 2.0
 
-import fhac.upns 1.0
+import fhac.upns 1.0 as UPNS
 //import "components"
 //import "operators"
+
+import QtQuick 2.0 as QQ2
 
 ApplicationWindow {
     title: qsTr("Map Visualization")
@@ -16,15 +23,156 @@ ApplicationWindow {
     visible: true
     menuBar: MainMenubar {
         id: menubar
-        uiEnabled: drawingArea.renderdata.running
+        //uiEnabled: drawingArea.renderdata.running
     }
     GridLayout {
-        Repository {
+        UPNS.Repository {
             id: repo
             conf: "./repo.yaml"
         }
         anchors.fill: parent
-        MapsRenderViewport {
+        Scene3D {
+            Layout.minimumWidth: 50
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            aspects: ["render", "logic", "input"]
+            focus: true
+            Q3D.Entity {
+                id: sceneRoot
+
+                Q3D.Camera {
+                    id: camera
+                    projectionType: Q3D.CameraLens.PerspectiveProjection
+                    fieldOfView: 45
+                    aspectRatio: 16/9
+                    nearPlane : 0.1
+                    farPlane : 1000.0
+                    position: Qt.vector3d( 0.0, 0.0, -40.0 )
+                    upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
+                    viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
+                }
+
+                Q3D.Configuration  {
+                    controlledCamera: camera
+                }
+
+                components: [
+                    Q3DRender.FrameGraph {
+                        activeFrameGraph: Q3DRender.Viewport {
+                            id: viewport
+                            rect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
+                            clearColor: "transparent"
+
+                            Q3DRender.CameraSelector {
+                                id : cameraSelector
+                                camera: camera
+
+                                Q3DRender.ClearBuffer {
+                                    buffers : Q3DRender.ClearBuffer.ColorDepthBuffer
+                                }
+                            }
+                        }
+                    }
+                ]
+
+                Q3DRender.PhongMaterial {
+                    id: material
+                }
+
+                Q3DRender.GeometryRenderer {
+                    id: customMesh
+                    instanceCount: 1
+                    baseVertex: 0
+                    baseInstance: 0
+                    primitiveType: Q3DRender.GeometryRenderer.Points
+                    Q3DRender.Buffer {
+                        id: vertexBuffer
+                        type: Q3DRender.Buffer.VertexBuffer
+                        data: buildVertexBufferData()
+                    }
+
+                    Q3DRender.Buffer {
+                        id: indexBuffer
+                        type: Q3DRender.Buffer.IndexBuffer
+                        data: buildIndexBufferData()
+                    }
+                    geometry:  Q3DRender.Geometry {
+                        Q3DRender.Attribute {
+                            attributeType: Q3DRender.Attribute.VertexAttribute
+                            dataType: Q3DRender.Attribute.Float
+                            dataSize: 3
+                            byteOffset: 0
+                            byteStride: 9 * 4
+                            count: 4
+                            name: defaultPositionAttributeName()
+                            buffer: vertexBuffer
+                        }
+
+                        Q3DRender.Attribute {
+                            attributeType: Q3DRender.Attribute.VertexAttribute
+                            dataType: Q3DRender.Attribute.Float
+                            dataSize: 3
+                            byteOffset: 3 * 4
+                            byteStride: 9 * 4
+                            count: 4
+                            name: defaultNormalAttributeName()
+                            buffer: vertexBuffer
+                        }
+
+                        Q3DRender.Attribute {
+                            attributeType: Q3DRender.Attribute.VertexAttribute
+                            dataType: Q3DRender.Attribute.Float
+                            dataSize: 3
+                            byteOffset: 6 * 4
+                            byteStride: 9 * 4
+                            count: 4
+                            name: defaultColorAttributeName()
+                            buffer: vertexBuffer
+                        }
+                    }
+                }
+
+                Q3D.Transform {
+                    id: torusTransform
+                    scale3D: Qt.vector3d(1.5, 1, 0.5)
+                    rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), 45)
+                }
+
+                Q3D.Entity {
+                    id: torusEntity
+                    components: [ customMesh, material, torusTransform ]
+                }
+
+                Q3DRender.SphereMesh {
+                    id: sphereMesh
+                    radius: 3
+                }
+
+                Q3D.Transform {
+                    id: sphereTransform
+                    property real userAngle: 0.0
+                    translation: Qt.vector3d(20, 0, 0)
+                    rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
+                }
+
+                NumberAnimation {
+                    target: sphereTransform
+                    property: "userAngle"
+                    duration: 10000
+                    from: 0
+                    to: 360
+
+                    loops: Animation.Infinite
+                    running: true
+                }
+
+                Q3D.Entity {
+                    id: sphereEntity
+                    components: [ sphereMesh, material, sphereTransform ]
+                }
+            }
+        }
+/*        MapsRenderViewport {
             id: drawingArea
             Layout.minimumWidth: 50
             Layout.fillWidth: true
@@ -32,7 +180,7 @@ ApplicationWindow {
 //            entitydata: EntityDataPointcloud2 {
 //                filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
 //            }
-            renderdata.entitydata: repo.getCheckout("testcheckout").getEntitydataReadOnly("testmap/testlayer/bunny")
+            renderdata.entitydata: repo.getCheckout("testcheckout").getEntitydataReadOnly("testmap/testlayer/bunnyNormalEst")
 //            renderdata.filename: "data/fh/all_pointclouds20_norm_flipped.pcd"
             //renderdata.filename: "data/Rover.pcd"
             renderdata.vrmode: menubar.enableVr
@@ -433,24 +581,25 @@ ApplicationWindow {
                 }
             }
         }
+*/
     }
 
-    Timer {
-        id: tmr
-        repeat: true
-        interval: 2000
-        running: false
-        onTriggered: {
-            if( drawingArea.renderdata.disc === 0 ){
-                drawingArea.renderdata.disc = 1
-            } else if( drawingArea.renderdata.disc === 1 ){
-                drawingArea.renderdata.disc = 2
-            } else if( drawingArea.renderdata.disc === 2 ) {
-                drawingArea.renderdata.disc = 0
-            }
-        }
+//    Timer {
+//        id: tmr
+//        repeat: true
+//        interval: 2000
+//        running: false
+//        onTriggered: {
+//            if( drawingArea.renderdata.disc === 0 ){
+//                drawingArea.renderdata.disc = 1
+//            } else if( drawingArea.renderdata.disc === 1 ){
+//                drawingArea.renderdata.disc = 2
+//            } else if( drawingArea.renderdata.disc === 2 ) {
+//                drawingArea.renderdata.disc = 0
+//            }
+//        }
 
-    }
+//    }
 
     SystemPalette {
         id: palette

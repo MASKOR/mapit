@@ -435,13 +435,13 @@ upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStream
         assert(e);
         if(e->dataid().empty())
         {
-            // the entity is persistent and has stored the data of hashed entitydata (which can only be read).
-            readkey = e->dataid();
+            // the entity is not persistent, so the calculated write key is used.
+            readkey = writekey;
         }
         else
         {
-            // the entity is not persistent, so the calculated write key is used.
-            readkey = writekey;
+            // the entity is persistent and has stored the data of hashed entitydata (which can only be read).
+            readkey = e->dataid();
         }
     }
     return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, readkey, writekey));

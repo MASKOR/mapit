@@ -1,8 +1,7 @@
 #ifndef QMLENTITYDATA
 #define QMLENTITYDATA
 
-#include <QtCore>
-#include <QJsonObject>
+#include <QObject>
 #include "libs/upns_interface/services.pb.h"
 #include "abstractentitydata.h"
 
@@ -13,6 +12,7 @@ public:
     QmlEntitydata();
     QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntityData> &entitydata);
     upns::upnsSharedPointer<upns::AbstractEntityData> getEntityData() { return m_entitydata; }
+
 Q_SIGNALS:
     void updated();
 
