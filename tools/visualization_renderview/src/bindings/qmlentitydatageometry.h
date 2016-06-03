@@ -4,12 +4,13 @@
 #include <Qt3DRender/QGeometryRenderer>
 #include "qmlentitydata.h"
 
-class QmlEntitydataGeometry : public QGeometryRenderer
+class QmlEntitydataGeometry : public Qt3DRender::QGeometryRenderer
 {
     Q_OBJECT
     Q_PROPERTY(QmlEntitydata* entitydata READ entitydata WRITE setEntitydata NOTIFY entitydataChanged)
 
 public:
+    explicit QmlEntitydataGeometry(Qt3DCore::QNode *parent = Q_NULLPTR);
     QmlEntitydata* entitydata() const;
 
     Q_INVOKABLE void updateGeometry();
@@ -29,7 +30,7 @@ private:
     void setBaseInstance(int baseInstance);
     void setRestartIndex(int index);
     void setPrimitiveRestart(bool enabled);
-    void setGeometry(QGeometry *geometry);
+    void setGeometry(Qt3DRender::QGeometry *geometry);
     void setPrimitiveType(PrimitiveType primitiveType);
 };
 

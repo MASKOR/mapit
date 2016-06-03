@@ -4,5 +4,5 @@
 ./execute_operator repo.yaml testcheckout copy '{"source":"testmap/testlayer/bunny", "target":"testmap/testlayer/bunnyVoxelgrid"}'
 ./execute_operator repo.yaml testcheckout voxelgridfilter '{"leafsize":0.2, "target":"testmap/testlayer/bunnyVoxelgrid"}'
 ./execute_operator repo.yaml testcheckout copy '{"source":"testmap/testlayer/bunny", "target":"testmap/testlayer/bunnyNormalEst"}'
-./execute_operator repo.yaml testcheckout normalestimation '{"leafsize":0.2, "target":"testmap/testlayer/bunnyNormalEst"}'
+./execute_operator repo.yaml testcheckout normalestimation '{"radius":0.2, "target":"testmap/testlayer/bunnyNormalEst"}'
 ./checkout2filesystem repo.yaml testcheckout ./export

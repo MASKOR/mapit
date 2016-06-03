@@ -15,7 +15,7 @@ class QPointcloud : public QObject
     Q_PROPERTY(quint8 is_bigendian READ is_bigendian WRITE setIs_bigendian NOTIFY is_bigendianChanged)
     Q_PROPERTY(quint32 point_step READ point_step WRITE setPoint_step NOTIFY point_stepChanged)
     Q_PROPERTY(quint32 row_step READ row_step WRITE setRow_step NOTIFY row_stepChanged)
-    Q_PROPERTY(QByteArray* data READ data WRITE setData NOTIFY dataChanged)
+    Q_PROPERTY(QByteArray data READ data WRITE setData NOTIFY dataChanged)
     Q_PROPERTY(quint8 is_dense READ is_dense WRITE setIs_dense NOTIFY is_denseChanged)
 public:
     QPointcloud(pcl::PCLPointCloud2Ptr pointcloud);
@@ -46,7 +46,7 @@ public Q_SLOTS:
 
     void setRow_step(quint32 row_step);
 
-    void setData(QByteArray *data);
+    void setData(QByteArray data);
 
     void setIs_dense(quint8 is_dense)
     {
@@ -65,12 +65,12 @@ Q_SIGNALS:
     void is_bigendianChanged(quint8 is_bigendian);
     void point_stepChanged(quint32 point_step);
     void row_stepChanged(quint32 row_step);
-    void dataChanged(QByteArray* data);
+    void dataChanged(QByteArray data);
     void is_denseChanged(quint8 is_dense);
 
 private:
     pcl::PCLPointCloud2Ptr m_pointcloud;
-    QList<QPointfield> m_fields;
+    QList<QPointfield*> m_fields;
 };
 
 

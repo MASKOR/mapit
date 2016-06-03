@@ -24,7 +24,9 @@ public:
                            FLOAT32 = pcl::PCLPointField::FLOAT32,
                            FLOAT64 = pcl::PCLPointField::FLOAT64 };
 
+    QPointfield(QObject *parent, pcl::PCLPointField *field);
     QPointfield(pcl::PCLPointField *field);
+    //QPointfield(const QPointfield &cpy);
     QString name() const;
     quint32 offset() const;
     PointFieldTypes datatype() const;

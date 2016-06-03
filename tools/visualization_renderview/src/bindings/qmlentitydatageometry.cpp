@@ -1,10 +1,13 @@
 #include "qmlentitydatageometry.h"
 #include "abstractentitydata.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
+#include "qpointcloudgeometry.h"
 
-Qt3DRender::QGeometry *QmlEntitydataGeometry::geometry() const
+QmlEntitydataGeometry::QmlEntitydataGeometry(Qt3DCore::QNode *parent)
+    : QGeometryRenderer(parent)
 {
-    return m_geometry;
+    QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
+    QGeometryRenderer::setGeometry(geometry);
 }
 
 QmlEntitydata *QmlEntitydataGeometry::entitydata() const
@@ -26,19 +29,15 @@ void QmlEntitydataGeometry::updateGeometry()
 {
     upns::upnsSharedPointer<upns::AbstractEntityData> ed = m_entitydata->getEntityData();
 
-    if(m_geometry == NULL)
+    if(geometry() != NULL)
     {
-        m_geometry = new Qt3DRender::QGeometry();
-    }
-    else
-    {
-        m_geometry->
+        geometry()->deleteLater();
     }
     switch(ed->layerType())
     {
     case upns::POINTCLOUD2:
-        createGeometryFromPointcloud( upns::static_pointer_cast< PointcloudEntitydata >(ed), m_geometry );
-        Q_EMIT geometryChanged(m_geometry);
+        QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
+        static_cast<QPointcloudGeometry *>(geometry())->setPointcloud(upns::static_pointer_cast< PointcloudEntitydata >(ed)->getData().get());
         break;
     case upns::OCTOMAP:
         break;
@@ -50,11 +49,4 @@ void QmlEntitydataGeometry::updateGeometry()
     default:
         break;
     }
-}
-
-
-Qt3DRender::QGeometry *createGeometryFromPointcloud( upns::upnsSharedPointer< upns::PointcloudEntitydata > pcd, Qt3DRender::QGeometry *out )
-{
-    upnsPointcloud2Ptr pc2 = pcdData->getData();
-    if(out)
 }

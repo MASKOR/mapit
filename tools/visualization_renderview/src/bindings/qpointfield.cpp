@@ -1,9 +1,20 @@
 #include "qpointfield.h"
 
+QPointfield::QPointfield(QObject *parent, pcl::PCLPointField *field)
+    :QObject(parent),
+      m_pointfield(field)
+{
+}
+
 QPointfield::QPointfield(pcl::PCLPointField *field)
     :m_pointfield(field)
 {
 }
+
+//QPointfield::QPointfield(const QPointfield &cpy)
+//    :m_pointfield(cpy.m_pointfield)
+//{
+//}
 
 QString QPointfield::name() const
 {

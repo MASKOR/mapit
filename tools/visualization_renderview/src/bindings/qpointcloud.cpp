@@ -5,7 +5,7 @@ QPointcloud::QPointcloud(pcl::PCLPointCloud2Ptr pointcloud)
 {
     for(int i=0 ; i < m_pointcloud->fields.size() ; ++i)
     {
-        m_fields.append( QPointfield(&m_pointcloud->fields[i]) );
+        m_fields.append( new QPointfield(this, &m_pointcloud->fields[i]) );
     }
 }
 
@@ -119,9 +119,9 @@ void QPointcloud::setRow_step(quint32 row_step)
     Q_EMIT row_stepChanged(row_step);
 }
 
-void QPointcloud::setData(QByteArray *data)
+void QPointcloud::setData(QByteArray data)
 {
-    m_pointcloud->data.resize(data->size());
-    memcpy(&m_pointcloud->data[0], data->data(), m_pointcloud->data.size());
+    m_pointcloud->data.resize(data.size());
+    memcpy(&m_pointcloud->data[0], data.data(), m_pointcloud->data.size());
     Q_EMIT dataChanged(data);
 }
