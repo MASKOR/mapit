@@ -26,11 +26,10 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
 include_directories(${YAML_CPP_INCLUDE})
 
-find_package(Qt5Core 5.5 REQUIRED)
-find_package(Qt5Core 5.5 REQUIRED)
-find_package(Qt5Qml 5.5 REQUIRED)
-find_package(Qt5Widgets 5.5 REQUIRED)
-find_package(Qt5Quick 5.5 REQUIRED)
+find_package(Qt5Core 5.6 REQUIRED)
+find_package(Qt5Qml 5.6 REQUIRED)
+find_package(Qt5Widgets 5.6 REQUIRED)
+find_package(Qt5Quick 5.6 REQUIRED)
 find_package(Qt53DCore REQUIRED)
 find_package(Qt53DInput REQUIRED)
 find_package(Qt53DLogic REQUIRED)
@@ -38,7 +37,6 @@ find_package(Qt53DQuick REQUIRED)
 find_package(Qt53DRender REQUIRED)
 find_package(Qt53DQuickInput REQUIRED)
 find_package(Qt53DQuickRender REQUIRED)
-
 
 if(NOT (DISABLE_PCL))
     find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
@@ -90,9 +88,10 @@ if(WIN32)
 target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick Qt5::WinMain Xinput9_1_0 ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
     #set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
 endif(WIN32)
 
+qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
 target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager)
 

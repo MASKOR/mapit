@@ -1,5 +1,10 @@
 #include "qpointcloud.h"
 
+//QPointcloud::QPointcloud()
+//    :m_pointcloud(NULL)
+//{
+//}
+
 QPointcloud::QPointcloud(pcl::PCLPointCloud2Ptr pointcloud)
     :m_pointcloud(pointcloud)
 {

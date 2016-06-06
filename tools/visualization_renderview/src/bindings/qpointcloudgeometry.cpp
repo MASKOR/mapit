@@ -3,6 +3,7 @@
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/qbufferfunctor.h>
 #include <QHash>
+#include <iomanip>
 
 QByteArray createPointcloudVertexData(pcl::PCLPointCloud2 *pointcloud)
 {
@@ -83,15 +84,15 @@ Qt3DRender::QAttribute::DataType pclTypeToAttributeType(pcl::uint8_t inp)
 void QPointcloudGeometry::updateVertices()
 {
     QHash<QString, pcl::PCLPointField*> pfs;
-    for(int i=0 ; m_p->m_pointcloud->fields.size()<i ; ++i)
+    for(int i=0 ; m_p->m_pointcloud->fields.size()>i ; ++i)
     {
         pcl::PCLPointField &pf( m_p->m_pointcloud->fields[i] );
         pfs.insert(QString::fromStdString(pf.name), &pf);
     }
-    QHash<QString, pcl::PCLPointField*>::const_iterator pf(pfs.find("X"));
+    QHash<QString, pcl::PCLPointField*>::const_iterator pf(pfs.find("x"));
     if(pf != pfs.cend())
     {
-        int num = 1 + (pfs.contains("Y")?1:0) + (pfs.contains("Z")?1:0) + (pfs.contains("W")?1:0);
+        int num = 1 + (pfs.contains("y")?1:0) + (pfs.contains("z")?1:0) + (pfs.contains("w")?1:0);
         Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);
         attrib->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
         attrib->setDataType(pclTypeToAttributeType((*pf)->datatype));
@@ -103,10 +104,10 @@ void QPointcloudGeometry::updateVertices()
         attrib->setCount(m_p->m_pointcloud->width * m_p->m_pointcloud->height);
         addAttribute(attrib);
     }
-    pf = pfs.find("R");
+    pf = pfs.find("r");
     if(pf != pfs.cend())
     {
-        int num = 1 + (pfs.contains("G")?1:0) + (pfs.contains("B")?1:0) + (pfs.contains("A")?1:0);
+        int num = 1 + (pfs.contains("g")?1:0) + (pfs.contains("b")?1:0) + (pfs.contains("A")?1:0);
         Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);
         attrib->setName(Qt3DRender::QAttribute::defaultColorAttributeName());
         attrib->setDataType(pclTypeToAttributeType((*pf)->datatype));
@@ -118,10 +119,10 @@ void QPointcloudGeometry::updateVertices()
         attrib->setCount(m_p->m_pointcloud->width * m_p->m_pointcloud->height);
         addAttribute(attrib);
     }
-    pf = pfs.find("normX");
+    pf = pfs.find("normal_x");
     if(pf != pfs.cend())
     {
-        int num = 1 + (pfs.contains("normY")?1:0) + (pfs.contains("normZ")?1:0);
+        int num = 1 + (pfs.contains("normal_y")?1:0) + (pfs.contains("normal_z")?1:0) + (pfs.contains("curvature")?1:0);
         Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);
         attrib->setName(Qt3DRender::QAttribute::defaultColorAttributeName());
         attrib->setDataType(pclTypeToAttributeType((*pf)->datatype));
@@ -133,7 +134,7 @@ void QPointcloudGeometry::updateVertices()
         attrib->setCount(m_p->m_pointcloud->width * m_p->m_pointcloud->height);
         addAttribute(attrib);
     }
-    pf = pfs.find("I");
+    pf = pfs.find("i");
     if(pf != pfs.cend())
     {
         Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);

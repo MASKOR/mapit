@@ -33,6 +33,10 @@
 #include "bindings/qmlentity.h"
 #include "bindings/qmlentitydata.h"
 #include "bindings/qmlbranch.h"
+#include "bindings/qpointcloud.h"
+#include "bindings/qpointcloudgeometry.h"
+#include "bindings/qpointfield.h"
+#include "bindings/qmlentitydatarenderer.h"
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)
 {
@@ -248,6 +252,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
 
+    qmlRegisterType<QmlEntitydataRenderer>("fhac.upns", 1, 0, "EntitydataRenderer");
+    qmlRegisterUncreatableType<QPointcloud>("fhac.upns", 1, 0, "Pointcloud", "Please use factory method (not yet available).");
+    qmlRegisterType<QPointcloudGeometry>("fhac.upns", 1, 0, "PointcloudGeometry");
+    qmlRegisterUncreatableType<QPointfield>("fhac.upns", 1, 0, "Pointfield", "Please use factory method (not yet available).");
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
