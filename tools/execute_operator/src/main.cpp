@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
 {
     log4cplus::BasicConfigurator logconfig;
     logconfig.configure();
-    log4cplus::SharedAppenderPtr consoleAppender(new log4cplus::ConsoleAppender());
-    consoleAppender->setName("myAppenderName");
-    consoleAppender->setLayout(std::auto_ptr<log4cplus::Layout>(new log4cplus::TTCCLayout()));
-    log4cplus::Logger mainLogger = log4cplus::Logger::getInstance("main");
-    mainLogger.addAppender(consoleAppender);
+//    log4cplus::SharedAppenderPtr consoleAppender(new log4cplus::ConsoleAppender());
+//    consoleAppender->setName("myAppenderName");
+//    consoleAppender->setLayout(std::auto_ptr<log4cplus::Layout>(new log4cplus::TTCCLayout()));
+//    log4cplus::Logger mainLogger = log4cplus::Logger::getInstance("main");
+//    mainLogger.addAppender(consoleAppender);
     if(argc != 5)
     {
         std::cout << "usage:\n " << argv[0] << " <config file> <checkout name> <operator_name> <paramstring>" << std::endl;
@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
     upns::OperationDescription desc;
     desc.set_operatorname(argv[3]);
     desc.set_params(argv[4]);
+    log_info("Executing: " + argv[3] + ", with params: " + argv[4]);
     upns::OperationResult res = co->doOperation(desc);
     if(upnsIsOk(res.first))
     {

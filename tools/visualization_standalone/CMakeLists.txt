@@ -49,6 +49,7 @@ endif (NOT (DISABLE_PCL))
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${UPNS_VISUALIZATION_INCLUDE})
+include_directories(${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include)
 
 QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC qml.qrc)
 
@@ -93,7 +94,7 @@ endif(WIN32)
 
 qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
-target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager)
+target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager Qt3DPointcloudRenderer)
 
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 

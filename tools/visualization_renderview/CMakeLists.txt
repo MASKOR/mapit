@@ -77,6 +77,7 @@ file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 include_directories(${PROJECT_SOURCE_DIR}/include/bindings)
+include_directories(${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include)
 
 add_library(${PROJECT_NAME}  ${SRC_LIST}
                                 ${UPNS_SOURCES}
@@ -100,7 +101,7 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager)
+target_link_libraries(${PROJECT_NAME} upns_mapmanager Qt3DPointcloudRenderer)
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)

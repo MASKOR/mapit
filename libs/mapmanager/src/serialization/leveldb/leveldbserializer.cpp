@@ -43,14 +43,16 @@ LevelDBSerializer::LevelDBSerializer(const YAML::Node &config)
     // check lockfile, database must only be opened once.
     // Note: leveldb seems to have locking on its own and does not allow simultaneous access at all
     QString databaseNameQStr = QString::fromStdString(databaseName);
-    m_lockFile = new QLockFile(QFileInfo(databaseNameQStr).absolutePath() + "." + QFileInfo(databaseNameQStr).fileName() + ".lock");
+    QString lockFilename = QFileInfo(databaseNameQStr).absolutePath() + "." + QFileInfo(databaseNameQStr).fileName() + ".lock";
+    m_lockFile = new QLockFile(lockFilename);
     if(!m_lockFile->tryLock())
     {
         qint64 pid;
         QString hostname;
         QString appname;
         m_lockFile->getLockInfo( &pid, &hostname, &appname);
-        log_error(std::string("database already open. Indicated by lockfile ") + QFileInfo(databaseNameQStr).canonicalFilePath().toStdString()
+        log_error("database already open. Indicated by lockfile " + lockFilename.toStdString()
+                  + "\n Database: " + QFileInfo(databaseNameQStr).canonicalFilePath().toStdString()
                   + "\n PID: " + QString::number(pid).toStdString()
                   + "\n Hostname: " + hostname.toStdString()
                   + "\n Application: " + appname.toStdString());

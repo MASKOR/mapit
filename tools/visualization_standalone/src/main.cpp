@@ -33,9 +33,9 @@
 #include "bindings/qmlentity.h"
 #include "bindings/qmlentitydata.h"
 #include "bindings/qmlbranch.h"
-#include "bindings/qpointcloud.h"
-#include "bindings/qpointcloudgeometry.h"
-#include "bindings/qpointfield.h"
+#include "qpointcloud.h"
+#include "qpointcloudgeometry.h"
+#include "qpointfield.h"
 #include "bindings/qmlentitydatarenderer.h"
 
 pcl::PointCloud<pcl::PointXYZRGBNormal> convert(std::string fn, float x, float y, float z)

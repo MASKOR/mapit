@@ -2,6 +2,7 @@
 #include "abstractentitydata.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 #include "qpointcloudgeometry.h"
+#include "qpointcloud.h"
 
 QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
     : QGeometryRenderer(parent)
@@ -36,10 +37,14 @@ void QmlEntitydataRenderer::updateGeometry()
     switch(ed->layerType())
     {
     case upns::POINTCLOUD2:
+    {
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
-        static_cast<QPointcloudGeometry *>(geometry())->setPointcloud(upns::static_pointer_cast< PointcloudEntitydata >(ed)->getData().get());
+        QPointcloud *pointcloud(new QPointcloud(this));
+        *pointcloud->pointcloud() = *upns::static_pointer_cast< PointcloudEntitydata >(ed)->getData();
+        static_cast<QPointcloudGeometry *>(geometry())->setPointcloud(pointcloud);
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
         break;
+    }
     case upns::OCTOMAP:
         break;
     case upns::OPENVDB:
