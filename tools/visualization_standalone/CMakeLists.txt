@@ -56,7 +56,7 @@ QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC qml.qrc)
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
 
-set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/)
+set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/ ${PROJECT_SOURCE_DIR}/shader/)
 file(GLOB FragmentShader ${ShaderPath}/*.frag)
 file(GLOB VertexShader ${ShaderPath}/*.vert)
 file(GLOB TesControlShader ${ShaderPath}/*.tcs)
@@ -68,6 +68,8 @@ set(DataDir ${PROJECT_SOURCE_DIR}/data)
 file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
+file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
+
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${UPNS_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}
@@ -77,7 +79,8 @@ add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${TesEvalShader}
                                 ${GeometryShader}
                                 ${GlslIncludeShader}
-                                ${PCL_CUSTOM_SRC})
+                                ${PCL_CUSTOM_SRC}
+                                ${UPNS_QMLFILES})
 
 add_custom_target(resourceFilesVizStandalone ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
@@ -96,7 +99,6 @@ qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRende
 
 target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager Qt3DPointcloudRenderer)
 
-file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
 

@@ -87,7 +87,7 @@ private:
     leveldb::DB* m_db;
 
     StatusCode levelDbStatusToUpnsStatus(const leveldb::Status &levelDbStatus);
-    QLockFile *m_lockFile;
+    //QLockFile *m_lockFile;
 
     std::string keyOfTree(const ObjectId &oid) const;
     std::string keyOfEntity(const ObjectId &oid) const;

@@ -5,5 +5,9 @@
         <file>qml/MainMenubar.qml</file>
         <file>qml/VisualizationSettings.qml</file>
         <file>qml/AxisGizmo.qml</file>
+        <file>shader/pointcloud.frag</file>
+        <file>shader/pointcloud.vert</file>
+        <file>shader/surfel.frag</file>
+        <file>shader/surfel.vert</file>
     </qresource>
 </RCC>

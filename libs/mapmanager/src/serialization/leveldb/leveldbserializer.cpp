@@ -40,23 +40,23 @@ LevelDBSerializer::LevelDBSerializer(const YAML::Node &config)
     }
     log_info("opening database " + databaseName);
 
-    // check lockfile, database must only be opened once.
-    // Note: leveldb seems to have locking on its own and does not allow simultaneous access at all
-    QString databaseNameQStr = QString::fromStdString(databaseName);
-    QString lockFilename = QFileInfo(databaseNameQStr).absolutePath() + "." + QFileInfo(databaseNameQStr).fileName() + ".lock";
-    m_lockFile = new QLockFile(lockFilename);
-    if(!m_lockFile->tryLock())
-    {
-        qint64 pid;
-        QString hostname;
-        QString appname;
-        m_lockFile->getLockInfo( &pid, &hostname, &appname);
-        log_error("database already open. Indicated by lockfile " + lockFilename.toStdString()
-                  + "\n Database: " + QFileInfo(databaseNameQStr).canonicalFilePath().toStdString()
-                  + "\n PID: " + QString::number(pid).toStdString()
-                  + "\n Hostname: " + hostname.toStdString()
-                  + "\n Application: " + appname.toStdString());
-    }
+//    // check lockfile, database must only be opened once.
+//    // Note: leveldb seems to have locking on its own and does not allow simultaneous access at all
+//    QString databaseNameQStr = QString::fromStdString(databaseName);
+//    QString lockFilename = QFileInfo(databaseNameQStr).absolutePath() + "/" + QFileInfo(databaseNameQStr).fileName() + ".lock";
+//    m_lockFile = new QLockFile(lockFilename);
+//    if(!m_lockFile->tryLock())
+//    {
+//        qint64 pid;
+//        QString hostname;
+//        QString appname;
+//        m_lockFile->getLockInfo( &pid, &hostname, &appname);
+//        log_error("database already open. Indicated by lockfile " + lockFilename.toStdString()
+//                  + "\n Database: " + QFileInfo(databaseNameQStr).canonicalFilePath().toStdString()
+//                  + "\n PID: " + QString::number(pid).toStdString()
+//                  + "\n Hostname: " + hostname.toStdString()
+//                  + "\n Application: " + appname.toStdString());
+//    }
 
     leveldb::Options options;
     options.create_if_missing = true;
@@ -68,7 +68,7 @@ LevelDBSerializer::~LevelDBSerializer()
 {
     // destruction of m_lockFile will unlock the database if previously acquired.
     delete m_db;
-    delete m_lockFile;
+    //delete m_lockFile;
 }
 
 template <>

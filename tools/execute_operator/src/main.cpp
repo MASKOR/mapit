@@ -34,6 +34,11 @@ int main(int argc, char *argv[])
     upns::Repository repo( config );
 
     upns::upnsSharedPointer<upns::Checkout> co = repo.getCheckout(argv[2]);
+    if(co == NULL)
+    {
+        log_error("Checkout: " + argv[2] + "not found");
+        return 1;
+    }
 
     upns::OperationDescription desc;
     desc.set_operatorname(argv[3]);

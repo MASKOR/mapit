@@ -18,6 +18,9 @@
 #endif
 #endif
 
+//#include <boost/archive/binary_iarchive.hpp>
+//#include <boost/archive/binary_oarchive.hpp>
+
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 #ifdef UPNS_DEBUG
@@ -55,6 +58,9 @@ typedef std::string upnsString;
 typedef float upnsReal;
 typedef std::istream upnsIStream;
 typedef std::ostream upnsOStream;
+//typedef boost::archive::binary_iarchive upnsIStream;
+//typedef boost::archive::binary_oarchive upnsOStream;
+
 
 // woha! works since VC 2013...
 template <typename T>

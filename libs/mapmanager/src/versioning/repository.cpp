@@ -12,6 +12,11 @@ namespace upns
 class RepositoryPrivate
 {
     RepositoryPrivate():m_serializer(NULL){}
+    ~RepositoryPrivate()
+    {
+        delete m_serializer;
+    }
+
     AbstractMapSerializer* m_serializer;
 
     void initialize(const YAML::Node &config)

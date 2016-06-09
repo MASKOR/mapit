@@ -35,6 +35,10 @@ use_leveldb()
 #use_grpc()
 use_protobuf()
 
+FIND_PACKAGE( Boost COMPONENTS iostreams serialization REQUIRED )
+
+include_directories(${Boost_INCLUDE_DIRS})
+
 link_directories(${EXTERNALS_DIR}/leveldb)
 link_directories(${YAML_CPP_LIB_DIR})
 
@@ -55,7 +59,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 #TODO: what is dl lib?
 #target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
 #target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
-target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} dl ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} dl ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_55.lib)

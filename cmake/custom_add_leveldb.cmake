@@ -31,7 +31,7 @@ macro(custom_set_vars_leveldb)
 
 endmacro(custom_set_vars_leveldb)
 
-#leads to Cannot specify link libraries for target "databasebump" which is not built by this project.
+#leads to Cannot specify link l         ibraries for target "databasedump" which is not built by this project.
 #macro(custom_target_use_leveldb TARGET)
 #    custom_set_vars_leveldb()
 #    include_directories(${LEVELDB_INCLUDE_DIRECTORY})

@@ -1,4 +1,4 @@
-project(databasebump)
+project(databasedump)
 cmake_minimum_required(VERSION 2.8)
 
 include(../cmake/custom_add_leveldb)
@@ -35,3 +35,14 @@ else(WIN32)
 endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES})
+
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
+)
+
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/bin/libs
+)
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
+)

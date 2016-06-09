@@ -19,6 +19,7 @@ namespace upns
 class AbstractMapSerializer
 {
 public:
+    virtual ~AbstractMapSerializer() {}
     virtual bool canRead() = 0;
     virtual bool canWrite() = 0;
 

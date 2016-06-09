@@ -42,7 +42,7 @@ public:
      * @param commitOrCheckoutId
      */
     CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
-    ~CheckoutImpl();
+    virtual ~CheckoutImpl();
 
     virtual bool isInConflictMode();
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
@@ -113,7 +113,7 @@ private:
     /**
      * @brief Depth first search for Commit, Tree and Entity.
      * Does not work for branches. Does not visit EntityData (must be done manually).
-     * If before return false, after will not be executed.
+     * If "before" returns false, "after" will not be executed.
      */
     StatusCode depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path &path,
                                 std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,

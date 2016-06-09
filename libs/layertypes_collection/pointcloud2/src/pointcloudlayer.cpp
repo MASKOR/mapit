@@ -44,16 +44,7 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
         m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
         upnsIStream *in = m_streamProvider->startRead();
         {
-            //TODO
-//            ::boost::archive::text_iarchive ia(*in);
-//            ia >> *m_pointcloud;
             readPointcloudFromStream( *in, *m_pointcloud );
-//            std::copy(myVector.begin(), myVector.end(), std::ostreambuf_iterator<char>(FILE));
-
-//            std::istreambuf_iterator iter(in);
-//            std::copy(iter.begin(), iter.end(), std::back_inserter(m_pointcloud->fields));
-//            std::copy(iter.begin(), iter.end(), std::back_inserter(m_pointcloud->data));
-//            in->read(reinterpret_cast<char*>(m_pointcloud.get()), sizeof(::pcl::PCLPointCloud2));
         }
         m_streamProvider->endRead(in);
     }
@@ -67,14 +58,6 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 {
     upnsOStream *out = m_streamProvider->startWrite();
     {
-        //TODO
-//        out << *data;
-//        out->write(reinterpret_cast<char*>(data.get()), sizeof(::pcl::PCLPointCloud2));
-//        ::boost::archive::text_oarchive oa(*out);
-//        oa << *data;
-//        pcl::io::OctreePointCloudCompression<pcl::PCLPointCloud2> encoder;
-//        boost::shared_ptr<const pcl::PCLPointCloud2> ptr(data.get(), not_deleter<pcl::PCLPointCloud2>());
-//        encoder.encodePointCloud(ptr, *out);
         writeBinaryCompressed( *out, *data );
     }
     m_streamProvider->endWrite(out);
@@ -131,19 +114,20 @@ void PointcloudEntitydata::endRead(upnsIStream *strm)
 {
     m_streamProvider->endRead(strm);
 }
-//void deleteEntitydata(void* ld)
+
+// Win32 does not like anything but void pointers handled between libraries
+// For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
+// the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
+//upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+//void* createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 void deleteEntitydata(AbstractEntityData *ld)
 {
     PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
     delete p;
 }
-// Win32 does not like anything but void pointers handled between libraries
-// For Unix there would be a hack to use a "custom deleter" which is given be the library to clean up the created memory
-// the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
-//upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-//void* createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
     //return upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
     *out = upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
 }
+
