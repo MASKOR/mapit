@@ -32,6 +32,7 @@ ApplicationWindow {
     RowLayout {
         anchors.fill: parent
         ColumnLayout {
+            id: controlColumn
             Text { text: "PointSize: " + pointSizeSlider.value.toFixed(2) }
             Slider {
                 id: pointSizeSlider
@@ -39,6 +40,11 @@ ApplicationWindow {
                 value: 0.5
                 minimumValue: 0.01
                 maximumValue:  2.0
+            }
+            AxisGizmo {
+                height: controlColumn.width
+                width: controlColumn.width
+                finalTransform: camera.viewMatrix
             }
         }
         Layout.fillWidth: true
