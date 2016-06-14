@@ -7,12 +7,10 @@
 #include <algorithm>
 #include <google/protobuf/repeated_field.h>
 
-#define UPNS_ID_LEN 40
 namespace upns
 {
 
     inline std::string idToString(const upnsuint64 &id);
-    inline ObjectId stringToId(const char *id);
     inline ObjectId stringEndToId(const std::string &id);
     inline ObjectId sliceEndToId(const leveldb::Slice &id);
     inline upnsString  escapeName(const upnsString &name);
@@ -27,21 +25,14 @@ namespace upns
         return std::string(reinterpret_cast<const char*>(&id), sizeof(upnsuint64));
     }
 
-    inline ObjectId stringToId(const char* id)
-    {
-        return ObjectId( id );
-    }
-
     inline ObjectId stringEndToId(const std::string &id)
     {
-        const char* start = id.data() + (id.size() - sizeof(char)*UPNS_ID_LEN);
-        return stringToId( start );
+        return ObjectId( id.substr(3) );
     }
 
     inline ObjectId sliceEndToId(const leveldb::Slice &id)
     {
-        const char* start = id.data() + (id.size() - sizeof(char)*UPNS_ID_LEN);
-        return stringToId( start );
+        return ObjectId( id.data() + 3, id.size()-3 );
     }
 
     inline size_t indexOfLastUnescapedDelim(const std::string &key)

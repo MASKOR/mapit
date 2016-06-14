@@ -82,7 +82,12 @@ upnsSharedPointer<Tree> CheckoutImpl::getRoot()
 
 upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
 {
-    ObjectId oid = oidForPath(path);
+    Path p(preparePath(path));
+    if(p.compare(0, m_name.size(), m_name) == 0)
+    {
+        p = p.substr(m_name.size(), p.length()-m_name.size());
+    }
+    ObjectId oid = oidForPath(p);
     return m_serializer->getTree(oid);
 }
 

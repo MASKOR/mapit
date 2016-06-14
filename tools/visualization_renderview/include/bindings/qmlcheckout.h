@@ -9,18 +9,22 @@
 #include "qmlcheckout.h"
 #include "qmlbranch.h"
 #include "qmlentitydata.h"
+#include "qmlrepository.h"
 #include "versioning/checkout.h"
 #include "libs/upns_interface/services.pb.h"
 #include <QJsonObject>
+
+class QmlRepository;
 
 class QmlCheckout : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isInConflictMode READ isInConflictMode NOTIFY isInConflictModeChanged)
-
+    Q_PROPERTY(QmlRepository* repository READ repository WRITE setRepository NOTIFY repositoryChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 public:
     QmlCheckout();
-    QmlCheckout( upns::upnsSharedPointer<upns::Checkout> &co );
+    QmlCheckout( upns::upnsSharedPointer<upns::Checkout> &co, QmlRepository* repo = NULL, QString name = "" );
 
     Q_INVOKABLE QString doOperation(QString operatorname, const QJsonObject &desc);
 
@@ -49,14 +53,31 @@ public:
     Q_INVOKABLE bool isInConflictMode() const;
 
     upns::upnsSharedPointer<upns::Checkout> getCheckoutObj() { return m_checkout; }
+
+    QmlRepository* repository() const;
+
+    QString name() const;
+
+public Q_SLOTS:
+    void setRepository(QmlRepository* repository);
+    void setName(QString name);
+
 Q_SIGNALS:
     void isInConflictModeChanged(bool isInConflictMode);
+
+    void repositoryChanged(QmlRepository* repository);
+
+    void nameChanged(QString name);
+
+    void intenalCheckoutChanged(QmlCheckout *co);
 
 protected:
     upns::upnsSharedPointer<upns::Checkout> m_checkout;
 private:
 
     bool m_isInConflictMode;
+    QmlRepository* m_repository;
+    QString m_name;
 };
 
 #endif

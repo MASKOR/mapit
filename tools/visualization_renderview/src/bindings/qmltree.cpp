@@ -14,6 +14,7 @@ QmlTree::QmlTree(upns::upnsSharedPointer<upns::Tree> &tree)
 
 QStringList QmlTree::getRefs()
 {
+    if(!m_tree) return QStringList();
     QStringList refs;
     for(google::protobuf::Map<std::string, upns::ObjectReference >::const_iterator iter(m_tree->refs().cbegin());
         iter != m_tree->refs().cend();
@@ -26,5 +27,6 @@ QStringList QmlTree::getRefs()
 
 QString QmlTree::oidOfRef(QString name)
 {
+    if(!m_tree) return "";
     return QString::fromStdString(m_tree->refs().at(name.toStdString()).id());
 }

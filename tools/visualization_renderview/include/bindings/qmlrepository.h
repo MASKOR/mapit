@@ -11,6 +11,8 @@
 #include "libs/upns_interface/services.pb.h"
 #include "versioning/repository.h"
 
+class QmlCheckout;
+class QmlEntitydata;
 class QmlRepository : public QObject
 {
     Q_OBJECT
@@ -104,12 +106,14 @@ public:
 
 public Q_SLOTS:
     void setConf(QString conf);
+    upns::upnsSharedPointer<upns::Repository> getRepository();
 
 Q_SIGNALS:
     void confChanged(QString conf);
 
     void checkoutNamesChanged(QStringList checkoutNames);
 
+    void internalRepositoryChanged(QmlRepository* repo);
 protected:
     upns::upnsSharedPointer<upns::Repository> m_repository;
 

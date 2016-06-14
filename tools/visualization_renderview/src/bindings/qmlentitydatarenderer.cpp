@@ -18,10 +18,18 @@ QmlEntitydata *QmlEntitydataRenderer::entitydata() const
 
 void QmlEntitydataRenderer::setEntitydata(QmlEntitydata *entitydata)
 {
-    if (m_entitydata == entitydata)
-        return;
-
-    m_entitydata = entitydata;
+    if (m_entitydata != entitydata)
+    {
+        if(m_entitydata)
+        {
+            disconnect(m_entitydata, &QmlEntitydata::internalEntitydataChanged, this, &QmlEntitydataRenderer::setEntitydata);
+        }
+        m_entitydata = entitydata;
+        if(m_entitydata)
+        {
+            connect(m_entitydata, &QmlEntitydata::internalEntitydataChanged, this, &QmlEntitydataRenderer::setEntitydata);
+        }
+    }
     updateGeometry();
     Q_EMIT entitydataChanged(entitydata);
 }
@@ -30,10 +38,13 @@ void QmlEntitydataRenderer::updateGeometry()
 {
     upns::upnsSharedPointer<upns::AbstractEntityData> ed = m_entitydata->getEntityData();
 
+    if(!ed) return;
+
     if(geometry() != NULL)
     {
         geometry()->deleteLater();
     }
+
     switch(ed->layerType())
     {
     case upns::POINTCLOUD2:

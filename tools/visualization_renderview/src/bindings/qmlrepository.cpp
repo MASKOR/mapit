@@ -79,7 +79,7 @@ QmlEntitydata *QmlRepository::getEntityDataReadOnly(QString oid)
     upns::upnsString o = oid.toStdString();
     upns::upnsSharedPointer<upns::AbstractEntityData> obj( m_repository->getEntityDataReadOnly( o ) );
     if(!obj) return nullptr;
-    return new QmlEntitydata( obj );
+    return new QmlEntitydata( obj, NULL );
 }
 
 QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString name)
@@ -89,7 +89,9 @@ QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString
                      n = name.toStdString();
     upns::upnsSharedPointer<upns::Checkout> obj( m_repository->createCheckout( o, n ) );
     if(!obj) return nullptr;
-    return new QmlCheckout( obj );
+    m_checkoutNames.append( name );
+    Q_EMIT checkoutNamesChanged(m_checkoutNames);
+    return new QmlCheckout( obj, this, name );
 }
 
 QmlCheckout *QmlRepository::getCheckout(QString checkoutName)
@@ -98,7 +100,7 @@ QmlCheckout *QmlRepository::getCheckout(QString checkoutName)
     upns::upnsString o = checkoutName.toStdString();
     upns::upnsSharedPointer<upns::Checkout> obj( m_repository->getCheckout( o ) );
     if(!obj) return nullptr;
-    return new QmlCheckout( obj );
+    return new QmlCheckout( obj, this, checkoutName );
 }
 
 bool QmlRepository::deleteCheckoutForced(QString checkoutName)
@@ -156,7 +158,7 @@ QmlCheckout *QmlRepository::merge(QString mine, QString theirs, QString base)
     upns::upnsString t = theirs.toStdString();
     upns::upnsString b = base.toStdString();
     upns::upnsSharedPointer<upns::Checkout> co(m_repository->merge( m, t, b ));
-    return new QmlCheckout( co );
+    return new QmlCheckout( co, this );
 }
 
 QMap<QString, QString> QmlRepository::ancestors(QString commitId, QString objectId, qint32 level)
@@ -181,7 +183,20 @@ void QmlRepository::setConf(QString conf)
         return;
     m_conf = conf;
     m_repository = upns::upnsSharedPointer<upns::Repository>(new upns::Repository(conf.toStdString()));
-    Q_EMIT confChanged(conf);
+    m_checkoutNames.clear();
+    upns::upnsVec<upns::upnsString> coNames(m_repository->listCheckoutNames());
+    for(upns::upnsVec<upns::upnsString>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
+    {
+        m_checkoutNames.append(QString::fromStdString(*iter));
+    }
+    Q_EMIT checkoutNamesChanged( m_checkoutNames );
+    Q_EMIT confChanged( conf );
+    Q_EMIT internalRepositoryChanged( this );
+}
+
+upns::upnsSharedPointer<upns::Repository> QmlRepository::getRepository()
+{
+    return m_repository;
 }
 
 QString QmlRepository::conf() const

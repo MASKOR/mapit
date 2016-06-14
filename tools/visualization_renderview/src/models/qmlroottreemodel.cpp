@@ -1,5 +1,12 @@
 #include "models/qmlroottreemodel.h"
 
+QmlRootTreeModel::QmlRootTreeModel()
+    :m_root( NULL )
+{
+
+    m_roleNameMapping[Qt::DisplayRole] = "displayRole";
+}
+
 QmlCheckout *QmlRootTreeModel::root() const
 {
     return m_root;
@@ -7,28 +14,40 @@ QmlCheckout *QmlRootTreeModel::root() const
 
 void QmlRootTreeModel::setRoot(QmlCheckout *root)
 {
-    if (m_root == root)
-        return;
-
-    m_root = root;
-    Q_EMIT rootChanged(root);
+    if (m_root != root)
+    {
+        if(m_root)
+        {
+            disconnect(m_root, &QmlCheckout::intenalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+        }
+        m_root = root;
+        if(m_root)
+        {
+            connect(m_root, &QmlCheckout::intenalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+        }
+        Q_EMIT rootChanged(root);
+    }
+    syncModel();
 }
 
 void QmlRootTreeModel::syncModel()
 {
+    this->clear();
     QmlTree *root = m_root->getRoot();
-    QStandardItem currentItem;
-
+    syncModel(NULL, root);
 }
 
-void QmlRootTreeModel::syncModel(QStandardItem &si, QmlTree *tr)
+void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr)
 {
-    si.setData(QVariant::fromValue(tr));
+    if(si)
+    {
+        si->setData(QVariant::fromValue(tr));
+    }
     QStringList children(tr->getRefs());
     for(QStringList::const_iterator iter(children.cbegin()); iter != children.cend(); ++iter)
     {
-        QStandardItem csi;
-        csi.setData(*iter, Qt::DisplayRole);
+        QStandardItem *csi = new QStandardItem();
+        csi->setData(*iter, Qt::DisplayRole);
         QString oid(tr->oidOfRef(*iter));
         QmlTree *tree = m_root->getTree(oid);
         if(tree == nullptr)
@@ -36,7 +55,7 @@ void QmlRootTreeModel::syncModel(QStandardItem &si, QmlTree *tr)
             QmlEntity *ent = m_root->getEntity(oid);
             if(ent != nullptr)
             {
-                csi.setData(QVariant::fromValue(ent));
+                csi->setData(QVariant::fromValue(ent));
             }
             //TODO: conflicts
         }
@@ -44,7 +63,18 @@ void QmlRootTreeModel::syncModel(QStandardItem &si, QmlTree *tr)
         {
             syncModel(csi, tree);
         }
-        si.appendRow(&csi);
+        if(si)
+        {
+            si->appendRow(csi);
+        }
+        else
+        {
+            this->appendRow( csi );
+        }
     }
+}
 
+QHash<int, QByteArray> QmlRootTreeModel::roleNames() const
+{
+    return m_roleNameMapping;
 }

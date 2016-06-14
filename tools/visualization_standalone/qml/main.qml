@@ -1,5 +1,5 @@
 import QtQuick 2.4
-import QtQuick.Controls 1.3
+import QtQuick.Controls 1.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
@@ -29,6 +29,12 @@ ApplicationWindow {
         id: repo
         conf: "./repo.yaml"
     }
+    UPNS.Checkout {
+        id: checkout
+        repository: repo
+        name: "testcheckout"
+    }
+
     RowLayout {
         anchors.fill: parent
         ColumnLayout {
@@ -46,238 +52,364 @@ ApplicationWindow {
                 width: controlColumn.width
                 finalTransform: camera.viewMatrix
             }
+            Button {
+                text: "Checkout"
+                onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
+                Window {
+                    id: chooseCheckoutDialog
+                    width: 420
+                    height: 260
+                    minimumHeight: height
+                    maximumHeight: height
+                    minimumWidth: width
+                    maximumWidth: width
+                    flags: Qt.Dialog
+                    title: "Choose Checkout"
+                    color: palette.window
+                    ColumnLayout {
+                        anchors.fill: parent
+
+                        ListView {
+                            id: checkoutList
+                            delegate: Text {
+                                    text: repo.checkoutNames[index]
+                                    color: palette.text
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: checkoutList.currentIndex = index
+                                    }
+                                }
+
+                            model: repo.checkoutNames
+                            highlight: Rectangle { color: palette.highlight }
+
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                        }
+                        Button {
+                            text: "+"
+                            onClicked: {
+                                newCheckoutDialog.visible = !newCheckoutDialog.visible
+                            }
+                            Window {
+                                id: newCheckoutDialog
+                                width: 420
+                                height: 260
+                                minimumHeight: height
+                                maximumHeight: height
+                                minimumWidth: width
+                                maximumWidth: width
+                                flags: Qt.Dialog
+                                title: "Choose Checkout"
+                                color: palette.window
+                                GridLayout {
+                                    Label {
+                                        text: "Branchname"
+                                        Layout.column: 0
+                                        Layout.row: 0
+                                    }
+                                    TextField {
+                                        id: branchnameTextedit
+                                        text: "master"
+                                        Layout.column: 1
+                                        Layout.row: 0
+                                    }
+                                    Label {
+                                        text: "Checkoutname"
+                                        Layout.column: 0
+                                        Layout.row: 1
+                                    }
+                                    TextField {
+                                        id: checkoutnameTextedit
+                                        Layout.column: 1
+                                        Layout.row: 1
+                                    }
+                                    Button {
+                                        text: "Cancel"
+                                        onClicked: newCheckoutDialog.visible = false
+                                        Layout.column: 0
+                                        Layout.row: 2
+                                    }
+                                    Button {
+                                        text: "Ok"
+                                        enabled: branchnameTextedit.text.trim().length !== 0
+                                                 && checkoutnameTextedit.text.trim().length !== 0
+                                        onClicked: {
+                                            repo.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
+                                            newCheckoutDialog.visible = false
+                                        }
+                                        Layout.column: 1
+                                        Layout.row: 2
+                                    }
+                                }
+                            }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Button {
+                                text: "Cancel"
+                                onClicked: chooseCheckoutDialog.visible = false
+                            }
+                            Button {
+                                text: "Ok"
+                                onClicked: {
+                                    checkout.name = repo.checkoutNames[checkoutList.currentIndex];
+                                    chooseCheckoutDialog.visible = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            TreeView {
+                model: UPNS.RootTreeModel {
+                    root: checkout
+                }
+                TableViewColumn {
+                    role: "displayRole"
+                    title: "Name"
+                }
+            }
         }
         Layout.fillWidth: true
 
-        Scene3D {
-            id: scene3d
+        MouseArea {
             Layout.minimumWidth: 50
             Layout.fillWidth: true
             Layout.fillHeight: true
-            aspects: ["render", "logic", "input"]
-            focus: true
+            onClicked: scene3d.focus = true
+            Scene3D {
+                anchors.fill: parent
+                id: scene3d
+                aspects: ["render", "logic", "input"]
+                focus: true
 
-            Q3D.Entity {
-                id: sceneRoot
-                Q3D.Camera {
-                    id: camera
-                    projectionType: Q3D.CameraLens.PerspectiveProjection
-                    fieldOfView: 45
-                    aspectRatio: scene3d.width/scene3d.height
-                    nearPlane : 0.1
-                    farPlane : 1000.0
-                    position: Qt.vector3d( 0.0, 0.0, -40.0 )
-                    upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
-                    viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
-                }
+                Q3D.Entity {
+                    id: sceneRoot
+                    Q3D.Camera {
+                        id: camera
+                        projectionType: Q3D.CameraLens.PerspectiveProjection
+                        fieldOfView: 45
+                        aspectRatio: scene3d.width/scene3d.height
+                        nearPlane : 0.1
+                        farPlane : 1000.0
+                        position: Qt.vector3d( 0.0, 0.0, -40.0 )
+                        upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
+                        viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
+                    }
 
-                Q3D.Configuration  {
-                    controlledCamera: camera
-                }
+                    Q3D.Configuration  {
+                        controlledCamera: camera
+                    }
 
-                components: [
-                    FrameGraph {
-                        activeFrameGraph: Viewport {
-                            id: viewport
-                            rect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
-                            clearColor: "transparent"
+                    components: [
+                        FrameGraph {
+                            activeFrameGraph: Viewport {
+                                id: viewport
+                                rect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
+                                clearColor: "transparent"
 
-                            CameraSelector {
-                                id : cameraSelector
-                                camera: camera
-                                ClearBuffer {
-                                    buffers : ClearBuffer.ColorDepthBuffer
+                                CameraSelector {
+                                    id : cameraSelector
+                                    camera: camera
+                                    ClearBuffer {
+                                        buffers : ClearBuffer.ColorDepthBuffer
+                                        LayerFilter {
+                                            layers: ["points"]
+                                            StateSet {
+                                                renderStates: [
+                                                    //PointSize { specification: PointSize.StaticValue; value: 5 },
+                                                    PointSize { specification: PointSize.Programmable },
+                                                    DepthTest { func: DepthTest.Less },
+                                                    DepthMask { mask: true }
+                                                ]
+                                            }
+                                        }
+                                    }
                                     LayerFilter {
-                                        layers: ["points"]
-                                        StateSet {
-                                            renderStates: [
-                                                //PointSize { specification: PointSize.StaticValue; value: 5 },
-                                                PointSize { specification: PointSize.Programmable },
-                                                DepthTest { func: DepthTest.Less },
-                                                DepthMask { mask: true }
-                                            ]
+                                        layers: ["solid"]
+                                    }
+                                }
+                            }
+                        }
+                    ]
+
+                    Q3D.Entity {
+                        id: pointcloud
+                        property Layer layerPoints: Layer {
+                                names: "points"
+                            }
+                        property var meshTransform: Q3D.Transform {
+                                property real userAngle: -90.0
+                                scale: 10
+                                rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
+                            }
+                        property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
+                                entitydata: UPNS.EntityData {
+                                    checkout: checkout
+                                    path: "corridor/laser/eins"
+                                }
+                            }
+                        property Material materialPoint: Material {
+                            effect: Effect {
+                                techniques: Technique {
+                                    renderPasses: RenderPass {
+                                        shaderProgram: ShaderProgram {
+                                            //vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
+                                            //fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
+                                            vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
+                                            fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
                                         }
                                     }
                                 }
-                                LayerFilter {
-                                    layers: ["solid"]
-                                }
                             }
+                            parameters: [
+                                Parameter { name: "pointSize"; value: pointSizeSlider.value },
+                                Parameter { name: "fieldOfView"; value: camera.fieldOfView },
+                                Parameter { name: "fieldOfViewVertical"; value: camera.fieldOfView/camera.aspectRatio },
+                                Parameter { name: "nearPlane"; value: camera.nearPlane },
+                                Parameter { name: "farPlane"; value: camera.farPlane },
+                                Parameter { name: "width"; value: scene3d.width },
+                                Parameter { name: "height"; value: scene3d.height }
+                            ]
                         }
+                        components: [ customMesh, materialPoint, meshTransform, layerPoints ]
                     }
-                ]
 
-                Q3D.Entity {
-                    id: pointcloud
-                    property Layer layerPoints: Layer {
-                            names: "points"
-                        }
-                    property var meshTransform: Q3D.Transform {
-                            property real userAngle: -90.0
-                            scale: 10
-                            rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
-                        }
-                    property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
-                            entitydata: repo.getCheckout("testcheckout").getEntitydataReadOnly("corridor/laser/eins")
-                        }
-                    property Material materialPoint: Material {
-                        effect: Effect {
-                            techniques: Technique {
-                                renderPasses: RenderPass {
-                                    shaderProgram: ShaderProgram {
-                                        //vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
-                                        //fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
-                                        vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
-                                        fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
+                    Q3D.Entity {
+                        id: customEntity
+                        property Layer layerPoints: Layer {
+                                names: "noneZ"
+                            }
+                        property var meshTransform: Q3D.Transform {
+                                property real userAngle: 0.0
+                                scale: 10
+                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
+                            }
+                        property GeometryRenderer customMesh: GeometryRenderer {
+                                instanceCount: 1
+                                baseVertex: 0
+                                baseInstance: 0
+                                primitiveType: GeometryRenderer.Points
+                                Buffer {
+                                    id: vertexBuffer
+                                    type: Buffer.VertexBuffer
+                                    data: {
+                                            // Vertices
+                                            var v0 = Qt.vector3d(-1.0, 0.0, -1.0)
+                                            var v1 = Qt.vector3d(1.0, 0.0, -1.0)
+                                            var v2 = Qt.vector3d(0.0, 1.0, 0.0)
+                                            var v3 = Qt.vector3d(0.0, 0.0, 1.0)
+
+                                            // Face Normals
+                                            function normal(v0, v1, v2) {
+                                                return v1.minus(v0).crossProduct(v2.minus(v0)).normalized();
+                                            }
+                                            var n023 = normal(v0, v2, v3)
+                                            var n012 = normal(v0, v1, v2)
+                                            var n310 = normal(v3, v1, v0)
+                                            var n132 = normal(v1, v3, v2)
+
+                                            // Vector normals
+                                            var n0 = n023.plus(n012).plus(n310).normalized()
+                                            var n1 = n132.plus(n012).plus(n310).normalized()
+                                            var n2 = n132.plus(n012).plus(n023).normalized()
+                                            var n3 = n132.plus(n310).plus(n023).normalized()
+
+                                            // Colors
+                                            var red = Qt.vector3d(1.0, 0.0, 0.0)
+                                            var green = Qt.vector3d(0.0, 1.0, 0.0)
+                                            var blue = Qt.vector3d(0.0, 0.0, 1.0)
+                                            var white = Qt.vector3d(1.0, 1.0, 1.0)
+
+                                            var vertices = [
+                                                        v0, n0, red,
+                                                        v1, n1, blue,
+                                                        v2, n2, green,
+                                                        v3, n3, white
+                                                    ]
+
+                                            var vertexArray = new Float32Array(4 * (3 + 3 + 3));
+                                            var i = 0;
+
+                                            vertices.forEach(function(vec3) {
+                                                vertexArray[i++] = vec3.x;
+                                                vertexArray[i++] = vec3.y;
+                                                vertexArray[i++] = vec3.z;
+                                            });
+
+                                            return vertexArray;
+                                        }
+                                }
+
+                                geometry:  Geometry {
+                                    Attribute {
+                                        attributeType: Attribute.VertexAttribute
+                                        dataType: Attribute.Float
+                                        dataSize: 3
+                                        byteOffset: 0
+                                        byteStride: 9 * 4
+                                        count: 4
+                                        name: defaultPositionAttributeName()
+                                        buffer: vertexBuffer
+                                    }
+
+                                    Attribute {
+                                        attributeType: Attribute.VertexAttribute
+                                        dataType: Attribute.Float
+                                        dataSize: 3
+                                        byteOffset: 3 * 4
+                                        byteStride: 9 * 4
+                                        count: 4
+                                        name: defaultNormalAttributeName()
+                                        buffer: vertexBuffer
+                                    }
+
+                                    Attribute {
+                                        attributeType: Attribute.VertexAttribute
+                                        dataType: Attribute.Float
+                                        dataSize: 3
+                                        byteOffset: 6 * 4
+                                        byteStride: 9 * 4
+                                        count: 4
+                                        name: defaultColorAttributeName()
+                                        buffer: vertexBuffer
                                     }
                                 }
                             }
-                        }
-                        parameters: [
-                            Parameter { name: "pointSize"; value: pointSizeSlider.value },
-                            Parameter { name: "fieldOfView"; value: camera.fieldOfView },
-                            Parameter { name: "fieldOfViewVertical"; value: camera.fieldOfView/camera.aspectRatio },
-                            Parameter { name: "nearPlane"; value: camera.nearPlane },
-                            Parameter { name: "farPlane"; value: camera.farPlane },
-                            Parameter { name: "width"; value: scene3d.width },
-                            Parameter { name: "height"; value: scene3d.height }
-                        ]
+                        property Material materialPhong: PhongMaterial { }
+                        components: [ customMesh, materialPhong, meshTransform, layerPoints ]
                     }
-                    components: [ customMesh, materialPoint, meshTransform, layerPoints ]
-                }
 
-                Q3D.Entity {
-                    id: customEntity
-                    property Layer layerPoints: Layer {
-                            names: "noneZ"
-                        }
-                    property var meshTransform: Q3D.Transform {
+
+                    Q3D.Entity {
+                        id: sphereEntity
+                        property Layer layerSolid: Layer {
+                                names: "solid"
+                            }
+                        property var meshTransform: Q3D.Transform {
+                            id: sphereTransform
                             property real userAngle: 0.0
-                            scale: 10
+                            translation: Qt.vector3d(20, 0, 0)
                             rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
                         }
-                    property GeometryRenderer customMesh: GeometryRenderer {
-                            instanceCount: 1
-                            baseVertex: 0
-                            baseInstance: 0
-                            primitiveType: GeometryRenderer.Points
-                            Buffer {
-                                id: vertexBuffer
-                                type: Buffer.VertexBuffer
-                                data: {
-                                        // Vertices
-                                        var v0 = Qt.vector3d(-1.0, 0.0, -1.0)
-                                        var v1 = Qt.vector3d(1.0, 0.0, -1.0)
-                                        var v2 = Qt.vector3d(0.0, 1.0, 0.0)
-                                        var v3 = Qt.vector3d(0.0, 0.0, 1.0)
-
-                                        // Face Normals
-                                        function normal(v0, v1, v2) {
-                                            return v1.minus(v0).crossProduct(v2.minus(v0)).normalized();
-                                        }
-                                        var n023 = normal(v0, v2, v3)
-                                        var n012 = normal(v0, v1, v2)
-                                        var n310 = normal(v3, v1, v0)
-                                        var n132 = normal(v1, v3, v2)
-
-                                        // Vector normals
-                                        var n0 = n023.plus(n012).plus(n310).normalized()
-                                        var n1 = n132.plus(n012).plus(n310).normalized()
-                                        var n2 = n132.plus(n012).plus(n023).normalized()
-                                        var n3 = n132.plus(n310).plus(n023).normalized()
-
-                                        // Colors
-                                        var red = Qt.vector3d(1.0, 0.0, 0.0)
-                                        var green = Qt.vector3d(0.0, 1.0, 0.0)
-                                        var blue = Qt.vector3d(0.0, 0.0, 1.0)
-                                        var white = Qt.vector3d(1.0, 1.0, 1.0)
-
-                                        var vertices = [
-                                                    v0, n0, red,
-                                                    v1, n1, blue,
-                                                    v2, n2, green,
-                                                    v3, n3, white
-                                                ]
-
-                                        var vertexArray = new Float32Array(4 * (3 + 3 + 3));
-                                        var i = 0;
-
-                                        vertices.forEach(function(vec3) {
-                                            vertexArray[i++] = vec3.x;
-                                            vertexArray[i++] = vec3.y;
-                                            vertexArray[i++] = vec3.z;
-                                        });
-
-                                        return vertexArray;
-                                    }
-                            }
-
-                            geometry:  Geometry {
-                                Attribute {
-                                    attributeType: Attribute.VertexAttribute
-                                    dataType: Attribute.Float
-                                    dataSize: 3
-                                    byteOffset: 0
-                                    byteStride: 9 * 4
-                                    count: 4
-                                    name: defaultPositionAttributeName()
-                                    buffer: vertexBuffer
-                                }
-
-                                Attribute {
-                                    attributeType: Attribute.VertexAttribute
-                                    dataType: Attribute.Float
-                                    dataSize: 3
-                                    byteOffset: 3 * 4
-                                    byteStride: 9 * 4
-                                    count: 4
-                                    name: defaultNormalAttributeName()
-                                    buffer: vertexBuffer
-                                }
-
-                                Attribute {
-                                    attributeType: Attribute.VertexAttribute
-                                    dataType: Attribute.Float
-                                    dataSize: 3
-                                    byteOffset: 6 * 4
-                                    byteStride: 9 * 4
-                                    count: 4
-                                    name: defaultColorAttributeName()
-                                    buffer: vertexBuffer
-                                }
-                            }
+                        property var sphereMesh: SphereMesh {
+                            radius: 4
                         }
-                    property Material materialPhong: PhongMaterial { }
-                    components: [ customMesh, materialPhong, meshTransform, layerPoints ]
-                }
-
-
-                Q3D.Entity {
-                    id: sphereEntity
-                    property Layer layerSolid: Layer {
-                            names: "solid"
-                        }
-                    property var meshTransform: Q3D.Transform {
-                        id: sphereTransform
-                        property real userAngle: 0.0
-                        translation: Qt.vector3d(20, 0, 0)
-                        rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
+                        property Material materialPhong: PhongMaterial { }
+                        components: [ sphereMesh, materialPhong, meshTransform, layerSolid ]
                     }
-                    property var sphereMesh: SphereMesh {
-                        radius: 4
-                    }
-                    property Material materialPhong: PhongMaterial { }
-                    components: [ sphereMesh, materialPhong, meshTransform, layerSolid ]
-                }
-                NumberAnimation {
-                    target: sphereTransform
-                    property: "userAngle"
-                    duration: 10000
-                    from: 0
-                    to: 360
+                    NumberAnimation {
+                        target: sphereTransform
+                        property: "userAngle"
+                        duration: 10000
+                        from: 0
+                        to: 360
 
-                    loops: Animation.Infinite
-                    running: true
+                        loops: Animation.Infinite
+                        running: true
+                    }
                 }
             }
         }
