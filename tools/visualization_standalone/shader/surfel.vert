@@ -62,7 +62,7 @@ void main(void)
 
     float dist = -viewSpacePos.z; // == gl_Position.w
 
-//    finalSize = mix(0.0, finalSize, float(mod(gl_VertexID, nthPoint)==0));
-    gl_PointSize = viewportMatrix[1][1] * projectionMatrix[1][1] * pointSize / gl_Position.w;
+    // x2 would be perfect. But the smaller the points are, the better performance is.
+    gl_PointSize = 1.9 * viewportMatrix[1][1] * projectionMatrix[1][1] * pointSize / gl_Position.w;
     color = hsv_to_rgb(vertexPosition.z*0.1, 1.0, 1.0, 0.0).rgb;// * 0.1;
 }

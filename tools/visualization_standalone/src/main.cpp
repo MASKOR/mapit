@@ -64,9 +64,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlRootTreeModel>("fhac.upns", 1, 0, "RootTreeModel");
 
     qmlRegisterType<QmlEntitydataRenderer>("fhac.upns", 1, 0, "EntitydataRenderer");
-    qmlRegisterUncreatableType<QPointcloud>("fhac.upns", 1, 0, "Pointcloud", "Please use factory method (not yet available).");
-    qmlRegisterType<QPointcloudGeometry>("fhac.upns", 1, 0, "PointcloudGeometry");
-    qmlRegisterUncreatableType<QPointfield>("fhac.upns", 1, 0, "Pointfield", "Please use factory method (not yet available).");
+    qmlRegisterUncreatableType<QPointcloud>("pcl", 1, 0, "Pointcloud", "Please use factory method (not yet available).");
+    qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
+    qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 

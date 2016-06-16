@@ -83,6 +83,8 @@ include_directories(${UPNS_ROOT_DIR}/externals/include)
 
 set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
 
+set(ENABLE_VISUALIZATION false CACHE BOOL "Generate visualization projects. This may introduce hard to statisfy dependecies.")
+
 add_subdirectory(libs/mapmanager)
 add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(test/unit_tests)

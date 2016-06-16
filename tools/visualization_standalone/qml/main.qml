@@ -1,22 +1,22 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.4
-import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.2 as Wnd
 import QtGraphicalEffects 1.0
 import QtQuick.Scene3D 2.0
 import Qt3D.Core 2.0 as Q3D
 import Qt3D.Render 2.0
 import Qt3D.Input 2.0
-//import Qt3D.Extras 2.0
+import Qt3D.Extras 2.0
+
+import pcl 1.0
 
 import fhac.upns 1.0 as UPNS
-//import "components"
-//import "operators"
 
 import QtQuick 2.0 as QQ2
 
 ApplicationWindow {
+    id: window
     title: qsTr("Map Visualization")
     width: 1200
     height: 800
@@ -50,12 +50,12 @@ ApplicationWindow {
             AxisGizmo {
                 height: controlColumn.width
                 width: controlColumn.width
-                finalTransform: camera.viewMatrix
+                finalTransform: mainCamera.viewMatrix
             }
             Button {
                 text: "Checkout"
                 onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
-                Window {
+                Wnd.Window {
                     id: chooseCheckoutDialog
                     width: 420
                     height: 260
@@ -91,7 +91,7 @@ ApplicationWindow {
                             onClicked: {
                                 newCheckoutDialog.visible = !newCheckoutDialog.visible
                             }
-                            Window {
+                            Wnd.Window {
                                 id: newCheckoutDialog
                                 width: 420
                                 height: 260
@@ -178,7 +178,9 @@ ApplicationWindow {
             Layout.minimumWidth: 50
             Layout.fillWidth: true
             Layout.fillHeight: true
-            onClicked: scene3d.focus = true
+            onClicked: {
+                scene3d.focus = true
+            }
             Scene3D {
                 anchors.fill: parent
                 id: scene3d
@@ -187,9 +189,9 @@ ApplicationWindow {
 
                 Q3D.Entity {
                     id: sceneRoot
-                    Q3D.Camera {
-                        id: camera
-                        projectionType: Q3D.CameraLens.PerspectiveProjection
+                    Camera {
+                        id: mainCamera
+                        projectionType: CameraLens.PerspectiveProjection
                         fieldOfView: 45
                         aspectRatio: scene3d.width/scene3d.height
                         nearPlane : 0.1
@@ -199,46 +201,56 @@ ApplicationWindow {
                         viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
                     }
 
-                    Q3D.Configuration  {
-                        controlledCamera: camera
+                    FirstPersonCameraController {
+                    //OrbitCameraController {
+                        camera: mainCamera
                     }
 
                     components: [
-                        FrameGraph {
+                        RenderSettings {
                             activeFrameGraph: Viewport {
                                 id: viewport
-                                rect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
-                                clearColor: "transparent"
-
-                                CameraSelector {
-                                    id : cameraSelector
-                                    camera: camera
-                                    ClearBuffer {
-                                        buffers : ClearBuffer.ColorDepthBuffer
-                                        LayerFilter {
-                                            layers: ["points"]
-                                            StateSet {
-                                                renderStates: [
-                                                    //PointSize { specification: PointSize.StaticValue; value: 5 },
-                                                    PointSize { specification: PointSize.Programmable },
-                                                    DepthTest { func: DepthTest.Less },
-                                                    DepthMask { mask: true }
-                                                ]
+                                normalizedRect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
+                                RenderSurfaceSelector {
+                                    CameraSelector {
+                                        id : cameraSelector
+                                        camera: mainCamera
+                                        FrustumCulling {
+                                            ClearBuffers {
+                                                buffers : ClearBuffers.ColorDepthBuffer
+                                                clearColor: "white"
+                                                NoDraw {}
+                                            }
+                                            LayerFilter {
+                                                layers: solidLayer
+                                            }
+                                            LayerFilter {
+                                                layers: pointLayer
+                                                RenderStateSet {
+                                                    renderStates: [
+                                                        //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+                                                        PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+                                                        DepthTest { depthFunction: DepthTest.Less }
+                                                        //DepthMask { mask: true }
+                                                    ]
+                                                }
                                             }
                                         }
                                     }
-                                    LayerFilter {
-                                        layers: ["solid"]
-                                    }
                                 }
                             }
+                        },
+                        // Event Source will be set by the Qt3DQuickWindow
+                        InputSettings {
+                            eventSource: scene3d
+                            enabled: true
                         }
                     ]
 
                     Q3D.Entity {
                         id: pointcloud
                         property Layer layerPoints: Layer {
-                                names: "points"
+                                id: pointLayer
                             }
                         property var meshTransform: Q3D.Transform {
                                 property real userAngle: -90.0
@@ -266,10 +278,10 @@ ApplicationWindow {
                             }
                             parameters: [
                                 Parameter { name: "pointSize"; value: pointSizeSlider.value },
-                                Parameter { name: "fieldOfView"; value: camera.fieldOfView },
-                                Parameter { name: "fieldOfViewVertical"; value: camera.fieldOfView/camera.aspectRatio },
-                                Parameter { name: "nearPlane"; value: camera.nearPlane },
-                                Parameter { name: "farPlane"; value: camera.farPlane },
+                                Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
+                                Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
+                                Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
+                                Parameter { name: "farPlane"; value: mainCamera.farPlane },
                                 Parameter { name: "width"; value: scene3d.width },
                                 Parameter { name: "height"; value: scene3d.height }
                             ]
@@ -277,116 +289,116 @@ ApplicationWindow {
                         components: [ customMesh, materialPoint, meshTransform, layerPoints ]
                     }
 
-                    Q3D.Entity {
-                        id: customEntity
-                        property Layer layerPoints: Layer {
-                                names: "noneZ"
-                            }
-                        property var meshTransform: Q3D.Transform {
-                                property real userAngle: 0.0
-                                scale: 10
-                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
-                            }
-                        property GeometryRenderer customMesh: GeometryRenderer {
-                                instanceCount: 1
-                                baseVertex: 0
-                                baseInstance: 0
-                                primitiveType: GeometryRenderer.Points
-                                Buffer {
-                                    id: vertexBuffer
-                                    type: Buffer.VertexBuffer
-                                    data: {
-                                            // Vertices
-                                            var v0 = Qt.vector3d(-1.0, 0.0, -1.0)
-                                            var v1 = Qt.vector3d(1.0, 0.0, -1.0)
-                                            var v2 = Qt.vector3d(0.0, 1.0, 0.0)
-                                            var v3 = Qt.vector3d(0.0, 0.0, 1.0)
+//                    Q3D.Entity {
+//                        id: customEntity
+//                        property Layer layerPoints: Layer {
+//                                names: "noneZ"
+//                            }
+//                        property var meshTransform: Q3D.Transform {
+//                                property real userAngle: 0.0
+//                                scale: 10
+//                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
+//                            }
+//                        property GeometryRenderer customMesh: GeometryRenderer {
+//                                instanceCount: 1
+//                                baseVertex: 0
+//                                baseInstance: 0
+//                                primitiveType: GeometryRenderer.Points
+//                                Buffer {
+//                                    id: vertexBuffer
+//                                    type: Buffer.VertexBuffer
+//                                    data: {
+//                                            // Vertices
+//                                            var v0 = Qt.vector3d(-1.0, 0.0, -1.0)
+//                                            var v1 = Qt.vector3d(1.0, 0.0, -1.0)
+//                                            var v2 = Qt.vector3d(0.0, 1.0, 0.0)
+//                                            var v3 = Qt.vector3d(0.0, 0.0, 1.0)
 
-                                            // Face Normals
-                                            function normal(v0, v1, v2) {
-                                                return v1.minus(v0).crossProduct(v2.minus(v0)).normalized();
-                                            }
-                                            var n023 = normal(v0, v2, v3)
-                                            var n012 = normal(v0, v1, v2)
-                                            var n310 = normal(v3, v1, v0)
-                                            var n132 = normal(v1, v3, v2)
+//                                            // Face Normals
+//                                            function normal(v0, v1, v2) {
+//                                                return v1.minus(v0).crossProduct(v2.minus(v0)).normalized();
+//                                            }
+//                                            var n023 = normal(v0, v2, v3)
+//                                            var n012 = normal(v0, v1, v2)
+//                                            var n310 = normal(v3, v1, v0)
+//                                            var n132 = normal(v1, v3, v2)
 
-                                            // Vector normals
-                                            var n0 = n023.plus(n012).plus(n310).normalized()
-                                            var n1 = n132.plus(n012).plus(n310).normalized()
-                                            var n2 = n132.plus(n012).plus(n023).normalized()
-                                            var n3 = n132.plus(n310).plus(n023).normalized()
+//                                            // Vector normals
+//                                            var n0 = n023.plus(n012).plus(n310).normalized()
+//                                            var n1 = n132.plus(n012).plus(n310).normalized()
+//                                            var n2 = n132.plus(n012).plus(n023).normalized()
+//                                            var n3 = n132.plus(n310).plus(n023).normalized()
 
-                                            // Colors
-                                            var red = Qt.vector3d(1.0, 0.0, 0.0)
-                                            var green = Qt.vector3d(0.0, 1.0, 0.0)
-                                            var blue = Qt.vector3d(0.0, 0.0, 1.0)
-                                            var white = Qt.vector3d(1.0, 1.0, 1.0)
+//                                            // Colors
+//                                            var red = Qt.vector3d(1.0, 0.0, 0.0)
+//                                            var green = Qt.vector3d(0.0, 1.0, 0.0)
+//                                            var blue = Qt.vector3d(0.0, 0.0, 1.0)
+//                                            var white = Qt.vector3d(1.0, 1.0, 1.0)
 
-                                            var vertices = [
-                                                        v0, n0, red,
-                                                        v1, n1, blue,
-                                                        v2, n2, green,
-                                                        v3, n3, white
-                                                    ]
+//                                            var vertices = [
+//                                                        v0, n0, red,
+//                                                        v1, n1, blue,
+//                                                        v2, n2, green,
+//                                                        v3, n3, white
+//                                                    ]
 
-                                            var vertexArray = new Float32Array(4 * (3 + 3 + 3));
-                                            var i = 0;
+//                                            var vertexArray = new Float32Array(4 * (3 + 3 + 3));
+//                                            var i = 0;
 
-                                            vertices.forEach(function(vec3) {
-                                                vertexArray[i++] = vec3.x;
-                                                vertexArray[i++] = vec3.y;
-                                                vertexArray[i++] = vec3.z;
-                                            });
+//                                            vertices.forEach(function(vec3) {
+//                                                vertexArray[i++] = vec3.x;
+//                                                vertexArray[i++] = vec3.y;
+//                                                vertexArray[i++] = vec3.z;
+//                                            });
 
-                                            return vertexArray;
-                                        }
-                                }
+//                                            return vertexArray;
+//                                        }
+//                                }
 
-                                geometry:  Geometry {
-                                    Attribute {
-                                        attributeType: Attribute.VertexAttribute
-                                        dataType: Attribute.Float
-                                        dataSize: 3
-                                        byteOffset: 0
-                                        byteStride: 9 * 4
-                                        count: 4
-                                        name: defaultPositionAttributeName()
-                                        buffer: vertexBuffer
-                                    }
+//                                geometry:  Geometry {
+//                                    Attribute {
+//                                        attributeType: Attribute.VertexAttribute
+//                                        dataType: Attribute.Float
+//                                        dataSize: 3
+//                                        byteOffset: 0
+//                                        byteStride: 9 * 4
+//                                        count: 4
+//                                        name: defaultPositionAttributeName()
+//                                        buffer: vertexBuffer
+//                                    }
 
-                                    Attribute {
-                                        attributeType: Attribute.VertexAttribute
-                                        dataType: Attribute.Float
-                                        dataSize: 3
-                                        byteOffset: 3 * 4
-                                        byteStride: 9 * 4
-                                        count: 4
-                                        name: defaultNormalAttributeName()
-                                        buffer: vertexBuffer
-                                    }
+//                                    Attribute {
+//                                        attributeType: Attribute.VertexAttribute
+//                                        dataType: Attribute.Float
+//                                        dataSize: 3
+//                                        byteOffset: 3 * 4
+//                                        byteStride: 9 * 4
+//                                        count: 4
+//                                        name: defaultNormalAttributeName()
+//                                        buffer: vertexBuffer
+//                                    }
 
-                                    Attribute {
-                                        attributeType: Attribute.VertexAttribute
-                                        dataType: Attribute.Float
-                                        dataSize: 3
-                                        byteOffset: 6 * 4
-                                        byteStride: 9 * 4
-                                        count: 4
-                                        name: defaultColorAttributeName()
-                                        buffer: vertexBuffer
-                                    }
-                                }
-                            }
-                        property Material materialPhong: PhongMaterial { }
-                        components: [ customMesh, materialPhong, meshTransform, layerPoints ]
-                    }
+//                                    Attribute {
+//                                        attributeType: Attribute.VertexAttribute
+//                                        dataType: Attribute.Float
+//                                        dataSize: 3
+//                                        byteOffset: 6 * 4
+//                                        byteStride: 9 * 4
+//                                        count: 4
+//                                        name: defaultColorAttributeName()
+//                                        buffer: vertexBuffer
+//                                    }
+//                                }
+//                            }
+//                        property Material materialPhong: PhongMaterial { }
+//                        components: [ customMesh, materialPhong, meshTransform, layerPoints ]
+//                    }
 
 
                     Q3D.Entity {
                         id: sphereEntity
                         property Layer layerSolid: Layer {
-                                names: "solid"
+                                id: solidLayer
                             }
                         property var meshTransform: Q3D.Transform {
                             id: sphereTransform
