@@ -5,6 +5,9 @@ QmlRootTreeModel::QmlRootTreeModel()
 {
 
     m_roleNameMapping[Qt::DisplayRole] = "displayRole";
+    m_roleNameMapping[Qt::ToolTipRole] = "path";
+    m_roleNameMapping[NodeTypeRole] = "type";
+    m_roleNameMapping[Qt::UserRole] = "node";
 }
 
 QmlCheckout *QmlRootTreeModel::root() const
@@ -37,35 +40,39 @@ void QmlRootTreeModel::syncModel()
     syncModel(NULL, root);
 }
 
-void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr)
+void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPath)
 {
     if(si)
     {
-        si->setData(QVariant::fromValue(tr));
+        si->setData(QVariant::fromValue(tr), Qt::UserRole);
     }
     QStringList children(tr->getRefs());
     for(QStringList::const_iterator iter(children.cbegin()); iter != children.cend(); ++iter)
     {
+        QString childFullPath = fullPath + "/" + *iter;
         QStandardItem *csi = new QStandardItem();
         csi->setData(*iter, Qt::DisplayRole);
+        csi->setData(childFullPath, Qt::ToolTipRole);
         QString oid(tr->oidOfRef(*iter));
         QmlTree *tree = m_root->getTree(oid);
-        if(tree == nullptr)
+        if(tree != nullptr && tree->isValid())
         {
-            QmlEntity *ent = m_root->getEntity(oid);
-            if(ent != nullptr)
-            {
-                csi->setData(QVariant::fromValue(ent));
-            }
-            //TODO: conflicts
+            csi->setData(QmlRootTreeModel::TreeNode, NodeTypeRole);
+            syncModel(csi, tree, childFullPath);
         }
         else
         {
-            syncModel(csi, tree);
+            QmlEntity *ent = m_root->getEntity(childFullPath); //TODO: oid would get entity by oid, not path
+            if(ent != nullptr && ent->isValid())
+            {
+                csi->setData(QVariant::fromValue(ent), Qt::UserRole);
+                csi->setData(QmlRootTreeModel::EntityNode, NodeTypeRole);
+            }
+            //TODO: conflicts
         }
         if(si)
         {
-            si->appendRow(csi);
+            si->appendRow( csi );
         }
         else
         {

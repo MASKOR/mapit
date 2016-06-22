@@ -8,8 +8,17 @@ class QmlRootTreeModel : public QStandardItemModel
 {
     Q_OBJECT
     Q_PROPERTY(QmlCheckout *root READ root WRITE setRoot NOTIFY rootChanged)
+    Q_ENUMS(NodeType RootTreeViewRoles)
 
 public:
+    enum NodeType {
+        TreeNode,
+        EntityNode
+    };
+    enum RootTreeViewRoles {
+        NodeTypeRole = Qt::UserRole + 1
+    };
+
     QmlRootTreeModel();
     QmlCheckout* root() const;
 
@@ -17,7 +26,7 @@ public Q_SLOTS:
     void setRoot(QmlCheckout *root);
 
     void syncModel();
-    void syncModel(QStandardItem *si, QmlTree *tr);
+    void syncModel(QStandardItem *si, QmlTree *tr, QString fullPath = "");
 
     QHash<int, QByteArray> roleNames() const;
 Q_SIGNALS:

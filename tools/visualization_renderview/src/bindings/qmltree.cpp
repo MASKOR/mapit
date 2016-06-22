@@ -30,3 +30,8 @@ QString QmlTree::oidOfRef(QString name)
     if(!m_tree) return "";
     return QString::fromStdString(m_tree->refs().at(name.toStdString()).id());
 }
+
+bool QmlTree::isValid() const
+{
+    return m_tree != nullptr;
+}

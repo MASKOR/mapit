@@ -32,7 +32,7 @@ find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 # sudo make install
 
 custom_set_vars_boost()
-find_package(PCL 1.7 REQUIRED COMPONENTS common io filters)
+find_package(PCL REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})

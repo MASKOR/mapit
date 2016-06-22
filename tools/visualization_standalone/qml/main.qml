@@ -163,6 +163,7 @@ ApplicationWindow {
             }
 
             TreeView {
+                id: treeViewCheckout
                 model: UPNS.RootTreeModel {
                     root: checkout
                 }
@@ -170,23 +171,33 @@ ApplicationWindow {
                     role: "displayRole"
                     title: "Name"
                 }
+                TableViewColumn {
+                    id: pathColumn
+                    role: "path"
+                    title: "Path"
+                }
+                onCurrentIndexChanged: console.log(treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole));//treeViewCheckout.currentIndex.data(Qt.ToolTipRole));//treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole))
             }
         }
         Layout.fillWidth: true
 
         MouseArea {
+            id: sceneMouseArea
             Layout.minimumWidth: 50
             Layout.fillWidth: true
             Layout.fillHeight: true
-            onClicked: {
-                scene3d.focus = true
+            hoverEnabled: true
+            property bool mouseOver: true
+            onEntered: mouseOver = true
+            onExited: {
+                mouseOver = false
             }
+
             Scene3D {
                 anchors.fill: parent
                 id: scene3d
                 aspects: ["render", "logic", "input"]
-                focus: true
-
+                focus: parent.mouseOver
                 Q3D.Entity {
                     id: sceneRoot
                     Camera {
@@ -203,7 +214,9 @@ ApplicationWindow {
 
                     FirstPersonCameraController {
                     //OrbitCameraController {
+                        id: cameraController
                         camera: mainCamera
+                        linearSpeed: sceneMouseArea.mouseOver*12.0
                     }
 
                     components: [
@@ -260,7 +273,7 @@ ApplicationWindow {
                         property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
                                 entitydata: UPNS.EntityData {
                                     checkout: checkout
-                                    path: "corridor/laser/eins"
+                                    path: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) == UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""// "corridor/lidar/pc1"
                                 }
                             }
                         property Material materialPoint: Material {
@@ -288,112 +301,6 @@ ApplicationWindow {
                         }
                         components: [ customMesh, materialPoint, meshTransform, layerPoints ]
                     }
-
-//                    Q3D.Entity {
-//                        id: customEntity
-//                        property Layer layerPoints: Layer {
-//                                names: "noneZ"
-//                            }
-//                        property var meshTransform: Q3D.Transform {
-//                                property real userAngle: 0.0
-//                                scale: 10
-//                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
-//                            }
-//                        property GeometryRenderer customMesh: GeometryRenderer {
-//                                instanceCount: 1
-//                                baseVertex: 0
-//                                baseInstance: 0
-//                                primitiveType: GeometryRenderer.Points
-//                                Buffer {
-//                                    id: vertexBuffer
-//                                    type: Buffer.VertexBuffer
-//                                    data: {
-//                                            // Vertices
-//                                            var v0 = Qt.vector3d(-1.0, 0.0, -1.0)
-//                                            var v1 = Qt.vector3d(1.0, 0.0, -1.0)
-//                                            var v2 = Qt.vector3d(0.0, 1.0, 0.0)
-//                                            var v3 = Qt.vector3d(0.0, 0.0, 1.0)
-
-//                                            // Face Normals
-//                                            function normal(v0, v1, v2) {
-//                                                return v1.minus(v0).crossProduct(v2.minus(v0)).normalized();
-//                                            }
-//                                            var n023 = normal(v0, v2, v3)
-//                                            var n012 = normal(v0, v1, v2)
-//                                            var n310 = normal(v3, v1, v0)
-//                                            var n132 = normal(v1, v3, v2)
-
-//                                            // Vector normals
-//                                            var n0 = n023.plus(n012).plus(n310).normalized()
-//                                            var n1 = n132.plus(n012).plus(n310).normalized()
-//                                            var n2 = n132.plus(n012).plus(n023).normalized()
-//                                            var n3 = n132.plus(n310).plus(n023).normalized()
-
-//                                            // Colors
-//                                            var red = Qt.vector3d(1.0, 0.0, 0.0)
-//                                            var green = Qt.vector3d(0.0, 1.0, 0.0)
-//                                            var blue = Qt.vector3d(0.0, 0.0, 1.0)
-//                                            var white = Qt.vector3d(1.0, 1.0, 1.0)
-
-//                                            var vertices = [
-//                                                        v0, n0, red,
-//                                                        v1, n1, blue,
-//                                                        v2, n2, green,
-//                                                        v3, n3, white
-//                                                    ]
-
-//                                            var vertexArray = new Float32Array(4 * (3 + 3 + 3));
-//                                            var i = 0;
-
-//                                            vertices.forEach(function(vec3) {
-//                                                vertexArray[i++] = vec3.x;
-//                                                vertexArray[i++] = vec3.y;
-//                                                vertexArray[i++] = vec3.z;
-//                                            });
-
-//                                            return vertexArray;
-//                                        }
-//                                }
-
-//                                geometry:  Geometry {
-//                                    Attribute {
-//                                        attributeType: Attribute.VertexAttribute
-//                                        dataType: Attribute.Float
-//                                        dataSize: 3
-//                                        byteOffset: 0
-//                                        byteStride: 9 * 4
-//                                        count: 4
-//                                        name: defaultPositionAttributeName()
-//                                        buffer: vertexBuffer
-//                                    }
-
-//                                    Attribute {
-//                                        attributeType: Attribute.VertexAttribute
-//                                        dataType: Attribute.Float
-//                                        dataSize: 3
-//                                        byteOffset: 3 * 4
-//                                        byteStride: 9 * 4
-//                                        count: 4
-//                                        name: defaultNormalAttributeName()
-//                                        buffer: vertexBuffer
-//                                    }
-
-//                                    Attribute {
-//                                        attributeType: Attribute.VertexAttribute
-//                                        dataType: Attribute.Float
-//                                        dataSize: 3
-//                                        byteOffset: 6 * 4
-//                                        byteStride: 9 * 4
-//                                        count: 4
-//                                        name: defaultColorAttributeName()
-//                                        buffer: vertexBuffer
-//                                    }
-//                                }
-//                            }
-//                        property Material materialPhong: PhongMaterial { }
-//                        components: [ customMesh, materialPhong, meshTransform, layerPoints ]
-//                    }
-
 
                     Q3D.Entity {
                         id: sphereEntity

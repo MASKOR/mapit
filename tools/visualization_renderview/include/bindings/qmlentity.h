@@ -12,6 +12,7 @@ public:
     QmlEntity();
     QmlEntity(upns::upnsSharedPointer<upns::Entity> &obj);
 
+    Q_INVOKABLE bool isValid() const;
 protected:
     upns::upnsSharedPointer<upns::Entity> m_entity;
 };

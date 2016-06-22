@@ -13,3 +13,9 @@ QmlEntity::QmlEntity(upns::upnsSharedPointer<upns::Entity> &obj)
 {
 
 }
+
+
+bool QmlEntity::isValid() const
+{
+    return m_entity != nullptr;
+}

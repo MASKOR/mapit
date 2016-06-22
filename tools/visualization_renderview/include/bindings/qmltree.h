@@ -17,6 +17,7 @@ public:
     Q_INVOKABLE QStringList getRefs();
     Q_INVOKABLE QString oidOfRef(QString name);
 
+    Q_INVOKABLE bool isValid() const;
 protected:
     upns::upnsSharedPointer<upns::Tree> m_tree;
 };

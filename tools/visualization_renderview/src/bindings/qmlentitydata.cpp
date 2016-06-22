@@ -57,7 +57,7 @@ void QmlEntitydata::setPath(QString path)
         return;
 
     m_path = path;
-    if( m_checkout && m_checkout->getCheckoutObj() )
+    if( m_checkout && m_checkout->getCheckoutObj() && !m_path.isEmpty() )
     {
         m_entitydata = m_checkout->getCheckoutObj()->getEntitydataReadOnly(m_path.toStdString());
         Q_EMIT internalEntitydataChanged( this );
