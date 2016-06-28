@@ -4,6 +4,7 @@
 #include "upns_globals.h"
 #include "services.pb.h"
 #include "libs/mapmanager/include/abstractentitydata.h"
+#include <functional>
 
 namespace upns
 {

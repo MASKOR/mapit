@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 #find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
 
-
-custom_set_vars_boost()
 find_package(PCL REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -20,7 +18,8 @@ if(WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
 
-use_protobuf()
+find_package(Protobuf)
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
 # TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp

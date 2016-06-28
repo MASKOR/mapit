@@ -9,7 +9,8 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
-use_protobuf()
+find_package(Protobuf)
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -21,6 +22,9 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 custom_set_vars_leveldb()
 include_directories(${LEVELDB_INCLUDE_DIRECTORY})
 
+
+set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
+
 include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
@@ -29,9 +33,9 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES}  ${BOOST_LIBRARIES_ADDITION})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} uuid ${libzip} ${BOOST_LIBRARIES_ADDITION})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
 endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES})

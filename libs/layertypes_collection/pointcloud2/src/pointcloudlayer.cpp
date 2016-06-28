@@ -107,7 +107,7 @@ int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsR
 
 upnsIStream *PointcloudEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 {
-    m_streamProvider->startRead(start, len);
+    return m_streamProvider->startRead(start, len);
 }
 
 void PointcloudEntitydata::endRead(upnsIStream *strm)

@@ -17,7 +17,8 @@ if(WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
 
-use_protobuf()
+find_package(Protobuf)
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LAYERTYPE_ASSET_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h

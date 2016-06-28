@@ -13,6 +13,9 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
 set(CMAKE_AUTOMOC ON)
@@ -31,12 +34,12 @@ find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 # make
 # sudo make install
 
-custom_set_vars_boost()
+#custom_set_vars_boost()
 find_package(PCL REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-set(PCL_REALLY_ALL_LIBRARIES ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
+set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
 
 file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 message("PCL COMMON AND IO" ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})

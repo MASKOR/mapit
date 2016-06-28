@@ -15,7 +15,8 @@ add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
-use_protobuf()
+find_package(Protobuf)
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
 # Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
 # can lead problems resulting from to incompatible ABIs

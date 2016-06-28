@@ -30,25 +30,41 @@ set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
     ${CMAKE_MODULE_PATH}
 )
-include(externals)
+
+include(custom_add_leveldb)
 include(FindLog4cplus)
 
-# These scripts will publish variables to be set (e.g. using cmake-gui).
-# They also publish macros (custom_target_use_XXX(${TARGET}) ) wich add header and libraries to target.
-# If the framework was not found, readable output is given about what to do.
-include(custom_add_boost)
-include(custom_add_log4cplus)
-include(custom_add_protobuf)
-include(custom_add_yamlcpp)
-include(custom_add_leveldb)
-include(custom_add_pcl)
-include(custom_add_assimp)
-include(custom_add_openvdb)
-include(process_protobuf)
 
-custom_set_vars_boost()
+if(WIN32)
+    set(BOOST_ROOT ${BOOST_INCLUDE_DIR} CACHE PATH "Hint for boost libraries")
+    if(MSVC10)
+      SET ( BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-10.0" )
+    endif(MSVC10)
+    if(MSVC12)
+      SET ( BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-12.0" )
+    endif(MSVC12)
+    if(MSVC14)
+      SET ( BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-14.0" )
+    endif(MSVC14)
+    find_library (Boost_CHRONO_LIBRARY_DEBUG libboost_chrono-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_CHRONO_LIBRARY_RELEASE libboost_chrono-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_DATE_TIME_LIBRARY_DEBUG libboost_datetime-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_DATE_TIME_LIBRARY_RELEASE libboost_datetime-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_FILESYSTEM_LIBRARY_DEBUG libboost_filesystem-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_FILESYSTEM_LIBRARY_RELEASE libboost_filesystem-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_IOSTREAMS_LIBRARY_DEBUG libboost_iostreams-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_IOSTREAMS_LIBRARY_RELEASE libboost_iostreams-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_SERIALIZATION_LIBRARY_DEBUG libboost_serialization-vc120-mt-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_SERIALIZATION_LIBRARY_RELEASE libboost_serialization-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_SYSTEM_LIBRARY_DEBUG libboost_system-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_SYSTEM_LIBRARY_RELEASE libboost_system-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_THREAD_LIBRARY_DEBUG libboost_thread-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+    find_library (Boost_THREAD_LIBRARY_RELEASE libboost_thread-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
+endif(WIN32)
+
 find_package(Boost COMPONENTS filesystem system date_time serialization)
 
+link_directories(${Boost_LIBRARY_DIRS})
 set(CMAKE_AUTOMOC ON)
 
 set(UPNS_QTVERSION)
@@ -59,15 +75,8 @@ string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
 if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
     add_definitions("-DUPNS_DEBUG")
 endif()
-# Note: Dependency management is yet a mess. Some projects are contained in externals folder.
-# other projects are downloaded by cmake and installed
-# other projects must be installed on host system
-#find_package(Log4cplus REQUIRED)
-#include_directories( ${LOG4CPLUS_INCLUDE_DIR} )
-
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-
 
 set(DataDir ${PROJECT_SOURCE_DIR}/data)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
@@ -79,7 +88,6 @@ include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 include_directories(${LOG4CPLUS_INCLUDE_DIR})
 include_directories(${UPNS_ROOT_DIR}/externals/include)
-#include_directories(${BOOST_INCLUDE_DIR})
 
 set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
 
@@ -101,46 +109,37 @@ add_subdirectory(tools/checkout_create)
 add_subdirectory(tools/log)
 add_subdirectory(tools/commit)
 add_subdirectory(tools/scripts)
-if(ENABLE_VISUALIZATION)
+
+set(UPNS_ENABLE_VISUALIZATION ON CACHE BOOL "Generate Visualization tools")
+
+if(UPNS_ENABLE_VISUALIZATION)
   #add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_renderview)
   add_subdirectory(tools/visualization_standalone)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
-endif(ENABLE_VISUALIZATION)
+endif(UPNS_ENABLE_VISUALIZATION)
 
-#hunter_add_package(yaml-cpp)
-
-include(ExternalProject) # ExternalProject_Add
-
-set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp/build" CACHE PATH "yaml installation path with lib and include subdir")
-set(YAML_CPP_INCLUDE "${YAML_CPP_INSTALL_DIR}/include" CACHE PATH "yaml include dir")
-set(YAML_CPP_LIB_DIR "${YAML_CPP_INSTALL_DIR}" CACHE PATH "yaml lib dir")
-set(YAML_CPP_LIBRARIES "${YAML_CPP_LIB_DIR}/libyaml-cpp.a" CACHE FILEPATH "yaml lib")
-
-#set(BOOST_ADDITIONAL_LINK_DIRECTORY "somewhere" CACHE PATH "")
-#link_directories(${BOOST_ADDITIONAL_LINK_DIRECTORY})
-#add_subdirectory(externals/yaml-cpp)
-
-#ExternalProject_Add(
-#    yaml-cpp
-#    URL
-#    "https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.tar.gz"
-#    CONFIGURE_COMMAND
-#    ""
-#    BUILD_COMMAND
-#    mkdir -p build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=${YAML_CPP_INSTALL_DIR} .. && make
-#    BUILD_IN_SOURCE
-#    1
-#    INSTALL_COMMAND
-#    cd build && make install
-#)
+if(WIN32)
+    set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp/build" CACHE PATH "yaml installation path with lib and include subdir")
+    set(YAML_CPP_INCLUDE "${PROJECT_SOURCE_DIR}/externals/windows/include" CACHE PATH "yaml include dir")
+    set(YAML_CPP_LIB_DIR "${PROJECT_SOURCE_DIR}/externals/windows/lib-msvc2013-md-64" CACHE PATH "yaml lib dir")
+    find_library(YAML_CPP_LIBRARY_RELEASE libyaml-cppmd.lib PATHS ${YAML_CPP_LIB_DIR} DOC "yaml lib")
+    find_library(YAML_CPP_LIBRARY_DEBUG libyaml-cppmdd.lib PATHS ${YAML_CPP_LIB_DIR} DOC "yaml lib")
+else(WIN32)
+    set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp/build" CACHE PATH "yaml installation path with lib and include subdir")
+    set(YAML_CPP_INCLUDE "${YAML_CPP_INSTALL_DIR}/include" CACHE PATH "yaml include dir")
+    set(YAML_CPP_LIB_DIR "${YAML_CPP_INSTALL_DIR}" CACHE PATH "yaml lib dir")
+    find_library(YAML_CPP_LIBRARY_RELEASE libyaml-cpp.a PATHS ${YAML_CPP_LIB_DIR} DOC "yaml lib")
+    find_library(YAML_CPP_LIBRARY_DEBUG libyaml-cpp.a PATHS ${YAML_CPP_LIB_DIR} DOC "yaml lib")
+    #set(YAML_CPP_LIBRARIES debug ${YAML_LIB_DEBUG} optimized ${YAML_LIB_RELEASE})
+endif(WIN32)
+set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
+#mark_as_advanced(VAR ${YAML_CPP_LIBRARIES})
 
 # Note: QtCreator crashes when text is searched and it starts to search in Gigabytes of Pointclouds
 # make data and resources visible in qtcreator
 #add_custom_target(dataFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})
 add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add resources to qt project. nop" SOURCES ${Resources_All})
-
-#target_link_libraries(${PROJECT_NAME} )
 
 # make qml visible in qtcreator
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir ${PROJECT_SOURCE_DIR}/*.properties)
