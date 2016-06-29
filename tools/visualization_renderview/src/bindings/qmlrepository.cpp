@@ -6,6 +6,12 @@ QmlRepository::QmlRepository()
 
 }
 
+QmlRepository::QmlRepository(QObject *parent)
+    :QObject( parent )
+{
+
+}
+
 QStringList QmlRepository::listCheckoutNames() const
 {
     return checkoutNames();

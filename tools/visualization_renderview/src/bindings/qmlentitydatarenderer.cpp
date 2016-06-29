@@ -5,7 +5,8 @@
 #include "qpointcloud.h"
 
 QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
-    : QGeometryRenderer(parent)
+    : QGeometryRenderer(parent),
+      m_entitydata(NULL)
 {
     QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
     QGeometryRenderer::setGeometry(geometry);

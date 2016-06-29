@@ -21,6 +21,7 @@ class QmlRepository : public QObject
 
 public:
     QmlRepository();
+    QmlRepository(QObject *parent);
     Q_INVOKABLE QmlTree* getTree(QString oid);
     Q_INVOKABLE QmlEntity* getEntity(QString oid);
     Q_INVOKABLE QmlCommit* getCommit(QString oid);

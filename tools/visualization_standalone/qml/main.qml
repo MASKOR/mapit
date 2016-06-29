@@ -25,13 +25,13 @@ ApplicationWindow {
         id: menubar
         //uiEnabled: drawingArea.renderdata.running
     }
-    UPNS.Repository {
-        id: repo
-        conf: "./repo.yaml"
-    }
+//    UPNS.Repository {
+//        id: repo
+//        conf: "./repo.yaml"
+//    }
     UPNS.Checkout {
         id: checkout
-        repository: repo
+        repository: exampleRepo//repo
         name: "testcheckout"
     }
 
@@ -72,7 +72,7 @@ ApplicationWindow {
                         ListView {
                             id: checkoutList
                             delegate: Text {
-                                    text: repo.checkoutNames[index]
+                                    text: exampleRepo.checkoutNames[index]
                                     color: palette.text
                                     MouseArea {
                                         anchors.fill: parent
@@ -80,7 +80,7 @@ ApplicationWindow {
                                     }
                                 }
 
-                            model: repo.checkoutNames
+                            model: exampleRepo.checkoutNames
                             highlight: Rectangle { color: palette.highlight }
 
                             Layout.fillWidth: true
@@ -135,7 +135,7 @@ ApplicationWindow {
                                         enabled: branchnameTextedit.text.trim().length !== 0
                                                  && checkoutnameTextedit.text.trim().length !== 0
                                         onClicked: {
-                                            repo.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
+                                            exampleRepo.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
                                             newCheckoutDialog.visible = false
                                         }
                                         Layout.column: 1
@@ -153,7 +153,7 @@ ApplicationWindow {
                             Button {
                                 text: "Ok"
                                 onClicked: {
-                                    checkout.name = repo.checkoutNames[checkoutList.currentIndex];
+                                    checkout.name = exampleRepo.checkoutNames[checkoutList.currentIndex];
                                     chooseCheckoutDialog.visible = false;
                                 }
                             }

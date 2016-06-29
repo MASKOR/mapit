@@ -54,12 +54,18 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
 upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
                                                                    upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
 {
+    // Layertypes loosly coupled. Name is used to call library to handle concrete datatypes.
     upnsString layerName;
     switch(type)
     {
     case POINTCLOUD2:
     {
         layerName = "layertype_pointcloud2";
+        break;
+    }
+    case POSES:
+    {
+        layerName = "layertype_tf";
         break;
     }
     default:

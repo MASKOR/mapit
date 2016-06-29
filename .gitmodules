@@ -19,3 +19,9 @@
 [submodule "tools/Qt3DPointcloudRenderer"]
 	path = tools/Qt3DPointcloudRenderer
 	url = https://github.com/MASKOR/Qt3DPointcloudRenderer.git
+[submodule "externals/geometry2"]
+	path = externals/geometry2
+	url = https://github.com/ros/geometry2
+[submodule "externals/console_bridge"]
+	path = externals/console_bridge
+	url = https://github.com/ros/console_bridge

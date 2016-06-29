@@ -61,6 +61,10 @@ LevelDBSerializer::LevelDBSerializer(const YAML::Node &config)
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, databaseName, &m_db);
+    if(!status.ok())
+    {
+        log_error("Could not open Database: " + databaseName + ". It might be already open. Only one connection allowed.");
+    }
     assert(status.ok());
 }
 

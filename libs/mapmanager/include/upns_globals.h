@@ -110,7 +110,7 @@ typedef upnsPair<MapIdentifier, StatusCode> StatusPair;
 typedef upnsVec<StatusPair> MapResultsVector;
 
 class OperationDescription;
-typedef upnsPair<const StatusCode, const OperationDescription> OperationResult;
+typedef upnsPair<StatusCode, OperationDescription> OperationResult;
 }
 
 //TODO: remove extern c and modulke stuff here?

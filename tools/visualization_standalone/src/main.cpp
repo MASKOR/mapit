@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickView>
 #include <qqml.h>
+#include <QQmlContext>
 #include <QResource>
 #include <QDebug>
 #include "bindings/qmlmapsrenderviewport.h"
@@ -39,12 +40,61 @@
 #include "bindings/qmlentitydatarenderer.h"
 #include "models/qmlroottreemodel.h"
 
+#include "services.pb.h"
+#include "error.h"
+void createExampleRepo()
+{
+//    YAML::Node config = YAML::Load("mapsource:"
+//                                   " name: MapFileService"
+//                                   " filename: ../test.db");
+    YAML::Node config = YAML::LoadFile("./repo.yaml");
+    upns::Repository repo( config );
+
+    upns::upnsSharedPointer<upns::Checkout> co = repo.createCheckout("master", "testcheckout");
+    if(co == NULL)
+    {
+        co = repo.getCheckout("testcheckout");
+        if(co == NULL)
+        {
+            std::cout << "could not create examole checkout." << std::endl;
+            return;
+        }
+    }
+    upns::OperationDescription desc;
+    desc.set_operatorname("load_pointcloud");
+    desc.set_params("{\"filename\":\"E:/devel/upns_software/data/fh/000001.pcd\", \"target\":\"corridor/laser/eins\"}");
+    log_info("Executing load_pointcloud");
+    upns::OperationResult res = co->doOperation(desc);
+    if(upnsIsOk(res.first))
+    {
+        std::cout << "success." << std::endl;
+    }
+    else
+    {
+        std::cout << "failed to execute operator." << std::endl;
+    }
+    desc.set_operatorname("load_pointcloud");
+    desc.set_params("{\"filename\":\"E:/devel/upns_software/data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
+    log_info("Executing load_pointcloud");
+    upns::OperationResult res2 = co->doOperation(desc);
+    if(upnsIsOk(res2.first))
+    {
+        std::cout << "success." << std::endl;
+    }
+    else
+    {
+        std::cout << "failed to execute operator." << std::endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     log4cplus::PropertyConfigurator config("logging.properties");
     config.configure();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
+
+    createExampleRepo();
 
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
     qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
@@ -68,6 +118,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
     qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
     QQmlApplicationEngine engine;
+    QmlRepository *exampleRepo = new QmlRepository(engine.rootContext());
+    exampleRepo->setConf("./repo.yaml");
+    engine.rootContext()->setContextProperty("exampleRepo", exampleRepo);
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     int result = app.exec();
