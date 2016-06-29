@@ -17,10 +17,11 @@ public:
 
     QMatrix4x4 matrix() const;
 
-public Q_SLOTS:
-
 Q_SIGNALS:
     void matrixChanged(QMatrix4x4 matrix);
+
+private Q_SLOTS:
+    void setMatrix();
 };
 
 #endif

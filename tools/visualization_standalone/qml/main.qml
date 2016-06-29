@@ -1,5 +1,5 @@
 import QtQuick 2.4
-import QtQuick.Controls 1.4
+import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2 as Wnd
 import QtGraphicalEffects 1.0
@@ -15,7 +15,7 @@ import fhac.upns 1.0 as UPNS
 
 import QtQuick 2.0 as QQ2
 
-ApplicationWindow {
+QCtl.ApplicationWindow {
     id: window
     title: qsTr("Map Visualization")
     width: 1200
@@ -40,7 +40,7 @@ ApplicationWindow {
         ColumnLayout {
             id: controlColumn
             Text { text: "PointSize: " + pointSizeSlider.value.toFixed(2) }
-            Slider {
+            QCtl.Slider {
                 id: pointSizeSlider
                 width: 100
                 value: 0.5
@@ -52,7 +52,7 @@ ApplicationWindow {
                 width: controlColumn.width
                 finalTransform: mainCamera.viewMatrix
             }
-            Button {
+            QCtl.Button {
                 text: "Checkout"
                 onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
                 Wnd.Window {
@@ -86,7 +86,7 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                         }
-                        Button {
+                        QCtl.Button {
                             text: "+"
                             onClicked: {
                                 newCheckoutDialog.visible = !newCheckoutDialog.visible
@@ -103,34 +103,34 @@ ApplicationWindow {
                                 title: "Choose Checkout"
                                 color: palette.window
                                 GridLayout {
-                                    Label {
+                                    QCtl.Label {
                                         text: "Branchname"
                                         Layout.column: 0
                                         Layout.row: 0
                                     }
-                                    TextField {
+                                    QCtl.TextField {
                                         id: branchnameTextedit
                                         text: "master"
                                         Layout.column: 1
                                         Layout.row: 0
                                     }
-                                    Label {
+                                    QCtl.Label {
                                         text: "Checkoutname"
                                         Layout.column: 0
                                         Layout.row: 1
                                     }
-                                    TextField {
+                                   QCtl. TextField {
                                         id: checkoutnameTextedit
                                         Layout.column: 1
                                         Layout.row: 1
                                     }
-                                    Button {
+                                    QCtl.Button {
                                         text: "Cancel"
                                         onClicked: newCheckoutDialog.visible = false
                                         Layout.column: 0
                                         Layout.row: 2
                                     }
-                                    Button {
+                                    QCtl.Button {
                                         text: "Ok"
                                         enabled: branchnameTextedit.text.trim().length !== 0
                                                  && checkoutnameTextedit.text.trim().length !== 0
@@ -146,11 +146,11 @@ ApplicationWindow {
                         }
                         RowLayout {
                             Layout.fillWidth: true
-                            Button {
+                            QCtl.Button {
                                 text: "Cancel"
                                 onClicked: chooseCheckoutDialog.visible = false
                             }
-                            Button {
+                            QCtl.Button {
                                 text: "Ok"
                                 onClicked: {
                                     checkout.name = exampleRepo.checkoutNames[checkoutList.currentIndex];
@@ -161,22 +161,77 @@ ApplicationWindow {
                     }
                 }
             }
+            QCtl.Action {
+                id: transformAction
+                text: "&Transform"
+                shortcut: "T"
+                //iconName: "edit-copy"
+                enabled: currentEntitydataTransform.path.length > 0
+                //    target: "path/to/target.tf"
+                //    mode: "relative"|"absolute",
+                //    tf: [
+                //      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
+                //      1: {mat: [0: m00_2, ...]},
+                //      2: ...
+                //    ]
+                // }
+                onTriggered: {
+                    console.log("executing");
+                    checkout.doOperation("transform", {
+                        target: currentEntitydataTransform.path,
+                        mode: "absolute",
+                        tf: {
+                            mat:[100,   0,   0,   0,
+                                   0, 100,   0,   0,
+                                   0,   0, 100,   0,
+                                   0,   0,   0,   1]
+                        }
+                    });
+                }
+            }
+            QCtl.Menu {
+                id: contextMenu
+                QCtl.MenuItem {
+                    action: transformAction
+                }
+            }
 
-            TreeView {
+            QCtl.TreeView {
                 id: treeViewCheckout
                 model: UPNS.RootTreeModel {
                     root: checkout
                 }
-                TableViewColumn {
+                QCtl.TableViewColumn {
                     role: "displayRole"
                     title: "Name"
                 }
-                TableViewColumn {
+                QCtl.TableViewColumn {
                     id: pathColumn
                     role: "path"
                     title: "Path"
                 }
                 onCurrentIndexChanged: console.log(treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole));//treeViewCheckout.currentIndex.data(Qt.ToolTipRole));//treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole))
+                rowDelegate: Item {
+                    Rectangle {
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            verticalCenter: parent.verticalCenter
+                        }
+                        height: parent.height
+                        color: styleData.selected ? 'lightblue' : 'white'
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.RightButton
+                            onClicked: {
+                                if (mouse.button === Qt.RightButton)
+                                {
+                                    contextMenu.popup()
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         Layout.fillWidth: true
@@ -266,14 +321,24 @@ ApplicationWindow {
                                 id: pointLayer
                             }
                         property var meshTransform: Q3D.Transform {
-                                property real userAngle: -90.0
-                                scale: 10
-                                rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
+                                id: theMeshTransform
+                                //property real userAngle: -90.0
+                                //scale: 10
+                                //rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
+                                matrix: currentEntitydataTransform.matrix
                             }
+                        UPNS.EntitydataTransform {
+                            id: currentEntitydataTransform
+                            checkout: checkout
+                            property bool addTfToPath: currentEntitydata.path.length > 3 && currentEntitydata.path.lastIndexOf(".tf") !== currentEntitydata.path.length-3
+                            path: currentEntitydata.path + (addTfToPath ? ".tf" : "")
+                            onPathChanged: console.log("New Path of Tf is: " + path)
+                        }
                         property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
                                 entitydata: UPNS.EntityData {
+                                    id: currentEntitydata
                                     checkout: checkout
-                                    path: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) == UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""// "corridor/lidar/pc1"
+                                    path: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""// "corridor/lidar/pc1"
                                 }
                             }
                         property Material materialPoint: Material {

@@ -33,6 +33,7 @@
 #include "bindings/qmltree.h"
 #include "bindings/qmlentity.h"
 #include "bindings/qmlentitydata.h"
+#include "bindings/qmlentitydatatransform.h"
 #include "bindings/qmlbranch.h"
 #include "qpointcloud.h"
 #include "qpointcloudgeometry.h"
@@ -110,6 +111,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlEntity>("fhac.upns", 1, 0, "Entity");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
+
+    qmlRegisterType<QmlEntitydataTransform>("fhac.upns", 1, 0, "EntitydataTransform");
 
     qmlRegisterType<QmlRootTreeModel>("fhac.upns", 1, 0, "RootTreeModel");
 

@@ -1,6 +1,7 @@
 #include "qmlentitydatarenderer.h"
 #include "abstractentitydata.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
+#include "libs/layertypes_collection/tf/include/tflayer.h"
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
 
@@ -62,7 +63,11 @@ void QmlEntitydataRenderer::updateGeometry()
     case upns::OPENVDB:
         break;
     case upns::POSES:
+    {
+        QMatrix4x4 mat = *upns::static_pointer_cast< TfEntitydata >(ed)->getData();
+        qDebug() << mat;
         break;
+    }
     case upns::NONE:
     default:
         break;

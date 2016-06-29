@@ -27,7 +27,7 @@ public Q_SLOTS:
     void setPath(QString path);
 
 Q_SIGNALS:
-    void updated(); // TODO: fire, not tested
+    void updated();
     void checkoutChanged(QmlCheckout* checkout);
     void pathChanged(QString path);
 

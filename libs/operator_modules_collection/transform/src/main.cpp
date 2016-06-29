@@ -47,26 +47,37 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
+    bool newlyCreated = false; // In this case, there will be no tf to read
     // Get Target
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
-    if(abstractEntityData == NULL)
+    upnsSharedPointer<Entity> tfEntity = env->getCheckout()->getEntity(target);
+    if(tfEntity == NULL)
     {
-        // If target could not be received, create new entity and try again
-        upnsSharedPointer<Entity> tfEntity(new Entity);
+        // If target could not be received, create new entity
+        tfEntity = upnsSharedPointer<Entity>(new Entity);
         tfEntity->set_type(POSES);
         StatusCode s = env->getCheckout()->storeEntity(target, tfEntity);
         if(!upnsIsOk(s))
         {
             log_error("Failed to create entity.");
+            return UPNS_STATUS_ERR_UNKNOWN;
         }
-        abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
+        newlyCreated = true;
     }
+    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
     if(abstractEntityData == NULL)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
     upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntityData );
-    TfMatPtr tf = entityData->getData();
+    TfMatPtr tf;
+    if(newlyCreated)
+    {
+        tf = TfMatPtr(new TfMat);
+    }
+    else
+    {
+        tf = entityData->getData();
+    }
 
     std::string mode = params["mode"].toString().toStdString();
 

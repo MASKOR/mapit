@@ -10,6 +10,8 @@ if(WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
 
+include(FindLog4cplus)
+
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
@@ -28,7 +30,7 @@ target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
 
 
-target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface)
+target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface ${LOG4CPLUS_LIBRARIES})
 qt5_use_modules(${PROJECT_NAME} Core Gui)
 
 

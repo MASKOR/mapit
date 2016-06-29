@@ -1,5 +1,5 @@
 #include "qmlcheckout.h"
-
+#include "error.h"
 
 QmlCheckout::QmlCheckout()
     :m_checkout( NULL ),
@@ -22,7 +22,16 @@ QmlCheckout::QmlCheckout(upns::upnsSharedPointer<upns::Checkout> &co, QmlReposit
 
 QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
 {
-    if(!m_checkout) return "";
+    if(!m_checkout) return "not initialized, too early";
+    QJsonDocument doc(desc);
+    QString strJson(doc.toJson(QJsonDocument::Compact));
+    upns::OperationDescription descript;
+    descript.set_operatorname(operatorname.toStdString());
+    descript.set_params(strJson.toStdString());
+    upns::OperationResult res = m_checkout->doOperation(descript);
+    if(upnsIsOk(res.first)) return "error";
+    //TODO Q_EMIT something changed()
+    // TODO: wrap operation result.
     return "";
 }
 

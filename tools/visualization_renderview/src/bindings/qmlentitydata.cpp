@@ -31,6 +31,7 @@ QmlCheckout *QmlEntitydata::checkout() const
 
 void QmlEntitydata::setCheckout(QmlCheckout *checkout)
 {
+    bool changed = false;
     if (m_checkout != checkout)
     {
         if(m_checkout)
@@ -43,11 +44,17 @@ void QmlEntitydata::setCheckout(QmlCheckout *checkout)
             connect(m_checkout, &QmlCheckout::intenalCheckoutChanged, this, &QmlEntitydata::setCheckout);
         }
         Q_EMIT checkoutChanged(checkout);
+        changed = true;
     }
     if( !m_path.isEmpty() && m_checkout->getCheckoutObj() )
     {
         m_entitydata = m_checkout->getCheckoutObj()->getEntitydataReadOnly(m_path.toStdString());
         Q_EMIT internalEntitydataChanged( this );
+        changed = true;
+    }
+    if(changed)
+    {
+        Q_EMIT updated();
     }
 }
 
@@ -59,8 +66,13 @@ void QmlEntitydata::setPath(QString path)
     m_path = path;
     if( m_checkout && m_checkout->getCheckoutObj() && !m_path.isEmpty() )
     {
-        m_entitydata = m_checkout->getCheckoutObj()->getEntitydataReadOnly(m_path.toStdString());
-        Q_EMIT internalEntitydataChanged( this );
+        upns::upnsSharedPointer<upns::Entity> e = m_checkout->getCheckoutObj()->getEntity(m_path.toStdString());
+        if(e)
+        {
+            m_entitydata = m_checkout->getCheckoutObj()->getEntitydataReadOnly(m_path.toStdString());
+            Q_EMIT internalEntitydataChanged( this );
+        }
     }
     Q_EMIT pathChanged(path);
+    Q_EMIT updated();
 }

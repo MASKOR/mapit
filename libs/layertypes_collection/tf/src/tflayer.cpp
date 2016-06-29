@@ -12,14 +12,19 @@ void readTfFromStream(upnsIStream &in, TfMat &tfout )
     upns::Transform tf;
     if(!tf.ParseFromIstream(&in))
     {
-        assert(false);
+        log_warn("Could not read tranform from stream. Proceeding with identity");
+        //assert(false);
+        tfout.setToIdentity();
     }
-    float *d = tfout.data();
-    d[0] = tf.m00(); d[1] = tf.m01(); d[2] = tf.m02(); d[3] = tf.m03();
-    d[4] = tf.m10(); d[5] = tf.m11(); d[6] = tf.m12(); d[7] = tf.m13();
-    d[8] = tf.m20(); d[9] = tf.m21(); d[10]= tf.m22(); d[11]= tf.m23();
-    d[12]= tf.m30(); d[13]= tf.m31(); d[14]= tf.m32(); d[15]= tf.m33();
-    tfout.optimize();
+    else
+    {
+        float *d = tfout.data();
+        d[0] = tf.m00(); d[1] = tf.m01(); d[2] = tf.m02(); d[3] = tf.m03();
+        d[4] = tf.m10(); d[5] = tf.m11(); d[6] = tf.m12(); d[7] = tf.m13();
+        d[8] = tf.m20(); d[9] = tf.m21(); d[10]= tf.m22(); d[11]= tf.m23();
+        d[12]= tf.m30(); d[13]= tf.m31(); d[14]= tf.m32(); d[15]= tf.m33();
+        tfout.optimize();
+    }
 }
 void writeTfToStream(upnsOStream &out, TfMat &data )
 {
@@ -29,6 +34,7 @@ void writeTfToStream(upnsOStream &out, TfMat &data )
     tf.set_m10(d[4] ); tf.set_m11(d[5] ); tf.set_m12(d[6] ); tf.set_m13(d[7] );
     tf.set_m20(d[8] ); tf.set_m21(d[9] ); tf.set_m22(d[10]); tf.set_m23(d[11]);
     tf.set_m30(d[12]); tf.set_m31(d[13]); tf.set_m32(d[14]); tf.set_m33(d[15]);
+    tf.SerializePartialToOstream(&out);
 }
 
 TfEntitydata::TfEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
