@@ -63,7 +63,7 @@ void createExampleRepo()
     }
     upns::OperationDescription desc;
     desc.set_operatorname("load_pointcloud");
-    desc.set_params("{\"filename\":\"E:/devel/upns_software/data/fh/000001.pcd\", \"target\":\"corridor/laser/eins\"}");
+    desc.set_params("{\"filename\":\"data/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}");
     log_info("Executing load_pointcloud");
     upns::OperationResult res = co->doOperation(desc);
     if(upnsIsOk(res.first))
@@ -75,7 +75,7 @@ void createExampleRepo()
         std::cout << "failed to execute operator." << std::endl;
     }
     desc.set_operatorname("load_pointcloud");
-    desc.set_params("{\"filename\":\"E:/devel/upns_software/data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
+    desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
     log_info("Executing load_pointcloud");
     upns::OperationResult res2 = co->doOperation(desc);
     if(upnsIsOk(res2.first))

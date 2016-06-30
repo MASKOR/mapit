@@ -42,12 +42,16 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
+  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES})
+if(WIN32)
+    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
+else(WIN32)
+    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+endif(WIN32)
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs

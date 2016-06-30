@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     logconfig.configure();
     log4cplus::SharedAppenderPtr consoleAppender(new log4cplus::ConsoleAppender());
     consoleAppender->setName("myAppenderName");
-    consoleAppender->setLayout(std::auto_ptr<log4cplus::Layout>(new log4cplus::TTCCLayout()));
+    //consoleAppender->setLayout(std::auto_ptr<log4cplus::Layout>(new log4cplus::TTCCLayout()));
     log4cplus::Logger mainLogger = log4cplus::Logger::getInstance("main");
     mainLogger.addAppender(consoleAppender);
     if(argc != 3)

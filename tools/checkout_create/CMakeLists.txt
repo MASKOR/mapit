@@ -27,8 +27,11 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 custom_set_vars_leveldb()
 include_directories(${LEVELDB_INCLUDE_DIRECTORY})
 
-
-set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
+if(WIN32)
+    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
+else(WIN32)
+    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+endif(WIN32)
 
 include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -43,12 +46,12 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} )
+  target_link_libraries(${PROJECT_NAME} )
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
+  target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs

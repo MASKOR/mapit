@@ -25,8 +25,8 @@ INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} ${PCL_CUSTOM_SRC} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES}  )
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} )
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})

@@ -219,7 +219,7 @@ QCtl.ApplicationWindow {
                             verticalCenter: parent.verticalCenter
                         }
                         height: parent.height
-                        color: styleData.selected ? 'lightblue' : 'white'
+                        color: styleData.selected ? palette.highlight : palette.base
                         MouseArea {
                             anchors.fill: parent
                             acceptedButtons: Qt.RightButton

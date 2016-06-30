@@ -11,11 +11,17 @@ project(upns)
 cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
-set (CMAKE_CXX_STANDARD 11)
+#set (CMAKE_CXX_STANDARD 14)
+
+message("DBGSTART")
+
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+        message(WARNING "WARNING: In-Place Build not recommended.")
+endif()
 
 if(NOT WIN32)
 # c++11 for grpc dependencies
-add_definitions(-std=c++11)
+#add_definitions(-std=c++11)
 endif(NOT WIN32)
 
 add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
@@ -33,6 +39,7 @@ set(CMAKE_MODULE_PATH
 
 include(custom_add_leveldb)
 include(FindLog4cplus)
+include(FindYamlCpp)
 
 
 if(WIN32)
@@ -89,7 +96,7 @@ include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 include_directories(${LOG4CPLUS_INCLUDE_DIR})
 include_directories(${UPNS_ROOT_DIR}/externals/include)
 
-set(UPNS_INTERFACE_INCLUDE ${PROJECT_SOURCE_DIR}/libs/upns_interface/generated/)
+set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
 set(ENABLE_VISUALIZATION false CACHE BOOL "Generate visualization projects. This may introduce hard to statisfy dependecies.")
 
@@ -133,7 +140,11 @@ else(WIN32)
     find_library(YAML_CPP_LIBRARY_DEBUG libyaml-cpp.a PATHS ${YAML_CPP_LIB_DIR} DOC "yaml lib")
     #set(YAML_CPP_LIBRARIES debug ${YAML_LIB_DEBUG} optimized ${YAML_LIB_RELEASE})
 endif(WIN32)
-set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
+if(WIN32)
+    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
+else(WIN32)
+    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+endif(WIN32)
 #mark_as_advanced(VAR ${YAML_CPP_LIBRARIES})
 
 # Note: QtCreator crashes when text is searched and it starts to search in Gigabytes of Pointclouds

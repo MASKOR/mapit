@@ -20,7 +20,13 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
     {
         return QMatrix4x4();
     }
-    upns::upnsSharedPointer<upns::AbstractEntityData> abstractEntityData = QmlEntitydata::checkout()->getCheckoutObj()->getEntitydataReadOnly(path().toStdString());
+    upns::upnsSharedPointer<upns::Checkout> co = QmlEntitydata::checkout()->getCheckoutObj();
+    upnsString p = path().toStdString();
+    if(!co->getEntity(p))
+    {
+        return QMatrix4x4();
+    }
+    upns::upnsSharedPointer<upns::AbstractEntityData> abstractEntityData = co->getEntitydataReadOnly(p);
     if(abstractEntityData == NULL)
     {
         log_error("Wrong path given in qml for transform entity");

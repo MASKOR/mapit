@@ -18,8 +18,12 @@ include_directories(${YAML_CPP_INCLUDE})
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
-set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
-
+find_package(YamlCpp)
+if(WIN32)
+    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
+else(WIN32)
+    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+endif(WIN32)
 #file(GLOB_RECURSE UPNS_TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 #add_executable(${PROJECT_NAME} ${SRC_LIST} ${UPNS_TEST_SOURCES} )
@@ -58,9 +62,14 @@ FOREACH(subdir ${SUBDIRS})
   SET(AllUnitTestH ${AllUnitTestH} ${CurrentUnitTestH})
   SET(AllUnitTestCPP ${AllUnitTestCPP} ${CurrentUnitTestCPP})
 
-  add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} ${PCL_CUSTOM_SRC})
+  add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
+  if(WIN32)
   target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud
-                                  ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES} ${YAML_CPP_LIBRARIES})
+                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${YAML_CPP_LIBRARIES})
+  else()
+  target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud
+                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} /home/dbulla/develop/upns_software/externals/yaml-cpp/build/libyaml-cpp.a)   # Todo: find a fucking working cmake alternative
+  endif()
 
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
@@ -90,11 +99,11 @@ FOREACH(subdir ${SUBDIRS})
 #)
 ENDFOREACH()
 
-add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} ${PCL_CUSTOM_SRC} )
+add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP}  )
 #custom_target_use_boost(${subdir})
 find_package(Boost COMPONENTS filesystem system date_time)
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface layertype_pointcloud2 load_pointcloud
-                              ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${BOOST_LIBRARIES} ${YAML_CPP_LIBRARIES})
+                              ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${YAML_CPP_LIBRARIES})
 #if(WIN32)
 #target_link_libraries(TestAll
 #    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib

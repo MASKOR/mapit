@@ -38,9 +38,9 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 #target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
 #target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} dl ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} dl ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 endif(WIN32)
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib

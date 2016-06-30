@@ -16,10 +16,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 
-INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
+include_directories( ${UPNS_ROOT_DIR}/libs/mapmanager/include ) # TODO: introduce var.
+include_directories(${UPNS_INTERFACE_INCLUDE})
 
-find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
-find_package(Qt5Widgets ${UPNS_QTVERSION} REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
@@ -43,13 +44,19 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Widgets)
+
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
+  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} uuid ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES})
+if(WIN32)
+    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
+else(WIN32)
+    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+endif(WIN32)
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/data

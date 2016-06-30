@@ -89,17 +89,17 @@ add_library(${PROJECT_NAME}  ${SRC_LIST}
                                 ${TesEvalShader}
                                 ${GeometryShader}
                                 ${GlslIncludeShader}
-                                ${PCL_CUSTOM_SRC}
+
                                 ${UPNS_VIZ_PUBLIC_HEADER})
 
 add_custom_target(resourceFilesVizRenderview ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
 if(WIN32)
-#target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb)
-target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
+#target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb)
+target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OCULUSVR_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB})
+  target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES})
 endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager Qt3DPointcloudRenderer)

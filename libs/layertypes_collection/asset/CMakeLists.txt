@@ -24,8 +24,8 @@ file(GLOB_RECURSE LAYERTYPE_ASSET_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_ASSET_SOURCES} ${PCL_CUSTOM_SRC} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PCL_CUSTOM_LIB} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_ASSET_SOURCES}  )
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} )
 
 #custom_target_use_boost(${subdir})
 find_package(Boost COMPONENTS serialization)
