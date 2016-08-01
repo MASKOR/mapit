@@ -57,6 +57,9 @@ public:
     upnsIStream *startReadBytes(upnsuint64 start, upnsuint64 len);
     void endRead(upnsIStream *strm);
 
+    upnsOStream *startWriteBytes(upnsuint64 start, upnsuint64 len);
+    void endWrite(upnsOStream *strm);
+
 private:
     upnsSharedPointer<AbstractEntityDataStreamProvider> m_streamProvider;
     TfMatPtr m_tf;

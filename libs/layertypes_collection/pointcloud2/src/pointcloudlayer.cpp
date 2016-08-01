@@ -115,6 +115,16 @@ void PointcloudEntitydata::endRead(upnsIStream *strm)
     m_streamProvider->endRead(strm);
 }
 
+upnsOStream *PointcloudEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+{
+    return m_streamProvider->startWrite(start, len);
+}
+
+void PointcloudEntitydata::endWrite(upnsOStream *strm)
+{
+    m_streamProvider->endWrite(strm);
+}
+
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done

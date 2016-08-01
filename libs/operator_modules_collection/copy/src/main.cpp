@@ -27,7 +27,34 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     upns::StatusCode s;
     if(srcEnt)
     {
+        // Note: Only the entity is copied, it's new data is empty (because transient path is used to identify entities data)
         s = env->getCheckout()->storeEntity(target, srcEnt);
+
+        if(!upnsIsOk(s))
+        {
+            log_error("Could not copy \"" + source + "\" to \"" + target + "\"");
+        }
+        else
+        {
+            upns::upnsSharedPointer<upns::AbstractEntityData> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
+            upns::upnsSharedPointer<upns::AbstractEntityData> aedTarget = env->getCheckout()->getEntityDataForReadWrite(target);
+            upns::upnsIStream *is = aedSource->startReadBytes();
+            upns::upnsOStream *os = aedTarget->startWriteBytes();
+
+            os->seekp(std::ios::beg);
+            char buffer[1024];
+            while(is->read(buffer, 1024)) {
+                std::streamsize size=is->gcount();
+                os->write(buffer, size);
+            }
+            std::streamsize size=is->gcount();
+            if(size > 0)
+            {
+                os->write(buffer, size);
+            }
+            aedTarget->endWrite(os);
+            aedSource->endRead(is);
+        }
     }
     else
     {
