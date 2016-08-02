@@ -61,7 +61,8 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
     virtual StatusCode removeBranch(const upnsString &name);
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite);
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.

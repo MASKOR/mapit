@@ -1,7 +1,7 @@
 #include "fs_serializer.h"
 #include "upns.h"
 #include "util.h"
-#include "fs_entitydatastreamprovider.h"
+//#include "fs_entitydatastreamprovider.h"
 #include <assert.h>
 #include <services.pb.h>
 #include <stdlib.h>
@@ -112,7 +112,7 @@ namespace upns
   upnsSharedPointer<Tree>
   FSSerializer::getTree(const ObjectId &oid)
   {
-    fs::path path(_PREFIX_TREE_ + oid);
+    fs::path path( repo_ / fs::path( _PREFIX_CHECKOUTS_ ) / oid);
 
     if ( ! fs::exists( path ) ) {
       return upnsSharedPointer<Tree>(NULL);
@@ -152,7 +152,7 @@ namespace upns
   upnsPair<StatusCode, ObjectId>
   FSSerializer::storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId)
   {
-    fs::path path = repo_ / fs::path( _PREFIX_CHECKOUTS_ ) /fs::path( transientId );
+    fs::path path = repo_ / fs::path( _PREFIX_CHECKOUTS_ ) / fs::path( transientId );
     fs_check_create( path );
 
     path /= fs::path(".tree");
@@ -184,17 +184,17 @@ namespace upns
   }
 
   upnsSharedPointer<Entity>
-  FSSerializer::getEntityTransient(const ObjectId oid)
+  FSSerializer::getEntityTransient(const Path path)
   {
     //TODO
-    fs::path path = repo_ / fs::path(_PREFIX_CHECKOUTS_) / fs::path(oid);
+    fs::path p = repo_ / fs::path(_PREFIX_CHECKOUTS_) / fs::path(path);
 
-    if ( ! fs::exists( path.parent_path() ) ) {
+    if ( ! fs::exists( p.parent_path() ) ) {
       return upnsSharedPointer<Entity>(NULL);
     }
 
     upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    fs_read(p, entry);
 
     return upnsSharedPointer<Entity>(new Entity( entry->entity() ));
   }
@@ -379,9 +379,16 @@ namespace upns
   }
 
   upnsSharedPointer<AbstractEntityDataStreamProvider>
-  FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
+  FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
   {
-    //TODO
+    //TODO: Get entity data by oid. Might be a file with name "entityId" in folder "_PREFIX_ENTITYDATA"?
+    return upnsSharedPointer<AbstractEntityDataStreamProvider>( );
+  }
+
+  upnsSharedPointer<AbstractEntityDataStreamProvider>
+  FSSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
+  {
+    //TODO: Get entity data by path. Might be a file at path "_PREFIX_CHECKOUT" / "path"?
     return upnsSharedPointer<AbstractEntityDataStreamProvider>( );
   }
 

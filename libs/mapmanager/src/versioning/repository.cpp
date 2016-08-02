@@ -32,7 +32,7 @@ class RepositoryPrivate
                 if(mapsrcnam == "mapfileservice")
                 {
                     //m_serializer = new LevelDBSerializer(mapsource);
-                    m_p->m_serializer = new FSSerializer(mapsource);
+                    m_serializer = new FSSerializer(mapsource);
                 } else {
                     log_error("mapsource '" + mapsrcnam + "' was not found.");
                 }
@@ -160,7 +160,7 @@ upnsSharedPointer<AbstractEntityData> Repository::getEntityDataReadOnly(const Ob
 {
     // For entitydata it is not enough to call serializer directly.
     // Moreover special classes need to be created by layertype plugins.
-    return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true, false);
+    return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true);
 }
 
 upnsSharedPointer<Checkout> Repository::getCheckout(const upnsString &checkoutName)

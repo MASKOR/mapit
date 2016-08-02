@@ -162,17 +162,17 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
-    return EntityStreamManager::getEntityDataImpl(m_serializer, oidForPath(path), true, false);
+    return EntityStreamManager::getEntityDataFromPathImpl(m_serializer, path, true, false);
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
 {
-    return EntityStreamManager::getEntityDataImpl(m_serializer, entityId, false, true);
+    return EntityStreamManager::getEntityDataImpl(m_serializer, entityId, true);
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(const Path &path)
 {
-    return EntityStreamManager::getEntityDataImpl(m_serializer, oidForPath(path), true, true);
+    return EntityStreamManager::getEntityDataFromPathImpl(m_serializer, path, true, true);
 }
 
 StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)

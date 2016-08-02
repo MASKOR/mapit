@@ -75,16 +75,29 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
     return wrapEntityOfType( layerName, streamProvider );
 }
 
-upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataImpl(AbstractMapSerializer* serializer, const ObjectId &entityId, bool canRead, bool canWrite)
+upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataImpl(AbstractMapSerializer* serializer, const ObjectId &entityId, bool canRead)
 {
-    upnsSharedPointer<Entity> ent = serializer->getEntityTransient( entityId );
+    upnsSharedPointer<Entity> ent = serializer->getEntity( entityId );
     if( ent == NULL )
     {
         log_error("Entity not found." + entityId);
         return NULL;
     }
     assert( ent );
-    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), serializer->getStreamProvider(entityId, canRead, canWrite) ) ;
+    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), serializer->getStreamProvider(entityId, canRead/*, canWrite*/) ) ;
+    return edata;
+}
+
+upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataFromPathImpl(AbstractMapSerializer* serializer, const Path &path, bool canRead, bool canWrite)
+{
+    upnsSharedPointer<Entity> ent = serializer->getEntityTransient( path );
+    if( ent == NULL )
+    {
+        log_error("Entity not found." + path);
+        return NULL;
+    }
+    assert( ent );
+    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), serializer->getStreamProviderTransient(path, canRead, canWrite) ) ;
     return edata;
 }
 

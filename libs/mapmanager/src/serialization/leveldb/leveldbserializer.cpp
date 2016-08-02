@@ -431,7 +431,7 @@ std::string LevelDBSerializer::keyOfBranch(const upnsString &name) const
     return strstr.str();
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
+upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
     //TODO: ensure readOnly and store booleans
     std::string writekey(keyOfEntityData(entityId));
@@ -457,6 +457,12 @@ upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStream
         }
     }
     return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, readkey, writekey));
+}
+
+upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
+{
+    //TODO: Review. Path is equal to oid here! May be mixed up a bit.
+    return LevelDBSerializer::getStreamProvider(path, canRead);
 }
 
 StatusCode LevelDBSerializer::cleanUp()

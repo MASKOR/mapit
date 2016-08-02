@@ -21,7 +21,8 @@ class AbstractMapSerializer;
 class EntityStreamManager
 {
 public:
-    static upnsSharedPointer<AbstractEntityData> getEntityDataImpl(AbstractMapSerializer *serializer, const ObjectId &entityId, bool canRead, bool canWrite);
+    static upnsSharedPointer<AbstractEntityData> getEntityDataImpl(AbstractMapSerializer *serializer, const ObjectId &entityId, bool canRead/*, bool canWrite*/);
+    static upnsSharedPointer<AbstractEntityData> getEntityDataFromPathImpl(AbstractMapSerializer *serializer, const Path &path, bool canRead, bool canWrite);
 };
 
 }

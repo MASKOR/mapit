@@ -55,7 +55,7 @@ namespace upns
     virtual StatusCode removeTree(const ObjectId &oid);
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid);
-    virtual upnsSharedPointer<Entity> getEntityTransient(const ObjectId oid);
+    virtual upnsSharedPointer<Entity> getEntityTransient(const Path path);
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj);
     virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId);
     //virtual StatusCode createEntityTransient(upnsSharedPointer<Entity> &obj);
@@ -79,7 +79,8 @@ namespace upns
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
     virtual StatusCode removeBranch(const upnsString &name);
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite);
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
