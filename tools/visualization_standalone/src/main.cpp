@@ -46,7 +46,7 @@
 void createExampleRepo()
 {
 //    YAML::Node config = YAML::Load("mapsource:"
-//                                   " name: MapFileService"
+//                                   " name: FileSystem"
 //                                   " filename: ../test.db");
     YAML::Node config = YAML::LoadFile("./repo.yaml");
     upns::Repository repo( config );

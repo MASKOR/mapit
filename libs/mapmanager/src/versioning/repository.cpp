@@ -29,11 +29,17 @@ class RepositoryPrivate
                 std::string mapsrcnam = mapsourceName.as<std::string>();
                 std::transform(mapsrcnam.begin(), mapsrcnam.end(), mapsrcnam.begin(), ::tolower);
                 AbstractMapSerializer *mser = NULL;
-                if(mapsrcnam == "mapfileservice")
+                if(mapsrcnam == "leveldb")
                 {
+                    //TODO: Linker Error: SHA multiple definitions (whn the following line is uncommented)
                     //m_serializer = new LevelDBSerializer(mapsource);
+                }
+                else if(mapsrcnam == "filesystem")
+                {
                     m_serializer = new FSSerializer(mapsource);
-                } else {
+                }
+                else
+                {
                     log_error("mapsource '" + mapsrcnam + "' was not found.");
                 }
             } else {

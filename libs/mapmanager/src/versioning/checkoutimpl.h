@@ -90,8 +90,9 @@ private:
      */
     ObjectId oidForPath(const Path &path);
 
-    // helper, used to ensure slashes at beginning and end
+    // helper, used to ensure slashes/no slashes at beginning and end
     Path preparePath(const Path &path);
+    Path preparePathFilename(const Path &path);
 
     /**
      * @brief createPath If checkout wants to write to a path, it must be created. The leaf can be a tree or entity. This is not a trivial function, but should be easy to use from the outside.

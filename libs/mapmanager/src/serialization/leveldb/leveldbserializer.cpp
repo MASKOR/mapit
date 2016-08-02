@@ -212,6 +212,12 @@ upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
     return ret;
 }
 
+upnsSharedPointer<Entity> LevelDBSerializer::getEntityTransient(const Path path)
+{
+    upnsSharedPointer<Entity> ret = getObject<Entity>( keyOfEntity( path ) );
+    return ret;
+}
+
 upnsPair<StatusCode, ObjectId> LevelDBSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
 {
     ObjectId oid = ::upns::hash_toString(obj.get());

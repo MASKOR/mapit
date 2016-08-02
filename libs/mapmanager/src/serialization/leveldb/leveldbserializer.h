@@ -38,6 +38,7 @@ public:
     virtual StatusCode removeTree(const ObjectId &oid);
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid);
+    virtual upnsSharedPointer<Entity> getEntityTransient(const Path path);
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj);
     virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId);
     //virtual StatusCode createEntityTransient(upnsSharedPointer<Entity> &obj);

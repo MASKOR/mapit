@@ -87,13 +87,28 @@ upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
     {
         p = p.substr(m_name.size(), p.length()-m_name.size());
     }
+    // Try to get a transient tree
+    upnsSharedPointer<Tree> tree = m_serializer->getTreeTransient(m_name + "/" + p);
+    if(tree) return tree;
+
+    // if tree is not transient, get from repo
     ObjectId oid = oidForPath(p);
     return m_serializer->getTree(oid);
 }
 
 upnsSharedPointer<Entity> CheckoutImpl::getEntity(const Path &path)
 {
-    ObjectId oid = oidForPath(path);
+    Path p(preparePath(path));
+    if(p.compare(0, m_name.size(), m_name) == 0)
+    {
+        p = p.substr(m_name.size(), p.length()-m_name.size());
+    }
+    // Try to get a transient entity
+    upnsSharedPointer<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p);
+    if(ent) return ent;
+
+    // if entity is not transient, get from repo
+    ObjectId oid = oidForPath(p);
     return m_serializer->getEntity(oid);
 }
 
@@ -162,7 +177,8 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
-    return EntityStreamManager::getEntityDataFromPathImpl(m_serializer, path, true, false);
+    Path p(m_name + "/" + preparePathFilename(path));
+    return EntityStreamManager::getEntityDataFromPathImpl(m_serializer, p, true, false);
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
@@ -172,13 +188,12 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflic
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(const Path &path)
 {
-    return EntityStreamManager::getEntityDataFromPathImpl(m_serializer, path, true, true);
+    Path p(m_name + "/" + preparePathFilename(path));
+    return EntityStreamManager::getEntityDataFromPathImpl(m_serializer, p, true, true);
 }
 
 StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)
 {
-
-    //return m_serializer->storeTree();
     return createPath(path, tree);
 }
 
@@ -189,7 +204,7 @@ StatusCode CheckoutImpl::storeEntity(const Path &path, upnsSharedPointer<Entity>
 
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 {
-
+    //TODO
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool (upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
@@ -266,6 +281,21 @@ Path CheckoutImpl::preparePath(const Path &path)
     if(p.length() != 0 && p[p.length()-1] != '/')
     {
         p += "/";
+    }
+    return p;
+}
+
+Path CheckoutImpl::preparePathFilename(const Path &path)
+{
+    // path p has no beginning / and no trailing /
+    Path p = path;
+    while(p[0] == '/')
+    {
+        p = p.substr(1);
+    }
+    while(p.length() != 0 && p[p.length()-1] == '/')
+    {
+        p = p.substr(0, p.length()-1);
     }
     return p;
 }
