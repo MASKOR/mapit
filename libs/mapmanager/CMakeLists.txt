@@ -29,9 +29,12 @@ include_directories(${YAML_CPP_INCLUDE})
 file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 file(GLOB UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.cpp
-                                               ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.h)
+                                               ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.h
+                                               ${PROJECT_SOURCE_DIR}/src/sha/*.cpp
+                                               ${PROJECT_SOURCE_DIR}/src/sha/*.h)
 
 add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} ${UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP} )
+#add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} )
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 #Note: Windows (and also linux in some cases?):
 # PCL was linked statically against boost. PCL is linkes statically to layertype.

@@ -1,6 +1,7 @@
 #include "leveldbserializer.h"
 #include "upns.h"
 #include "util.h"
+#include "../hash.h"
 #include "leveldbentitydatastreamprovider.h"
 #include "leveldb/db.h"
 #include <assert.h>
@@ -9,7 +10,6 @@
 #include <time.h>
 #include <algorithm>
 #include "error.h"
-#include "../hash.h"
 
 #include <QDateTime>
 #include <QFileInfo>

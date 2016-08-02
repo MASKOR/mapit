@@ -32,7 +32,7 @@ class RepositoryPrivate
                 if(mapsrcnam == "leveldb")
                 {
                     //TODO: Linker Error: SHA multiple definitions (whn the following line is uncommented)
-                    //m_serializer = new LevelDBSerializer(mapsource);
+                    m_serializer = new LevelDBSerializer(mapsource);
                 }
                 else if(mapsrcnam == "filesystem")
                 {

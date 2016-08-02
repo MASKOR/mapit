@@ -8,7 +8,7 @@
 #include <sstream>
 #include <functional>
 //#include <openssl/sha.h>
-#include <sha256.h>
+#include "../sha/sha256.h"
 
 namespace upns {
 
@@ -25,7 +25,7 @@ namespace upns {
 //void hash(SHA256_CTX *ctx, const Commit::ObjectIdList &t);
 //void hash(SHA256_CTX *ctx, const Commit::ObjectIdPair &t);
 
-ObjectId hash_toString(const std::string &t)
+inline ObjectId hash_toString(const std::string &t)
 {
     return sha256(t);
 //    SHA256_CTX shaCtx;
