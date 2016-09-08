@@ -94,7 +94,7 @@ file(GLOB_RECURSE Resources_All ${ResourceDir}/*)
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 include_directories(${LOG4CPLUS_INCLUDE_DIR})
-include_directories(${UPNS_ROOT_DIR}/externals/include)
+#include_directories(${UPNS_ROOT_DIR}/externals/include) # for sha initially
 
 set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 

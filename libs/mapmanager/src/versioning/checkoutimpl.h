@@ -90,8 +90,9 @@ private:
      */
     ObjectId oidForPath(const Path &path);
 
-    // helper, used to ensure slashes at beginning and end
+    // helper, used to ensure slashes/no slashes at beginning and end
     Path preparePath(const Path &path);
+    Path preparePathFilename(const Path &path);
 
     /**
      * @brief createPath If checkout wants to write to a path, it must be created. The leaf can be a tree or entity. This is not a trivial function, but should be easy to use from the outside.
@@ -180,7 +181,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     {
         // root exists and can exclusively be altered
         ObjectId oid = m_checkout->rollingcommit().root();
-        current = m_serializer->getTree(oid);
+        current = m_serializer->getTreeTransient(oid);
         exclusiveTreePath.push_back( current );
     }
 
@@ -231,7 +232,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // put tree in vector and do nothing
-                    upnsSharedPointer<Tree> tree(m_serializer->getTree(oid));
+                    upnsSharedPointer<Tree> tree(m_serializer->getTreeTransient(oid));
                     if(tree == NULL)
                     {
                         log_error("Segment of path was not a tree");

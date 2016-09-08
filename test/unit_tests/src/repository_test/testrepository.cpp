@@ -28,10 +28,17 @@ void TestRepository::initTestCase()
         bool result = dir.removeRecursively();
         QVERIFY( result );
     }
+    const char* fileSystemName = ".mapit";
+    dir = fileSystemName;
+    if(dir.exists())
+    {
+        bool result = dir.removeRecursively();
+        QVERIFY( result );
+    }
     YAML::Node conf;
     YAML::Node mapsource;
-    mapsource["name"] = "MapFileService";
-    mapsource["filename"] = databaseName;
+    mapsource["name"] = "FileSystem";
+    mapsource["filename"] = fileSystemName;//databaseName;
     conf["mapsource"] = mapsource;
 
     m_repo = new upns::Repository(conf);

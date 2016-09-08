@@ -1,6 +1,7 @@
 #include "leveldbserializer.h"
 #include "upns.h"
 #include "util.h"
+#include "../hash.h"
 #include "leveldbentitydatastreamprovider.h"
 #include "leveldb/db.h"
 #include <assert.h>
@@ -9,7 +10,6 @@
 #include <time.h>
 #include <algorithm>
 #include "error.h"
-#include "../hash.h"
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -156,6 +156,12 @@ StatusCode LevelDBSerializer::storeObject(const std::string &key, upnsSharedPoin
     return storeObject(key, entry.SerializeAsString());
 }
 
+upnsSharedPointer<Tree>
+LevelDBSerializer::getTreeTransient(const ObjectId &transientId)
+{
+  return getTree(transientId);
+}
+
 upnsSharedPointer<Tree> LevelDBSerializer::getTree(const ObjectId &oid)
 {
     upnsSharedPointer<Tree> ret = getObject<Tree>( keyOfTree( oid ) );
@@ -203,6 +209,12 @@ StatusCode LevelDBSerializer::removeTree(const ObjectId &oid)
 upnsSharedPointer<Entity> LevelDBSerializer::getEntity(const ObjectId oid)
 {
     upnsSharedPointer<Entity> ret = getObject<Entity>( keyOfEntity( oid ) );
+    return ret;
+}
+
+upnsSharedPointer<Entity> LevelDBSerializer::getEntityTransient(const Path path)
+{
+    upnsSharedPointer<Entity> ret = getObject<Entity>( keyOfEntity( path ) );
     return ret;
 }
 
@@ -425,7 +437,7 @@ std::string LevelDBSerializer::keyOfBranch(const upnsString &name) const
     return strstr.str();
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
+upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
     //TODO: ensure readOnly and store booleans
     std::string writekey(keyOfEntityData(entityId));
@@ -451,6 +463,12 @@ upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStream
         }
     }
     return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, readkey, writekey));
+}
+
+upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
+{
+    //TODO: Review. Path is equal to oid here! May be mixed up a bit.
+    return LevelDBSerializer::getStreamProvider(path, canRead);
 }
 
 StatusCode LevelDBSerializer::cleanUp()

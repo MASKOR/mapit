@@ -1,16 +1,15 @@
-#ifndef LEVELDBENTITYDATASTREAMPROVIDER_H
-#define LEVELDBENTITYDATASTREAMPROVIDER_H
+#ifndef FS_ENTITYDATASTREAMPROVIDER_H
+#define FS_ENTITYDATASTREAMPROVIDER_H
 
 #include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "leveldb/db.h"
 
 namespace upns
 {
 
-class LevelDBEntityDataStreamProvider : public AbstractEntityDataStreamProvider
+class FileSystemEntityDataStreamProvider : public AbstractEntityDataStreamProvider
 {
 public:
-    LevelDBEntityDataStreamProvider(leveldb::DB *db, const std::string &readkey, const std::string &writekey);
+    FileSystemEntityDataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite);
     bool isCached();
     bool isReadWriteSame();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 len);
@@ -22,9 +21,8 @@ public:
     LockHandle lock();
     void unlock(LockHandle);
 private:
-    leveldb::DB *m_db;
-    std::string m_readkey;
-    std::string m_writekey;
+    std::string m_filenameRead;
+    std::string m_filenameWrite;
 };
 
 }

@@ -24,6 +24,7 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
+    virtual upnsSharedPointer<Tree> getTreeTransient(const ObjectId &transientId) = 0;
     // Note: storing and creating is only distinguished for transient oid (paths). When
     //       Hashes are used, the system does not know if a tree/entity with the same hash
     //       already exists or if it is a new tree/entity
@@ -33,6 +34,7 @@ public:
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
+    virtual upnsSharedPointer<Entity> getEntityTransient(const Path path) = 0;
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj) = 0;
     virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId) = 0;
     //virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj) = 0;
@@ -56,7 +58,9 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name) = 0;
     virtual StatusCode removeBranch(const upnsString &name) = 0;
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true, bool canWrite = false) = 0;
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
+    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
+
 
     virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
