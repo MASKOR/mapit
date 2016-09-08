@@ -85,6 +85,7 @@ FSSerializer::fs_write(fs::path path, std::string value)
 {
     if ( ! fs::exists( path ) ) {
         log_info("Write " + path.string());
+        create_directories(path.parent_path());
 
         std::filebuf buffer;
         buffer.open(path.string(), std::ios::out);

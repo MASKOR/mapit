@@ -347,7 +347,7 @@ upnsPair<StatusCode, ObjectId> CheckoutImpl::storeObject<Tree>(upnsSharedPointer
 template <>
 upnsPair<StatusCode, ObjectId> CheckoutImpl::storeObject<Entity>(upnsSharedPointer<Entity> leafObject, const ObjectId &transId)
 {
-  ObjectId real_id = transId.substr(0, transId.size() - 1 );
+    ObjectId real_id = transId.substr(0, transId.size() - 1 );
     return m_serializer->storeEntityTransient(leafObject, real_id);
 }
 

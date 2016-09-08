@@ -320,6 +320,9 @@ QCtl.ApplicationWindow {
                         property Layer layerPoints: Layer {
                                 id: pointLayer
                             }
+                        property ObjectPicker picker: ObjectPicker {
+                            onClicked: console.log("Clicked pcd", pick.distance, pick.triangleIndex)
+                        }
                         property var meshTransform: Q3D.Transform {
                                 id: theMeshTransform
                                 //property real userAngle: -90.0
@@ -339,6 +342,9 @@ QCtl.ApplicationWindow {
                                     id: currentEntitydata
                                     checkout: checkout
                                     path: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""// "corridor/lidar/pc1"
+                                    onPathChanged: {
+                                        //pointcloud.
+                                    }
                                 }
                             }
                         property Material materialPoint: Material {
@@ -364,7 +370,7 @@ QCtl.ApplicationWindow {
                                 Parameter { name: "height"; value: scene3d.height }
                             ]
                         }
-                        components: [ customMesh, materialPoint, meshTransform, layerPoints ]
+                        components: [ customMesh, materialPoint, meshTransform, layerPoints, picker ]
                     }
 
                     Q3D.Entity {
@@ -372,6 +378,10 @@ QCtl.ApplicationWindow {
                         property Layer layerSolid: Layer {
                                 id: solidLayer
                             }
+                        property ObjectPicker picker: ObjectPicker {
+                            onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
+                        }
+
                         property var meshTransform: Q3D.Transform {
                             id: sphereTransform
                             property real userAngle: 0.0
@@ -382,7 +392,7 @@ QCtl.ApplicationWindow {
                             radius: 4
                         }
                         property Material materialPhong: PhongMaterial { }
-                        components: [ sphereMesh, materialPhong, meshTransform, layerSolid ]
+                        components: [ sphereMesh, materialPhong, meshTransform, layerSolid, picker ]
                     }
                     NumberAnimation {
                         target: sphereTransform
