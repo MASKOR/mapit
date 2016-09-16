@@ -25,3 +25,6 @@
 [submodule "externals/console_bridge"]
 	path = externals/console_bridge
 	url = https://github.com/ros/console_bridge
+[submodule "externals/cppzmq"]
+	path = externals/cppzmq
+	url = https://github.com/zeromq/cppzmq.git

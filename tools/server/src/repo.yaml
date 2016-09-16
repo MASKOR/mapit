@@ -1,0 +1,3 @@
+mapsource:
+  name: FileSystem
+  filename: ../test.db

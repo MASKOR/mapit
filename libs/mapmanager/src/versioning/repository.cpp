@@ -31,7 +31,7 @@ class RepositoryPrivate
                 AbstractMapSerializer *mser = NULL;
                 if(mapsrcnam == "leveldb")
                 {
-                    //TODO: Linker Error: SHA multiple definitions (whn the following line is uncommented)
+                    //TODO: Linker Error: SHA multiple definitions (when the following line is uncommented)
                     m_serializer = new LevelDBSerializer(mapsource);
                 }
                 else if(mapsrcnam == "filesystem")
