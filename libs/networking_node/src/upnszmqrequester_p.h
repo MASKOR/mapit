@@ -3,11 +3,10 @@
 #define UPNSZMQREQUESTER_P_H
 
 #include <string>
-#include "versioning/repository.h"
 
 namespace upns {
 
-class UpnsZmqRequesterPrivate : public upns::Repository
+class UpnsZmqRequesterPrivate
 {
 
 public:
