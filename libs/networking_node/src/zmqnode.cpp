@@ -6,11 +6,12 @@ void my_free(void *data, void *hint)
     free (data);
 }
 
-ZMQNode::ZMQNode()
+ZMQNode::ZMQNode(bool reply)
 {
   context_ = new zmq::context_t(1);
-  socket_ = new zmq::socket_t(*context_, ZMQ_PAIR);
+  socket_ = new zmq::socket_t(*context_, reply ? ZMQ_REP : ZMQ_REQ);
   connected_ = false;
+  isReply_ = reply;
 }
 
 ZMQNode::~ZMQNode()

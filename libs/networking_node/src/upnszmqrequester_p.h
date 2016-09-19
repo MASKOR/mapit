@@ -3,10 +3,11 @@
 #define UPNSZMQREQUESTER_P_H
 
 #include <string>
+#include "zmqnode.h"
 
 namespace upns {
 
-class UpnsZmqRequesterPrivate
+class UpnsZmqRequesterPrivate : public ZMQNode
 {
 
 public:

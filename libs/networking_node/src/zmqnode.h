@@ -12,6 +12,7 @@ private:
   zmq::context_t * context_;
   zmq::socket_t * socket_;
   bool connected_;
+  bool isReply_;
 
   typedef std::pair<uint16_t, uint16_t> KeyType;
   typedef std::map<KeyType, google::protobuf::Message *> TypeMap;
@@ -21,7 +22,7 @@ private:
   std::shared_ptr< ::google::protobuf::Message> new_message_for(uint16_t component_id, uint16_t msg_type);
   void send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg);
 public:
-  ZMQNode();
+  ZMQNode(bool reply);
   ~ZMQNode();
 
   void connect(std::string com);
@@ -32,7 +33,7 @@ public:
   void send_raw(unsigned char* data, size_t size);
 
   template <class MT>
-  typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_message_type()
+  typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_receivable_message_type()
   {
     MT m;
     const google::protobuf::Descriptor *desc = m.GetDescriptor();
