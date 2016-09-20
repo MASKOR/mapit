@@ -1,4 +1,3 @@
-
 #ifndef UPNSZMQREQUESTER_H
 #define UPNSZMQREQUESTER_H
 
@@ -17,7 +16,7 @@ class ZmqRequesterPrivate;
 class ZmqRequester : public upns::Repository
 {
 public:
-    ZmqRequester( int portIncomingRequests, std::string urlOutgoingRequests = std::string() );
+    ZmqRequester(std::string urlOutgoingRequests = std::string() );
     ~ZmqRequester();
 private:
     ZmqRequesterPrivate *m_d;

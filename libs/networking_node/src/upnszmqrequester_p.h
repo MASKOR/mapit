@@ -1,4 +1,3 @@
-
 #ifndef UPNSZMQREQUESTER_P_H
 #define UPNSZMQREQUESTER_P_H
 
@@ -7,11 +6,11 @@
 
 namespace upns {
 
-class UpnsZmqRequesterPrivate : public ZMQNode
+class ZmqRequesterPrivate : public ZmqNode
 {
 
 public:
-    UpnsZmqRequesterPrivate( int portIncomingRequests, std::string urlOutgoingRequests = std::string() );
+    ZmqRequesterPrivate( std::string urlOutgoingRequests = std::string() );
 
 private:
     friend class UpnsZmqNode;

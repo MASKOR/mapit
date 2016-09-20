@@ -1,5 +1,5 @@
-#ifndef __LAYERDATA_H
-#define __LAYERDATA_H
+#ifndef __ENTITYDATA_H
+#define __ENTITYDATA_H
 
 #include "upns_globals.h"
 #include "libs/upns_interface/services.pb.h"

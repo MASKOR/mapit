@@ -1,12 +1,12 @@
-
 #ifndef UPNSZMQRESPONDER_P_H
 #define UPNSZMQRESPONDER_P_H
 
 #include <string>
+#include "zmqnode.h"
 
 namespace upns {
 
-class ZmqResponderPrivate
+class ZmqResponderPrivate : public ZmqNode
 {
 
 public:

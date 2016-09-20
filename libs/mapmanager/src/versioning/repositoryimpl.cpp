@@ -1,8 +1,6 @@
-#include "versioning/repository.h"
+#include "repositoryimpl.h"
 #include "yaml-cpp/yaml.h"
 #include "serialization/abstractmapserializer.h"
-#include "serialization/leveldb/leveldbserializer.h"
-#include "serialization/file_system/fs_serializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"
 #include <QHash>
@@ -12,76 +10,26 @@ namespace upns
 {
 class RepositoryPrivate
 {
-    RepositoryPrivate():m_serializer(NULL){}
+    RepositoryPrivate(AbstractMapSerializer* ser):m_serializer(ser){}
     ~RepositoryPrivate()
     {
         delete m_serializer;
     }
 
     AbstractMapSerializer* m_serializer;
-
-    void initialize(const YAML::Node &config)
-    {
-        if(const YAML::Node mapsource = config["mapsource"])
-        {
-            if(const YAML::Node mapsourceName = mapsource["name"])
-            {
-                std::string mapsrcnam = mapsourceName.as<std::string>();
-                std::transform(mapsrcnam.begin(), mapsrcnam.end(), mapsrcnam.begin(), ::tolower);
-                AbstractMapSerializer *mser = NULL;
-                if(mapsrcnam == "leveldb")
-                {
-                    //TODO: Linker Error: SHA multiple definitions (when the following line is uncommented)
-                    m_serializer = new LevelDBSerializer(mapsource);
-                }
-                else if(mapsrcnam == "filesystem")
-                {
-                    m_serializer = new FSSerializer(mapsource);
-                }
-                else
-                {
-                    log_error("mapsource '" + mapsrcnam + "' was not found.");
-                }
-            } else {
-                log_error("'mapsource' has no 'name' in config");
-            }
-        } else {
-            log_error("Key 'mapsource' not given in config");
-        }
-        assert(m_serializer);
-        // Check if anything exists in the database
-        // Note: There might be commits or objects which are not recognized here.
-        // TODO: forbid to delete last branch for this to work. Checkouts might all be deleted.
-        size_t numElems = m_serializer->listBranches().size();
-        if(numElems) return;
-//        numElems = m_serializer->listCheckoutNames().size();
-//        if(numElems) return;
-        upnsSharedPointer<Branch> master(new Branch());
-        master->set_commitid(""); //< InitialCommit
-        m_serializer->createBranch(master, "master");
-    }
-    friend class Repository;
+    friend class RepositoryImpl;
 };
 
-Repository::Repository(const upnsString &filename)
-    :m_p(new RepositoryPrivate)
-{
-    YAML::Node config = YAML::LoadFile(filename);
-    m_p->initialize(config);
-}
+RepositoryImpl::RepositoryImpl(AbstractMapSerializer* serializer)
+    :m_p(new RepositoryPrivate(serializer))
+{}
 
-Repository::Repository(const YAML::Node &config)
-    :m_p(new RepositoryPrivate)
-{
-    m_p->initialize(config);
-}
-
-Repository::~Repository()
+RepositoryImpl::~RepositoryImpl()
 {
     delete m_p;
 }
 
-upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name)
+upnsSharedPointer<Checkout> RepositoryImpl::createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
     if(co != NULL)
@@ -127,49 +75,49 @@ upnsSharedPointer<Checkout> Repository::createCheckout(const CommitId &commitIdO
     return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
 }
 
-upnsVec<upnsString> Repository::listCheckoutNames()
+upnsVec<upnsString> RepositoryImpl::listCheckoutNames()
 {
     return m_p->m_serializer->listCheckoutNames();
 }
 
-upnsSharedPointer<Tree> Repository::getTree(const ObjectId &oid)
+upnsSharedPointer<Tree> RepositoryImpl::getTree(const ObjectId &oid)
 {
     return m_p->m_serializer->getTree(oid);
 }
 
-upnsSharedPointer<Entity> Repository::getEntity(const ObjectId &oid)
+upnsSharedPointer<Entity> RepositoryImpl::getEntity(const ObjectId &oid)
 {
     return m_p->m_serializer->getEntity(oid);
 }
 
-upnsSharedPointer<Commit> Repository::getCommit(const ObjectId &oid)
+upnsSharedPointer<Commit> RepositoryImpl::getCommit(const ObjectId &oid)
 {
     return m_p->m_serializer->getCommit(oid);
 }
 
-upnsSharedPointer<CheckoutObj> Repository::getCheckoutObj(const upnsString &name)
+upnsSharedPointer<CheckoutObj> RepositoryImpl::getCheckoutObj(const upnsString &name)
 {
     return m_p->m_serializer->getCheckoutCommit(name);
 }
 
-upnsSharedPointer<Branch> Repository::getBranch(const upnsString &name)
+upnsSharedPointer<Branch> RepositoryImpl::getBranch(const upnsString &name)
 {
     return m_p->m_serializer->getBranch(name);
 }
 
-MessageType Repository::typeOfObject(const ObjectId &oid)
+MessageType RepositoryImpl::typeOfObject(const ObjectId &oid)
 {
     return m_p->m_serializer->typeOfObject(oid);
 }
 
-upnsSharedPointer<AbstractEntityData> Repository::getEntityDataReadOnly(const ObjectId &oid)
+upnsSharedPointer<AbstractEntityData> RepositoryImpl::getEntityDataReadOnly(const ObjectId &oid)
 {
     // For entitydata it is not enough to call serializer directly.
     // Moreover special classes need to be created by layertype plugins.
     return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true);
 }
 
-upnsSharedPointer<Checkout> Repository::getCheckout(const upnsString &checkoutName)
+upnsSharedPointer<Checkout> RepositoryImpl::getCheckout(const upnsString &checkoutName)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
     if(co == NULL)
@@ -180,7 +128,7 @@ upnsSharedPointer<Checkout> Repository::getCheckout(const upnsString &checkoutNa
     return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, checkoutName));
 }
 
-StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
+StatusCode RepositoryImpl::deleteCheckoutForced(const upnsString &checkoutName)
 {
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
     if(co == NULL)
@@ -192,7 +140,7 @@ StatusCode Repository::deleteCheckoutForced(const upnsString &checkoutName)
     return m_p->m_serializer->removeCheckoutCommit(checkoutName);
 }
 
-CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, upnsString msg)
+CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upnsString msg)
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     QMap< ::std::string, ::std::string> oldToNewIds;
@@ -278,42 +226,42 @@ CommitId Repository::commit(const upnsSharedPointer<Checkout> checkout, upnsStri
     return ret;
 }
 
-upnsVec<upnsSharedPointer<Branch> > Repository::getBranches()
+upnsVec<upnsSharedPointer<Branch> > RepositoryImpl::getBranches()
 {
     return upnsVec<upnsSharedPointer<Branch> >();
 }
 
-StatusCode Repository::push(Repository &repo)
+StatusCode RepositoryImpl::push(Repository &repo)
 {
     return UPNS_STATUS_OK;
 }
 
-StatusCode Repository::pull(Repository &repo)
+StatusCode RepositoryImpl::pull(Repository &repo)
 {
     return UPNS_STATUS_OK;
 }
 
-CommitId Repository::parseCommitRef(const upnsString &commitRef)
+CommitId RepositoryImpl::parseCommitRef(const upnsString &commitRef)
 {
     return "";
 }
 
-upnsSharedPointer<Checkout> Repository::merge(const CommitId mine, const CommitId theirs, const CommitId base)
+upnsSharedPointer<Checkout> RepositoryImpl::merge(const CommitId mine, const CommitId theirs, const CommitId base)
 {
     return NULL;
 }
 
-upnsVec<upnsPair<CommitId, ObjectId> > Repository::ancestors(const CommitId &commitId, const ObjectId &objectId, const int level)
+upnsVec<upnsPair<CommitId, ObjectId> > RepositoryImpl::ancestors(const CommitId &commitId, const ObjectId &objectId, const int level)
 {
     return upnsVec<upnsPair<CommitId, ObjectId> >();
 }
 
-bool Repository::canRead()
+bool RepositoryImpl::canRead()
 {
     return true;
 }
 
-bool Repository::canWrite()
+bool RepositoryImpl::canWrite()
 {
     return true;
 }

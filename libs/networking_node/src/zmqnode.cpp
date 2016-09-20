@@ -6,7 +6,7 @@ void my_free(void *data, void *hint)
     free (data);
 }
 
-ZMQNode::ZMQNode(bool reply)
+ZmqNode::ZmqNode(bool reply)
 {
   context_ = new zmq::context_t(1);
   socket_ = new zmq::socket_t(*context_, reply ? ZMQ_REP : ZMQ_REQ);
@@ -14,14 +14,14 @@ ZMQNode::ZMQNode(bool reply)
   isReply_ = reply;
 }
 
-ZMQNode::~ZMQNode()
+ZmqNode::~ZmqNode()
 {
   delete(socket_);
   delete(context_);
 }
 
 void
-ZMQNode::connect(std::string com)
+ZmqNode::connect(std::string com)
 {
   if (connected_) {
     // TODO: throw
@@ -32,7 +32,7 @@ ZMQNode::connect(std::string com)
 }
 
 void
-ZMQNode::bind(std::string com)
+ZmqNode::bind(std::string com)
 {
   if (connected_) {
     // TODO: throw
@@ -43,7 +43,7 @@ ZMQNode::bind(std::string com)
 }
 
 void
-ZMQNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg)
+ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg)
 {
   int size = msg->ByteSize();
   zmq::message_t msg_zmq( size );
@@ -52,7 +52,7 @@ ZMQNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg)
 }
 
 void
-ZMQNode::send(std::unique_ptr< ::google::protobuf::Message> msg)
+ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg)
 {
   if ( ! connected_) {
     // TODO: throw
@@ -76,7 +76,7 @@ ZMQNode::send(std::unique_ptr< ::google::protobuf::Message> msg)
 }
 
 void
-ZMQNode::send_raw(unsigned char* data, size_t size)
+ZmqNode::send_raw(unsigned char* data, size_t size)
 {
   std::unique_ptr<upns::RawDataSize> pb(new upns::RawDataSize);
   pb->set_size(size);
@@ -91,7 +91,7 @@ ZMQNode::send_raw(unsigned char* data, size_t size)
 }
 
 std::shared_ptr< ::google::protobuf::Message>
-ZMQNode::receive()
+ZmqNode::receive()
 {
   if ( ! connected_) {
     // TODO: throw
@@ -114,7 +114,7 @@ ZMQNode::receive()
 }
 
 unsigned char *
-ZMQNode::receive_raw(size_t & size)
+ZmqNode::receive_raw(size_t & size)
 {
   // receive size
   upns::RawDataSize pb;
@@ -135,8 +135,8 @@ ZMQNode::receive_raw(size_t & size)
   return data;
 }
 
-ZMQNode::KeyType
-ZMQNode::key_from_desc(const google::protobuf::Descriptor *desc)
+ZmqNode::KeyType
+ZmqNode::key_from_desc(const google::protobuf::Descriptor *desc)
 {
   const google::protobuf::EnumDescriptor *enumdesc = desc->FindEnumTypeByName("CompType");
   if (! enumdesc) {
@@ -161,7 +161,7 @@ ZMQNode::key_from_desc(const google::protobuf::Descriptor *desc)
 }
 
 std::shared_ptr<google::protobuf::Message>
-ZMQNode::new_message_for(uint16_t component_id, uint16_t msg_type)
+ZmqNode::new_message_for(uint16_t component_id, uint16_t msg_type)
 {
   KeyType key(component_id, msg_type);
 

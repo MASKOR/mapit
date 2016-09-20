@@ -8,7 +8,7 @@
 # 6) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
 
 project(upns)
-cmake_minimum_required(VERSION 2.8.12) # for target_include_directories
+cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
 #set (CMAKE_CXX_STANDARD 14)
@@ -104,6 +104,7 @@ add_subdirectory(libs/mapmanager)
 add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(test/unit_tests)
 add_subdirectory(libs/upns_interface)
+add_subdirectory(libs/upns_interface_cpp)
 add_subdirectory(libs/interface_grpc)
 add_subdirectory(libs/layertypes_collection)
 add_subdirectory(libs/networking_node)

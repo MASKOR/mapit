@@ -6,7 +6,7 @@
 #include <memory>
 #include <map>
 
-class ZMQNode
+class ZmqNode
 {
 private:
   zmq::context_t * context_;
@@ -22,8 +22,8 @@ private:
   std::shared_ptr< ::google::protobuf::Message> new_message_for(uint16_t component_id, uint16_t msg_type);
   void send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg);
 public:
-  ZMQNode(bool reply);
-  ~ZMQNode();
+  ZmqNode(bool reply);
+  ~ZmqNode();
 
   void connect(std::string com);
   void bind(std::string com);

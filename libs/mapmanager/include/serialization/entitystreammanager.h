@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "abstractentitydata.h"
-#include "abstractmapserializer.h"
+#include "serialization/abstractmapserializer.h"
 
 /**
  *  Note: This class should usually not be used. It is located in the "include"

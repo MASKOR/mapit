@@ -31,7 +31,7 @@ file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOUR
 file(GLOB UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.cpp
                                                ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.h
                                                ${PROJECT_SOURCE_DIR}/src/sha/*.cpp
-                                               ${PROJECT_SOURCE_DIR}/src/sha/*.h)
+                                               ${PROJECT_SOURCE_DIR}/src/sha/*.h )
 
 add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} ${UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP} )
 #add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} )
@@ -44,9 +44,9 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 #target_link_libraries(${PROJECT_NAME} dl Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
 #target_link_libraries(${PROJECT_NAME} Qt5::Core upns_interface yaml-cpp ${LEVELDB_LIB} log4cplus ssl crypto)
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface upns_interface_cpp ${YAML_CPP_LIBRARIES} ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface ${YAML_CPP_LIBRARIES} dl ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface upns_interface_cpp ${YAML_CPP_LIBRARIES} dl ${LEVELDB_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 endif(WIN32)
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib

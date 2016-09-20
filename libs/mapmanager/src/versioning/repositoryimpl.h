@@ -11,13 +11,12 @@
 namespace upns
 {
 class RepositoryPrivate;
-
+class AbstractMapSerializer;
 class RepositoryImpl : public Repository
 {
 public:
-    Repository(const upnsString &filename);
-    Repository(const YAML::Node &config);
-    ~Repository();
+    RepositoryImpl(upns::AbstractMapSerializer* serializer);
+    ~RepositoryImpl();
 
     upnsVec<upnsString> listCheckoutNames();
 

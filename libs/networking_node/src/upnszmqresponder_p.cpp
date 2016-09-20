@@ -2,6 +2,7 @@
 #include "services.pb.h"
 
 upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, std::__cxx11::string urlOutgoingRequests)
+    :ZmqNode( true )
 {
     add_receivable_message_type<RequestCheckoutFromMaster>();
     add_receivable_message_type<RequestEntitydata>();

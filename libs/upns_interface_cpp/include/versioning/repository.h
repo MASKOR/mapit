@@ -1,7 +1,7 @@
 #ifndef REPOSITORY_H
 #define REPOSITORY_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
@@ -22,8 +22,6 @@ class RepositoryPrivate;
 class Repository
 {
 public:
-    virtual ~Repository();
-
     /**
      * @brief getCheckouts retrieves a list of all checkouts in the system.
      * In contrast to git (with a single file tree), upns can checkout multiple versions at the same time.

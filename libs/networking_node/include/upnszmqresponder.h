@@ -1,8 +1,8 @@
-
 #ifndef UPNSZMQRESPONDER_H
 #define UPNSZMQRESPONDER_H
 
 #include <string>
+#include "repositoryserver.h"
 
 namespace upns {
 
@@ -14,7 +14,7 @@ class ZmqResponderPrivate;
 /// If a request can not be answered by this repository, the request may be forwarded to another node.
 ///
 
-class ZmqResponder
+class ZmqResponder : public RepositoryServer
 {
 public:
     ZmqResponder( int portIncomingRequests, std::string urlOutgoingRequests = std::string() );

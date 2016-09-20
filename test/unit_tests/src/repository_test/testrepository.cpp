@@ -8,6 +8,7 @@
 #include "yaml-cpp/yaml.h"
 #include <QJsonDocument>
 #include <QJsonObject>
+#include "versioning/repositoryfactory.h"
 
 using namespace upns;
 
@@ -41,7 +42,7 @@ void TestRepository::initTestCase()
     mapsource["filename"] = fileSystemName;//databaseName;
     conf["mapsource"] = mapsource;
 
-    m_repo = new upns::Repository(conf);
+    m_repo = upns::RepositoryFactory::openLocalRepository(conf);
 }
 
 void TestRepository::cleanupTestCase()
