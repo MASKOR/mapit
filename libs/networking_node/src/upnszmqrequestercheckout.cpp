@@ -1,7 +1,9 @@
 #include "upnszmqrequestercheckout.h"
 
-upns::ZmqRequesterCheckout::ZmqRequesterCheckout(ZmqNode *node)
-    :m_pNode(node)
+upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqNode *node, Checkout *cache)
+    :m_checkoutName( name ),
+     m_pNode( node ),
+     m_cache( cache )
 {
 
 }
@@ -74,4 +76,11 @@ upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
 {
 
+}
+
+void upns::ZmqRequesterCheckout::syncHierarchy()
+{
+    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
+    req->set_checkout(m_checkoutName);
+    m_pNode->send(req);
 }

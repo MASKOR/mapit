@@ -15,7 +15,7 @@ namespace upns {
 class ZmqRequesterCheckout : public upns::Checkout
 {
 public:
-    ZmqRequesterCheckout(ZmqNode* node);
+    ZmqRequesterCheckout(upnsString name, ZmqNode *node, upns::Checkout *cache = NULL);
 
     // CheckoutCommon interface
 public:
@@ -38,7 +38,11 @@ public:
     OperationResult doOperation(const OperationDescription &desc);
 
 private:
+    upnsString m_checkoutName;
     ZmqNode *m_pNode;
+    upns::Checkout m_cache;
+
+    void syncHierarchy();
 };
 
 }
