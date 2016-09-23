@@ -38,3 +38,33 @@ upns::ZmqRequesterPrivate::ZmqRequesterPrivate(std::__cxx11::string urlOutgoingR
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<ReplyStoreEntity>( fn );
 }
+
+void upns::ZmqRequesterPrivate::handleResponseCheckoutFromMaster(upns::ReplyCheckoutFromMaster *msg)
+{
+
+}
+
+void upns::ZmqRequesterPrivate::handleResponseEntitydata(upns::ReplyEntitydata *msg)
+{
+
+}
+
+void upns::ZmqRequesterPrivate::handleResponseHierarchy(upns::ReplyHierarchy *msg)
+{
+
+}
+
+void upns::ZmqRequesterPrivate::handleResponseListCheckouts(upns::ReplyListCheckouts *msg)
+{
+
+}
+
+void upns::ZmqRequesterPrivate::handleResponseOperatorExecution(upns::ReplyOperatorExecution *msg)
+{
+
+}
+
+void upns::ZmqRequesterPrivate::handleResponseStoreEntity(upns::ReplyStoreEntity *msg)
+{
+
+}

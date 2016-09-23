@@ -15,7 +15,7 @@ upns::ZmqResponder::~ZmqResponder()
     delete m_d;
 }
 
-void upns::ZmqResponder::pollRequest()
+void upns::ZmqResponder::handleRequest()
 {
     m_d->handle_receive();
 }

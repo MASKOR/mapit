@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     while(true)
     {
-        node->pollRequest();
+        node->handleRequest();
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
     delete node;

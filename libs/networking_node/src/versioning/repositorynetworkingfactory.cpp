@@ -23,19 +23,21 @@ upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServe
     return resp;
 }
 
-upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(upns::upnsString &url)
+upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(upns::upnsString url)
 {
     //requester
+    ZmqRequester* req = new ZmqRequester( url );
+    return req;
 }
 
-upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepositoryCached(upns::upnsString &url, const upns::upnsString &filename)
+upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepositoryCached(upns::upnsString url, const upnsString filename)
 {
     // TODO: other library which connects networking and local repo
     assert(false);
     return NULL;
 }
 
-upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepositoryCached(upns::upnsString &url, const YAML::Node &config)
+upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepositoryCached(upns::upnsString url, const YAML::Node &config)
 {
     // TODO: other library which connects networking and local repo
     assert(false);

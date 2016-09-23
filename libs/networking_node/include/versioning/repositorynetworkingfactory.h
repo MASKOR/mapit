@@ -52,18 +52,18 @@ public:
      * Note: Calls should not be called in a main or gui thread, as this would block messages from OS and freeze UIs.
      * @return
      */
-    static upns::Repository* connectToRemoteRepository(upns::upnsString &url);
+    static upns::Repository* connectToRemoteRepository(upns::upnsString url);
 
     /**
      * @brief connectToRemoteRepositoryCached. Creates a local repository, all requests, that can not be answered locally are requested from remote and are cached locally.
      * @return
      */
-    static upns::Repository* connectToRemoteRepositoryCached(upns::upnsString &url, const upnsString &filename);
+    static upns::Repository* connectToRemoteRepositoryCached(upns::upnsString url, const upnsString filename);
     /**
      * @brief connectToRemoteRepositoryCached. Creates a local repository, all requests, that can not be answered locally are requested from remote and are cached locally.
      * @return
      */
-    static upns::Repository* connectToRemoteRepositoryCached(upns::upnsString &url, const YAML::Node &config);
+    static upns::Repository* connectToRemoteRepositoryCached(upnsString url, const YAML::Node &config);
 };
 
 }
