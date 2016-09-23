@@ -3,6 +3,7 @@
 #include "upns.h"
 #include "services.pb.h"
 #include "versioning/repository.h"
+#include "versioning/repositoryfactory.h"
 #include <QFile>
 #include <QDir>
 #include <yaml-cpp/yaml.h>
@@ -10,14 +11,14 @@
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 
-void buildCommitList(upns::Repository &repo, upns::upnsVec< upns::upnsPair<upns::CommitId, upns::upnsSharedPointer<upns::Commit> > > &commits, const ::google::protobuf::RepeatedPtrField< ::std::string> &currentParents)
+void buildCommitList(upns::Repository *repo, upns::upnsVec< upns::upnsPair<upns::CommitId, upns::upnsSharedPointer<upns::Commit> > > &commits, const ::google::protobuf::RepeatedPtrField< ::std::string> &currentParents)
 {
     ::google::protobuf::RepeatedPtrField< ::std::string>::const_iterator currentParent( currentParents.cbegin() );
     while(currentParent != currentParents.cend())
     {
         if(!currentParent->empty())
         {
-            upns::upnsSharedPointer<upns::Commit> ci(repo.getCommit(*currentParent));
+            upns::upnsSharedPointer<upns::Commit> ci(repo->getCommit(*currentParent));
             assert(ci);
             commits.push_back(upns::upnsPair< upns::CommitId, upns::upnsSharedPointer<upns::Commit> >(*currentParent, ci));
             buildCommitList(repo, commits, ci->parentcommitids());
@@ -47,9 +48,9 @@ int main(int argc, char *argv[])
     }
     YAML::Node config = YAML::LoadFile(std::string(argv[1]));
 
-    upns::Repository repo( config );
+    upns::Repository *repo = upns::RepositoryFactory::openLocalRepository( config );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo.getCheckout( argv[2] );
+    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout( argv[2] );
 
     if(co == NULL)
     {
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
     {
         if(!currentParent->empty())
         {
-            upns::upnsSharedPointer<upns::Commit> ci(repo.getCommit(*currentParent));
+            upns::upnsSharedPointer<upns::Commit> ci(repo->getCommit(*currentParent));
             assert(ci);
             commits.push_back(upns::upnsPair< upns::CommitId, upns::upnsSharedPointer<upns::Commit> >(*currentParent, ci));
             buildCommitList(repo, commits, ci->parentcommitids());

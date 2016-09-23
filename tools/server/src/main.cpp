@@ -3,6 +3,7 @@
 #include "upns.h"
 #include "services.pb.h"
 #include "versioning/repository.h"
+#include "versioning/repositoryfactory.h"
 #include <QFile>
 #include <QDir>
 #include <yaml-cpp/yaml.h>
@@ -11,7 +12,10 @@
 #include <log4cplus/consoleappender.h>
 #include <zmq.hpp>
 
-#include "upnszmqnode.h"
+#include "versioning/repositorynetworkingfactory.h"
+
+#include <thread>
+#include <chrono>
 
 int main(int argc, char *argv[])
 {
@@ -33,27 +37,33 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    YAML::Node config = YAML::LoadFile(std::string(argv[1]));
-
-    upns::Repository repo( config );
-
-    zmq::context_t context(1);
-
-    zmq::socket_t responder(context, ZMQ_REP);
-    QString port(argv[2]);
-    if(port.toInt() == 0)
+    QString portStr(argv[2]);
+    int port;
+    if((port = portStr.toInt()) == 0)
     {
         std::cout << "port was not a number; abort" << std::endl;
         return 1;
     }
-    responder.bind( port.prepend("tcp://localhost:").toLatin1() );
 
-    std::string url;
+    upns::upnsString url;
 
     if(argc == 4)
     {
         url = argv[3];
     }
-    UpnsZmqNode node( port, url );
-    return node.run();
+
+    YAML::Node config = YAML::LoadFile(std::string(argv[1]));
+
+    upns::Repository *repo = upns::RepositoryFactory::openLocalRepository( config );
+
+    upns::RepositoryServer *node = upns::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo, url);
+
+    while(true)
+    {
+        node->pollRequest();
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+    delete node;
+    delete repo;
+    return 0;
 }

@@ -5,7 +5,7 @@
 #include "upns_globals.h"
 #include "bindings/qmlentitydata.h"
 #include "libs/upns_interface/services.pb.h"
-#include "libs/mapmanager/include/versioning/checkout.h"
+#include "libs/upns_interface_cpp/include/versioning/checkout.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>

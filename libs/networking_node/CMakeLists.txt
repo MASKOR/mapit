@@ -51,9 +51,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src )
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} uuid ${libzip})
+  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} uuid ${libzip})
 endif(WIN32)
 
 if(WIN32)

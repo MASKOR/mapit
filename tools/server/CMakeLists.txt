@@ -49,9 +49,9 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} uuid ${libzip})
+  target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} uuid ${libzip})
 endif(WIN32)
 
 if(WIN32)

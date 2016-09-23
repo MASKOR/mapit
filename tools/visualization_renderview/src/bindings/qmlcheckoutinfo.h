@@ -3,7 +3,7 @@
 
 #include <QtCore>
 #include <QJsonObject>
-#include "libs/mapmanager/include/versioning/checkout.h"
+#include "libs/upns_interface_cpp/include/versioning/checkout.h"
 
 class QmlCheckoutInfo : public QObject
 {

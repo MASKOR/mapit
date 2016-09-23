@@ -90,8 +90,8 @@ ZmqNode::send_raw(unsigned char* data, size_t size)
 //  zmq_send(socket_, &msg_zmq, size, 0);
 }
 
-std::shared_ptr< ::google::protobuf::Message>
-ZmqNode::receive()
+void
+ZmqNode::handle_receive()
 {
   if ( ! connected_) {
     // TODO: throw
@@ -107,10 +107,9 @@ ZmqNode::receive()
   zmq::message_t msg_zmq;
   socket_->recv( &msg_zmq );
 
-  std::shared_ptr<google::protobuf::Message> msg = new_message_for(h.comp_id(), h.msg_type());
-  msg->ParseFromArray(msg_zmq.data(), msg_zmq.size());
-
-  return msg;
+  // dispatch msg
+  ReceiveRawDelegate handler = get_handler_for_message(h.comp_id(), h.msg_type());
+  handler(msg_zmq.data(), msg_zmq.size());
 }
 
 unsigned char *
@@ -160,8 +159,8 @@ ZmqNode::key_from_desc(const google::protobuf::Descriptor *desc)
   return KeyType(comp_id, msg_type);
 }
 
-std::shared_ptr<google::protobuf::Message>
-ZmqNode::new_message_for(uint16_t component_id, uint16_t msg_type)
+ZmqNode::ReceiveRawDelegate
+ZmqNode::get_handler_for_message(uint16_t component_id, uint16_t msg_type)
 {
   KeyType key(component_id, msg_type);
 
@@ -170,6 +169,6 @@ ZmqNode::new_message_for(uint16_t component_id, uint16_t msg_type)
     throw std::runtime_error(msg);
   }
 
-  google::protobuf::Message *m = message_by_comp_type_[key]->New();
-  return std::shared_ptr<google::protobuf::Message>(m);
+  ZmqNode::ReceiveRawDelegate delegate = message_by_comp_type_[key];
+  return delegate;
 }

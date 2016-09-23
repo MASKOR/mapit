@@ -8,7 +8,7 @@ namespace upns {
 class RepositoryServer
 {
 public:
-    void pollRequest();
+    virtual void pollRequest() = 0;
 };
 
 }

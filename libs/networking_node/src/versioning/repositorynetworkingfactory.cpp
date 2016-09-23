@@ -1,6 +1,7 @@
 #include "versioning/repositorynetworkingfactory.h"
 #include "upnszmqrequester.h"
 #include "upnszmqresponder.h"
+#include "repositoryserver.h"
 
 upns::Repository *upns::RepositoryNetworkingFactory::openLocalRepositoryAsServer(const int port, const upns::upnsString &filename)
 {
@@ -16,9 +17,10 @@ upns::Repository *upns::RepositoryNetworkingFactory::openLocalRepositoryAsServer
     return NULL;
 }
 
-void upns::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, upns::Repository *repo)
+upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, upns::Repository *repo, upns::upnsString urlNext)
 {
-    //responder
+    ZmqResponder* resp = new ZmqResponder(port, repo, urlNext);
+    return resp;
 }
 
 upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(upns::upnsString &url)

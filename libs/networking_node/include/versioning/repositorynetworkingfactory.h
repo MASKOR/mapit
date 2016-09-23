@@ -44,7 +44,7 @@ public:
      * @param config Yaml configuration of the repository
      * @return
      */
-    static void runRepositoryAsServer(const int port, upns::Repository* repo);
+    static RepositoryServer* openRepositoryAsServer(const int port, upns::Repository* repo, upns::upnsString urlNext = upns::upnsString() );
 
     /**
      * @brief connectToRemoteRepository. Creates a shim repository, which delegates all requests to a repository in the network. It also handles replies.

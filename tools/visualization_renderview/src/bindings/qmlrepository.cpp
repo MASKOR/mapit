@@ -1,4 +1,5 @@
 #include "qmlrepository.h"
+#include "versioning/repositoryfactory.h"
 #include "error.h"
 
 QmlRepository::QmlRepository()
@@ -188,7 +189,7 @@ void QmlRepository::setConf(QString conf)
     if (m_conf == conf)
         return;
     m_conf = conf;
-    m_repository = upns::upnsSharedPointer<upns::Repository>(new upns::Repository(conf.toStdString()));
+    m_repository = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf.toStdString()));
     m_checkoutNames.clear();
     upns::upnsVec<upns::upnsString> coNames(m_repository->listCheckoutNames());
     for(upns::upnsVec<upns::upnsString>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)

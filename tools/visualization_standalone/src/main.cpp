@@ -40,21 +40,23 @@
 #include "qpointfield.h"
 #include "bindings/qmlentitydatarenderer.h"
 #include "models/qmlroottreemodel.h"
+#include "versioning/repositoryfactory.h"
 
 #include "services.pb.h"
 #include "error.h"
+
 void createExampleRepo()
 {
 //    YAML::Node config = YAML::Load("mapsource:"
 //                                   " name: FileSystem"
 //                                   " filename: ../test.db");
     YAML::Node config = YAML::LoadFile("./repo.yaml");
-    upns::Repository repo( config );
+    upns::Repository *repo( upns::RepositoryFactory::openLocalRepository( config ) );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo.createCheckout("master", "testcheckout");
+    upns::upnsSharedPointer<upns::Checkout> co = repo->createCheckout("master", "testcheckout");
     if(co == NULL)
     {
-        co = repo.getCheckout("testcheckout");
+        co = repo->getCheckout("testcheckout");
         if(co == NULL)
         {
             std::cout << "could not create examole checkout." << std::endl;

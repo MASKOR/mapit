@@ -7,6 +7,7 @@
 namespace upns {
 
 class ZmqResponderPrivate;
+class Repository;
 
 ///
 /// \brief The UpnsZmqNode class
@@ -17,9 +18,9 @@ class ZmqResponderPrivate;
 class ZmqResponder : public RepositoryServer
 {
 public:
-    ZmqResponder( int portIncomingRequests, std::string urlOutgoingRequests = std::string() );
+    ZmqResponder( int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests = std::string() );
     ~ZmqResponder();
-    int run();
+    void pollRequest();
 private:
     ZmqResponderPrivate *m_d;
 };

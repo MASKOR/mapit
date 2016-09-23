@@ -3,6 +3,7 @@
 #include "upns.h"
 #include "services.pb.h"
 #include "versioning/repository.h"
+#include "versioning/repositoryfactory.h"
 #include <QFile>
 #include <QDir>
 #include <yaml-cpp/yaml.h>
@@ -25,9 +26,9 @@ int main(int argc, char *argv[])
     }
     YAML::Node config = YAML::LoadFile(std::string(argv[1]));
 
-    upns::Repository repo( config );
+    upns::Repository *repo = upns::RepositoryFactory::openLocalRepository( config );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo.getCheckout(argv[2]);
+    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout(argv[2]);
 
     upns::upnsSharedPointer<upns::Tree> currentDirectory(co->getRoot());
     std::string rootPath(argv[3]);
@@ -115,5 +116,5 @@ int main(int argc, char *argv[])
         {
             return true;
         });
-
+    delete repo;
 }
