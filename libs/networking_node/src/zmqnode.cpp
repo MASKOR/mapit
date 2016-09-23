@@ -42,6 +42,7 @@ ZmqNode::bind(std::string com)
   connected_ = true;
 }
 
+
 void
 ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg)
 {
@@ -91,7 +92,7 @@ ZmqNode::send_raw(unsigned char* data, size_t size)
 }
 
 void
-ZmqNode::handle_receive()
+ZmqNode::receive_and_dispatch()
 {
   if ( ! connected_) {
     // TODO: throw
@@ -164,11 +165,25 @@ ZmqNode::get_handler_for_message(uint16_t component_id, uint16_t msg_type)
 {
   KeyType key(component_id, msg_type);
 
-  if (message_by_comp_type_.find(key) == message_by_comp_type_.end()) {
+  if (delegate_by_comp_type_.find(key) == delegate_by_comp_type_.end()) {
     std::string msg = "Message type " + std::to_string(component_id) + ":" + std::to_string(msg_type) + " not registered";
     throw std::runtime_error(msg);
   }
 
-  ZmqNode::ReceiveRawDelegate delegate = message_by_comp_type_[key];
+  ZmqNode::ReceiveRawDelegate delegate = delegate_by_comp_type_[key];
+  return delegate;
+}
+
+ZmqNode::ConcreteTypeFactory
+ZmqNode::get_factory_for_message(uint16_t component_id, uint16_t msg_type)
+{
+  KeyType key(component_id, msg_type);
+
+  if (factory_by_comp_type_.find(key) == factory_by_comp_type_.end()) {
+    std::string msg = "Message type " + std::to_string(component_id) + ":" + std::to_string(msg_type) + " not registered";
+    throw std::runtime_error(msg);
+  }
+
+  ZmqNode::ConcreteTypeFactory delegate = factory_by_comp_type_[key];
   return delegate;
 }

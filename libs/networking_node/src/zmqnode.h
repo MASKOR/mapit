@@ -2,6 +2,7 @@
 #define ZMQNODE_H
 
 #include <google/protobuf/message.h>
+#include "transport.pb.h"
 #include <zmq.hpp>
 #include <memory>
 #include <map>
@@ -19,15 +20,19 @@ private:
   //typedef void (*ReceiveDelegate)(google::protobuf::Message*);
   typedef std::function<void(google::protobuf::Message*)> ReceiveDelegate;
   typedef std::function<void(const void*, const size_t)> ReceiveRawDelegate;
-  typedef std::map<KeyType, ReceiveRawDelegate> TypeMap;//google::protobuf::Message* (*)()> TypeMap;
-  TypeMap message_by_comp_type_;
+  typedef google::protobuf::Message* (ZmqNode::*ConcreteTypeFactory)(const void*, const size_t);
+  typedef std::map<KeyType, ConcreteTypeFactory> ConcreteTypeFactoryMap;
+  typedef std::map<KeyType, ReceiveRawDelegate> DelegateMap;
+  ConcreteTypeFactoryMap factory_by_comp_type_;
+  DelegateMap delegate_by_comp_type_;
 
   KeyType key_from_desc(const google::protobuf::Descriptor *desc);
   ReceiveRawDelegate get_handler_for_message(uint16_t component_id, uint16_t msg_type);
+  ConcreteTypeFactory get_factory_for_message(uint16_t component_id, uint16_t msg_type);
   void send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg);
 
   template <class MT>
-  MT* to_concrete_type(const void* data, const size_t size)
+  google::protobuf::Message* to_concrete_type(const void* data, const size_t size)
   {
     MT* msg( new MT );
     msg->ParseFromArray(data, size);
@@ -40,24 +45,72 @@ public:
 
   void connect(std::string com);
   void bind(std::string com);
-  void handle_receive();
+  void receive_and_dispatch();
+
+  template <class MT>
+  MT* receive()
+  {
+      const google::protobuf::Descriptor *desc = MT::descriptor();
+      KeyType key = key_from_desc(desc);
+
+      if ( ! connected_) {
+        // TODO: throw
+      }
+
+      // receive header
+      upns::Header h;
+      zmq::message_t msg_h;
+      socket_->recv( &msg_h );
+      h.ParseFromArray(msg_h.data(), msg_h.size());
+
+      if(h.comp_id() != key.first || h.msg_type() != key.second)
+      {
+          return NULL;
+      }
+      // receive msg
+      zmq::message_t msg_zmq;
+      socket_->recv( &msg_zmq );
+
+      // dispatch msg
+      ConcreteTypeFactory factory = get_factory_for_message(h.comp_id(), h.msg_type());
+      MT* ret = static_cast<MT*>((this->*factory)(msg_h.data(), msg_h.size()));
+      return ret;
+  }
+
   unsigned char * receive_raw(size_t & size);
   void send(std::unique_ptr< ::google::protobuf::Message> msg);
   void send_raw(unsigned char* data, size_t size);
+
+  template <class MT>
+  typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_receivable_message_type()
+  {
+    const google::protobuf::Descriptor *desc = MT::descriptor();
+    KeyType key = key_from_desc(desc);
+    if (factory_by_comp_type_.find(key) != factory_by_comp_type_.end()) {
+      std::string msg = "Message type " + std::to_string(key.first) + ":" + std::to_string(key.second) + " already registered";
+      throw std::runtime_error(msg);
+    }
+    factory_by_comp_type_[key] = &ZmqNode::to_concrete_type<MT>;
+  }
 
   template <class MT>
   typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_receivable_message_type(ReceiveDelegate &handler)
   {
     const google::protobuf::Descriptor *desc = MT::descriptor();
     KeyType key = key_from_desc(desc);
-    if (message_by_comp_type_.find(key) != message_by_comp_type_.end()) {
+    if (factory_by_comp_type_.find(key) != factory_by_comp_type_.end()) {
       std::string msg = "Message type " + std::to_string(key.first) + ":" + std::to_string(key.second) + " already registered";
       throw std::runtime_error(msg);
     }
-    message_by_comp_type_[key] = [handler, this](const void* data, const size_t size)
-      {
-        handler( this->to_concrete_type<MT>(data, size) );
-      };
+    factory_by_comp_type_[key] = &ZmqNode::to_concrete_type<MT>;
+    if (delegate_by_comp_type_.find(key) != delegate_by_comp_type_.end()) {
+      std::string msg = "Message type " + std::to_string(key.first) + ":" + std::to_string(key.second) + " already registered with delegate";
+      throw std::runtime_error(msg);
+    }
+    delegate_by_comp_type_[key] = [handler, this](const void* data, const size_t size)
+    {
+      handler( this->to_concrete_type<MT>(data, size) );
+    };
   }
 };
 

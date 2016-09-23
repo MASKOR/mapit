@@ -17,6 +17,6 @@ upns::ZmqResponder::~ZmqResponder()
 
 void upns::ZmqResponder::handleRequest()
 {
-    m_d->handle_receive();
+    m_d->receive_and_dispatch();
 }
 

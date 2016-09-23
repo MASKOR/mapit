@@ -14,7 +14,7 @@ class ZmqResponderPrivate : public ZmqNode
 
 public:
     ZmqResponderPrivate( int portIncomingRequests, Repository* repo, std::__cxx11::string urlOutgoingRequests = std::__cxx11::string() );
-    void handleRequestCheckoutFromMaster(RequestCheckoutFromMaster* msg);
+    void handleRequestCheckout(RequestCheckout* msg);
     void handleRequestEntitydata(RequestEntitydata* msg);
     void handleRequestHierarchy(RequestHierarchy* msg);
     void handleRequestListCheckouts(RequestListCheckouts* msg);

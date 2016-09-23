@@ -17,9 +17,9 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     void (upns::ZmqResponderPrivate::*member)(google::protobuf::Message*);
     std::function<void(google::protobuf::Message*)> fn;
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestCheckoutFromMaster, &upns::ZmqResponderPrivate::handleRequestCheckoutFromMaster>;
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestCheckout, &upns::ZmqResponderPrivate::handleRequestCheckout>;
     fn = std::bind(member, this, std::placeholders::_1);
-    add_receivable_message_type<RequestCheckoutFromMaster>( fn );
+    add_receivable_message_type<RequestCheckout>( fn );
 
     member = &upns::ZmqResponderPrivate::toDelegate<RequestEntitydata, &upns::ZmqResponderPrivate::handleRequestEntitydata>;
     fn = std::bind(member, this, std::placeholders::_1);
@@ -42,7 +42,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     add_receivable_message_type<RequestStoreEntity>( fn );
 }
 
-void upns::ZmqResponderPrivate::handleRequestCheckoutFromMaster(RequestCheckoutFromMaster *msg)
+void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 {
 
 }
