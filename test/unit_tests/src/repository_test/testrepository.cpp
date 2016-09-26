@@ -104,12 +104,31 @@ void TestRepository::testCreateCheckout()
     operationCreateTree.set_operatorname("load_pointcloud");
     QJsonObject params;
     params["filename"] = "data/bunny.pcd";
-    params["target"] = "/testmap/testlayer/testentity";
+    QString entityPath("/testmap/testlayer/testentity");
+    params["target"] = entityPath;
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operationCreateTree.set_params( paramsDoc.toJson().toStdString() );
     co->doOperation(operationCreateTree);
     serverHandleRequest();
+    upnsSharedPointer<Tree> tr = co->getTree( entityPath.mid(0, entityPath.lastIndexOf('/')).toStdString() );
+    QVERIFY(tr != NULL);
+    if(tr)
+    {
+        upnsString childName(entityPath.mid( entityPath.lastIndexOf('/')+1 ).toStdString());
+        bool childFound = false;
+        for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator ch( tr->refs().cbegin() );
+            ch != tr->refs().cend();
+            ++ch)
+        {
+            childFound |= (ch->first == childName);
+        }
+        QVERIFY2(childFound, "Created entity was not child of parent tree");
+    }
+    upnsSharedPointer<Entity> ent = co->getEntity( entityPath.toStdString() );
+    QVERIFY(ent != NULL);
+    if(ent)
+        QVERIFY(ent->type() != upns::POINTCLOUD2);
 }
 
 void TestRepository::testGetCheckout_data() { createTestdata(); }

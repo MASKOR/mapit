@@ -211,7 +211,9 @@ upnsSharedPointer<Entity>
 FSSerializer::getEntityTransient(const Path path)
 {
     //TODO
-    fs::path p = repo_ / fs::path(_PREFIX_CHECKOUTS_) / fs::path(path);
+    Path pathWithoutSlash = path.substr(0, path.length()- (path[path.length()-1] == '/'));
+
+    fs::path p = repo_ / fs::path(_PREFIX_CHECKOUTS_) / fs::path(pathWithoutSlash);
 
     if ( ! fs::exists( p.parent_path() ) ) {
         return upnsSharedPointer<Entity>(NULL);

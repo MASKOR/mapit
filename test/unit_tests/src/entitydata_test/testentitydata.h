@@ -3,8 +3,13 @@
 
 #include <QTest>
 
-#include "../../../libs/mapmanager/src/mapmanager.h"
-#include "../../../libs/mapmanager/src/mapservice.h"
+#include "versioning/repository.h"
+
+namespace upns {
+class RepositoryServer;
+}
+
+//TODO: Put test setup in common base class!
 
 class TestEntitydata : public QObject
 {
@@ -20,8 +25,12 @@ private slots:
     void testCreateLayer();
 
 private:
-    upns::MapManager *m_mapManager;
-    upns::MapService *m_mapService;
+    upns::Repository *m_repo[3];
+    upns::RepositoryServer* m_srv;
+    std::function<void()> m_serverCallback;
+
+    upns::Checkout *m_checkout[3];
+    void createTestdata();
 };
 
 #endif
