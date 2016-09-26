@@ -82,5 +82,8 @@ void upns::ZmqRequesterCheckout::syncHierarchy()
 {
     std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
     req->set_checkout(m_checkoutName);
-    m_pNode->send(req);
+    m_pNode->send(std::move(req));
+    upns::ReplyHierarchy *hierarchy = m_pNode->receive<upns::ReplyHierarchy>();
+    assert(m_cache);
+    //m_cache->
 }

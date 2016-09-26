@@ -48,7 +48,6 @@ find_library(YAMLCPP_LIBRARY
                     /opt
                     /lib
                     /home/dbulla/develop/upns_software/externals/yaml-cpp/build) # Todo:
-                message (TMPPPPPPP "HUHUH" ${YAMLCPP_LIBRARY})
 # handle the QUIETLY and REQUIRED arguments and set YAMLCPP_FOUND to TRUE if all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(YAMLCPP DEFAULT_MSG YAMLCPP_INCLUDE_DIR YAMLCPP_LIBRARY)

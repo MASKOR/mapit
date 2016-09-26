@@ -44,16 +44,16 @@ ZmqNode::bind(std::string com)
 
 
 void
-ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg)
+ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags)
 {
   int size = msg->ByteSize();
   zmq::message_t msg_zmq( size );
   msg->SerializeToArray(msg_zmq.data(), size);
-  socket_->send(msg_zmq);
+  socket_->send(msg_zmq, flags);
 }
 
 void
-ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg)
+ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
 {
   if ( ! connected_) {
     // TODO: throw
@@ -70,25 +70,31 @@ ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg)
   h->set_comp_id(comp_id);
   h->set_msg_type(msg_type);
 
-  send_pb_single(std::move(h));
+  send_pb_single(std::move(h), ZMQ_SNDMORE);
 
   // send msg
-  send_pb_single(std::move(msg));
+  send_pb_single(std::move(msg), sndmore ? ZMQ_SNDMORE : 0);
+}
+
+// Does not add header information. For multipart binary frames
+void
+ZmqNode::send_raw_body(unsigned char* data, size_t size, int flags)
+{
+  zmq::message_t msg(size);
+  memcpy(msg.data(), data, size);
+  socket_->send(msg, flags);
 }
 
 void
-ZmqNode::send_raw(unsigned char* data, size_t size)
+ZmqNode::send_raw(unsigned char* data, size_t size, int flags)
 {
   std::unique_ptr<upns::RawDataSize> pb(new upns::RawDataSize);
   pb->set_size(size);
-  send_pb_single(std::move(pb));
+  send_pb_single(std::move(pb), ZMQ_SNDMORE);
 
   zmq::message_t msg(size);
   memcpy(msg.data(), data, size);
-  socket_->send(msg);
-//  zmq_msg_t msg_zmq;
-//  zmq_msg_init_data(&msg_zmq, data, size, my_free, NULL);
-//  zmq_send(socket_, &msg_zmq, size, 0);
+  socket_->send(msg, flags);
 }
 
 void
@@ -110,6 +116,7 @@ ZmqNode::receive_and_dispatch()
 
   // dispatch msg
   ReceiveRawDelegate handler = get_handler_for_message(h.comp_id(), h.msg_type());
+  // TODO: handler can not call msg_zmq.more()!? Bad design. Use message_t directly as parameter.
   handler(msg_zmq.data(), msg_zmq.size());
 }
 

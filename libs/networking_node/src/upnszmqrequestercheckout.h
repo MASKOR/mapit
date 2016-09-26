@@ -40,7 +40,7 @@ public:
 private:
     upnsString m_checkoutName;
     ZmqNode *m_pNode;
-    upns::Checkout m_cache;
+    upns::Checkout *m_cache;
 
     void syncHierarchy();
 };

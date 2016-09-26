@@ -4,6 +4,7 @@
 #include <string>
 #include "zmqnode.h"
 #include "services.pb.h"
+#include "versioning/repository.h"
 
 namespace upns {
 
@@ -11,8 +12,8 @@ class ZmqRequesterPrivate : public ZmqNode
 {
 
 public:
-    ZmqRequesterPrivate( std::string urlOutgoingRequests = std::string() );
-
+    ZmqRequesterPrivate( Repository* cache, std::string urlOutgoingRequests = std::string() );
+    Repository* m_cache;
 private:
     friend class UpnsZmqNode;
 };

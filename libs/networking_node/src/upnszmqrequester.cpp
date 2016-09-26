@@ -3,8 +3,8 @@
 #include "upnszmqrequestercheckout.h"
 #include <zmq.hpp>
 
-upns::ZmqRequester::ZmqRequester(std::__cxx11::string urlOutgoingRequests)
-    :m_d( new upns::ZmqRequesterPrivate(urlOutgoingRequests) )
+upns::ZmqRequester::ZmqRequester(Repository *cache, std::__cxx11::string urlOutgoingRequests)
+    :m_d( new upns::ZmqRequesterPrivate( cache, urlOutgoingRequests ) )
 {
 }
 
@@ -82,7 +82,7 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::createCheckout(const
     m_d->send(std::move(req));
     upns::ReplyCheckout *rep = m_d->receive<upns::ReplyCheckout>();
 
-    return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( m_d ));
+    return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d ));
 }
 
 upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::getCheckout(const upns::upnsString &checkoutName)

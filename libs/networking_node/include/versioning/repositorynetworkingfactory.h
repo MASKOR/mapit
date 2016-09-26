@@ -52,7 +52,7 @@ public:
      * Note: Calls should not be called in a main or gui thread, as this would block messages from OS and freeze UIs.
      * @return
      */
-    static upns::Repository* connectToRemoteRepository(upns::upnsString url);
+    static upns::Repository* connectToRemoteRepository(upns::upnsString url, Repository* cache);
 
     /**
      * @brief connectToRemoteRepositoryCached. Creates a local repository, all requests, that can not be answered locally are requested from remote and are cached locally.

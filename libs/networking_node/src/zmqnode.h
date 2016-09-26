@@ -29,7 +29,7 @@ private:
   KeyType key_from_desc(const google::protobuf::Descriptor *desc);
   ReceiveRawDelegate get_handler_for_message(uint16_t component_id, uint16_t msg_type);
   ConcreteTypeFactory get_factory_for_message(uint16_t component_id, uint16_t msg_type);
-  void send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg);
+  void send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags);
 
   template <class MT>
   google::protobuf::Message* to_concrete_type(const void* data, const size_t size)
@@ -78,8 +78,9 @@ public:
   }
 
   unsigned char * receive_raw(size_t & size);
-  void send(std::unique_ptr< ::google::protobuf::Message> msg);
-  void send_raw(unsigned char* data, size_t size);
+  void send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore = false);
+  void send_raw_body(unsigned char* data, size_t size, int flags = 0);
+  void send_raw(unsigned char* data, size_t size, int flags = 0);
 
   template <class MT>
   typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_receivable_message_type()

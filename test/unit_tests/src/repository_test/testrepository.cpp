@@ -78,7 +78,7 @@ void TestRepository::initTestCase()
         conf["mapsource"] = mapsource;
 
         m_srv = upns::RepositoryNetworkingFactory::openRepositoryAsServer(1234, m_repo[1]);
-        m_repo[2] = upns::RepositoryNetworkingFactory::connectToRemoteRepository("localhost:1234");
+        m_repo[2] = upns::RepositoryNetworkingFactory::connectToRemoteRepository("localhost:1234", NULL);
     }
 }
 
