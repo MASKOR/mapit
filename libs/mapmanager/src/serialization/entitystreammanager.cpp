@@ -88,7 +88,7 @@ upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataImpl(Abs
     return edata;
 }
 
-upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataFromPathImpl(AbstractMapSerializer* serializer, const Path &path, bool canRead, bool canWrite)
+upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataByPathImpl(AbstractMapSerializer* serializer, const Path &path, bool canRead, bool canWrite)
 {
     upnsSharedPointer<Entity> ent = serializer->getEntityTransient( path );
     if( ent == NULL )
@@ -98,6 +98,12 @@ upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataFromPath
     }
     assert( ent );
     upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( ent->type(), serializer->getStreamProviderTransient(path, canRead, canWrite) ) ;
+    return edata;
+}
+
+upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataFromStreamImpl(LayerType type, upnsSharedPointer<AbstractEntityDataStreamProvider> edsp, bool canRead)
+{
+    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( type, edsp );
     return edata;
 }
 

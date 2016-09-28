@@ -73,6 +73,8 @@ public:
 
     virtual upnsOStream *startWriteBytes(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
     virtual void endWrite(upnsOStream *strm) = 0;
+
+    virtual size_t size() const = 0;
 };
 
 }

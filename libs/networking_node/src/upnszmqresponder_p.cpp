@@ -41,6 +41,15 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreEntity, &upns::ZmqResponderPrivate::handleRequestStoreEntity>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreEntity>( fn );
+
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestEntity, &upns::ZmqResponderPrivate::handleRequestEntity>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestEntity>( fn );
+
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestTree, &upns::ZmqResponderPrivate::handleRequestTree>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestTree>( fn );
+
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
 
@@ -74,12 +83,14 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
     if(co == NULL)
     {
         ptr->set_status( upns::ReplyEntitydata::NOT_FOUND );
+        ptr->set_length( 0 );
         send( std::move( ptr ) );
     }
     else
     {
-        ptr->set_status( upns::ReplyEntitydata::SUCCESS );
         upnsSharedPointer<AbstractEntityData> ed = co->getEntitydataReadOnly( msg->entitypath() );
+        ptr->set_status( upns::ReplyEntitydata::SUCCESS );
+        ptr->set_length( ed->size() );
         // Send multipart message
 
         // protobuf frame
@@ -202,4 +213,38 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
 void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {
 
+}
+
+void upns::ZmqResponderPrivate::handleRequestEntity(upns::RequestEntity *msg)
+{
+    std::unique_ptr<upns::ReplyEntity> rep(new upns::ReplyEntity());
+    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    upnsSharedPointer<Entity> e = co->getEntity(msg->path());
+    if(e)
+    {
+        rep->set_status( upns::ReplyEntity::SUCCESS );
+        rep->set_allocated_entity( new Entity(*e) );
+    }
+    else
+    {
+        rep->set_status( upns::ReplyEntity::NOT_FOUND );
+    }
+    send( std::move( rep ) );
+}
+
+void upns::ZmqResponderPrivate::handleRequestTree(upns::RequestTree *msg)
+{
+    std::unique_ptr<upns::ReplyTree> rep(new upns::ReplyTree());
+    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    upnsSharedPointer<Tree> t = co->getTree(msg->path());
+    if(t)
+    {
+        rep->set_status( upns::ReplyTree::SUCCESS );
+        rep->set_allocated_tree( new Tree(*t) );
+    }
+    else
+    {
+        rep->set_status( upns::ReplyTree::NOT_FOUND );
+    }
+    send( std::move( rep ) );
 }

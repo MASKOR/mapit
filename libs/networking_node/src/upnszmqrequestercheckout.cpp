@@ -1,11 +1,12 @@
 #include "upnszmqrequestercheckout.h"
+#include "serialization/entitystreammanager.h" //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
+#include "serialization/zmqentitydatastreamprovider.h"
 
 upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqNode *node, Checkout *cache)
     :m_checkoutName( name ),
      m_node( node ),
      m_cache( cache )
 {
-
 }
 
 bool upns::ZmqRequesterCheckout::isInConflictMode()
@@ -79,17 +80,31 @@ upns::upnsVec<upns::CommitId> upns::ZmqRequesterCheckout::getParentCommitIds()
 
 upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnly(const upns::Path &entityId)
 {
+    upnsSharedPointer<Entity> e = getEntity(entityId);
+    if(!e)
+    {
+        log_error("Entity could not be queried for entitydata: " + entityId);
+        return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
+    }
     std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
     req->set_checkout(m_checkoutName);
     req->set_entitypath(entityId);
     m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::RequestEntitydata>());
-    char buf[1024];
-    int64_t more;
-    do {
-        m_node->receive_raw_body(buf, sizeof(buf));
-    } while (m_node->has_more());
-    return ret;
+    upns::upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
+    if(rep->status() == upns::ReplyEntitydata::SUCCESS)
+    {
+        char buf[1024];
+        int64_t more;
+        do {
+            m_node->receive_raw_body(buf, sizeof(buf));
+        } while (m_node->has_more());
+        upns::upnsSharedPointer<AbstractEntityDataStreamProvider> aedsp(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+        return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), aedsp);
+    }
+    else
+    {
+        return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
+    }
 }
 
 upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)

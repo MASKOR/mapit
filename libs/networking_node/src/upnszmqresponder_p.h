@@ -4,6 +4,7 @@
 #include <string>
 #include "zmqnode.h"
 #include "services.pb.h"
+#include "services_internal.pb.h"
 
 namespace upns {
 
@@ -20,6 +21,8 @@ public:
     void handleRequestListCheckouts(RequestListCheckouts* msg);
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);
+    void handleRequestEntity(upns::RequestEntity *msg);
+    void handleRequestTree(upns::RequestTree *msg);
 
     Repository *m_repo;
     std::__cxx11::string m_urlOutgoing;

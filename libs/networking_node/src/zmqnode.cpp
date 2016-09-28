@@ -120,32 +120,15 @@ ZmqNode::receive_and_dispatch()
   handler(msg_zmq.data(), msg_zmq.size());
 }
 
-unsigned char *
-ZmqNode::receive_raw(size_t & size)
+size_t
+ZmqNode::receive_raw_body(void* data, size_t size)
 {
-  // receive size
-  upns::RawDataSize pb;
-  zmq::message_t msg_pb;
-  socket_->recv( &msg_pb );
-  pb.ParseFromArray(msg_pb.data(), msg_pb.size());
-  size = pb.size();
-  unsigned char * data = (unsigned char *) malloc( size );
-
-  // receive data
-  zmq::message_t msg;
-  socket_->recv( &msg );
-  memcpy(data, msg.data(), size);
-//  zmq_recv(socket_, data, size, 0);
-//  data = (unsigned char*)msg.data();
-//  size = msg->size();
-
-  return data;
-}
-
-void
-ZmqNode::receive_raw_body(void* data, size_t & size)
-{
-    socket_->recv( data, size );
+    //zmq::message_t msg(data, size); //TODO: zero copy would be nice
+    zmq::message_t msg;
+    socket_->recv( &msg );
+    size_t len = msg.size();
+    memcpy(data, msg.data(), min(size, len));
+    return len;
 }
 
 bool ZmqNode::has_more()
