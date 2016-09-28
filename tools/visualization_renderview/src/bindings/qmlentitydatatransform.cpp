@@ -15,7 +15,6 @@ QmlEntitydataTransform::QmlEntitydataTransform(upns::upnsSharedPointer<upns::Abs
 
 QMatrix4x4 QmlEntitydataTransform::matrix() const
 {
-    qDebug() << "DBG: Matrixc Updated";
     if(!QmlEntitydata::checkout() || !QmlEntitydata::checkout()->getCheckoutObj() || path().isEmpty())
     {
         return QMatrix4x4();
@@ -33,7 +32,6 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
         return QMatrix4x4();
     }
     upns::upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntityData );
-    qDebug() << "DBG: Matrixc value is" << *entityData->getData();
     return *entityData->getData();
 }
 

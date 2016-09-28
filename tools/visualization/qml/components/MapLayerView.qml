@@ -127,8 +127,6 @@ ListView {
                     }
                 ]
             }
-            console.log("dbg: newname" + newName);
-            console.log("dbg: mapid" + mapId + " lay " + layerId);
             var success = Globals.doOperation( opdesc, function(result) {
                 //enabled = true
                 if(result.status !== 0) {

@@ -2,7 +2,7 @@
 
 upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqNode *node, Checkout *cache)
     :m_checkoutName( name ),
-     m_pNode( node ),
+     m_node( node ),
      m_cache( cache )
 {
 
@@ -10,57 +10,86 @@ upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqNode *node,
 
 bool upns::ZmqRequesterCheckout::isInConflictMode()
 {
-
+    //TODO: nyi
+    return false;
 }
 
 upns::upnsVec<upns::upnsSharedPointer<upns::Conflict> > upns::ZmqRequesterCheckout::getPendingConflicts()
 {
-
+    //TODO: nyi
+    return upns::upnsVec<upns::upnsSharedPointer<upns::Conflict> >();
 }
 
 void upns::ZmqRequesterCheckout::setConflictSolved(const upns::Path &path, const upns::ObjectId &oid)
 {
-
+    //TODO: nyi
 }
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
 {
-
+    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
+    req->set_checkout(m_checkoutName);
+    m_node->send(std::move(req));
+    upns::upnsSharedPointer<upns::ReplyHierarchy> rep(m_node->receive<upns::ReplyHierarchy>());
+    upns::upnsSharedPointer<upns::Tree> ret(new upns::Tree);
+    for(google::protobuf::Map< ::std::string, ::upns::ReplyHierarchyMap >::const_iterator ch( rep->maps().cbegin() );
+        ch != rep->maps().cend();
+        ++ch)
+    {
+        ret->mutable_refs()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>(ch->first, upns::ObjectReference()));
+    }
+    return ret;
 }
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTreeConflict(const upns::ObjectId &objectId)
 {
-
+    //TODO: nyi
+    return upns::upnsSharedPointer<upns::Tree>();
 }
 
 upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntityConflict(const upns::ObjectId &objectId)
 {
-
+    //TODO: nyi
+    return upns::upnsSharedPointer<upns::Entity>();
 }
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path)
 {
-
+    //TODO: introduce internal datatype
+    return upns::upnsSharedPointer<upns::Tree>();
 }
 
 upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &path)
 {
-
+    //TODO: introduce internal datatype
+    return upns::upnsSharedPointer<upns::Entity>();
 }
 
 upns::upnsSharedPointer<upns::Branch> upns::ZmqRequesterCheckout::getParentBranch()
 {
-
+    //TODO: nyi
+    return upns::upnsSharedPointer<upns::Branch>();
 }
 
 upns::upnsVec<upns::CommitId> upns::ZmqRequesterCheckout::getParentCommitIds()
 {
-
+    //TODO: nyi
+    return upns::upnsVec<upns::CommitId>();
 }
 
 upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnly(const upns::Path &entityId)
 {
-
+    std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
+    req->set_checkout(m_checkoutName);
+    req->set_entitypath(entityId);
+    m_node->send(std::move(req));
+    upns::upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::RequestEntitydata>());
+    char buf[1024];
+    int64_t more;
+    do {
+        m_node->receive_raw_body(buf, sizeof(buf));
+    } while (m_node->has_more());
+    return ret;
 }
 
 upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
@@ -82,8 +111,10 @@ void upns::ZmqRequesterCheckout::syncHierarchy()
 {
     std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
     req->set_checkout(m_checkoutName);
-    m_pNode->send(std::move(req));
-    upns::ReplyHierarchy *hierarchy = m_pNode->receive<upns::ReplyHierarchy>();
+    m_node->send(std::move(req));
+    upns::ReplyHierarchy *hierarchy = m_node->receive<upns::ReplyHierarchy>();
     assert(m_cache);
     //m_cache->
+
+    delete hierarchy;
 }

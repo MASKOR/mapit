@@ -142,6 +142,20 @@ ZmqNode::receive_raw(size_t & size)
   return data;
 }
 
+void
+ZmqNode::receive_raw_body(void* data, size_t & size)
+{
+    socket_->recv( data, size );
+}
+
+bool ZmqNode::has_more()
+{
+    int64_t more;
+    size_t more_size = sizeof (more);
+    responder.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+    return more != 0;
+}
+
 ZmqNode::KeyType
 ZmqNode::key_from_desc(const google::protobuf::Descriptor *desc)
 {

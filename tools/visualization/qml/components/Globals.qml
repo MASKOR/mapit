@@ -27,7 +27,6 @@ Item {
         mapIdsModel.idToIndex = {};
         privateMembers.maps = {};
         mapIdsModel.clear();
-        console.log("dbg: cleared the cache")
     }
     function doOperation(opDesc, onFinished, reloadLists) {
         var result = privateMembers.mapManager.doOperation(opDesc) //todo. async

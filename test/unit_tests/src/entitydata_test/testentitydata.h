@@ -4,12 +4,13 @@
 #include <QTest>
 
 #include "versioning/repository.h"
+#include "../repositorycommon.h"
 
 namespace upns {
-class RepositoryServer;
+class AbstractEntityData;
+class AbstractMapSerializer;
+class AbstractEntityDataStreamProvider;
 }
-
-//TODO: Put test setup in common base class!
 
 class TestEntitydata : public QObject
 {
@@ -23,14 +24,11 @@ private slots:
 
     void testCreateLayer_data();
     void testCreateLayer();
-
 private:
-    upns::Repository *m_repo[3];
-    upns::RepositoryServer* m_srv;
-    std::function<void()> m_serverCallback;
-
-    upns::Checkout *m_checkout[3];
     void createTestdata();
+    upns::upnsSharedPointer<upns::AbstractMapSerializer> m_ed[2];
+    upns::upnsSharedPointer<upns::AbstractEntityDataStreamProvider> m_edsp[2];
+
 };
 
 #endif

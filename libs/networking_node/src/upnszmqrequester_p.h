@@ -19,4 +19,4 @@ private:
 };
 
 } // namespace upns
-#endif // UPNSZMQNODE_H
+#endif // UPNSZMQREQUESTER_P_H

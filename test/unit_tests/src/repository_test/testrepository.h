@@ -4,12 +4,13 @@
 #include <QTest>
 
 #include "versioning/repository.h"
+#include "../repositorycommon.h"
 
 namespace upns {
 class RepositoryServer;
 }
 
-class TestRepository : public QObject
+class TestRepository : public RepositoryCommon
 {
     Q_OBJECT
 private slots:
@@ -27,13 +28,6 @@ private slots:
     void testCommit();
     void testVoxelgridfilter_data();
     void testVoxelgridfilter();
-
-private:
-    upns::Repository *m_repo[3];
-    upns::RepositoryServer* m_srv;
-    std::function<void()> m_serverCallback;
-
-    void createTestdata();
 };
 
 #endif

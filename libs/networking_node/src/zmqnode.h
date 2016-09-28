@@ -77,7 +77,9 @@ public:
       return ret;
   }
 
-  unsigned char * receive_raw(size_t & size);
+  unsigned char *receive_raw(size_t & size);
+  void receive_raw_body(void* data, size_t & size);
+  bool has_more();
   void send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore = false);
   void send_raw_body(unsigned char* data, size_t size, int flags = 0);
   void send_raw(unsigned char* data, size_t size, int flags = 0);

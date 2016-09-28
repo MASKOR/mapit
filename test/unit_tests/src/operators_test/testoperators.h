@@ -2,10 +2,9 @@
 #define __TESTOPERATORS_H
 
 #include <QTest>
+#include "../repositorycommon.h"
 
-#include "../../../libs/mapmanager/src/mapmanager.h"
-
-class TestOperators : public QObject
+class TestOperators : public RepositoryCommon
 {
     Q_OBJECT
 private slots:
@@ -16,9 +15,6 @@ private slots:
     void cleanupTestCase();
 
     void testOperatorLoadPointcloud();
-private:
-    upns::MapManager *m_mapManager;
-    upns::MapService *m_mapService;
 };
 
 #endif

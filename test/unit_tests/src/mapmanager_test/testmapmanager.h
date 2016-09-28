@@ -3,9 +3,9 @@
 
 #include <QTest>
 
-#include "../../../libs/mapmanager/src/versioning/repository.h"
+#include "../repositorycommon.h"
 
-class TestMapManager : public QObject
+class TestMapManager : public RepositoryCommon
 {
     Q_OBJECT
 private slots:

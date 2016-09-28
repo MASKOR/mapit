@@ -41,6 +41,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreEntity, &upns::ZmqResponderPrivate::handleRequestStoreEntity>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreEntity>( fn );
+    bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
 
 void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)

@@ -13,8 +13,6 @@ aux_source_directory(. SRC_LIST)
 
 #set (CMAKE_CXX_STANDARD 14)
 
-message("DBGSTART")
-
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         message(WARNING "WARNING: In-Place Build not recommended.")
 endif()

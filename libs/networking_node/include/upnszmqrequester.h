@@ -18,7 +18,7 @@ class ZmqRequesterPrivate;
 class ZmqRequester : public upns::Repository
 {
 public:
-    ZmqRequester(Repository* cache, std::string urlOutgoingRequests = std::string());
+    ZmqRequester(Repository* cache, upnsString urlOutgoingRequests = std::string());
     ~ZmqRequester();
 private:
     ZmqRequesterPrivate *m_d;

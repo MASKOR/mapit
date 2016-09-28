@@ -11,9 +11,6 @@ using namespace upns;
 using Strings = upnsVec<upnsString>;
 using Layers = upnsVec<Layer>;
 
-Q_DECLARE_METATYPE( Strings );
-Q_DECLARE_METATYPE( Layers );
-
 void TestMapManager::init()
 {
 }

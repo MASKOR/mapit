@@ -3,8 +3,6 @@
 
 #include <QTest>
 
-#include "../../../libs/mapmanager/src/versioning/repository.h"
-
 class TestMapFileService : public QObject
 {
     Q_OBJECT
