@@ -98,8 +98,8 @@ upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::ge
         do {
             m_node->receive_raw_body(buf, sizeof(buf));
         } while (m_node->has_more());
-        upns::upnsSharedPointer<AbstractEntityDataStreamProvider> aedsp(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
-        return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), aedsp);
+        upns::upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+        return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), streamProvider);
     }
     else
     {

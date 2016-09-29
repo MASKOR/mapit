@@ -1,5 +1,6 @@
 #include "zmqnode.h"
 #include "transport.pb.h"
+#include <algorithm>
 
 void my_free(void *data, void *hint)
 {
@@ -41,7 +42,7 @@ ZmqNode::bind(std::string com)
   socket_->bind(com);
   connected_ = true;
 }
-
+#include <qdebug.h>
 
 void
 ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags)
@@ -49,6 +50,8 @@ ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int f
   int size = msg->ByteSize();
   zmq::message_t msg_zmq( size );
   msg->SerializeToArray(msg_zmq.data(), size);
+  std::string m;
+  qDebug() << "DBG: SENT:" << QString::fromStdString(std::string((char*)msg_zmq.data(), size));
   socket_->send(msg_zmq, flags);
 }
 
@@ -127,7 +130,7 @@ ZmqNode::receive_raw_body(void* data, size_t size)
     zmq::message_t msg;
     socket_->recv( &msg );
     size_t len = msg.size();
-    memcpy(data, msg.data(), min(size, len));
+    memcpy(data, msg.data(), std::min(size, len));
     return len;
 }
 
@@ -135,7 +138,7 @@ bool ZmqNode::has_more()
 {
     int64_t more;
     size_t more_size = sizeof (more);
-    responder.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+    socket_->getsockopt(ZMQ_RCVMORE, &more, &more_size);
     return more != 0;
 }
 

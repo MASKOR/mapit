@@ -44,7 +44,7 @@ void TestRepository::testCreateCheckout()
     QFETCH(std::function<void()>, serverHandleRequest);
     serverHandleRequest();
     upnsSharedPointer<Checkout> co(repo->createCheckout("master", "testcheckout_created_new"));
-
+    QVERIFY(co != nullptr);
     OperationDescription operationCreateTree;
     operationCreateTree.set_operatorname("load_pointcloud");
     QJsonObject params;
@@ -57,7 +57,7 @@ void TestRepository::testCreateCheckout()
     serverHandleRequest();
     co->doOperation(operationCreateTree);
     upnsSharedPointer<Tree> tr = co->getTree( entityPath.mid(0, entityPath.lastIndexOf('/')).toStdString() );
-    QVERIFY(tr != NULL);
+    QVERIFY(tr != nullptr);
     QVERIFY(tr->refs_size() != 0);
     if(tr && tr->refs_size() != 0)
     {
@@ -75,7 +75,7 @@ void TestRepository::testCreateCheckout()
     upnsSharedPointer<Entity> ent = co->getEntity( entityPath.toStdString() );
     QVERIFY(ent != NULL);
     if(ent)
-        QVERIFY(ent->type() != upns::POINTCLOUD2);
+        QVERIFY(ent->type() == upns::POINTCLOUD2);
 }
 
 void TestRepository::testGetCheckout_data() { createTestdata(); }
@@ -108,6 +108,7 @@ void TestRepository::testCommit()
     QFETCH(upns::upnsSharedPointer<upns::Repository>, repo);
     QFETCH(std::function<void()>, serverHandleRequest);
     upnsSharedPointer<Checkout> co(repo->getCheckout("testcheckout"));
+    QVERIFY(co != nullptr);
     serverHandleRequest();
     repo->commit( co, "This is the commit message of a TestCommit");
     serverHandleRequest();
@@ -120,6 +121,7 @@ void TestRepository::testVoxelgridfilter()
     QFETCH(std::function<void()>, serverHandleRequest);
     serverHandleRequest();
     upnsSharedPointer<Checkout> co(repo->getCheckout("testcheckout"));
+    QVERIFY(co != nullptr);
     OperationDescription operation;
     operation.set_operatorname("voxelgridfilter");
     QJsonObject params;

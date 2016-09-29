@@ -62,7 +62,7 @@ void upns::ZmqEntitydata::initHead() const
     req->set_checkout(m_checkoutName);
     req->set_entitypath(m_pathOrOid);
     req->set_offset(0);
-    req->set_maxsize(0);
+    req->set_maxlength(0);
     m_node->send(std::move(req));
     m_ed = upns::upnsSharedPointer<upns::ReplyEntitydata>(m_node->receive<upns::ReplyEntitydata>());
     // Receive empty frames to not disturb following receives.

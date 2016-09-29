@@ -8,6 +8,8 @@
 #include <map>
 #include <functional>
 
+#include <QDebug>
+
 class ZmqNode
 {
 private:
@@ -70,6 +72,8 @@ public:
       // receive msg
       zmq::message_t msg_zmq;
       socket_->recv( &msg_zmq );
+      qDebug() << "DBG: RECV:" << QString::fromStdString(std::string((char*)msg_h.data(), msg_h.size()))
+               << ";2:" << QString::fromStdString(std::string((char*)msg_zmq.data(), msg_zmq.size()));
 
       // dispatch msg
       ConcreteTypeFactory factory = get_factory_for_message(h.comp_id(), h.msg_type());

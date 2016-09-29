@@ -50,9 +50,9 @@ FSSerializer::FSSerializer(const YAML::Node &config)
         path = path.parent_path();
 
         if ( ! fs::exists( path ) ) {
-            log_warn("Could not find " + _PREFIX_MAPIT_ + " in this or its parent folders");
+            log_info("Could not find " + _PREFIX_MAPIT_ + " in this or its parent folders");
             path = fs::current_path();
-            log_warn("Create " + path.string() + _PREFIX_MAPIT_);
+            log_info("Create " + path.string() + _PREFIX_MAPIT_);
             if ( ! fs::create_directory( path.string() + _PREFIX_MAPIT_)) {
                 log_error("Could not create " + path.string() + _PREFIX_MAPIT_);
             }
