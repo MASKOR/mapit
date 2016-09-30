@@ -119,7 +119,8 @@ upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
 {
-
+    // nyi
+    return upns::OperationResult();
 }
 
 void upns::ZmqRequesterCheckout::syncHierarchy()

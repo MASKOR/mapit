@@ -85,7 +85,6 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::createCheckout(const
     req->set_commit(commitIdOrBranchname);
     m_d->send(std::move(req));
     upns::upnsSharedPointer<upns::ReplyCheckout> rep(m_d->receive<upns::ReplyCheckout>());
-    qDebug() << "STSTSTSUSDBG:" << rep->status();
     if(rep->status() == upns::ReplyCheckout::SUCCESS ||
        rep->status() == upns::ReplyCheckout::EXISTED)
     {

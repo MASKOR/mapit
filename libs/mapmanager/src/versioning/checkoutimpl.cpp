@@ -146,10 +146,12 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     {
         filename << "." << desc.operatorversion();
     }
+    std::string filenamestr = filename.str();
+    log_info("loading operator module \"" + filenamestr + "\"");
 #ifdef _WIN32
     HMODULE handle = LoadLibrary(filename.str().c_str());
 #else
-    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+    void* handle = dlopen(filenamestr.c_str(), RTLD_NOW);
 #endif
     if (!handle) {
 #ifdef _WIN32

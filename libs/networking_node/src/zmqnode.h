@@ -8,8 +8,6 @@
 #include <map>
 #include <functional>
 
-#include <QDebug>
-
 class ZmqNode
 {
 private:
@@ -33,7 +31,7 @@ private:
   ConcreteTypeFactory get_factory_for_message(uint16_t component_id, uint16_t msg_type);
   void send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags);
 
-  template <class MT>
+  template <typename MT>
   google::protobuf::Message* to_concrete_type(const void* data, const size_t size)
   {
     MT* msg( new MT );
@@ -49,7 +47,7 @@ public:
   void bind(std::string com);
   void receive_and_dispatch();
 
-  template <class MT>
+  template <typename MT>
   MT* receive()
   {
       const google::protobuf::Descriptor *desc = MT::descriptor();
@@ -72,12 +70,10 @@ public:
       // receive msg
       zmq::message_t msg_zmq;
       socket_->recv( &msg_zmq );
-      qDebug() << "DBG: RECV:" << QString::fromStdString(std::string((char*)msg_h.data(), msg_h.size()))
-               << ";2:" << QString::fromStdString(std::string((char*)msg_zmq.data(), msg_zmq.size()));
 
       // dispatch msg
       ConcreteTypeFactory factory = get_factory_for_message(h.comp_id(), h.msg_type());
-      MT* ret = static_cast<MT*>((this->*factory)(msg_h.data(), msg_h.size()));
+      MT* ret = static_cast<MT*>((this->*factory)(msg_zmq.data(), msg_zmq.size()));
       return ret;
   }
 
@@ -88,7 +84,7 @@ public:
   void send_raw_body(unsigned char* data, size_t size, int flags = 0);
   void send_raw(unsigned char* data, size_t size, int flags = 0);
 
-  template <class MT>
+  template <typename MT>
   typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_receivable_message_type()
   {
     const google::protobuf::Descriptor *desc = MT::descriptor();
@@ -100,7 +96,7 @@ public:
     factory_by_comp_type_[key] = &ZmqNode::to_concrete_type<MT>;
   }
 
-  template <class MT>
+  template <typename MT>
   typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, void>::type add_receivable_message_type(ReceiveDelegate &handler)
   {
     const google::protobuf::Descriptor *desc = MT::descriptor();
@@ -120,5 +116,6 @@ public:
     };
   }
 };
+
 
 #endif // ZMQNODE_H

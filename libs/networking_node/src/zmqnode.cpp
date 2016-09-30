@@ -50,8 +50,6 @@ ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int f
   int size = msg->ByteSize();
   zmq::message_t msg_zmq( size );
   msg->SerializeToArray(msg_zmq.data(), size);
-  std::string m;
-  qDebug() << "DBG: SENT:" << QString::fromStdString(std::string((char*)msg_zmq.data(), size));
   socket_->send(msg_zmq, flags);
 }
 

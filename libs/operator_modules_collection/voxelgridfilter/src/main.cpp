@@ -10,7 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-upns::StatusCode operate(upns::OperationEnvironment* env)
+upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -55,4 +55,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD2, &operate)
+UPNS_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD2, &operate_vxg)
