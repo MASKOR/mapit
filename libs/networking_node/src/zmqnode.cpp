@@ -117,6 +117,10 @@ ZmqNode::receive_and_dispatch()
 
   // dispatch msg
   ReceiveRawDelegate handler = get_handler_for_message(h.comp_id(), h.msg_type());
+  if(!handler)
+  {
+      log_error("Remote seems to speak another language. Could not dispatch message.");
+  }
   // TODO: handler can not call msg_zmq.more()!? Bad design. Use message_t directly as parameter.
   handler(msg_zmq.data(), msg_zmq.size());
 }
@@ -172,6 +176,7 @@ ZmqNode::get_handler_for_message(uint16_t component_id, uint16_t msg_type)
 
   if (delegate_by_comp_type_.find(key) == delegate_by_comp_type_.end()) {
     std::string msg = "Message type " + std::to_string(component_id) + ":" + std::to_string(msg_type) + " not registered";
+    log_error("Remote seems to speak another language. " + msg);
     throw std::runtime_error(msg);
   }
 
@@ -186,6 +191,7 @@ ZmqNode::get_factory_for_message(uint16_t component_id, uint16_t msg_type)
 
   if (factory_by_comp_type_.find(key) == factory_by_comp_type_.end()) {
     std::string msg = "Message type " + std::to_string(component_id) + ":" + std::to_string(msg_type) + " not registered";
+    log_error("Remote seems to speak another language. " + msg);
     throw std::runtime_error(msg);
   }
 

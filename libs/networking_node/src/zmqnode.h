@@ -65,6 +65,7 @@ public:
 
       if(h.comp_id() != key.first || h.msg_type() != key.second)
       {
+          log_error("Server seems to speak another language. Could not parse received message.");
           return NULL;
       }
       // receive msg
