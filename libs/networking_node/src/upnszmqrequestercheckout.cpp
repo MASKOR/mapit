@@ -1,4 +1,5 @@
 #include "upnszmqrequestercheckout.h"
+#include "services_internal.pb.h"
 #include "serialization/entitystreammanager.h" //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"
 
@@ -56,14 +57,24 @@ upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntityConfl
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path)
 {
-    //TODO: introduce internal datatype
-    return upns::upnsSharedPointer<upns::Tree>();
+    std::unique_ptr<upns::RequestTree> req(new upns::RequestTree);
+    req->set_checkout(m_checkoutName);
+    req->set_path(path);
+    m_node->send(std::move(req));
+    upns::upnsSharedPointer<upns::ReplyTree> rep(m_node->receive<upns::ReplyTree>());
+    upns::upnsSharedPointer<upns::Tree> ret(rep->release_tree());
+    return ret;
 }
 
 upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &path)
 {
-    //TODO: introduce internal datatype
-    return upns::upnsSharedPointer<upns::Entity>();
+    std::unique_ptr<upns::RequestEntity> req(new upns::RequestEntity);
+    req->set_checkout(m_checkoutName);
+    req->set_path(path);
+    m_node->send(std::move(req));
+    upns::upnsSharedPointer<upns::ReplyEntity> rep(m_node->receive<upns::ReplyEntity>());
+    upns::upnsSharedPointer<upns::Entity> ret(rep->release_entity());
+    return ret;
 }
 
 upns::upnsSharedPointer<upns::Branch> upns::ZmqRequesterCheckout::getParentBranch()
@@ -119,8 +130,19 @@ upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
 {
-    // nyi
-    return upns::OperationResult();
+    std::unique_ptr<upns::RequestOperatorExecution> req(new upns::RequestOperatorExecution);
+    req->set_checkout(m_checkoutName);
+    *req->mutable_param() = desc;
+    m_node->send(std::move(req));
+    upns::upnsSharedPointer<upns::ReplyOperatorExecution> rep(m_node->receive<upns::ReplyOperatorExecution>());
+    upns::OperationResult res;
+    res.first = rep->status_code();
+    res.second = rep->result();
+    if(!rep->error_msg().empty())
+    {
+        log_error("Remote Operator Executions returned an error: " + rep->error_msg());
+    }
+    return res;
 }
 
 void upns::ZmqRequesterCheckout::syncHierarchy()

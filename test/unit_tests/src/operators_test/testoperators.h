@@ -14,6 +14,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
+    void testOperatorLoadPointcloud_data();
     void testOperatorLoadPointcloud();
 };
 

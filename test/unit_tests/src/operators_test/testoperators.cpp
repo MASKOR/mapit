@@ -22,21 +22,24 @@ Q_DECLARE_METATYPE(std::function<void()>)
 
 void TestOperators::init()
 {
+    startServer();
 }
 
 void TestOperators::cleanup()
 {
+    stopServer();
 }
 
 void TestOperators::initTestCase()
 {
-    createTestdata();
+    initTestdata();
 }
 
 void TestOperators::cleanupTestCase()
 {
 }
 
+void TestOperators::testOperatorLoadPointcloud_data() { createTestdata(); }
 void TestOperators::testOperatorLoadPointcloud()
 {
     QFETCH(upns::upnsSharedPointer<upns::Checkout>, checkout);

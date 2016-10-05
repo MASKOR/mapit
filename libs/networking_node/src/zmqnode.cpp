@@ -99,16 +99,19 @@ ZmqNode::send_raw(unsigned char* data, size_t size, int flags)
 }
 
 void
-ZmqNode::receive_and_dispatch()
+ZmqNode::receive_and_dispatch(int milliseconds)
 {
   if ( ! connected_) {
     // TODO: throw
   }
 
+  socket_->setsockopt(ZMQ_RCVTIMEO, &milliseconds, sizeof(milliseconds));
+
   // receive header
   upns::Header h;
   zmq::message_t msg_h;
-  socket_->recv( &msg_h );
+  bool status = socket_->recv( &msg_h );
+  if(!status) return; // hopefully timeout
   h.ParseFromArray(msg_h.data(), msg_h.size());
 
   // receive msg

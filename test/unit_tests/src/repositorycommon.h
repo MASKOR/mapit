@@ -16,9 +16,10 @@ class RepositoryCommon: public QObject
 protected:
     void createTestdata();
     void initTestdata();
+    void startServer();
+    void stopServer();
 private:
     upns::upnsSharedPointer<upns::Repository> m_repo[3];
-    upns::upnsSharedPointer<upns::RepositoryServer> m_srv;
     upns::upnsSharedPointer<upns::Checkout> m_checkout[3];
     std::function<void()> m_serverCallback;
     QSharedPointer<ServerThread> m_serverThread;

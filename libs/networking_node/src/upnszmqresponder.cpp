@@ -14,8 +14,8 @@ upns::ZmqResponder::~ZmqResponder()
     delete m_d;
 }
 
-void upns::ZmqResponder::handleRequest()
+void upns::ZmqResponder::handleRequest(int milliseconds)
 {
-    m_d->receive_and_dispatch();
+    m_d->receive_and_dispatch(milliseconds);
 }
 

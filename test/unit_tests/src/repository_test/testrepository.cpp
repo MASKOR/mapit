@@ -22,10 +22,12 @@ using namespace upns;
 
 void TestRepository::init()
 {
+    startServer();
 }
 
 void TestRepository::cleanup()
 {
+    stopServer();
 }
 
 void TestRepository::initTestCase()
@@ -41,8 +43,6 @@ void TestRepository::testCreateCheckout_data() { createTestdata(); }
 void TestRepository::testCreateCheckout()
 {
     QFETCH(upns::upnsSharedPointer<upns::Repository>, repo);
-    QFETCH(std::function<void()>, serverHandleRequest);
-    serverHandleRequest();
     upnsSharedPointer<Checkout> co(repo->createCheckout("master", "testcheckout_created_new"));
     QVERIFY(co != nullptr);
     OperationDescription operationCreateTree;
@@ -54,7 +54,6 @@ void TestRepository::testCreateCheckout()
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operationCreateTree.set_params( paramsDoc.toJson().toStdString() );
-    serverHandleRequest();
     co->doOperation(operationCreateTree);
     upnsSharedPointer<Tree> tr = co->getTree( entityPath.mid(0, entityPath.lastIndexOf('/')).toStdString() );
     QVERIFY(tr != nullptr);
@@ -71,7 +70,6 @@ void TestRepository::testCreateCheckout()
         }
         QVERIFY2(childFound, "Created entity was not child of parent tree");
     }
-    serverHandleRequest();
     upnsSharedPointer<Entity> ent = co->getEntity( entityPath.toStdString() );
     QVERIFY(ent != NULL);
     if(ent)
@@ -82,8 +80,6 @@ void TestRepository::testGetCheckout_data() { createTestdata(); }
 void TestRepository::testGetCheckout()
 {
     QFETCH(upns::upnsSharedPointer<upns::Repository>, repo);
-    QFETCH(std::function<void()>, serverHandleRequest);
-    serverHandleRequest();
     upnsSharedPointer<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
 
@@ -95,7 +91,6 @@ void TestRepository::testGetCheckout()
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operation.set_params( paramsDoc.toJson().toStdString() );
-    serverHandleRequest();
     if(co)
     {
         co->doOperation(operation);
@@ -106,20 +101,15 @@ void TestRepository::testCommit_data() { createTestdata(); }
 void TestRepository::testCommit()
 {
     QFETCH(upns::upnsSharedPointer<upns::Repository>, repo);
-    QFETCH(std::function<void()>, serverHandleRequest);
     upnsSharedPointer<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
-    serverHandleRequest();
     repo->commit( co, "This is the commit message of a TestCommit");
-    serverHandleRequest();
 }
 
 void TestRepository::testVoxelgridfilter_data() { createTestdata(); }
 void TestRepository::testVoxelgridfilter()
 {
     QFETCH(upns::upnsSharedPointer<upns::Repository>, repo);
-    QFETCH(std::function<void()>, serverHandleRequest);
-    serverHandleRequest();
     upnsSharedPointer<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
     OperationDescription operation;
@@ -130,9 +120,7 @@ void TestRepository::testVoxelgridfilter()
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operation.set_params( paramsDoc.toJson().toStdString() );
-    serverHandleRequest();
     co->doOperation(operation);
-    serverHandleRequest();
     repo->commit( co, "Two different pointclouds inside");
 }
 

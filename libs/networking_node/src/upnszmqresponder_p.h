@@ -14,7 +14,7 @@ class ZmqResponderPrivate : public ZmqNode
 {
 
 public:
-    ZmqResponderPrivate( int portIncomingRequests, Repository* repo, std::__cxx11::string urlOutgoingRequests = std::__cxx11::string() );
+    ZmqResponderPrivate( int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests = std::string() );
     void handleRequestCheckout(RequestCheckout* msg);
     void handleRequestEntitydata(RequestEntitydata* msg);
     void handleRequestHierarchy(RequestHierarchy* msg);
@@ -25,7 +25,7 @@ public:
     void handleRequestTree(upns::RequestTree *msg);
 
     Repository *m_repo;
-    std::__cxx11::string m_urlOutgoing;
+    std::string m_urlOutgoing;
     int m_portIncoming;
 
     // Implementation can be in cpp, because it's only used there. Must be public for function pointers

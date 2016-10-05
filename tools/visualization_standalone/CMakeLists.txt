@@ -122,6 +122,7 @@ if(WIN32)
     # mklink /D libs ..\..\libs
     # mklink /D resources ..\..\..\upns_software\resources
     # mklink logging.properties ..\..\..\upns_software\logging.properties
+
 #    STRING(REGEX REPLACE "/" "\\\\" BINARY_PATH_SHITTY_WINDOWS ${CMAKE_BINARY_DIR})
 #    STRING(REGEX REPLACE "/" "\\\\" UPNS_ROOT_DIR_SHITTY_WINDOWS ${UPNS_ROOT_DIR})
 #    execute_process(COMMAND CMD /c echo /D "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\data" "${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\data")

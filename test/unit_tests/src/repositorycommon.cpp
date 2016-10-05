@@ -14,19 +14,18 @@ void RepositoryCommon::createTestdata()
 {
     QTest::addColumn< upns::upnsSharedPointer<upns::Repository> >("repo");
     QTest::addColumn< upns::upnsSharedPointer<upns::Checkout> >("checkout");
-    QTest::addColumn< std::function<void()> >("serverHandleRequest");
+    QTest::addColumn< std::function<void()> >("startServer");
+    QTest::addColumn< std::function<void()> >("stopServer");
 
-    QTest::newRow("local filesystem") << m_repo[0] << m_checkout[0] << std::function<void()>([](){});
-    QTest::newRow("local database")   << m_repo[1] << m_checkout[1] << std::function<void()>([](){});
+    QTest::newRow("local filesystem") << m_repo[0] << m_checkout[0] << std::function<void()>([](){}) << std::function<void()>([](){});
+    QTest::newRow("local database")   << m_repo[1] << m_checkout[1] << std::function<void()>([](){}) << std::function<void()>([](){});
     QTest::newRow("remote")           << m_repo[2] << m_checkout[2] << std::function<void()>([this]()
         {
-        //TODO: QVERIFY?
-            QVERIFY2(!m_serverThread->isRunning(), "Reply response is not synchronous! Client did proceed to send() without receive().");
-//            while(m_serverThread->isRunning())
-//            {
-//                QThread::currentThread()->sleep(100);
-//            }
-            m_serverThread->start(); // handle next request
+            m_serverThread->start();
+        })
+        << std::function<void()>([this]()
+        {
+            m_serverThread->stop();
         });
 }
 
@@ -84,11 +83,23 @@ void RepositoryCommon::initTestdata()
         conf["mapsource"] = mapsource;
 
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
-        m_srv = upns::upnsSharedPointer<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_repo[1].get()));
+        upns::upnsSharedPointer<upns::RepositoryServer> srv = upns::upnsSharedPointer<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_repo[1].get()));
         m_repo[2] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
-        m_serverThread = QSharedPointer<ServerThread>(new ServerThread(m_srv));
-        // Note: must be restarted after every request.
+        m_serverThread = QSharedPointer<ServerThread>(new ServerThread(srv));
         m_serverThread->start();
         m_checkout[2] = upns::upnsSharedPointer<upns::Checkout>(m_repo[2]->createCheckout("master", "testcheckout"));
+        m_serverThread->stop();
     }
+}
+
+void RepositoryCommon::startServer()
+{
+    QFETCH(std::function<void()>, startServer);
+    startServer();
+}
+
+void RepositoryCommon::stopServer()
+{
+    QFETCH(std::function<void()>, stopServer);
+    stopServer();
 }

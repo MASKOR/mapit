@@ -206,7 +206,9 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
 {
     std::unique_ptr<upns::ReplyOperatorExecution> rep(new upns::ReplyOperatorExecution());
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
-    co->doOperation(msg->param());
+    upns::OperationResult result = co->doOperation(msg->param());
+    rep->set_status_code(result.first);
+    rep->set_error_msg("");
     send( std::move( rep ) );
 }
 

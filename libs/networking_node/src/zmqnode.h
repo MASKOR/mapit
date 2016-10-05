@@ -1,6 +1,7 @@
 #ifndef ZMQNODE_H
 #define ZMQNODE_H
 
+#include "upns_globals.h"
 #include <google/protobuf/message.h>
 #include "transport.pb.h"
 #include <zmq.hpp>
@@ -45,7 +46,7 @@ public:
 
   void connect(std::string com);
   void bind(std::string com);
-  void receive_and_dispatch();
+  void receive_and_dispatch(int milliseconds);
 
   template <typename MT>
   MT* receive()
@@ -60,7 +61,8 @@ public:
       // receive header
       upns::Header h;
       zmq::message_t msg_h;
-      socket_->recv( &msg_h );
+      bool status = socket_->recv( &msg_h );
+      if(!status) return nullptr;
       h.ParseFromArray(msg_h.data(), msg_h.size());
 
       if(h.comp_id() != key.first || h.msg_type() != key.second)
