@@ -1,6 +1,6 @@
 #include "module.h"
 #include "modules/versioning/checkoutraw.h"
-#include "operationenvironment.h"
+#include "modules/operationenvironment.h"
 #include "error.h"
 #include "modules/versioning/checkoutraw.h"
 #include <QJsonDocument>

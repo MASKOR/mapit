@@ -1,7 +1,7 @@
 #include "module.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 #include "modules/versioning/checkoutraw.h"
-#include "operationenvironment.h"
+#include "modules/operationenvironment.h"
 #include "modules/versioning/checkoutraw.h"
 #include <iostream>
 #include <pcl/io/pcd_io.h>
@@ -33,7 +33,7 @@ void chooseDefaultRepresentation ( const std::vector<pcl::PCLPointField>& flist 
     //return new PointCloudCRangeFactory<>("z");
 }
 
-upns::StatusCode operate(upns::OperationEnvironment* env)
+upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 {
 //    LoadPointcloudParams params;
 //    params.ParseFromString( env->getParameters() );
@@ -83,4 +83,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD2, &operate)
+UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD2, &operate_load_pointcloud)

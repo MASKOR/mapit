@@ -177,6 +177,14 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     return OperationResult(result, env.outputDescription());
 }
 
+OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate)
+{
+    OperationEnvironmentImpl env(desc);
+    env.setCheckout( this );
+    upns::StatusCode result = operate( &env );
+    return OperationResult(result, env.outputDescription());
+}
+
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
     Path p(m_name + "/" + preparePathFilename(path));

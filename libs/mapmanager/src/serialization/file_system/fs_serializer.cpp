@@ -46,19 +46,25 @@ FSSerializer::FSSerializer(const YAML::Node &config)
     fs::path path(cfgpath);
 
     // search for repo
-    while ( ! fs::exists( fs::system_complete( path.string() + _PREFIX_MAPIT_ ) ) ) {
-        path = path.parent_path();
-
-        if ( ! fs::exists( path ) ) {
-            log_info("Could not find " + _PREFIX_MAPIT_ + " in this or its parent folders");
-            path = fs::current_path();
-            log_info("Create " + path.string() + _PREFIX_MAPIT_);
-            if ( ! fs::create_directory( path.string() + _PREFIX_MAPIT_)) {
-                log_error("Could not create " + path.string() + _PREFIX_MAPIT_);
-            }
-            break;
+    if(!fs::exists( fs::system_complete( path.string() + _PREFIX_MAPIT_ ) ))
+    {
+        if ( ! fs::create_directories( path.string() + _PREFIX_MAPIT_)) {
+            log_error("Could not create " + path.string() + _PREFIX_MAPIT_);
         }
     }
+//        while ( ! fs::exists( fs::system_complete( path.string() + _PREFIX_MAPIT_ ) ) ) {
+//            path = path.parent_path();
+
+//            if ( ! fs::exists( path ) ) {
+//                log_info("Could not find " + _PREFIX_MAPIT_ + " in this or its parent folders");
+//                path = fs::current_path();
+//                log_info("Create " + path.string() + _PREFIX_MAPIT_);
+//                if ( ! fs::create_directories( path.string() + _PREFIX_MAPIT_)) {
+//                    log_error("Could not create " + path.string() + _PREFIX_MAPIT_);
+//                }
+//                break;
+//            }
+//        }
     path = path.string() + _PREFIX_MAPIT_;
     log_info("Use " + path.string() + " as repo");
     repo_ = path;

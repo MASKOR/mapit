@@ -2,6 +2,7 @@
 #include "upnszmqrequester_p.h"
 #include "upnszmqrequestercheckout.h"
 #include <zmq.hpp>
+#include "error.h"
 
 upns::ZmqRequester::ZmqRequester(Repository *cache, upns::upnsString urlOutgoingRequests)
     :m_d( new upns::ZmqRequesterPrivate( cache, urlOutgoingRequests ) )
@@ -105,7 +106,7 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::getCheckout(const up
 upns::StatusCode upns::ZmqRequester::deleteCheckoutForced(const upns::upnsString &checkoutName)
 {
     //TODO: nyi
-    return 1;
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
 upns::CommitId upns::ZmqRequester::commit(const upnsSharedPointer<upns::Checkout> checkout, upns::upnsString msg)
@@ -123,13 +124,13 @@ upns::upnsVec<upns::upnsSharedPointer<upns::Branch> > upns::ZmqRequester::getBra
 upns::StatusCode upns::ZmqRequester::push(upns::Repository &repo)
 {
     //TODO: nyi
-    return 1;
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
 upns::StatusCode upns::ZmqRequester::pull(upns::Repository &repo)
 {
     //TODO: nyi
-    return 1;
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
 upns::CommitId upns::ZmqRequester::parseCommitRef(const upns::upnsString &commitRef)

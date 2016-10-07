@@ -3,6 +3,7 @@
 
 #include <string>
 #include "versioning/repository.h"
+#include "modules/versioning/checkoutraw.h"
 #include "zmqnode.h"
 
 namespace upns {
@@ -12,7 +13,7 @@ namespace upns {
 /// Implements the basic Checkout Interface and will send requests over network
 ///
 
-class ZmqRequesterCheckout : public upns::Checkout
+class ZmqRequesterCheckout : public upns::Checkout, public upns::CheckoutRaw
 {
 public:
     ZmqRequesterCheckout(upnsString name, ZmqNode *node, upns::Checkout *cache = NULL);
@@ -36,6 +37,13 @@ public:
     // Checkout interface
 public:
     OperationResult doOperation(const OperationDescription &desc);
+    OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate);
+
+    // CheckoutRaw interface
+public:
+    StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);
+    StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity);
+    upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &entity);
 
 private:
     upnsString m_checkoutName;
@@ -43,6 +51,7 @@ private:
     upns::Checkout *m_cache;
 
     void syncHierarchy();
+
 };
 
 }

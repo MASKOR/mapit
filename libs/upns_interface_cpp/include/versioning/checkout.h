@@ -7,6 +7,7 @@
 
 namespace upns
 {
+class OperationEnvironment;
 
 /**
  * @brief A Checkout object represents an editable state/version of all maps.
@@ -28,6 +29,16 @@ public:
      * @return
      */
     virtual OperationResult doOperation(const OperationDescription &desc) = 0;
+
+    /**
+     * @brief doUntraceableOperation Executes a custom operation.
+     * This is meant to get raw sensor data into the system.
+     * Whenever possible, doOperation should be used. Using this method extensively will
+     * result in huge amounts of data and large repositories.
+     * @param desc
+     * @return
+     */
+    virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate) = 0;
 };
 
 }

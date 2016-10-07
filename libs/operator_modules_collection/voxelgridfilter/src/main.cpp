@@ -1,7 +1,7 @@
 #include "module.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 #include "modules/versioning/checkoutraw.h"
-#include "operationenvironment.h"
+#include "modules/operationenvironment.h"
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>

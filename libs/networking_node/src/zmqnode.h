@@ -47,6 +47,7 @@ public:
   void connect(std::string com);
   void bind(std::string com);
   void receive_and_dispatch(int milliseconds);
+  void discard_more();
 
   template <typename MT>
   MT* receive()
@@ -82,9 +83,11 @@ public:
 
   // Note: receive_raw_body will break the req/rep pattern, if it is used for the first frame of a request/response
   size_t receive_raw_body(void* data, size_t size);
+
+  zmq::message_t *receive_raw_body();
   bool has_more();
   void send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore = false);
-  void send_raw_body(unsigned char* data, size_t size, int flags = 0);
+  void send_raw_body(const unsigned char *data, size_t size, int flags = 0);
   void send_raw(unsigned char* data, size_t size, int flags = 0);
 
   template <typename MT>

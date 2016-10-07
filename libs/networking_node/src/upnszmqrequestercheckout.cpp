@@ -2,6 +2,7 @@
 #include "services_internal.pb.h"
 #include "serialization/entitystreammanager.h" //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"
+#include "operationenvironmentimpl.h"
 
 upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqNode *node, Checkout *cache)
     :m_checkoutName( name ),
@@ -97,25 +98,8 @@ upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::ge
         log_error("Entity could not be queried for entitydata: " + entityId);
         return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
     }
-    std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
-    req->set_checkout(m_checkoutName);
-    req->set_entitypath(entityId);
-    m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
-    if(rep->status() == upns::ReplyEntitydata::SUCCESS)
-    {
-        char buf[1024];
-        int64_t more;
-        do {
-            m_node->receive_raw_body(buf, sizeof(buf));
-        } while (m_node->has_more());
-        upns::upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
-        return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), streamProvider);
-    }
-    else
-    {
-        return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
-    }
+    upns::upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+    return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), streamProvider);
 }
 
 upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
@@ -145,6 +129,15 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::Operat
     return res;
 }
 
+upns::OperationResult upns::ZmqRequesterCheckout::doUntraceableOperation(const upns::OperationDescription &desc, std::function<upns::StatusCode (upns::OperationEnvironment *)> operate)
+{
+    upns::OperationEnvironmentImpl env( desc );
+    env.setCheckout( this );
+    upns::StatusCode status = operate( &env );
+    OperationResult res(status, env.outputDescription());
+    return res;
+}
+
 void upns::ZmqRequesterCheckout::syncHierarchy()
 {
     std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
@@ -155,4 +148,42 @@ void upns::ZmqRequesterCheckout::syncHierarchy()
     //m_cache->
 
     delete hierarchy;
+}
+
+upns::StatusCode upns::ZmqRequesterCheckout::storeTree(const upns::Path &path, upnsSharedPointer<upns::Tree> tree)
+{
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+}
+
+upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path, upnsSharedPointer<upns::Entity> entity)
+{
+    std::unique_ptr<upns::RequestStoreEntity> req(new upns::RequestStoreEntity);
+    req->set_checkout(m_checkoutName);
+    req->set_path(path);
+    req->set_type( entity->type() );
+    req->set_offset(0ul);
+    req->set_sendlength(0ul);
+    req->set_entitylength(0ul);
+    m_node->send(std::move(req));
+    upns::upnsSharedPointer<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
+    if(rep->status() == upns::ReplyStoreEntity::SUCCESS)
+    {
+        return UPNS_STATUS_OK;
+    }
+    else
+    {
+        return UPNS_STATUS_ERROR;
+    }
+}
+
+upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntityDataForReadWrite(const upns::Path &entity)
+{
+    upnsSharedPointer<Entity> e = getEntity(entity);
+    if(!e)
+    {
+        log_error("Entity could not be queried for entitydata: " + entity);
+        return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
+    }
+    upns::upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
+    return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), streamProvider);
 }

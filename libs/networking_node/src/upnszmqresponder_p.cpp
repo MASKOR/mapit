@@ -2,6 +2,9 @@
 #include "services.pb.h"
 #include <functional>
 #include "versioning/repository.h"
+#include "modules/operationenvironment.h"
+#include "modules/versioning/checkoutraw.h"
+#include "error.h"
 
 template < typename T, void (upns::ZmqResponderPrivate::*func)(T*) >
 void upns::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)
@@ -79,33 +82,82 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 {
     std::unique_ptr<upns::ReplyEntitydata> ptr(new upns::ReplyEntitydata());
+
+    // Validate input
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
         ptr->set_status( upns::ReplyEntitydata::NOT_FOUND );
-        ptr->set_length( 0 );
+        ptr->set_receivedlength( 0 );
+        ptr->set_entitylength( 0 );
         send( std::move( ptr ) );
+        return;
+    }
+    upnsSharedPointer<AbstractEntityData> ed = co->getEntitydataReadOnly( msg->entitypath() );
+
+    upns::ReplyEntitydata::Status status;
+    if(ed == nullptr )
+    {
+        status = upns::ReplyEntitydata::NOT_FOUND;
     }
     else
     {
-        upnsSharedPointer<AbstractEntityData> ed = co->getEntitydataReadOnly( msg->entitypath() );
-        ptr->set_status( upns::ReplyEntitydata::SUCCESS );
-        ptr->set_length( ed->size() );
-        // Send multipart message
+        if(msg->offset() > ed->size())
+        {
+            log_warn("Server got request with offset exceeding entitydata size.");
+            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
+        }
+        else if(msg->offset() + msg->maxlength() > ed->size())
+        {
+            log_warn("Server got request trying to read across entitydata size boundary.");
+            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
+        }
+        else
+        {
+            status = upns::ReplyEntitydata::SUCCESS;
+        }
+    }
+    if( status != upns::ReplyEntitydata::SUCCESS )
+    {
+        // Invalid arguments
+        ptr->set_status( status );
+        ptr->set_receivedlength( 0 );
+        ptr->set_entitylength( ed == nullptr ? 0 : ed->size() );
 
         // protobuf frame
-        send( std::move( ptr ), ZMQ_SNDMORE );
-
-        // binary frames
-        upnsIStream *strm = ed->startReadBytes();
-        unsigned char buffer[4096];
-        while (strm->read(reinterpret_cast<char*>(buffer), sizeof(buffer)))
-        {
-            send_raw_body( buffer, sizeof(buffer), ZMQ_SNDMORE );
-        }
-        send_raw_body( buffer, strm->gcount() );
-        ed->endRead(strm);
+        send( std::move( ptr ) );
+        return;
     }
+
+    upnsuint64 offset = msg->offset(), len = msg->maxlength();
+    if(len == 0)
+    {
+        len = ed->size()-offset;
+    }
+    else
+    {
+        len = std::min(len, ed->size()-offset);
+    }
+
+    ptr->set_status( status );
+    ptr->set_receivedlength( len );
+    ptr->set_entitylength( ed->size() );
+
+    // Send multipart message
+
+    // protobuf frame
+    send( std::move( ptr ), ZMQ_SNDMORE );
+
+    // binary frames
+    upnsIStream *strm = ed->startReadBytes( offset, len);
+    unsigned char buffer[4096];
+    while (strm->read(reinterpret_cast<char*>(buffer), sizeof(buffer)))
+    {
+        send_raw_body( buffer, sizeof(buffer), ZMQ_SNDMORE );
+    }
+    int remaining = strm->gcount();
+    send_raw_body( buffer, remaining );
+    ed->endRead(strm);
 }
 
 void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
@@ -208,13 +260,87 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
     upns::OperationResult result = co->doOperation(msg->param());
     rep->set_status_code(result.first);
-    rep->set_error_msg("");
+    rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
     send( std::move( rep ) );
 }
 
 void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {
+    std::unique_ptr<upns::ReplyStoreEntity> rep(new upns::ReplyStoreEntity());
 
+    // Input validation
+    if(msg->offset() > msg->sendlength())
+    {
+        rep->set_status(upns::ReplyStoreEntity::ERROR);
+        discard_more();
+        send( std::move( rep ) );
+        return;
+    }
+    if(msg->sendlength() > msg->entitylength())
+    {
+        rep->set_status(upns::ReplyStoreEntity::ERROR);
+        discard_more();
+        send( std::move( rep ) );
+        return;
+    }
+
+    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    OperationDescription desc;
+    desc.set_operatorname("StoreEntity");
+    desc.set_params("{source:\"network\"}");
+
+    upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
+        upns::CheckoutRaw* coraw = env->getCheckout();
+
+        // if offset is not 0, we assume the entity already exists.
+        if(msg->offset() == 0)
+        {
+            // create new entity
+            upns::upnsSharedPointer<upns::Entity> e(new upns::Entity);
+            e->set_type(msg->type());
+            upns::StatusCode status = coraw->storeEntity(msg->path(), e);
+            if(!upnsIsOk(status))
+            {
+                log_error("Could not store entity: \"" + msg->path() + "\"");
+                return status;
+            }
+        }
+        if(msg->sendlength() == 0)
+        {
+            return UPNS_STATUS_OK;
+        }
+        // write entitydata
+        upnsSharedPointer<AbstractEntityData> ed = coraw->getEntityDataForReadWrite(msg->path());
+        upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
+        size_t offset = 0;
+        while(has_more())
+        {
+            zmq::message_t *buf = receive_raw_body();
+            if(buf->size() + offset > msg->sendlength())
+            {
+                log_error("Tried to store entitydata with sendlength smaller than received datasize.");
+                return UPNS_STATUS_INVALID_ARGUMENT;
+            }
+            stream->write(static_cast<char*>(buf->data()), buf->size());
+            offset += buf->size();
+        }
+        if(offset != msg->sendlength())
+        {
+            log_error("Received entitydata of wrong length: should: " + std::to_string(msg->sendlength()) + ", is: " + std::to_string(offset) + "." );
+            return UPNS_STATUS_INVALID_DATA;
+        }
+
+        return UPNS_STATUS_OK;
+    });
+    if(upnsIsOk(res.first))
+    {
+        rep->set_status(upns::ReplyStoreEntity::SUCCESS);
+    }
+    else
+    {
+        rep->set_status(upns::ReplyStoreEntity::ERROR);
+    }
+    send( std::move( rep ) );
 }
 
 void upns::ZmqResponderPrivate::handleRequestEntity(upns::RequestEntity *msg)

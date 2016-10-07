@@ -60,28 +60,35 @@ class SliceReader : public std::istringstream
 public:
     SliceReader(leveldb::Iterator* iter, size_t start, size_t size)
         :m_iter(iter),
-         std::istringstream(std::string(iter->value().data() + start, size)) //TODO: This copies data!?
-    {}
+         //std::istringstream(std::string(iter->value().data() + start, size)) //TODO: This copies data!?
+         m_str(iter->value().data() + start, size) //TODO: This copies data!?
+    {
+        str(m_str);
+        clear();
+    }
     virtual ~SliceReader()
     {
         delete m_iter;
     }
-
 private:
     leveldb::Iterator* m_iter;
+    std::string m_str;
 };
 
 class MyWriter : public std::ostringstream
 {
+    size_t m_offset;
 public:
-    MyWriter()
+    MyWriter(size_t offset):m_offset(offset)
     {}
+    size_t getOffset(){return m_offset;}
     size_t getSize()
     {
         seekp(0, std::ios::beg);
         seekp(0, std::ios::end);
         std::stringstream::pos_type size = tellp();
-        return size;
+        size_t s = size;
+        return s;
     }
 };
 
@@ -103,7 +110,7 @@ upnsIStream* upns::LevelDBEntityDataStreamProvider::startRead(upnsuint64 start, 
 
     //isstr->rdbuf()->pubsetbuf(str, static_cast<size_t>(len));
 
-    SliceReader *archive = new SliceReader(it, start, len);
+    SliceReader *archive = new SliceReader(it, start, len);//, std::string(it->value().data() + start, len));
     return archive;
 }
 
@@ -119,13 +126,13 @@ upnsOStream *upns::LevelDBEntityDataStreamProvider::startWrite(upnsuint64 start,
     //return new std::ostringstream(std::string());
 //    typedef boost::iostreams::basic_array_source<char> Device;
 //    boost::iostreams::stream_buffer<Device> buffer();
-    return new MyWriter();
+    return new MyWriter(start);
 }
 
 void LevelDBEntityDataStreamProvider::endWrite(upnsOStream *strm)
 {
     //TODO: add locking
-    //TODO: copying if not the whole stream was read
+    //TODO: copying if not the whole stream was read and offset/start was used
 //    std::ostringstream *osstrm = static_cast<std::ostringstream *>(strm);
 //    std::cout << "size written :" << size << ", dat: " << osstrm->str() <<  std::endl;
 //    //osstrm->seekg(0, std::ios::beg);
@@ -137,9 +144,10 @@ void LevelDBEntityDataStreamProvider::endWrite(upnsOStream *strm)
     //std::string test();
     std::string buf(ostrm->str());
     leveldb::Slice val(buf.data(), ostrm->getSize());
+//    m_db->Get(leveldb::ReadOptions(), m_writekey);
 //    //std::cout << "DBG: write " << m_writekey << " from " << m_readkey << ", size: " << str.length() << std::endl;
     m_db->Put(leveldb::WriteOptions(), m_writekey, val);
-    delete strm;
+    delete ostrm;
 //    delete fatbuf;
 }
 

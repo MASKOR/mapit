@@ -33,7 +33,7 @@ void RepositoryCommon::initTestdata()
 {
     {
         //// Setup Repository in Filesystem
-        const char* fileSystemName = ".mapit";
+        const char* fileSystemName = "local.mapit";
         QDir dir(fileSystemName);
         if(dir.exists())
         {
@@ -43,7 +43,7 @@ void RepositoryCommon::initTestdata()
         YAML::Node conf;
         YAML::Node mapsource;
         mapsource["name"] = "FileSystem";
-        mapsource["filename"] = fileSystemName;//databaseName;
+        mapsource["filename"] = fileSystemName;
         conf["mapsource"] = mapsource;
 
         m_repo[0] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf));
@@ -69,21 +69,22 @@ void RepositoryCommon::initTestdata()
     }
     {
         //// Setup Repository as Network connection
-        const char* databaseName = "test.db";
-        QDir dir(databaseName);
+        const char* fileSystemName2 = "remote.mapit";
+        QDir dir(fileSystemName2);
         if(dir.exists())
         {
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        YAML::Node conf;
-        YAML::Node mapsource;
-        mapsource["name"] = "leveldb";
-        mapsource["filename"] = databaseName;
-        conf["mapsource"] = mapsource;
+        YAML::Node conf2;
+        YAML::Node mapsource2;
+        mapsource2["name"] = "FileSystem";
+        mapsource2["filename"] = fileSystemName2;
+        conf2["mapsource"] = mapsource2;
+        m_networkRepo = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf2));
 
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
-        upns::upnsSharedPointer<upns::RepositoryServer> srv = upns::upnsSharedPointer<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_repo[1].get()));
+        upns::upnsSharedPointer<upns::RepositoryServer> srv = upns::upnsSharedPointer<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo.get()));
         m_repo[2] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
         m_serverThread = QSharedPointer<ServerThread>(new ServerThread(srv));
         m_serverThread->start();

@@ -42,11 +42,15 @@ ZmqNode::bind(std::string com)
   socket_->bind(com);
   connected_ = true;
 }
-#include <qdebug.h>
 
 void
 ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags)
 {
+  if ( ! connected_) {
+    // TODO: throw
+  }
+  assert(!has_more());
+
   int size = msg->ByteSize();
   zmq::message_t msg_zmq( size );
   msg->SerializeToArray(msg_zmq.data(), size);
@@ -59,6 +63,7 @@ ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
   if ( ! connected_) {
     // TODO: throw
   }
+  assert(!has_more());
 
   // check for COMP_ID and MSG_TYPE
   const google::protobuf::Descriptor *desc = msg->GetDescriptor();
@@ -79,8 +84,13 @@ ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
 
 // Does not add header information. For multipart binary frames
 void
-ZmqNode::send_raw_body(unsigned char* data, size_t size, int flags)
+ZmqNode::send_raw_body(const unsigned char* data, size_t size, int flags)
 {
+  if ( ! connected_) {
+    // TODO: throw
+  }
+  assert(!has_more());
+
   zmq::message_t msg(size);
   memcpy(msg.data(), data, size);
   socket_->send(msg, flags);
@@ -89,6 +99,11 @@ ZmqNode::send_raw_body(unsigned char* data, size_t size, int flags)
 void
 ZmqNode::send_raw(unsigned char* data, size_t size, int flags)
 {
+  if ( ! connected_) {
+    // TODO: throw
+  }
+  assert(!has_more());
+
   std::unique_ptr<upns::RawDataSize> pb(new upns::RawDataSize);
   pb->set_size(size);
   send_pb_single(std::move(pb), ZMQ_SNDMORE);
@@ -124,8 +139,19 @@ ZmqNode::receive_and_dispatch(int milliseconds)
   {
       log_error("Remote seems to speak another language. Could not dispatch message.");
   }
-  // TODO: handler can not call msg_zmq.more()!? Bad design. Use message_t directly as parameter.
   handler(msg_zmq.data(), msg_zmq.size());
+
+  // Make sure the handler received everything.
+  assert(!has_more());
+}
+
+void ZmqNode::discard_more()
+{
+    while(has_more())
+    {
+        zmq::message_t msg;
+        socket_->recv( &msg );
+    }
 }
 
 size_t
@@ -137,6 +163,15 @@ ZmqNode::receive_raw_body(void* data, size_t size)
     size_t len = msg.size();
     memcpy(data, msg.data(), std::min(size, len));
     return len;
+}
+
+zmq::message_t*
+ZmqNode::receive_raw_body()
+{
+    //zmq::message_t msg(data, size); //TODO: zero copy would be nice
+    zmq::message_t *msg(new zmq::message_t);
+    socket_->recv( msg );
+    return msg;
 }
 
 bool ZmqNode::has_more()

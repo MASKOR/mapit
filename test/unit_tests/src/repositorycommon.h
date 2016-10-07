@@ -23,6 +23,7 @@ private:
     upns::upnsSharedPointer<upns::Checkout> m_checkout[3];
     std::function<void()> m_serverCallback;
     QSharedPointer<ServerThread> m_serverThread;
+    upns::upnsSharedPointer<upns::Repository> m_networkRepo;
 };
 
 #endif

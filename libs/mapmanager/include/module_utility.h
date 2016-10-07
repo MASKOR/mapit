@@ -2,7 +2,7 @@
 #define MODULE_UTILITY_H
 
 #include "upns.h"
-#include "operationenvironment.h"
+#include "modules/operationenvironment.h"
 #include "libs/upns_interface/services.pb.h"
 #include "modules/versioning/checkoutraw.h"
 

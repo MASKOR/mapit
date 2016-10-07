@@ -52,6 +52,7 @@ public:
     virtual upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId);
     virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
+    virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(OperationEnvironment *)> operate);
 
     virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnly(const Path &path);
     virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnlyConflict(const ObjectId &entityId);

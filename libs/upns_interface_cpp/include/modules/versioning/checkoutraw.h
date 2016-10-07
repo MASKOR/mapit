@@ -28,6 +28,9 @@ namespace upns
 
 class CheckoutRaw : public CheckoutCommon
 {
+protected:
+    // Can not be deleted from outside (module)
+    virtual ~CheckoutRaw() {}
 public:
     /**
      * @brief storeTree changes the tree at a given path. No conflict is generated, the old version is overwritten.
@@ -48,7 +51,7 @@ public:
      * @param tree
      * @return
      */
-    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> tree) = 0;
+    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity) = 0;
 
     /**
      * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.

@@ -16,6 +16,8 @@ private slots:
 
     void testOperatorLoadPointcloud_data();
     void testOperatorLoadPointcloud();
+    void testInlineOperator_data();
+    void testInlineOperator();
 };
 
 #endif
