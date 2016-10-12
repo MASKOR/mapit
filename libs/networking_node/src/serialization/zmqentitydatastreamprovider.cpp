@@ -37,7 +37,7 @@ public:
 };
 
 
-upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(upns::upnsString checkoutName, upns::upnsString pathOrOid, ZmqNode *node)
+upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(upns::upnsString checkoutName, upns::upnsString pathOrOid, ZmqProtobufNode *node)
     :m_checkoutName(checkoutName),
      m_pathOrOid(pathOrOid),
      m_node(node),

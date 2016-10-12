@@ -2,7 +2,7 @@
 #define UPNSZMQRESPONDER_P_H
 
 #include <string>
-#include "zmqnode.h"
+#include "zmqprotobufnode.h"
 #include "services.pb.h"
 #include "services_internal.pb.h"
 
@@ -10,7 +10,7 @@ namespace upns {
 
 class Repository;
 
-class ZmqResponderPrivate : public ZmqNode
+class ZmqResponderPrivate : public ZmqProtobufNode
 {
 
 public:

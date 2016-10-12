@@ -2,13 +2,13 @@
 #define UPNSZMQREQUESTER_P_H
 
 #include <string>
-#include "zmqnode.h"
+#include "zmqprotobufnode.h"
 #include "services.pb.h"
 #include "versioning/repository.h"
 
 namespace upns {
 
-class ZmqRequesterPrivate : public ZmqNode
+class ZmqRequesterPrivate : public ZmqProtobufNode
 {
 
 public:

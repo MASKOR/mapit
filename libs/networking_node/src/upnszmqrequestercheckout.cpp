@@ -4,7 +4,7 @@
 #include "serialization/zmqentitydatastreamprovider.h"
 #include "operationenvironmentimpl.h"
 
-upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqNode *node, Checkout *cache)
+upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, Checkout *cache)
     :m_checkoutName( name ),
      m_node( node ),
      m_cache( cache )

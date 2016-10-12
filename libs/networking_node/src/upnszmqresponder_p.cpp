@@ -13,7 +13,7 @@ void upns::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)
 }
 
 upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Repository *repo, std::__cxx11::string urlOutgoingRequests)
-    :ZmqNode( true ),
+    :ZmqProtobufNode( true ),
       m_repo( repo ),
       m_urlOutgoing( urlOutgoingRequests ),
       m_portIncoming( portIncomingRequests )

@@ -4,7 +4,7 @@
 #include <functional>
 
 upns::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string urlOutgoingRequests)
-    :ZmqNode( false ),
+    :ZmqProtobufNode( false ),
      m_cache( cache )
 {
     connect(urlOutgoingRequests);

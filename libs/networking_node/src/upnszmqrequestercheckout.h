@@ -4,7 +4,7 @@
 #include <string>
 #include "versioning/repository.h"
 #include "modules/versioning/checkoutraw.h"
-#include "zmqnode.h"
+#include "zmqprotobufnode.h"
 
 namespace upns {
 
@@ -16,7 +16,7 @@ namespace upns {
 class ZmqRequesterCheckout : public upns::Checkout, public upns::CheckoutRaw
 {
 public:
-    ZmqRequesterCheckout(upnsString name, ZmqNode *node, upns::Checkout *cache = NULL);
+    ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, upns::Checkout *cache = NULL);
 
     // CheckoutCommon interface
 public:
@@ -47,7 +47,7 @@ public:
 
 private:
     upnsString m_checkoutName;
-    ZmqNode *m_node;
+    ZmqProtobufNode *m_node;
     upns::Checkout *m_cache;
 
     void syncHierarchy();

@@ -3,7 +3,7 @@
 
 #include "upns_globals.h"
 #include "versioning/repository.h"
-#include "zmqnode.h"
+#include "zmqprotobufnode.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 
 namespace upns
@@ -13,7 +13,7 @@ class ZmqEntitydataStreamProvider : public AbstractEntityDataStreamProvider
 {
     // AbstractEntityDataStreamProvider interface
 public:
-    ZmqEntitydataStreamProvider(upnsString checkoutName, upnsString pathOrOid, ZmqNode *node);
+    ZmqEntitydataStreamProvider(upnsString checkoutName, upnsString pathOrOid, ZmqProtobufNode *node);
     bool isCached();
     bool isReadWriteSame();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 length);
@@ -27,7 +27,7 @@ public:
 private:
     upnsString m_checkoutName;
     upnsString m_pathOrOid;
-    ZmqNode *m_node;
+    ZmqProtobufNode *m_node;
     mutable upnsuint64 m_entityLength;
 //    upnsSharedPointer<upns::Entity> m_e; //< Introduces another roundtrip over network. TODO: Empower ReplyEntitydata to make second roundtrip needless.
 //    void initHead() const;

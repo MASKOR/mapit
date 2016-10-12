@@ -1,4 +1,4 @@
-#include "zmqnode.h"
+#include "zmqprotobufnode.h"
 #include "transport.pb.h"
 #include <algorithm>
 
@@ -7,7 +7,7 @@ void my_free(void *data, void *hint)
     free (data);
 }
 
-ZmqNode::ZmqNode(bool reply)
+ZmqProtobufNode::ZmqProtobufNode(bool reply)
 {
   context_ = new zmq::context_t(1);
   socket_ = new zmq::socket_t(*context_, reply ? ZMQ_REP : ZMQ_REQ);
@@ -15,14 +15,14 @@ ZmqNode::ZmqNode(bool reply)
   isReply_ = reply;
 }
 
-ZmqNode::~ZmqNode()
+ZmqProtobufNode::~ZmqProtobufNode()
 {
   delete(socket_);
   delete(context_);
 }
 
 void
-ZmqNode::connect(std::string com)
+ZmqProtobufNode::connect(std::string com)
 {
   if (connected_) {
     // TODO: throw
@@ -33,7 +33,7 @@ ZmqNode::connect(std::string com)
 }
 
 void
-ZmqNode::bind(std::string com)
+ZmqProtobufNode::bind(std::string com)
 {
   if (connected_) {
     // TODO: throw
@@ -44,7 +44,7 @@ ZmqNode::bind(std::string com)
 }
 
 void
-ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags)
+ZmqProtobufNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags)
 {
   if ( ! connected_) {
     // TODO: throw
@@ -58,7 +58,7 @@ ZmqNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int f
 }
 
 void
-ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
+ZmqProtobufNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
 {
   if ( ! connected_) {
     // TODO: throw
@@ -84,7 +84,7 @@ ZmqNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
 
 // Does not add header information. For multipart binary frames
 void
-ZmqNode::send_raw_body(const unsigned char* data, size_t size, int flags)
+ZmqProtobufNode::send_raw_body(const unsigned char* data, size_t size, int flags)
 {
   if ( ! connected_) {
     // TODO: throw
@@ -97,24 +97,7 @@ ZmqNode::send_raw_body(const unsigned char* data, size_t size, int flags)
 }
 
 void
-ZmqNode::send_raw(unsigned char* data, size_t size, int flags)
-{
-  if ( ! connected_) {
-    // TODO: throw
-  }
-  assert(!has_more());
-
-  std::unique_ptr<upns::RawDataSize> pb(new upns::RawDataSize);
-  pb->set_size(size);
-  send_pb_single(std::move(pb), ZMQ_SNDMORE);
-
-  zmq::message_t msg(size);
-  memcpy(msg.data(), data, size);
-  socket_->send(msg, flags);
-}
-
-void
-ZmqNode::receive_and_dispatch(int milliseconds)
+ZmqProtobufNode::receive_and_dispatch(int milliseconds)
 {
   if ( ! connected_) {
     // TODO: throw
@@ -145,7 +128,7 @@ ZmqNode::receive_and_dispatch(int milliseconds)
   assert(!has_more());
 }
 
-void ZmqNode::discard_more()
+void ZmqProtobufNode::discard_more()
 {
     while(has_more())
     {
@@ -155,7 +138,7 @@ void ZmqNode::discard_more()
 }
 
 size_t
-ZmqNode::receive_raw_body(void* data, size_t size)
+ZmqProtobufNode::receive_raw_body(void* data, size_t size)
 {
     //zmq::message_t msg(data, size); //TODO: zero copy would be nice
     zmq::message_t msg;
@@ -166,7 +149,7 @@ ZmqNode::receive_raw_body(void* data, size_t size)
 }
 
 zmq::message_t*
-ZmqNode::receive_raw_body()
+ZmqProtobufNode::receive_raw_body()
 {
     //zmq::message_t msg(data, size); //TODO: zero copy would be nice
     zmq::message_t *msg(new zmq::message_t);
@@ -174,7 +157,7 @@ ZmqNode::receive_raw_body()
     return msg;
 }
 
-bool ZmqNode::has_more()
+bool ZmqProtobufNode::has_more()
 {
     int64_t more;
     size_t more_size = sizeof (more);
@@ -182,8 +165,8 @@ bool ZmqNode::has_more()
     return more != 0;
 }
 
-ZmqNode::KeyType
-ZmqNode::key_from_desc(const google::protobuf::Descriptor *desc)
+ZmqProtobufNode::KeyType
+ZmqProtobufNode::key_from_desc(const google::protobuf::Descriptor *desc)
 {
   const google::protobuf::EnumDescriptor *enumdesc = desc->FindEnumTypeByName("CompType");
   if (! enumdesc) {
@@ -207,8 +190,8 @@ ZmqNode::key_from_desc(const google::protobuf::Descriptor *desc)
   return KeyType(comp_id, msg_type);
 }
 
-ZmqNode::ReceiveRawDelegate
-ZmqNode::get_handler_for_message(uint16_t component_id, uint16_t msg_type)
+ZmqProtobufNode::ReceiveRawDelegate
+ZmqProtobufNode::get_handler_for_message(uint16_t component_id, uint16_t msg_type)
 {
   KeyType key(component_id, msg_type);
 
@@ -218,12 +201,12 @@ ZmqNode::get_handler_for_message(uint16_t component_id, uint16_t msg_type)
     throw std::runtime_error(msg);
   }
 
-  ZmqNode::ReceiveRawDelegate delegate = delegate_by_comp_type_[key];
+  ZmqProtobufNode::ReceiveRawDelegate delegate = delegate_by_comp_type_[key];
   return delegate;
 }
 
-ZmqNode::ConcreteTypeFactory
-ZmqNode::get_factory_for_message(uint16_t component_id, uint16_t msg_type)
+ZmqProtobufNode::ConcreteTypeFactory
+ZmqProtobufNode::get_factory_for_message(uint16_t component_id, uint16_t msg_type)
 {
   KeyType key(component_id, msg_type);
 
@@ -233,6 +216,6 @@ ZmqNode::get_factory_for_message(uint16_t component_id, uint16_t msg_type)
     throw std::runtime_error(msg);
   }
 
-  ZmqNode::ConcreteTypeFactory delegate = factory_by_comp_type_[key];
+  ZmqProtobufNode::ConcreteTypeFactory delegate = factory_by_comp_type_[key];
   return delegate;
 }
