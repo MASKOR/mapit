@@ -20,8 +20,6 @@ class ZmqRequester : public upns::Repository
 public:
     ZmqRequester(Repository* cache, upnsString urlOutgoingRequests = std::string());
     ~ZmqRequester();
-private:
-    ZmqRequesterPrivate *m_d;
 
     // Repository interface
 public:
@@ -45,6 +43,9 @@ public:
     upnsVec<upnsPair<CommitId, ObjectId> > ancestors(const CommitId &commitId, const ObjectId &objectId, const int level);
     bool canRead();
     bool canWrite();
+
+private:
+    ZmqRequesterPrivate *m_d;
 };
 
 }

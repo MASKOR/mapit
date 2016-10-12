@@ -65,6 +65,7 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
         co = m_repo->createCheckout(msg->commit(), msg->checkout());
         if( co == NULL )
         {
+            log_error("Could not get checkout \"" + msg->checkout() + "\"");
             ptr->set_status( upns::ReplyCheckout::ERROR );
         }
         else
@@ -98,6 +99,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
     upns::ReplyEntitydata::Status status;
     if(ed == nullptr )
     {
+        log_info("Could not find requested entitydata \"" + msg->entitypath() + "\"");
         status = upns::ReplyEntitydata::NOT_FOUND;
     }
     else
@@ -163,6 +165,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 
 void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 {
+    // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
     // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
     std::unique_ptr<upns::ReplyHierarchy> rep(new upns::ReplyHierarchy());
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());

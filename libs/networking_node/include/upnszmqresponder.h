@@ -20,12 +20,13 @@ class ZmqResponder : public RepositoryServer
 public:
     ZmqResponder( int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests = std::string() );
     ~ZmqResponder();
-private:
-    ZmqResponderPrivate *m_d;
 
     // RepositoryServer interface
 public:
     void handleRequest(int milliseconds);
+
+private:
+    ZmqResponderPrivate *m_d;
 };
 
 }

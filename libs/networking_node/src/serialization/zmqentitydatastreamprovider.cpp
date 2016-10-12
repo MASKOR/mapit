@@ -96,7 +96,7 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
     }
     char *buf = new char[recvlen]; // deleted by MemoryReaderDeleter
 
-    // eceive empty frames to not disturb following receives.
+    // receive empty frames to not disturb following receives.
     if(m_node->has_more())
     {
         size_t offset = 0;

@@ -14,18 +14,21 @@ upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNod
 bool upns::ZmqRequesterCheckout::isInConflictMode()
 {
     //TODO: nyi
+    assert(false);
     return false;
 }
 
 upns::upnsVec<upns::upnsSharedPointer<upns::Conflict> > upns::ZmqRequesterCheckout::getPendingConflicts()
 {
     //TODO: nyi
+    assert(false);
     return upns::upnsVec<upns::upnsSharedPointer<upns::Conflict> >();
 }
 
 void upns::ZmqRequesterCheckout::setConflictSolved(const upns::Path &path, const upns::ObjectId &oid)
 {
     //TODO: nyi
+    assert(false);
 }
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
@@ -47,12 +50,14 @@ upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTreeConflict(const upns::ObjectId &objectId)
 {
     //TODO: nyi
+    assert(false);
     return upns::upnsSharedPointer<upns::Tree>();
 }
 
 upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntityConflict(const upns::ObjectId &objectId)
 {
     //TODO: nyi
+    assert(false);
     return upns::upnsSharedPointer<upns::Entity>();
 }
 
@@ -81,12 +86,14 @@ upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntity(cons
 upns::upnsSharedPointer<upns::Branch> upns::ZmqRequesterCheckout::getParentBranch()
 {
     //TODO: nyi
+    assert(false);
     return upns::upnsSharedPointer<upns::Branch>();
 }
 
 upns::upnsVec<upns::CommitId> upns::ZmqRequesterCheckout::getParentCommitIds()
 {
     //TODO: nyi
+    assert(false);
     return upns::upnsVec<upns::CommitId>();
 }
 
@@ -104,12 +111,16 @@ upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::ge
 
 upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
 {
-
+    //TODO: nyi
+    assert(false);
+    return upns::upnsVec<upns::AbstractEntityData>();
 }
 
 upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> beforeCommit, std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> afterCommit, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> beforeTree, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> afterTree, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> beforeEntity, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> afterEntity)
 {
-
+    //TODO: nyi
+    assert(false);
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
@@ -172,6 +183,7 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     }
     else
     {
+        log_error("Could not store entity \"" + path + "\"");
         return UPNS_STATUS_ERROR;
     }
 }

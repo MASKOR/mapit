@@ -10,6 +10,10 @@ namespace upns {
 
 class Repository;
 
+/**
+ * @brief The ZmqResponderPrivate class Pimpl-Pattern. Hides details from include-header and guarantees compatibility across minor versions.
+ */
+
 class ZmqResponderPrivate : public ZmqProtobufNode
 {
 

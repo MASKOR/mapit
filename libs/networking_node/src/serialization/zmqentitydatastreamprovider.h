@@ -29,9 +29,6 @@ private:
     upnsString m_pathOrOid;
     ZmqProtobufNode *m_node;
     mutable upnsuint64 m_entityLength;
-//    upnsSharedPointer<upns::Entity> m_e; //< Introduces another roundtrip over network. TODO: Empower ReplyEntitydata to make second roundtrip needless.
-//    void initHead() const;
-//    void initEntity() const;
 };
 
 }
