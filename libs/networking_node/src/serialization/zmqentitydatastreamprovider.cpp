@@ -59,11 +59,17 @@ bool upns::ZmqEntitydataStreamProvider::isReadWriteSame()
 
 upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns::upnsuint64 length)
 {
+    const uint64_t defaultBufferSize =  500ul*1024ul*1024ul; // 500 MB
+    const uint64_t maxBufferSize = 2ul*1024ul*1024ul*1024ul; // 2 GB
+    if(length == 0)
+    {
+        length = maxBufferSize;
+    }
     std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
     req->set_checkout(m_checkoutName);
     req->set_entitypath(m_pathOrOid);
     req->set_offset(start);
-    req->set_maxlength(length);
+    req->set_maxlength(maxBufferSize);
     m_node->send(std::move(req));
     upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
     if(rep->status() != upns::ReplyEntitydata::SUCCESS)
@@ -73,8 +79,6 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
     }
     m_entityLength = rep->entitylength();
     uint64_t recvlen = rep->receivedlength();
-    const uint64_t defaultBufferSize =  500ul*1024ul*1024ul; // 500 MB
-    const uint64_t maxBufferSize = 2ul*1024ul*1024ul*1024ul; // 2 GB
     if(recvlen == 0)
     {
         log_info("Received empty entitydata (length: 0, entity: " + m_pathOrOid + ")");

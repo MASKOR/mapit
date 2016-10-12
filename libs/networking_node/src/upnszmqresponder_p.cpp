@@ -107,11 +107,12 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
             log_warn("Server got request with offset exceeding entitydata size.");
             status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
         }
-        else if(msg->offset() + msg->maxlength() > ed->size())
-        {
-            log_warn("Server got request trying to read across entitydata size boundary.");
-            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
-        }
+//        else if(msg->offset() + msg->maxlength() > ed->size())
+//        {
+              // This is absolutly okay
+//            log_warn("Server got request trying to read across entitydata size boundary.");
+//            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
+//        }
         else
         {
             status = upns::ReplyEntitydata::SUCCESS;
@@ -271,19 +272,20 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     // Input validation
     if(msg->offset() > msg->sendlength())
     {
-        rep->set_status(upns::ReplyStoreEntity::ERROR);
         discard_more();
+        log_error("Write offset for entity \"" + msg->path() + "\" was specified wrong.");
+        rep->set_status(upns::ReplyStoreEntity::ERROR);
         send( std::move( rep ) );
         return;
     }
     if(msg->sendlength() > msg->entitylength())
     {
-        rep->set_status(upns::ReplyStoreEntity::ERROR);
         discard_more();
+        log_error("Entity \"" + msg->path() + "\" is too small for received data or parameters sendlength and entitylength are wrong.");
+        rep->set_status(upns::ReplyStoreEntity::ERROR);
         send( std::move( rep ) );
         return;
     }
-
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
     OperationDescription desc;
     desc.set_operatorname("StoreEntity");
@@ -309,6 +311,11 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         {
             return UPNS_STATUS_OK;
         }
+        if(!has_more())
+        {
+            log_error("Server expected raw data (" + std::to_string(msg->sendlength()) + " bytes for entity \"" + msg->path() + "\"), but nothing was received.");
+            return UPNS_STATUS_INVALID_ARGUMENT;
+        }
         // write entitydata
         upnsSharedPointer<AbstractEntityData> ed = coraw->getEntityDataForReadWrite(msg->path());
         upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
@@ -319,6 +326,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             if(buf->size() + offset > msg->sendlength())
             {
                 log_error("Tried to store entitydata with sendlength smaller than received datasize.");
+                ed->endWrite(stream);
                 return UPNS_STATUS_INVALID_ARGUMENT;
             }
             stream->write(static_cast<char*>(buf->data()), buf->size());
@@ -327,17 +335,20 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         if(offset != msg->sendlength())
         {
             log_error("Received entitydata of wrong length: should: " + std::to_string(msg->sendlength()) + ", is: " + std::to_string(offset) + "." );
+            ed->endWrite(stream);
             return UPNS_STATUS_INVALID_DATA;
         }
-
+        ed->endWrite(stream);
         return UPNS_STATUS_OK;
     });
     if(upnsIsOk(res.first))
     {
+        assert(!has_more());
         rep->set_status(upns::ReplyStoreEntity::SUCCESS);
     }
     else
     {
+        log_error("Could not store entity \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
         rep->set_status(upns::ReplyStoreEntity::ERROR);
     }
     send( std::move( rep ) );
@@ -355,6 +366,7 @@ void upns::ZmqResponderPrivate::handleRequestEntity(upns::RequestEntity *msg)
     }
     else
     {
+        log_info("Entity \"" + msg->path() + "\" was requested but not found.");
         rep->set_status( upns::ReplyEntity::NOT_FOUND );
     }
     send( std::move( rep ) );

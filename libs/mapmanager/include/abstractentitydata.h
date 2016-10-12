@@ -68,9 +68,11 @@ public:
      */
     virtual void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1,upnsReal &x2, upnsReal &y2, upnsReal &z2) const = 0;
 
+    //TODO: Introduce a pattern that does "endRead" when scope is left (like QLocker)
     virtual upnsIStream *startReadBytes(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
     virtual void endRead(upnsIStream *strm) = 0;
 
+    //TODO: Introduce a pattern that does "endRead" when scope is left (like QLocker)
     virtual upnsOStream *startWriteBytes(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
     virtual void endWrite(upnsOStream *strm) = 0;
 
