@@ -17,7 +17,7 @@ namespace upns
 class CheckoutCommon
 {
 public:
-
+    virtual ~CheckoutCommon() {}
     /**
      * @brief isInConflictMode After a try to merge, a checkout with conflicts can be generated.
      * @return

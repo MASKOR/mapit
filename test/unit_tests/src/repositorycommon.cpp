@@ -86,11 +86,24 @@ void RepositoryCommon::initTestdata()
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
         upns::upnsSharedPointer<upns::RepositoryServer> srv = upns::upnsSharedPointer<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo.get()));
         m_repo[2] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
-        m_serverThread = QSharedPointer<ServerThread>(new ServerThread(srv));
+        m_serverThread = upns::upnsSharedPointer<ServerThread>(new ServerThread(srv));
         m_serverThread->start();
         m_checkout[2] = upns::upnsSharedPointer<upns::Checkout>(m_repo[2]->createCheckout("master", "testcheckout"));
         m_serverThread->stop();
     }
+}
+
+void RepositoryCommon::cleanupTestdata()
+{
+    m_checkout[0] = nullptr;
+    m_checkout[1] = nullptr;
+    m_checkout[2] = nullptr;
+    m_repo[0] = nullptr;
+    m_repo[1] = nullptr;
+    m_repo[2] = nullptr;
+    m_networkRepo = nullptr;
+    m_serverThread->wait(600);
+    m_serverThread = nullptr;
 }
 
 void RepositoryCommon::startServer()

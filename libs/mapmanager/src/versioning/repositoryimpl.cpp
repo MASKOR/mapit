@@ -9,17 +9,13 @@ namespace upns
 {
 class RepositoryPrivate
 {
-    RepositoryPrivate(AbstractMapSerializer* ser):m_serializer(ser){}
-    ~RepositoryPrivate()
-    {
-        delete m_serializer;
-    }
+    RepositoryPrivate(upns::upnsSharedPointer<AbstractMapSerializer> ser):m_serializer(ser){}
 
-    AbstractMapSerializer* m_serializer;
+    upns::upnsSharedPointer<AbstractMapSerializer> m_serializer;
     friend class RepositoryImpl;
 };
 
-RepositoryImpl::RepositoryImpl(AbstractMapSerializer* serializer)
+RepositoryImpl::RepositoryImpl(upns::upnsSharedPointer<AbstractMapSerializer> serializer)
     :m_p(new RepositoryPrivate(serializer))
 {}
 

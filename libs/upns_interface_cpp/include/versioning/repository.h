@@ -21,6 +21,7 @@ class RepositoryPrivate;
 class Repository
 {
 public:
+    virtual ~Repository() {}
     /**
      * @brief getCheckouts retrieves a list of all checkouts in the system.
      * In contrast to git (with a single file tree), upns can checkout multiple versions at the same time.

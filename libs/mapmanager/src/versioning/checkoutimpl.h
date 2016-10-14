@@ -40,8 +40,7 @@ public:
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(AbstractMapSerializer *serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
-    virtual ~CheckoutImpl();
+    CheckoutImpl(upns::upnsSharedPointer<AbstractMapSerializer> serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
 
     virtual bool isInConflictMode();
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
@@ -131,7 +130,7 @@ private:
                                 std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
                                 std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
 
-    AbstractMapSerializer* m_serializer;
+    upns::upnsSharedPointer<AbstractMapSerializer> m_serializer;
 
     // Branch, the checkout is based on, if any
     upnsString m_branchname;

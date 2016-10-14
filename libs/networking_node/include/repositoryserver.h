@@ -6,6 +6,8 @@ namespace upns {
 class RepositoryServer
 {
 public:
+    virtual ~RepositoryServer() {}
+
     /**
      * @brief handleRequest handles the next request and blocks until one is received or timeout is reached.
      * If milliseconds is 0, it returns immediatly if there is no request.

@@ -15,8 +15,8 @@ class AbstractMapSerializer;
 class RepositoryImpl : public Repository
 {
 public:
-    RepositoryImpl(upns::AbstractMapSerializer* serializer);
-    ~RepositoryImpl();
+    RepositoryImpl(upns::upnsSharedPointer<upns::AbstractMapSerializer> serializer);
+    virtual ~RepositoryImpl();
 
     upnsVec<upnsString> listCheckoutNames();
 

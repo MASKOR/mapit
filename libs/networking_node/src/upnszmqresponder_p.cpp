@@ -268,10 +268,12 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
     send( std::move( rep ) );
 }
 
+#include <iomanip>
+
 void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {
     std::unique_ptr<upns::ReplyStoreEntity> rep(new upns::ReplyStoreEntity());
-
+    std::cout << "A DBG" << std::endl;
     // Input validation
     if(msg->offset() > msg->sendlength())
     {
@@ -281,6 +283,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         send( std::move( rep ) );
         return;
     }
+    std::cout << "B DBG" << std::endl;
     if(msg->sendlength() > msg->entitylength())
     {
         discard_more();
@@ -289,17 +292,21 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         send( std::move( rep ) );
         return;
     }
+    std::cout << "C DBG" << std::endl;
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
     OperationDescription desc;
     desc.set_operatorname("StoreEntity");
     desc.set_params("{source:\"network\"}");
 
+    std::cout << "D DBG" << std::endl;
     upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
         upns::CheckoutRaw* coraw = env->getCheckout();
 
+        std::cout << "E DBG" << std::endl;
         // if offset is not 0, we assume the entity already exists.
         if(msg->offset() == 0)
         {
+            std::cout << "F DBG" << std::endl;
             // create new entity
             upns::upnsSharedPointer<upns::Entity> e(new upns::Entity);
             e->set_type(msg->type());
@@ -309,23 +316,27 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
                 log_error("Could not store entity: \"" + msg->path() + "\"");
                 return status;
             }
+            std::cout << "G DBG" << std::endl;
         }
+        std::cout << "H DBG" << std::endl;
         if(msg->sendlength() == 0)
         {
             return UPNS_STATUS_OK;
         }
+        std::cout << "I DBG" << std::endl;
         if(!has_more())
         {
             log_error("Server expected raw data (" + std::to_string(msg->sendlength()) + " bytes for entity \"" + msg->path() + "\"), but nothing was received.");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
+        std::cout << "J DBG" << std::endl;
         // write entitydata
         upnsSharedPointer<AbstractEntityData> ed = coraw->getEntityDataForReadWrite(msg->path());
         upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
         size_t offset = 0;
         while(has_more())
         {
-            zmq::message_t *buf = receive_raw_body();
+            std::unique_ptr<zmq::message_t> buf( receive_raw_body() );
             if(buf->size() + offset > msg->sendlength())
             {
                 log_error("Tried to store entitydata with sendlength smaller than received datasize.");
@@ -335,12 +346,14 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             stream->write(static_cast<char*>(buf->data()), buf->size());
             offset += buf->size();
         }
+        std::cout << "K DBG" << std::endl;
         if(offset != msg->sendlength())
         {
             log_error("Received entitydata of wrong length: should: " + std::to_string(msg->sendlength()) + ", is: " + std::to_string(offset) + "." );
             ed->endWrite(stream);
             return UPNS_STATUS_INVALID_DATA;
         }
+        std::cout << "L DBG" << std::endl;
         ed->endWrite(stream);
         return UPNS_STATUS_OK;
     });

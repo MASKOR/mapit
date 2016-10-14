@@ -23,6 +23,7 @@ class OperationEnvironment;
 class Checkout : public CheckoutCommon
 {
 public:
+    virtual ~Checkout() {}
     /**
      * @brief doOperation Executes the Operator given in the description
      * @param desc

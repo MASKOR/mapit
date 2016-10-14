@@ -13,7 +13,7 @@ public:
     }
     virtual ~MemoryReaderDeleter()
     {
-        delete m_data;
+        delete [] m_data;
     }
 private:
     char* m_data;
@@ -57,14 +57,19 @@ bool upns::ZmqEntitydataStreamProvider::isReadWriteSame()
     return false;
 }
 
+#include <iomanip>
+
 upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns::upnsuint64 length)
 {
+
+    std::cout << "aA DBG" << std::endl;
     const uint64_t defaultBufferSize =  500ul*1024ul*1024ul; // 500 MB
     const uint64_t maxBufferSize = 2ul*1024ul*1024ul*1024ul; // 2 GB
     if(length == 0)
     {
         length = maxBufferSize;
     }
+    std::cout << "bA DBG" << std::endl;
     std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
     req->set_checkout(m_checkoutName);
     req->set_entitypath(m_pathOrOid);
@@ -77,6 +82,7 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
         log_error("received error from server when asked for entitydata");
         return nullptr;
     }
+    std::cout << "cA DBG" << std::endl;
     m_entityLength = rep->entitylength();
     uint64_t recvlen = rep->receivedlength();
     if(recvlen == 0)
@@ -96,6 +102,7 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
     }
     char *buf = new char[recvlen]; // deleted by MemoryReaderDeleter
 
+    std::cout << "dA DBG" << std::endl;
     // receive empty frames to not disturb following receives.
     if(m_node->has_more())
     {
@@ -109,12 +116,18 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
         {
             log_error("Entitydata does not have expected size. It may be corrupt. (entity: " + m_pathOrOid + ")");
         }
+        if( m_node->has_more() )
+        {
+            log_error("Received unexpected network part. Entitydata may be corrupt. (entity: " + m_pathOrOid + ")");
+        }
     }
+    std::cout << "eA DBG" << std::endl;
     return new MemoryReaderDeleter(buf, recvlen);
 }
 
 void upns::ZmqEntitydataStreamProvider::endRead(upns::upnsIStream *strm)
 {
+    std::cout << "rmA DBG" << std::endl;
     delete strm;
 }
 

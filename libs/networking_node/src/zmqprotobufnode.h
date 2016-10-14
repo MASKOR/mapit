@@ -202,7 +202,9 @@ typename std::enable_if<std::is_base_of<google::protobuf::Message, MT>::value, v
   }
   delegate_by_comp_type_[key] = [handler, this](const void* data, const size_t size)
   {
-    handler( this->to_concrete_type<MT>(data, size) );
+    google::protobuf::Message *msg = this->to_concrete_type<MT>(data, size);
+    handler( msg );
+    delete static_cast<MT*>(msg);
   };
 }
 

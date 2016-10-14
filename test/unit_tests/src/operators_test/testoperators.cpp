@@ -42,6 +42,7 @@ void TestOperators::initTestCase()
 
 void TestOperators::cleanupTestCase()
 {
+    cleanupTestdata();
 }
 
 void TestOperators::testOperatorLoadPointcloud_data() { createTestdata(); }

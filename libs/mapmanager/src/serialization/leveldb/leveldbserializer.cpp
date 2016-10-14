@@ -59,7 +59,7 @@ LevelDBSerializer::LevelDBSerializer(const YAML::Node &config)
     leveldb::Status status = leveldb::DB::Open(options, databaseName, &m_db);
     if(!status.ok())
     {
-        log_error("Could not open Database: " + databaseName + ". It might be already open. Only one connection allowed.");
+        log_error("Could not open Database: " + databaseName + ". It might be already open. Only one connection allowed." + status.ToString());
     }
     assert(status.ok());
 }

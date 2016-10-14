@@ -51,12 +51,12 @@ static upns::AbstractMapSerializer *initializeSerializer(const YAML::Node &confi
 upns::Repository *upns::RepositoryFactory::openLocalRepository(const upns::upnsString &filename)
 {
     YAML::Node config = YAML::LoadFile( filename );
-    upns::AbstractMapSerializer *mser( initializeSerializer( config ) );
+    upns::upnsSharedPointer<AbstractMapSerializer> mser( initializeSerializer( config ) );
     return new upns::RepositoryImpl( mser );
 }
 
 upns::Repository *upns::RepositoryFactory::openLocalRepository(const YAML::Node &config)
 {
-    upns::AbstractMapSerializer *mser( initializeSerializer( config ) );
+    upns::upnsSharedPointer<AbstractMapSerializer> mser( initializeSerializer( config ) );
     return new upns::RepositoryImpl( mser );
 }

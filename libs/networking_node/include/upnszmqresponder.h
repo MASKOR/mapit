@@ -19,7 +19,7 @@ class ZmqResponder : public RepositoryServer
 {
 public:
     ZmqResponder( int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests = std::string() );
-    ~ZmqResponder();
+    virtual ~ZmqResponder();
 
     // RepositoryServer interface
 public:

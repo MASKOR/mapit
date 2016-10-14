@@ -19,14 +19,13 @@ upns::upnsVec<upns::upnsString> upns::ZmqRequester::listCheckoutNames()
 {
     std::unique_ptr<upns::RequestListCheckouts> req(new upns::RequestListCheckouts);
     m_d->send(std::move(req));
-    upns::ReplyListCheckouts *rep = m_d->receive<upns::ReplyListCheckouts>();
+    upns::upnsSharedPointer<upns::ReplyListCheckouts> rep(m_d->receive<upns::ReplyListCheckouts>());
 
     upns::upnsVec<upns::upnsString> ret(rep->checkouts_size());
     for(int i=0 ; i<rep->checkouts_size() ; ++i)
     {
         ret.push_back(rep->checkouts(i));
     }
-    delete rep;
     return ret;
 }
 
