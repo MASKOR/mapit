@@ -1,5 +1,5 @@
 #include "qmlcheckout.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 
 QmlCheckout::QmlCheckout()
     :m_checkout( NULL ),

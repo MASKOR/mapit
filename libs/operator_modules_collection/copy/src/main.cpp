@@ -1,7 +1,7 @@
 #include "module.h"
 #include "modules/versioning/checkoutraw.h"
 #include "modules/operationenvironment.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
 #include <QJsonDocument>
 #include <QJsonObject>

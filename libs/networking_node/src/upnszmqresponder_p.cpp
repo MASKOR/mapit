@@ -4,7 +4,7 @@
 #include "versioning/repository.h"
 #include "modules/operationenvironment.h"
 #include "modules/versioning/checkoutraw.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 
 template < typename T, void (upns::ZmqResponderPrivate::*func)(T*) >
 void upns::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)

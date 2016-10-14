@@ -4,11 +4,9 @@ aux_source_directory(. SRC_LIST)
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
-include_directories(${LEVELDB_INCLUDE_DIRECTORY})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${UPNS_INTERFACE_INCLUDE})
-include_directories(${YAML_CPP_INCLUDE})
 
 file(GLOB_RECURSE UPNS_INTERFACE_CPP_SOURCES ${PROJECT_SOURCE_DIR}/include/*.h)
 

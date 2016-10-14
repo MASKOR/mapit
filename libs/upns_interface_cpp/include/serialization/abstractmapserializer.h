@@ -5,7 +5,7 @@
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 
 namespace upns
 {

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <pcl/features/normal_3d.h>
 #include <memory>
-#include "error.h"
+#include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
 #include <QJsonDocument>
 #include <QJsonObject>

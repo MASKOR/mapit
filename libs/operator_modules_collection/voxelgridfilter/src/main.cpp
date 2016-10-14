@@ -5,7 +5,7 @@
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
-#include "error.h"
+#include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
 #include <QJsonDocument>
 #include <QJsonObject>

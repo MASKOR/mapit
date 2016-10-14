@@ -6,7 +6,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
 #include "module_utility.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {

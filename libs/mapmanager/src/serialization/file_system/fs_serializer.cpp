@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include "error.h"
+#include "upns_errorcodes.h"
 
 #define LDBSER_DELIM "!"
 #define KEY_PREFIX_CHECKOUT "co"

@@ -43,7 +43,7 @@
 #include "versioning/repositoryfactory.h"
 
 #include "services.pb.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 
 void createExampleRepo()
 {

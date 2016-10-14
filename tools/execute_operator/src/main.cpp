@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QDir>
 #include <yaml-cpp/yaml.h>
-#include "error.h"
+#include "upns_errorcodes.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 

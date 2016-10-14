@@ -2,7 +2,6 @@
 #define REPOSITORYNETWOKINGFACTORY_H
 
 #include "upns_globals.h"
-#include "yaml-cpp/yaml.h"
 #include "versioning/repository.h"
 #include "repositoryserver.h"
 
@@ -24,7 +23,6 @@ public:
      * This creates a shim network-repository, which conntects to a second local repository.
      * Requests over the network will be redirected to the local repository.
      * Blocking call. Can only be stopped by sigint/sigterm at the moment
-     * @param config Yaml configuration of the repository
      * @return
      */
     static RepositoryServer* openRepositoryAsServer(const int port, upns::Repository* repo, upns::upnsString urlNext = upns::upnsString() );

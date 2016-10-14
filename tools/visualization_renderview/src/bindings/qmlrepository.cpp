@@ -1,6 +1,6 @@
 #include "qmlrepository.h"
 #include "versioning/repositoryfactory.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 
 QmlRepository::QmlRepository()
 {

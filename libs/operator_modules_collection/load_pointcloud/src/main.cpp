@@ -7,7 +7,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <memory>
-#include "error.h"
+#include "upns_errorcodes.h"
 #include "param.pb.h"
 #include <QJsonDocument>
 #include <QJsonObject>

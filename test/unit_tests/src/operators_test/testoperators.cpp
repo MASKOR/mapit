@@ -1,6 +1,6 @@
 #include "testoperators.h"
 #include "upns_globals.h"
-#include "error.h"
+#include "upns_errorcodes.h"
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>

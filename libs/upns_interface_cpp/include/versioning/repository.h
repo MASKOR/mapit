@@ -6,7 +6,6 @@
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
 #include "checkout.h"
-#include "yaml-cpp/yaml.h"
 
 namespace upns
 {

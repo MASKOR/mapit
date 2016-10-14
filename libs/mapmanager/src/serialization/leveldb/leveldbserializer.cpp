@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <algorithm>
-#include "error.h"
+#include "upns_errorcodes.h"
 
 #include <QDateTime>
 #include <QFileInfo>
