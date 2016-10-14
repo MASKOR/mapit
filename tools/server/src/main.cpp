@@ -4,8 +4,6 @@
 #include "services.pb.h"
 #include "versioning/repository.h"
 #include "versioning/repositoryfactory.h"
-#include <QFile>
-#include <QDir>
 #include <yaml-cpp/yaml.h>
 #include "upns_errorcodes.h"
 #include <log4cplus/configurator.h>
@@ -37,9 +35,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    QString portStr(argv[2]);
+    upns::upnsString portStr(argv[2]);
     int port;
-    if((port = portStr.toInt()) == 0)
+    if((port = std::stoi( portStr )) == 0)
     {
         std::cout << "port was not a number; abort" << std::endl;
         return 1;

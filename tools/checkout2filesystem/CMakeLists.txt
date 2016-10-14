@@ -1,31 +1,12 @@
 project(checkout2filesystem)
 cmake_minimum_required(VERSION 2.8)
 
-include(../cmake/custom_add_leveldb)
-
-# add custom cmake scripts. i.e. FindProcessorCount...
-set(CMAKE_MODULE_PATH
-    ${PROJECT_SOURCE_DIR}/cmake
-    ${CMAKE_MODULE_PATH}
-)
-
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
 
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
 
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
-find_package(Qt5Widgets ${UPNS_QTVERSION} REQUIRED)
-
-include(FindProcessorCount)
-message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
-
-custom_set_vars_leveldb()
-include_directories(${LEVELDB_INCLUDE_DIRECTORY})
 
 if(WIN32)
     set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
@@ -51,7 +32,7 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Qt5::Core upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs

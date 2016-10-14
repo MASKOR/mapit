@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 aux_source_directory(. SRC_LIST)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
@@ -64,13 +65,9 @@ FOREACH(subdir ${SUBDIRS})
   SET(AllUnitTestCPP ${AllUnitTestCPP} ${CurrentUnitTestCPP})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
-  if(WIN32)
-  target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface networking_node layertype_pointcloud2 load_pointcloud
+
+  target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} upns_mapmanager upns_interface networking_node layertype_pointcloud2 load_pointcloud
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${YAMLCPP_LIBRARY})
-  else()
-  target_link_libraries(${subdir} Qt5::Test upns_mapmanager upns_interface networking_node layertype_pointcloud2 load_pointcloud
-                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${YAMLCPP_LIBRARY})
-  endif()
 
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
@@ -100,7 +97,7 @@ FOREACH(subdir ${SUBDIRS})
 #)
 ENDFOREACH()
 
-add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP}  )
+add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} )
 #custom_target_use_boost(${subdir})
 find_package(Boost COMPONENTS filesystem system date_time)
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface networking_node layertype_pointcloud2 load_pointcloud

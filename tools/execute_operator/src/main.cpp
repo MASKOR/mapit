@@ -4,8 +4,6 @@
 #include "services.pb.h"
 #include "versioning/repository.h"
 #include "versioning/repositoryfactory.h"
-#include <QFile>
-#include <QDir>
 #include <yaml-cpp/yaml.h>
 #include "upns_errorcodes.h"
 #include <log4cplus/configurator.h>

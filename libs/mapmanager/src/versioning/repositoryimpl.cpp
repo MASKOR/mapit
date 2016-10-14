@@ -3,8 +3,7 @@
 #include "serialization/abstractmapserializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"
-#include <QHash>
-#include <QMap>
+#include <chrono>
 
 namespace upns
 {
@@ -143,20 +142,20 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const upnsString &checkoutName)
 CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upnsString msg)
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
-    QMap< ::std::string, ::std::string> oldToNewIds;
+    std::map< std::string, std::string > oldToNewIds;
     CommitId ret;
     StatusCode s = co->depthFirstSearch(
         [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p)
         {
-            ::std::string rootId(obj->root());
-            assert(rootId.empty() || oldToNewIds.contains(rootId));
-            if(rootId.empty() && oldToNewIds.contains(rootId))
+            std::string rootId(obj->root());
+            assert(rootId.empty() || oldToNewIds.find(rootId) != oldToNewIds.end());
+            if(rootId.empty() && oldToNewIds.find(rootId) != oldToNewIds.end())
             {
                 log_warn("commit empty checkout on empty parent commit (no root)");
             }
             else
             {
-                obj->set_root(oldToNewIds.value(rootId));
+                obj->set_root(oldToNewIds[rootId]);
             }
             //TODO: Lots of todos here (Metadata)
             if(msg.find_last_of('\n') != msg.length()-1)
@@ -164,7 +163,8 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
                 msg += "\n";
             }
             obj->set_commitmessage(msg);
-            obj->set_datetime(QDateTime::currentDateTime().toMSecsSinceEpoch());
+            int64_t millisecs = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+            obj->set_datetime(millisecs);
             obj->set_author("tester <test@maskor.fh-aachen.de>");
 
             upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
@@ -180,13 +180,13 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
             while(iter != refs.end())
             {
                 ::std::string id(iter->second.id());
-                assert(oldToNewIds.contains(id));
-                iter->second.set_id(oldToNewIds.value(id));
+                assert(oldToNewIds.find(id) != oldToNewIds.end());
+                iter->second.set_id(oldToNewIds[id]);
                 iter++;
             }
             upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeTree(obj);
             if(upnsIsOk(!soid.first)) return false;
-            oldToNewIds.insert(oid, soid.second);
+            oldToNewIds.insert(std::pair<std::string, std::string>(oid, soid.second));
             return true;
         },
         [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p)
@@ -198,7 +198,7 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
             obj->set_dataid(soid.second);
             soid = m_p->m_serializer->storeEntity(obj);
             if(upnsIsOk(!soid.first)) return false;
-            oldToNewIds.insert(oid, soid.second);
+            oldToNewIds.insert(std::pair<std::string, std::string>(oid, soid.second));
             return true;
         });
     if(!upnsIsOk(s))

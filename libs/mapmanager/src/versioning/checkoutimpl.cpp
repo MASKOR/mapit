@@ -11,8 +11,6 @@
 #include "module.h"
 #include "operationenvironmentimpl.h"
 #include "serialization/entitystreammanager.h"
-#include <QDir>
-#include <QDateTime>
 
 namespace upns
 {

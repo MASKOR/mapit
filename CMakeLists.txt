@@ -35,9 +35,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
-include(custom_add_leveldb)
 include(FindLog4cplus)
-include(FindYamlCpp)
 
 
 if(WIN32)

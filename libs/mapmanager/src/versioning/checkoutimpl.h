@@ -10,7 +10,6 @@
 #include "modules/versioning/checkoutraw.h"
 #include "util.h"
 #include <functional>
-#include <QDateTime>
 
 namespace upns
 {

@@ -21,9 +21,6 @@ include_directories(${UPNS_INTERFACE_INCLUDE})
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
-
 #custom_set_vars_boost()
 #find_package(PCL REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common io segmentation sample_consensus filters kdtree search)

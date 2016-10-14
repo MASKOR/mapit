@@ -11,10 +11,6 @@
 #include <algorithm>
 #include "upns_errorcodes.h"
 
-#include <QDateTime>
-#include <QFileInfo>
-#include <QLockFile>
-
 #define LDBSER_DELIM "!"
 #define KEY_PREFIX_CHECKOUT "co"
 #define KEY_PREFIX_COMMIT "obj!cm"
@@ -850,7 +846,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Tree> value)
     {
         std::cout << std::endl;
         const ::std::string &refname(iter->first);
-        std::cout << "\t(" << refname << " | " << iter->second.id() << ", " << QDateTime::fromMSecsSinceEpoch(iter->second.lastchange()).toString().toStdString() << ")";
+        std::cout << "\t(" << refname << " | " << iter->second.id() << ", " << std::to_string(iter->second.lastchange()) << ")";
         iter++;
     }
     std::cout << "]\n}";

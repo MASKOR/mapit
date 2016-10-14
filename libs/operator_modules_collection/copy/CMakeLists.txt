@@ -22,7 +22,7 @@ find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
-target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager)
+target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface upns_mapmanager)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

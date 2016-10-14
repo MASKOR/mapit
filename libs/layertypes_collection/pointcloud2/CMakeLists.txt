@@ -15,7 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/) # TODO: Make yet another project consisting of only headers for layertypes/operation_modules
 include_directories(${PROJECT_SOURCE_DIR}/../../../externals/log4cplus/include/)
 if(WIN32)
-include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
+  include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
 
 find_package(Protobuf)
