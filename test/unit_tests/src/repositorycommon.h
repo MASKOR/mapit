@@ -2,6 +2,7 @@
 #define REPOSITORYCOMMON_H
 
 #include <QTest>
+#include <QMutex>
 
 #include "versioning/repository.h"
 
@@ -25,6 +26,9 @@ private:
     std::function<void()> m_serverCallback;
     upns::upnsSharedPointer<ServerThread> m_serverThread;
     upns::upnsSharedPointer<upns::Repository> m_networkRepo;
+
+    // Start only after stop has finished. Let the last recv() run into it's timeout.
+    QMutex m_serverThreadMutex;
 };
 
 #endif

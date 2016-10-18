@@ -25,7 +25,8 @@ void
 ZmqProtobufNode::connect(std::string com)
 {
   if (connected_) {
-    // TODO: throw
+    std::string msg = "connect called, but node is already connected";
+    throw std::runtime_error(msg);
   }
 
   socket_->connect(com);
@@ -36,7 +37,8 @@ void
 ZmqProtobufNode::bind(std::string com)
 {
   if (connected_) {
-    // TODO: throw
+    std::string msg = "bind called, but node is already connected";
+    throw std::runtime_error(msg);
   }
 
   socket_->bind(com);
@@ -47,7 +49,8 @@ void
 ZmqProtobufNode::send_pb_single(std::unique_ptr< ::google::protobuf::Message> msg, int flags)
 {
   if ( ! connected_) {
-    // TODO: throw
+    std::string msg = "send protobuf called, but node is not connected";
+    throw std::runtime_error(msg);
   }
   assert(!has_more());
 
@@ -61,7 +64,8 @@ void
 ZmqProtobufNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sndmore)
 {
   if ( ! connected_) {
-    // TODO: throw
+    std::string msg = "send called, but node is not connected";
+    throw std::runtime_error(msg);
   }
   assert(!has_more());
 
@@ -87,7 +91,8 @@ void
 ZmqProtobufNode::send_raw_body(const unsigned char* data, size_t size, int flags)
 {
   if ( ! connected_) {
-    // TODO: throw
+    std::string msg = "send raw called, but node is not connected";
+    throw std::runtime_error(msg);
   }
   assert(!has_more());
 
@@ -100,7 +105,8 @@ void
 ZmqProtobufNode::receive_and_dispatch(int milliseconds)
 {
   if ( ! connected_) {
-    // TODO: throw
+    std::string msg = "Receive called, but node is not connected";
+    throw std::runtime_error(msg);
   }
 
   socket_->setsockopt(ZMQ_RCVTIMEO, &milliseconds, sizeof(milliseconds));

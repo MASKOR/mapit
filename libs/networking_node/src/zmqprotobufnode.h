@@ -9,6 +9,11 @@
 #include <map>
 #include <functional>
 
+///
+/// \brief The ZmqProtobufNode class is the low level interface to access network using zmq and req/rep.
+/// It is used for client and server. Client and server share functionality (send).
+///
+
 class ZmqProtobufNode
 {
 private:
@@ -131,7 +136,7 @@ public:
 };
 
 
-////// Implementations of temlate functions //////
+////// Implementations of template functions //////
 
 
 template <typename MT>

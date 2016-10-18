@@ -6,39 +6,35 @@
 #include "upns_globals.h"
 #include <repositoryserver.h>
 
+// Client Calls send() followed by stopServer().
+// The server waits MAX_NETWORK_LATENCY ms and tries to hanlde the last message in that time
 #define MAX_NETWORK_LATENCY 2
 
 class ServerThread : public QThread
 {
     Q_OBJECT
     upns::upnsSharedPointer<upns::RepositoryServer> m_srv;
-    bool m_isStarted;
+    bool m_isStopped;
     QMutex m_mutex;
 public:
-    ServerThread(upns::upnsSharedPointer<upns::RepositoryServer> server):m_srv(server), m_isStarted(false) {}
+    ServerThread(upns::upnsSharedPointer<upns::RepositoryServer> server):m_srv(server), m_isStopped(false) {}
 
     void run() Q_DECL_OVERRIDE
     {
-        m_mutex.lock();
-        m_isStarted = true;
-        m_mutex.unlock();
-        while(true)
+        QMutexLocker l(&m_mutex);
+        Q_UNUSED(l);
+        while(!m_isStopped)
         {
-            QThread::currentThread()->msleep(10);
-
-            QMutexLocker l(&m_mutex);
-            Q_UNUSED(l);
-            if(!m_isStarted) break;
-            m_srv->handleRequest(0);
+            m_srv->handleRequest(100);
         }
     }
 public slots:
     void stop()
     {
-        m_mutex.lock();
-        m_isStarted = false;
+        m_isStopped = true;
+        QMutexLocker l(&m_mutex); // finish loop
+        m_isStopped = false;
         m_srv->handleRequest(MAX_NETWORK_LATENCY); // there might be something not send/received yet.
-        m_mutex.unlock();
     }
 };
 #endif

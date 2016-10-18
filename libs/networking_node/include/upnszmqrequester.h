@@ -11,8 +11,6 @@ class ZmqRequesterPrivate;
 ///
 /// \brief The upns::ZmqRequester class
 /// Implements the basic Repository Interface and will send requests over network
-/// Note: This is a quiet complex task and requires a private API over network.
-/// A shallow copy of checkout is not enough here. Objects must be exchanged by hash completely.
 ///
 
 class ZmqRequester : public upns::Repository

@@ -9,6 +9,10 @@
 namespace upns
 {
 
+/**
+ * @brief ZmqEntitydataStreamProvider sends binary data over network
+ */
+
 class ZmqEntitydataStreamProvider : public AbstractEntityDataStreamProvider
 {
     // AbstractEntityDataStreamProvider interface

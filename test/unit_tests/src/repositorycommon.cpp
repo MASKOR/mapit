@@ -21,10 +21,12 @@ void RepositoryCommon::createTestdata()
     QTest::newRow("local database")   << m_repo[1] << m_checkout[1] << std::function<void()>([](){}) << std::function<void()>([](){});
     QTest::newRow("remote")           << m_repo[2] << m_checkout[2] << std::function<void()>([this]()
         {
+            QMutexLocker l(&m_serverThreadMutex);
             m_serverThread->start();
         })
         << std::function<void()>([this]()
         {
+            QMutexLocker l(&m_serverThreadMutex);
             m_serverThread->stop();
         });
 }
