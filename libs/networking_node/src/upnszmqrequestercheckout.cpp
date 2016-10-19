@@ -3,6 +3,7 @@
 #include "serialization/entitystreammanager.h" //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"
 #include "operationenvironmentimpl.h"
+#include "upns_errorcodes.h"
 
 upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, Checkout *cache)
     :m_checkoutName( name ),

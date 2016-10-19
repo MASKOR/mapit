@@ -12,18 +12,10 @@ namespace upns
 /**
  * @brief A Checkout object represents an editable state/version of all maps.
  * CheckoutRaw is the interface for Operators to directly edit objects.
- * Checkouts are also stored using AbstractMapSerializer. Changes can be done in a checkout without creating
- * new commits. Checkouts are serialized until they are commited and do not only exist in RAM.
- * When they are commited, the checkout is transformed to the final commit. At this stage, it can not be changed anymore (all objects are immutable).
- * While not commited, checkouts behave like commits but one can not use the commit- and objectIds, because these are changing.
- * Checkouts are navigated using paths, using a "/" delimiter and mapping 1:1 the tree hierarchy.
- * In contrast to all other places, objects behind the commit- and objectIds inside a checkout can be deleted from the system completely.
- * OperationDescriptors are collected while the checkout is active. Operations inside the list can have parameters (objectIds) which are
- * only temporary in the system. When replayed, dependencymanagement tries to compute all Operations which have all their parameters ready.
  * Conflicts:
- * When there is a conflict, a "path" is not enough to identify objects. An Operation, working on conflicts can choose one of the existing versions or create a new object,
+ * When there is a conflict, a "path" is not enough to identify objects. An Operation,
+ * working on conflicts can choose one of the existing versions or create a new object,
  * which will be marked as the new version.
- * For EntityData
  */
 
 class CheckoutRaw : public CheckoutCommon

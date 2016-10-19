@@ -12,10 +12,24 @@ namespace upns
 class RepositoryPrivate;
 
 /**
- * @brief The Repository class.
- * Methods should never be called in a main or GUI Thread, as they may prevent the application to respond to OS messages and thus freeze GUIs.
- * Implementations of this interface will likly be NOT thread-safe and may be reentrant.
- * To decouple the application from different repository-implementations, methods should be used as if they were NOT thread-safe.
+ * @brief The Repository class is the main interface to maps and data inside a repository.
+ * Repository has functionality to work with data across their versions. If only a single/
+ * the newest version of maps is needed for a user, the only methods needed from this interface
+ * are "listCheckoutNames", "createCheckout" and "getCheckout". @sa Checkout provides all
+ * functionality to read and write a specific version of objects.
+ * Methods should never be called in a main or GUI Thread, as they may prevent the application
+ * to respond to OS messages and thus freeze GUIs. Implementations of this interface will likely
+ * be NOT thread-safe. About reentrancy:
+ * 1. Multiple instances of the Repository class should not access the same underlying
+ *    Repository-data at once.
+ * 2. Multiple Repositories with different configurations are possible/must be possible with
+ *    the implementation.
+ * To decouple the application from different repository-implementations, methods should be used
+ * as if they were NOT thread-safe and multiple Repository-instances for the same underlying data
+ * should NOT be used.
+ *
+ * At the moment there are two implementations: 1) local, 2) network-stub/cached
+ * Both implementations provide factories to instantiate Repository.
  */
 
 class Repository

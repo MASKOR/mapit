@@ -182,18 +182,39 @@ OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
     Path p(m_name + "/" + preparePathFilename(path));
-    return EntityStreamManager::getEntityDataByPathImpl(m_serializer, p, true, false);
+    upnsSharedPointer<Entity> ent = m_serializer->getEntityTransient( p );
+    if( ent == NULL )
+    {
+        log_error("Entity not found." + path);
+        return NULL;
+    }
+    assert( ent );
+    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
 {
-    return EntityStreamManager::getEntityDataImpl(m_serializer, entityId, true);
+    upnsSharedPointer<Entity> ent = m_serializer->getEntity( entityId );
+    if( ent == NULL )
+    {
+        log_error("Entity not found." + entityId);
+        return NULL;
+    }
+    assert( ent );
+    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
 }
 
 upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(const Path &path)
 {
     Path p(m_name + "/" + preparePathFilename(path));
-    return EntityStreamManager::getEntityDataByPathImpl(m_serializer, p, true, true);
+    upnsSharedPointer<Entity> ent = m_serializer->getEntityTransient( p );
+    if( ent == NULL )
+    {
+        log_error("Entity not found." + path);
+        return NULL;
+    }
+    assert( ent );
+    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, true), true);
 }
 
 StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)

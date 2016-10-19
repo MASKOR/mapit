@@ -81,7 +81,9 @@ typedef upnsuint32 StatusCode;
 typedef upnsString CommitId;
 typedef upnsString ObjectId;
 
+// Paths to navigate through a checkout
 // Path do not need to start with "/".
+// TODO: There are not yet codepassages, where relative paths are needed
 // Empty "directories" are not allowed ("//").
 // Trailing "/" are omitted.
 typedef upnsString Path;

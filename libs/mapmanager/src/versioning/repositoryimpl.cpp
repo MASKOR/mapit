@@ -109,7 +109,14 @@ upnsSharedPointer<AbstractEntityData> RepositoryImpl::getEntityDataReadOnly(cons
 {
     // For entitydata it is not enough to call serializer directly.
     // Moreover special classes need to be created by layertype plugins.
-    return EntityStreamManager::getEntityDataImpl(m_p->m_serializer, oid, true);
+    upnsSharedPointer<Entity> ent = m_p->m_serializer->getEntity( oid );
+    if( ent == NULL )
+    {
+        log_error("Entity not found." + oid);
+        return NULL;
+    }
+    assert( ent );
+    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
 }
 
 upnsSharedPointer<Checkout> RepositoryImpl::getCheckout(const upnsString &checkoutName)

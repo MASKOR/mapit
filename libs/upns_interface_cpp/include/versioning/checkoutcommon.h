@@ -10,8 +10,7 @@ namespace upns
 {
 
 /**
- * @brief The CheckoutCommon class contains read ans common methods of "Checkout" and "CheckoutRaw".
- * Note: Must not contain implementations to avoid "deadly diamond of death".
+ * @brief The CheckoutCommon class contains read and common methods of "Checkout" and "CheckoutRaw".
  */
 
 class CheckoutCommon

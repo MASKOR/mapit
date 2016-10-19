@@ -21,13 +21,13 @@ if (WIN32)
     set(LEVELDB_INCLUDE_DIRECTORY "${PROJECT_SOURCE_DIR}/externals/windows/include" CACHE FILEPATH "leveldb lib")
     set(LEVELDB_LIB_RELEASE "${LEVELDB_LIBRARY_DIRECTORY}/leveldb.lib" CACHE FILEPATH "leveldb lib")
     set(LEVELDB_LIB_DEBUG "${LEVELDB_LIBRARY_DIRECTORY}/leveldbd.lib" CACHE FILEPATH "leveldb lib")
-else()
+else(WIN32)
     set(LEVELDB_LIBRARY_DIRECTORY "${PROJECT_SOURCE_DIR}/externals/leveldb/" CACHE FILEPATH "leveldb lib")
     set(LEVELDB_INCLUDE_DIRECTORY "${PROJECT_SOURCE_DIR}/externals/leveldb/include" CACHE FILEPATH "leveldb lib")
     set(LEVELDB_LIB_RELEASE "${LEVELDB_LIBRARY_DIRECTORY}/libleveldb.so" CACHE FILEPATH "leveldb lib")
     # Note: by default leveldb overwrites the release version of its lib when building leveldb in "debug". No "d" in the nameis there by default
     set(LEVELDB_LIB_DEBUG "${LEVELDB_LIBRARY_DIRECTORY}/libleveldb.so" CACHE FILEPATH "leveldb lib")
-endif()
+endif(WIN32)
 
 set(LEVELDB_LIBRARIES debug "${LEVELDB_LIB_DEBUG}" optimized "${LEVELDB_LIB_RELEASE}")
 
