@@ -12,8 +12,8 @@ class QmlEntitydataTransform : public QmlEntitydata
     Q_PROPERTY(QMatrix4x4 matrix READ matrix NOTIFY matrixChanged)
 public:
     QmlEntitydataTransform();
-    QmlEntitydataTransform(upns::upnsSharedPointer<upns::AbstractEntityData> &entitydata, QmlCheckout* co, QString path = "");
-    upns::upnsSharedPointer<upns::AbstractEntityData> getEntityData() { return m_entitydata; }
+    QmlEntitydataTransform(upns::upnsSharedPointer<upns::AbstractEntitydata> &entitydata, QmlCheckout* co, QString path = "");
+    upns::upnsSharedPointer<upns::AbstractEntitydata> getEntitydata() { return m_entitydata; }
 
     QMatrix4x4 matrix() const;
 

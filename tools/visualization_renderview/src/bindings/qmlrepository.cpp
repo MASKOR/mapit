@@ -71,8 +71,8 @@ QString QmlRepository::typeOfObject(QString oid)
         return"MessageCheckout";
     case upns::MessageBranch:
         return"MessageBranch";
-    case upns::MessageEntityData:
-        return"MessageEntityData";
+    case upns::MessageEntitydata:
+        return"MessageEntitydata";
     case upns::MessageEmpty:
         return"MessageEmpty";
     default:
@@ -80,11 +80,11 @@ QString QmlRepository::typeOfObject(QString oid)
     }
 }
 
-QmlEntitydata *QmlRepository::getEntityDataReadOnly(QString oid)
+QmlEntitydata *QmlRepository::getEntitydataReadOnly(QString oid)
 {
     if(!m_repository) return nullptr;
     upns::upnsString o = oid.toStdString();
-    upns::upnsSharedPointer<upns::AbstractEntityData> obj( m_repository->getEntityDataReadOnly( o ) );
+    upns::upnsSharedPointer<upns::AbstractEntitydata> obj( m_repository->getEntitydataReadOnly( o ) );
     if(!obj) return nullptr;
     return new QmlEntitydata( obj, NULL );
 }

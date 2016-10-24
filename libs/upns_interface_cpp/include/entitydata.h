@@ -1,8 +1,8 @@
 #ifndef __ENTITYDATA_H
 #define __ENTITYDATA_H
 
-#include "upns_globals.h"
-#include "libs/upns_interface/services.pb.h"
+#include "upns_typedefs.h"
+#include "services.pb.h"
 #include "abstractentitydata.h"
 #include <limits>
 
@@ -13,7 +13,7 @@ namespace upns
  */
 
 template<typename LayerDataType>
-class EntityData : public AbstractEntityData
+class Entitydata : public AbstractEntitydata
 {
 public:
 

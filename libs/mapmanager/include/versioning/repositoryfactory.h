@@ -1,7 +1,7 @@
 #ifndef REPOSITORYFACTORY_H
 #define REPOSITORYFACTORY_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "yaml-cpp/yaml.h"
 #include "versioning/repository.h"
 

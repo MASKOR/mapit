@@ -105,7 +105,7 @@ MessageType RepositoryImpl::typeOfObject(const ObjectId &oid)
     return m_p->m_serializer->typeOfObject(oid);
 }
 
-upnsSharedPointer<AbstractEntityData> RepositoryImpl::getEntityDataReadOnly(const ObjectId &oid)
+upnsSharedPointer<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(const ObjectId &oid)
 {
     // For entitydata it is not enough to call serializer directly.
     // Moreover special classes need to be created by layertype plugins.
@@ -116,7 +116,7 @@ upnsSharedPointer<AbstractEntityData> RepositoryImpl::getEntityDataReadOnly(cons
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
+    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
 }
 
 upnsSharedPointer<Checkout> RepositoryImpl::getCheckout(const upnsString &checkoutName)
@@ -194,7 +194,7 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
         },
         [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p)
         {
-            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntityData(oid);
+            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntitydata(oid);
             if(upnsIsOk(!soid.first)) return false;
             //TODO: Put old->New for entitydata (How?!?)
             //oldToNewIds.insert(oid, soid.second);

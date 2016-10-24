@@ -179,7 +179,7 @@ OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription 
     return OperationResult(result, env.outputDescription());
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const Path &path)
+upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
     Path p(m_name + "/" + preparePathFilename(path));
     upnsSharedPointer<Entity> ent = m_serializer->getEntityTransient( p );
@@ -189,10 +189,10 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnly(const 
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
+    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
+upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
 {
     upnsSharedPointer<Entity> ent = m_serializer->getEntity( entityId );
     if( ent == NULL )
@@ -201,10 +201,10 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntitydataReadOnlyConflic
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
+    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
 }
 
-upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(const Path &path)
+upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(const Path &path)
 {
     Path p(m_name + "/" + preparePathFilename(path));
     upnsSharedPointer<Entity> ent = m_serializer->getEntityTransient( p );
@@ -214,7 +214,7 @@ upnsSharedPointer<AbstractEntityData> CheckoutImpl::getEntityDataForReadWrite(co
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntityDataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, true), true);
+    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, true), true);
 }
 
 StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)
@@ -387,7 +387,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Entity> obj, const O
         afterEntity(obj, oid, path);
         return UPNS_STATUS_OK;
     }
-    //TODO: EntityData!
+    //TODO: Entitydata!
     if(!afterEntity(obj, oid, path)) return UPNS_STATUS_OK;
     return UPNS_STATUS_OK;
 }

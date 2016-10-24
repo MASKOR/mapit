@@ -1,7 +1,7 @@
 #ifndef UPNS_HASH_H
 #define UPNS_HASH_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include <google/protobuf/message.h>
 #include <string>

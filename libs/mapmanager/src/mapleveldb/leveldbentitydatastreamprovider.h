@@ -7,10 +7,10 @@
 //namespace upns
 //{
 
-//class FileEntityDataStreamProvider : public AbstractEntityDataStreamProvider
+//class FileEntitydataStreamProvider : public AbstractEntitydataStreamProvider
 //{
 //public:
-//    FileEntityDataStreamProvider(leveldb::DB *db, const std::string &key);
+//    FileEntitydataStreamProvider(leveldb::DB *db, const std::string &key);
 //    bool isCached();
 //    bool isReadWriteSame();
 //    upnsIStream *startRead(upnsuint64 start, upnsuint64 len);

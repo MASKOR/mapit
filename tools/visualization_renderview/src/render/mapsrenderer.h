@@ -23,7 +23,7 @@ public:
     void initialize();
     bool isInitialized();
 
-//    void setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData);
+//    void setEntitydata(upns::upnsSharedPointer<upns::AbstractEntitydata> entityData);
 //    void setMatrix( const QMatrix4x4 &mat );
     void reload();
 //    void setScreenSize(const QSizeF &size);
@@ -61,7 +61,7 @@ private:
     int distanceDetailUniform;
 
     bool m_initialized;
-    upns::upnsSharedPointer<upns::AbstractEntityData> m_entitydata;
+    upns::upnsSharedPointer<upns::AbstractEntitydata> m_entitydata;
 //    //Note: Filenames are a workaround, as long as stubs are used and as long as boost::serialization is used and too slow
 //    QString m_filename;
 //    QSizeF m_screenSize;

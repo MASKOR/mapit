@@ -98,23 +98,23 @@ upns::upnsVec<upns::CommitId> upns::ZmqRequesterCheckout::getParentCommitIds()
     return upns::upnsVec<upns::CommitId>();
 }
 
-upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnly(const upns::Path &entityId)
+upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnly(const upns::Path &entityId)
 {
     upnsSharedPointer<Entity> e = getEntity(entityId);
     if(!e)
     {
         log_error("Entity could not be queried for entitydata: " + entityId);
-        return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
+        return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
     }
-    upns::upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
-    return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), streamProvider);
+    upns::upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+    return EntityStreamManager::getEntitydataFromStreamImpl(e->type(), streamProvider);
 }
 
-upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
+upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
+    return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
 }
 
 upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> beforeCommit, std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> afterCommit, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> beforeTree, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> afterTree, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> beforeEntity, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> afterEntity)
@@ -188,14 +188,14 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     }
 }
 
-upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequesterCheckout::getEntityDataForReadWrite(const upns::Path &entity)
+upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataForReadWrite(const upns::Path &entity)
 {
     upnsSharedPointer<Entity> e = getEntity(entity);
     if(!e)
     {
         log_error("Entity could not be queried for entitydata: " + entity);
-        return upns::upnsSharedPointer<upns::AbstractEntityData>(nullptr);
+        return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
     }
-    upns::upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
-    return EntityStreamManager::getEntityDataFromStreamImpl(e->type(), streamProvider);
+    upns::upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
+    return EntityStreamManager::getEntitydataFromStreamImpl(e->type(), streamProvider);
 }

@@ -16,11 +16,11 @@
 //        this->setg(base, base, base + n);
 //    }
 //};
-//class FileEntityDataStreamProvider : public AbstractEntityDataStreamProvider
+//class FileEntitydataStreamProvider : public AbstractEntitydataStreamProvider
 //{
 //    upnsString m_filename;
 //public:
-//    FileEntityDataStreamProvider(const upnsString &filename)
+//    FileEntitydataStreamProvider(const upnsString &filename)
 //        :m_filename(filename)
 //    { }
 //    bool isCached() { return true; }
@@ -228,9 +228,9 @@
 //    return 0;
 //}
 
-//upnsSharedPointer<AbstractEntityDataStreamProvider> FileSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
+//upnsSharedPointer<AbstractEntitydataStreamProvider> FileSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
 //{
-//    upnsSharedPointer<AbstractEntityDataStreamProvider> ptr(new FileEntityDataStreamProvider(entityId));
+//    upnsSharedPointer<AbstractEntitydataStreamProvider> ptr(new FileEntitydataStreamProvider(entityId));
 //    return ptr;
 //}
 

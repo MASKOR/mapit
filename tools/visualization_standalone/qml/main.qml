@@ -338,7 +338,7 @@ QCtl.ApplicationWindow {
                             onPathChanged: console.log("New Path of Tf is: " + path)
                         }
                         property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
-                                entitydata: UPNS.EntityData {
+                                entitydata: UPNS.Entitydata {
                                     id: currentEntitydata
                                     checkout: checkout
                                     path: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""// "corridor/lidar/pc1"

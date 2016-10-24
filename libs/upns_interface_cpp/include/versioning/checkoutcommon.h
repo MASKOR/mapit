@@ -1,9 +1,9 @@
 #ifndef CHECKOUTCOMMON_H
 #define CHECKOUTCOMMON_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
-#include "libs/mapmanager/include/abstractentitydata.h"
+#include "abstractentitydata.h"
 #include <functional>
 
 namespace upns
@@ -88,7 +88,7 @@ public:
     virtual upnsVec<CommitId> getParentCommitIds() = 0;
 
     /**
-     * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type
+     * @brief getEntitydata Retrieves a data of the entity, which can be casted to a concrete type
      * After the internally used stream provider calls "endWrite()", the stream gets hashed and new ObjectIds are generated.
      * Entity::id -> hash of stream
      * Tree (layer) id -> child updated, rehash
@@ -97,14 +97,14 @@ public:
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnly(const Path &entityId) = 0;
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId) = 0;
 
     /**
-     * @brief getEntityDataConflictingReadOnly because a path is not enough to identify a conflicting entitydata, this method is introduced.
+     * @brief getEntitydataConflictingReadOnly because a path is not enough to identify a conflicting entitydata, this method is introduced.
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnlyConflict(const ObjectId &entityId) = 0;
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId) = 0;
 
     /**
      * @brief depthFirstSearch goes through all reachable elements with a DFS. If one of the callbacks returns false, all other descending

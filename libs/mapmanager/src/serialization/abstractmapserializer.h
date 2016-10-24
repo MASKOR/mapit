@@ -1,7 +1,7 @@
 #ifndef ABSTRACTMAPSERIALIZER_H
 #define ABSTRACTMAPSERIALIZER_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
@@ -58,14 +58,14 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name) = 0;
     virtual StatusCode removeBranch(const upnsString &name) = 0;
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
 
 
     virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
 
-    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId) = 0;
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId) = 0;
 //    virtual bool isTree(const ObjectId &oid) = 0;
 //    virtual bool isEntity(const ObjectId &oid) = 0;
 //    virtual bool isCommit(const CommitId &oid) = 0;

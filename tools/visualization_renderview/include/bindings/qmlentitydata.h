@@ -15,8 +15,8 @@ class QmlEntitydata : public QObject
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
 public:
     QmlEntitydata();
-    QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntityData> &entitydata, QmlCheckout* co, QString path = "");
-    upns::upnsSharedPointer<upns::AbstractEntityData> getEntityData() { return m_entitydata; }
+    QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntitydata> &entitydata, QmlCheckout* co, QString path = "");
+    upns::upnsSharedPointer<upns::AbstractEntitydata> getEntitydata() { return m_entitydata; }
 
     QString path() const;
 
@@ -33,7 +33,7 @@ Q_SIGNALS:
 
     void internalEntitydataChanged(QmlEntitydata *ed);
 protected:
-    upns::upnsSharedPointer<upns::AbstractEntityData> m_entitydata;
+    upns::upnsSharedPointer<upns::AbstractEntitydata> m_entitydata;
 
 private:
     QmlCheckout* m_checkout;

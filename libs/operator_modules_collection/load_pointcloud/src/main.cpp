@@ -63,9 +63,9 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     {
         log_error("Failed to create entity.");
     }
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
+    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntityData);
+    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
     entityData->setData( pc2 );
 
     OperationDescription out;

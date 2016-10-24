@@ -3,12 +3,12 @@
 #include <QThread>
 #include <QMutex>
 #include <QMutexLocker>
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include <repositoryserver.h>
 
 // Client Calls send() followed by stopServer().
 // The server waits MAX_NETWORK_LATENCY ms and tries to hanlde the last message in that time
-#define MAX_NETWORK_LATENCY 2
+#define MAX_NETWORK_LATENCY 20
 
 class ServerThread : public QThread
 {

@@ -1,7 +1,7 @@
 #ifndef CHECKOUT_H
 #define CHECKOUT_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include "checkoutcommon.h"
 

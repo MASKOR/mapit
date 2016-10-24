@@ -7,27 +7,27 @@
 
 using namespace upns;
 
-// TODO: Is import case needed? (dynmic linking?)
+// TODO: Is import case needed? (dynamic linking?)
 #ifdef _WIN32
 #define MODULE_EXPORT __declspec(dllexport)
 #else
 #define MODULE_EXPORT // empty
 #endif
 
-// Not a good idea because voxelgridfilter uses pcl smart pointers (bbost)
+// Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
 typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
-//TODO: will not compile... guru meditation
-//using upnsPointcloud2Ptr = pcl::PCLPointCloud2Ptr;
+
 
 extern "C"
 {
 //Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
-//MODULE_EXPORT upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-//MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntityData> streamProvider);
+//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+
 }
 
-class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>
+class PointcloudEntitydata : public Entitydata<pcl::PCLPointCloud2>
 {
 public:
     //
@@ -49,7 +49,7 @@ public:
         Rep_Other
     };
 
-    PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
     LayerType           layerType() const;
     bool                hasFixedGrid() const;
@@ -81,7 +81,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntityDataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
     //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
     upnsPointcloud2Ptr m_pointcloud;
 };

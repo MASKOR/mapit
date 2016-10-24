@@ -117,10 +117,10 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
 //        return;
 //    if(m_entitydata)
 //    {
-//        if(m_connectionToEntityData != NULL)
+//        if(m_connectionToEntitydata != NULL)
 //        {
-//            disconnect(*m_connectionToEntityData);
-//            m_connectionToEntityData = NULL;
+//            disconnect(*m_connectionToEntitydata);
+//            m_connectionToEntitydata = NULL;
 //        }
 //        //            disconnect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
 //    }
@@ -132,7 +132,7 @@ QSGNode *QmlMapsRenderViewport::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
 //                                                                          &QmlEntitydata::updated,
 //                                                                          m_renderThread,
 //                                                                          [&](){m_renderThread->setEntitydata(m_entitydata);})));
-//        m_connectionToEntityData = con;
+//        m_connectionToEntitydata = con;
 //        //            connect(m_entitydata, &QmlEntitydata::updated, this, &QmlMapsRenderViewport::entitydataChanged);
 //        //            connect(this, &QmlEntitydata::updated, this, &RenderThread::updated);
 //    }

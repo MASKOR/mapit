@@ -1,7 +1,7 @@
 #ifndef LEVELDBSERIALIZER_H
 #define LEVELDBSERIALIZER_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "serialization/abstractmapserializer.h"
 #include "yaml-cpp/yaml.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
@@ -62,8 +62,8 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
     virtual StatusCode removeBranch(const upnsString &name);
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
@@ -74,7 +74,7 @@ public:
     virtual MessageType typeOfObject(const ObjectId &oidOrName);
     virtual bool exists(const ObjectId &oidOrName);
 
-    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId);
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId);
 
 
 #ifdef UPNS_DEBUG
@@ -94,7 +94,7 @@ private:
 
     std::string keyOfTree(const ObjectId &oid) const;
     std::string keyOfEntity(const ObjectId &oid) const;
-    std::string keyOfEntityData(const ObjectId &oid) const;
+    std::string keyOfEntitydata(const ObjectId &oid) const;
     std::string keyOfCommit(const ObjectId &oid) const;
     std::string keyOfCheckoutCommit(const upnsString &name) const;
     std::string keyOfBranch(const upnsString &name) const;

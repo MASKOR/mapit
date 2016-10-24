@@ -55,11 +55,11 @@ public:
     virtual MessageType typeOfObject(const ObjectId &oid) = 0;
 
     /**
-     * @brief getEntityDataReadOnly reads an object, without checkout
+     * @brief getEntitydataReadOnly reads an object, without checkout
      * @param oid
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid) = 0;
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid) = 0;
 
     /**
      * @brief checkout creates a new checkout from a commit.

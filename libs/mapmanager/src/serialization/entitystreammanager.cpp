@@ -1,4 +1,6 @@
 #include "serialization/entitystreammanager.h"
+#include <sstream>
+#include "upns_logging.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -8,8 +10,8 @@
 namespace upns
 {
 
-upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
-                                                                  upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(upnsString layertypeName,
+                                                                  upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
 #ifndef NDEBUG
     upnsString debug = DEBUG_POSTFIX;
@@ -38,21 +40,21 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(upnsString layertypeName,
 #else
         std::cerr << "Cannot open library: " << dlerror() << '\n';
 #endif
-        return upnsSharedPointer<AbstractEntityData>(NULL);
+        return upnsSharedPointer<AbstractEntitydata>(NULL);
     }
 #ifdef _WIN32
     CreateEntitydataFunc wrap = (CreateEntitydataFunc)GetProcAddress(handle,"createEntitydata");
 #else
     CreateEntitydataFunc wrap = (CreateEntitydataFunc)dlsym(handle, "createEntitydata");
 #endif
-    upnsSharedPointer<AbstractEntityData> ret;
+    upnsSharedPointer<AbstractEntitydata> ret;
     wrap(&ret, streamProvider);
     return ret;
-    //return upnsSharedPointer<AbstractEntityData>( wrap( streamProvider ) );
+    //return upnsSharedPointer<AbstractEntitydata>( wrap( streamProvider ) );
 }
 
-upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
-                                                                   upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
+                                                                   upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
     // Layertypes loosly coupled. Name is used to call library to handle concrete datatypes.
     upnsString layerName;
@@ -70,14 +72,14 @@ upnsSharedPointer<AbstractEntityData> wrapEntityOfType(LayerType type,
     }
     default:
         log_error("Unknown layertype: " + std::to_string(type));
-        return upnsSharedPointer<AbstractEntityData>(NULL);
+        return upnsSharedPointer<AbstractEntitydata>(NULL);
     }
     return wrapEntityOfType( layerName, streamProvider );
 }
 
-upnsSharedPointer<AbstractEntityData> EntityStreamManager::getEntityDataFromStreamImpl(LayerType type, upnsSharedPointer<AbstractEntityDataStreamProvider> edsp, bool canRead)
+upnsSharedPointer<AbstractEntitydata> EntityStreamManager::getEntitydataFromStreamImpl(LayerType type, upnsSharedPointer<AbstractEntitydataStreamProvider> edsp, bool canRead)
 {
-    upnsSharedPointer<AbstractEntityData> edata = wrapEntityOfType( type, edsp );
+    upnsSharedPointer<AbstractEntitydata> edata = wrapEntityOfType( type, edsp );
     return edata;
 }
 

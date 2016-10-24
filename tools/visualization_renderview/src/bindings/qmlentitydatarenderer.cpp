@@ -38,7 +38,7 @@ void QmlEntitydataRenderer::setEntitydata(QmlEntitydata *entitydata)
 
 void QmlEntitydataRenderer::updateGeometry()
 {
-    upns::upnsSharedPointer<upns::AbstractEntityData> ed = m_entitydata->getEntityData();
+    upns::upnsSharedPointer<upns::AbstractEntitydata> ed = m_entitydata->getEntitydata();
 
     if(!ed) return;
 

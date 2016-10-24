@@ -41,7 +41,7 @@ file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOUR
 file(GLOB UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.cpp
                                                ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.h
                                                ${PROJECT_SOURCE_DIR}/src/sha/*.cpp
-                                               ${PROJECT_SOURCE_DIR}/src/sha/*.h )
+                                               ${PROJECT_SOURCE_DIR}/src/sha/*.h)
 
 add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} ${UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP} )
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)

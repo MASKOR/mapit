@@ -4,7 +4,7 @@
 
 //namespace upns {
 
-//FileEntityDataStreamProvider::FileEntityDataStreamProvider(leveldb::DB *db, const std::string &key)
+//FileEntitydataStreamProvider::FileEntitydataStreamProvider(leveldb::DB *db, const std::string &key)
 //    :m_db(db),
 //     m_key(key)
 //{
@@ -12,17 +12,17 @@
 //    assert(!m_key.empty());
 //}
 
-//bool FileEntityDataStreamProvider::isCached()
+//bool FileEntitydataStreamProvider::isCached()
 //{
 //    return true;
 //}
 
-//bool FileEntityDataStreamProvider::isReadWriteSame()
+//bool FileEntitydataStreamProvider::isReadWriteSame()
 //{
 //    return true;
 //}
 
-//upnsIStream* upns::FileEntityDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
+//upnsIStream* upns::FileEntitydataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 //{
 //    leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
 //    it->Seek(m_key);
@@ -39,19 +39,19 @@
 //    return isstr;
 //}
 
-//void FileEntityDataStreamProvider::endRead(upnsIStream *strm)
+//void FileEntitydataStreamProvider::endRead(upnsIStream *strm)
 //{
 //    //TODO: add locking
 //    delete strm;
 //}
 
-//upnsOStream *upns::FileEntityDataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
+//upnsOStream *upns::FileEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 //{
 //    //TODO: add locking
 //    return new std::ostringstream(std::string());
 //}
 
-//void FileEntityDataStreamProvider::endWrite(upnsOStream *strm)
+//void FileEntitydataStreamProvider::endWrite(upnsOStream *strm)
 //{
 //    //TODO: add locking
 //    std::ostringstream *osstrm = static_cast<std::ostringstream *>(strm);

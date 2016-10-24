@@ -405,7 +405,7 @@ std::string LevelDBSerializer::keyOfEntity(const ObjectId &oid) const
     return strstr.str();
 }
 
-std::string LevelDBSerializer::keyOfEntityData(const ObjectId &oid) const
+std::string LevelDBSerializer::keyOfEntitydata(const ObjectId &oid) const
 {
     std::stringstream strstr;
     strstr << KEY_PREFIX_DATA << LDBSER_DELIM << oid;
@@ -433,10 +433,10 @@ std::string LevelDBSerializer::keyOfBranch(const upnsString &name) const
     return strstr.str();
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
+upnsSharedPointer<AbstractEntitydataStreamProvider> LevelDBSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
     //TODO: ensure readOnly and store booleans
-    std::string writekey(keyOfEntityData(entityId));
+    std::string writekey(keyOfEntitydata(entityId));
     std::string readkey;
     // If entityId is transient, there might exists a corresponding entityData transient which must be read from.
     if(exists(writekey))
@@ -458,10 +458,10 @@ upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStream
             readkey = e->dataid();
         }
     }
-    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new LevelDBEntityDataStreamProvider(m_db, readkey, writekey));
+    return upnsSharedPointer<AbstractEntitydataStreamProvider>( new LevelDBEntitydataStreamProvider(m_db, readkey, writekey));
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider> LevelDBSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
+upnsSharedPointer<AbstractEntitydataStreamProvider> LevelDBSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
 {
     //TODO: Review. Path is equal to oid here! May be mixed up a bit.
     return LevelDBSerializer::getStreamProvider(path, canRead);
@@ -478,14 +478,14 @@ MessageType LevelDBSerializer::typeOfObject(const ObjectId &oidOrName)
     std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
             &LevelDBSerializer::keyOfTree,
             &LevelDBSerializer::keyOfEntity,
-            //TODO: How will EntityData behave?
-            &LevelDBSerializer::keyOfEntityData,
+            //TODO: How will Entitydata behave?
+            &LevelDBSerializer::keyOfEntitydata,
             &LevelDBSerializer::keyOfBranch,
             &LevelDBSerializer::keyOfCommit,
             &LevelDBSerializer::keyOfCheckoutCommit};
     MessageType types[] = { MessageTree,
                             MessageEntity,
-                            MessageEntityData,
+                            MessageEntitydata,
                             MessageBranch,
                             MessageCommit,
                             MessageCheckout };
@@ -509,8 +509,8 @@ bool LevelDBSerializer::exists(const ObjectId &oidOrName)
     std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
             &LevelDBSerializer::keyOfTree,
             &LevelDBSerializer::keyOfEntity,
-            //TODO: How will EntityData behave?
-            &LevelDBSerializer::keyOfEntityData,
+            //TODO: How will Entitydata behave?
+            &LevelDBSerializer::keyOfEntitydata,
             &LevelDBSerializer::keyOfBranch,
             &LevelDBSerializer::keyOfCommit,
             &LevelDBSerializer::keyOfCheckoutCommit};
@@ -523,16 +523,16 @@ bool LevelDBSerializer::exists(const ObjectId &oidOrName)
     return false;
 }
 
-upnsPair<StatusCode, ObjectId> LevelDBSerializer::persistTransientEntityData(const ObjectId &entityId)
+upnsPair<StatusCode, ObjectId> LevelDBSerializer::persistTransientEntitydata(const ObjectId &entityId)
 {
-    std::string source(keyOfEntityData(entityId));
+    std::string source(keyOfEntitydata(entityId));
     std::string ed;
     leveldb::Status sdb = m_db->Get(leveldb::ReadOptions(), source, &ed);
     if(sdb.IsNotFound()) return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, "");
     StatusCode s(levelDbStatusToUpnsStatus(sdb));
     if(!upnsIsOk(s)) return upnsPair<StatusCode, ObjectId>(s, "");
     ObjectId hash = ::upns::hash_toString(ed);
-    std::string dest(keyOfEntityData(hash));
+    std::string dest(keyOfEntitydata(hash));
     sdb = m_db->Get(leveldb::ReadOptions(), dest, &ed);
     // only if it is not found, we must write
     // if it is upnsOk, duplicate was found!
@@ -665,8 +665,8 @@ StatusCode LevelDBSerializer::getGenericEntryFromOid(const ObjectId &oidOrName, 
     std::string (LevelDBSerializer::* keyOfMethods [])(const ObjectId &) const = {
             &LevelDBSerializer::keyOfTree,
             &LevelDBSerializer::keyOfEntity,
-            //TODO: How will EntityData behave?
-            &LevelDBSerializer::keyOfEntityData,
+            //TODO: How will Entitydata behave?
+            &LevelDBSerializer::keyOfEntitydata,
             &LevelDBSerializer::keyOfBranch,
             &LevelDBSerializer::keyOfCommit,
             &LevelDBSerializer::keyOfCheckoutCommit};
@@ -895,7 +895,7 @@ void upns::LevelDBSerializer::debugDump()
             {
                 dump(fromGeneric<Entity>(entry));
             }
-            else if(entry.type() == MessageEntityData)
+            else if(entry.type() == MessageEntitydata)
             {
                 //in this case parse will fail
                 std::cout << "<data>";

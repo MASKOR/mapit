@@ -1,5 +1,5 @@
 #include "testoperators.h"
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "upns_errorcodes.h"
 #include "../../src/autotest.h"
 #include <QDir>
@@ -61,8 +61,8 @@ void TestOperators::testOperatorLoadPointcloud()
     upnsSharedPointer<Tree> parent = checkout->getTree("corridor/laser");
     QVERIFY( parent != nullptr );
     QVERIFY( !(*parent->mutable_refs())["eins"].id().empty() );
-    upnsSharedPointer<AbstractEntityData> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
-    //upnsSharedPointer<AbstractEntityData> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
+    upnsSharedPointer<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
+    //upnsSharedPointer<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
 
     upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByPath = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     //upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByRef = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
@@ -116,8 +116,8 @@ void TestOperators::testInlineOperator()
         {
             return UPNS_STATUS_ERROR;
         }
-        upnsSharedPointer<AbstractEntityData> abstractEntityData = coraw->getEntityDataForReadWrite( epath );
-        upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntityData );
+        upnsSharedPointer<AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
+        upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
 
         upns::upnsSharedPointer<pcl::PCLPointCloud2> cloud2(new pcl::PCLPointCloud2);
         pcl::toPCLPointCloud2(cloud, *cloud2);
@@ -126,7 +126,7 @@ void TestOperators::testInlineOperator()
     });
     QVERIFY(upnsIsOk(res.first));
 
-    upnsSharedPointer<AbstractEntityData> abstractentitydataByPath = checkout->getEntitydataReadOnly(epath);
+    upnsSharedPointer<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly(epath);
     upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByPath = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPath(new pcl::PointCloud<pcl::PointXYZ>);

@@ -422,22 +422,22 @@ FSSerializer::removeBranch(const upnsString &name)
     return UPNS_STATUS_ERR_DB_IO_ERROR;
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider>
+upnsSharedPointer<AbstractEntitydataStreamProvider>
 FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
     //TODO: Get entity data by oid. Might be a file with name "entityId" in folder "_PREFIX_ENTITYDATA"?
     fs::path p = repo_ / fs::path(_PREFIX_ENTITY_) / entityId;
     std::string fn(p.string());
-    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new FileSystemEntityDataStreamProvider(fn, fn));
+    return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
 }
 
-upnsSharedPointer<AbstractEntityDataStreamProvider>
+upnsSharedPointer<AbstractEntitydataStreamProvider>
 FSSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
 {
     //TODO: Get entity data by path. Might be a file at path "_PREFIX_CHECKOUT" / "path"?
     fs::path p = repo_ / fs::path(_PREFIX_CHECKOUTS_) / path;
     std::string fn(p.string() + ".fs_edata");
-    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new FileSystemEntityDataStreamProvider(fn, fn));
+    return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
 }
 
 StatusCode
@@ -462,7 +462,7 @@ FSSerializer::exists(const ObjectId &oidOrName)
 }
 
 upnsPair<StatusCode, ObjectId>
-FSSerializer::persistTransientEntityData(const ObjectId &entityId)
+FSSerializer::persistTransientEntitydata(const ObjectId &entityId)
 {
     //TODO
     return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_ERR_DB_IO_ERROR, "");

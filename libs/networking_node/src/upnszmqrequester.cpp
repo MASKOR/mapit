@@ -71,7 +71,7 @@ upns::MessageType upns::ZmqRequester::typeOfObject(const upns::ObjectId &oid)
     return upns::MessageEmpty;
 }
 
-upns::upnsSharedPointer<upns::AbstractEntityData> upns::ZmqRequester::getEntityDataReadOnly(const upns::ObjectId &oid)
+upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequester::getEntitydataReadOnly(const upns::ObjectId &oid)
 {
     //TODO: Define network message
     //Locally cache whole object

@@ -1,7 +1,7 @@
 #ifndef __VISUAL_GLOBALS_H
 #define __VISUAL_GLOBALS_H
 
-#include "upns_globals.h"
+#include "upns.h"
 
 namespace upns {
 

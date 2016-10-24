@@ -1,7 +1,7 @@
 #ifndef __UPNS_UTIL_H
 #define __UPNS_UTIL_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include <string>
 #include <leveldb/slice.h>
 #include <algorithm>

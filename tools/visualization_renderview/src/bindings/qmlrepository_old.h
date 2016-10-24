@@ -26,7 +26,7 @@
 //    Q_INVOKABLE QmlBranch *getBranch(QString name);
 //    //MessageType typeOfObject(const ObjectId &oid);
 
-//    // upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid);
+//    // upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
 //    QmlCheckout *checkout(QString commitIdOrBranchname, QString name);
 //    QmlCheckout *checkout(QString checkoutName);
 //    // StatusCode deleteCheckoutForced(const upnsString &checkoutName);

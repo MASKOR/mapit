@@ -36,8 +36,8 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         }
         else
         {
-            upns::upnsSharedPointer<upns::AbstractEntityData> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
-            upns::upnsSharedPointer<upns::AbstractEntityData> aedTarget = env->getCheckout()->getEntityDataForReadWrite(target);
+            upns::upnsSharedPointer<upns::AbstractEntitydata> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
+            upns::upnsSharedPointer<upns::AbstractEntitydata> aedTarget = env->getCheckout()->getEntitydataForReadWrite(target);
             upns::upnsIStream *is = aedSource->startReadBytes();
             upns::upnsOStream *os = aedTarget->startWriteBytes();
 

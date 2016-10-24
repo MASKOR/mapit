@@ -20,7 +20,7 @@ Renderdata::Renderdata()
     m_running( false ),
     m_disc(0),
     m_fov(45.0f),
-    m_connectionToEntityData( nullptr )
+    m_connectionToEntitydata( nullptr )
 {
 }
 
@@ -159,10 +159,10 @@ void Renderdata::setEntitydata(QmlEntitydata *entitydata)
         return;
     // QmlEntitydata may change its inner, wrapped entitydata.
     // When this happens, a usual entityDataChanged signal is fired
-    if(m_entitydata != NULL && m_connectionToEntityData != NULL)
+    if(m_entitydata != NULL && m_connectionToEntitydata != NULL)
     {
-        disconnect(*m_connectionToEntityData);
-        m_connectionToEntityData = NULL;
+        disconnect(*m_connectionToEntitydata);
+        m_connectionToEntitydata = NULL;
     }
     m_entitydata = entitydata;
     if(m_entitydata)
@@ -172,7 +172,7 @@ void Renderdata::setEntitydata(QmlEntitydata *entitydata)
                                                                           &QmlEntitydata::updated,
                                                                           this,
                                                                           [&](){this->emitEntitiydataChanged(m_entitydata);})));
-        m_connectionToEntityData = con;
+        m_connectionToEntitydata = con;
     }
     Q_EMIT entitydataChanged(entitydata);
 }

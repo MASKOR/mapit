@@ -1,7 +1,8 @@
 #ifndef FS_SERIALIZER_H
 #define FS_SERIALIZER_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
+#include "upns_logging.h"
 #include "serialization/abstractmapserializer.h"
 #include "yaml-cpp/yaml.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
@@ -79,8 +80,8 @@ namespace upns
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
     virtual StatusCode removeBranch(const upnsString &name);
 
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
-    virtual upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
@@ -91,7 +92,7 @@ namespace upns
     virtual MessageType typeOfObject(const ObjectId &oidOrName);
     virtual bool exists(const ObjectId &oidOrName);
 
-    virtual upnsPair<StatusCode, ObjectId> persistTransientEntityData(const ObjectId &entityId);
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId);
 #ifdef UPNS_DEBUG
     virtual void debugDump();
 #endif

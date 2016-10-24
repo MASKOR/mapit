@@ -1,5 +1,5 @@
 #include "testrepository.h"
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include "../../src/autotest.h"
 #include <QDir>

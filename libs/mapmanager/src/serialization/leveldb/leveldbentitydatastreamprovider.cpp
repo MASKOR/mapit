@@ -5,7 +5,7 @@
 
 namespace upns {
 
-LevelDBEntityDataStreamProvider::LevelDBEntityDataStreamProvider(leveldb::DB *db, const std::string &readkey, const std::string &writekey)
+LevelDBEntitydataStreamProvider::LevelDBEntitydataStreamProvider(leveldb::DB *db, const std::string &readkey, const std::string &writekey)
     :m_db(db),
      m_readkey(readkey),
      m_writekey(writekey)
@@ -14,12 +14,12 @@ LevelDBEntityDataStreamProvider::LevelDBEntityDataStreamProvider(leveldb::DB *db
     //assert(!m_readkey.empty());
 }
 
-bool LevelDBEntityDataStreamProvider::isCached()
+bool LevelDBEntitydataStreamProvider::isCached()
 {
     return true;
 }
 
-bool LevelDBEntityDataStreamProvider::isReadWriteSame()
+bool LevelDBEntitydataStreamProvider::isReadWriteSame()
 {
     return true;
 }
@@ -92,7 +92,7 @@ public:
     }
 };
 
-upnsIStream* upns::LevelDBEntityDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
+upnsIStream* upns::LevelDBEntitydataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
     it->Seek(m_readkey);
@@ -114,13 +114,13 @@ upnsIStream* upns::LevelDBEntityDataStreamProvider::startRead(upnsuint64 start, 
     return archive;
 }
 
-void LevelDBEntityDataStreamProvider::endRead(upnsIStream *strm)
+void LevelDBEntitydataStreamProvider::endRead(upnsIStream *strm)
 {
     //TODO: add locking
     delete strm;
 }
 
-upnsOStream *upns::LevelDBEntityDataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
+upnsOStream *upns::LevelDBEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 {
     //TODO: add locking
     //return new std::ostringstream(std::string());
@@ -129,7 +129,7 @@ upnsOStream *upns::LevelDBEntityDataStreamProvider::startWrite(upnsuint64 start,
     return new MyWriter(start);
 }
 
-void LevelDBEntityDataStreamProvider::endWrite(upnsOStream *strm)
+void LevelDBEntitydataStreamProvider::endWrite(upnsOStream *strm)
 {
     //TODO: add locking
     //TODO: copying if not the whole stream was read and offset/start was used
@@ -151,7 +151,7 @@ void LevelDBEntityDataStreamProvider::endWrite(upnsOStream *strm)
 //    delete fatbuf;
 }
 
-upnsuint64 LevelDBEntityDataStreamProvider::getStreamSize() const
+upnsuint64 LevelDBEntitydataStreamProvider::getStreamSize() const
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
     it->Seek(m_writekey);
@@ -161,7 +161,7 @@ upnsuint64 LevelDBEntityDataStreamProvider::getStreamSize() const
     return slice.size();
 }
 
-void LevelDBEntityDataStreamProvider::setStreamSize(upnsuint64 streamSize)
+void LevelDBEntitydataStreamProvider::setStreamSize(upnsuint64 streamSize)
 {
     leveldb::Iterator* it = m_db->NewIterator(leveldb::ReadOptions());
     it->Seek(m_writekey);
@@ -173,13 +173,13 @@ void LevelDBEntityDataStreamProvider::setStreamSize(upnsuint64 streamSize)
     delete it;
 }
 
-LockHandle LevelDBEntityDataStreamProvider::lock()
+LockHandle LevelDBEntitydataStreamProvider::lock()
 {
     //TODO: impl
     return 0;
 }
 
-void LevelDBEntityDataStreamProvider::unlock(LockHandle)
+void LevelDBEntitydataStreamProvider::unlock(LockHandle)
 {
     //TODO: impl
 }

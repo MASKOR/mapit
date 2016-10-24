@@ -1,7 +1,8 @@
 #ifndef CHECKOUTIMPL_H
 #define CHECKOUTIMPL_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
+#include "upns_logging.h"
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "serialization/abstractmapserializer.h"
@@ -52,9 +53,9 @@ public:
     virtual OperationResult doOperation(const OperationDescription &desc);
     virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(OperationEnvironment *)> operate);
 
-    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnly(const Path &path);
-    virtual upnsSharedPointer<AbstractEntityData> getEntitydataReadOnlyConflict(const ObjectId &entityId);
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &path);
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataForReadWrite(const Path &path);
 
     virtual StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);
     virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity);
@@ -112,7 +113,7 @@ private:
 
     /**
      * @brief Depth first search for Commit, Tree and Entity.
-     * Does not work for branches. Does not visit EntityData (must be done manually).
+     * Does not work for branches. Does not visit Entitydata (must be done manually).
      * If "before" returns false, "after" will not be executed.
      */
     StatusCode depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path &path,

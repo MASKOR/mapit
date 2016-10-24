@@ -680,9 +680,9 @@ void RenderThread::initialize()
             m_logger.disableMessages(disabledMessages);
         }
 #endif
-//        if( m_renderdata.entitydata() != NULL && m_renderdata.entitydata()->getEntityData() != NULL)
+//        if( m_renderdata.entitydata() != NULL && m_renderdata.entitydata()->getEntitydata() != NULL)
 //        {
-//            m_mapsRenderer->setEntityData(m_renderdata.entitydata()->getEntityData());
+//            m_mapsRenderer->setEntitydata(m_renderdata.entitydata()->getEntitydata());
 //        }
 //        else if(!m_renderdata.filename().isEmpty()) // elseif workaround
 //        {
@@ -731,7 +731,7 @@ void RenderThread::initialize()
 //        return;
 
 //    m_entitydata = entitydata;
-//    m_mapsRenderer->setEntityData(m_entitydata->getEntityData());
+//    m_mapsRenderer->setEntitydata(m_entitydata->getEntitydata());
 //    Q_EMIT entitydataChanged(entitydata);
 //}
 

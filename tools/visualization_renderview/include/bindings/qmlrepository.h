@@ -28,7 +28,7 @@ public:
     //Q_INVOKABLE QmlCheckout* getCheckoutObj(QString name);
     Q_INVOKABLE QmlBranch* getBranch(QString name);
     Q_INVOKABLE QString typeOfObject(QString oid);
-    Q_INVOKABLE QmlEntitydata* getEntityDataReadOnly(QString oid);
+    Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString oid);
 
     /**
      * @brief checkout creates a new checkout from a commit.

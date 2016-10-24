@@ -107,7 +107,7 @@ QmlEntitydata *QmlCheckout::getEntitydataReadOnly(QString path)
 {
     if(!m_checkout) return new QmlEntitydata();
     upns::upnsString p = path.toStdString();
-    upns::upnsSharedPointer<upns::AbstractEntityData> ent(m_checkout->getEntitydataReadOnly(p));
+    upns::upnsSharedPointer<upns::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnly(p));
     return new QmlEntitydata(ent, this, path);
 }
 
@@ -115,7 +115,7 @@ QmlEntitydata *QmlCheckout::getEntitydataReadOnlyConflict(QString entityId)
 {
     if(!m_checkout) return new QmlEntitydata();
     upns::upnsString oid = entityId.toStdString();
-    upns::upnsSharedPointer<upns::AbstractEntityData> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
+    upns::upnsSharedPointer<upns::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
     return new QmlEntitydata(ent, this);
 }
 

@@ -46,7 +46,7 @@ private Q_SLOTS:
 private:
     RenderThread *m_renderThread;
 
-    upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
+    upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntitydata;
     Renderdata m_renderdata;
 };
 

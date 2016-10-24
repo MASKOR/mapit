@@ -7,7 +7,7 @@ QmlEntitydataTransform::QmlEntitydataTransform()
     connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::setMatrix);
 }
 
-QmlEntitydataTransform::QmlEntitydataTransform(upns::upnsSharedPointer<upns::AbstractEntityData> &entitydata, QmlCheckout *co, QString path)
+QmlEntitydataTransform::QmlEntitydataTransform(upns::upnsSharedPointer<upns::AbstractEntitydata> &entitydata, QmlCheckout *co, QString path)
     :QmlEntitydata(entitydata, co, path)
 {
     connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::setMatrix);
@@ -25,13 +25,13 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
     {
         return QMatrix4x4();
     }
-    upns::upnsSharedPointer<upns::AbstractEntityData> abstractEntityData = co->getEntitydataReadOnly(p);
-    if(abstractEntityData == NULL)
+    upns::upnsSharedPointer<upns::AbstractEntitydata> abstractEntitydata = co->getEntitydataReadOnly(p);
+    if(abstractEntitydata == NULL)
     {
         log_error("Wrong path given in qml for transform entity");
         return QMatrix4x4();
     }
-    upns::upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntityData );
+    upns::upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntitydata );
     return *entityData->getData();
 }
 

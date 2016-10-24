@@ -28,7 +28,7 @@ public:
     upnsSharedPointer<CheckoutObj> getCheckoutObj(const upnsString &name);
     upnsSharedPointer<Branch> getBranch(const upnsString &name);
     MessageType typeOfObject(const ObjectId &oid);
-    upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid);
+    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
     upnsSharedPointer<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name);
     upnsSharedPointer<Checkout> getCheckout(const upnsString &checkoutName);
     StatusCode deleteCheckoutForced(const upnsString &checkoutName);

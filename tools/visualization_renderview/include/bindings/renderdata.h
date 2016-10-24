@@ -118,7 +118,7 @@ private:
     bool m_running;
     int m_disc;
     float m_fov;
-    upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntityData;
+    upns::upnsSharedPointer<QMetaObject::Connection> m_connectionToEntitydata;
 
     void emitEntitiydataChanged(QmlEntitydata *entitydata);
 };

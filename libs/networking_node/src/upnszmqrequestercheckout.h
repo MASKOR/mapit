@@ -30,8 +30,8 @@ public:
     upnsSharedPointer<Entity> getEntity(const Path &path);
     upnsSharedPointer<Branch> getParentBranch();
     upnsVec<CommitId> getParentCommitIds();
-    upnsSharedPointer<AbstractEntityData> getEntitydataReadOnly(const Path &entityId);
-    upnsSharedPointer<AbstractEntityData> getEntitydataReadOnlyConflict(const ObjectId &entityId);
+    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId);
+    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
     StatusCode depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectId &, const Path &)> beforeCommit, std::function<bool (upnsSharedPointer<Commit>, const ObjectId &, const Path &)> afterCommit, std::function<bool (upnsSharedPointer<Tree>, const ObjectId &, const Path &)> beforeTree, std::function<bool (upnsSharedPointer<Tree>, const ObjectId &, const Path &)> afterTree, std::function<bool (upnsSharedPointer<Entity>, const ObjectId &, const Path &)> beforeEntity, std::function<bool (upnsSharedPointer<Entity>, const ObjectId &, const Path &)> afterEntity);
 
     // Checkout interface
@@ -43,7 +43,7 @@ public:
 public:
     StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);
     StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity);
-    upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &entity);
+    upnsSharedPointer<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity);
 
 private:
     upnsString m_checkoutName;

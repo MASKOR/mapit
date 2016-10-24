@@ -18,19 +18,19 @@ using namespace upns;
 extern "C"
 {
 //Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
-//MODULE_EXPORT upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-//MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntityData> streamProvider);
+//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+//MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntitydata> streamProvider);
 }
 
 typedef QMatrix4x4 TfMat;
 typedef upns::upnsSharedPointer<TfMat> TfMatPtr;
 
-class TfEntitydata : public EntityData<TfMat>
+class TfEntitydata : public Entitydata<TfMat>
 {
 public:
 
-    TfEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+    TfEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
     LayerType           layerType() const;
     bool                hasFixedGrid() const;
@@ -63,7 +63,7 @@ public:
     size_t size() const;
 
 private:
-    upnsSharedPointer<AbstractEntityDataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
     TfMatPtr m_tf;
 
 };

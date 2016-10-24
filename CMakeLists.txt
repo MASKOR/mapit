@@ -37,6 +37,10 @@ set(CMAKE_MODULE_PATH
 
 include(FindLog4cplus)
 
+if(LOG4CPLUS_FOUND)
+    add_definitions(-DLOG4CPLUS_FOUND)
+endif(LOG4CPLUS_FOUND)
+
 
 if(WIN32)
     set(BOOST_ROOT ${BOOST_INCLUDE_DIR} CACHE PATH "Hint for boost libraries")

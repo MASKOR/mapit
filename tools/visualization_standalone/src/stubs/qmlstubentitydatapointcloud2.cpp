@@ -13,6 +13,6 @@
 //    // Stub interprets "ObjectId" as filename. This is a hack and should not usually not be done.
 
 //    //TODO: Thread Copy stuff
-//    m_entitydata = upns::EntityStreamManager::getEntityDataImpl(&m_fileSerializer, filename.toStdString(), true, true);
+//    m_entitydata = upns::EntityStreamManager::getEntitydataImpl(&m_fileSerializer, filename.toStdString(), true, true);
 //    Q_EMIT updated();
 //}

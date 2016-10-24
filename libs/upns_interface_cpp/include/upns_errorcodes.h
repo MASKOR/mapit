@@ -1,6 +1,8 @@
 #ifndef UPNS_ERROR_H
 #define UPNS_ERROR_H
 
+#include <algorithm>
+
 #define UPNS_STATUS_OK 0u
 
 #define upnsIsOk(status) (status == UPNS_STATUS_OK)

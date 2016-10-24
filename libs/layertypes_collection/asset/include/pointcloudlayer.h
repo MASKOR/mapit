@@ -22,12 +22,12 @@
 //extern "C"
 //{
 ////Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
-////MODULE_EXPORT upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-//MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
-////MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntityData> streamProvider);
+////MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+//MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+////MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntitydata> streamProvider);
 //}
 
-//class PointcloudEntitydata : public EntityData<pcl::PCLPointCloud2>
+//class PointcloudEntitydata : public Entitydata<pcl::PCLPointCloud2>
 //{
 //public:
 //    //
@@ -49,7 +49,7 @@
 //        Rep_Other
 //    };
 
-//    PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider);
+//    PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
 //    LayerType           layerType() const;
 //    bool                hasFixedGrid() const;
@@ -74,7 +74,7 @@
 //                             upnsReal &x2, upnsReal &y2, upnsReal &z2);
 
 //private:
-//    upnsSharedPointer<AbstractEntityDataStreamProvider> m_streamProvider;
+//    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
 //    //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
 //    upnsPointcloud2Ptr m_pointcloud;
 

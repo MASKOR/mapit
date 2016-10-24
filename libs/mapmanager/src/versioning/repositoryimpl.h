@@ -1,7 +1,7 @@
 #ifndef REPOSITORYIMPL_H
 #define REPOSITORYIMPL_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include "entitydata.h"
@@ -28,7 +28,7 @@ public:
 
     MessageType typeOfObject(const ObjectId &oid);
 
-    upnsSharedPointer<AbstractEntityData> getEntityDataReadOnly(const ObjectId &oid);
+    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
 
     upnsSharedPointer<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name);
     upnsSharedPointer<Checkout> getCheckout(const upnsString &checkoutName);

@@ -1,7 +1,7 @@
 #ifndef ENTITYSTREAMMANAGER_H
 #define ENTITYSTREAMMANAGER_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "abstractentitydata.h"
 
 /**
@@ -24,7 +24,7 @@ namespace upns {
 class EntityStreamManager
 {
 public:
-    static upnsSharedPointer<AbstractEntityData> getEntityDataFromStreamImpl(upns::LayerType type, upnsSharedPointer<AbstractEntityDataStreamProvider> streamprovider, bool canRead = true);
+    static upnsSharedPointer<AbstractEntitydata> getEntitydataFromStreamImpl(upns::LayerType type, upnsSharedPointer<AbstractEntitydataStreamProvider> streamprovider, bool canRead = true);
 };
 
 }

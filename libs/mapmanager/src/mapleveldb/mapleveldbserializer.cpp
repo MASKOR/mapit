@@ -259,12 +259,12 @@
 
 //}
 
-//upnsSharedPointer<AbstractEntityDataStreamProvider> MapLeveldbSerializer::getStreamProvider(MapIdentifier    mapId,
+//upnsSharedPointer<AbstractEntitydataStreamProvider> MapLeveldbSerializer::getStreamProvider(MapIdentifier    mapId,
 //                                                                                      LayerIdentifier  layerId,
 //                                                                                      EntityIdentifier entityId)
 //{
 //    std::string key(entityKey(mapId, layerId, entityId));
-//    return upnsSharedPointer<AbstractEntityDataStreamProvider>( new FileEntityDataStreamProvider(m_db, key));
+//    return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileEntitydataStreamProvider(m_db, key));
 //}
 
 //bool MapLeveldbSerializer::canRead()

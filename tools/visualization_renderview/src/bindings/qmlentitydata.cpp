@@ -8,7 +8,7 @@ QmlEntitydata::QmlEntitydata()
 
 }
 
-QmlEntitydata::QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntityData> &entitydata, QmlCheckout *co, QString path)
+QmlEntitydata::QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntitydata> &entitydata, QmlCheckout *co, QString path)
     :m_entitydata(entitydata),
      m_checkout( co ),
      m_path( path )

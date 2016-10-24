@@ -7,13 +7,7 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 
-template <typename T>
-class not_deleter {
-public:
-  void operator()(T* ptr){}
-};
-
-PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_pointcloud( NULL )
 {
@@ -133,16 +127,16 @@ size_t PointcloudEntitydata::size() const
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
-//upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-//void* createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-void deleteEntitydata(AbstractEntityData *ld)
+//upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//void* createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void deleteEntitydata(AbstractEntitydata *ld)
 {
     PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
-    //return upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = upnsSharedPointer<AbstractEntityData>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
+    //return upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
+    *out = upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
 }
 

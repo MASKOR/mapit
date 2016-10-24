@@ -1,7 +1,8 @@
 #ifndef ZMQNODE_H
 #define ZMQNODE_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
+#include "upns_logging.h"
 #include <google/protobuf/message.h>
 #include "transport.pb.h"
 #include <zmq.hpp>

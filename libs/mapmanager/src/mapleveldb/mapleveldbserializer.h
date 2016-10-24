@@ -41,7 +41,7 @@
 //    upnsSharedPointer<Layer> createLayer(MapIdentifier &map, upnsString layerName);
 //    MapResultsVector removeLayers(upnsVec<LayerIdentifier> &layerIds);
 
-//    upnsSharedPointer<AbstractEntityDataStreamProvider> getStreamProvider(MapIdentifier    mapId,
+//    upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(MapIdentifier    mapId,
 //                                                                         LayerIdentifier  layerId,
 //                                                                         EntityIdentifier entityId);
 

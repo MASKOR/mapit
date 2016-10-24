@@ -1,27 +1,29 @@
 #include "fs_entitydatastreamprovider.h"
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <assert.h>
 
 namespace upns {
 
-FileSystemEntityDataStreamProvider::FileSystemEntityDataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite)
+FileSystemEntitydataStreamProvider::FileSystemEntitydataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite)
     :m_filenameRead(filenameRead),
      m_filenameWrite(filenameWrite)
 {
     assert(!m_filenameRead.empty());
 }
 
-bool FileSystemEntityDataStreamProvider::isCached()
+bool FileSystemEntitydataStreamProvider::isCached()
 {
     return true;
 }
 
-bool FileSystemEntityDataStreamProvider::isReadWriteSame()
+bool FileSystemEntitydataStreamProvider::isReadWriteSame()
 {
     return true;
 }
 
-upnsIStream* upns::FileSystemEntityDataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
+upnsIStream* upns::FileSystemEntitydataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
     std::ifstream *is = new std::ifstream(m_filenameRead);
     //TODO: SEEK
@@ -29,18 +31,18 @@ upnsIStream* upns::FileSystemEntityDataStreamProvider::startRead(upnsuint64 star
     return is;
 }
 
-void FileSystemEntityDataStreamProvider::endRead(upnsIStream *strm)
+void FileSystemEntitydataStreamProvider::endRead(upnsIStream *strm)
 {
     delete strm;
 }
 
-upnsOStream *upns::FileSystemEntityDataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
+upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 {
     //TODO: seek, overwrite
     return new std::ofstream(m_filenameWrite);
 }
 
-void FileSystemEntityDataStreamProvider::endWrite(upnsOStream *strm)
+void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *strm)
 {
     assert(static_cast<std::ofstream*>(strm)->is_open());
     strm->flush();
@@ -48,7 +50,7 @@ void FileSystemEntityDataStreamProvider::endWrite(upnsOStream *strm)
     delete strm;
 }
 
-upnsuint64 FileSystemEntityDataStreamProvider::getStreamSize() const
+upnsuint64 FileSystemEntitydataStreamProvider::getStreamSize() const
 {
     std::ifstream is(m_filenameRead);
     is.seekg(0, std::ios::beg);
@@ -57,19 +59,19 @@ upnsuint64 FileSystemEntityDataStreamProvider::getStreamSize() const
     return size;
 }
 
-void FileSystemEntityDataStreamProvider::setStreamSize(upnsuint64 streamSize)
+void FileSystemEntitydataStreamProvider::setStreamSize(upnsuint64 streamSize)
 {
     std::ofstream os(m_filenameWrite);
     // TODO
 }
 
-LockHandle FileSystemEntityDataStreamProvider::lock()
+LockHandle FileSystemEntitydataStreamProvider::lock()
 {
     //TODO: impl
     return 0;
 }
 
-void FileSystemEntityDataStreamProvider::unlock(LockHandle)
+void FileSystemEntitydataStreamProvider::unlock(LockHandle)
 {
     //TODO: impl
 }

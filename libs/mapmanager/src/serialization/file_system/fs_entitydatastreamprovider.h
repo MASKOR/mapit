@@ -6,10 +6,10 @@
 namespace upns
 {
 
-class FileSystemEntityDataStreamProvider : public AbstractEntityDataStreamProvider
+class FileSystemEntitydataStreamProvider : public AbstractEntitydataStreamProvider
 {
 public:
-    FileSystemEntityDataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite);
+    FileSystemEntitydataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite);
     bool isCached();
     bool isReadWriteSame();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 len);

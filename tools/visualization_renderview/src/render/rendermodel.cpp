@@ -2,7 +2,7 @@
 
 #include <QtMath>
 #include <QOpenGLFunctions_3_0>
-#include "upns_globals.h"
+#include "upns.h"
 #include "bindings/qmlentitydata.h"
 #include "libs/upns_interface/services.pb.h"
 #include "libs/upns_interface_cpp/include/versioning/checkout.h"
@@ -19,7 +19,7 @@ MapsRenderer::MapsRenderer(Renderdata *renderdata)
      m_renderdata(renderdata)
 {
     QObject::connect(m_renderdata, &Renderdata::entitydataChanged, [&](QmlEntitydata *entitydata){
-        m_entitydata = entitydata->getEntityData();
+        m_entitydata = entitydata->getEntitydata();
         if(m_initialized && m_entitydata != NULL)
         {
             createGeometry();
@@ -101,9 +101,9 @@ void MapsRenderer::initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-    if( m_renderdata->entitydata() != NULL && m_renderdata->entitydata()->getEntityData() != NULL )
+    if( m_renderdata->entitydata() != NULL && m_renderdata->entitydata()->getEntitydata() != NULL )
     {
-        m_entitydata = m_renderdata->entitydata()->getEntityData();
+        m_entitydata = m_renderdata->entitydata()->getEntitydata();
         createGeometry();
     }
     else // else workaround fast pcd loading
@@ -118,7 +118,7 @@ bool MapsRenderer::isInitialized()
     return m_initialized;
 }
 
-//void MapsRenderer::setEntityData(upns::upnsSharedPointer<upns::AbstractEntityData> entityData)
+//void MapsRenderer::setEntitydata(upns::upnsSharedPointer<upns::AbstractEntitydata> entityData)
 //{
 //    m_entitydata = entityData;
 //    if(m_initialized && m_entitydata != NULL)

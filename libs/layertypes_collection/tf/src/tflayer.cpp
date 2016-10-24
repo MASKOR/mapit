@@ -1,4 +1,5 @@
 #include "tflayer.h"
+#include "upns.h"
 
 template <typename T>
 class not_deleter {
@@ -37,7 +38,7 @@ void writeTfToStream(upnsOStream &out, TfMat &data )
     tf.SerializePartialToOstream(&out);
 }
 
-TfEntitydata::TfEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+TfEntitydata::TfEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_tf( NULL )
 {
@@ -157,15 +158,15 @@ size_t TfEntitydata::size() const
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
-//upnsSharedPointer<AbstractEntityData> createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-//void* createEntitydata(upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
-void deleteEntitydata(AbstractEntityData *ld)
+//upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//void* createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void deleteEntitydata(AbstractEntitydata *ld)
 {
     TfEntitydata *p = static_cast<TfEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntityData> *out, upnsSharedPointer<AbstractEntityDataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntityData>(new TfEntitydata( streamProvider ), deleteEntitydata);
+    *out = upnsSharedPointer<AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydata);
 }
 

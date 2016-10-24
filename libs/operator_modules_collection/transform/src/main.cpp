@@ -63,12 +63,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         }
         newlyCreated = true;
     }
-    upnsSharedPointer<AbstractEntityData> abstractEntityData = env->getCheckout()->getEntityDataForReadWrite( target );
-    if(abstractEntityData == NULL)
+    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    if(abstractEntitydata == NULL)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntityData );
+    upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntitydata );
     TfMatPtr tf;
     if(newlyCreated)
     {

@@ -1,7 +1,7 @@
 #ifndef REPOSITORYNETWOKINGFACTORY_H
 #define REPOSITORYNETWOKINGFACTORY_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "versioning/repository.h"
 #include "repositoryserver.h"
 

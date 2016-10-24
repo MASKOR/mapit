@@ -94,7 +94,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
         send( std::move( ptr ) );
         return;
     }
-    upnsSharedPointer<AbstractEntityData> ed = co->getEntitydataReadOnly( msg->entitypath() );
+    upnsSharedPointer<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
 
     upns::ReplyEntitydata::Status status;
     if(ed == nullptr )
@@ -321,7 +321,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
         // write entitydata
-        upnsSharedPointer<AbstractEntityData> ed = coraw->getEntityDataForReadWrite(msg->path());
+        upnsSharedPointer<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
         upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
         size_t offset = 0;
         while(has_more())

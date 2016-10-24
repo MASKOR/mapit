@@ -1,7 +1,7 @@
 #ifndef CHECKOUTRAW_H
 #define CHECKOUTRAW_H
 
-#include "upns_globals.h"
+#include "upns_typedefs.h"
 #include "services.pb.h"
 #include "entitydata.h"
 #include "versioning/checkoutcommon.h"
@@ -46,7 +46,7 @@ public:
     virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity) = 0;
 
     /**
-     * @brief getEntityData Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.
+     * @brief getEntitydata Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.
      * It can definitily not be read if entitydata is in conflict mode (Which one?).
      * It may be tracked, if the stream is accessed for read. Only then, the read data might be generated, if it is not stored in the cache.
      * If the stream is not read, Mapmanager can decide to overwrite the old stream directly and thus boost performance. However, operations which do not
@@ -54,7 +54,7 @@ public:
      * No conflict is generated, the old version is overwritten. If there was a conflict before, another candidate is added for this path/conflict.
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntityData> getEntityDataForReadWrite(const Path &entity) = 0;
+    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity) = 0;
 
     //TODO: deprecated, use stroreXXX
 //    /**
@@ -75,11 +75,11 @@ public:
 
     //TODO: deprecated, use above
 //    /**
-//     * @brief getEntityDataConflictingForWrite get one of the conflicting entitydatas, change it and mark it as the solution for the conflict.
+//     * @brief getEntitydataConflictingForWrite get one of the conflicting entitydatas, change it and mark it as the solution for the conflict.
 //     * @param entity
 //     * @return
 //     */
-//    virtual upnsSharedPointer<AbstractEntityData> getEntityDataConflictSolvingForWrite(const Path &entity) = 0;
+//    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataConflictSolvingForWrite(const Path &entity) = 0;
 };
 
 }
