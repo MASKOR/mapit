@@ -4,6 +4,7 @@
 #include "entitydata.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include <pcl/PCLPointCloud2.h>
+#include <pcl/point_types.h>
 
 using namespace upns;
 
@@ -27,6 +28,14 @@ MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, 
 
 }
 
+
+//#include <boost/preprocessor/repetition.hpp>
+
+//#define FOR_COMMON_POINTTYPES(fn, pointcloudEntitydata) \
+//    switch(pointcloudEntitydata.)
+
+
+
 class PointcloudEntitydata : public Entitydata<pcl::PCLPointCloud2>
 {
 public:
@@ -38,14 +47,15 @@ public:
      * operations.
      */
     enum Representation {
-        Rep_XYZ,
-        Rep_XYZI,
-        Rep_XYZRGB,
-        Rep_XYZRGBA,
-        Rep_XYZNormal,
-        Rep_XYZINormal,
-        Rep_XYZRGBNormal,
-        Rep_XYZRGBANormal,
+        Rep_XY, // = pcl::PointXY,
+        Rep_XYZ, // = pcl::PointXYZ,
+        Rep_XYZI, // = pcl::PointXYZI,
+        Rep_XYZRGB, // = pcl::PointXYZRGB,
+        Rep_XYZRGBA, // = pcl::PointXYZRGBA,
+        //Rep_XYZNormal, // = pcl::PointXYZ,
+        Rep_XYZINormal, // = pcl::PointXYZINormal,
+        Rep_XYZRGBNormal, // = pcl::PointXYZRGBNormal,
+        //Rep_XYZRGBANormal, // = pcl::PointXYZRGB,
         Rep_Other
     };
 

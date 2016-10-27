@@ -139,4 +139,54 @@ void TestOperators::testInlineOperator()
     }
 }
 
+//void TestOperators::testOperatorGrid_data() { createTestdata(); }
+//void TestOperators::testOperatorGrid()
+//{
+//    QFETCH(upns::upnsSharedPointer<upns::Checkout>, checkout);
+
+//    OperationDescription desc;
+//    desc.set_operatorname("load_pointcloud");
+//    desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"corridor/laser/eins\"}");
+//    OperationResult ret = checkout->doOperation( desc );
+//    QVERIFY( upnsIsOk(ret.first) );
+//    desc.set_operatorname("grid");
+//    desc.set_params("{\"target\":\"corridor/laser/eins\", \"leafsize\":\"0.01\"}");
+//    ret = checkout->doOperation( desc );
+//    QVERIFY( upnsIsOk(ret.first) );
+//    upnsSharedPointer<Entity> ent = checkout->getEntity("corridor/laser/eins");
+//    QVERIFY( ent != nullptr );
+//    QVERIFY( ent->type() == upns::POINTCLOUD2 );
+//    upnsSharedPointer<Tree> parent = checkout->getTree("corridor/laser/eins");
+//    QVERIFY( parent != nullptr );
+//    QVERIFY( !(*parent->mutable_refs())["eins"].id().empty() );
+//    upnsSharedPointer<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
+//    //upnsSharedPointer<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
+
+//    upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByPath = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
+//    //upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByRef = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
+//    upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
+//    //upnsPointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
+
+//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPath(new pcl::PointCloud<pcl::PointXYZ>);
+//    pcl::fromPCLPointCloud2(*pc2path, *cloudPath);
+//    //pcl::PointCloud<pcl::PointXYZ>::Ptr cloudRef(new pcl::PointCloud<pcl::PointXYZ>);
+//    //pcl::fromPCLPointCloud2(*pc2ref, *cloudRef);
+
+//    pcl::PointCloud<pcl::PointXYZ>::Ptr file (new pcl::PointCloud<pcl::PointXYZ>);
+
+//    if (pcl::io::loadPCDFile<pcl::PointXYZ> ("data/bunny.pcd", *file) == -1) //* load the file
+//    {
+//        QFAIL ("Couldn't read file data/bunny.pcd \n");
+//    }
+
+//    for(int i=0 ; qMin(100, (int)file->width) > i ; ++i)
+//    {
+//        pcl::PointXYZ &p1 = cloudPath->at(i);
+//        //pcl::PointXYZ &p2 = cloudRef->at(i);
+//        pcl::PointXYZ &p3 = file->at(i);
+//        //QCOMPARE_REALVEC3(p1, p2);
+//        QCOMPARE_REALVEC3(p1, p3);
+//    }
+//}
+
 DECLARE_TEST(TestOperators)

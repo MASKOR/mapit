@@ -18,6 +18,8 @@ private slots:
     void testOperatorLoadPointcloud();
     void testInlineOperator_data();
     void testInlineOperator();
+//    void testOperatorGrid_data();
+//    void testOperatorGrid();
 };
 
 #endif
