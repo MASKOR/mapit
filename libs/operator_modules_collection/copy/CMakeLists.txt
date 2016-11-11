@@ -1,6 +1,6 @@
 if(NOT DISABLE_PCL)
 project(copy)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0.2)
 
 set(OPERATOR_VERSION 1)
 
@@ -18,11 +18,14 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
 set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
+
+find_package(json11 REQUIRED)
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
-target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} Qt5::Core upns_interface upns_mapmanager)
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} ${JSON11_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${JSON11_INCLUDE_DIR})
+target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager)
+#target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

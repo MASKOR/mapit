@@ -3,16 +3,26 @@
 #include "modules/operationenvironment.h"
 #include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+#include "json11.hpp"
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-    QJsonObject params(paramsDoc.object());
+//    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+//    QJsonObject params(paramsDoc.object());
 
-    std::string source = params["source"].toString().toStdString();
-    std::string target = params["target"].toString().toStdString();
+//    std::string source = params["source"].toString().toStdString();
+//    std::string target = params["target"].toString().toStdString();
+
+    std::string jsonErr;
+    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
+
+    if ( ! jsonErr.empty() ) {
+        // can't parth json
+        // TODO: good error msg
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    std::string source = params["source"].string_value();
+    std::string target = params["target"].string_value();
 
     if(source.empty())
     {
