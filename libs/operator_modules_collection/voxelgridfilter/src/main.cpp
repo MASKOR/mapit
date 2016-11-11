@@ -7,21 +7,31 @@
 #include <memory>
 #include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+#include "json11.hpp"
 
 upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 {
-    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-    QJsonObject params(paramsDoc.object());
+//    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+//    QJsonObject params(paramsDoc.object());
 
-    double leafSize = params["leafsize"].toDouble();
+//    double leafSize = params["leafsize"].toDouble();
+
+    std::string jsonErr;
+    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
+
+    if ( ! jsonErr.empty() ) {
+        // can't parth json
+        // TODO: good error msg
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    double leafSize = params["leafsize"].number_value();
+
     if(leafSize == 0.0)
     {
         leafSize = 0.01f;
     }
 
-    std::string target = params["target"].toString().toStdString();
+    std::string target = params["target"].string_value();
 
     upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );

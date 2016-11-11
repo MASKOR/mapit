@@ -19,7 +19,7 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
 set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
+find_package(json11 REQUIRED)
 
 # Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
 # can lead problems resulting from to incompatible ABIs
@@ -46,7 +46,8 @@ message("PCL COMMON AND IO" ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
 message("PCL FILTER" ${PCL_FILTER_LIBRARIES})
 message("PCL FILTERS" ${PCL_FILTERS_LIBRARIES})
 message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} ${JSON11_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${JSON11_INCLUDE_DIR})
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_mapmanager)
 
 SET_TARGET_PROPERTIES(
