@@ -12,6 +12,7 @@ include_directories(${ZMQ_INCLUDE_DIR})
 find_package(CPPZMQ REQUIRED)
 include_directories(${CPPZMQ_INCLUDE_DIR})
 
+find_package(YamlCpp REQUIRED)
 set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
 
 include_directories(${YAML_CPP_INCLUDE})
