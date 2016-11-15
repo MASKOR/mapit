@@ -19,7 +19,10 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
 set(CMAKE_AUTOMOC ON)
-find_package(json11 REQUIRED)
+
+#if(NOT TARGET json11)
+    find_package(json11 REQUIRED)
+#endif(NOT TARGET json11)
 
 # Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
 # can lead problems resulting from to incompatible ABIs
@@ -42,13 +45,16 @@ add_definitions(${PCL_DEFINITIONS})
 set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
 
 file(GLOB_RECURSE UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-message("PCL COMMON AND IO" ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
-message("PCL FILTER" ${PCL_FILTER_LIBRARIES})
-message("PCL FILTERS" ${PCL_FILTERS_LIBRARIES})
-message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} ${JSON11_SOURCES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${JSON11_INCLUDE_DIR})
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES})
+
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_mapmanager)
+
+#if(TARGET json11)
+    target_link_libraries( ${PROJECT_NAME} json11)
+#else(TARGET json11)
+#    target_include_directories(${PROJECT_NAME} PUBLIC ${JSON11_INCLUDE_DIR})
+#    target_link_libraries( ${PROJECT_NAME} ${JSON11_LIBRARY})
+#endif(TARGET json11)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

@@ -100,6 +100,8 @@ set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
 set(ENABLE_VISUALIZATION false CACHE BOOL "Generate visualization projects. This may introduce hard to statisfy dependecies.")
 
+include(FindLog4cplus)
+
 add_subdirectory(libs/mapmanager)
 add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(test/unit_tests)
@@ -119,6 +121,11 @@ add_subdirectory(tools/log)
 add_subdirectory(tools/commit)
 add_subdirectory(tools/scripts)
 add_subdirectory(tools/server)
+
+# json11 is a static library that is meant to be used in a shared library.
+# Thus the cmake target itself is added and slightly reconfigured here
+add_subdirectory(externals/json11)
+set_property(TARGET json11 PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 set(UPNS_ENABLE_VISUALIZATION ON CACHE BOOL "Generate Visualization tools")
 

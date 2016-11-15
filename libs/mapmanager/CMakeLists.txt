@@ -2,13 +2,6 @@ project(upns_mapmanager)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-############ yaml
-
-include(FindYamlCpp)
-include_directories(${YAML_CPP_INCLUDE})
-
-link_directories(${YAML_CPP_LIB_DIR})
-
 ############# Protobuf
 
 find_package(Protobuf REQUIRED)

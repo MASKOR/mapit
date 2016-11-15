@@ -1,10 +1,39 @@
-find_path ( JSON11_INCLUDE_DIR json11.hpp HINTS /home/tneumann/ws/json11 )
-#set(JSON11_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
-set(JSON11_INCLUDE_DIRS ${JSON11_INCLUDE_DIR})
-set(JSON11_SOURCES ${JSON11_INCLUDE_DIR}/json11.cpp)
-#add_subdirectory("${JSON11_INCLUDE_DIR}")
+# Locate json11
+#
+# This module defines
+#  JSON11_FOUND, if false, do not try to link to json11
+#  JSON11_LIBRARY, where to find json11
+#  JSON11_INCLUDE_DIR, where to find json11.hpp
+#
+# If json11 is not installed in a standard path, you can use the JSON11_DIR CMake variable
+# to tell CMake where json11 is.
 
-#include(FindPackageHandleStandardArgs)
-#find_package_handle_standard_args(json11 DEFAULT_MSG JSON11_LIBRARIES JSON11_INCLUDE_DIR JSON11_INCLUDE_DIRS)
+find_path(JSON11_INCLUDE_DIR json11.hpp
+          PATHS
+          /usr/local/include/
+          /usr/include/
+          /sw/json11/         # Fink
+          /opt/local/json11/  # DarwinPorts
+          /opt/csw/json11/    # Blastwave
+          /opt/json11/
+          /include/)
 
-#mark_as_advanced(JSON11_LIBRARY JSON11_LIBRARIES JSON11_INCLUDE_DIR JSON11_INCLUDE_DIRS)
+if(NOT WIN32)
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
+endif(NOT WIN32)
+
+find_library(JSON11_LIBRARY
+             NAMES  json11
+             PATH_SUFFIXES lib64 lib
+             PATHS  /usr/local
+                    /usr
+                    /sw
+                    /opt/local
+                    /opt/csw
+                    /opt
+                    /lib)
+
+# handle the QUIETLY and REQUIRED arguments and set JSON11_FOUND to TRUE if all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(JSON11 DEFAULT_MSG JSON11_INCLUDE_DIR JSON11_LIBRARY)
+mark_as_advanced(JSON11_INCLUDE_DIR JSON11_LIBRARY)

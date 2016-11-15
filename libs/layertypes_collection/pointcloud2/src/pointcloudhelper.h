@@ -2,7 +2,7 @@
 #define POINTCLOUDHELPER_H
 
 #include <pcl/PCLPointCloud2.h>
-#define BOOST_NO_EXCEPTIONS
+#define BOOST_NO_EXCEPTIONS 0
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
