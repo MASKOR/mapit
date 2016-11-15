@@ -31,45 +31,46 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# results in /bin/sh: --cpp_out: Kommando nicht gefunden.
-#protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/${PROTOFILE})
-#set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
+  ############# selfmade but working proto generator ###########
 
-############# selfmade but working proto generator ###########
+  foreach(FIL ${ProtoFiles})
+      get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
+      get_filename_component(FIL_WE ${FIL} NAME_WE)
+  #    add_custom_command(
+  #        OUTPUT "${FIL_WE}.grpc.pb.cc"
+  #             "${FIL_WE}.grpc.pb.h"
+  #        COMMAND  ${PROTOBUF_PROTOC_EXECUTABLE}
+  #        ARGS --grpc_out=${PROTOBUF_OUTPUT_DIR} --proto_path ${CMAKE_CURRENT_SOURCE_DIR}/messages --plugin=protoc-gen-grpc=${GRPC_CPP_PLUGIN} ${ABS_FIL}
+  #        DEPENDS ${ABS_FIL}
+  #        COMMENT "Running grpc protocol buffer compiler on ${FIL}"
+  #        VERBATIM )
 
-foreach(FIL ${ProtoFiles})
-    get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
-    get_filename_component(FIL_WE ${FIL} NAME_WE)
-#    add_custom_command(
-#        OUTPUT "${FIL_WE}.grpc.pb.cc"
-#             "${FIL_WE}.grpc.pb.h"
-#        COMMAND  ${PROTOBUF_PROTOC_EXECUTABLE}
-#        ARGS --grpc_out=${PROTOBUF_OUTPUT_DIR} --proto_path ${CMAKE_CURRENT_SOURCE_DIR}/messages --plugin=protoc-gen-grpc=${GRPC_CPP_PLUGIN} ${ABS_FIL}
-#        DEPENDS ${ABS_FIL}
-#        COMMENT "Running grpc protocol buffer compiler on ${FIL}"
-#        VERBATIM )
-
-    add_custom_command(
-        OUTPUT "${FIL_WE}.pb.cc"
-               "${FIL_WE}.pb.h"
-        COMMAND  ${PROTOBUF_PROTOC_EXECUTABLE}
-        ARGS --cpp_out ${PROTOBUF_OUTPUT_DIR} --proto_path ${CMAKE_CURRENT_SOURCE_DIR}/messages ${ABS_FIL}
-        DEPENDS ${ABS_FIL}
-        COMMENT "Running C++ protocol buffer compiler on ${FIL}"
-        VERBATIM )
+      add_custom_command(
+          OUTPUT "${FIL_WE}.pb.cc"
+                 "${FIL_WE}.pb.h"
+          COMMAND  ${PROTOBUF_PROTOC_EXECUTABLE}
+          ARGS --cpp_out ${PROTOBUF_OUTPUT_DIR} --proto_path ${CMAKE_CURRENT_SOURCE_DIR}/messages ${ABS_FIL}
+          DEPENDS ${ABS_FIL}
+          COMMENT "Running C++ protocol buffer compiler on ${FIL}"
+          VERBATIM )
 
 
-#    list(APPEND MESSAGES_SRCS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.grpc.pb.cc")
-#    list(APPEND MESSAGES_HDRS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.grpc.pb.h")
+  #    list(APPEND MESSAGES_SRCS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.grpc.pb.cc")
+  #    list(APPEND MESSAGES_HDRS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.grpc.pb.h")
 
-    list(APPEND PROTO_SRCS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.pb.cc")
-    list(APPEND PROTO_HDRS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.pb.h")
+      list(APPEND PROTO_SRCS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.pb.cc")
+      list(APPEND PROTO_HDRS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.pb.h")
 
-endforeach()
+  endforeach()
 
-set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
+  set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
 
-##############################################
+  ##############################################
+ELSE (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
+  protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/${PROTOFILE})
+  set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
+ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager Qt5::Core)
