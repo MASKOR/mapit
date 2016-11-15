@@ -29,7 +29,7 @@ upnsSharedPointer<Checkout> RepositoryImpl::createCheckout(const CommitId &commi
     upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
     if(co != NULL)
     {
-        log_error("Checkout with this name already exist: " + name);
+        log_warn("Checkout with this name already exist: " + name);
         return NULL;
     }
     upnsSharedPointer<Branch> branch(m_p->m_serializer->getBranch(commitIdOrBranchname));

@@ -1,5 +1,4 @@
 #include "pointcloudhelper.h"
-#include <pcl/io/pcd_io.h>
 #include <pcl/console/time.h>
 
 int

@@ -59,6 +59,8 @@ int main(int argc, char *argv[])
     {
         node->handleRequest(500);
     }
+
+    // No smart pointers here to ensure sequence of deletion
     delete node;
     delete repo;
     return 0;

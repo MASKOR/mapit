@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
     YAML::Node config = YAML::LoadFile(std::string(argv[1]));
 
-    upns::Repository *repo = upns::RepositoryFactory::openLocalRepository( config );
+    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactory::openLocalRepository( config ) );
 
     upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout(argv[2]);
 
@@ -145,5 +145,4 @@ int main(int argc, char *argv[])
         {
             return true;
         });
-    delete repo;
 }

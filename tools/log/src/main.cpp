@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     }
     YAML::Node config = YAML::LoadFile(std::string(argv[1]));
 
-    upns::Repository *repo = upns::RepositoryFactory::openLocalRepository( config );
+    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactory::openLocalRepository( config ) );
 
     upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout( argv[2] );
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
             upns::upnsSharedPointer<upns::Commit> ci(repo->getCommit(*currentParent));
             assert(ci);
             commits.push_back(upns::upnsPair< upns::CommitId, upns::upnsSharedPointer<upns::Commit> >(*currentParent, ci));
-            buildCommitList(repo, commits, ci->parentcommitids());
+            buildCommitList(repo.get(), commits, ci->parentcommitids());
         }
         currentParent++;
     }

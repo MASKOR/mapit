@@ -51,7 +51,7 @@ void createExampleRepo()
 //                                   " name: FileSystem"
 //                                   " filename: ../test.db");
     YAML::Node config = YAML::LoadFile("./repo.yaml");
-    upns::Repository *repo( upns::RepositoryFactory::openLocalRepository( config ) );
+    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactory::openLocalRepository( config ) );
 
     upns::upnsSharedPointer<upns::Checkout> co = repo->createCheckout("master", "testcheckout");
     if(co == NULL)
@@ -88,6 +88,31 @@ void createExampleRepo()
     {
         std::cout << "failed to execute operator." << std::endl;
     }
+    desc.set_operatorname("load_pointcloud");
+    desc.set_params("{\"filename\":\"data/all.txt.pcd\", \"target\":\"berg/laser/eins1\"}");
+    log_info("Executing load_pointcloud");
+    res = co->doOperation(desc);
+    if(upnsIsOk(res.first))
+    {
+        std::cout << "success." << std::endl;
+    }
+    else
+    {
+        std::cout << "failed to execute operator." << std::endl;
+    }
+    desc.set_operatorname("centroid_to_origin");
+    desc.set_params("{\"target\":\"berg/laser/eins1\"}");
+    log_info("Executing load_pointcloud");
+    res = co->doOperation(desc);
+    if(upnsIsOk(res.first))
+    {
+        std::cout << "success." << std::endl;
+    }
+    else
+    {
+        std::cout << "failed to execute operator." << std::endl;
+    }
+
 }
 
 int main(int argc, char *argv[])
