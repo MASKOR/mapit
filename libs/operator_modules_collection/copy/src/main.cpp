@@ -7,12 +7,6 @@
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-//    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-//    QJsonObject params(paramsDoc.object());
-
-//    std::string source = params["source"].toString().toStdString();
-//    std::string target = params["target"].toString().toStdString();
-
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
 

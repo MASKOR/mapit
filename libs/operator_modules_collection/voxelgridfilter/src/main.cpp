@@ -11,14 +11,8 @@
 
 upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 {
-//    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-//    QJsonObject params(paramsDoc.object());
-
-//    double leafSize = params["leafsize"].toDouble();
-
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
-
     if ( ! jsonErr.empty() ) {
         // can't parth json
         // TODO: good error msg
