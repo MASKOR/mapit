@@ -9,8 +9,7 @@
 #include <memory>
 #include "upns_errorcodes.h"
 #include "param.pb.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+#include "json11.hpp"
 
 bool field_present(const std::string& name, const  std::vector<pcl::PCLPointField>& flist){
     for(int i=0; i<flist.size(); i++){
@@ -35,14 +34,19 @@ void chooseDefaultRepresentation ( const std::vector<pcl::PCLPointField>& flist 
 
 upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 {
-//    LoadPointcloudParams params;
-//    params.ParseFromString( env->getParameters() );
-    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-    QJsonObject params(paramsDoc.object());
     upnsPointcloud2Ptr pc2( new pcl::PCLPointCloud2);
 
+    std::string jsonErr;
+    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
+
+    if ( ! jsonErr.empty() ) {
+        // can't parth json
+        // TODO: good error msg
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+
     pcl::PCDReader reader;
-    std::string filename = params["filename"].toString().toStdString();
+    std::string filename = params["filename"].string_value();
     if(filename.empty())
     {
         log_error("parameter \"filename\" missing");
@@ -54,7 +58,7 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
         return UPNS_STATUS_FILE_NOT_FOUND;
     }
 
-    std::string target = params["target"].toString().toStdString();
+    std::string target = params["target"].string_value();
 
     upnsSharedPointer<Entity> pclEntity(new Entity);
     pclEntity->set_type(POINTCLOUD2);

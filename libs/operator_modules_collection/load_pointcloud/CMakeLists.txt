@@ -73,7 +73,7 @@ ELSE (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager Qt5::Core)
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager json11)
 
 #process_protobuf_post()
 
