@@ -7,22 +7,26 @@
 #include <memory>
 #include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+#include "json11.hpp"
 #include <pcl/search/search.h>
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-    QJsonObject params(paramsDoc.object());
+    std::string jsonErr;
+    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
+    if ( ! jsonErr.empty() ) {
+        // can't parth json
+        // TODO: good error msg
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
 
-    double radius = params["radius"].toDouble();
+    double radius = params["radius"].number_value();
     if(radius == 0.0)
     {
         radius = 0.5f;
     }
 
-    std::string target = params["target"].toString().toStdString();
+    std::string target = params["target"].string_value();
 
     upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
