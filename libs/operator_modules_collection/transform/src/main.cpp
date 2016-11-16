@@ -6,9 +6,7 @@
 #include <memory>
 #include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include "json11.hpp"
 
 // Apply array of transforms.
 // {
@@ -33,19 +31,24 @@ void jsonToMat(float* d, Indexable &json)
     //TODO: unroll
     for(int i=0 ; i<16 ; ++i)
     {
-        if(json[i].isDouble())
+        if(json[i].type() == json11::Json::NUMBER)
         {
-            d[i] = static_cast<float>(json[i].toDouble());
+            d[i] = static_cast<float>(json[i].number_value());
         }
     }
 }
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-    QJsonObject params(paramsDoc.object());
+    std::string jsonErr;
+    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
+    if ( ! jsonErr.empty() ) {
+        // can't parth json
+        // TODO: good error msg
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
 
-    std::string target = params["target"].toString().toStdString();
+    std::string target = params["target"].string_value();
 
     bool newlyCreated = false; // In this case, there will be no tf to read
     // Get Target
@@ -79,19 +82,19 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         tf = entityData->getData();
     }
 
-    std::string mode = params["mode"].toString().toStdString();
+    std::string mode = params["mode"].string_value();
 
     if(mode == "absolute")
     {
         TfMat mat;
         tf->setToIdentity();
         float *d = tf->data();
-        if(params["tf"].isObject())
+        if(params["tf"].type() == json11::Json::OBJECT)
         {
-            QJsonObject obj(params["tf"].toObject());
-            if(obj["mat"].isArray())
+            json11::Json::object obj( params["tf"].object_items() );
+            if(obj["mat"].type() == json11::Json::ARRAY)
             {
-                QJsonArray idxbl(obj["mat"].toArray());
+                json11::Json::array idxbl(obj["mat"].array_items());
                 jsonToMat(d, idxbl);
             }
             else
@@ -100,13 +103,13 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                 return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
             }
         }
-        else if(params["tf"].isArray() && params["tf"].toArray()[0].isObject())
+        else if(params["tf"].type() == json11::Json::ARRAY && params["tf"].array_items()[0].type() == json11::Json::OBJECT)
         {
-            QJsonArray arr(params["tf"].toArray());
-            QJsonObject obj(arr[0].toObject());
-            if(obj["mat"].isArray())
+            json11::Json::array arr( params["tf"].array_items() );
+            json11::Json::object obj( arr[0].object_items() );
+            if(obj["mat"].type() == json11::Json::ARRAY)
             {
-                QJsonArray idxbl(obj["mat"].toArray());
+                json11::Json::array idxbl(obj["mat"].array_items());
                 jsonToMat(d, idxbl);
             }
             else
