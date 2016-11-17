@@ -4,7 +4,7 @@
 #include "entitydata.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 
-#include <QMatrix4x4> //TODO: Setup tf2 with dependecies to console_bridge, catkin, boost.
+#include <eigen3/Eigen/Geometry>
 
 using namespace upns;
 
@@ -23,7 +23,7 @@ MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, 
 //MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntitydata> streamProvider);
 }
 
-typedef QMatrix4x4 TfMat;
+typedef Eigen::Affine3f TfMat;
 typedef upns::upnsSharedPointer<TfMat> TfMatPtr;
 
 class TfEntitydata : public Entitydata<TfMat>

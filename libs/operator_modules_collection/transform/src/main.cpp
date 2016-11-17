@@ -57,7 +57,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     {
         // If target could not be received, create new entity
         tfEntity = upnsSharedPointer<Entity>(new Entity);
-        tfEntity->set_type(POSES);
+        tfEntity->set_type(TF);
         StatusCode s = env->getCheckout()->storeEntity(target, tfEntity);
         if(!upnsIsOk(s))
         {
@@ -87,7 +87,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     if(mode == "absolute")
     {
         TfMat mat;
-        tf->setToIdentity();
+        *tf = TfMat::Identity();
         float *d = tf->data();
         if(params["tf"].type() == json11::Json::OBJECT)
         {
@@ -142,4 +142,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "use pcl normalestimation on a pointcloud", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD2, &operate)
+UPNS_MODULE(OPERATOR_NAME, "use pcl normalestimation on a pointcloud", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD, &operate)

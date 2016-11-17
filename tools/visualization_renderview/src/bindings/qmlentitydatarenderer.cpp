@@ -4,6 +4,7 @@
 #include "libs/layertypes_collection/tf/include/tflayer.h"
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
+#include <QMatrix4x4>
 
 QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
     : QGeometryRenderer(parent),
@@ -49,7 +50,7 @@ void QmlEntitydataRenderer::updateGeometry()
 
     switch(ed->layerType())
     {
-    case upns::POINTCLOUD2:
+    case upns::POINTCLOUD:
     {
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
@@ -62,9 +63,9 @@ void QmlEntitydataRenderer::updateGeometry()
         break;
     case upns::OPENVDB:
         break;
-    case upns::POSES:
+    case upns::TF:
     {
-        QMatrix4x4 mat = *upns::static_pointer_cast< TfEntitydata >(ed)->getData();
+        QMatrix4x4 mat( upns::static_pointer_cast< TfEntitydata >(ed)->getData()->data() );
         qDebug() << mat;
         break;
     }

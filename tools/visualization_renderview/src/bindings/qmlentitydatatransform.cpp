@@ -31,8 +31,9 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
         log_error("Wrong path given in qml for transform entity");
         return QMatrix4x4();
     }
-    upns::upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntitydata );
-    return *entityData->getData();
+
+    QMatrix4x4 ret( upns::static_pointer_cast<TfEntitydata>( abstractEntitydata )->getData()->data());
+    return ret;
 }
 
 void QmlEntitydataTransform::setMatrix()

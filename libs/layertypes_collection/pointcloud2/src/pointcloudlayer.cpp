@@ -15,7 +15,7 @@ PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataS
 
 LayerType PointcloudEntitydata::layerType() const
 {
-    return LayerType::POINTCLOUD2;
+    return LayerType::POINTCLOUD;
 }
 
 bool PointcloudEntitydata::hasFixedGrid() const

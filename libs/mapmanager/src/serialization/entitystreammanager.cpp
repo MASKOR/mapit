@@ -60,12 +60,12 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
     upnsString layerName;
     switch(type)
     {
-    case POINTCLOUD2:
+    case POINTCLOUD:
     {
         layerName = "layertype_pointcloud2";
         break;
     }
-    case POSES:
+    case TF:
     {
         layerName = "layertype_tf";
         break;
