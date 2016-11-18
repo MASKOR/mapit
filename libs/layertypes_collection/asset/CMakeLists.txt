@@ -31,5 +31,3 @@ target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} )
 find_package(Boost COMPONENTS serialization)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
 
-#target_link_libraries(${PROJECT_NAME} Qt5::Core )
-

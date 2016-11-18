@@ -31,5 +31,3 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/
                                                    ${PROTOBUF_INCLUDE_DIRS})
 
-#target_link_libraries(${PROJECT_NAME} Qt5::Core )
-

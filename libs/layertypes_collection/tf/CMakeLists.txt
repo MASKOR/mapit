@@ -30,4 +30,3 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS} ${EIGEN3_I
 
 
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
-qt5_use_modules(${PROJECT_NAME} Core Gui)

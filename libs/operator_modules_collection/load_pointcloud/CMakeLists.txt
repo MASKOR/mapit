@@ -22,7 +22,6 @@ add_definitions(${PCL_DEFINITIONS})
 file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 
 #### Protobuf ####
 

@@ -22,15 +22,11 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} )
 target_link_libraries(${PROJECT_NAME} upns_interface upns_mapmanager layertype_tf json11)
 #target_link_libraries(${PROJECT_NAME} ${PCL_IO_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_VISUALIZATION_LIBRARIES} ${PCL_SEGMENTATION_LIBRARIES} ${PCL_SAMPLE_CONSENSUS_LINRARIES} ${PCL_FILTERS_LIBRARIES})
-
-qt5_use_modules(${PROJECT_NAME} Core Gui)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}
