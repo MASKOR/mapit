@@ -104,7 +104,6 @@ include(FindLog4cplus)
 
 add_subdirectory(libs/mapmanager)
 add_subdirectory(libs/operator_modules_collection)
-add_subdirectory(test/unit_tests)
 add_subdirectory(libs/upns_interface)
 add_subdirectory(libs/upns_interface_cpp)
 add_subdirectory(libs/interface_grpc)
@@ -121,6 +120,11 @@ add_subdirectory(tools/log)
 add_subdirectory(tools/commit)
 add_subdirectory(tools/scripts)
 add_subdirectory(tools/server)
+
+set(UPNS_ENABLE_TESTS ON CACHE BOOL "Generate tests (need Qt)")
+if(UPNS_ENABLE_TESTS)
+  add_subdirectory(test/unit_tests)
+endif()
 
 # json11 is a static library that is meant to be used in a shared library.
 # Thus the cmake target itself is added and slightly reconfigured here
