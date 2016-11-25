@@ -12,6 +12,9 @@ class RepositoryServer;
 
 class TestRepository : public RepositoryCommon
 {
+private:
+    std::string filename_;
+    std::string checkoutPath_;
     Q_OBJECT
 private slots:
     void init();
@@ -24,6 +27,8 @@ private slots:
     void testCreateCheckout();
     void testGetCheckout_data();
     void testGetCheckout();
+    void testReadCheckout_data();
+    void testReadCheckout();
     void testCommit_data();
     void testCommit();
     void testVoxelgridfilter_data();
