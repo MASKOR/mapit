@@ -272,9 +272,11 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
 
 void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {
+    // This method handles two cases: "storeEntity" and "writeEntityData"
     std::unique_ptr<upns::ReplyStoreEntity> rep(new upns::ReplyStoreEntity());
     // Input validation
-    if(msg->offset() > msg->sendlength())
+    // Entity size and offset, don't write out-of-bounds
+    if(msg->offset() + msg->entitylength() > msg->sendlength())
     {
         discard_more();
         log_error("Write offset for entity \"" + msg->path() + "\" was specified wrong.");
@@ -301,14 +303,41 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         // if offset is not 0, we assume the entity already exists.
         if(msg->offset() == 0)
         {
-            // create new entity
-            upns::upnsSharedPointer<upns::Entity> e(new upns::Entity);
-            e->set_type(msg->type());
-            upns::StatusCode status = coraw->storeEntity(msg->path(), e);
-            if(!upnsIsOk(status))
+            // Receive Entity out of the message and compare to existing entity
+            upns::upnsSharedPointer<upns::Entity> entity(coraw->getEntity(msg->path()));
+            if(nullptr == entity)
             {
-                log_error("Could not store entity: \"" + msg->path() + "\"");
-                return status;
+                // There was no entity yet
+                entity = upns::upnsSharedPointer<upns::Entity>(new upns::Entity);
+            }
+            if( entity->type()   != 0
+               && msg->type()    != 0
+               && entity->type() != msg->type())
+            {
+                // Changing layertype
+                log_info("Entity " + msg->path() + " changed its layertype");
+                entity->set_type(msg->type());
+            }
+            if(entity->type() == 0 && msg->type() != 0)
+            {
+                // No layertype was set before
+                entity->set_type(msg->type());
+            }
+            if(entity->type() == 0 && msg->type() == 0)
+            {
+                // No layertype at all (error)
+                log_error("Tried to write entitydata, but there was no type information in this or previous communication.");
+                return UPNS_STATUS_INVALID_ARGUMENT;
+            }
+            else
+            {
+                // Other cases: There was a layertype and none is set now (just leave it as is).
+                upns::StatusCode status = coraw->storeEntity(msg->path(), entity);
+                if(!upnsIsOk(status))
+                {
+                    log_error("Could not store entity: \"" + msg->path() + "\"");
+                    return status;
+                }
             }
         }
         if(msg->sendlength() == 0)
