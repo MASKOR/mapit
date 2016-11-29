@@ -20,6 +20,7 @@
 #include "pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>
+#include <pcl/filters/voxel_grid.h>
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -70,7 +71,15 @@ void TestRepositoriesCommunication::initTestCase()
     }
     else
     {
-        //qDebug() << "Client running";
+        QFile out1(FILENAME_OUT1);
+        QFile out2(FILENAME_OUT1);
+        QFile out3(FILENAME_OUT1);
+        if(out1.exists()) out1.remove();
+        if(out2.exists()) out2.remove();
+        if(out3.exists()) out3.remove();
+        QVERIFY(!out1.exists());
+        QVERIFY(!out2.exists());
+        QVERIFY(!out3.exists());
     }
 }
 
@@ -111,7 +120,9 @@ void TestRepositoriesCommunication::testReadLocalComputeRemoteWriteLocal()
     QVERIFY( nullptr != checkoutRemote );
     readPcd(checkoutLocal.get());
     voxelgrid(checkoutRemote.get());
-    writePcdLocalOnly(checkoutLocal.get(), "bunny_voxelgrid_locally_read_remote_computed.pcd");
+    const char* filename = FILENAME_OUT1;
+    writePcdLocalOnly(checkoutLocal.get(), filename);
+    compareFileToExpected(filename);
 }
 
 void TestRepositoriesCommunication::testReadRemoteComputeLocalWriteRemote()
@@ -125,8 +136,10 @@ void TestRepositoriesCommunication::testReadRemoteComputeLocalWriteRemote()
     upns::upnsSharedPointer<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
     readPcd(checkoutRemote.get());
     voxelgrid(checkoutLocal.get());
+    const char* filename = FILENAME_OUT2;
     // Note: This writes local, there is not yet a way to distinguish which thread wrote the file.
-    writePcdLocalOnly(checkoutRemote.get(), "bunny_voxelgrid_remote_read_locally_computed.pcd");
+    writePcdLocalOnly(checkoutRemote.get(), filename);
+    compareFileToExpected(filename);
 }
 
 void TestRepositoriesCommunication::testReadRemoteComputeRemoteWriteLocal()
@@ -141,7 +154,38 @@ void TestRepositoriesCommunication::testReadRemoteComputeRemoteWriteLocal()
     readPcd(checkoutRemote.get());
     voxelgrid(checkoutRemote.get());
     // Note: This writes local, there is not yet a way to distinguish which thread wrote the file.
-    writePcdLocalOnly(checkoutLocal.get(), "bunny_voxelgrid_remote_read_remote_computed.pcd");
+    const char* filename = FILENAME_OUT3;
+    writePcdLocalOnly(checkoutLocal.get(), filename);
+    compareFileToExpected(filename);
+}
+
+
+void TestRepositoriesCommunication::compareFileToExpected(const char* filename)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr fileWritten(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr fileSource(new pcl::PointCloud<pcl::PointXYZ>);
+    if (pcl::io::loadPCDFile<pcl::PointXYZ> (filename, *fileWritten) == -1)
+    {
+        QFAIL ((std::string("Couldn't read file)") + filename + "\n").c_str());
+    }
+    if (pcl::io::loadPCDFile<pcl::PointXYZ> (FILENAME, *fileSource) == -1)
+    {
+        QFAIL ((std::string("Couldn't read file)") + FILENAME + "\n").c_str());
+    }
+    pcl::VoxelGrid<pcl::PointXYZ> sor;
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr fileSource_const = fileSource;
+    sor.setInputCloud(fileSource_const);
+    sor.setLeafSize(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudExpected(new pcl::PointCloud<pcl::PointXYZ>());
+    sor.filter (*cloudExpected);
+    QCOMPARE(fileWritten->width, cloudExpected->width);
+    QCOMPARE(fileWritten->height, cloudExpected->height);
+    for(int i=0 ; qMin(100, (int)fileWritten->width) > i ; ++i)
+    {
+        pcl::PointXYZ &p1 = fileWritten->at(i);
+        pcl::PointXYZ &p2 = cloudExpected->at(i);
+        QCOMPARE_REALVEC3(p1, p2);
+    }
 }
 
 upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initEmptyLocal()
@@ -186,7 +230,7 @@ void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 {
     upns::OperationDescription desc;
     desc.set_operatorname("load_pointcloud");
-    desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"themap/thelayer/bunny\"}");
+    desc.set_params(std::string("{\"filename\":\"") + FILENAME + "\", \"target\":\"themap/thelayer/bunny\"}");
     upns::OperationResult ret = checkout->doOperation( desc );
     //QVERIFY( upnsIsOk(ret.first) );
 }
@@ -196,7 +240,7 @@ void TestRepositoriesCommunication::voxelgrid(upns::Checkout *checkout)
     upns::OperationDescription operation;
     operation.set_operatorname("voxelgridfilter");
     QJsonObject params;
-    params["leafsize"] = 0.01;
+    params["leafsize"] = LEAF_SIZE;
     params["target"] = "themap/thelayer/bunny";
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );

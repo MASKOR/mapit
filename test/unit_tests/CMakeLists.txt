@@ -9,7 +9,7 @@ find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
 include_directories( UPNS_ROOT_DIR )
 
-find_package(PCL REQUIRED COMPONENTS common io)
+find_package(PCL REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})

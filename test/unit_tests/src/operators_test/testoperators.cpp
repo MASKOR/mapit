@@ -80,7 +80,8 @@ void TestOperators::testOperatorLoadPointcloud()
     {
         QFAIL ("Couldn't read file data/bunny.pcd \n");
     }
-
+    QCOMPARE(cloudPath->width, file->width);
+    QCOMPARE(cloudPath->height, file->height);
     for(int i=0 ; qMin(100, (int)file->width) > i ; ++i)
     {
         pcl::PointXYZ &p1 = cloudPath->at(i);

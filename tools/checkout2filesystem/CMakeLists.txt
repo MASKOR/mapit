@@ -1,6 +1,8 @@
 project(checkout2filesystem)
 cmake_minimum_required(VERSION 2.8)
 
+
+
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
@@ -33,6 +35,7 @@ else(WIN32)
 endif(WIN32)
 
 find_package(Boost COMPONENTS iostreams REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${Boost_LIBRARIES})
 
