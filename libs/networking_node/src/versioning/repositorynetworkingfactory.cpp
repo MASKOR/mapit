@@ -9,9 +9,9 @@ upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServe
     return resp;
 }
 
-upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(upns::upnsString url, Repository *cache)
+upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(upns::upnsString url, Repository *cache, bool operationsLocal)
 {
     //requester
-    ZmqRequester* req = new ZmqRequester( cache, url );
+    ZmqRequester* req = new ZmqRequester( cache, url, operationsLocal );
     return req;
 }

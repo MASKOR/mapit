@@ -145,6 +145,7 @@ void upns::ZmqEntitydataStreamProvider::endWrite(upns::upnsOStream *strm)
     req->set_offset(ostrm->getOffset());
     req->set_sendlength(buf.length());
     req->set_entitylength(m_entityLength);
+    // Note: Entitytype can not be set here!
     m_node->send(std::move(req), ZMQ_SNDMORE);
     m_node->send_raw_body( reinterpret_cast<const unsigned char*>(buf.data()), buf.length() ); //TODO: add zero copy support!
     delete ostrm;

@@ -46,14 +46,14 @@ int main(int argc, char *argv[])
 
     if(argc == 4)
     {
-        url = argv[3];
+        url = argv[3]; // TODO: Create Network repo, make Server Repo a MultiRepository with local+remote
     }
 
     YAML::Node config = YAML::LoadFile(std::string(argv[1]));
 
     upns::Repository *repo = upns::RepositoryFactory::openLocalRepository( config );
 
-    upns::RepositoryServer *node = upns::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo, url);
+    upns::RepositoryServer *node = upns::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo);
 
     while(true)
     {

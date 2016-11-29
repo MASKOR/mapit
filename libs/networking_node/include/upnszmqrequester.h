@@ -16,7 +16,7 @@ class ZmqRequesterPrivate;
 class ZmqRequester : public upns::Repository
 {
 public:
-    ZmqRequester(Repository* cache, upnsString urlOutgoingRequests = std::string());
+    ZmqRequester(Repository* cache, upnsString urlOutgoingRequests = std::string(), bool operationsLocal = false);
     ~ZmqRequester();
 
     // Repository interface

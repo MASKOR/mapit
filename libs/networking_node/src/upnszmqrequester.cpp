@@ -4,8 +4,8 @@
 #include <zmq.hpp>
 #include "upns_errorcodes.h"
 
-upns::ZmqRequester::ZmqRequester(Repository *cache, upns::upnsString urlOutgoingRequests)
-    :m_d( new upns::ZmqRequesterPrivate( cache, urlOutgoingRequests ) )
+upns::ZmqRequester::ZmqRequester(Repository *cache, upns::upnsString urlOutgoingRequests, bool operationsLocal)
+    :m_d( new upns::ZmqRequesterPrivate( cache, urlOutgoingRequests, operationsLocal ) )
 {
 
 }
@@ -89,7 +89,7 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::createCheckout(const
     if(rep->status() == upns::ReplyCheckout::SUCCESS ||
        rep->status() == upns::ReplyCheckout::EXISTED)
     {
-        return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d ));
+        return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
     }
     else
     {
@@ -101,7 +101,7 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::createCheckout(const
 upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::getCheckout(const upns::upnsString &checkoutName)
 {
     //TODO: No error checking here at the time. It is possible, that the returned checkout does simply not exist.
-    return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( checkoutName, m_d ));
+    return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( checkoutName, m_d, nullptr, m_d->m_operationsLocal ));
 }
 
 upns::StatusCode upns::ZmqRequester::deleteCheckoutForced(const upns::upnsString &checkoutName)

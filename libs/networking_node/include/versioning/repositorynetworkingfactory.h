@@ -31,9 +31,10 @@ public:
      * @brief connectToRemoteRepository. Creates a shim repository, which delegates all requests to a repository in the network. It also handles replies.
      * This can be used just like a normal repository, but method calls may take longer until completion.
      * Note: Calls should not be called in a main or gui thread, as this would block messages from OS and freeze UIs.
+     * //TODO: Rename to clone/...
      * @return
      */
-    static upns::Repository* connectToRemoteRepository(upns::upnsString url, Repository* cache);
+    static upns::Repository* connectToRemoteRepository(upns::upnsString url, Repository* cache, bool operationsLocal = false);
 };
 
 }

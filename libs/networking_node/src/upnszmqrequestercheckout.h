@@ -16,7 +16,7 @@ namespace upns {
 class ZmqRequesterCheckout : public upns::Checkout, public upns::CheckoutRaw
 {
 public:
-    ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, upns::Checkout *cache = NULL);
+    ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, upns::Checkout *cache = NULL, bool operationsLocal = false);
 
     // CheckoutCommon interface
 public:
@@ -49,6 +49,7 @@ private:
     upnsString m_checkoutName;
     ZmqProtobufNode *m_node;
     upns::Checkout *m_cache;
+    bool m_operationsLocal;
 
     void syncHierarchy();
 

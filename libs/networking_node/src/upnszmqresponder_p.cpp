@@ -276,7 +276,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     std::unique_ptr<upns::ReplyStoreEntity> rep(new upns::ReplyStoreEntity());
     // Input validation
     // Entity size and offset, don't write out-of-bounds
-    if(msg->offset() + msg->entitylength() > msg->sendlength())
+    if(msg->offset() > msg->sendlength())
     {
         discard_more();
         log_error("Write offset for entity \"" + msg->path() + "\" was specified wrong.");

@@ -5,10 +5,19 @@
 #include "operationenvironmentimpl.h"
 #include "upns_errorcodes.h"
 
-upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, Checkout *cache)
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+#include "module.h"
+typedef ModuleInfo* (*GetModuleInfo)();
+
+upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, Checkout *cache, bool operationsLocal)
     :m_checkoutName( name ),
      m_node( node ),
-     m_cache( cache )
+     m_cache( cache ),
+     m_operationsLocal( operationsLocal )
 {
 }
 
@@ -126,19 +135,76 @@ upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
 {
-    std::unique_ptr<upns::RequestOperatorExecution> req(new upns::RequestOperatorExecution);
-    req->set_checkout(m_checkoutName);
-    *req->mutable_param() = desc;
-    m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyOperatorExecution> rep(m_node->receive<upns::ReplyOperatorExecution>());
-    upns::OperationResult res;
-    res.first = rep->status_code();
-    res.second = rep->result();
-    if(!rep->error_msg().empty())
+    if(m_operationsLocal)
     {
-        log_error("Remote Operator Executions returned an error: " + rep->error_msg());
+        //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
+        OperationEnvironmentImpl env(desc);
+        env.setCheckout( this );
+    #ifndef NDEBUG
+        upnsString debug(DEBUG_POSTFIX);
+    #else
+        upnsString debug("");
+    #endif
+
+    #ifdef _WIN32
+        upnsString prefix("");
+        upnsString postfix(".dll");
+    #else
+        upnsString prefix("lib");
+        upnsString postfix(".so");
+    #endif
+        std::stringstream filename;
+        filename << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+        if(desc.operatorversion())
+        {
+            filename << "." << desc.operatorversion();
+        }
+        std::string filenamestr = filename.str();
+        log_info("loading operator module \"" + filenamestr + "\"");
+    #ifdef _WIN32
+        HMODULE handle = LoadLibrary(filename.str().c_str());
+    #else
+        void* handle = dlopen(filenamestr.c_str(), RTLD_NOW);
+    #endif
+        if (!handle) {
+    #ifdef _WIN32
+    #else
+            std::cerr << "Cannot open library: " << dlerror() << '\n';
+    #endif
+            return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+        }
+    #ifdef _WIN32
+        //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");
+        GetModuleInfo getModInfo = (GetModuleInfo)GetProcAddress(handle,"getModuleInfo");
+    #else
+        GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
+    #endif
+        ModuleInfo* info = getModInfo();
+        StatusCode result = info->operate( &env );
+        if(!upnsIsOk(result))
+        {
+            std::stringstream strm;
+            strm << "operator '" << desc.operatorname() << "' reported an error. (code:" << result << ")";
+            log_error(strm.str());
+        }
+        return OperationResult(result, env.outputDescription());
     }
-    return res;
+    else
+    {
+        std::unique_ptr<upns::RequestOperatorExecution> req(new upns::RequestOperatorExecution);
+        req->set_checkout(m_checkoutName);
+        *req->mutable_param() = desc;
+        m_node->send(std::move(req));
+        upns::upnsSharedPointer<upns::ReplyOperatorExecution> rep(m_node->receive<upns::ReplyOperatorExecution>());
+        upns::OperationResult res;
+        res.first = rep->status_code();
+        res.second = rep->result();
+        if(!rep->error_msg().empty())
+        {
+            log_error("Remote Operator Executions returned an error: " + rep->error_msg());
+        }
+        return res;
+    }
 }
 
 upns::OperationResult upns::ZmqRequesterCheckout::doUntraceableOperation(const upns::OperationDescription &desc, std::function<upns::StatusCode (upns::OperationEnvironment *)> operate)

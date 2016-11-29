@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     log4cplus::PropertyConfigurator::doConfigure("logging.properties");
 
     log_info("running test");
+
     return AutoTest::run(argc, argv);
 }
 

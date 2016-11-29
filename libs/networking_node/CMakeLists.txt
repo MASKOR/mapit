@@ -21,5 +21,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
 target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
 if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} dl)
+endif(NOT WIN32)
+
+if(NOT WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(NOT WIN32)

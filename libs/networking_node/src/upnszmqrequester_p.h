@@ -12,8 +12,9 @@ class ZmqRequesterPrivate : public ZmqProtobufNode
 {
 
 public:
-    ZmqRequesterPrivate( Repository* cache, std::string urlOutgoingRequests = std::string() );
+    ZmqRequesterPrivate( Repository* cache, std::string urlOutgoingRequests = std::string(), bool operationsLocal = false );
     Repository* m_cache;
+    bool m_operationsLocal;
 private:
     friend class UpnsZmqNode;
 };

@@ -3,9 +3,10 @@
 #include "services_internal.pb.h"
 #include <functional>
 
-upns::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string urlOutgoingRequests)
+upns::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string urlOutgoingRequests, bool operationsLocal)
     :ZmqProtobufNode( false ),
-     m_cache( cache )
+     m_cache( cache ),
+     m_operationsLocal(operationsLocal)
 {
     connect(urlOutgoingRequests);
     add_receivable_message_type<ReplyCheckout>();
