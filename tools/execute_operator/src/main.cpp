@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     log4cplus::BasicConfigurator logconfig;
     logconfig.configure();
 
-    po::options_description program_options_desc("Allowed Options");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout> <operator_name> <parameters>");
     program_options_desc.add_options()
             ("help,h", "print usage")
             ("checkout,co", po::value<std::string>()->required(), "")
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout(vars["checkout"].as<std::string>());
-    if(co == NULL)
+    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    if(co == nullptr)
     {
         log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
         return 1;

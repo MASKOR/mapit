@@ -18,21 +18,32 @@ int main(int argc, char *argv[])
 {
     log4cplus::BasicConfigurator logconfig;
     logconfig.configure();
-    log4cplus::SharedAppenderPtr consoleAppender(new log4cplus::ConsoleAppender());
-    consoleAppender->setName("myAppenderName");
-    //consoleAppender->setLayout(std::auto_ptr<log4cplus::Layout>(new log4cplus::TTCCLayout()));
-    log4cplus::Logger mainLogger = log4cplus::Logger::getInstance("main");
-    mainLogger.addAppender(consoleAppender);
-    if(argc != 4)
+
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + "<checkout name> <destination>");
+    program_options_desc.add_options()
+            ("help,h", "print usage")
+            ("checkout,co", po::value<std::string>()->required(), "")
+            ("destination,d", po::value<std::string>()->required(), "");
+    po::positional_options_description pos_options;
+    pos_options.add("checkout",  1)
+               .add("destination",  1);
+
+    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    po::variables_map vars;
+    po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
+    if(vars.count("help"))
     {
         std::cout << "usage:\n " << argv[0] << " <config file> <checkout name> <destination>" << std::endl;
         return 1;
     }
-    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactory::openLocalRepository( config ) );
+    po::notify(vars);
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout(argv[2]);
+    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
-    if (co == NULL) {
+    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    if(co == nullptr)
+    {
+        log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
         upns::upnsVec<upns::upnsString> possibleCheckouts = repo->listCheckoutNames();
         if (possibleCheckouts.size() == 0) {
             log_info("No possible checkout");
