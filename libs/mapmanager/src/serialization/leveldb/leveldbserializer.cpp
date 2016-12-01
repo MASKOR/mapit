@@ -472,6 +472,12 @@ StatusCode LevelDBSerializer::cleanUp()
     return 0;
 }
 
+MessageType LevelDBSerializer::typeOfObjectTransient(const ObjectId &oidOrName)
+{
+    // TODO is that ok, or do I need a difference here
+    return typeOfObject(oidOrName);
+}
+
 MessageType LevelDBSerializer::typeOfObject(const ObjectId &oidOrName)
 {
     std::string key, value;

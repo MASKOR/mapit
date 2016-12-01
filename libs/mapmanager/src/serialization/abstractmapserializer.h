@@ -63,6 +63,7 @@ public:
 
 
     virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
+    virtual MessageType typeOfObjectTransient(const ObjectId &oidOrName) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
 
     virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId) = 0;

@@ -102,6 +102,7 @@ upnsSharedPointer<Branch> RepositoryImpl::getBranch(const upnsString &name)
 
 MessageType RepositoryImpl::typeOfObject(const ObjectId &oid)
 {
+    // TODO fix this for transient and then not transient
     return m_p->m_serializer->typeOfObject(oid);
 }
 

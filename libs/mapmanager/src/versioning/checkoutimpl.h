@@ -48,6 +48,7 @@ public:
     virtual upnsSharedPointer<Tree> getRoot();
     virtual upnsSharedPointer<Tree> getTree(const Path &path);
     virtual upnsSharedPointer<Entity> getEntity(const Path &path);
+    virtual MessageType typeOfObject(const Path &path);
     virtual upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId);
     virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);

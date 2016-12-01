@@ -23,33 +23,34 @@
 
 namespace upns
 {
-const std::string FSSerializer::_PREFIX_MAPIT_      = "/.mapit";
-const std::string FSSerializer::_PREFIX_TREE_       = "/trees/";
-const std::string FSSerializer::_PREFIX_ENTITY_     = "/entities/";
-const std::string FSSerializer::_PREFIX_CHECKOUTS_  = "/checkouts/";
-const std::string FSSerializer::_PREFIX_BRANCHES_   = "/branches/";
-const std::string FSSerializer::_PREFIX_COMMIT_     = "/commits/";
+const fs::path FSSerializer::_PREFIX_MAPIT_       = "/.mapit";
+const fs::path FSSerializer::_PREFIX_TREE_        = "/trees/";
+const fs::path FSSerializer::_PREFIX_ENTITY_      = "/entities/";
+const fs::path FSSerializer::_PREFIX_ENTITY_DATA_ = "/entities_data/";
+const fs::path FSSerializer::_PREFIX_BRANCHES_    = "/branches/";
+const fs::path FSSerializer::_PREFIX_COMMIT_      = "/commits/";
 
-const std::string FSSerializer::_FILE_CHECKOUT_     = "checkout";
+const fs::path FSSerializer::_PREFIX_CHECKOUTS_       = "checkouts";
+const fs::path FSSerializer::_CHECKOUT_GENERIC_ENTRY_ = ".generic_entry";
+const fs::path FSSerializer::_CHECKOUT_ENTITY_DATA_   = "entity_data";
+const fs::path FSSerializer::_CHECKOUT_ROOT_FOLDER_   = "root";
 
 FSSerializer::FSSerializer(const YAML::Node &config)
 {
-    std::string cfgpath;
-    if(config["filename"])
-    {
-        cfgpath = config["filename"].as<std::string>();
+    fs::path path;
+    if ( config["filename"] ) {
+        path = fs::path( config["filename"].as<std::string>() );
+    } else {
+        path = fs::current_path();
+        log_info("No Path given for repo, use current path");
     }
-    else
-    {
-        cfgpath = fs::current_path().string();
-    }
-    fs::path path(cfgpath);
+    log_info("Use repo at " + path.string());
 
     // search for repo
-    if(!fs::exists( fs::system_complete( path.string() + _PREFIX_MAPIT_ ) ))
-    {
-        if ( ! fs::create_directories( path.string() + _PREFIX_MAPIT_)) {
-            log_error("Could not create " + path.string() + _PREFIX_MAPIT_);
+    path = path / _PREFIX_MAPIT_;
+    if( ! fs::exists( fs::system_complete( path ) ) ) {
+        if ( ! fs::create_directories( path ) ) {
+            log_error("Could not create " + path.string() );
         }
     }
 //        while ( ! fs::exists( fs::system_complete( path.string() + _PREFIX_MAPIT_ ) ) ) {
@@ -65,7 +66,7 @@ FSSerializer::FSSerializer(const YAML::Node &config)
 //                break;
 //            }
 //        }
-    path = path.string() + _PREFIX_MAPIT_;
+
     log_info("Use " + path.string() + " as repo");
     repo_ = path;
 
@@ -80,29 +81,58 @@ FSSerializer::~FSSerializer()
 void
 FSSerializer::fs_check_create(fs::path path)
 {
+    boost::system::error_code ec;
     if ( ! fs::exists( path ) ) {
-        log_info("Create: " + path.string());
-        fs::create_directories( path );
+        if ( ! fs::create_directories( path, ec ) && ec.value() != 0) { //  && ec.value() != 0 (0 means no error) is only needed since this bug the https://svn.boost.org/trac/boost/ticket/7258
+            log_error("Can not create: " + path.string() + " code: " + ec.message());
+        } else {
+            log_info("Create: " + path.string());
+        }
     }
 }
 
-void
-FSSerializer::fs_write(fs::path path, std::string value)
+fs::path
+FSSerializer::objectid_to_checkout_fs_path(ObjectId oid)
 {
-    if ( ! fs::exists( path ) ) {
-        log_info("Write " + path.string());
-        create_directories(path.parent_path());
+    fs::path path = repo_ / _PREFIX_CHECKOUTS_;
 
-        std::filebuf buffer;
-        buffer.open(path.string(), std::ios::out);
-
-        std::ostream stream(&buffer);
-        stream << value;
-
-        buffer.close();
+    size_t seperator_pose = oid.find("/");
+    if (seperator_pose != std::string::npos) {
+        path /= fs::path(oid.substr(0, seperator_pose));                    // first part is the name of the checkout
+        path /= _CHECKOUT_ROOT_FOLDER_;
+        path /= oid.substr(seperator_pose, oid.size() - seperator_pose);    // second part is the id of the file within the checkout which is used as a path in the filesystem
     } else {
-        log_info("Duplicate found " + path.string());
+        path /= fs::path(oid);
+//        log_warn("Can't find \"/\" in ObjectId of object in checkout, don't extended path as <checkoutname>/" + _CHECKOUT_ROOT_FOLDER_.string() + "/<checkoutid>\n the path is: " + path.string());
     }
+
+    return path;
+}
+
+void
+FSSerializer::fs_write(fs::path path, upns::upnsSharedPointer<GenericEntry> ge, MessageType msgType, bool overwrite )
+{
+    if ( fs::exists( path ) ) {
+        if ( ! overwrite) {
+            log_warn("Duplicate found " + path.string());
+            return;
+        } else {
+            log_info("Overwrite duplicate " + path.string());
+        }
+    }
+
+    ge->set_type(msgType);
+
+    log_info("Write type \"" + MessageType_Name(msgType) + "\" to " + path.string());
+    create_directories( path.parent_path() );
+
+    std::filebuf buffer;
+    buffer.open(path.string(), std::ios::out);
+
+    std::ostream stream(&buffer);
+    stream << ge->SerializeAsString();
+
+    buffer.close();
 }
 
 void
@@ -139,27 +169,43 @@ FSSerializer::fs_read(fs::path path, upnsSharedPointer<GenericEntry> entry)
 upnsSharedPointer<Tree>
 FSSerializer::getTree(const ObjectId &oid)
 {
-    fs::path path( repo_ / fs::path( _PREFIX_CHECKOUTS_ ) / oid);
+    fs::path path( repo_ / _PREFIX_TREE_ / oid);
 
     if ( ! fs::exists( path ) ) {
         return upnsSharedPointer<Tree>(NULL);
     }
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
 
-    return upnsSharedPointer<Tree>(new Tree( entry->tree() ));
+    if ( ge->type() != MessageTree ) {
+        log_error("Tree at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_tree() ) {
+        log_fatal("Tree at: " + path.string() + " is no tree");
+        return upnsSharedPointer<Tree>(NULL);
+    }
+
+    return upnsSharedPointer<Tree>(new Tree( ge->tree() ));
 }
 
 upnsSharedPointer<Tree>
 FSSerializer::getTreeTransient(const ObjectId &transientId)
 {
-    fs::path path = repo_ / fs::path( _PREFIX_CHECKOUTS_ ) /fs::path( transientId ) / fs::path(".tree");
+    fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
 
-    return upnsSharedPointer<Tree>(new Tree( entry->tree() ));
+    if ( ge->type() != MessageTree ) {
+        log_error("Tree at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_tree() ) {
+        log_fatal("Tree at: " + path.string() + " is no tree");
+        return upnsSharedPointer<Tree>(NULL);
+    }
+
+    return upnsSharedPointer<Tree>(new Tree( ge->tree() ));
 }
 
 upnsPair<StatusCode, ObjectId>
@@ -170,23 +216,26 @@ FSSerializer::storeTree(upnsSharedPointer<Tree> &obj)
     fs::path path = repo_ / _PREFIX_TREE_;
     fs_check_create( path );
 
-    fs_write( repo_ / _PREFIX_TREE_ / fs::path(oid), obj->SerializeAsString());
+    path /= fs::path(oid);
 
-    StatusCode s = UPNS_STATUS_OK;
-    return upnsPair<StatusCode, ObjectId>(s, oid);
+    upns::upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_tree()) = *obj;
+    fs_write( path, ge, MessageTree);
+
+    return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, oid);
 }
 
 upnsPair<StatusCode, ObjectId>
 FSSerializer::storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId)
 {
-    fs::path path = repo_ / fs::path( _PREFIX_CHECKOUTS_ ) / fs::path( transientId );
+    fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
 
-    path /= fs::path(".tree");
-    GenericEntry entr;
-    *entr.mutable_tree() = *obj;
-    entr.set_type(MessageTree);
-    fs_write( path, entr.SerializeAsString());
+    path /= _CHECKOUT_GENERIC_ENTRY_;
+
+    upns::upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_tree()) = *obj;
+    fs_write( path, ge, MessageTree, true);
 
     return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, transientId);
 }
@@ -201,34 +250,49 @@ FSSerializer::removeTree(const ObjectId &oid)
 upnsSharedPointer<Entity>
 FSSerializer::getEntity(const ObjectId oid)
 {
-    fs::path path(_PREFIX_ENTITY_ + oid);
+    fs::path path = _PREFIX_ENTITY_ / fs::path(oid);
 
     if ( ! fs::exists( path ) ) {
         return upnsSharedPointer<Entity>(NULL);
     }
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
 
-    return upnsSharedPointer<Entity>(new Entity( entry->entity() ));
-}
-
-upnsSharedPointer<Entity>
-FSSerializer::getEntityTransient(const Path path)
-{
-    //TODO
-    Path pathWithoutSlash = path.substr(0, path.length()- (path[path.length()-1] == '/'));
-
-    fs::path p = repo_ / fs::path(_PREFIX_CHECKOUTS_) / fs::path(pathWithoutSlash);
-
-    if ( ! fs::exists( p.parent_path() ) ) {
+    if ( ge->type() != MessageEntity ) {
+        log_error("Entity at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_entity() ) {
+        log_fatal("Entity at: " + path.string() + " is no entity");
         return upnsSharedPointer<Entity>(NULL);
     }
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(p, entry);
+    return upnsSharedPointer<Entity>(new Entity( ge->entity() ));
+}
 
-    return upnsSharedPointer<Entity>(new Entity( entry->entity() ));
+upnsSharedPointer<Entity>
+FSSerializer::getEntityTransient(const Path oid)
+{
+    Path pathWithoutSlash = oid.substr(0, oid.length()- (oid[oid.length()-1] == '/')); //TODO is that realy needed ???
+
+    fs::path path = objectid_to_checkout_fs_path(pathWithoutSlash) / _CHECKOUT_GENERIC_ENTRY_;
+
+    if ( ! fs::exists( path ) ) {
+        return upnsSharedPointer<Entity>(NULL);
+    }
+
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
+
+    if ( ge->type() != MessageEntity ) {
+        log_error("Entity at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_entity() ) {
+        log_fatal("Entity at: " + path.string() + " is no entity");
+        return upnsSharedPointer<Entity>(NULL);
+    }
+
+    return upnsSharedPointer<Entity>(new Entity( ge->entity() ));
 }
 
 upnsPair<StatusCode, ObjectId>
@@ -240,10 +304,10 @@ FSSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
     fs_check_create( path );
 
     path /= fs::path(oid);
-    GenericEntry entr;
-    *entr.mutable_entity() = *obj;
-    entr.set_type(MessageEntity);
-    fs_write( path, entr.SerializeAsString());
+
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_entity()) = *obj;
+    fs_write( path, ge, MessageEntity);
 
     return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, oid);
 }
@@ -251,12 +315,14 @@ FSSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
 upnsPair<StatusCode, ObjectId>
 FSSerializer::storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId)
 {
-    fs::path path = repo_ / fs::path( _PREFIX_CHECKOUTS_ ) / fs::path( transientId );
+    fs::path path = objectid_to_checkout_fs_path( transientId );
+    fs_check_create( path );
 
-    GenericEntry entr;
-    *entr.mutable_entity() = *obj;
-    entr.set_type(MessageEntity);
-    fs_write( path, entr.SerializeAsString());
+    path /= _CHECKOUT_GENERIC_ENTRY_;
+
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_entity()) = *obj;
+    fs_write( path, ge, MessageEntity, true);
 
     return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_OK, transientId);
 }
@@ -271,16 +337,24 @@ FSSerializer::removeEntity(const ObjectId &oid)
 upnsSharedPointer<Commit>
 FSSerializer::getCommit(const ObjectId &oid)
 {
-    fs::path path(_PREFIX_COMMIT_ + oid);
+    fs::path path = _PREFIX_COMMIT_ / fs::path(oid);
 
     if ( ! fs::exists( path ) ) {
         return upnsSharedPointer<Commit>(NULL);
     }
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
 
-    return upnsSharedPointer<Commit>(new Commit( entry->commit() ));
+    if ( ge->type() != MessageCommit ) {
+        log_error("Commit at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_commit() ) {
+        log_fatal("Commit at: " + path.string() + " is no commit");
+        return upnsSharedPointer<Commit>(NULL);
+    }
+
+    return upnsSharedPointer<Commit>(new Commit( ge->commit() ));
 }
 
 upnsPair<StatusCode, ObjectId>
@@ -301,8 +375,20 @@ FSSerializer::removeCommit(const ObjectId &oid)
 upnsVec<upnsString>
 FSSerializer::listCheckoutNames()
 {
-    //TODO
-    upnsVec<upnsString > ret;
+    fs::path checkouts = repo_ / _PREFIX_CHECKOUTS_;
+    upnsVec<upnsString> ret;
+    if ( ! fs::exists(checkouts) ) {
+        return ret;
+    }
+
+    fs::directory_iterator end_it;
+    fs::directory_iterator it(checkouts);
+    for (; it != end_it; ++it) {
+        if ( fs::is_directory( it->status() ) ) {
+            ret.push_back( it->path().filename().string() );
+        }
+    }
+
     return ret;
 }
 
@@ -317,31 +403,37 @@ FSSerializer::listCheckouts()
 upnsSharedPointer<CheckoutObj>
 FSSerializer::getCheckoutCommit(const upnsString &name)
 {
-    fs::path path(fs::path(repo_) / fs::path(_PREFIX_CHECKOUTS_) / fs::path(name) / fs::path(_FILE_CHECKOUT_));
+    fs::path path = objectid_to_checkout_fs_path(name) / _CHECKOUT_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path ) ) {
         return upnsSharedPointer<CheckoutObj>(NULL);
     }
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
 
-    return upnsSharedPointer<CheckoutObj>(new CheckoutObj( entry->checkout() ));
+    if ( ge->type() != MessageCheckout ) {
+        log_error("Checkout at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_checkout() ) {
+        log_fatal("Checkout at: " + path.string() + " is no checkout");
+        return upnsSharedPointer<CheckoutObj>(NULL);
+    }
+
+    return upnsSharedPointer<CheckoutObj>(new CheckoutObj( ge->checkout() ));
 }
 
 StatusCode
 FSSerializer::storeCheckoutCommit(upnsSharedPointer<CheckoutObj> &obj, const upnsString &name)
 {
-    fs::path path = repo_ / fs::path( _PREFIX_CHECKOUTS_) / fs::path( name );
-
+    fs::path path = objectid_to_checkout_fs_path( name );
     fs_check_create(path);
 
-    path /= fs::path( _FILE_CHECKOUT_ );
+    path /= _CHECKOUT_GENERIC_ENTRY_;
 
-    GenericEntry entr;
-    *entr.mutable_checkout() = *obj;
-    entr.set_type(MessageCheckout);
-    fs_write( path, entr.SerializeAsString());
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_checkout()) = *obj;
+    fs_write( path, ge, MessageCheckout, true);
 
     return UPNS_STATUS_OK;
 }
@@ -349,15 +441,14 @@ FSSerializer::storeCheckoutCommit(upnsSharedPointer<CheckoutObj> &obj, const upn
 StatusCode
 FSSerializer::createCheckoutCommit(upnsSharedPointer<CheckoutObj> &obj, const upnsString &name)
 {
-    fs::path path = repo_ / fs::path(_PREFIX_CHECKOUTS_);
+    fs::path path = objectid_to_checkout_fs_path(name);
     fs_check_create( path );
-    path /= name;
-    fs_check_create( path );
-    path /= _FILE_CHECKOUT_;
-    GenericEntry entr;
-    *entr.mutable_checkout() = *obj;
-    entr.set_type(MessageCheckout);
-    fs_write( path, entr.SerializeAsString());
+
+    path /= _CHECKOUT_GENERIC_ENTRY_;
+
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_checkout()) = *obj;
+    fs_write( path, ge, MessageCheckout);
 
     return UPNS_STATUS_OK;
 }
@@ -372,24 +463,63 @@ FSSerializer::removeCheckoutCommit(const ObjectId &oid)
 upnsVec< upnsSharedPointer<Branch> >
 FSSerializer::listBranches()
 {
-    //TODO
-    upnsVec<upnsSharedPointer<Branch> > ret;
+    fs::path branches = repo_ / _PREFIX_BRANCHES_;
+    upnsVec<upnsSharedPointer<Branch>> ret;
+
+    if ( ! fs::exists(branches) ) {
+        return ret;
+    }
+
+    fs::recursive_directory_iterator end_it;
+    fs::recursive_directory_iterator it(branches);
+    for (; it != end_it; ++it) {
+        if ( fs::is_regular_file( it->status() ) ) {
+            upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+            fs_read(it->path(), ge);
+
+            bool branch_ok = true;
+            if ( ge->type() != MessageBranch ) {
+                log_error("Branch at: " + it->path().string() + " has variable type not set correctly");
+                branch_ok = false;
+            }
+            if ( ! ge->has_branch() ) {
+                log_fatal("Branch at: " + it->path().string() + " is no branch");
+                branch_ok = false;
+            }
+
+            if ( branch_ok ) {
+                upnsSharedPointer<Branch> br( new Branch(ge->branch()) );
+                ret.push_back( br );
+            } else {
+                log_error("Can't load branch \"" + it->path().string() + "\"");
+            }
+        }
+    }
+
     return ret;
 }
 
 upnsSharedPointer<Branch>
 FSSerializer::getBranch(const upnsString &name)
 {
-    fs::path path = repo_ / fs::path(_PREFIX_BRANCHES_) / fs::path(name);
+    fs::path path = repo_ / _PREFIX_BRANCHES_ / fs::path(name);
 
     if ( ! fs::exists( path ) ) {
         return upnsSharedPointer<Branch>(NULL);
     }
 
-    upnsSharedPointer<GenericEntry> entry(new GenericEntry);
-    fs_read(path, entry);
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    fs_read(path, ge);
 
-    return upnsSharedPointer<Branch>(new Branch( entry->branch() ));
+    if ( ge->type() != MessageBranch ) {
+        log_error("Branch at: " + path.string() + " has variable type not set correctly");
+    }
+    if ( ! ge->has_branch() ) {
+        log_fatal("Branch at: " + path.string() + " is no branch");
+        return upnsSharedPointer<Branch>(NULL);
+    }
+
+    return upnsSharedPointer<Branch>(new Branch( ge->branch() ));
 }
 
 StatusCode
@@ -402,7 +532,7 @@ FSSerializer::storeBranch(upnsSharedPointer<Branch> &obj, const upnsString &name
 StatusCode
 FSSerializer::createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name)
 {
-    fs::path path = repo_ / fs::path(_PREFIX_BRANCHES_);
+    fs::path path = repo_ / _PREFIX_BRANCHES_;
     fs_check_create( path );
     path /= name;
 
@@ -410,7 +540,9 @@ FSSerializer::createBranch(upnsSharedPointer<Branch> &obj, const upnsString &nam
         return UPNS_STATUS_BRANCH_ALREADY_EXISTS;
     }
 
-    fs_write(path, obj->SerializeAsString());
+    upnsSharedPointer<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_branch()) = *obj;
+    fs_write(path, ge, MessageBranch);
 
     return UPNS_STATUS_OK;
 }
@@ -426,17 +558,17 @@ upnsSharedPointer<AbstractEntitydataStreamProvider>
 FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
     //TODO: Get entity data by oid. Might be a file with name "entityId" in folder "_PREFIX_ENTITYDATA"?
-    fs::path p = repo_ / fs::path(_PREFIX_ENTITY_) / entityId;
-    std::string fn(p.string());
+    fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(entityId);
+    std::string fn(path.string());
     return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
 }
 
 upnsSharedPointer<AbstractEntitydataStreamProvider>
-FSSerializer::getStreamProviderTransient(const Path &path, bool canRead, bool canWrite)
+FSSerializer::getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite)
 {
     //TODO: Get entity data by path. Might be a file at path "_PREFIX_CHECKOUT" / "path"?
-    fs::path p = repo_ / fs::path(_PREFIX_CHECKOUTS_) / path;
-    std::string fn(p.string() + ".fs_edata");
+    fs::path path = objectid_to_checkout_fs_path(oid) / _CHECKOUT_ENTITY_DATA_;
+    std::string fn( path.string() );
     return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
 }
 
@@ -450,8 +582,51 @@ FSSerializer::cleanUp()
 MessageType
 FSSerializer::typeOfObject(const ObjectId &oidOrName)
 {
-    //TODO
-    return MessageEmpty;
+    fs::path path_prefix = repo_;
+    fs::path path;
+    std::vector<fs::path> places;
+    places.push_back(_PREFIX_COMMIT_);
+    places.push_back(_PREFIX_BRANCHES_);
+    places.push_back(_PREFIX_TREE_);
+    places.push_back(_PREFIX_ENTITY_);
+    places.push_back(_PREFIX_ENTITY_DATA_);
+
+    bool found = false;
+    for (std::vector<fs::path>::iterator it = places.begin();
+         it != places.end();
+         ++it) {
+        path = repo_ / *it / fs::path( oidOrName );
+
+        if ( fs::exists( path ) ) {
+            found = true;
+        }
+    }
+
+    if ( ! found) {
+        log_error("Can't open file to detect type of object " + oidOrName);
+        return MessageEmpty;
+    }
+
+    upnsSharedPointer<GenericEntry> ge (new GenericEntry);
+    fs_read(path, ge);
+
+    return ge->type();
+}
+
+MessageType
+FSSerializer::typeOfObjectTransient(const ObjectId &oidOrName)
+{
+    fs::path path = objectid_to_checkout_fs_path(oidOrName) / _CHECKOUT_GENERIC_ENTRY_;
+
+    if ( ! fs::exists( path) ) {
+        log_warn("Can't open file to detect type of object " + path.string());
+        return MessageEmpty;
+    }
+
+    upnsSharedPointer<GenericEntry> ge (new GenericEntry);
+    fs_read(path, ge);
+
+    return ge->type();
 }
 
 bool

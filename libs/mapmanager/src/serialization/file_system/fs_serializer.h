@@ -7,6 +7,7 @@
 #include "yaml-cpp/yaml.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 
 class QLockFile;
 namespace leveldb {
@@ -26,19 +27,25 @@ namespace upns
   class FSSerializer : public AbstractMapSerializer
   {
   private:
-    static const std::string _PREFIX_MAPIT_;
-    static const std::string _PREFIX_TREE_;
-    static const std::string _PREFIX_ENTITY_;
-    static const std::string _PREFIX_CHECKOUTS_;
-    static const std::string _PREFIX_BRANCHES_;
-    static const std::string _PREFIX_COMMIT_;
+    static const fs::path _PREFIX_MAPIT_;
+    static const fs::path _PREFIX_TREE_;
+    static const fs::path _PREFIX_ENTITY_;
+    static const fs::path _PREFIX_ENTITY_DATA_;
+    static const fs::path _PREFIX_CHECKOUTS_;
+    static const fs::path _PREFIX_BRANCHES_;
+    static const fs::path _PREFIX_COMMIT_;
 
-    static const std::string _FILE_CHECKOUT_;
+//    static const fs::path _FILE_CHECKOUT_;
+    static const fs::path _PREFIX_CHECKOUT_;
+    static const fs::path _CHECKOUT_GENERIC_ENTRY_;
+    static const fs::path _CHECKOUT_ENTITY_DATA_;
+    static const fs::path _CHECKOUT_ROOT_FOLDER_;
   private:
     fs::path repo_;
   private:
+    fs::path objectid_to_checkout_fs_path(ObjectId oid);
     void fs_check_create(fs::path path);
-    void fs_write(fs::path path, std::string value);
+    void fs_write(fs::path path, upns::upnsSharedPointer<GenericEntry> ge, MessageType msgType, bool overwrite = false);
     void fs_read(fs::path path, upnsSharedPointer<GenericEntry> entry);
   public:
 
@@ -56,7 +63,7 @@ namespace upns
     virtual StatusCode removeTree(const ObjectId &oid);
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid);
-    virtual upnsSharedPointer<Entity> getEntityTransient(const Path path);
+    virtual upnsSharedPointer<Entity> getEntityTransient(const Path oid);
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj);
     virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId);
     //virtual StatusCode createEntityTransient(upnsSharedPointer<Entity> &obj);
@@ -81,7 +88,7 @@ namespace upns
     virtual StatusCode removeBranch(const upnsString &name);
 
     virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
-    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead, bool canWrite);
+    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.
@@ -90,6 +97,7 @@ namespace upns
     virtual StatusCode cleanUp();
 
     virtual MessageType typeOfObject(const ObjectId &oidOrName);
+    virtual MessageType typeOfObjectTransient(const ObjectId &oidOrName);
     virtual bool exists(const ObjectId &oidOrName);
 
     virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId);

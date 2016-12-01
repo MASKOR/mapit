@@ -72,6 +72,7 @@ public:
     virtual StatusCode cleanUp();
 
     virtual MessageType typeOfObject(const ObjectId &oidOrName);
+    virtual MessageType typeOfObjectTransient(const ObjectId &oidOrName);
     virtual bool exists(const ObjectId &oidOrName);
 
     virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId);

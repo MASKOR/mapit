@@ -71,15 +71,18 @@ upnsVec<upnsSharedPointer<Conflict> > CheckoutImpl::getPendingConflicts()
 
 upnsSharedPointer<Tree> CheckoutImpl::getRoot()
 {
-    return m_serializer->getTree(m_checkout->rollingcommit().root());
+    return this->getTree(m_checkout->rollingcommit().root());
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
 {
     Path p(preparePath(path));
-    if(p.compare(0, m_name.size(), m_name) == 0)
+    if(p.compare(0, m_name.size(), m_name) == 0) // TODO should I fix it
     {
         p = p.substr(m_name.size(), p.length()-m_name.size());
+        if (p.compare("/") == 0) { // TODO is this the correct workaround???
+            p = "";
+        }
     }
     // Try to get a transient tree
     upnsSharedPointer<Tree> tree = m_serializer->getTreeTransient(m_name + "/" + p);
@@ -104,6 +107,26 @@ upnsSharedPointer<Entity> CheckoutImpl::getEntity(const Path &path)
     // if entity is not transient, get from repo
     ObjectId oid = oidForPath(p);
     return m_serializer->getEntity(oid);
+}
+
+MessageType
+CheckoutImpl::typeOfObject(const Path &path)
+{
+    Path p(preparePath(path));
+    if(p.compare(0, m_name.size(), m_name) == 0) // TODO should I fix it
+    {
+        p = p.substr(m_name.size(), p.length()-m_name.size());
+        if (p.compare("/") == 0) { // TODO is this the correct workaround???
+            p = "";
+        }
+    }
+    // Try to get a transient object
+    MessageType type = m_serializer->typeOfObjectTransient(m_name + "/" + p);
+    if(type != MessageEmpty) return type;
+
+    // if object is not transient, get from repo
+    ObjectId oid = oidForPath(p);
+    return m_serializer->typeOfObject(oid);
 }
 
 upnsSharedPointer<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
@@ -275,7 +298,7 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
     assert(!path.empty());
     Path p = preparePath(path);
     ObjectId oid(m_checkout->rollingcommit().root());
-    upnsSharedPointer<Tree> current = m_serializer->getTree(oid);
+    upnsSharedPointer<Tree> current = this->getTree(oid);
     forEachPathSegment(p,
     [&](upnsString seg, size_t idx, bool isLast)
     {
@@ -284,7 +307,7 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
         oid = oidForChild(current, seg);
         if(oid.empty()) return false; // path invalid
         if(isLast) return false; // we are done
-        current = m_serializer->getTree(oid);
+        current = this->getTree(oid);
         return true; // continue thru path
     },
     [](upnsString seg, size_t idx, bool isLast)
@@ -409,7 +432,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const Obj
     {
         const ObjectId &childoid = iter->second.id();
         const Path &childpath = path + "/" + iter->first;
-        MessageType t = m_serializer->typeOfObject(childoid);
+        MessageType t = this->typeOfObject(childoid);
         if(t == MessageType::MessageCommit)
         {
             upnsSharedPointer<Commit> commit(m_serializer->getCommit(childoid));
@@ -418,13 +441,13 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const Obj
         }
         else if(t == MessageType::MessageTree)
         {
-            upnsSharedPointer<Tree> tree(m_serializer->getTree(childoid));
+            upnsSharedPointer<Tree> tree(this->getTree(childoid));
             StatusCode s = depthFirstSearch(tree, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!upnsIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
-            upnsSharedPointer<Entity> entity(m_serializer->getEntity(childoid));
+            upnsSharedPointer<Entity> entity(this->getEntity(childoid));
             StatusCode s = depthFirstSearch(entity, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!upnsIsOk(s)) return s;
         }
@@ -434,7 +457,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Tree> obj, const Obj
         }
         iter++;
     }
-    if(!afterTree(obj, oid, path)) return UPNS_STATUS_OK;
+    if(!afterTree(obj, oid, path)) return UPNS_STATUS_OK; //TODO: what is happening here?
     return UPNS_STATUS_OK;
 }
 
@@ -449,7 +472,7 @@ StatusCode CheckoutImpl::depthFirstSearch(upnsSharedPointer<Commit> obj, const O
         afterCommit(obj, oid, path);
         return UPNS_STATUS_OK;
     }
-    upnsSharedPointer<Tree> tree(m_serializer->getTree(obj->root()));
+    upnsSharedPointer<Tree> tree(this->getTree(obj->root()));
     if( !obj->root().empty() )
     {
         StatusCode s = depthFirstSearch(tree, obj->root(), "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);

@@ -37,9 +37,11 @@ static upns::AbstractMapSerializer *initializeSerializer(const YAML::Node &confi
     // Note: There might be commits or objects which are not recognized here.
     // TODO: forbid to delete last branch for this to work. Checkouts might all be deleted.
     size_t numElems = mser->listBranches().size();
+
     if(numElems) return mser;
 //        numElems = m_serializer->listCheckoutNames().size();
 //        if(numElems) return;
+    log_warn("Selected empty repository, create master");
     upns::upnsSharedPointer<upns::Branch> master(new upns::Branch());
     master->set_commitid(""); //< InitialCommit
     mser->createBranch(master, "master");
