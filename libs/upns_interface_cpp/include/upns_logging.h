@@ -8,8 +8,8 @@
   #include <log4cplus/loggingmacros.h>
 
   #ifdef UPNS_DEBUG
-    #define log_fatal(msg) do{LOG4CPLUS_FATAL(log4cplus::Logger::getInstance("main"), std::string() + msg); assert(false); break;}while(true)
-    #define log_error(msg) do{LOG4CPLUS_ERROR(log4cplus::Logger::getInstance("main"), std::string() + msg); assert(false); break;}while(true)
+    #define log_fatal(msg) do{LOG4CPLUS_FATAL(log4cplus::Logger::getInstance("main"), std::string() + "\033[41m" + msg + "\033[0m"); assert(false); break;}while(true)
+    #define log_error(msg) do{LOG4CPLUS_ERROR(log4cplus::Logger::getInstance("main"), std::string() + "\033[1;31m" + msg + "\033[0m"); assert(false); break;}while(true)
     #if defined(_MSC_VER) // Microsoft compiler
       #define log_warn(msg) LOG4CPLUS_WARN(log4cplus::Logger::getInstance("main"), std::string() + msg)
       #define log_info(msg) LOG4CPLUS_INFO(log4cplus::Logger::getInstance("main"), std::string() + msg)
