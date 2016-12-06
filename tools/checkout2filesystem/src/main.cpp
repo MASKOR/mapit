@@ -36,9 +36,10 @@ int main(int argc, char *argv[])
     po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
     if(vars.count("help"))
     {
-        std::cout << "usage:\n " << argv[0] << " <config file> <checkout name> <destination>" << std::endl;
+        std::cout << program_options_desc << std::endl;
         return 1;
     }
+    po::notify(vars);
     po::notify(vars);
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
@@ -58,10 +59,10 @@ int main(int argc, char *argv[])
     }
 
     upns::upnsSharedPointer<upns::Tree> currentDirectory(co->getRoot());
-    fs::path rootPath(argv[3]);
-    if ( rootPath.filename() != argv[2] ) {
+    fs::path rootPath(vars["destination"].as<std::string>());
+    if ( rootPath.leaf() != vars["checkout"].as<std::string>() ) {
         // otherwise, use subfolder with checkout name
-        rootPath /= fs::path( argv[2] );
+        rootPath /= fs::path( vars["checkout"].as<std::string>() );
     }
 
     upns::StatusCode s = co->depthFirstSearch([&](
