@@ -302,7 +302,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
             transOid = m_name + "/" + p.substr(0, idx);
             upnsPair<StatusCode, ObjectId> soid = m_serializer->storeTreeTransient(current, transOid);
             transOid = soid.second;
-            if(!upnsIsOk(soid.first)) return false; // must never happen. leads to inconsistent data. TODO: rollback
+            if(!upnsIsOk(soid.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
             if(exclusiveTreePath.empty())
             {
                 assert(idx == 0);

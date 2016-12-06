@@ -83,7 +83,8 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::createCheckout(const
 {
     std::unique_ptr<upns::RequestCheckout> req(new upns::RequestCheckout);
     req->set_checkout(name);
-    req->set_commit(commitIdOrBranchname);
+    req->add_commit(commitIdOrBranchname);
+    req->set_createifnotexists(true);
     m_d->send(std::move(req));
     upns::upnsSharedPointer<upns::ReplyCheckout> rep(m_d->receive<upns::ReplyCheckout>());
     if(rep->status() == upns::ReplyCheckout::SUCCESS ||
@@ -101,6 +102,12 @@ upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::createCheckout(const
 upns::upnsSharedPointer<upns::Checkout> upns::ZmqRequester::getCheckout(const upns::upnsString &checkoutName)
 {
     //TODO: No error checking here at the time. It is possible, that the returned checkout does simply not exist.
+    if(!m_d->m_operationsLocal)
+    {
+        // make sure remote repository is in sync with local
+        // operator later must be able to compute locally without requests to client
+        // TODO:
+    }
     return upns::upnsSharedPointer<upns::Checkout>(new upns::ZmqRequesterCheckout( checkoutName, m_d, nullptr, m_d->m_operationsLocal ));
 }
 

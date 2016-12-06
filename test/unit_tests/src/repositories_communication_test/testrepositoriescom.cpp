@@ -45,7 +45,7 @@ void TestRepositoriesCommunication::initTestCase()
     pid_t pid = fork();
     if (pid == 0)
     {
-        // you are the server now
+        // you are the server now (child process)
         chdir("./serverdirectory");
         while(true)
         {
@@ -71,6 +71,7 @@ void TestRepositoriesCommunication::initTestCase()
     }
     else
     {
+        // this is the client (parent process). This runs all tests, while server will loop and skip tests.
         QFile out1(FILENAME_OUT1);
         QFile out2(FILENAME_OUT1);
         QFile out3(FILENAME_OUT1);

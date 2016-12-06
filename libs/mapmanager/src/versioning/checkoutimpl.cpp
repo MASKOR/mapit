@@ -89,7 +89,7 @@ upnsSharedPointer<Tree> CheckoutImpl::getTree(const Path &path)
     if(tree) return tree;
 
     // if tree is not transient, get from repo
-    ObjectId oid = oidForPath(p);
+    ObjectId oid = oidForPath(m_name + "/" + p);
     return m_serializer->getTree(oid);
 }
 
@@ -298,6 +298,7 @@ ObjectId CheckoutImpl::oidForPath(const Path &path)
     assert(!path.empty());
     Path p = preparePath(path);
     ObjectId oid(m_checkout->rollingcommit().root());
+    if(oid.empty()) return "";
     upnsSharedPointer<Tree> current = this->getTree(oid);
     forEachPathSegment(p,
     [&](upnsString seg, size_t idx, bool isLast)

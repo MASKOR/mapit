@@ -135,6 +135,7 @@ upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
 {
+    // TODO: this breaks req/resp pattern!
     if(m_operationsLocal)
     {
         //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
@@ -211,6 +212,7 @@ upns::OperationResult upns::ZmqRequesterCheckout::doUntraceableOperation(const u
 {
     upns::OperationEnvironmentImpl env( desc );
     env.setCheckout( this );
+    // TODO: this breaks req/resp pattern!
     upns::StatusCode status = operate( &env );
     OperationResult res(status, env.outputDescription());
     return res;

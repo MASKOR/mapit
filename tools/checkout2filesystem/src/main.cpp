@@ -2,7 +2,7 @@
 #include "upns.h"
 #include "services.pb.h"
 #include "versioning/repository.h"
-#include "versioning/repositoryfactory.h"
+#include "versioning/repositoryfactorystandard.h"
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <yaml-cpp/yaml.h>
@@ -10,9 +10,12 @@
 #include <log4cplus/consoleappender.h>
 #include <fstream>
 #include <sstream>
+#include <boost/program_options.hpp>
 
 namespace fs = boost::filesystem;
 namespace iostr = boost::iostreams;
+
+namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {

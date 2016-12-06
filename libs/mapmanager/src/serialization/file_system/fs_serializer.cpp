@@ -194,6 +194,10 @@ FSSerializer::getTreeTransient(const ObjectId &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
 
+    if ( ! fs::exists( path ) ) {
+        return upnsSharedPointer<Tree>(NULL);
+    }
+
     upnsSharedPointer<GenericEntry> ge(new GenericEntry);
     fs_read(path, ge);
 

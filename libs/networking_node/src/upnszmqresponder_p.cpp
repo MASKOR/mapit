@@ -62,11 +62,21 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
-        co = m_repo->createCheckout(msg->commit(), msg->checkout());
-        if( co == NULL )
+        if(msg->createifnotexists())
         {
-            log_error("Could not get checkout \"" + msg->checkout() + "\"");
-            ptr->set_status( upns::ReplyCheckout::ERROR );
+            //TODO: handle multiple commits for merge
+            CommitId commit = msg->commit_size() == 0 ? "" : msg->commit(0);
+            co = m_repo->createCheckout(commit, msg->checkout());
+            if( co == NULL )
+            {
+                log_error("Could not get checkout \"" + msg->checkout() + "\"");
+                ptr->set_status( upns::ReplyCheckout::ERROR );
+            }
+            else
+            {
+                *ptr->mutable_commit() = msg->commit();
+                ptr->set_status( upns::ReplyCheckout::SUCCESS );
+            }
         }
         else
         {
@@ -75,6 +85,11 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
     }
     else
     {
+        upnsVec<CommitId> ids(co->getParentCommitIds());
+        for(upnsVec<CommitId>::const_iterator citer(ids.cbegin()); citer != ids.cend() ; ++citer)
+        {
+            ptr->add_commit( *citer );
+        }
         ptr->set_status( upns::ReplyCheckout::EXISTED );
     }
     send( std::move( ptr ) );
@@ -267,8 +282,6 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
     rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
     send( std::move( rep ) );
 }
-
-#include <iomanip>
 
 void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {

@@ -37,7 +37,7 @@ endif(WIN32)
 find_package(Boost COMPONENTS iostreams REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} Qt5::Core upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Qt5::Core standard_repository_factory upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${Boost_LIBRARIES})
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
