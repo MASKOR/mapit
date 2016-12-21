@@ -209,12 +209,12 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
             {
                 upns::ReplyHierarchyLayer treeLevel1;
                 //Path layerPath( cmap->first + "/" + clayer->first );
-                upnsSharedPointer<Tree> layer = m_repo->getTree( clayer->second.id() );
+                upnsSharedPointer<Tree> layer = co->getTree( clayer->second.id() );
                 for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cent( layer->refs().cbegin() );
                     cent != layer->refs().cend();
                     ++cent)
                 {
-                    upnsSharedPointer<Entity> ent = m_repo->getEntity( cent->second.id() );
+                    upnsSharedPointer<Entity> ent = co->getEntity( cent->second.id() );
                     if(ent)
                     {
                         treeLevel1.mutable_entities()->insert(::google::protobuf::MapPair< ::std::string, ::upns::LayerType>( cent->first, ent->type()));

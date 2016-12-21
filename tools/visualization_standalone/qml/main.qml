@@ -343,7 +343,7 @@ QCtl.ApplicationWindow {
                                     checkout: checkout
                                     path: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""// "corridor/lidar/pc1"
                                     onPathChanged: {
-                                        //pointcloud.
+                                        console.log("Path of current entity: " + path)
                                     }
                                 }
                             }

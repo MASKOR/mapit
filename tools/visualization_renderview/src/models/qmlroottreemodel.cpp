@@ -55,8 +55,9 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
         QStandardItem *csi = new QStandardItem();
         csi->setData(*iter, Qt::DisplayRole);
         csi->setData(childFullPath, Qt::ToolTipRole);
-        QString oid(tr->oidOfRef(*iter));
-        QmlTree *tree = m_root->getTree(oid);
+        //QString oid(tr->oidOfRef(*iter));
+        //QmlTree *tree = m_root->getTree(oid); //Note: oid is sometimes empty if object is transient. Why? TODO: specify path/oid correctly!
+        QmlTree *tree = m_root->getTree(childFullPath);
         if(tree != nullptr && tree->isValid())
         {
             csi->setData(QmlRootTreeModel::TreeNode, NodeTypeRole);
