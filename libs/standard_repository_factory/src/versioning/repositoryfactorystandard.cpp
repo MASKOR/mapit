@@ -132,7 +132,7 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program
     }
     else if(vars.count("url"))
     {
-        return RepositoryNetworkingFactory::connectToRemoteRepository(vars["url"].as<std::string>(), nullptr, vars.count("compute-local"));
+        return RepositoryNetworkingFactory::connectToRemoteRepository(vars["url"].as<std::string>(), nullptr, vars["compute-local"].as<bool>());
     }
     else if(!mapsource.IsNull() && mapsource.IsDefined())
     {
