@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 2.8)
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
+
+find_package(Boost COMPONENTS program_options REQUIRED)
+
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
 
 if(WIN32)
@@ -30,7 +33,11 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin
+)
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs

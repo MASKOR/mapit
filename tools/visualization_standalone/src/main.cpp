@@ -40,90 +40,43 @@
 #include "qpointfield.h"
 #include "bindings/qmlentitydatarenderer.h"
 #include "models/qmlroottreemodel.h"
-#include "versioning/repositoryfactory.h"
+#include "versioning/repositoryfactorystandard.h"
 
 #include "services.pb.h"
 #include "upns_errorcodes.h"
 
-void createExampleRepo()
-{
-//    YAML::Node config = YAML::Load("mapsource:"
-//                                   " name: FileSystem"
-//                                   " filename: ../test.db");
-    YAML::Node config = YAML::LoadFile("./repo.yaml");
-    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactory::openLocalRepository( config ) );
+#include <boost/program_options.hpp>
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo->createCheckout("master", "testcheckout");
-    if(co == NULL)
-    {
-        co = repo->getCheckout("testcheckout");
-        if(co == NULL)
-        {
-            std::cout << "could not create examole checkout." << std::endl;
-            return;
-        }
-    }
-    upns::OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
-    desc.set_params("{\"filename\":\"data/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}");
-    log_info("Executing load_pointcloud");
-    upns::OperationResult res = co->doOperation(desc);
-    if(upnsIsOk(res.first))
-    {
-        std::cout << "success." << std::endl;
-    }
-    else
-    {
-        std::cout << "failed to execute operator." << std::endl;
-    }
-    desc.set_operatorname("load_pointcloud");
-    desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
-    log_info("Executing load_pointcloud");
-    upns::OperationResult res2 = co->doOperation(desc);
-    if(upnsIsOk(res2.first))
-    {
-        std::cout << "success." << std::endl;
-    }
-    else
-    {
-        std::cout << "failed to execute operator." << std::endl;
-    }
-    desc.set_operatorname("load_pointcloud");
-    desc.set_params("{\"filename\":\"data/all.txt.pcd\", \"target\":\"berg/laser/eins1\"}");
-    log_info("Executing load_pointcloud");
-    res = co->doOperation(desc);
-    if(upnsIsOk(res.first))
-    {
-        std::cout << "success." << std::endl;
-    }
-    else
-    {
-        std::cout << "failed to execute operator." << std::endl;
-    }
-    desc.set_operatorname("centroid_to_origin");
-    desc.set_params("{\"target\":\"berg/laser/eins1\"}");
-    log_info("Executing load_pointcloud");
-    res = co->doOperation(desc);
-    if(upnsIsOk(res.first))
-    {
-        std::cout << "success." << std::endl;
-    }
-    else
-    {
-        std::cout << "failed to execute operator." << std::endl;
-    }
-
-}
+namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
-    log4cplus::PropertyConfigurator config("logging.properties");
-    config.configure();
+    log4cplus::BasicConfigurator logconfig;
+    logconfig.configure();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
 
-    createExampleRepo();
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + "");
+    program_options_desc.add_options()
+            ("help,h", "print usage");
 
+    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    po::variables_map vars;
+    po::store(po::command_line_parser(argc, argv).options(program_options_desc).run(), vars);
+    if(vars.count("help"))
+    {
+        std::cout << program_options_desc << std::endl;
+        return 1;
+    }
+    po::notify(vars);
+
+    upns::upnsSharedPointer<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+
+    if(repo == nullptr)
+    {
+        log_error("Could not load Repository.");
+        return 1;
+    }
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
     qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
@@ -131,7 +84,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
     //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
 
-    qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
+    qmlRegisterUncreatableType<QmlRepository>("fhac.upns", 1, 0, "Repository", "Not yet implemented. Uses RAII and must be wrapped to set all program_options for repo. Use global \"globalRepository\" for now.");
+    //qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
     qmlRegisterType<QmlCheckout>("fhac.upns", 1, 0, "Checkout");
     qmlRegisterType<QmlCommit>("fhac.upns", 1, 0, "Commit");
     qmlRegisterType<QmlTree>("fhac.upns", 1, 0, "Tree");
@@ -148,9 +102,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
     qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
     QQmlApplicationEngine engine;
-    QmlRepository *exampleRepo = new QmlRepository(engine.rootContext());
-    exampleRepo->setConf("./repo.yaml");
-    engine.rootContext()->setContextProperty("exampleRepo", exampleRepo);
+    QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
+    engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     int result = app.exec();

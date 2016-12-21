@@ -1,7 +1,8 @@
 #include "bindings/qmlentitydata.h"
 
-QmlEntitydata::QmlEntitydata()
-    :m_entitydata( NULL ),
+QmlEntitydata::QmlEntitydata(QObject *parent)
+    :QObject(parent),
+     m_entitydata( NULL ),
      m_checkout( NULL ),
      m_path( "" )
 {

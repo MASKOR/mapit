@@ -46,14 +46,14 @@ void QmlCheckout::setConflictSolved(QString path, QString oid)
 
 QmlTree *QmlCheckout::getRoot()
 {
-    if(!m_checkout) return new QmlTree();
+    if(!m_checkout) return new QmlTree(this);
     upns::upnsSharedPointer<upns::Tree> tree(m_checkout->getRoot());
     return new QmlTree(tree);
 }
 
 QmlTree *QmlCheckout::getTreeConflict(QString objectId)
 {
-    if(!m_checkout) return new QmlTree();
+    if(!m_checkout) return new QmlTree(this);
     upns::upnsString p = objectId.toStdString();
     upns::upnsSharedPointer<upns::Tree> tree(m_checkout->getTreeConflict(p));
     return new QmlTree(tree);
@@ -61,7 +61,7 @@ QmlTree *QmlCheckout::getTreeConflict(QString objectId)
 
 QmlEntity *QmlCheckout::getEntityConflict(QString objectId)
 {
-    if(!m_checkout) return new QmlEntity();
+    if(!m_checkout) return new QmlEntity(this);
     upns::upnsString p = objectId.toStdString();
     upns::upnsSharedPointer<upns::Entity> ent(m_checkout->getEntityConflict(p));
     return new QmlEntity(ent);
@@ -69,7 +69,7 @@ QmlEntity *QmlCheckout::getEntityConflict(QString objectId)
 
 QmlTree *QmlCheckout::getTree(QString path)
 {
-    if(!m_checkout) return new QmlTree();
+    if(!m_checkout) return new QmlTree(this);
     upns::upnsString p = path.toStdString();
     upns::upnsSharedPointer<upns::Tree> tree(m_checkout->getTree(p));
     return new QmlTree(tree);
@@ -77,7 +77,7 @@ QmlTree *QmlCheckout::getTree(QString path)
 
 QmlEntity *QmlCheckout::getEntity(QString path)
 {
-    if(!m_checkout) return new QmlEntity();
+    if(!m_checkout) return new QmlEntity(this);
     upns::upnsString p = path.toStdString();
     upns::upnsSharedPointer<upns::Entity> ent(m_checkout->getEntity(p));
     return new QmlEntity(ent);
@@ -85,7 +85,7 @@ QmlEntity *QmlCheckout::getEntity(QString path)
 
 QmlBranch *QmlCheckout::getParentBranch()
 {
-    if(!m_checkout) return new QmlBranch();
+    if(!m_checkout) return new QmlBranch(this);
     upns::upnsSharedPointer<upns::Branch> br(m_checkout->getParentBranch());
     return new QmlBranch(br);
 }
@@ -105,7 +105,7 @@ QStringList QmlCheckout::getParentCommitIds()
 
 QmlEntitydata *QmlCheckout::getEntitydataReadOnly(QString path)
 {
-    if(!m_checkout) return new QmlEntitydata();
+    if(!m_checkout) return new QmlEntitydata(this);
     upns::upnsString p = path.toStdString();
     upns::upnsSharedPointer<upns::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnly(p));
     return new QmlEntitydata(ent, this, path);
@@ -113,7 +113,7 @@ QmlEntitydata *QmlCheckout::getEntitydataReadOnly(QString path)
 
 QmlEntitydata *QmlCheckout::getEntitydataReadOnlyConflict(QString entityId)
 {
-    if(!m_checkout) return new QmlEntitydata();
+    if(!m_checkout) return new QmlEntitydata(this);
     upns::upnsString oid = entityId.toStdString();
     upns::upnsSharedPointer<upns::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
     return new QmlEntitydata(ent, this);

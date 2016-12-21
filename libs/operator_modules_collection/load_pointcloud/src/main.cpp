@@ -8,7 +8,7 @@
 #include <pcl/point_types.h>
 #include <memory>
 #include "upns_errorcodes.h"
-#include "param.pb.h"
+//#include "param.pb.h"
 #include "json11.hpp"
 
 bool field_present(const std::string& name, const  std::vector<pcl::PCLPointField>& flist){
@@ -40,7 +40,7 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
 
     if ( ! jsonErr.empty() ) {
-        // can't parth json
+        // can't parse json
         // TODO: good error msg
         return UPNS_STATUS_INVALID_ARGUMENT;
     }

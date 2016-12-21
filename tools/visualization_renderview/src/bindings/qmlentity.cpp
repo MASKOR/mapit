@@ -2,8 +2,8 @@
 #include "upns.h"
 #include "libs/upns_interface/services.pb.h"
 
-QmlEntity::QmlEntity()
-    :m_entity( nullptr )
+QmlEntity::QmlEntity(QObject *parent)
+    :QObject(parent),m_entity( nullptr )
 {
 
 }

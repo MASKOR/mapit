@@ -2,7 +2,9 @@ project(commit)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(Protobuf)
-INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
 
@@ -28,6 +30,10 @@ if(WIN32)
 else(WIN32)
     set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
 endif(WIN32)
+
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin
+)
 
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs

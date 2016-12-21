@@ -1,7 +1,7 @@
 #include "qmlbranch.h"
 
-QmlBranch::QmlBranch()
-    :m_branch( nullptr )
+QmlBranch::QmlBranch(QObject *parent)
+    :QObject(parent), m_branch( nullptr )
 {
 
 }

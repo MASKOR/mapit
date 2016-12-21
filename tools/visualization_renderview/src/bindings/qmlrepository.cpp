@@ -2,15 +2,23 @@
 #include "versioning/repositoryfactory.h"
 #include "upns_errorcodes.h"
 
-QmlRepository::QmlRepository()
+QmlRepository::QmlRepository(upns::upnsSharedPointer<upns::Repository> repo)
+    :QmlRepository(repo, nullptr)
 {
-
 }
 
-QmlRepository::QmlRepository(QObject *parent)
+QmlRepository::QmlRepository(upns::upnsSharedPointer<upns::Repository> repo, QObject *parent)
     :QObject( parent )
 {
-
+    m_repository = repo;
+    m_checkoutNames.clear();
+    upns::upnsVec<upns::upnsString> coNames(m_repository->listCheckoutNames());
+    for(upns::upnsVec<upns::upnsString>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
+    {
+        m_checkoutNames.append(QString::fromStdString(*iter));
+    }
+    Q_EMIT checkoutNamesChanged( m_checkoutNames );
+    Q_EMIT internalRepositoryChanged( this );
 }
 
 QStringList QmlRepository::listCheckoutNames() const
@@ -184,29 +192,7 @@ bool QmlRepository::canWrite()
     return true;
 }
 
-void QmlRepository::setConf(QString conf)
-{
-    if (m_conf == conf)
-        return;
-    m_conf = conf;
-    m_repository = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf.toStdString()));
-    m_checkoutNames.clear();
-    upns::upnsVec<upns::upnsString> coNames(m_repository->listCheckoutNames());
-    for(upns::upnsVec<upns::upnsString>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
-    {
-        m_checkoutNames.append(QString::fromStdString(*iter));
-    }
-    Q_EMIT checkoutNamesChanged( m_checkoutNames );
-    Q_EMIT confChanged( conf );
-    Q_EMIT internalRepositoryChanged( this );
-}
-
 upns::upnsSharedPointer<upns::Repository> QmlRepository::getRepository()
 {
     return m_repository;
-}
-
-QString QmlRepository::conf() const
-{
-    return m_conf;
 }

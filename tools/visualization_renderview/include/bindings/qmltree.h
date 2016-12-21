@@ -11,8 +11,8 @@ class QmlTree : public QObject
     Q_OBJECT
 
 public:
-    QmlTree();
-    QmlTree(upns::upnsSharedPointer<upns::Tree> &tree);
+    QmlTree(QObject *parent = nullptr);
+    QmlTree(upns::upnsSharedPointer<upns::Tree> &tree, QObject *parent = nullptr);
 
     Q_INVOKABLE QStringList getRefs();
     Q_INVOKABLE QString oidOfRef(QString name);

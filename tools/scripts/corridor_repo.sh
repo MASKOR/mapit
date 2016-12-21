@@ -1,5 +1,6 @@
 #!/bin/sh
-./checkout_create repo.yaml testcheckout2 master
-./execute_operator repo.yaml testcheckout2 load_pointcloud "{\"filename\":\"$HOME/pointclouds/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}"
-./execute_operator repo.yaml testcheckout2 normalestimation '{"radius":0.2, "target":"corridor/laser/eins"}'
-./checkout2filesystem repo.yaml testcheckout2 ./export
+./checkout_create --yaml repo.yaml testcheckout master
+./execute_operator --yaml repo.yaml testcheckout load_pointcloud "{\"filename\":\"$HOME/develop/upns_software/tools/Qt3DPointcloudRenderer/example/data/bunny.pcd\", \"target\":\"corridor/laser/eins\"}"
+#./execute_operator repo.yaml testcheckout copy '{"source":"corridor/laser/eins", "target":"corridor/laser/zwei"}'
+./execute_operator --yaml repo.yaml testcheckout normalestimation '{"radius":0.09, "target":"corridor/laser/eins"}'
+./checkout2filesystem --yaml repo.yaml testcheckout ./export

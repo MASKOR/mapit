@@ -202,7 +202,8 @@ FSSerializer::getTreeTransient(const ObjectId &transientId)
     fs_read(path, ge);
 
     if ( ge->type() != MessageTree ) {
-        log_error("Tree at: " + path.string() + " has variable type not set correctly");
+        //log_warn("Tree at: " + path.string() + " has variable type not set correctly");
+        return upnsSharedPointer<Tree>(NULL);
     }
     if ( ! ge->has_tree() ) {
         log_fatal("Tree at: " + path.string() + " is no tree");

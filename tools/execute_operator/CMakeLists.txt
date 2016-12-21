@@ -37,6 +37,10 @@ else(WIN32)
 endif(WIN32)
 
 execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin
+)
+
+execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/data
 )
 execute_process(

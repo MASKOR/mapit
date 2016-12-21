@@ -31,7 +31,7 @@ QCtl.ApplicationWindow {
 //    }
     UPNS.Checkout {
         id: checkout
-        repository: exampleRepo//repo
+        repository: globalRepository
         name: "testcheckout"
     }
 
@@ -72,7 +72,7 @@ QCtl.ApplicationWindow {
                         ListView {
                             id: checkoutList
                             delegate: Text {
-                                    text: exampleRepo.checkoutNames[index]
+                                    text: globalRepository.checkoutNames[index]
                                     color: palette.text
                                     MouseArea {
                                         anchors.fill: parent
@@ -80,7 +80,7 @@ QCtl.ApplicationWindow {
                                     }
                                 }
 
-                            model: exampleRepo.checkoutNames
+                            model: globalRepository.checkoutNames
                             highlight: Rectangle { color: palette.highlight }
 
                             Layout.fillWidth: true
@@ -135,7 +135,7 @@ QCtl.ApplicationWindow {
                                         enabled: branchnameTextedit.text.trim().length !== 0
                                                  && checkoutnameTextedit.text.trim().length !== 0
                                         onClicked: {
-                                            exampleRepo.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
+                                            globalRepository.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
                                             newCheckoutDialog.visible = false
                                         }
                                         Layout.column: 1
@@ -153,7 +153,7 @@ QCtl.ApplicationWindow {
                             QCtl.Button {
                                 text: "Ok"
                                 onClicked: {
-                                    checkout.name = exampleRepo.checkoutNames[checkoutList.currentIndex];
+                                    checkout.name = globalRepository.checkoutNames[checkoutList.currentIndex];
                                     chooseCheckoutDialog.visible = false;
                                 }
                             }

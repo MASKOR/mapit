@@ -14,7 +14,7 @@ class QmlEntitydata : public QObject
     Q_PROPERTY(QmlCheckout* checkout READ checkout WRITE setCheckout NOTIFY checkoutChanged)
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
 public:
-    QmlEntitydata();
+    QmlEntitydata(QObject *parent = nullptr);
     QmlEntitydata(upns::upnsSharedPointer<upns::AbstractEntitydata> &entitydata, QmlCheckout* co, QString path = "");
     upns::upnsSharedPointer<upns::AbstractEntitydata> getEntitydata() { return m_entitydata; }
 

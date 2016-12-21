@@ -44,6 +44,8 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
 {
     if(si)
     {
+        QVariant oldTree = si->data(Qt::UserRole);
+        if(oldTree.value<QmlTree*>() != nullptr) oldTree.value<QmlTree*>()->deleteLater();
         si->setData(QVariant::fromValue(tr), Qt::UserRole);
     }
     QStringList children(tr->getRefs());

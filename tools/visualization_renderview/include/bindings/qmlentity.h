@@ -9,7 +9,7 @@ class QmlEntity : public QObject
 {
     Q_OBJECT
 public:
-    QmlEntity();
+    QmlEntity(QObject *parent = nullptr);
     QmlEntity(upns::upnsSharedPointer<upns::Entity> &obj);
 
     Q_INVOKABLE bool isValid() const;

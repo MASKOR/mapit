@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     log4cplus::BasicConfigurator logconfig;
     logconfig.configure();
 
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + "<checkout name> <destination>");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name> <destination>");
     program_options_desc.add_options()
             ("help,h", "print usage")
             ("checkout,co", po::value<std::string>()->required(), "")
@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
         std::cout << program_options_desc << std::endl;
         return 1;
     }
-    po::notify(vars);
     po::notify(vars);
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );

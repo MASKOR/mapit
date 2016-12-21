@@ -9,7 +9,7 @@ class QmlBranch : public QObject
 {
     Q_OBJECT
 public:
-    QmlBranch();
+    QmlBranch(QObject *parent = nullptr);
     QmlBranch(upns::upnsSharedPointer<upns::Branch> &branch );
 
 protected:

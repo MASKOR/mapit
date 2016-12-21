@@ -17,11 +17,10 @@ class QmlRepository : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList checkoutNames READ checkoutNames NOTIFY checkoutNamesChanged)
-    Q_PROPERTY(QString conf READ conf WRITE setConf NOTIFY confChanged)
 
 public:
-    QmlRepository();
-    QmlRepository(QObject *parent);
+    QmlRepository(upns::upnsSharedPointer<upns::Repository> repo);
+    QmlRepository(upns::upnsSharedPointer<upns::Repository> repo, QObject *parent);
     Q_INVOKABLE QmlTree* getTree(QString oid);
     Q_INVOKABLE QmlEntity* getEntity(QString oid);
     Q_INVOKABLE QmlCommit* getCommit(QString oid);
@@ -96,8 +95,6 @@ public:
     Q_INVOKABLE bool canRead();
     Q_INVOKABLE bool canWrite();
 
-    QString conf() const;
-
     Q_INVOKABLE QStringList listCheckoutNames() const;
 
     QStringList checkoutNames() const
@@ -106,12 +103,9 @@ public:
     }
 
 public Q_SLOTS:
-    void setConf(QString conf);
     upns::upnsSharedPointer<upns::Repository> getRepository();
 
 Q_SIGNALS:
-    void confChanged(QString conf);
-
     void checkoutNamesChanged(QStringList checkoutNames);
 
     void internalRepositoryChanged(QmlRepository* repo);
@@ -119,7 +113,6 @@ protected:
     upns::upnsSharedPointer<upns::Repository> m_repository;
 
 private:
-    QString m_conf;
     QStringList m_checkoutNames;
 };
 

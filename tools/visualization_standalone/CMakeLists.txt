@@ -15,6 +15,8 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
+find_package(Boost COMPONENTS program_options REQUIRED)
+
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
@@ -104,7 +106,7 @@ endif(WIN32)
 
 qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
-target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager upns_interface_cpp Qt3DPointcloudRenderer layertype_tf ${YAML_CPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager upns_interface_cpp standard_repository_factory Qt3DPointcloudRenderer layertype_tf ${YAML_CPP_LIBRARIES})
 
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
@@ -123,52 +125,39 @@ if(WIN32)
     # mklink /D resources ..\..\..\upns_software\resources
     # mklink logging.properties ..\..\..\upns_software\logging.properties
 
-#    STRING(REGEX REPLACE "/" "\\\\" BINARY_PATH_SHITTY_WINDOWS ${CMAKE_BINARY_DIR})
-#    STRING(REGEX REPLACE "/" "\\\\" UPNS_ROOT_DIR_SHITTY_WINDOWS ${UPNS_ROOT_DIR})
-#    execute_process(COMMAND CMD /c echo /D "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\data" "${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\data")
-#    execute_process(COMMAND CMD /c mklink /D "\"${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\data\"" "\"${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\data\"")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\libs" "${BINARY_PATH_SHITTY_WINDOWS}\\libs")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\resources" "${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\resources")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\operator_modules" "${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\libs\\operator_modules")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\layertypes_collection" "${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\libs\\layertypes_collection")
-#    execute_process(COMMAND CMD /c mklink    "${BINARY_PATH_SHITTY_WINDOWS}\\tools\\visualization_standalone\\logging.properties" "${UPNS_ROOT_DIR_SHITTY_WINDOWS}\\logging.properties")
+#    STRING(REGEX REPLACE "/" "\\\\" BINARY_PATH_TMP_WINDOWS ${CMAKE_BINARY_DIR})
+#    STRING(REGEX REPLACE "/" "\\\\" UPNS_ROOT_DIR_TMP_WINDOWS ${UPNS_ROOT_DIR})
+#    execute_process(COMMAND CMD /c echo /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\data")
+#    execute_process(COMMAND CMD /c mklink /D "\"${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data\"" "\"${UPNS_ROOT_DIR_TMP_WINDOWS}\\data\"")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\libs" "${BINARY_PATH_TMP_WINDOWS}\\libs")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\resources" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\resources")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\operator_modules" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\libs\\operator_modules")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\layertypes_collection" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\libs\\layertypes_collection")
+#    execute_process(COMMAND CMD /c mklink    "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\logging.properties" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\logging.properties")
 else(WIN32)
     #TODO: some are not needed anymore
     #Note: Thought CMake can do symlink platform independent? Well... this will only work for unix...
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/visualization_standalone/data
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/visualization_standalone/libs
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/resources ${CMAKE_BINARY_DIR}/tools/visualization_standalone/resources
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/libs/operator_modules ${CMAKE_BINARY_DIR}/tools/visualization_standalone/operator_modules
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/libs/layertypes_collection ${CMAKE_BINARY_DIR}/tools/visualization_standalone/layertypes_collection
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/tools/visualization_standalone/logging.properties
-#)
 
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/visualization_standalone/repo.yaml
-#)
+    execute_process(
+        COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin
+    )
 
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/bin/data
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/bin/libs
-#)
-#execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/bin/repo.yaml
-#)
-#execute_process(
-#    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
-#)
+    execute_process(
+      COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
+    )
+    execute_process(
+      COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/repo.yaml
+    )
+
+    execute_process(
+      COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/bin/libs
+    )
+    execute_process(
+      COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/bin/repo.yaml
+    )
+    execute_process(
+        COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
+    )
+
 endif(WIN32)
 

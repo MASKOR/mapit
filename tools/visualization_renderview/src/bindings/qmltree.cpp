@@ -1,13 +1,13 @@
 #include "qmltree.h"
 
-QmlTree::QmlTree()
-    :m_tree( nullptr )
+QmlTree::QmlTree(QObject *parent)
+    :QObject(parent), m_tree( nullptr )
 {
 
 }
 
-QmlTree::QmlTree(upns::upnsSharedPointer<upns::Tree> &tree)
-    :m_tree(tree)
+QmlTree::QmlTree(upns::upnsSharedPointer<upns::Tree> &tree, QObject *parent)
+    :QObject(parent), m_tree(tree)
 {
 
 }

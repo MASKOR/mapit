@@ -36,16 +36,6 @@ int main(int argc, char *argv[])
         return 1;
     }
     po::notify(vars);
-//    if(argc != 5)
-//    {
-//        std::cout << "usage:\n " << argv[0] << " <checkout_name> <operator_name> <paramstring>" << std::endl;
-//        std::cout << "was:\n ";
-//        for(int i=0 ; i<argc ; i++)
-//            std::cout << argv[i] << " ";
-//        std::cout << std::endl;
-//        std::cout << argc;
-//        return 1;
-//    }
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
