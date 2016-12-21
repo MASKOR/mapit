@@ -98,8 +98,6 @@ include_directories(${LOG4CPLUS_INCLUDE_DIR})
 
 set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
-set(ENABLE_VISUALIZATION false CACHE BOOL "Generate visualization projects. This may introduce hard to statisfy dependecies.")
-
 include(FindLog4cplus)
 
 add_subdirectory(libs/mapmanager)

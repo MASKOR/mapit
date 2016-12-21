@@ -29,8 +29,13 @@ ZmqProtobufNode::connect(std::string com)
     throw std::runtime_error(msg);
   }
 
-  socket_->connect(com);
-  connected_ = true;
+  try {
+    socket_->connect(com);
+    connected_ = true;
+  } catch (zmq::error_t e) {
+    log_error("Can't connect to server " + e.what());
+    connected_ = false;
+  }
 }
 
 void
