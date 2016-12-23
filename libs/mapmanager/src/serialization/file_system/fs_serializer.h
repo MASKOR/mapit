@@ -56,16 +56,16 @@ namespace upns
     virtual bool canWrite();
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid);
-    virtual upnsSharedPointer<Tree> getTreeTransient(const ObjectId &transientId);
+    virtual upnsSharedPointer<Tree> getTreeTransient(const PathInternal &transientId);
     virtual upnsPair<StatusCode, ObjectId> storeTree(upnsSharedPointer<Tree> &obj);
-    virtual upnsPair<StatusCode, ObjectId> storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId);
+    virtual upnsPair<StatusCode, ObjectId> storeTreeTransient(upnsSharedPointer<Tree> &obj, const PathInternal &transientId);
     //virtual upnsPair<StatusCode, ObjectId> createTreeTransient(upnsSharedPointer<Tree> &obj, const Path &path);
     virtual StatusCode removeTree(const ObjectId &oid);
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid);
-    virtual upnsSharedPointer<Entity> getEntityTransient(const Path oid);
+    virtual upnsSharedPointer<Entity> getEntityTransient(const PathInternal oid);
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj);
-    virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId);
+    virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const PathInternal &transientId);
     //virtual StatusCode createEntityTransient(upnsSharedPointer<Entity> &obj);
     virtual StatusCode removeEntity(const ObjectId &oid);
 
@@ -96,11 +96,11 @@ namespace upns
      */
     virtual StatusCode cleanUp();
 
-    virtual MessageType typeOfObject(const ObjectId &oidOrName);
-    virtual MessageType typeOfObjectTransient(const ObjectId &oidOrName);
+    virtual MessageType typeOfObject(const ObjectId &oid);
+    virtual MessageType typeOfObjectTransient(const PathInternal &pathIntenal);
     virtual bool exists(const ObjectId &oidOrName);
 
-    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId);
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const PathInternal &pathInternal);
 #ifdef UPNS_DEBUG
     virtual void debugDump();
 #endif

@@ -180,6 +180,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 
 void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 {
+    // TODO: Can only use paths/transient data at the moment
     // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
     // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
     std::unique_ptr<upns::ReplyHierarchy> rep(new upns::ReplyHierarchy());
@@ -209,12 +210,13 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
             {
                 upns::ReplyHierarchyLayer treeLevel1;
                 //Path layerPath( cmap->first + "/" + clayer->first );
-                upnsSharedPointer<Tree> layer = co->getTree( clayer->second.id() );
+                upnsSharedPointer<Tree> layer = co->getTree( clayer->second.path() );
+                assert(layer); //TODO? Just reimplement request hierechy and interface
                 for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cent( layer->refs().cbegin() );
                     cent != layer->refs().cend();
                     ++cent)
                 {
-                    upnsSharedPointer<Entity> ent = co->getEntity( cent->second.id() );
+                    upnsSharedPointer<Entity> ent = co->getEntity( cent->second.path() );
                     if(ent)
                     {
                         treeLevel1.mutable_entities()->insert(::google::protobuf::MapPair< ::std::string, ::upns::LayerType>( cent->first, ent->type()));

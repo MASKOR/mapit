@@ -9,7 +9,8 @@
 
 namespace upns
 {
-
+// Path with leading checkout name
+typedef Path PathInternal;
 /**
  * @brief The AbstractMapSerializer class capsulates data access. From outside maps and entities can be read/written.
  * However, the enduser should use a more convenient interface (versioning). This class is abstract and must be implemented by a
@@ -24,19 +25,19 @@ public:
     virtual bool canWrite() = 0;
 
     virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
-    virtual upnsSharedPointer<Tree> getTreeTransient(const ObjectId &transientId) = 0;
+    virtual upnsSharedPointer<Tree> getTreeTransient(const PathInternal &transientId) = 0;
     // Note: storing and creating is only distinguished for transient oid (paths). When
     //       Hashes are used, the system does not know if a tree/entity with the same hash
     //       already exists or if it is a new tree/entity
     virtual upnsPair<StatusCode, ObjectId> storeTree(upnsSharedPointer<Tree> &obj) = 0;
-    virtual upnsPair<StatusCode, ObjectId> storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId) = 0;
+    virtual upnsPair<StatusCode, ObjectId> storeTreeTransient(upnsSharedPointer<Tree> &obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createTree(upnsSharedPointer<Tree> &obj) = 0;
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
     virtual upnsSharedPointer<Entity> getEntity(const ObjectId oid) = 0;
-    virtual upnsSharedPointer<Entity> getEntityTransient(const Path path) = 0;
+    virtual upnsSharedPointer<Entity> getEntityTransient(const PathInternal path) = 0;
     virtual upnsPair<StatusCode, ObjectId> storeEntity(upnsSharedPointer<Entity> &obj) = 0;
-    virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId) = 0;
+    virtual upnsPair<StatusCode, ObjectId> storeEntityTransient(upnsSharedPointer<Entity> &obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createEntity(upnsSharedPointer<Entity> &obj) = 0;
     virtual StatusCode removeEntity(const ObjectId &oid) = 0;
 
@@ -62,11 +63,11 @@ public:
     virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
 
 
-    virtual MessageType typeOfObject(const ObjectId &oidOrName) = 0;
-    virtual MessageType typeOfObjectTransient(const ObjectId &oidOrName) = 0;
+    virtual MessageType typeOfObject(const ObjectId &oid) = 0;
+    virtual MessageType typeOfObjectTransient(const PathInternal &path) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
 
-    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const ObjectId &entityId) = 0;
+    virtual upnsPair<StatusCode, ObjectId> persistTransientEntitydata(const PathInternal &path) = 0;
 //    virtual bool isTree(const ObjectId &oid) = 0;
 //    virtual bool isEntity(const ObjectId &oid) = 0;
 //    virtual bool isCommit(const CommitId &oid) = 0;

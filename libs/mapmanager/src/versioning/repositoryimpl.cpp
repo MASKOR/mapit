@@ -147,20 +147,26 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const upnsString &checkoutName)
 CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upnsString msg)
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
-    std::map< std::string, std::string > oldToNewIds;
+    std::map< Path, ObjectId > oldPathsToNewOids;
     CommitId ret;
     StatusCode s = co->depthFirstSearch(
-        [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path& p)
+        [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
+        [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path)
         {
-            std::string rootId(obj->root());
-            assert(rootId.empty() || oldToNewIds.find(rootId) != oldToNewIds.end());
-            if(rootId.empty() && oldToNewIds.find(rootId) != oldToNewIds.end())
+            const Path pathOfRootDir("");
+            assert(ref.path().empty() != ref.id().empty()); //XOR
+            bool changes = oldPathsToNewOids.find(pathOfRootDir) != oldPathsToNewOids.end();
+            // check if there where changes but on a non exclusive object
+            assert(!ref.id().empty() && changes);
+            if(ref.id().empty() && changes)
             {
-                log_warn("commit empty checkout on empty parent commit (no root)");
+                obj->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
+                obj->mutable_root()->clear_path();
             }
             else
             {
-                obj->set_root(oldToNewIds[rootId]);
+                // no changes where found
+                log_warn("commit empty checkout on empty parent commit (no root)");
             }
             //TODO: Lots of todos here (Metadata)
             if(msg.find_last_of('\n') != msg.length()-1)
@@ -172,38 +178,64 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
             obj->set_datetime(millisecs);
             obj->set_author("tester <test@maskor.fh-aachen.de>");
 
-            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->createCommit(obj);
-            if(upnsIsOk(!soid.first)) return false;
-            ret = soid.second;
+            upnsPair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(obj);
+            if(upnsIsOk(!statusOid.first)) return false;
+            ret = statusOid.second;
             return true;
         },
-        [&](upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path& p)
+        [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
+        [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path)
         {
             assert(obj != NULL);
             ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
             ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
             while(iter != refs.end())
             {
-                ::std::string id(iter->second.id());
-                assert(oldToNewIds.find(id) != oldToNewIds.end());
-                iter->second.set_id(oldToNewIds[id]);
+                Path childPath(path + "/" + iter->second.path());
+                assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
+                const ObjectId &newId = oldPathsToNewOids[childPath];
+                assert(!newId.empty());
+                if(newId != iter->second.id())
+                {
+                    iter->second.set_id(newId);
+                    iter->second.clear_path();
+                }
                 iter++;
             }
-            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->storeTree(obj);
-            if(upnsIsOk(!soid.first)) return false;
-            oldToNewIds.insert(std::pair<std::string, std::string>(oid, soid.second));
+            upnsPair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
+            if(upnsIsOk(!statusOid.first)) return false;
+            oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
-        [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p){return true;}, [&](upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path& p)
+        [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path){return true;},
+        [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path)
         {
-            upnsPair<StatusCode, ObjectId> soid = m_p->m_serializer->persistTransientEntitydata(oid);
-            if(upnsIsOk(!soid.first)) return false;
+            upnsPair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());
+            if(upnsIsOk(!statusEntitydataOid.first)) return false;
+            bool entityNeedsStore;
+            if(statusEntitydataOid.second != obj->dataid())
+            {
+                obj->set_dataid(statusEntitydataOid.second);
+                entityNeedsStore = true;
+            }
+            else
+            {
+                assert(ref.path().empty() != ref.id().empty()); //XOR
+                entityNeedsStore = !ref.path().empty();
+            }
+
+            if(entityNeedsStore)
+            {
+                upnsPair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(obj);
+                if(upnsIsOk(!statusOid.first)) return false;
+                oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
+            }
+            else
+            {
+                oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, ref.id()));
+            }
             //TODO: Put old->New for entitydata (How?!?)
             //oldToNewIds.insert(oid, soid.second);
-            obj->set_dataid(soid.second);
-            soid = m_p->m_serializer->storeEntity(obj);
-            if(upnsIsOk(!soid.first)) return false;
-            oldToNewIds.insert(std::pair<std::string, std::string>(oid, soid.second));
             return true;
         });
     if(!upnsIsOk(s))

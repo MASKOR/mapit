@@ -60,7 +60,7 @@ void TestOperators::testOperatorLoadPointcloud()
     QVERIFY( ent->type() == upns::POINTCLOUD );
     upnsSharedPointer<Tree> parent = checkout->getTree("corridor/laser");
     QVERIFY( parent != nullptr );
-    QVERIFY( !(*parent->mutable_refs())["eins"].id().empty() );
+    QVERIFY( !(*parent->mutable_refs())["eins"].path().empty() );
     upnsSharedPointer<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
     //upnsSharedPointer<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
 

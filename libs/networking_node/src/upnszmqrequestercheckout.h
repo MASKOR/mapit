@@ -33,7 +33,12 @@ public:
     upnsVec<CommitId> getParentCommitIds();
     upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId);
     upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
-    StatusCode depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectId &, const Path &)> beforeCommit, std::function<bool (upnsSharedPointer<Commit>, const ObjectId &, const Path &)> afterCommit, std::function<bool (upnsSharedPointer<Tree>, const ObjectId &, const Path &)> beforeTree, std::function<bool (upnsSharedPointer<Tree>, const ObjectId &, const Path &)> afterTree, std::function<bool (upnsSharedPointer<Entity>, const ObjectId &, const Path &)> beforeEntity, std::function<bool (upnsSharedPointer<Entity>, const ObjectId &, const Path &)> afterEntity);
+    StatusCode depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectReference &, const Path &)> beforeCommit,
+                                std::function<bool (upnsSharedPointer<Commit>, const ObjectReference &, const Path &)> afterCommit,
+                                std::function<bool (upnsSharedPointer<Tree>, const ObjectReference &, const Path &)> beforeTree,
+                                std::function<bool (upnsSharedPointer<Tree>, const ObjectReference &, const Path &)> afterTree,
+                                std::function<bool (upnsSharedPointer<Entity>, const ObjectReference &, const Path &)> beforeEntity,
+                                std::function<bool (upnsSharedPointer<Entity>, const ObjectReference &, const Path &)> afterEntity);
 
     // Checkout interface
 public:

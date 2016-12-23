@@ -12,23 +12,31 @@ Q_DECLARE_METATYPE(std::function<void()>)
 
 void RepositoryCommon::createTestdata()
 {
+    const bool testLevelDB = false;
+    const bool testRemote = true;
     QTest::addColumn< upns::upnsSharedPointer<upns::Repository> >("repo");
     QTest::addColumn< upns::upnsSharedPointer<upns::Checkout> >("checkout");
     QTest::addColumn< std::function<void()> >("startServer");
     QTest::addColumn< std::function<void()> >("stopServer");
 
-    QTest::newRow("local filesystem") << m_repo[0] << m_checkout[0] << std::function<void()>([](){}) << std::function<void()>([](){});
-    QTest::newRow("local database")   << m_repo[1] << m_checkout[1] << std::function<void()>([](){}) << std::function<void()>([](){});
-    QTest::newRow("remote")           << m_repo[2] << m_checkout[2] << std::function<void()>([this]()
-        {
-            QMutexLocker l(&m_serverThreadMutex);
-            m_serverThread->start();
-        })
-        << std::function<void()>([this]()
-        {
-            QMutexLocker l(&m_serverThreadMutex);
-            m_serverThread->stop();
-        });
+    QTest::newRow("local filesystem")  << m_repo[0] << m_checkout[0] << std::function<void()>([](){}) << std::function<void()>([](){});
+    if(testLevelDB)
+    {
+        QTest::newRow("local database")<< m_repo[1] << m_checkout[1] << std::function<void()>([](){}) << std::function<void()>([](){});
+    }
+    if(testRemote)
+    {
+        QTest::newRow("remote")        << m_repo[2] << m_checkout[2] << std::function<void()>([this]()
+            {
+                QMutexLocker l(&m_serverThreadMutex);
+                m_serverThread->start();
+            })
+            << std::function<void()>([this]()
+            {
+                QMutexLocker l(&m_serverThreadMutex);
+                m_serverThread->stop();
+            });
+    }
 }
 
 void RepositoryCommon::initTestdata()

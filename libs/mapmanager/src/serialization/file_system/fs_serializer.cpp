@@ -190,7 +190,7 @@ FSSerializer::getTree(const ObjectId &oid)
 }
 
 upnsSharedPointer<Tree>
-FSSerializer::getTreeTransient(const ObjectId &transientId)
+FSSerializer::getTreeTransient(const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
 
@@ -231,7 +231,7 @@ FSSerializer::storeTree(upnsSharedPointer<Tree> &obj)
 }
 
 upnsPair<StatusCode, ObjectId>
-FSSerializer::storeTreeTransient(upnsSharedPointer<Tree> &obj, const ObjectId &transientId)
+FSSerializer::storeTreeTransient(upnsSharedPointer<Tree> &obj, const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
@@ -276,7 +276,7 @@ FSSerializer::getEntity(const ObjectId oid)
 }
 
 upnsSharedPointer<Entity>
-FSSerializer::getEntityTransient(const Path oid)
+FSSerializer::getEntityTransient(const PathInternal oid)
 {
     Path pathWithoutSlash = oid.substr(0, oid.length()- (oid[oid.length()-1] == '/')); //TODO is that realy needed ???
 
@@ -318,7 +318,7 @@ FSSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
 }
 
 upnsPair<StatusCode, ObjectId>
-FSSerializer::storeEntityTransient(upnsSharedPointer<Entity> &obj, const ObjectId &transientId)
+FSSerializer::storeEntityTransient(upnsSharedPointer<Entity> &obj, const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
@@ -585,7 +585,7 @@ FSSerializer::cleanUp()
 }
 
 MessageType
-FSSerializer::typeOfObject(const ObjectId &oidOrName)
+FSSerializer::typeOfObject(const ObjectId &oid)
 {
     fs::path path_prefix = repo_;
     fs::path path;
@@ -600,7 +600,7 @@ FSSerializer::typeOfObject(const ObjectId &oidOrName)
     for (std::vector<fs::path>::iterator it = places.begin();
          it != places.end();
          ++it) {
-        path = repo_ / *it / fs::path( oidOrName );
+        path = repo_ / *it / fs::path( oid );
 
         if ( fs::exists( path ) ) {
             found = true;
@@ -608,7 +608,7 @@ FSSerializer::typeOfObject(const ObjectId &oidOrName)
     }
 
     if ( ! found) {
-        log_error("Can't open file to detect type of object " + oidOrName);
+        log_error("Can't open file to detect type of object " + oid);
         return MessageEmpty;
     }
 
@@ -619,9 +619,9 @@ FSSerializer::typeOfObject(const ObjectId &oidOrName)
 }
 
 MessageType
-FSSerializer::typeOfObjectTransient(const ObjectId &oidOrName)
+FSSerializer::typeOfObjectTransient(const PathInternal &pathIntenal)
 {
-    fs::path path = objectid_to_checkout_fs_path(oidOrName) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_checkout_fs_path(pathIntenal) / _CHECKOUT_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path) ) {
         log_warn("Can't open file to detect type of object " + path.string());
@@ -642,7 +642,7 @@ FSSerializer::exists(const ObjectId &oidOrName)
 }
 
 upnsPair<StatusCode, ObjectId>
-FSSerializer::persistTransientEntitydata(const ObjectId &entityId)
+FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
 {
     //TODO
     return upnsPair<StatusCode, ObjectId>(UPNS_STATUS_ERR_DB_IO_ERROR, "");

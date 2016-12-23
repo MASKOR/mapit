@@ -15,6 +15,9 @@
 namespace upns
 {
 
+// PathInternal contains the checkout name at the beginning
+// The corresponing types should be used. However there is no "typechecking" here.
+typedef Path PathInternal;
 /**
  * @brief The CheckoutImpl class
  * Why?
@@ -69,27 +72,30 @@ public:
     template <typename T>
     inline upnsString generateTransientOid(const upnsSharedPointer<T> &obj);
 
-    StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
-                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
-                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
+    StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference&, const Path&)> afterCommit,
+                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference&, const Path&)> afterTree,
+                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference&, const Path&)> afterEntity);
     upnsSharedPointer<CheckoutObj> getCheckoutObj();
     const upnsString& getName() const;
 private:
 
+    upnsSharedPointer<Tree> getTree(const ObjectReference &ref);
+    upnsSharedPointer<Entity> getEntity(const ObjectReference &ref);
+    MessageType typeOfObject(const ObjectReference &ref);
     /**
-     * @brief oidForChild Used to convert path to oids.
+     * @brief objectReferenceOfChild Used to get reference of children
      * @param tree parent
      * @param name of the child (path segment, without slashes)
      * @return Oid or empty oid
      */
-    ObjectId oidForChild(upnsSharedPointer<Tree> tree, const std::string &name);
+    ObjectReference objectReferenceOfChild(upnsSharedPointer<Tree> tree, const std::string &name);
 
     /**
      * @brief oidForPath Used to convert path to oids.
      * @param path beginning with root dir of checkout. Checkout must not be part of path. Can have leading or trailing slashes.
      * @return Oid or empty oid
      */
-    ObjectId oidForPath(const Path &path);
+    ObjectReference objectReferenceForPath(const Path &path);
 
     // helper, used to ensure slashes/no slashes at beginning and end
     Path preparePath(const Path &path);
@@ -107,7 +113,7 @@ private:
      * @brief Stores all kind of objects at a path.
      */
     template <typename T>
-    upnsPair<StatusCode, ObjectId> storeObject(upnsSharedPointer<T> leafObject, const ObjectId &transId);
+    upnsPair<StatusCode, PathInternal> storeObject(upnsSharedPointer<T> leafObject, const PathInternal &pathInternal);
 
     bool forEachPathSegment(const Path &path,
                                   std::function<bool(upnsString, size_t, bool)> before, std::function<bool(upnsString, size_t, bool)> after, const int start = 0);
@@ -118,19 +124,19 @@ private:
 //     * If "before" returns false, "after" will not be executed.
 //     */
 //    StatusCode depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path &path,
-//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
-//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
-//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
+//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> afterCommit,
+//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
+//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
 
 //    StatusCode depthFirstSearch(upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path &path,
-//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
-//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
-//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
+//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> afterCommit,
+//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
+//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
 
 //    StatusCode depthFirstSearch(upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path &path,
-//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectId&, const Path &)> afterCommit,
-//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectId&, const Path &)> afterTree,
-//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectId&, const Path &)> afterEntity);
+//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> afterCommit,
+//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
+//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
 
     upns::upnsSharedPointer<AbstractMapSerializer> m_serializer;
 
@@ -153,53 +159,58 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     Path p = preparePath(path);
     upnsVec< upnsSharedPointer<Tree> > exclusiveTreePath;
     upnsSharedPointer<Tree> current;
-    bool rootMissing = m_checkout->rollingcommit().root().empty();
-    bool rootNotExclusive = m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root()) == 0;
+    bool rootMissing = !m_checkout->rollingcommit().has_root() || m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty();
+    // root is not transient and must be copied to edit.
+    bool rootNotExclusive = (!rootMissing) && (!m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty());
+    //bool rootNotExclusive = m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root()) == 0;
+    assert(rootMissing || (rootNotExclusive == (m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root().path()) == 0)));
     // if there is no root directory, checkout must be empty and have nothing transient
     assert(!rootMissing || rootMissing && m_checkout->transientoidstoorigin_size() == 0);
     if(rootMissing || rootNotExclusive)
     {
         // create/copy root for checkout
-        ::std::string origin;
+        ::std::string originOid;
         if(rootMissing)
         {
             // create new root
-            origin = "";
+            originOid = "";
             current = upnsSharedPointer<Tree>(new Tree);
         }
         else
         {
             // copy to make exclusive
-            origin = m_checkout->rollingcommit().root();
-            current = m_serializer->getTree(origin);
+            originOid = m_checkout->rollingcommit().root().id();
+            current = m_serializer->getTree(originOid);
         }
-        m_checkout->mutable_rollingcommit()->set_root(m_name + "/");
+        m_checkout->mutable_rollingcommit()->mutable_root()->set_path(m_name + "/");
         m_checkout->mutable_transientoidstoorigin()
-                ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(m_checkout->rollingcommit().root(), origin));
+                ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(m_checkout->rollingcommit().root().path(), originOid));
         exclusiveTreePath.push_back( current );
     }
     else
     {
         // root exists and can exclusively be altered
-        ObjectId oid = m_checkout->rollingcommit().root();
-        current = m_serializer->getTreeTransient(oid);
+        PathInternal path = m_checkout->rollingcommit().root().path();
+        current = m_serializer->getTreeTransient(path);
         exclusiveTreePath.push_back( current );
     }
 
     bool leafWasStored = false;
-    ObjectId leafOid;
+    PathInternal leafPathIntenal;
     forEachPathSegment(p,
     [&](upnsString seg, size_t idx, bool isLast)
     {
         if(current == NULL) return false; // can not go futher
         if(seg.empty()) return false; // "//" not allowed
-        ObjectId oid = oidForChild(current, seg);
-        ObjectId transOid = m_name + "/" + p.substr(0,idx);
+        ObjectReference ref = objectReferenceOfChild(current, seg);
+        PathInternal pathInternal = m_name + "/" + p.substr(0,idx);
         // 6 cases:
         // 1+2) no oid yet          -> create tree/entity, put in vector to update and store. (for leaf: create directly)
         // 3+4) exclusive oids      -> put in vector to update and store (for leaf: create directly)
         // 5+6) non-exclusive oids  -> put copy in vector to update and store (for leaf: create directly)
-        if(oid.empty())
+        assert(ref.id().empty() || ref.path().empty()); // both must not be set at the same time.
+        bool segNotExistant = ref.id().empty() && ref.path().empty();
+        if(segNotExistant)
         {
             // create new
             if(!isLast || (isLast && createLeaf == NULL))
@@ -208,17 +219,17 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 upnsSharedPointer<Tree> tree(new Tree);
                 exclusiveTreePath.push_back( tree );
                 m_checkout->mutable_transientoidstoorigin()
-                        ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(transOid, ""));
+                        ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ""));
                 current = tree;
             }
             else
             {
                 // create Leaf. This is executed once. Next step is after(...).
-                upnsPair<StatusCode, ObjectId> soid = storeObject(createLeaf, transOid);
-                leafOid = soid.second;
-                if(!upnsIsOk(soid.first)) return false;
+                upnsPair<StatusCode, PathInternal> pathStatus = storeObject(createLeaf, pathInternal);
+                leafPathIntenal = pathStatus.second;
+                if(!upnsIsOk(pathStatus.first)) return false;
                 m_checkout->mutable_transientoidstoorigin()
-                        ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(soid.second, "")); //TODO: history of createLeaf lost, if ther was one
+                        ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathStatus.second, "")); //TODO: history of createLeaf lost, if ther was one
 
                 leafWasStored = true;
             }
@@ -226,17 +237,19 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
         else
         {
             // use or copy existing
-            bool segExclusive = m_checkout->transientoidstoorigin().count(oid) != 0;
+            bool segExclusive = ref.id().empty() && !ref.path().empty();
+            //bool segExclusive = m_checkout->transientoidstoorigin().count(oid) != 0;
+            assert(segExclusive == (m_checkout->transientoidstoorigin().count(ref.path()) != 0));
             if(segExclusive)
             {
                 // use existing
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // put tree in vector and do nothing
-                    upnsSharedPointer<Tree> tree(m_serializer->getTreeTransient(oid));
+                    upnsSharedPointer<Tree> tree(m_serializer->getTreeTransient(ref.path()));
                     if(tree == NULL)
                     {
-                        log_error("Segment of path was not a tree");
+                        log_error("Segment of path was not a tree or path was wrong");
                         return false;
                     }
                     exclusiveTreePath.push_back( tree );
@@ -247,27 +260,28 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                     // overwrite Leaf. This is executed once. Next step is after(...).
                     // Note: here might be two transient ids in the pair
                     m_checkout->mutable_transientoidstoorigin()
-                            ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(transOid, "")); //TODO: history of createLeaf lost, if ther was one
-                    upnsPair<StatusCode, ObjectId> soid = storeObject(createLeaf, transOid);
-                    if(!upnsIsOk(soid.first)) return false;
-                    leafOid = soid.second;
+                            ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, "")); //TODO: history of createLeaf lost, if ther was one
+                    upnsPair<StatusCode, PathInternal> statusPath = storeObject(createLeaf, pathInternal);
+                    if(!upnsIsOk(statusPath.first)) return false;
+                    leafPathIntenal = statusPath.second;
                     leafWasStored = true;
                 }
             }
             else
             {
                 // copy
+                assert(!ref.id().empty() && ref.path().empty());
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // copy existing tree under transient oid
-                    upnsSharedPointer<Tree> tree(m_serializer->getTree(oid));
+                    upnsSharedPointer<Tree> tree(m_serializer->getTree(ref.id()));
                     if(tree == NULL)
                     {
-                        log_error("Segment of path was not a tree");
+                        log_error("Segment of path was not a tree or corrupt oids");
                         return false;
                     }
                     m_checkout->mutable_transientoidstoorigin()
-                            ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(transOid, oid));
+                            ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     exclusiveTreePath.push_back( tree );
                     current = tree;
                 }
@@ -275,11 +289,11 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 {
                     // overwrite Leaf with copy. This is executed once. Next step is after(...).
                     m_checkout->mutable_transientoidstoorigin()
-                            ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(transOid, oid));
+                            ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     //createLeaf->set_id(nextOid);
-                    upnsPair<StatusCode, ObjectId> soid = storeObject(createLeaf, transOid);
-                    if(!upnsIsOk(soid.first)) return false;
-                    leafOid = soid.second;
+                    upnsPair<StatusCode, PathInternal> status_path = storeObject(createLeaf, pathInternal);
+                    if(!upnsIsOk(status_path.first)) return false;
+                    leafPathIntenal = status_path.second;
                     leafWasStored = true;
                 }
             }
@@ -289,20 +303,20 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     },
     [&](upnsString seg, size_t idx, bool isLast)
     {
-        ObjectId transOid;
+        PathInternal pathInternal;
         if(leafWasStored && isLast) // leaf already created in "before"
         {
-            transOid = leafOid;
-            assert(!transOid.empty());
+            assert(!leafPathIntenal.empty());
+            pathInternal = leafPathIntenal;
         }
         else
         {
             current = exclusiveTreePath.back();
             exclusiveTreePath.pop_back();
-            transOid = m_name + "/" + p.substr(0, idx);
-            upnsPair<StatusCode, ObjectId> soid = m_serializer->storeTreeTransient(current, transOid);
-            transOid = soid.second;
-            if(!upnsIsOk(soid.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
+            pathInternal = m_name + "/" + p.substr(0, idx);
+            upnsPair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(current, pathInternal);
+            pathInternal = status_path.second;
+            if(!upnsIsOk(status_path.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
             if(exclusiveTreePath.empty())
             {
                 assert(idx == 0);
@@ -311,7 +325,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
         }
         upnsSharedPointer<Tree> parent = exclusiveTreePath.back();
         ObjectReference oref;
-        oref.set_id(transOid);
+        oref.set_path(pathInternal);
         //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
         assert(parent);
         parent->mutable_refs()
@@ -322,8 +336,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     // store/create root
     upnsSharedPointer<Tree> obj = exclusiveTreePath.back();
     exclusiveTreePath.pop_back();
-    upnsPair<StatusCode, ObjectId> soid = m_serializer->storeTreeTransient(obj, m_name + "/");
-    if(!upnsIsOk(soid.first)) return soid.first;
+    upnsPair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(obj, m_name + "/");
+    if(!upnsIsOk(status_path.first)) return status_path.first;
 
     // update checkout commit
     StatusCode s = m_serializer->storeCheckoutCommit(m_checkout, m_name);

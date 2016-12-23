@@ -819,7 +819,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Branch> value)
 template <>
 void LevelDBSerializer::dump(upnsSharedPointer<Commit> value)
 {
-    std::cout << "Commit { root: \"" << value->root() << "\", parentcommitids: [ ";
+    std::cout << "Commit { root: " << "ObjectReference { id: " << value->root().id() << " path: \"" << value->root().path() << "\"}, parentcommitids: [ ";
     for(int i=0; i< value->parentcommitids_size() ; ++i)
     {
         std::cout << "\"" << value->parentcommitids(i) << "\"";
@@ -852,7 +852,7 @@ void LevelDBSerializer::dump(upnsSharedPointer<Tree> value)
     {
         std::cout << std::endl;
         const ::std::string &refname(iter->first);
-        std::cout << "\t(" << refname << " | " << iter->second.id() << ", " << std::to_string(iter->second.lastchange()) << ")";
+        std::cout << "\t(" << refname << " | " << iter->second.id() << /*", " << std::to_string(iter->second.lastchange()) <<*/ ")";
         iter++;
     }
     std::cout << "]\n}";

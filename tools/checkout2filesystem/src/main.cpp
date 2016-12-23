@@ -65,15 +65,15 @@ int main(int argc, char *argv[])
     }
 
     upns::StatusCode s = co->depthFirstSearch([&](
-        upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
+        upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
+        [&](upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
+        [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             fs::path current( rootPath );
             fs::path path_new = rootPath / fs::path(path);
@@ -84,11 +84,11 @@ int main(int argc, char *argv[])
                 }
             }
             return true;
-        }, [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
+        }, [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
+        [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             fs::path current(rootPath / fs::path(path));
             if ( fs::exists( current ) ) {
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
+        [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         });

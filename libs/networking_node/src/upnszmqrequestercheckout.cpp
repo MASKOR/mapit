@@ -65,6 +65,8 @@ upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
         ch != rep->maps().cend();
         ++ch)
     {
+        upns::ObjectReference ref;
+        ref.set_path(m_checkoutName + "/" + ch->first);
         ret->mutable_refs()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>(ch->first, upns::ObjectReference()));
     }
     return ret;
@@ -139,9 +141,17 @@ upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::ge
     return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
 }
 
-upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> beforeCommit, std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> afterCommit, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> beforeTree, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> afterTree, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> beforeEntity, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> afterEntity)
+upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectReference &, const upns::Path &)> beforeCommit,
+                                                              std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectReference &, const upns::Path &)> afterCommit,
+                                                              std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectReference &, const upns::Path &)> beforeTree,
+                                                              std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectReference &, const upns::Path &)> afterTree,
+                                                              std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectReference &, const upns::Path &)> beforeEntity,
+                                                              std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectReference &, const upns::Path &)> afterEntity)
 {
-    StatusCode s = upns::depthFirstSearch(this, getRoot(), "", "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    //TODO: remove "Commit" from depthFirstSearch! There is no commit in checkout by design. (only technically)
+    // Use internal service instead of ReplyHierarchy
+    ObjectReference nullRef;
+    StatusCode s = upns::depthFirstSearch(this, getRoot(), nullRef, "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
     return s;
 }
 
