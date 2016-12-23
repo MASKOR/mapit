@@ -23,6 +23,7 @@ public:
     bool isInConflictMode();
     upnsVec<upnsSharedPointer<Conflict> > getPendingConflicts();
     void setConflictSolved(const Path &path, const ObjectId &oid);
+    virtual MessageType typeOfObject(const Path &oidOrName);
     upnsSharedPointer<Tree> getRoot();
     upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId);
     upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);

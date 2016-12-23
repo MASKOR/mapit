@@ -4,6 +4,7 @@
 #include "serialization/zmqentitydatastreamprovider.h"
 #include "operationenvironmentimpl.h"
 #include "upns_errorcodes.h"
+#include "depthfirstsearch.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -39,6 +40,18 @@ void upns::ZmqRequesterCheckout::setConflictSolved(const upns::Path &path, const
 {
     //TODO: nyi
     assert(false);
+}
+
+upns::MessageType upns::ZmqRequesterCheckout::typeOfObject(const upns::Path &oidOrName)
+{
+    //TODO: Introduce typeof method with protobuf
+    if(this->getTree(oidOrName) != nullptr) return MessageTree;
+    if(this->getEntity(oidOrName) != nullptr) return MessageEntity;
+    //if(this->get(oidOrName) != nullptr) return MessageCommit;
+    //if(this->getTree(oidOrName) != nullptr) return MessageCheckout;
+    //if(this->get(oidOrName) != nullptr) return MessageBranch;
+    if(this->getEntitydataReadOnly(oidOrName) != nullptr) return MessageEntitydata;
+    return MessageEmpty;
 }
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
@@ -128,9 +141,8 @@ upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::ge
 
 upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> beforeCommit, std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectId &, const upns::Path &)> afterCommit, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> beforeTree, std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectId &, const upns::Path &)> afterTree, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> beforeEntity, std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectId &, const upns::Path &)> afterEntity)
 {
-    //TODO: nyi
-    assert(false);
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    StatusCode s = upns::depthFirstSearch(this, getRoot(), "", "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    return s;
 }
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::OperationDescription &desc)
