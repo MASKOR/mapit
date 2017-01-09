@@ -56,20 +56,21 @@ upns::MessageType upns::ZmqRequesterCheckout::typeOfObject(const upns::Path &oid
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
 {
-    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
-    req->set_checkout(m_checkoutName);
-    m_node->send(std::move(req));
-    std::unique_ptr<upns::ReplyHierarchy> rep(m_node->receive<upns::ReplyHierarchy>());
-    upns::upnsSharedPointer<upns::Tree> ret(new upns::Tree);
-    for(google::protobuf::Map< ::std::string, ::upns::ReplyHierarchyMap >::const_iterator ch( rep->maps().cbegin() );
-        ch != rep->maps().cend();
-        ++ch)
-    {
-        upns::ObjectReference ref;
-        ref.set_path(m_checkoutName + "/" + ch->first);
-        ret->mutable_refs()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>(ch->first, upns::ObjectReference()));
-    }
-    return ret;
+//    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
+//    req->set_checkout(m_checkoutName);
+//    m_node->send(std::move(req));
+//    std::unique_ptr<upns::ReplyHierarchy> rep(m_node->receive<upns::ReplyHierarchy>());
+//    upns::upnsSharedPointer<upns::Tree> ret(new upns::Tree);
+//    for(google::protobuf::Map< ::std::string, ::upns::ReplyHierarchyMap >::const_iterator ch( rep->maps().cbegin() );
+//        ch != rep->maps().cend();
+//        ++ch)
+//    {
+//        upns::ObjectReference ref;
+//        ref.set_path(m_checkoutName + "/" + ch->first);
+//        ret->mutable_refs()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>(ch->first, upns::ObjectReference()));
+//    }
+//    return ret;
+    return getTree("/");
 }
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTreeConflict(const upns::ObjectId &objectId)
@@ -88,23 +89,23 @@ upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntityConfl
 
 upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path)
 {
-    std::unique_ptr<upns::RequestTree> req(new upns::RequestTree);
+    std::unique_ptr<upns::RequestGenericEntry> req(new upns::RequestGenericEntry);
     req->set_checkout(m_checkoutName);
     req->set_path(path);
     m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyTree> rep(m_node->receive<upns::ReplyTree>());
-    upns::upnsSharedPointer<upns::Tree> ret(rep->release_tree());
+    upns::upnsSharedPointer<upns::ReplyGenericEntry> rep(m_node->receive<upns::ReplyGenericEntry>());
+    upns::upnsSharedPointer<upns::Tree> ret(rep->mutable_entry()->release_tree());
     return ret;
 }
 
 upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &path)
 {
-    std::unique_ptr<upns::RequestEntity> req(new upns::RequestEntity);
+    std::unique_ptr<upns::RequestGenericEntry> req(new upns::RequestGenericEntry);
     req->set_checkout(m_checkoutName);
     req->set_path(path);
     m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyEntity> rep(m_node->receive<upns::ReplyEntity>());
-    upns::upnsSharedPointer<upns::Entity> ret(rep->release_entity());
+    upns::upnsSharedPointer<upns::ReplyGenericEntry> rep(m_node->receive<upns::ReplyGenericEntry>());
+    upns::upnsSharedPointer<upns::Entity> ret(rep->mutable_entry()->release_entity());
     return ret;
 }
 
@@ -240,16 +241,15 @@ upns::OperationResult upns::ZmqRequesterCheckout::doUntraceableOperation(const u
     return res;
 }
 
-void upns::ZmqRequesterCheckout::syncHierarchy()
-{
-    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
-    req->set_checkout(m_checkoutName);
-    m_node->send(std::move(req));
-    std::unique_ptr<upns::ReplyHierarchy> hierarchy(m_node->receive<upns::ReplyHierarchy>());
-    assert(m_cache);
-    //m_cache->
-
-}
+//void upns::ZmqRequesterCheckout::syncHierarchy()
+//{
+//    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
+//    req->set_checkout(m_checkoutName);
+//    m_node->send(std::move(req));
+//    std::unique_ptr<upns::ReplyHierarchy> hierarchy(m_node->receive<upns::ReplyHierarchy>());
+//    assert(m_cache);
+//    //m_cache->
+//}
 
 upns::StatusCode upns::ZmqRequesterCheckout::storeTree(const upns::Path &path, upnsSharedPointer<upns::Tree> tree)
 {

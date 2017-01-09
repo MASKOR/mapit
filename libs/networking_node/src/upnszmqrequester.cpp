@@ -66,8 +66,7 @@ upns::upnsSharedPointer<upns::Branch> upns::ZmqRequester::getBranch(const upns::
 
 upns::MessageType upns::ZmqRequester::typeOfObject(const upns::ObjectId &oid)
 {
-    //TODO: Define network message
-    //TODO: Introduce typeof method with protobuf
+    //TODO: Define network message or use RequestGenericEntry
     if(this->getTree(oid) != nullptr) return MessageTree;
     if(this->getEntity(oid) != nullptr) return MessageEntity;
     if(this->getCommit(oid) != nullptr) return MessageCommit;

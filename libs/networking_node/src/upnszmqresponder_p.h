@@ -24,9 +24,12 @@ public:
     void handleRequestHierarchy(RequestHierarchy* msg);
     void handleRequestListCheckouts(RequestListCheckouts* msg);
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
+    void handleRequestGenericEntry(upns::RequestGenericEntry *msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);
-    void handleRequestEntity(upns::RequestEntity *msg);
-    void handleRequestTree(upns::RequestTree *msg);
+    void handleRequestStoreTree(upns::RequestStoreTree *msg);
+//    void handleRequestStoreGenericEntry(upns::RequestStoreGenericEntry *msg);
+//    void handleRequestEntity(upns::RequestEntity *msg);
+//    void handleRequestTree(upns::RequestTree *msg);
 
     Repository *m_repo;
     std::string m_urlOutgoing;

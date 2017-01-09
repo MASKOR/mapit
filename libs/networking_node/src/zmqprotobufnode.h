@@ -42,6 +42,37 @@ private:
 
 public:
   /**
+   * Replier can be used to ensure that a reply is sent when the scope os left.
+   * This will result in cleaner and less error prone code when exceptions are used
+   */
+  template <typename MT>
+  class Replier
+  {
+      ZmqProtobufNode *m_node;
+      std::unique_ptr<MT> m_reply;
+      bool m_wasSent;
+  public:
+    Replier(MT *reply, ZmqProtobufNode *node)
+      : m_reply(reply), m_node(node), m_wasSent(false)
+    {}
+    std::unique_ptr<MT>& reply() { return m_reply; }
+    void send()
+    {
+        m_node->send(std::move(m_reply));
+        m_wasSent = true;
+    }
+    ~Replier()
+    {
+        assert(m_wasSent); // request reply pattern: a reply must be sent also in case of error. If this happens, the application did not send a reply.
+    }
+  };
+  template <typename MT>
+  Replier<MT> autoReplyOnScopeExit(MT *reply)
+  {
+      return Replier<MT> ( new Replier<MT>(reply, this));
+  }
+
+  /**
    * @brief ZmqNode Creates a Node communicating protobuf messages over Zmq using Request Reply
    * @param reply indicates if this is a request (most times client) or reply (most times server) node.
    */

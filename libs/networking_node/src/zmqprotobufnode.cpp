@@ -230,3 +230,9 @@ ZmqProtobufNode::get_factory_for_message(uint16_t component_id, uint16_t msg_typ
   ZmqProtobufNode::ConcreteTypeFactory delegate = factory_by_comp_type_[key];
   return delegate;
 }
+
+
+
+
+
+

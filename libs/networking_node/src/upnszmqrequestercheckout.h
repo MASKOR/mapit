@@ -57,7 +57,7 @@ private:
     upns::Checkout *m_cache;
     bool m_operationsLocal;
 
-    void syncHierarchy();
+    //void syncHierarchy();
 
 };
 

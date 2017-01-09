@@ -131,7 +131,8 @@ CheckoutImpl::typeOfObject(const Path &path)
 
     // if object is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
-    assert(!ref.id().empty() && ref.path().empty());
+    //assert(!ref.id().empty() && ref.path().empty());
+    if(ref.id().empty()) return MessageEmpty;
     return m_serializer->typeOfObject(ref.id());
 }
 

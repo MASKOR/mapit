@@ -41,17 +41,17 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestOperatorExecution>( fn );
 
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestGenericEntry, &upns::ZmqResponderPrivate::handleRequestGenericEntry>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestGenericEntry>( fn );
+
     member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreEntity, &upns::ZmqResponderPrivate::handleRequestStoreEntity>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreEntity>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestEntity, &upns::ZmqResponderPrivate::handleRequestEntity>;
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreTree, &upns::ZmqResponderPrivate::handleRequestStoreTree>;
     fn = std::bind(member, this, std::placeholders::_1);
-    add_receivable_message_type<RequestEntity>( fn );
-
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestTree, &upns::ZmqResponderPrivate::handleRequestTree>;
-    fn = std::bind(member, this, std::placeholders::_1);
-    add_receivable_message_type<RequestTree>( fn );
+    add_receivable_message_type<RequestStoreTree>( fn );
 
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
@@ -402,37 +402,97 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestEntity(upns::RequestEntity *msg)
+void upns::ZmqResponderPrivate::handleRequestStoreTree(upns::RequestStoreTree *msg)
 {
-    std::unique_ptr<upns::ReplyEntity> rep(new upns::ReplyEntity());
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
-    upnsSharedPointer<Entity> e = co->getEntity(msg->path());
-    if(e)
+    std::unique_ptr<upns::ReplyStoreTree> rep(new upns::ReplyStoreTree());
+
+    // Validate input
+    upnsSharedPointer<Checkout> checkout = m_repo->getCheckout(msg->checkout());
+    if(checkout == NULL)
     {
-        rep->set_status( upns::ReplyEntity::SUCCESS );
-        rep->set_allocated_entity( new Entity(*e) );
+        rep->set_status( upns::ReplyStoreTree::CHECKOUT_NOT_FOUND );
+        send( std::move( rep ) );
+        return;
+    }
+    MessageType type = checkout->typeOfObject(msg->path());
+    if(type != MessageEmpty)
+    {
+        rep->set_status( upns::ReplyStoreTree::EXISTED );
+        send( std::move( rep ) );
+        return;
+    }
+    OperationDescription desc;
+    desc.set_operatorname("StoreTree");
+    desc.set_params("{source:\"network\"}");
+    upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
+        upns::CheckoutRaw* coraw = env->getCheckout();
+        upnsSharedPointer<Tree> tree;
+        StatusCode s = coraw->storeTree(msg->path(), tree);
+        return s;
+    });
+    if(upnsIsOk(res.first))
+    {
+        assert(!has_more());
+        rep->set_status(upns::ReplyStoreTree::SUCCESS);
     }
     else
     {
-        log_info("Entity \"" + msg->path() + "\" was requested but not found.");
-        rep->set_status( upns::ReplyEntity::NOT_FOUND );
+        log_error("Could not store tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
+        rep->set_status(upns::ReplyStoreTree::ERROR);
     }
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestTree(upns::RequestTree *msg)
+void upns::ZmqResponderPrivate::handleRequestGenericEntry(upns::RequestGenericEntry *msg)
 {
-    std::unique_ptr<upns::ReplyTree> rep(new upns::ReplyTree());
+    Replier<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry(), this);
+    //std::unique_ptr<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry());
     upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
-    upnsSharedPointer<Tree> t = co->getTree(msg->path());
-    if(t)
+    MessageType type = co->typeOfObject(msg->path());
+    if(type == MessageTree)
     {
-        rep->set_status( upns::ReplyTree::SUCCESS );
-        rep->set_allocated_tree( new Tree(*t) );
+        upnsSharedPointer<Tree> tree = co->getTree(msg->path());
+        if(tree)
+        {
+            rep.reply()->set_status( upns::ReplyGenericEntry::SUCCESS );
+            rep.reply()->mutable_entry()->set_allocated_tree( new Tree(*tree) );
+        }
+        else
+        {
+            log_info("Tree \"" + msg->path() + "\" was requested but not found.");
+            rep.reply()->set_status( upns::ReplyGenericEntry::NOT_FOUND );
+        }
     }
-    else
+    else if(type == MessageEntity)
     {
-        rep->set_status( upns::ReplyTree::NOT_FOUND );
+        upnsSharedPointer<Entity> entity = co->getEntity(msg->path());
+        if(entity)
+        {
+            rep.reply()->set_status( upns::ReplyGenericEntry::SUCCESS );
+            rep.reply()->mutable_entry()->set_allocated_entity( new Entity(*entity) );
+        }
+        else
+        {
+            log_info("Entity \"" + msg->path() + "\" was requested but not found.");
+            rep.reply()->set_status( upns::ReplyGenericEntry::NOT_FOUND );
+        }
     }
-    send( std::move( rep ) );
+    rep.send();
 }
+
+//void upns::ZmqResponderPrivate::handleRequestTree(upns::RequestTree *msg)
+//{
+//    std::unique_ptr<upns::ReplyTree> rep(new upns::ReplyTree());
+//    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+//    upnsSharedPointer<Tree> t = co->getTree(msg->path());
+//    if(t)
+//    {
+//        rep->set_status( upns::ReplyTree::SUCCESS );
+//        rep->set_allocated_tree( new Tree(*t) );
+//    }
+//    else
+//    {
+//        rep->set_status( upns::ReplyTree::NOT_FOUND );
+//    }
+//    send( std::move( rep ) );
+//}
