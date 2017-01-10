@@ -11,6 +11,9 @@ namespace upns {
 ///
 /// \brief The ZmqRequesterCheckout class
 /// Implements the basic Checkout Interface and will send requests over network
+/// Compute local:
+/// - true: makes it possible to read from filesystem locally, and write to remote repository
+/// - false: makes it possible to read from remote filesystem to remote repo
 ///
 
 class ZmqRequesterCheckout : public upns::Checkout, public upns::CheckoutRaw
