@@ -6,30 +6,22 @@ INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
 
-set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
-
-include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 # make proto visible in qtcreator
 file(GLOB_RECURSE YAML_FILES ${PROJECT_SOURCE_DIR}/*.yaml)
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add yaml files to project" SOURCES ${YAML_FILES})
 
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-if(WIN32)
-  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
-else(WIN32)
-  target_link_libraries(${PROJECT_NAME} upns_mapmanager ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
-endif(WIN32)
+target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES})
 
 if(WIN32)
-    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
-else(WIN32)
-    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+  target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)
 
 execute_process(

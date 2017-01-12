@@ -5,7 +5,6 @@
 #include "versioning/repositoryfactorystandard.h"
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
-#include <yaml-cpp/yaml.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <fstream>

@@ -4,23 +4,19 @@
 #include "upns_typedefs.h"
 #include "upns_logging.h"
 #include "serialization/abstractmapserializer.h"
-#include "yaml-cpp/yaml.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 
 class QLockFile;
-namespace leveldb {
-  class DB;
-  class Status;
-}
+
 namespace fs = boost::filesystem;
 
 namespace upns
 {
 
   /**
- * @brief The LevelDBSerializer class stores all data using leveldb.
+ * @brief The FSSerializer class stores all data using a file system.
  *
  */
 
@@ -49,7 +45,7 @@ namespace upns
     void fs_read(fs::path path, upnsSharedPointer<GenericEntry> entry);
   public:
 
-    FSSerializer(const YAML::Node &config);
+    FSSerializer(std::__cxx11::string directory);
     virtual ~FSSerializer();
 
     virtual bool canRead();

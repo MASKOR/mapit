@@ -5,7 +5,6 @@
 #include <QDir>
 #include <QVector>
 #include <QString>
-#include "yaml-cpp/yaml.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "versioning/repository.h"

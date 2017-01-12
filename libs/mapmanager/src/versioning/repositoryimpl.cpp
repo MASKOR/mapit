@@ -1,5 +1,4 @@
 #include "repositoryimpl.h"
-#include "yaml-cpp/yaml.h"
 #include "serialization/abstractmapserializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"

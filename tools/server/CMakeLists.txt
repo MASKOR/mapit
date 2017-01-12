@@ -14,9 +14,6 @@ include_directories(${ZMQ_INCLUDE_DIR})
 find_package(CPPZMQ REQUIRED)
 include_directories(${CPPZMQ_INCLUDE_DIR})
 
-find_package(YamlCpp REQUIRED)
-set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
-
 include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
@@ -28,17 +25,11 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
 if(NOT WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(NOT WIN32)
-
-if(WIN32)
-    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
-else(WIN32)
-    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
-endif(WIN32)
 
 execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin

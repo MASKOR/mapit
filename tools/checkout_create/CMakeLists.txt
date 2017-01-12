@@ -9,13 +9,6 @@ find_package(Boost COMPONENTS program_options REQUIRED)
 
 INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
 
-if(WIN32)
-    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
-else(WIN32)
-    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
-endif(WIN32)
-
-include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 # make proto visible in qtcreator
@@ -33,7 +26,7 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${LEVELDB_LIBRARIES} ${YAML_CPP_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
 execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin

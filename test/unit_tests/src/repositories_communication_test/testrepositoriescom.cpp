@@ -5,7 +5,6 @@
 #include <QDir>
 #include <QVector>
 #include <QString>
-#include "yaml-cpp/yaml.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "versioning/repository.h"
@@ -192,11 +191,6 @@ void TestRepositoriesCommunication::compareFileToExpected(const char* filename)
 upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initEmptyLocal()
 {
     const char* fileSystemName = "testrepocom.mapit";
-    YAML::Node config;
-    YAML::Node mapsource;
-    mapsource["name"] = "FileSystem";
-    mapsource["filename"] = fileSystemName;
-    config["mapsource"] = mapsource;
     QDir dir(fileSystemName);
     if(dir.exists())
     {
@@ -206,7 +200,7 @@ upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initEmp
             return upns::upnsSharedPointer<upns::Repository>(nullptr);
         }
     }
-    return upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository( config ));
+    return upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository( fileSystemName ));
 }
 
 upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initNetwork(/*upns::upnsSharedPointer<upns::Repository> other,*/ bool computeLocal)

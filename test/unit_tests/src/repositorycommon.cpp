@@ -50,33 +50,27 @@ void RepositoryCommon::initTestdata()
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        YAML::Node conf;
-        YAML::Node mapsource;
-        mapsource["name"] = "FileSystem";
-        mapsource["filename"] = fileSystemName;
-        conf["mapsource"] = mapsource;
-
-        m_repo[0] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf));
+        m_repo[0] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName));
         m_checkout[0] = upns::upnsSharedPointer<upns::Checkout>(m_repo[0]->createCheckout("master", "testcheckout"));
     }
-    {
-        //// Setup Repository as Database
-        const char* databaseName = "test.db";
-        QDir dir(databaseName);
-        if(dir.exists())
-        {
-            bool result = dir.removeRecursively();
-            QVERIFY( result );
-        }
-        YAML::Node conf;
-        YAML::Node mapsource;
-        mapsource["name"] = "leveldb";
-        mapsource["filename"] = databaseName;
-        conf["mapsource"] = mapsource;
+//    {
+//        //// Setup Repository as Database
+//        const char* databaseName = "test.db";
+//        QDir dir(databaseName);
+//        if(dir.exists())
+//        {
+//            bool result = dir.removeRecursively();
+//            QVERIFY( result );
+//        }
+//        YAML::Node conf;
+//        YAML::Node mapsource;
+//        mapsource["name"] = "leveldb";
+//        mapsource["filename"] = databaseName;
+//        conf["mapsource"] = mapsource;
 
-        m_repo[1] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf));
-        m_checkout[1] = upns::upnsSharedPointer<upns::Checkout>(m_repo[1]->createCheckout("master", "testcheckout"));
-    }
+//        m_repo[1] = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf));
+//        m_checkout[1] = upns::upnsSharedPointer<upns::Checkout>(m_repo[1]->createCheckout("master", "testcheckout"));
+//    }
     {
         //// Setup Repository as Network connection
         const char* fileSystemName2 = "remote.mapit";
@@ -86,12 +80,7 @@ void RepositoryCommon::initTestdata()
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        YAML::Node conf2;
-        YAML::Node mapsource2;
-        mapsource2["name"] = "FileSystem";
-        mapsource2["filename"] = fileSystemName2;
-        conf2["mapsource"] = mapsource2;
-        m_networkRepo = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf2));
+        m_networkRepo = upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName2));
 
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
         upns::upnsSharedPointer<upns::RepositoryServer> srv = upns::upnsSharedPointer<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo.get()));

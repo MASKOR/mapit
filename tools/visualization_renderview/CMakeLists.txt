@@ -25,8 +25,6 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-include_directories(${YAML_CPP_INCLUDE})
-
 #find_package(Qt5Qml 5.5 REQUIRED)
 #find_package(Qt5Widgets 5.5 REQUIRED)
 #find_package(Qt5Quick 5.5 REQUIRED)

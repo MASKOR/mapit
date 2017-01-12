@@ -27,14 +27,6 @@ set(CMAKE_AUTOMOC ON)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
-if(WIN32)
-    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
-else(WIN32)
-    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
-endif(WIN32)
-
-include_directories(${YAML_CPP_INCLUDE})
-
 find_package(Qt5Core 5.6 REQUIRED)
 find_package(Qt5Qml 5.6 REQUIRED)
 find_package(Qt5Widgets 5.6 REQUIRED)

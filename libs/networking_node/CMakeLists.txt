@@ -18,7 +18,7 @@ add_library(${PROJECT_NAME} ${UPNS_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src )
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} dl)

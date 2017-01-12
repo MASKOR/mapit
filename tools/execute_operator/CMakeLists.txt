@@ -9,10 +9,6 @@ INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 include_directories( ${UPNS_ROOT_DIR}/libs/mapmanager/include ) # TODO: introduce var.
 include_directories(${UPNS_INTERFACE_INCLUDE})
 
-set(YAML_CPP_LIBRARIES debug ${YAML_CPP_LIBRARY_DEBUG} optimized ${YAML_CPP_LIBRARY_RELEASE})
-
-link_directories(${YAML_CPP_LIB_DIR})
-include_directories(${YAML_CPP_INCLUDE})
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 # make proto visible in qtcreator
@@ -24,16 +20,9 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
+target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
-else(WIN32)
-  target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} ${LOG4CPLUS_LIBRARIES} uuid ${libzip})
-endif(WIN32)
-
-if(WIN32)
-    set(YAML_CPP_LIBRARIES debug "${YAML_CPP_LIBRARY_DEBUG}" optimized "${YAML_CPP_LIBRARY_RELEASE}")
-else(WIN32)
-    set(YAML_CPP_LIBRARIES "${YAML_CPP_LIBRARY_DEBUG}" "${YAML_CPP_LIBRARY_RELEASE}")
+  target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)
 
 execute_process(

@@ -20,7 +20,7 @@ class RepositoryFactoryStandard
 public:
 
     static const char* usage();
-    static Repository* openRepository(int argc, char *argv[]);
+    //static Repository* openRepository(int argc, char *argv[]);
 
     static void addProgramOptions(boost::program_options::options_description &desc);
     static Repository* openRepository(boost::program_options::variables_map &vars);

@@ -35,15 +35,9 @@ const fs::path FSSerializer::_CHECKOUT_GENERIC_ENTRY_ = ".generic_entry";
 const fs::path FSSerializer::_CHECKOUT_ENTITY_DATA_   = "entity_data";
 const fs::path FSSerializer::_CHECKOUT_ROOT_FOLDER_   = "root";
 
-FSSerializer::FSSerializer(const YAML::Node &config)
+FSSerializer::FSSerializer(std::string directory)
 {
-    fs::path path;
-    if ( config["filename"] ) {
-        path = fs::path( config["filename"].as<std::string>() );
-    } else {
-        path = fs::current_path();
-        log_info("No Path given for repo, use current path");
-    }
+    fs::path path( directory );
     log_info("Use repo at " + path.string());
 
     // search for repo

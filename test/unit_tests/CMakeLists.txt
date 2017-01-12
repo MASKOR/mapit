@@ -18,21 +18,6 @@ add_definitions(${PCL_DEFINITIONS})
 find_package(Protobuf)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-find_package(YamlCpp)
-include_directories(${YAMLCPP_INCLUDE_DIR})
-#if(WIN32)
-#    set(YAML_CPP_LIBRARIES debug "${YAMLCPP_LIBRARY_DEBUG}" optimized "${YAMLCPP_LIBRARY_RELEASE}")
-#else(WIN32)
-#    set(YAML_CPP_LIBRARIES "${YAMLCPP_LIBRARY_DEBUG}" "${YAMLCPP_LIBRARY_RELEASE}")
-#endif(WIN32)
-#file(GLOB_RECURSE UPNS_TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-
-#add_executable(${PROJECT_NAME} ${SRC_LIST} ${UPNS_TEST_SOURCES} )
-
-#target_link_libraries(${PROJECT_NAME} Qt5::Core upns_mapmanager upns_interface )
-
-#cmake_minimum_required(VERSION 2.8)
-
 FILE(GLOB TEST_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 MACRO(SUBDIRLIST result curdir)
@@ -67,7 +52,7 @@ FOREACH(subdir ${SUBDIRS})
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
 
   target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} upns_mapmanager upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
-                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${YAMLCPP_LIBRARY})
+                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
@@ -101,7 +86,7 @@ add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} )
 #custom_target_use_boost(${subdir})
 find_package(Boost COMPONENTS filesystem system date_time)
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
-                              ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES} ${YAMLCPP_LIBRARY})
+                              ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
 #if(WIN32)
 #target_link_libraries(TestAll
 #    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib

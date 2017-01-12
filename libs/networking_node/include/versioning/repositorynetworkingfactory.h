@@ -4,7 +4,6 @@
 #include "upns_typedefs.h"
 #include "versioning/repository.h"
 #include "repositoryserver.h"
-#include <yaml-cpp/yaml.h>
 
 namespace upns
 {

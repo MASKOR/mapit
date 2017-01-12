@@ -3,7 +3,6 @@
 #include "services.pb.h"
 #include "versioning/repository.h"
 #include "versioning/repositoryfactorystandard.h"
-#include <yaml-cpp/yaml.h>
 #include "upns_errorcodes.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>

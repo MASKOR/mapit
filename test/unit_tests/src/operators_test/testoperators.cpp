@@ -5,7 +5,6 @@
 #include <QDir>
 #include <QVector>
 #include <QString>
-#include "yaml-cpp/yaml.h"
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>

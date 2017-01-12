@@ -2,7 +2,6 @@
 #define REPOSITORYFACTORY_H
 
 #include "upns_typedefs.h"
-#include "yaml-cpp/yaml.h"
 #include "versioning/repository.h"
 
 namespace upns
@@ -12,19 +11,11 @@ class RepositoryFactory
 public:
     /**
      * @brief openLocalRepository. Opens a Repository on disc or creates an empty repository.
-     * @param filename of yaml config
+     * @param directory for repository
      * It communicates directly to file serializer.
      * @return
      */
-    static upns::Repository* openLocalRepository(const upnsString &filename);
-
-    /**
-     * @brief openLocalRepository. Opens a Repository on disc or creates an empty repository.
-     * @param config Yaml configuration of the repository
-     * It communicates directly to file serializer.
-     * @return
-     */
-    static upns::Repository* openLocalRepository(const YAML::Node &config);
+    static upns::Repository *openLocalRepository(std::__cxx11::string directory);
 };
 
 }

@@ -15,9 +15,9 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES} uuid ${libzip})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} uuid ${libzip})
 endif(WIN32)
 
 target_link_libraries(${PROJECT_NAME} upns_mapmanager ${LEVELDB_LIBRARIES})
