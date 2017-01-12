@@ -53,7 +53,7 @@ public:
 
     /**
      * @brief push alls branches to <repo>
-     * @param repo Other Repository with AbstractMapSerializer (maybe Network behind it?)
+     * @param repo Other Repository with AbstractSerializer (maybe Network behind it?)
      * @return status
      */
     Q_INVOKABLE QString push(QmlRepository *repo);

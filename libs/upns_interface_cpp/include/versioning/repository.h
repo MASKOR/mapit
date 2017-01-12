@@ -110,7 +110,7 @@ public:
 
     /**
      * @brief push alls branches to <repo>
-     * @param repo Other Repository with AbstractMapSerializer (maybe Network behind it?)
+     * @param repo Other Repository with AbstractSerializer (maybe Network behind it?)
      * @return status
      */
     virtual StatusCode push(Repository &repo) = 0;

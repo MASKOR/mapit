@@ -11,11 +11,11 @@
 namespace upns
 {
 class RepositoryPrivate;
-class AbstractMapSerializer;
+class AbstractSerializer;
 class RepositoryImpl : public Repository
 {
 public:
-    RepositoryImpl(upns::upnsSharedPointer<upns::AbstractMapSerializer> serializer);
+    RepositoryImpl(upns::upnsSharedPointer<upns::AbstractSerializer> serializer);
     virtual ~RepositoryImpl();
 
     upnsVec<upnsString> listCheckoutNames();

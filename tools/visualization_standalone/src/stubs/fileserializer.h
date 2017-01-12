@@ -5,11 +5,11 @@
 //namespace upns
 //{
 
-//class FileSerializer : public upns::AbstractMapSerializer
+//class FileSerializer : public upns::AbstractSerializer
 //{
 
 
-//    // AbstractMapSerializer interface
+//    // AbstractSerializer interface
 //public:
 //    bool canRead();
 //    bool canWrite();

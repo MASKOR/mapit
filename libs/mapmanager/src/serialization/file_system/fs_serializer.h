@@ -3,7 +3,7 @@
 
 #include "upns_typedefs.h"
 #include "upns_logging.h"
-#include "serialization/abstractmapserializer.h"
+#include "serialization/abstractserializer.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -20,7 +20,7 @@ namespace upns
  *
  */
 
-  class FSSerializer : public AbstractMapSerializer
+  class FSSerializer : public AbstractSerializer
   {
   private:
     static const fs::path _PREFIX_MAPIT_;

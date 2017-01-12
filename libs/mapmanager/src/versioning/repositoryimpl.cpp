@@ -1,5 +1,5 @@
 #include "repositoryimpl.h"
-#include "serialization/abstractmapserializer.h"
+#include "serialization/abstractserializer.h"
 #include "versioning/checkoutimpl.h"
 #include "serialization/entitystreammanager.h"
 #include <chrono>
@@ -8,13 +8,13 @@ namespace upns
 {
 class RepositoryPrivate
 {
-    RepositoryPrivate(upns::upnsSharedPointer<AbstractMapSerializer> ser):m_serializer(ser){}
+    RepositoryPrivate(upns::upnsSharedPointer<AbstractSerializer> ser):m_serializer(ser){}
 
-    upns::upnsSharedPointer<AbstractMapSerializer> m_serializer;
+    upns::upnsSharedPointer<AbstractSerializer> m_serializer;
     friend class RepositoryImpl;
 };
 
-RepositoryImpl::RepositoryImpl(upns::upnsSharedPointer<AbstractMapSerializer> serializer)
+RepositoryImpl::RepositoryImpl(upns::upnsSharedPointer<AbstractSerializer> serializer)
     :m_p(new RepositoryPrivate(serializer))
 {}
 

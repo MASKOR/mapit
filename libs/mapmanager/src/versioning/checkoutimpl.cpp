@@ -17,7 +17,7 @@ namespace upns
 {
 typedef ModuleInfo* (*GetModuleInfo)();
 
-CheckoutImpl::CheckoutImpl(upns::upnsSharedPointer<AbstractMapSerializer> serializer, upnsSharedPointer<CheckoutObj>  checkoutCommit, upnsString name, const upnsString branchname)
+CheckoutImpl::CheckoutImpl(upns::upnsSharedPointer<AbstractSerializer> serializer, upnsSharedPointer<CheckoutObj>  checkoutCommit, upnsString name, const upnsString branchname)
     :m_serializer(serializer),
      m_branchname( branchname ),
      m_name(name),
@@ -37,7 +37,7 @@ CheckoutImpl::CheckoutImpl(upns::upnsSharedPointer<AbstractMapSerializer> serial
 //    }
 }
 
-//CheckoutImpl::CheckoutImpl(AbstractMapSerializer *serializer, const upnsSharedPointer<Branch> &branch)
+//CheckoutImpl::CheckoutImpl(AbstractSerializer *serializer, const upnsSharedPointer<Branch> &branch)
 //    :m_serializer(serializer),
 //      m_branch( branch )
 //{

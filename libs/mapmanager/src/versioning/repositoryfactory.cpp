@@ -1,11 +1,11 @@
 #include "versioning/repositoryfactory.h"
-#include "serialization/abstractmapserializer.h"
+#include "serialization/abstractserializer.h"
 #include "serialization/file_system/fs_serializer.h"
 #include "repositoryimpl.h"
 
-static upns::AbstractMapSerializer *initializeSerializer(std::string directory)
+static upns::AbstractSerializer *initializeSerializer(std::string directory)
 {
-    upns::AbstractMapSerializer *mser = new upns::FSSerializer(directory);
+    upns::AbstractSerializer *mser = new upns::FSSerializer(directory);
 
     // Check if anything exists in the database
     // Note: There might be commits or objects which are not recognized here.
@@ -24,6 +24,6 @@ static upns::AbstractMapSerializer *initializeSerializer(std::string directory)
 
 upns::Repository *upns::RepositoryFactory::openLocalRepository(std::string directory)
 {
-    upns::upnsSharedPointer<AbstractMapSerializer> mser( initializeSerializer( directory ) );
+    upns::upnsSharedPointer<AbstractSerializer> mser( initializeSerializer( directory ) );
     return new upns::RepositoryImpl( mser );
 }

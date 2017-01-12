@@ -5,7 +5,7 @@
 #include "upns_logging.h"
 #include "services.pb.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "serialization/abstractmapserializer.h"
+#include "serialization/abstractserializer.h"
 #include "entitydata.h"
 #include "versioning/checkout.h"
 #include "modules/versioning/checkoutraw.h"
@@ -44,7 +44,7 @@ public:
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(upns::upnsSharedPointer<AbstractMapSerializer> serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
+    CheckoutImpl(upns::upnsSharedPointer<AbstractSerializer> serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
 
     virtual bool isInConflictMode();
     virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
@@ -138,7 +138,7 @@ private:
 //                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
 //                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
 
-    upns::upnsSharedPointer<AbstractMapSerializer> m_serializer;
+    upns::upnsSharedPointer<AbstractSerializer> m_serializer;
 
     // Branch, the checkout is based on, if any
     upnsString m_branchname;
