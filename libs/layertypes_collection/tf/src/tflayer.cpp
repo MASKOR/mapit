@@ -149,7 +149,7 @@ void TfEntitydata::endWrite(upnsOStream *strm)
 
 size_t TfEntitydata::size() const
 {
-    m_streamProvider->getStreamSize();
+    return m_streamProvider->getStreamSize();
 }
 
 // Win32 does not like anything but void pointers handled between libraries

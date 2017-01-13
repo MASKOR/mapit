@@ -4,7 +4,7 @@
 #include "entitydata.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
 
-#include <eigen3/Eigen/Geometry>
+#include <Eigen/Geometry>
 
 using namespace upns;
 

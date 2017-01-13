@@ -2,6 +2,8 @@ project(upns_mapmanager)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
+find_package(Boost COMPONENTS filesystem )
+
 ############# Protobuf
 
 find_package(Protobuf REQUIRED)
@@ -22,7 +24,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 # PCL was linked statically against boost. PCL is linkes statically to layertype.
 # Layertype has nothing to do with mapmanager. (linked dynmic and at runtime)
 # Somehow boost dependency comes in here. I guess a static library wants it, thus the executable/dynamic-library must have it.
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
 
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} dl)
@@ -31,5 +33,6 @@ endif(NOT WIN32)
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_55.lib)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/
-                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/)
+target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
+                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/
+                                                   ${Boost_INCLUDE_DIRS})

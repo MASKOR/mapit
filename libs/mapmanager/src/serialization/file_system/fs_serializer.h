@@ -45,7 +45,7 @@ namespace upns
     void fs_read(fs::path path, upnsSharedPointer<GenericEntry> entry);
   public:
 
-    FSSerializer(std::__cxx11::string directory);
+    FSSerializer(std::string directory);
     virtual ~FSSerializer();
 
     virtual bool canRead();

@@ -15,7 +15,14 @@ include(FindLog4cplus)
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
-find_package(Eigen3 REQUIRED)
+
+# find Eigen3  Will just not work on windows
+if(WIN32)
+    find_package(Eigen3)
+    set(EIGEN3_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/externals/eigen3) # contains Eigen/...
+else(WIN32)
+    find_package(Eigen3 REQUIRED)
+endif(WIN32)
 
 # TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_TF_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
@@ -26,7 +33,7 @@ target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${EIGEN3_LIBRARIES})
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
 
 
-target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})

@@ -1,5 +1,4 @@
 #include "module.h"
-#include "libs/layertypes_collection/tf/include/tflayer.h"
 #include "modules/versioning/checkoutraw.h"
 #include "modules/operationenvironment.h"
 #include <iostream>
@@ -10,7 +9,7 @@
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
     assert(false); // Not yet implemented
-    OperationDescription out;
+    upns::OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);
     out.set_operatorversion(OPERATOR_VERSION);
     env->setOutputDescription( out.SerializeAsString() );
