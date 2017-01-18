@@ -6,6 +6,7 @@
 namespace upns
 {
 
+typedef void * ReadWriteHandle;
 /**
  * @brief The AbstractEntitydataStreamProvider class can be called by a concrete layerData implementation to store/read an abstract stream of data.
  * While AbstractLayerData is responsible for the communication from the mapmanager to the concrete implementation, this is the other direction.
@@ -59,6 +60,66 @@ public:
      */
     virtual void endWrite(upnsOStream *strm) = 0;
 
+    /**
+     * @brief startRead Used to read data as pointer.
+     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+     * @param len defaultvalue of 0 indicates, that data will be read until end
+     * @return a stream to read data from
+     */
+    virtual void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start = 0, upnsuint64 len = 0 ) = 0;
+
+    /**
+     * @brief endRead Tell underlying implementation, that the buffer is no longer needed in memory.
+     * May unlock other operations on the stream/pointer.
+     * @param strm The stream returned by startRead()
+     */
+    virtual void endReadPointer(void* ptr, ReadWriteHandle &handle) = 0;
+
+    /**
+     * @brief startRead Used to write data as pointer.
+     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+     * @param len defaultvalue of 0 indicates, that data will be read until end
+     * @return a stream to read data from
+     */
+    virtual void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start = 0, upnsuint64 len = 0 ) = 0;
+
+    /**
+     * @brief endRead Tell underlying implementation, that the buffer is no longer needed in memory.
+     * May unlock other operations on the stream/pointer.
+     * @param strm The stream returned by startRead()
+     */
+    virtual void endWritePointer(void* ptr, ReadWriteHandle &handle) = 0;
+
+//    /**
+//     * @brief startRead Used to read data as file.
+//     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+//     * @param len defaultvalue of 0 indicates, that data will be read until end
+//     * @return a stream to read data from
+//     */
+//    virtual upnsString startReadFile(unsigned int &handle) = 0;
+
+//    /**
+//     * @brief endRead Tell underlying implementation, that the file is no longer needed.
+//     * May unlock other operations on the stream/pointer.
+//     * @param strm The stream returned by startRead()
+//     */
+//    virtual void endReadFile(unsigned int &handle) = 0;
+
+//    /**
+//     * @brief startRead Used to write data as file.
+//     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+//     * @param len defaultvalue of 0 indicates, that data will be read until end
+//     * @return a stream to read data from
+//     */
+//    virtual upnsString startWriteFile(unsigned int &handle) = 0;
+
+//    /**
+//     * @brief endRead Tell underlying implementation, that the file.
+//     * May unlock other operations on the stream/pointer.
+//     * @param strm The stream returned by startRead()
+//     */
+//    virtual void endWriteFile(unsigned int &handle) = 0;
+
     virtual upnsuint64 getStreamSize() const = 0;
 
     virtual void setStreamSize(upnsuint64) = 0;
@@ -73,6 +134,15 @@ public:
      * @brief unlock after unlocking rehashing will be done, if there were writes after locking.
      */
     virtual void unlock(LockHandle) = 0;
+
+    enum ReadWriteType
+    {
+        ReadWriteStream,
+        ReadWritePointer,
+        ReadWriteFile
+    };
+    virtual ReadWriteType preferredReadType() = 0;
+    virtual ReadWriteType preferredWriteType() = 0;
 };
 
 }

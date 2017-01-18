@@ -1,88 +1,82 @@
-#include "openvdblayer.h"
+#include "assettype.h"
 #include <sstream>
-#include <openvdb/openvdb.h>
-#include <openvdb/Grid.h>
-#include <openvdb/io/io.h>
-#include <openvdb/io/Stream.h>
 #include "upns_logging.h"
+#include <assimp/scene.h>
+#include <assimp/Exporter.hpp>
+#include <assimp/Importer.hpp>
 
-void readFloatGridFromStream(std::istream &is, openvdb::FloatGrid &grid)
+aiScene* readAssetFromStream(void* ptr, upnsuint64 len)
 {
-    openvdb::io::Stream strm(is);
-    openvdb::GridPtrVecPtr grids(new openvdb::GridPtrVec);
-    grids = strm.getGrids();
-    if(grids->size() == 0 )
-    {
-        log_warn("no grids in file. Using empty Float Grid.");
-    }
-    if(grids->size() > 1 )
-    {
-        log_warn("multiple grids in file. Using only first Float Grid.");
-    }
-
+    Assimp::Importer importer;
+    importer.ReadFileFromMemory(ptr, len, 0);
+    return importer.GetOrphanedScene();
 }
 
-void writeFloatGridToStream(std::ostream &os, openvdb::FloatGrid::Ptr grid)
+void writeAssetToStream(std::ostream &os, aiScene &data)
 {
-    openvdb::GridPtrVecPtr grids(new openvdb::GridPtrVec);
-    grids->push_back(grid);
-    openvdb::io::Stream strm(os);
-    strm.write(*grids);
+    Assimp::Exporter exporter;
+    const aiExportDataBlob *blob(exporter.ExportToBlob(&data, "obj"));
+    os.write(static_cast<char*>(blob->data), blob->size);
 }
 
 
-FloatGridEntitydata::FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+AssetEntitydata::AssetEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
-     m_floatGrid( NULL )
+     m_asset( NULL )
 {
 }
 
-LayerType FloatGridEntitydata::layerType() const
+LayerType AssetEntitydata::layerType() const
 {
-    return LayerType::OPENVDB;
+    return LayerType::ASSET;
 }
 
-bool FloatGridEntitydata::hasFixedGrid() const
-{
-    return true;
-}
-
-bool FloatGridEntitydata::canSaveRegions() const
+bool AssetEntitydata::hasFixedGrid() const
 {
     return false;
 }
 
-upnsFloatGridPtr FloatGridEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
+bool AssetEntitydata::canSaveRegions() const
+{
+    return false;
+}
+
+upnsAssetPtr AssetEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                                 bool clipMode,
                                                 int lod)
 {
-    if(m_floatGrid == NULL)
+    if(m_asset == NULL)
     {
-        m_floatGrid = upnsFloatGridPtr(new openvdb::FloatGrid());
-        upnsIStream *in = m_streamProvider->startRead();
+//        upnsIStream *in = m_streamProvider->startRead();
+//        {
+//            readAssetFromStream( *in, *m_asset );
+//        }
+//        m_streamProvider->endRead(in);
+        ReadWriteHandle handle;
+        void *in = m_streamProvider->startReadPointer(handle);
         {
-            readFloatGridFromStream( *in, *m_floatGrid );
+            m_asset = upnsAssetPtr(readAssetFromStream( in, m_streamProvider->getStreamSize()));
         }
-        m_streamProvider->endRead(in);
+        m_streamProvider->endReadPointer(in, handle);
     }
-    return m_floatGrid;
+    return m_asset;
 }
 
-int FloatGridEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
+int AssetEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                  upnsReal x2, upnsReal y2, upnsReal z2,
-                                 upnsFloatGridPtr &data,
+                                 upnsAssetPtr &data,
                                  int lod)
 {
     upnsOStream *out = m_streamProvider->startWrite();
     {
-        writeFloatGridToStream( *out, data );
+        writeAssetToStream( *out, *data );
     }
     m_streamProvider->endWrite(out);
     return 0;
 }
 
-upnsFloatGridPtr FloatGridEntitydata::getData(int lod)
+upnsAssetPtr AssetEntitydata::getData(int lod)
 {
     return getData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -93,7 +87,7 @@ upnsFloatGridPtr FloatGridEntitydata::getData(int lod)
                    false, lod);
 }
 
-int FloatGridEntitydata::setData(upnsFloatGridPtr &data, int lod)
+int AssetEntitydata::setData(upnsAssetPtr &data, int lod)
 {
     return setData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -104,7 +98,7 @@ int FloatGridEntitydata::setData(upnsFloatGridPtr &data, int lod)
                    data, lod);
 }
 
-void FloatGridEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
+void AssetEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                                      upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                      upnsReal &x2, upnsReal &y2, upnsReal &z2) const
 {
@@ -116,45 +110,45 @@ void FloatGridEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
     z2 = +std::numeric_limits<upnsReal>::infinity();
 }
 
-int FloatGridEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
+int AssetEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
     //TODO
     return 0;
 }
 
-upnsIStream *FloatGridEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+upnsIStream *AssetEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void FloatGridEntitydata::endRead(upnsIStream *strm)
+void AssetEntitydata::endRead(upnsIStream *strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *FloatGridEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+upnsOStream *AssetEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void FloatGridEntitydata::endWrite(upnsOStream *strm)
+void AssetEntitydata::endWrite(upnsOStream *strm)
 {
     m_streamProvider->endWrite(strm);
 }
 
-size_t FloatGridEntitydata::size() const
+size_t AssetEntitydata::size() const
 {
     m_streamProvider->getStreamSize();
 }
 
 void deleteEntitydata(AbstractEntitydata *ld)
 {
-    FloatGridEntitydata *p = static_cast<FloatGridEntitydata*>(ld);
+    AssetEntitydata *p = static_cast<AssetEntitydata*>(ld);
     delete p;
 }
 void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
+    *out = upnsSharedPointer<AbstractEntitydata>(new AssetEntitydata( streamProvider ), deleteEntitydata);
 }
 

@@ -20,6 +20,13 @@ public:
     void setStreamSize(upnsuint64 streamSize);
     LockHandle lock();
     void unlock(LockHandle);
+
+    void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void endReadPointer(void *ptr, ReadWriteHandle &handle);
+    void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void endWritePointer(void* ptr, ReadWriteHandle &handle);
+    ReadWriteType preferredReadType();
+    ReadWriteType preferredWriteType();
 private:
     std::string m_filenameRead;
     std::string m_filenameWrite;

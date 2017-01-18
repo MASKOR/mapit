@@ -28,11 +28,22 @@ public:
     void setStreamSize(upnsuint64 entitylength);
     LockHandle lock();
     void unlock(LockHandle);
+
+    void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void endReadPointer(void *ptr, ReadWriteHandle &handle);
+    void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void endWritePointer(void *ptr, ReadWriteHandle &handle);
+    char *startRead(upnsuint64 start, upnsuint64 length, upnsuint64 &outLength);
+    //void endRead();
+    void endWrite(const char *memory, const upns::upnsuint64 &length, const upnsuint64 &offset);
+    ReadWriteType preferredReadType();
+    ReadWriteType preferredWriteType();
 private:
     upnsString m_checkoutName;
     upnsString m_pathOrOid;
     ZmqProtobufNode *m_node;
     mutable upnsuint64 m_entityLength;
+
 };
 
 }
