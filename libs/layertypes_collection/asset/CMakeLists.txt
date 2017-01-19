@@ -7,11 +7,11 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 find_package(assimp REQUIRED)
 
-file(GLOB_RECURSE LAYERTYPE_OPENVDB_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE LAYERTYPE_ASSIMP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
-add_library(${PROJECT_NAME} ${SRC_LIST} ${LAYERTYPE_OPENVDB_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_ASSIMP_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${OPENVDB_LIBRARIES} upns_interface upns_interface_cpp)
+target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${assimp_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/

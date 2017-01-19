@@ -62,7 +62,6 @@ void TestOperators::testOperatorLoadPointcloud()
     QVERIFY( !(*parent->mutable_refs())["eins"].path().empty() );
     upnsSharedPointer<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
     //upnsSharedPointer<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
-
     upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByPath = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     //upnsSharedPointer<PointcloudEntitydata> entitydataPC2ByRef = upns::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
     upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
@@ -137,6 +136,29 @@ void TestOperators::testInlineOperator()
         pcl::PointXYZ &p3 = cloud.at(i);
         QCOMPARE_REALVEC3(p1, p3);
     }
+}
+
+void TestOperators::testPointcloudToMesh_data() { createTestdata(); }
+void TestOperators::testPointcloudToMesh()
+{
+    QFETCH(upns::upnsSharedPointer<upns::Checkout>, checkout);
+    OperationDescription desc;
+    desc.set_operatorname("load_pointcloud");
+    desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
+    OperationResult ret = checkout->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    desc.set_operatorname("surfrecon_openvdb");
+    desc.set_params("{\"voxelsize\":0.1, \"radius\":1, \"input\":\"bunny/laser/eins\", \"output\":\"bunny/laser/levelset\"}");
+    ret = checkout->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    desc.set_operatorname("levelset_to_mesh");
+    desc.set_params("{\"input\":\"bunny/laser/levelset\", \"output\":\"bunny/laser/asset\"}");
+    ret = checkout->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    log_info("Test finished!");
 }
 
 //void TestOperators::testOperatorGrid_data() { createTestdata(); }

@@ -70,6 +70,16 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
         layerName = "layertype_tf";
         break;
     }
+    case OPENVDB:
+    {
+        layerName = "layertype_openvdb";
+        break;
+    }
+    case ASSET:
+    {
+        layerName = "layertype_asset";
+        break;
+    }
     default:
         log_error("Unknown layertype: " + std::to_string(type));
         return upnsSharedPointer<AbstractEntitydata>(NULL);

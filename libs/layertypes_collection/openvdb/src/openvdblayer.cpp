@@ -6,8 +6,9 @@
 #include <openvdb/io/Stream.h>
 #include "upns_logging.h"
 
-void readFloatGridFromStream(std::istream &is, openvdb::FloatGrid &grid)
+void readFloatGridFromStream(std::istream &is, openvdb::FloatGrid::Ptr &grid)
 {
+    openvdb::initialize();
     openvdb::io::Stream strm(is);
     openvdb::GridPtrVecPtr grids(new openvdb::GridPtrVec);
     grids = strm.getGrids();
@@ -19,7 +20,9 @@ void readFloatGridFromStream(std::istream &is, openvdb::FloatGrid &grid)
     {
         log_warn("multiple grids in file. Using only first Float Grid.");
     }
-
+    openvdb::GridBase::Ptr gridBase(grids->at(0));
+    openvdb::FloatGrid::Ptr gridFloat(openvdb::gridPtrCast<openvdb::FloatGrid>(gridBase));
+    grid = gridFloat;
 }
 
 void writeFloatGridToStream(std::ostream &os, openvdb::FloatGrid::Ptr grid)
@@ -59,10 +62,9 @@ upnsFloatGridPtr FloatGridEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal
 {
     if(m_floatGrid == NULL)
     {
-        m_floatGrid = upnsFloatGridPtr(new openvdb::FloatGrid());
         upnsIStream *in = m_streamProvider->startRead();
         {
-            readFloatGridFromStream( *in, *m_floatGrid );
+            readFloatGridFromStream( *in, m_floatGrid );
         }
         m_streamProvider->endRead(in);
     }

@@ -15,7 +15,7 @@ aiScene* readAssetFromStream(void* ptr, upnsuint64 len)
 void writeAssetToStream(std::ostream &os, aiScene &data)
 {
     Assimp::Exporter exporter;
-    const aiExportDataBlob *blob(exporter.ExportToBlob(&data, "obj"));
+    const aiExportDataBlob *blob(exporter.ExportToBlob(&data, "collada"));
     os.write(static_cast<char*>(blob->data), blob->size);
 }
 

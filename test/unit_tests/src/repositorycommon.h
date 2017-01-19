@@ -15,7 +15,7 @@ class RepositoryCommon: public QObject
 {
     Q_OBJECT
 protected:
-    void createTestdata();
+    void createTestdata(bool withServer = false);
     void initTestdata();
     void cleanupTestdata();
     void startServer();

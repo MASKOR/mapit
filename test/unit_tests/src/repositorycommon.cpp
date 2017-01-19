@@ -10,10 +10,10 @@ Q_DECLARE_METATYPE(upns::upnsSharedPointer<upns::Repository>)
 Q_DECLARE_METATYPE(upns::upnsSharedPointer<upns::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
-void RepositoryCommon::createTestdata()
+void RepositoryCommon::createTestdata(bool withServer)
 {
     const bool testLevelDB = false;
-    const bool testRemote = true;
+    const bool testRemote = withServer;
     QTest::addColumn< upns::upnsSharedPointer<upns::Repository> >("repo");
     QTest::addColumn< upns::upnsSharedPointer<upns::Checkout> >("checkout");
     QTest::addColumn< std::function<void()> >("startServer");

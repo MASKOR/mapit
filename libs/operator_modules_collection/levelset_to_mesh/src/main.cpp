@@ -1,0 +1,332 @@
+#include "module.h"
+#include "libs/layertypes_collection/asset/include/assettype.h"
+#include "libs/layertypes_collection/openvdb/include/openvdblayer.h"
+#include <openvdb/openvdb.h>
+#include <openvdb/Grid.h>
+#include <openvdb/tools/VolumeToMesh.h>
+#include <openvdb/tools/LevelSetUtil.h>
+#include <assimp/scene.h>
+#include <assimp/mesh.h>
+#include "modules/versioning/checkoutraw.h"
+#include "modules/operationenvironment.h"
+#include <iostream>
+#include <memory>
+#include "upns_errorcodes.h"
+#include "modules/versioning/checkoutraw.h"
+#include "json11.hpp"
+
+upnsSharedPointer<aiScene> generateAiScene(openvdb::tools::VolumeToMesh& mesher)
+{
+    // input validation
+    upnsSharedPointer<aiScene> scene(new aiScene);
+
+    scene->mRootNode = new aiNode();
+
+    scene->mMaterials = new aiMaterial*[ 1 ];
+    scene->mNumMaterials = 1;
+    scene->mMaterials[ 0 ] = new aiMaterial();
+
+    scene->mMeshes = new aiMesh*[ 1 ];
+    scene->mNumMeshes = 1;
+    scene->mMeshes[ 0 ] = new aiMesh();
+    scene->mMeshes[ 0 ]->mMaterialIndex = 0;
+
+    scene->mRootNode->mMeshes = new unsigned int[ 1 ];
+    scene->mRootNode->mMeshes[ 0 ] = 0;
+    scene->mRootNode->mNumMeshes = 1;
+
+    auto pMesh = scene->mMeshes[ 0 ];
+
+    pMesh->mVertices = new aiVector3D[ mesher.pointListSize() ];
+    pMesh->mNumVertices = mesher.pointListSize();
+
+    pMesh->mTextureCoords[ 0 ] = 0;//new aiVector3D[ vVertices.size() ];
+    pMesh->mNumUVComponents[ 0 ] = 0;//vVertices.size();
+
+    float *currentVertex = &mesher.pointList()[0][0];
+    for ( unsigned int idx = 0; idx != mesher.pointListSize(); ++idx )
+    {
+        pMesh->mVertices[ idx ] = aiVector3D( currentVertex[0], currentVertex[1], currentVertex[2] );
+        //pMesh->mTextureCoords[ 0 ][ idx ] = aiVector3D( t.x, t.y, 0 );
+        currentVertex += 3;
+    }
+
+    //// count triangles (quads are made up of two tris)
+
+    unsigned int trianglecount = 0;
+    for (openvdb::Index64 n = 0, N = mesher.polygonPoolListSize(); n < N; ++n)
+    {
+        openvdb::tools::PolygonPool& polygons = mesher.polygonPoolList()[n];
+        trianglecount += polygons.numTriangles();
+        trianglecount += polygons.numQuads()*2;
+    }
+
+    pMesh->mFaces = new aiFace[ trianglecount ];
+    pMesh->mNumFaces = trianglecount;
+
+    //// generate triangles
+
+    unsigned int currentIndex = 0;
+    for (openvdb::Index64 n = 0, N = mesher.polygonPoolListSize(); n < N; ++n)
+    {
+        const openvdb::tools::PolygonPool& polygons = mesher.polygonPoolList()[n];
+        for (openvdb::Index64 i = 0, I = polygons.numQuads(); i < I; ++i) {
+            const openvdb::Vec4I& quad = polygons.quad(i);
+            aiFace& face1 = pMesh->mFaces[ currentIndex ];
+            face1.mIndices = new unsigned int[ 3 ];
+            face1.mNumIndices = 3;
+            face1.mIndices[0] = quad[0];
+            face1.mIndices[1] = quad[2];
+            face1.mIndices[2] = quad[1];
+            aiFace& face2 = pMesh->mFaces[ currentIndex + 1 ];
+            face2.mIndices = new unsigned int[ 3 ];
+            face2.mNumIndices = 3;
+            face2.mIndices[0] = quad[0];
+            face2.mIndices[1] = quad[3];
+            face2.mIndices[2] = quad[2];
+            currentIndex += 2;
+        }
+        for (openvdb::Index64 i = 0, I = polygons.numTriangles(); i < I; ++i) {
+            const openvdb::Vec3I& tri = polygons.triangle(i);
+            aiFace& face = pMesh->mFaces[ currentIndex ];
+            face.mIndices = new unsigned int[ 3 ];
+            face.mNumIndices = 3;
+            face.mIndices[0] = tri[0];
+            face.mIndices[1] = tri[2];
+            face.mIndices[2] = tri[1];
+            currentIndex += 1;
+        }
+    }
+    return scene;
+}
+
+// JSON:
+// - detail: mesh detail from 0 (very exact) to 1 (very low poly count)
+// - input: input openvdb
+// - output: output asset
+// - target: input and output at the same time
+upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
+{
+    std::string jsonErr;
+    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
+    if ( ! jsonErr.empty() ) {
+        // can't parth json
+        // TODO: good error msg
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    double detail = params["detail"].number_value();
+
+    if(detail > 1.0)
+    {
+        log_error("detail out of range. set to 1");
+        detail = 1.0;
+    }
+
+    std::string input =  params["input"].string_value();
+    std::string output = params["output"].string_value();
+    if(input.empty())
+    {
+        input = params["target"].string_value();
+        if(input.empty())
+        {
+            log_error("no input specified");
+            return UPNS_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    if(output.empty())
+    {
+        output = params["target"].string_value();
+        if(output.empty())
+        {
+            log_error("no output specified");
+            return UPNS_STATUS_INVALID_ARGUMENT;
+        }
+    }
+
+    upnsSharedPointer<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    if(!abstractEntitydataInput)
+    {
+        log_error("input does not exist ore is not readable.");
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    upnsSharedPointer<FloatGridEntitydata> entityDataInput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    upnsFloatGridPtr inputGrid = entityDataInput->getData();
+
+    upnsSharedPointer<Entity> ent = env->getCheckout()->getEntity(output);
+    if(ent)
+    {
+        log_info("Output asset already exists. overwrite");
+    }
+
+    upnsSharedPointer<Entity> assetEntity(new Entity);
+    assetEntity->set_type(ASSET);
+    StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
+    if(!upnsIsOk(s))
+    {
+        log_error("Failed to create entity.");
+        return UPNS_STATUS_ERR_DB_IO_ERROR;
+    }
+
+    /// Input validation finished
+
+    openvdb::FloatGrid::ConstPtr levelSetGrid = openvdb::gridConstPtrCast<openvdb::FloatGrid>(inputGrid);
+    //TODO: use detail
+    openvdb::tools::VolumeToMesh mesher( levelSetGrid->getGridClass() == openvdb::GRID_LEVEL_SET ? 0.0 : 0.01, detail);// ///*dragon*/0.1 );
+    mesher(*levelSetGrid);
+
+    const int vertexCount = mesher.pointListSize();
+    log_info("Generated mesh with " + std::to_string(vertexCount) + " vertices.");
+
+    if(vertexCount == 0)
+    {
+        return UPNS_STATUS_ERR_DB_IO_ERROR;
+    }
+    upnsAssetPtr asset = generateAiScene(mesher);
+
+
+
+//    openvdb::FloatGrid::ConstPtr levelSetGrid = openvdb::gridConstPtrCast<openvdb::FloatGrid>(inputGrid);
+//    openvdb::CoordBBox bbox;
+//    if (levelSetGrid->tree().evalLeafBoundingBox(bbox))
+//    {
+//        openvdb::Coord dim(bbox.max() - bbox.min());
+//        openvdb::FloatGrid::ConstAccessor accessor = levelSetGrid->getConstAccessor();
+
+//        openvdb::Coord xyz;
+//        qreal density[8];
+
+//        std::vector<openvdb::Vec3d> points(30000);
+//        std::vector<openvdb::Vec3d> normals(30000);
+
+//        // for each leaf..
+//        for (openvdb::FloatGrid::TreeType::LeafCIter iter = levelSetGrid->tree().cbeginLeaf(); iter; iter.next()) {
+
+//            //if (wasInterrupted()) break;
+
+
+//            // for each active voxel..
+//            openvdb::FloatGrid::TreeType::LeafNodeType::ValueOnCIter it = iter.getLeaf()->cbeginValueOn();
+//            for ( ; it; ++it) {
+//                xyz = it.getCoord();
+//                bool isLess = false, isMore = false;
+
+//                // Sample values at each corner of the voxel
+//                for (unsigned int d = 0; d < 8; ++d) {
+
+//                    openvdb::Coord valueCoord(
+//                        xyz.x() +  (d & 1),
+//                        xyz.y() + ((d & 2) >> 1),
+//                        xyz.z() + ((d & 4) >> 2));
+
+//                    // inverse sign convention for level sets!
+//                    density[d] = float(accessor.getValue(valueCoord));
+//                    density[d] <= 0.0f ? isLess = true : isMore = true;
+//                }
+//                openvdb::math::ScaleTranslateMap map;// = *(levelSetGrid->transform().map<openvdb::math::ScaleTranslateMap>());
+
+//                openvdb::math::Gradient< openvdb::math::ScaleTranslateMap, openvdb::math::CD_2ND> grad;
+//                openvdb::math::internal::ReturnValue<openvdb::FloatGrid::ConstAccessor>::Vec3Type n = grad.result(map, accessor, xyz);
+
+//                // If there is a crossing, surface this voxel
+//                if (isLess && isMore) {
+//                    points.push_back(openvdb::Vec3d(
+//                            xyz.x() ,
+//                            xyz.y() ,
+//                            xyz.z() ));
+
+////                    openvdb::Vec3d n;
+////                    // x
+////                    int xi = (int)(x + 0.5f);
+////                    float xf = x + 0.5f - xi;
+////                    float xd0 = get_density(xi - 1, (int)y, (int)z);
+////                    float xd1 = get_density(xi, (int)y, (int)z);
+////                    float xd2 = get_density(xi + 1, (int)y, (int)z);
+////                    res[0] = (xd1 - xd0) * (1.0f - xf) + (xd2 - xd1) * xf; // lerp
+////                    // y
+////                    int yi = (int)(y + 0.5f);
+////                    float yf = y + 0.5f - yi;
+////                    float yd0 = get_density((int)x, yi - 1, (int)z);
+////                    float yd1 = get_density((int)x, yi, (int)z);
+////                    float yd2 = get_density((int)x, yi + 1, (int)z);
+////                    res[1] = (yd1 - yd0) * (1.0f - yf) + (yd2 - yd1) * yf; // lerp
+////                    // z
+////                    int zi = (int)(z + 0.5f);
+////                    float zf = z + 0.5f - zi;
+////                    float zd0 = get_density((int)x, (int)y, zi - 1);
+////                    float zd1 = get_density((int)x, (int)y, zi);
+////                    float zd2 = get_density((int)x, (int)y, zi + 1);
+////                    res[2] = (zd1 - zd0) * (1.0f - zf) + (zd2 - zd1) * zf; // lerp
+//                    normals.push_back(n);
+//                }
+//            } // end active voxel traversal
+//        } // end leaf traversal
+
+//        //if (wasInterrupted()) return;
+
+////            if (mAdaptivityThreshold > 1e-6) {
+////                GU_PolyReduceParms parms;
+////                parms.percentage =
+////                    static_cast<float>(100.0 * (1.0 - std::min(mAdaptivityThreshold, 0.99f)));
+////                parms.usepercent = 1;
+////                tmpGeo.polyReduce(parms);
+////            }
+
+//        const int vertexCount = points.size();
+//        qDebug() << "points:" << vertexCount;
+
+//        m_vaPosition->m_buffer.bind(); //Buffers must be bound to do "allocate", "map", "unmap", ...
+//        m_vaPosition->m_buffer.allocate( vertexCount * 3 * sizeof(GLfloat));
+//        m_mesh->addVertexAttribute( m_vaPosition );
+//        float *const positionsGpu = reinterpret_cast<float *const>(m_vaPosition->m_buffer.map(QOpenGLBuffer::WriteOnly));
+
+//        m_vaNormal->m_buffer.bind();
+//        m_vaNormal->m_buffer.allocate(vertexCount * 3 * sizeof(GLfloat));
+//        m_mesh->addVertexAttribute( m_vaNormal );
+//        GLfloat *normalsGpu = static_cast<GLfloat*>(m_vaNormal->m_buffer.map( QOpenGLBuffer::WriteOnly ));
+
+//        // world space transform
+//        std::vector<openvdb::Vec3d>::const_iterator iter(points.begin());
+//        int idx = 0;
+//        while( iter != points.end() )
+//        {
+//            openvdb::Vec3d wPos = levelSetGrid->indexToWorld(*iter);
+//            positionsGpu[idx*3  ] = static_cast<float>(wPos.x());
+//            positionsGpu[idx*3+1] = static_cast<float>(wPos.y());
+//            positionsGpu[idx*3+2] = static_cast<float>(wPos.z());
+//            normalsGpu[idx*3  ] = static_cast<float>(normals[idx].x());
+//            normalsGpu[idx*3+1] = static_cast<float>(normals[idx].y());
+//            normalsGpu[idx*3+2] = static_cast<float>(normals[idx].z());
+//            idx++;
+//            iter++;
+//        }
+//        m_vaPosition->m_buffer.bind();
+//        m_vaPosition->m_buffer.unmap();
+//        m_vaNormal->m_buffer.bind();
+//        m_vaNormal->m_buffer.unmap();
+//        m_mesh->setPointInput( true );
+//        m_mesh->setVertexCount( vertexCount );
+//        m_mesh->setPrimitiveCount( vertexCount );
+//    }
+
+    upnsSharedPointer<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    if(!abstractEntitydataOutput)
+    {
+        log_error("could not read output asset");
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    upnsSharedPointer<AssetEntitydata> entityDataOutput = upns::static_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
+    if(!entityDataOutput)
+    {
+        log_error("could not cast output to FloatGrid");
+        return UPNS_STATUS_INVALID_ARGUMENT;
+    }
+    entityDataOutput->setData(asset);
+
+    OperationDescription out;
+    out.set_operatorname(OPERATOR_NAME);
+    out.set_operatorversion(OPERATOR_VERSION);
+    env->setOutputDescription( out.SerializeAsString() );
+    return UPNS_STATUS_OK;
+}
+
+UPNS_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, upns::LayerType::OPENVDB, &operate_ovdbtomesh)

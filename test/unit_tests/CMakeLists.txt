@@ -9,6 +9,9 @@ find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
 include_directories( UPNS_ROOT_DIR )
 
+find_package(assimp REQUIRED)
+find_package(OpenVDB REQUIRED)
+find_package(TBB REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -52,7 +55,8 @@ FOREACH(subdir ${SUBDIRS})
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
 
   target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} upns_mapmanager upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
-                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+                                  ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
+                                  ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES})
 
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
@@ -86,7 +90,8 @@ add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} )
 #custom_target_use_boost(${subdir})
 find_package(Boost COMPONENTS filesystem system date_time)
 target_link_libraries(TestAll Qt5::Test upns_mapmanager upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
-                              ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+                              ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
+                              ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} levelset_to_mesh)
 #if(WIN32)
 #target_link_libraries(TestAll
 #    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib
