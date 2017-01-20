@@ -38,12 +38,15 @@ set(CMAKE_AUTOMOC ON)
 # sudo make install
 
 #custom_set_vars_boost()
-find_package(assimp REQUIRED)
+#find_package(assimp REQUIRED)
 find_package(OpenVDB REQUIRED)
 find_package(TBB REQUIRED)
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
+
+file(GLOB_RECURSE TINYPLY_SOURCES ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.cpp ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.h)
+
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} ${TINYPLY_SOURCES})
 
 target_link_libraries( ${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} upns_interface upns_mapmanager layertype_asset)
 

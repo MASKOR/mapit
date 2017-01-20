@@ -3,8 +3,8 @@
 
 #include "entitydata.h"
 #include "modules/serialization/abstractentitydatastreamprovider.h"
+#include "tinyply.h"
 
-#include <assimp/Exporter.hpp>
 using namespace upns;
 
 // TODO: Is import case needed? (dynamic linking?)
@@ -15,14 +15,14 @@ using namespace upns;
 #endif
 
 // Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-typedef upnsSharedPointer<aiScene> upnsAssetPtr;
+typedef upnsSharedPointer<tinyply::PlyFile> upnsAssetPtr;
 
 extern "C"
 {
 MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 }
 
-class AssetEntitydata : public Entitydata<aiScene>
+class AssetEntitydata : public Entitydata<tinyply::PlyFile>
 {
 public:
 

@@ -22,6 +22,7 @@ public:
     void handleRequestCheckout(RequestCheckout* msg);
     void handleRequestEntitydata(RequestEntitydata* msg);
     void handleRequestHierarchy(RequestHierarchy* msg);
+    void handleRequestHierarchyPlain(RequestHierarchyPlain* msg);
     void handleRequestListCheckouts(RequestListCheckouts* msg);
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
     void handleRequestGenericEntry(upns::RequestGenericEntry *msg);

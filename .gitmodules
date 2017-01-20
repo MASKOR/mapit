@@ -31,3 +31,6 @@
 [submodule "externals/json11"]
 	path = externals/json11
 	url = https://github.com/dropbox/json11.git
+[submodule "libs/layertypes_collection/asset/tinyply"]
+	path = libs/layertypes_collection/asset/tinyply
+	url = https://github.com/ddiakopoulos/tinyply.git

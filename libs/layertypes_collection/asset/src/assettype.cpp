@@ -1,24 +1,7 @@
 #include "assettype.h"
-#include <sstream>
 #include "upns_logging.h"
-#include <assimp/scene.h>
-#include <assimp/Exporter.hpp>
-#include <assimp/Importer.hpp>
-
-aiScene* readAssetFromStream(void* ptr, upnsuint64 len)
-{
-    Assimp::Importer importer;
-    importer.ReadFileFromMemory(ptr, len, 0);
-    return importer.GetOrphanedScene();
-}
-
-void writeAssetToStream(std::ostream &os, aiScene &data)
-{
-    Assimp::Exporter exporter;
-    const aiExportDataBlob *blob(exporter.ExportToBlob(&data, "collada"));
-    os.write(static_cast<char*>(blob->data), blob->size);
-}
-
+#include "upns_errorcodes.h"
+#include "tinyply.h"
 
 AssetEntitydata::AssetEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
@@ -48,17 +31,12 @@ upnsAssetPtr AssetEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
 {
     if(m_asset == NULL)
     {
-//        upnsIStream *in = m_streamProvider->startRead();
-//        {
-//            readAssetFromStream( *in, *m_asset );
-//        }
-//        m_streamProvider->endRead(in);
-        ReadWriteHandle handle;
-        void *in = m_streamProvider->startReadPointer(handle);
+        upnsIStream *in = m_streamProvider->startRead();
         {
-            m_asset = upnsAssetPtr(readAssetFromStream( in, m_streamProvider->getStreamSize()));
+            m_asset = upnsAssetPtr(new tinyply::PlyFile);
+            m_asset->read(*in);
         }
-        m_streamProvider->endReadPointer(in, handle);
+        m_streamProvider->endRead(in);
     }
     return m_asset;
 }
@@ -68,12 +46,13 @@ int AssetEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                  upnsAssetPtr &data,
                                  int lod)
 {
+    StatusCode s;
     upnsOStream *out = m_streamProvider->startWrite();
     {
-        writeAssetToStream( *out, *data );
+        m_asset->write(*out, true);
     }
     m_streamProvider->endWrite(out);
-    return 0;
+    return s;
 }
 
 upnsAssetPtr AssetEntitydata::getData(int lod)

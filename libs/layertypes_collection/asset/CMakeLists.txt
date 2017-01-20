@@ -5,15 +5,18 @@ aux_source_directory(. SRC_LIST)
 find_package(Protobuf)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-find_package(assimp REQUIRED)
+#find_package(assimp REQUIRED)
 
-file(GLOB_RECURSE LAYERTYPE_ASSIMP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE TINYPLY_SOURCES ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.cpp ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.h)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_ASSIMP_SOURCES})
+file(GLOB_RECURSE LAYERTYPE_ASSET_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
+
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${TINYPLY_SOURCES} ${LAYERTYPE_ASSET_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${assimp_LIBRARIES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
-                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/
-                                                   ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
-                                                   ${PROTOBUF_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include/
+                                                     ${PROJECT_SOURCE_DIR}/tinyply/source
+                                             PRIVATE ${PROJECT_SOURCE_DIR}/src/
+                                                     ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
+                                                     ${PROTOBUF_INCLUDE_DIRS})

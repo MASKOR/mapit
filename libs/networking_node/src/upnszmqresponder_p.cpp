@@ -33,6 +33,10 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestHierarchy>( fn );
 
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestHierarchyPlain, &upns::ZmqResponderPrivate::handleRequestHierarchyPlain>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestHierarchyPlain>( fn );
+
     member = &upns::ZmqResponderPrivate::toDelegate<RequestListCheckouts, &upns::ZmqResponderPrivate::handleRequestListCheckouts>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestListCheckouts>( fn );
@@ -261,6 +265,36 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 //                //after entity
 //                return true;
 //            });
+    }
+}
+
+void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
+{
+    std::unique_ptr<upns::ReplyHierarchyPlain> rep(new upns::ReplyHierarchyPlain());
+    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    if(co == NULL)
+    {
+        // TODO: Introduce Error-type
+        rep->set_status( upns::ReplyHierarchyPlain::CHECKOUT_NOT_FOUND );
+        send( std::move( rep ) );
+    }
+    else
+    {
+        StatusCode s = co->depthFirstSearch(
+            [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
+            [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path) {return true;},
+            [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
+            [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path) {return true;},
+            [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path)
+            {
+                rep->add_entities(path);
+                return true;
+            },
+            [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path){return true;});
+        if(!upnsIsOk(s))
+        {
+            log_error("error while listing entities (dfs)");
+        }
     }
 }
 

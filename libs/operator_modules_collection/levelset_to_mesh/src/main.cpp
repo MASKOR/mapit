@@ -5,99 +5,83 @@
 #include <openvdb/Grid.h>
 #include <openvdb/tools/VolumeToMesh.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include <assimp/scene.h>
-#include <assimp/mesh.h>
 #include "modules/versioning/checkoutraw.h"
 #include "modules/operationenvironment.h"
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include "upns_errorcodes.h"
 #include "modules/versioning/checkoutraw.h"
 #include "json11.hpp"
+#include "tinyply.h"
 
-upnsSharedPointer<aiScene> generateAiScene(openvdb::tools::VolumeToMesh& mesher)
+
+upnsAssetPtr generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher)
 {
-    // input validation
-    upnsSharedPointer<aiScene> scene(new aiScene);
-
-    scene->mRootNode = new aiNode();
-
-    scene->mMaterials = new aiMaterial*[ 1 ];
-    scene->mNumMaterials = 1;
-    scene->mMaterials[ 0 ] = new aiMaterial();
-
-    scene->mMeshes = new aiMesh*[ 1 ];
-    scene->mNumMeshes = 1;
-    scene->mMeshes[ 0 ] = new aiMesh();
-    scene->mMeshes[ 0 ]->mMaterialIndex = 0;
-
-    scene->mRootNode->mMeshes = new unsigned int[ 1 ];
-    scene->mRootNode->mMeshes[ 0 ] = 0;
-    scene->mRootNode->mNumMeshes = 1;
-
-    auto pMesh = scene->mMeshes[ 0 ];
-
-    pMesh->mVertices = new aiVector3D[ mesher.pointListSize() ];
-    pMesh->mNumVertices = mesher.pointListSize();
-
-    pMesh->mTextureCoords[ 0 ] = 0;//new aiVector3D[ vVertices.size() ];
-    pMesh->mNumUVComponents[ 0 ] = 0;//vVertices.size();
-
-    float *currentVertex = &mesher.pointList()[0][0];
-    for ( unsigned int idx = 0; idx != mesher.pointListSize(); ++idx )
-    {
-        pMesh->mVertices[ idx ] = aiVector3D( currentVertex[0], currentVertex[1], currentVertex[2] );
-        //pMesh->mTextureCoords[ 0 ][ idx ] = aiVector3D( t.x, t.y, 0 );
-        currentVertex += 3;
-    }
-
-    //// count triangles (quads are made up of two tris)
-
     unsigned int trianglecount = 0;
-    for (openvdb::Index64 n = 0, N = mesher.polygonPoolListSize(); n < N; ++n)
+    for (openvdb::Index64 n = 0, N = mesher->polygonPoolListSize(); n < N; ++n)
     {
-        openvdb::tools::PolygonPool& polygons = mesher.polygonPoolList()[n];
+        openvdb::tools::PolygonPool& polygons = mesher->polygonPoolList()[n];
         trianglecount += polygons.numTriangles();
         trianglecount += polygons.numQuads()*2;
     }
+    log_info("Triangles: " + std::to_string(trianglecount) + ".");
 
-    pMesh->mFaces = new aiFace[ trianglecount ];
-    pMesh->mNumFaces = trianglecount;
-
-    //// generate triangles
-
-    unsigned int currentIndex = 0;
-    for (openvdb::Index64 n = 0, N = mesher.polygonPoolListSize(); n < N; ++n)
+    // Scopes for memory deletion, only buf will survive
+    std::string buf;
     {
-        const openvdb::tools::PolygonPool& polygons = mesher.polygonPoolList()[n];
-        for (openvdb::Index64 i = 0, I = polygons.numQuads(); i < I; ++i) {
-            const openvdb::Vec4I& quad = polygons.quad(i);
-            aiFace& face1 = pMesh->mFaces[ currentIndex ];
-            face1.mIndices = new unsigned int[ 3 ];
-            face1.mNumIndices = 3;
-            face1.mIndices[0] = quad[0];
-            face1.mIndices[1] = quad[2];
-            face1.mIndices[2] = quad[1];
-            aiFace& face2 = pMesh->mFaces[ currentIndex + 1 ];
-            face2.mIndices = new unsigned int[ 3 ];
-            face2.mNumIndices = 3;
-            face2.mIndices[0] = quad[0];
-            face2.mIndices[1] = quad[3];
-            face2.mIndices[2] = quad[2];
-            currentIndex += 2;
+        std::vector<uint32_t> indicesBuf;
+        indicesBuf.resize(3 * trianglecount);
+
+        unsigned int currentIndex = 0;
+        for (openvdb::Index64 n = 0, N = mesher->polygonPoolListSize(); n < N; ++n)
+        {
+            const openvdb::tools::PolygonPool& polygons = mesher->polygonPoolList()[n];
+            for (openvdb::Index64 i = 0, I = polygons.numQuads(); i < I; ++i) {
+                const openvdb::Vec4I& quad = polygons.quad(i);
+                uint32_t *currentIdx = &indicesBuf[currentIndex * 3];
+                currentIdx[0] = quad[0];
+                currentIdx[1] = quad[2];
+                currentIdx[2] = quad[1];
+                currentIdx[3] = quad[0];
+                currentIdx[4] = quad[3];
+                currentIdx[5] = quad[2];
+                currentIndex += 2;
+            }
+            for (openvdb::Index64 i = 0, I = polygons.numTriangles(); i < I; ++i) {
+                const openvdb::Vec3I& tri = polygons.triangle(i);
+                uint32_t *currentIdx = &indicesBuf[currentIndex * 3];
+                currentIdx[0] = tri[0];
+                currentIdx[1] = tri[2];
+                currentIdx[2] = tri[1];
+                currentIndex += 1;
+            }
         }
-        for (openvdb::Index64 i = 0, I = polygons.numTriangles(); i < I; ++i) {
-            const openvdb::Vec3I& tri = polygons.triangle(i);
-            aiFace& face = pMesh->mFaces[ currentIndex ];
-            face.mIndices = new unsigned int[ 3 ];
-            face.mNumIndices = 3;
-            face.mIndices[0] = tri[0];
-            face.mIndices[1] = tri[2];
-            face.mIndices[2] = tri[1];
-            currentIndex += 1;
+
+        {
+            upnsAssetPtr myFile(new tinyply::PlyFile);
+            std::vector<float> vertsVec(&mesher->pointList()[0][0], &mesher->pointList()[0][0]+mesher->pointListSize() * 3);
+            myFile->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
+            myFile->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
+            {
+                std::ostringstream ostrstr;
+                myFile->write(ostrstr, true);
+                return myFile;
+//                mesher.reset(); // hopefully free some memory here
+//                buf = ostrstr.str();
+            }
         }
     }
-    return scene;
+//    size_t size = buf.size();
+//    log_info("Binary ply size: " + std::to_string(size) + ".");
+//    Assimp::Importer importer;
+//    importer.ReadFileFromMemory(buf.data(), size, 0, "ply");
+//    if(const char* err = importer.GetErrorString())
+//    {
+//        log_error("ply reading error. Reason: " + err);
+//    }
+//    log_info("ply read to assimp scene");
+    return upnsAssetPtr(NULL);
 }
 
 // JSON:
@@ -116,11 +100,11 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     }
     double detail = params["detail"].number_value();
 
-    if(detail > 1.0)
-    {
-        log_error("detail out of range. set to 1");
-        detail = 1.0;
-    }
+//    if(detail > 1.0)
+//    {
+//        log_error("detail out of range. set to 1");
+//        detail = 1.0;
+//    }
 
     std::string input =  params["input"].string_value();
     std::string output = params["output"].string_value();
@@ -171,18 +155,21 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 
     openvdb::FloatGrid::ConstPtr levelSetGrid = openvdb::gridConstPtrCast<openvdb::FloatGrid>(inputGrid);
     //TODO: use detail
-    openvdb::tools::VolumeToMesh mesher( levelSetGrid->getGridClass() == openvdb::GRID_LEVEL_SET ? 0.0 : 0.01, detail);// ///*dragon*/0.1 );
-    mesher(*levelSetGrid);
+    std::unique_ptr<openvdb::tools::VolumeToMesh> mesher(new openvdb::tools::VolumeToMesh( levelSetGrid->getGridClass() == openvdb::GRID_LEVEL_SET ? 0.0 : 0.01, detail));// ///*dragon*/0.1 );
+    (*mesher)(*levelSetGrid);
 
-    const int vertexCount = mesher.pointListSize();
+    const int vertexCount = mesher->pointListSize();
     log_info("Generated mesh with " + std::to_string(vertexCount) + " vertices.");
 
     if(vertexCount == 0)
     {
         return UPNS_STATUS_ERR_DB_IO_ERROR;
     }
-    upnsAssetPtr asset = generateAiScene(mesher);
-
+    upnsAssetPtr asset = generateAiSceneWithTinyPly(std::move(mesher));
+    if(asset == nullptr)
+    {
+        return UPNS_STATUS_ERR_DB_IO_ERROR;
+    }
 
 
 //    openvdb::FloatGrid::ConstPtr levelSetGrid = openvdb::gridConstPtrCast<openvdb::FloatGrid>(inputGrid);
