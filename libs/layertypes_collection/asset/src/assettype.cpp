@@ -3,15 +3,20 @@
 #include "upns_errorcodes.h"
 #include "tinyply.h"
 
+const char *AssetEntitydata::TYPENAME()
+{
+    return PROJECT_NAME;
+}
+
 AssetEntitydata::AssetEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_asset( NULL )
 {
 }
 
-LayerType AssetEntitydata::layerType() const
+const char *AssetEntitydata::type() const
 {
-    return LayerType::ASSET;
+    return AssetEntitydata::TYPENAME();
 }
 
 bool AssetEntitydata::hasFixedGrid() const

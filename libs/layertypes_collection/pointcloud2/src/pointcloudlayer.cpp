@@ -1,5 +1,4 @@
 #include "pointcloudlayer.h"
-#include "pointcloudhelper.h"
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -7,15 +6,20 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 
+const char *PointcloudEntitydata::TYPENAME()
+{
+    return PROJECT_NAME;
+}
+
 PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_pointcloud( NULL )
 {
 }
 
-LayerType PointcloudEntitydata::layerType() const
+const char *PointcloudEntitydata::type() const
 {
-    return LayerType::POINTCLOUD;
+    return PointcloudEntitydata::TYPENAME();
 }
 
 bool PointcloudEntitydata::hasFixedGrid() const
@@ -36,11 +40,13 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
     if(m_pointcloud == NULL)
     {
         m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
-        upnsIStream *in = m_streamProvider->startRead();
+        ReadWriteHandle handle;
+        upnsString filename = m_streamProvider->startReadFile(handle);
         {
-            readPointcloudFromStream( *in, *m_pointcloud );
+            pcl::PCDReader reader;
+            reader.read(filename, *m_pointcloud);
         }
-        m_streamProvider->endRead(in);
+        m_streamProvider->endReadFile(handle);
     }
     return m_pointcloud;
 }
@@ -50,12 +56,16 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                  upnsPointcloud2Ptr &data,
                                  int lod)
 {
-    upnsOStream *out = m_streamProvider->startWrite();
+    int result = -1;
+    ReadWriteHandle handle;
+    upnsString filename = m_streamProvider->startWriteFile(handle);
     {
-        writeBinaryCompressed( *out, *data );
+        m_pointcloud = data;
+        pcl::PCDWriter writer;
+        result = writer.writeBinaryCompressed(filename, *m_pointcloud);
     }
-    m_streamProvider->endWrite(out);
-	return 0; //TODO: MSVC: What to return here?
+    m_streamProvider->startWriteFile(handle);
+    return result;
 }
 
 upnsPointcloud2Ptr PointcloudEntitydata::getData(int lod)

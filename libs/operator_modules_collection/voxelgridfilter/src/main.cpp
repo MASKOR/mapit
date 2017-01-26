@@ -59,4 +59,4 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD, &operate_vxg)
+UPNS_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_vxg)

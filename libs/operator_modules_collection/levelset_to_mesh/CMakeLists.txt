@@ -48,7 +48,7 @@ file(GLOB_RECURSE TINYPLY_SOURCES ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.c
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} ${TINYPLY_SOURCES})
 
-target_link_libraries( ${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} upns_interface upns_mapmanager layertype_asset)
+target_link_libraries( ${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} upns_interface upns_mapmanager layertype_asset layertype_openvdb)
 
 #if(TARGET json11)
     target_link_libraries( ${PROJECT_NAME} json11)

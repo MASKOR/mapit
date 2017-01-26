@@ -29,10 +29,11 @@ typedef upns::upnsSharedPointer<TfMat> TfMatPtr;
 class TfEntitydata : public Entitydata<TfMat>
 {
 public:
+    static const char* TYPENAME();
 
     TfEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
-    LayerType           layerType() const;
+    const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
     TfMatPtr  getData(upnsReal x1, upnsReal y1, upnsReal z1,

@@ -48,29 +48,31 @@ void QmlEntitydataRenderer::updateGeometry()
         geometry()->deleteLater();
     }
 
-    switch(ed->layerType())
-    {
-    case upns::POINTCLOUD:
+    if(strcmp(ed->type(), PointcloudEntitydata::TYPENAME()) == 0)
     {
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
         *pointcloud->pointcloud() = *upns::static_pointer_cast< PointcloudEntitydata >(ed)->getData();
         static_cast<QPointcloudGeometry *>(geometry())->setPointcloud(pointcloud);
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
-        break;
     }
-    case upns::OCTOMAP:
-        break;
-    case upns::OPENVDB:
-        break;
-    case upns::TF:
+    else if(strcmp(ed->type(), PointcloudEntitydata::TYPENAME()) == 0)
+    {
+    }
+//    else if(strcmp(ed->type(), OctomapEntitydata::TYPENAME()) == 0)
+//    {
+//    }
+    else if(strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
     {
         QMatrix4x4 mat( upns::static_pointer_cast< TfEntitydata >(ed)->getData()->data() );
         qDebug() << mat;
-        break;
     }
-    case upns::NONE:
-    default:
-        break;
+//    else if(strcmp(ed->type(), AssetEntitydata::TYPENAME()) == 0)
+//    {
+//    }
+    else
+    {
+        qDebug() << "unknown entitytype for visualization";
     }
+
 }

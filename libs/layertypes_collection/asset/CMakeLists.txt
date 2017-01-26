@@ -20,3 +20,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/
                                                    ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
                                                    ${PROTOBUF_INCLUDE_DIRS})
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
+                                           PUBLIC  AssetEntitydata_TYPENAME="${PROJECT_NAME}")

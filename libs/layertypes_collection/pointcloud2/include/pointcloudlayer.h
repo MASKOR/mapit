@@ -39,6 +39,7 @@ MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, 
 class PointcloudEntitydata : public Entitydata<pcl::PCLPointCloud2>
 {
 public:
+    static const char* TYPENAME();
     //
     /**
      * @brief The Representation enum of some Representations witch most algorithms will be able to use.
@@ -61,7 +62,7 @@ public:
 
     PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
-    LayerType           layerType() const;
+    const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
     upnsPointcloud2Ptr  getData(upnsReal x1, upnsReal y1, upnsReal z1,

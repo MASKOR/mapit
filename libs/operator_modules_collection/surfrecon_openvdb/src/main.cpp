@@ -141,7 +141,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     else
     {
         ent = upnsSharedPointer<Entity>(new Entity);
-        ent->set_type(OPENVDB);
+        ent->set_type(FloatGridEntitydata::TYPENAME());
         StatusCode s = env->getCheckout()->storeEntity(output, ent);
         if(!upnsIsOk(s))
         {
@@ -182,4 +182,4 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "make a levelset out of a pointcloud using pcl and openvdb", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD, &operate_tolevelset)
+UPNS_MODULE(OPERATOR_NAME, "make a levelset out of a pointcloud using pcl and openvdb", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_tolevelset)

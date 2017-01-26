@@ -1,5 +1,6 @@
 #include "serialization/entitystreammanager.h"
 #include <sstream>
+#include <algorithm>
 #include "upns_logging.h"
 #ifdef _WIN32
 #include <windows.h>
@@ -10,9 +11,17 @@
 namespace upns
 {
 
-upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(upnsString layertypeName,
+upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
                                                                   upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
+    std::string layertypeName(type);
+
+    // Remove signs forbidden in filenames.
+    char illegalCharacters[] = ".\\/<>$!#\0:\"|?*";
+    for (unsigned int i = 0; i < strlen(illegalCharacters); ++i)
+    {
+       layertypeName.erase (std::remove(layertypeName.begin(), layertypeName.end(), illegalCharacters[i]), layertypeName.end());
+    }
 #ifndef NDEBUG
     upnsString debug = DEBUG_POSTFIX;
 #else
@@ -53,41 +62,41 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(upnsString layertypeName,
     //return upnsSharedPointer<AbstractEntitydata>( wrap( streamProvider ) );
 }
 
-upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
-                                                                   upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
-{
-    // Layertypes loosly coupled. Name is used to call library to handle concrete datatypes.
-    upnsString layerName;
-    switch(type)
-    {
-    case POINTCLOUD:
-    {
-        layerName = "layertype_pointcloud2";
-        break;
-    }
-    case TF:
-    {
-        layerName = "layertype_tf";
-        break;
-    }
-    case OPENVDB:
-    {
-        layerName = "layertype_openvdb";
-        break;
-    }
-    case ASSET:
-    {
-        layerName = "layertype_asset";
-        break;
-    }
-    default:
-        log_error("Unknown layertype: " + std::to_string(type));
-        return upnsSharedPointer<AbstractEntitydata>(NULL);
-    }
-    return wrapEntityOfType( layerName, streamProvider );
-}
+//upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
+//                                                                   upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//{
+//    // Layertypes loosly coupled. Name is used to call library to handle concrete datatypes.
+//    upnsString layerName;
+//    switch(type)
+//    {
+//    case POINTCLOUD:
+//    {
+//        layerName = "layertype_pointcloud2";
+//        break;
+//    }
+//    case TF:
+//    {
+//        layerName = "layertype_tf";
+//        break;
+//    }
+//    case OPENVDB:
+//    {
+//        layerName = "layertype_openvdb";
+//        break;
+//    }
+//    case ASSET:
+//    {
+//        layerName = "layertype_asset";
+//        break;
+//    }
+//    default:
+//        log_error("Unknown layertype: " + std::to_string(type));
+//        return upnsSharedPointer<AbstractEntitydata>(NULL);
+//    }
+//    return wrapEntityOfType( layerName, streamProvider );
+//}
 
-upnsSharedPointer<AbstractEntitydata> EntityStreamManager::getEntitydataFromStreamImpl(LayerType type, upnsSharedPointer<AbstractEntitydataStreamProvider> edsp, bool canRead)
+upnsSharedPointer<AbstractEntitydata> EntityStreamManager::getEntitydataFromStreamImpl(const std::string &type, upnsSharedPointer<AbstractEntitydataStreamProvider> edsp, bool canRead)
 {
     upnsSharedPointer<AbstractEntitydata> edata = wrapEntityOfType( type, edsp );
     return edata;

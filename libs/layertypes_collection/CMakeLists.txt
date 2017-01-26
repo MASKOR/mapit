@@ -7,8 +7,6 @@ else(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs/layertypes_collection)
 endif(WIN32)
 
-
-
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-rdynamic")
 
 MACRO(SUBDIRLIST result curdir)

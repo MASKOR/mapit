@@ -140,7 +140,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     }
 
     upnsSharedPointer<Entity> assetEntity(new Entity);
-    assetEntity->set_type(ASSET);
+    assetEntity->set_type(AssetEntitydata::TYPENAME());
     StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
     if(!upnsIsOk(s))
     {
@@ -307,4 +307,4 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, upns::LayerType::OPENVDB, &operate_ovdbtomesh)
+UPNS_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdbtomesh)

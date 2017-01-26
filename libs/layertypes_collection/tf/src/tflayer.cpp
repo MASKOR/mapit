@@ -1,6 +1,7 @@
 #include "tflayer.h"
 #include "upns.h"
 
+
 template <typename T>
 class not_deleter {
 public:
@@ -35,15 +36,20 @@ void writeTfToStream(upnsOStream &out, TfMat &data )
     tf.SerializePartialToOstream(&out);
 }
 
+const char *TfEntitydata::TYPENAME()
+{
+    return PROJECT_NAME;
+}
+
 TfEntitydata::TfEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_tf( NULL )
 {
 }
 
-LayerType TfEntitydata::layerType() const
+const char* TfEntitydata::type() const
 {
-    return LayerType::TF;
+    return TfEntitydata::TYPENAME();
 }
 
 bool TfEntitydata::hasFixedGrid() const

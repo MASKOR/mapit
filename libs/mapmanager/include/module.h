@@ -46,7 +46,7 @@ struct ModuleInfo
     const char*         author;         //< author of module
     const int           moduleVersion;  //< version
     const int           apiVersion;     //< mapmanager api version
-    const upns::LayerType layerType;    //< LayerType enum
+    const char*         layerType;      //< LayerType enum
     OperateFunc         operate;
 };
 }

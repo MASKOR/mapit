@@ -78,7 +78,7 @@ void TestRepository::testCreateCheckout()
     upnsSharedPointer<Entity> ent = co->getEntity( entityPath.toStdString() );
     QVERIFY(ent != NULL);
     if(ent)
-        QVERIFY(ent->type() == upns::POINTCLOUD);
+        QVERIFY(strcmp(ent->type(), PointcloudEntitydata::TYPENAME()) == 0);
 }
 
 void TestRepository::testGetCheckout_data() { createTestdata(); }
@@ -117,7 +117,7 @@ void TestRepository::testReadCheckout()
     QVERIFY(entity != nullptr);
 
     upns::upnsSharedPointer<upns::AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
-    QVERIFY(entityDataAbstract->layerType() == LayerType::POINTCLOUD);
+    QVERIFY(strcmp(entityDataAbstract->type(), PointcloudEntitydata::TYPENAME()) == 0);
     upns::upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(entityDataAbstract);
 
     // compare pointcloud from repo with pointcloud from filesystem

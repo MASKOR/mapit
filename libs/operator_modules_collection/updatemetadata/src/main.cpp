@@ -104,4 +104,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "updates name of map, layer, ...", "fhac", OPERATOR_VERSION, upns::LayerType::NONE, &operate)
+UPNS_MODULE(OPERATOR_NAME, "updates name of map, layer, ...", "fhac", OPERATOR_VERSION, "none", &operate)

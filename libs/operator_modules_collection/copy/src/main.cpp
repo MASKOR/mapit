@@ -97,4 +97,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "copy tree or entity", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD, &operate)
+UPNS_MODULE(OPERATOR_NAME, "copy tree or entity", "fhac", OPERATOR_VERSION, "any", &operate)

@@ -26,10 +26,11 @@ MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, 
 class FloatGridEntitydata : public Entitydata<openvdb::FloatGrid>
 {
 public:
+    static const char* TYPENAME();
 
     FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
-    LayerType           layerType() const;
+    const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
     upnsFloatGridPtr  getData(upnsReal x1, upnsReal y1, upnsReal z1,

@@ -24,7 +24,7 @@ namespace upns {
 class EntityStreamManager
 {
 public:
-    static upnsSharedPointer<AbstractEntitydata> getEntitydataFromStreamImpl(upns::LayerType type, upnsSharedPointer<AbstractEntitydataStreamProvider> streamprovider, bool canRead = true);
+    static upnsSharedPointer<AbstractEntitydata> getEntitydataFromStreamImpl(const std::string &type, upnsSharedPointer<AbstractEntitydataStreamProvider> streamprovider, bool canRead = true);
 };
 
 }

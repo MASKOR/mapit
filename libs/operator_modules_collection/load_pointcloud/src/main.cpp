@@ -61,7 +61,7 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     std::string target = params["target"].string_value();
 
     upnsSharedPointer<Entity> pclEntity(new Entity);
-    pclEntity->set_type(POINTCLOUD);
+    pclEntity->set_type(PointcloudEntitydata::TYPENAME());
     StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {
@@ -87,4 +87,4 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, upns::LayerType::POINTCLOUD, &operate_load_pointcloud)
+UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_load_pointcloud)

@@ -56,7 +56,7 @@ void TestOperators::testOperatorLoadPointcloud()
     QVERIFY( upnsIsOk(ret.first) );
     upnsSharedPointer<Entity> ent = checkout->getEntity("corridor/laser/eins");
     QVERIFY( ent != nullptr );
-    QVERIFY( ent->type() == upns::POINTCLOUD );
+    QVERIFY( strcmp(ent->type(), PointcloudEntitydata::TYPENAME()) == 0 );
     upnsSharedPointer<Tree> parent = checkout->getTree("corridor/laser");
     QVERIFY( parent != nullptr );
     QVERIFY( !(*parent->mutable_refs())["eins"].path().empty() );
@@ -109,7 +109,7 @@ void TestOperators::testInlineOperator()
     {
         upns::CheckoutRaw *coraw = env->getCheckout();
         upns::upnsSharedPointer<upns::Entity> e(new upns::Entity);
-        e->set_type(upns::POINTCLOUD);
+        e->set_type(PointcloudEntitydata::TYPENAME());
         upns::StatusCode status = coraw->storeEntity(epath, e);
         if(!upnsIsOk(status))
         {

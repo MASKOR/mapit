@@ -70,7 +70,7 @@ public:
 
     /**
      * @brief endRead Tell underlying implementation, that the buffer is no longer needed in memory.
-     * May unlock other operations on the stream/pointer.
+     * May unlock other operations on the stream/pointer/file.
      * @param strm The stream returned by startRead()
      */
     virtual void endReadPointer(void* ptr, ReadWriteHandle &handle) = 0;
@@ -85,40 +85,40 @@ public:
 
     /**
      * @brief endRead Tell underlying implementation, that the buffer is no longer needed in memory.
-     * May unlock other operations on the stream/pointer.
+     * May unlock other operations on the stream/pointer/file.
      * @param strm The stream returned by startRead()
      */
     virtual void endWritePointer(void* ptr, ReadWriteHandle &handle) = 0;
 
-//    /**
-//     * @brief startRead Used to read data as file.
-//     * @param start offset in the stream. For slow connections the whole data may not be queried always.
-//     * @param len defaultvalue of 0 indicates, that data will be read until end
-//     * @return a stream to read data from
-//     */
-//    virtual upnsString startReadFile(unsigned int &handle) = 0;
+    /**
+     * @brief startRead Used to read data as file.
+     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+     * @param len defaultvalue of 0 indicates, that data will be read until end
+     * @return a stream to read data from
+     */
+    virtual upnsString startReadFile(ReadWriteHandle &handle) = 0;
 
-//    /**
-//     * @brief endRead Tell underlying implementation, that the file is no longer needed.
-//     * May unlock other operations on the stream/pointer.
-//     * @param strm The stream returned by startRead()
-//     */
-//    virtual void endReadFile(unsigned int &handle) = 0;
+    /**
+     * @brief endRead Tell underlying implementation, that the file is no longer needed.
+     * May unlock other operations on the stream/pointer/file.
+     * @param strm The stream returned by startRead()
+     */
+    virtual void endReadFile(ReadWriteHandle &handle) = 0;
 
-//    /**
-//     * @brief startRead Used to write data as file.
-//     * @param start offset in the stream. For slow connections the whole data may not be queried always.
-//     * @param len defaultvalue of 0 indicates, that data will be read until end
-//     * @return a stream to read data from
-//     */
-//    virtual upnsString startWriteFile(unsigned int &handle) = 0;
+    /**
+     * @brief startRead Used to write data as file.
+     * @param start offset in the stream. For slow connections the whole data may not be queried always.
+     * @param len defaultvalue of 0 indicates, that data will be read until end
+     * @return a stream to read data from
+     */
+    virtual upnsString startWriteFile(ReadWriteHandle &handle) = 0;
 
-//    /**
-//     * @brief endRead Tell underlying implementation, that the file.
-//     * May unlock other operations on the stream/pointer.
-//     * @param strm The stream returned by startRead()
-//     */
-//    virtual void endWriteFile(unsigned int &handle) = 0;
+    /**
+     * @brief endRead Tell underlying implementation, that the file.
+     * May unlock other operations on the stream/pointer/file.
+     * @param strm The stream returned by startRead()
+     */
+    virtual void endWriteFile(ReadWriteHandle &handle) = 0;
 
     virtual upnsuint64 getStreamSize() const = 0;
 

@@ -6,6 +6,11 @@
 #include <openvdb/io/Stream.h>
 #include "upns_logging.h"
 
+const char *FloatGridEntitydata::TYPENAME()
+{
+    return PROJECT_NAME;
+}
+
 void readFloatGridFromStream(std::istream &is, openvdb::FloatGrid::Ptr &grid)
 {
     openvdb::initialize();
@@ -40,9 +45,9 @@ FloatGridEntitydata::FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataStr
 {
 }
 
-LayerType FloatGridEntitydata::layerType() const
+const char *FloatGridEntitydata::type() const
 {
-    return LayerType::OPENVDB;
+    return FloatGridEntitydata::TYPENAME();
 }
 
 bool FloatGridEntitydata::hasFixedGrid() const

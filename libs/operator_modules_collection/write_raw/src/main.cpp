@@ -17,4 +17,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "just write raw data", "fhac", OPERATOR_VERSION, upns::LayerType::ANY_RAW, &operate)
+UPNS_MODULE(OPERATOR_NAME, "just write raw data", "fhac", OPERATOR_VERSION, "any", &operate)

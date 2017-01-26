@@ -14,7 +14,7 @@ class AbstractEntitydataStreamProvider;
 extern "C"
 {
 /**
- * @brief The only method a layert_type-module must define. It must have the name "createLayerData".
+ * @brief The only method a layer_type-module must define. It must have the name "createLayerData".
  * NOTE: Deletion of an object must be done by the library implementing the concrete LayerData type. For this it is very
  * important that the returned shared pointer has a custom deleter. In most cases this deleter will only call "delete"
  * for the previously allocated LayerData. See \sa PointcloudLayerdata for an example.
@@ -36,10 +36,10 @@ class AbstractEntitydata
 public:
     virtual ~AbstractEntitydata() { }
     /**
-     * @brief layerType return specialized type
+     * @brief type return specialized type as a name
      * @return
      */
-    virtual LayerType layerType() const = 0;
+    virtual const char* type() const = 0;
 
     /**
      * @brief hasFixedGrid indicated if the underlying datastructure likes to be read in predefined chunks

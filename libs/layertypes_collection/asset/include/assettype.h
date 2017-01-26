@@ -25,10 +25,11 @@ MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, 
 class AssetEntitydata : public Entitydata<tinyply::PlyFile>
 {
 public:
+    static const char* TYPENAME();
 
     AssetEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
 
-    LayerType           layerType() const;
+    const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
     upnsAssetPtr  getData(upnsReal x1, upnsReal y1, upnsReal z1,

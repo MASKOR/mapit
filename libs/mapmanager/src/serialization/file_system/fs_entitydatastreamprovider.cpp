@@ -151,6 +151,26 @@ void FileSystemEntitydataStreamProvider::endWritePointer(void* ptr, ReadWriteHan
     delete fsHandle;
 }
 
+upnsString FileSystemEntitydataStreamProvider::startReadFile(ReadWriteHandle &handle)
+{
+    return m_filenameRead;
+}
+
+void FileSystemEntitydataStreamProvider::endReadFile(ReadWriteHandle &handle)
+{
+
+}
+
+upnsString FileSystemEntitydataStreamProvider::startWriteFile(ReadWriteHandle &handle)
+{
+    return m_filenameWrite;
+}
+
+void FileSystemEntitydataStreamProvider::endWriteFile(ReadWriteHandle &handle)
+{
+
+}
+
 AbstractEntitydataStreamProvider::ReadWriteType FileSystemEntitydataStreamProvider::preferredReadType()
 {
     return ReadWriteFile;
