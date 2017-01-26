@@ -16,7 +16,7 @@
 #include "tinyply.h"
 
 
-upnsAssetPtr generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher)
+void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher, upnsSharedPointer<AssetEntitydata> output)
 {
     unsigned int trianglecount = 0;
     for (openvdb::Index64 n = 0, N = mesher->polygonPoolListSize(); n < N; ++n)
@@ -64,9 +64,7 @@ upnsAssetPtr generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeTo
             myFile->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
             myFile->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
             {
-                std::ostringstream ostrstr;
-                myFile->write(ostrstr, true);
-                return myFile;
+                output->setData(myFile);
 //                mesher.reset(); // hopefully free some memory here
 //                buf = ostrstr.str();
             }
@@ -81,7 +79,6 @@ upnsAssetPtr generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeTo
 //        log_error("ply reading error. Reason: " + err);
 //    }
 //    log_info("ply read to assimp scene");
-    return upnsAssetPtr(NULL);
 }
 
 // JSON:
@@ -165,12 +162,6 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     {
         return UPNS_STATUS_ERR_DB_IO_ERROR;
     }
-    upnsAssetPtr asset = generateAiSceneWithTinyPly(std::move(mesher));
-    if(asset == nullptr)
-    {
-        return UPNS_STATUS_ERR_DB_IO_ERROR;
-    }
-
 
 //    openvdb::FloatGrid::ConstPtr levelSetGrid = openvdb::gridConstPtrCast<openvdb::FloatGrid>(inputGrid);
 //    openvdb::CoordBBox bbox;
@@ -307,7 +298,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         log_error("could not cast output to FloatGrid");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    entityDataOutput->setData(asset);
+    generateAiSceneWithTinyPly(std::move(mesher), entityDataOutput);
 
     OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);

@@ -49,6 +49,7 @@ int AssetEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
     StatusCode s;
     upnsOStream *out = m_streamProvider->startWrite();
     {
+        m_asset = data;
         m_asset->write(*out, true);
     }
     m_streamProvider->endWrite(out);

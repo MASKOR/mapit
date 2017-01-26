@@ -9,7 +9,7 @@ find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
 
 include_directories( UPNS_ROOT_DIR )
 
-find_package(assimp REQUIRED)
+#find_package(assimp REQUIRED)
 find_package(OpenVDB REQUIRED)
 find_package(TBB REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common io filters)

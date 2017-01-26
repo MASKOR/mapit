@@ -25,7 +25,6 @@ file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES}  )
 target_link_libraries( ${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} upns_interface upns_interface_cpp)
 
-target_link_libraries(${PROJECT_NAME} )
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
                                                    ${PROJECT_SOURCE_DIR}/include/
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/
