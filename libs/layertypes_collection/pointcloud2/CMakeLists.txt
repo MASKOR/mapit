@@ -1,4 +1,5 @@
 project(layertype_pointcloud2)
+
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 #find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
@@ -40,4 +41,3 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
                                                    ${EIGEN3_INCLUDE_DIRS}
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/
                                                    ${PROTOBUF_INCLUDE_DIRS})
-
