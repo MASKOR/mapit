@@ -100,7 +100,7 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager upns_interface upns_interface_cpp Qt3DPointcloudRenderer)
+target_link_libraries(${PROJECT_NAME} upns_mapmanager upns_interface upns_interface_cpp Qt3DPointcloudRenderer layertype_pointcloud2)
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
