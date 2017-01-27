@@ -13,15 +13,21 @@ add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
 
 file(GLOB_RECURSE LAYERTYPE_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
-                                                ${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/src/*.hpp
-                                                ${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/src/*.cpp
-                                                ${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/include/*.hpp
+                                                #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/src/*.hpp
+                                                #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/src/*.cpp
+                                                #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/include/*.hpp
+                                                ${PROJECT_SOURCE_DIR}/libLAS/include/*.hpp
+                                                ${PROJECT_SOURCE_DIR}/libLAS/include/*.h
+                                                ${PROJECT_SOURCE_DIR}/libLAS/src/*.hpp
+                                                ${PROJECT_SOURCE_DIR}/libLAS/src/*.h
+                                                ${PROJECT_SOURCE_DIR}/libLAS/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES}  )
 target_link_libraries( ${PROJECT_NAME} upns_interface upns_interface_cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
-                                                   ${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/include/
+                                                   #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/include/
+                                                   ${PROJECT_SOURCE_DIR}/libLAS/include
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/
                                                    ${PROTOBUF_INCLUDE_DIRS})
 

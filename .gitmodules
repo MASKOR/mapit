@@ -34,3 +34,6 @@
 [submodule "libs/layertypes_collection/asset/tinyply"]
 	path = libs/layertypes_collection/asset/tinyply
 	url = https://github.com/ddiakopoulos/tinyply.git
+[submodule "libs/layertypes_collection/laz/libLAS"]
+	path = libs/layertypes_collection/laz/libLAS
+	url = https://github.com/libLAS/libLAS.git

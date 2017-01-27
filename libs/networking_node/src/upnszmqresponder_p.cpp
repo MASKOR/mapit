@@ -184,56 +184,57 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 
 void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 {
-    // TODO: Can only use paths/transient data at the moment
-    // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
-    // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
+    //TODO: can not handle this! Remove from service definition
+//    // TODO: Can only use paths/transient data at the moment
+//    // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
+//    // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
     std::unique_ptr<upns::ReplyHierarchy> rep(new upns::ReplyHierarchy());
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
-    {
-        // TODO: Introduce Error-type
-        //ptr->set_status( upns::ReplyHierarchy::CHECKOUT_NOT_FOUND );
-        send( std::move( rep ) );
-    }
-    else
-    {
-        //ptr->set_status( upns::ReplyHierarchy::SUCCESS );
+//    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+//    if(co == NULL)
+//    {
+//        // TODO: Introduce Error-type
+//        //ptr->set_status( upns::ReplyHierarchy::CHECKOUT_NOT_FOUND );
+//        send( std::move( rep ) );
+//    }
+//    else
+//    {
+//        //ptr->set_status( upns::ReplyHierarchy::SUCCESS );
 
 
-        upnsSharedPointer<Tree> root = co->getRoot();
+//        upnsSharedPointer<Tree> root = co->getRoot();
 
-        for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cmap( root->refs().cbegin() );
-            cmap != root->refs().cend();
-            ++cmap)
-        {
-            upns::ReplyHierarchyMap treeLevel0;
-            upnsSharedPointer<Tree> map = co->getTree(cmap->first);
-            for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator clayer( map->refs().cbegin() );
-                clayer != map->refs().cend();
-                ++clayer)
-            {
-                upns::ReplyHierarchyLayer treeLevel1;
-                //Path layerPath( cmap->first + "/" + clayer->first );
-                upnsSharedPointer<Tree> layer = co->getTree( clayer->second.path() );
-                assert(layer); //TODO? Just reimplement request hierechy and interface
-                for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cent( layer->refs().cbegin() );
-                    cent != layer->refs().cend();
-                    ++cent)
-                {
-                    upnsSharedPointer<Entity> ent = co->getEntity( cent->second.path() );
-                    if(ent)
-                    {
-                        treeLevel1.mutable_entities()->insert(::google::protobuf::MapPair< ::std::string, ::upns::LayerType>( cent->first, ent->type()));
-                    }
-                    else
-                    {
-                        log_warn("Repository malformed. (/map/layer/entity)");
-                    }
-                }
-                treeLevel0.mutable_layers()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ReplyHierarchyLayer>( clayer->first, treeLevel1));
-            }
-            rep->mutable_maps()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ReplyHierarchyMap>( cmap->first, treeLevel0));
-        }
+//        for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cmap( root->refs().cbegin() );
+//            cmap != root->refs().cend();
+//            ++cmap)
+//        {
+//            upns::ReplyHierarchyMap treeLevel0;
+//            upnsSharedPointer<Tree> map = co->getTree(cmap->first);
+//            for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator clayer( map->refs().cbegin() );
+//                clayer != map->refs().cend();
+//                ++clayer)
+//            {
+//                upns::ReplyHierarchyLayer treeLevel1;
+//                //Path layerPath( cmap->first + "/" + clayer->first );
+//                upnsSharedPointer<Tree> layer = co->getTree( clayer->second.path() );
+//                assert(layer); //TODO? Just reimplement request hierechy and interface
+//                for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cent( layer->refs().cbegin() );
+//                    cent != layer->refs().cend();
+//                    ++cent)
+//                {
+//                    upnsSharedPointer<Entity> ent = co->getEntity( cent->second.path() );
+//                    if(ent)
+//                    {
+//                        treeLevel1.mutable_entities()->insert(::google::protobuf::MapPair< ::std::string, ::std::string>( cent->first, ent->type()));
+//                    }
+//                    else
+//                    {
+//                        log_warn("Repository malformed. (/map/layer/entity)");
+//                    }
+//                }
+//                treeLevel0.mutable_layers()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ReplyHierarchyLayer>( clayer->first, treeLevel1));
+//            }
+//            rep->mutable_maps()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ReplyHierarchyMap>( cmap->first, treeLevel0));
+//        }
         send(std::move(rep));
 //        upns::StatusCode s = co->depthFirstSearch([&](
 //            upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
@@ -265,7 +266,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 //                //after entity
 //                return true;
 //            });
-    }
+//    }
 }
 
 void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
@@ -359,20 +360,20 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
                 // There was no entity yet
                 entity = upns::upnsSharedPointer<upns::Entity>(new upns::Entity);
             }
-            if( entity->type()   != 0
-               && msg->type()    != 0
-               && entity->type() != msg->type())
+            if( !entity->type().empty()
+               && !msg->type().empty()
+               && entity->type().compare(msg->type()) != 0)
             {
                 // Changing layertype
                 log_info("Entity " + msg->path() + " changed its layertype");
                 entity->set_type(msg->type());
             }
-            if(entity->type() == 0 && msg->type() != 0)
+            if(entity->type().empty() && !msg->type().empty())
             {
                 // No layertype was set before
                 entity->set_type(msg->type());
             }
-            if(entity->type() == 0 && msg->type() == 0)
+            if(entity->type().empty() && msg->type().empty())
             {
                 // No layertype at all (error)
                 log_error("Tried to write entitydata, but there was no type information in this or previous communication.");

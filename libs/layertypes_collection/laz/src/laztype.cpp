@@ -2,129 +2,45 @@
 #include "upns_logging.h"
 #include "upns_errorcodes.h"
 
-const char *LASzipEntitydata::TYPENAME()
+class LASEntitydataPrivate
+{
+public:
+    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    LASEntitydataPrivate(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+        :m_streamProvider( streamProvider ) {}
+};
+
+const char *LASEntitydata::TYPENAME()
 {
     return PROJECT_NAME;
 }
 
-LASzipEntitydata::LASzipEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
-    :m_streamProvider( streamProvider ),
-     m_e( NULL )
+LASEntitydata::LASEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+    :m_pimpl(new LASEntitydataPrivate(streamProvider))
 {
 }
 
-const char* LASzipEntitydata::type() const
+LASEntitydata::~LASEntitydata()
 {
-    return LASzipEntitydata::TYPENAME();
+    delete m_pimpl;
 }
 
-bool LASzipEntitydata::hasFixedGrid() const
+const char* LASEntitydata::type() const
+{
+    return LASEntitydata::TYPENAME();
+}
+
+bool LASEntitydata::hasFixedGrid() const
 {
     return false;
 }
 
-bool LASzipEntitydata::canSaveRegions() const
+bool LASEntitydata::canSaveRegions() const
 {
     return false;
 }
 
-upnsLASzipPtr LASzipEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                                upnsReal x2, upnsReal y2, upnsReal z2,
-                                                bool clipMode,
-                                                int lod)
-{
-    if(m_e == nullptr)
-    {
-        m_e = upnsLASzipPtr(new LASzip);
-        LASunzipper unzipper;
-        switch(m_streamProvider->preferredReadType())
-        {
-        case AbstractEntitydataStreamProvider::ReadWriteFile:
-        {
-            ReadWriteHandle handle;
-            upnsString filename = m_streamProvider->startReadFile(handle);
-            FILE *file = fopen(filename.c_str(), "rb");
-            unzipper.open(file, m_e.get());
-            fclose(file);
-            m_streamProvider->endReadFile(handle);
-            break;
-        }
-        case AbstractEntitydataStreamProvider::ReadWriteStream:
-        case AbstractEntitydataStreamProvider::ReadWritePointer:
-        {
-            upnsIStream *in = m_streamProvider->startRead();
-            unzipper.open(*in, m_e.get());
-            m_streamProvider->endRead(in);
-            break;
-        }
-        }
-    }
-    return m_e;
-}
-
-int LASzipEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                 upnsReal x2, upnsReal y2, upnsReal z2,
-                                 upnsLASzipPtr &data,
-                                 int lod)
-{
-    StatusCode s = UPNS_STATUS_OK;
-    m_e = data;
-    LASzipper zipper;
-    switch(m_streamProvider->preferredReadType())
-    {
-    case AbstractEntitydataStreamProvider::ReadWriteFile:
-    {
-        ReadWriteHandle handle;
-        upnsString filename = m_streamProvider->startWriteFile(handle);
-        FILE *file = fopen(filename.c_str(), "wb");
-        zipper.open(file, m_e.get());
-        zipper.write(); //TODO: MAYBE USE LIBLAS?
-        fclose(file);
-        m_streamProvider->endReadFile(handle);
-        break;
-    }
-    case AbstractEntitydataStreamProvider::ReadWriteStream:
-    case AbstractEntitydataStreamProvider::ReadWritePointer:
-    {
-        upnsIStream *in = m_streamProvider->startRead();
-        unzipper.open(*in, m_e.get());
-        m_streamProvider->endRead(in);
-        break;
-    }
-    }
-
-    upnsOStream *out = m_streamProvider->startWrite();
-    {
-        m_asset = data;
-        m_asset->write(*out, true);
-    }
-    m_streamProvider->endWrite(out);
-    return s;
-}
-
-upnsLASzipPtr LASzipEntitydata::getData(int lod)
-{
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                   false, lod);
-}
-
-int LASzipEntitydata::setData(upnsLASzipPtr &data, int lod)
-{
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                   data, lod);
-}
-
-void LASzipEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
+void LASEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                                      upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                      upnsReal &x2, upnsReal &y2, upnsReal &z2) const
 {
@@ -136,45 +52,175 @@ void LASzipEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
     z2 = +std::numeric_limits<upnsReal>::infinity();
 }
 
-int LASzipEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                              upnsReal &x2, upnsReal &y2, upnsReal &z2)
+std::unique_ptr<LASEntitydataReader> LASEntitydata::getReader()
 {
-    //TODO
-    return 0;
+    return std::unique_ptr<LASEntitydataReader>(new LASEntitydataReader(m_pimpl->m_streamProvider));
 }
 
-upnsIStream *LASzipEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+std::unique_ptr<LASEntitydataWriter> LASEntitydata::getWriter(liblas::Header const& header)
 {
-    return m_streamProvider->startRead(start, len);
+    return std::unique_ptr<LASEntitydataWriter>(new LASEntitydataWriter(m_pimpl->m_streamProvider, header));
 }
 
-void LASzipEntitydata::endRead(upnsIStream *strm)
+upnsIStream *LASEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 {
-    m_streamProvider->endRead(strm);
+    return m_pimpl->m_streamProvider->startRead(start, len);
 }
 
-upnsOStream *LASzipEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+void LASEntitydata::endRead(upnsIStream *strm)
 {
-    return m_streamProvider->startWrite(start, len);
+    m_pimpl->m_streamProvider->endRead(strm);
 }
 
-void LASzipEntitydata::endWrite(upnsOStream *strm)
+upnsOStream *LASEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
 {
-    m_streamProvider->endWrite(strm);
+    return m_pimpl->m_streamProvider->startWrite(start, len);
 }
 
-size_t LASzipEntitydata::size() const
+void LASEntitydata::endWrite(upnsOStream *strm)
 {
-    m_streamProvider->getStreamSize();
+    m_pimpl->m_streamProvider->endWrite(strm);
 }
+
+size_t LASEntitydata::size() const
+{
+    m_pimpl->m_streamProvider->getStreamSize();
+}
+
+//liblas::Header &LASEntitydata::GetHeader() const
+//{
+//    if(m_istream) return m_reader->GetHeader();
+//    else if(m_ostream) return m_writer->GetHeader();
+//    else log_error("Cannot get Header before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//liblas::Header const& LASEntitydata::GetHeader() const
+//{
+//    if(m_istream) return m_reader->GetHeader();
+//    else if(m_ostream) return m_writer->GetHeader();
+//    else log_error("Cannot get Header before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//void LASEntitydata::ReadHeader()
+//{
+//    if(m_istream) m_reader->ReadHeader();
+//    else log_error("Cannot ReadHeader before starting data access (call startReadLAS before)");
+//}
+
+//void LASEntitydata::SetHeader(const liblas::Header &header)
+//{
+//    if(m_istream) m_reader->SetHeader(header);
+//    else if(m_ostream) m_writer->SetHeader(header);
+//    else log_error("Cannot SetHeader before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//void LASEntitydata::UpdatePointCount(uint32_t count)
+//{
+//    if(m_ostream) return m_writer->UpdatePointCount(count);
+//    else log_error("Cannot UpdatePointCount before starting data access (call startWriteLAS before)");
+//}
+
+//void LASEntitydata::WritePoint(const liblas::Point &point)
+//{
+//    if(m_ostream) return m_writer->WritePoint(point);
+//    else log_error("Cannot GetPoint before starting data access (call startWriteLAS before)");
+//}
+
+//const liblas::Point &LASEntitydata::GetPoint() const
+//{
+//    if(m_istream) return m_reader->GetPoint();
+//    else log_error("Cannot GetPoint before starting data access (call startReadLAS before)");
+//}
+
+//void LASEntitydata::ReadNextPoint()
+//{
+//    if(m_istream) return m_reader->ReadNextPoint();
+//    else log_error("Cannot ReadNextPoint before starting data access (call startReadLAS before)");
+//}
+
+//const liblas::Point &LASEntitydata::ReadPointAt(std::size_t n)
+//{
+//    if(m_istream) return m_reader->ReadPointAt(n);
+//    else log_error("Cannot ReadPointAt before starting data access (call startReadLAS before)");
+//}
+
+//void LASEntitydata::Seek(std::size_t n)
+//{
+//    if(m_istream) m_reader->Seek(n);
+//    else log_error("Cannot Seek before starting data access (call startReadLAS before)");
+//}
+
+//void LASEntitydata::Reset()
+//{
+//    if(m_istream) m_reader->Reset();
+//    else log_error("Cannot Reset before starting data access (call startReadLAS before)");
+//}
+
+//void LASEntitydata::SetFilters(const std::vector<liblas::FilterPtr> &filters)
+//{
+//    if(m_istream) m_reader->SetFilters(filters);
+//    else if(m_ostream) m_writer->SetFilters(filters);
+//    else log_error("Cannot SetFilters before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//void LASEntitydata::SetTransforms(const std::vector<liblas::TransformPtr> &transforms)
+//{
+//    if(m_istream) m_reader->SetTransforms(transforms);
+//    else if(m_ostream) m_writer->SetTransforms(transforms);
+//    else log_error("Cannot SetTransforms before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//std::vector<liblas::TransformPtr> LASEntitydata::GetTransforms() const
+//{
+//    if(m_istream) return m_reader->GetTransforms();
+//    else if(m_ostream) return m_writer->GetTransforms();
+//    else log_error("Cannot GetTransforms before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//std::vector<liblas::FilterPtr> LASEntitydata::GetFilters() const
+//{
+//    if(m_istream) return m_reader->GetFilters();
+//    else if(m_ostream) return m_writer->GetFilters();
+//    else log_error("Cannot GetFilters before starting data access (call start(Read/Write)LAS before)");
+//}
+
+//void LASEntitydata::WriteHeader()
+//{
+//    if(m_ostream) m_writer->WriteHeader();
+//    else log_error("Cannot WriteHeader before starting data access (call startWriteLAS before)");
+//}
+
+
+//void LASEntitydata::startWritingLAS(liblas::Header const& header)
+//{
+//    if(m_ostream != nullptr)
+//    {
+//        log_error("Started writing while already writing.");
+//        return;
+//    }
+//    liblas::WriterFactory f;
+//    m_ostream = m_pimpl->m_streamProvider->startWrite();
+//    m_writer = new liblas::Writer(f.CreateWithStream(*m_ostream, header));
+//}
+
+//void LASEntitydata::endWritingLAS()
+//{
+//    if(m_ostream == nullptr)
+//    {
+//        log_error("End reading, but never started reading before.");
+//        return;
+//    }
+//    m_pimpl->m_streamProvider->endWrite(m_ostream);
+//    m_ostream = nullptr;
+//}
 
 void deleteEntitydata(AbstractEntitydata *ld)
 {
-    LASzipEntitydata *p = static_cast<LASzipEntitydata*>(ld);
+    LASEntitydata *p = static_cast<LASEntitydata*>(ld);
     delete p;
 }
 void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntitydata>(new LASzipEntitydata( streamProvider ), deleteEntitydata);
+    *out = upnsSharedPointer<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydata);
 }
 

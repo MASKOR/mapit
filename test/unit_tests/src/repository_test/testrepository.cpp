@@ -78,7 +78,7 @@ void TestRepository::testCreateCheckout()
     upnsSharedPointer<Entity> ent = co->getEntity( entityPath.toStdString() );
     QVERIFY(ent != NULL);
     if(ent)
-        QVERIFY(strcmp(ent->type(), PointcloudEntitydata::TYPENAME()) == 0);
+        QVERIFY(ent->type().compare(PointcloudEntitydata::TYPENAME()) == 0);
 }
 
 void TestRepository::testGetCheckout_data() { createTestdata(); }

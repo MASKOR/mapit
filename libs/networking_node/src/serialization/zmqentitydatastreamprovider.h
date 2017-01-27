@@ -36,6 +36,12 @@ public:
     char *startRead(upnsuint64 start, upnsuint64 length, upnsuint64 &outLength);
     //void endRead();
     void endWrite(const char *memory, const upns::upnsuint64 &length, const upnsuint64 &offset);
+
+    upnsString startReadFile(ReadWriteHandle &handle);
+    void endReadFile(ReadWriteHandle &handle);
+    upnsString startWriteFile(ReadWriteHandle &handle);
+    void endWriteFile(ReadWriteHandle &handle);
+
     ReadWriteType preferredReadType();
     ReadWriteType preferredWriteType();
 private:
@@ -43,7 +49,6 @@ private:
     upnsString m_pathOrOid;
     ZmqProtobufNode *m_node;
     mutable upnsuint64 m_entityLength;
-
 };
 
 }

@@ -1,5 +1,14 @@
 #include "zmqentitydatastreamprovider.h"
 #include <sstream>
+#include <fstream>
+#include <cstdio> // for tempfile
+
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+#define FILEMODE S_IRWXU | S_IRGRP | S_IROTH
 
 struct ZmqReadWriteHandle
 {
@@ -43,6 +52,27 @@ public:
 };
 
 
+void *mapFile(const uint64_t &len, const uint64_t &start, const char *filename, int &handle, int flag, int privShared, int openflag)
+{
+    if ((handle = open(filename, openflag | O_CREAT, FILEMODE)) < 0)
+    {
+        log_error("Error in file opening");
+        return nullptr;
+    }
+//    result = lseek(handle, FILESIZE-1, SEEK_SET);
+//    if (result == -1) {
+//        close(handle);
+//        log_error("Error calling lseek() to 'stretch' the file");
+//        return nullptr;
+//    }
+    void *addr;
+    if ((addr = mmap(NULL, len, PROT_READ, MAP_SHARED, handle, start)) == MAP_FAILED)
+    {
+        log_error("Error in file mapping");
+        return nullptr;
+    }
+    return addr;
+}
 upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(upns::upnsString checkoutName, upns::upnsString pathOrOid, ZmqProtobufNode *node)
     :m_checkoutName(checkoutName),
      m_pathOrOid(pathOrOid),
@@ -249,6 +279,59 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
     {
         log_error("received error from server when asked for entitydata");
     }
+}
+
+upns::upnsString upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHandle &handle)
+{
+    // tmpnam is cross platform but has the chance of returning a temp filename,
+    // if another process also requested a tmpfile but has not yet created it.
+
+    char *filename = new char[L_tmpnam];
+    std::string tmpfilename = std::tmpnam(filename);
+    handle = static_cast<ReadWriteHandle>(filename);
+    std::ofstream outfile (tmpfilename,std::ofstream::binary);
+
+    upnsuint64 outLen;
+    char* ptr = startRead(0, 0, outLen);
+    outfile.write(ptr, outLen);
+    delete [] ptr;
+    return tmpfilename;
+}
+
+void upns::ZmqEntitydataStreamProvider::endReadFile(upns::ReadWriteHandle &handle)
+{
+    char *filename = static_cast<char*>(handle);
+    std::remove(filename);
+}
+
+upns::upnsString upns::ZmqEntitydataStreamProvider::startWriteFile(upns::ReadWriteHandle &handle)
+{
+    // tmpnam is cross platform but has the chance of returning a temp filename,
+    // if another process also requested a tmpfile but has not yet created it.
+
+    char *filename = new char[L_tmpnam];
+    std::string tmpfilename = std::tmpnam(filename);
+    handle = static_cast<ReadWriteHandle>(filename);
+    return tmpfilename;
+}
+
+void upns::ZmqEntitydataStreamProvider::endWriteFile(upns::ReadWriteHandle &handle)
+{
+    char *filename = static_cast<char*>(handle);
+    int filedescriptor;
+    const upnsuint64 len = getStreamSize();
+    void *addr_void = mapFile(len, 0, filename, filedescriptor, PROT_READ, MAP_SHARED, O_RDONLY);
+    char *addr = static_cast<char *>(addr_void);
+
+
+    endWrite(addr, len, 0);
+
+    if (munmap(addr, len) == -1)
+    {
+        log_error("Error un-mmapping the file");
+        close(filedescriptor);
+    }
+    std::remove(filename);
 }
 
 upns::AbstractEntitydataStreamProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredReadType()
