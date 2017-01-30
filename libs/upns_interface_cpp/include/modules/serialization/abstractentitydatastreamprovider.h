@@ -47,14 +47,15 @@ public:
     virtual void endRead(upnsIStream *strm) = 0;
 
     /**
-     * @brief startWrite Write data to an entity
+     * @brief startWrite Write data to an entity. The file must manually be opened and closed. This function only returns a filename as string.
+     * It is not guaranteed, that the file exists.
      * @param start offset in the stream. For slow connections the whole data may not be queried always.
      * @param len defaultvalue of 0 indicates, that data will be written until end
      * @return a stream to write data to
      */
     virtual upnsOStream *startWrite(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
     /**
-     * @brief endWrite Tell the underlying implementation, that write operation has finished.
+     * @brief endWrite Tell the underlying implementation, that write operation has finished. File must be closed manually from outside this method.
      * This will cause a rehashing of the stream, the entity and all parents.
      * @param strm
      */

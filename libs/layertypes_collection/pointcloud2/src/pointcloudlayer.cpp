@@ -64,7 +64,7 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
         pcl::PCDWriter writer;
         result = writer.writeBinaryCompressed(filename, *m_pointcloud);
     }
-    m_streamProvider->startWriteFile(handle);
+    m_streamProvider->endWriteFile(handle);
     return result;
 }
 

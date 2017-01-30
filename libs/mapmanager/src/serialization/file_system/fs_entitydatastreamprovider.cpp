@@ -168,7 +168,7 @@ upnsString FileSystemEntitydataStreamProvider::startWriteFile(ReadWriteHandle &h
 
 void FileSystemEntitydataStreamProvider::endWriteFile(ReadWriteHandle &handle)
 {
-
+    //Nothing to do here, file has been written
 }
 
 AbstractEntitydataStreamProvider::ReadWriteType FileSystemEntitydataStreamProvider::preferredReadType()

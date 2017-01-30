@@ -222,7 +222,7 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
     if(recvlen == 0)
     {
         log_info("Received empty entitydata (length: 0, entity: " + m_pathOrOid + ")");
-        recvlen = 1;
+        recvlen = 1; // This is used to make allocation of memory possible. Use m_entityLength for the exact size.
     }
     if(recvlen < 0)
     {
@@ -236,7 +236,8 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
     }
     char *buf = new char[recvlen]; // deleted by MemoryReaderDeleter
 
-    // receive empty frames to not disturb following receives.
+    // receive data frames
+    // also receive empty frames to not disturb following receives.
     if(m_node->has_more())
     {
         size_t offset = 0;
@@ -319,14 +320,17 @@ void upns::ZmqEntitydataStreamProvider::endWriteFile(upns::ReadWriteHandle &hand
 {
     char *filename = static_cast<char*>(handle);
     int filedescriptor;
-    const upnsuint64 len = getStreamSize();
-    void *addr_void = mapFile(len, 0, filename, filedescriptor, PROT_READ, MAP_SHARED, O_RDONLY);
+
+    std::ifstream is(filename);
+    is.seekg(0, std::ios::beg);
+    is.seekg(0, std::ios::end);
+    std::stringstream::pos_type size = is.tellg();
+    void *addr_void = mapFile(size, 0, filename, filedescriptor, PROT_READ, MAP_SHARED, O_RDONLY);
     char *addr = static_cast<char *>(addr_void);
 
+    endWrite(addr, size, 0);
 
-    endWrite(addr, len, 0);
-
-    if (munmap(addr, len) == -1)
+    if (munmap(addr, size) == -1)
     {
         log_error("Error un-mmapping the file");
         close(filedescriptor);
