@@ -11,7 +11,7 @@ project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
-#set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 11)
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         message(WARNING "WARNING: In-Place Build not recommended.")
@@ -23,9 +23,9 @@ if(NOT WIN32)
 endif(NOT WIN32)
 
 add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
-if(${VRMODE})
+if(VRMODE)
 add_definitions(-DVRMODE="${VRMODE}")
-endif(${VRMODE})
+endif(VRMODE)
 
 set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 

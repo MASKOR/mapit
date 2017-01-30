@@ -40,14 +40,14 @@ else (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
 endif (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
 
 
-if(NOT (DISABLE_PCL))
-#find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
-find_package(PCL REQUIRED COMPONENTS common io)
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-else( NOT (DISABLE_PCL))
-endif (NOT (DISABLE_PCL))
+if(WITH_PCL)
+    #find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
+    find_package(PCL REQUIRED COMPONENTS common io)
+    include_directories(${PCL_INCLUDE_DIRS})
+    link_directories(${PCL_LIBRARY_DIRS})
+    add_definitions(${PCL_DEFINITIONS})
+else(WITH_PCL)
+endif(WITH_PCL)
 
 set(UPNS_VISUALIZATION_INCLUDE ${PROJECT_SOURCE_DIR}/include)
 

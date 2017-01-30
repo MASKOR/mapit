@@ -15,7 +15,7 @@ public:
      * It communicates directly to file serializer.
      * @return
      */
-    static upns::Repository *openLocalRepository(std::__cxx11::string directory);
+    static upns::Repository *openLocalRepository(std::string directory);
 };
 
 }

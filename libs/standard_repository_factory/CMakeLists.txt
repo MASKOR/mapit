@@ -15,11 +15,11 @@ find_package(CPPZMQ REQUIRED)
 include_directories(${CPPZMQ_INCLUDE_DIR})
 
 set(WITH_YAML ON CACHE BOOL "Enable Yaml for repository configuration")
-if(${WITH_YAML})
+if(WITH_YAML)
   #yamlcpp
   find_package(YamlCpp)
   include_directories(${YAMLCPP_INCLUDE_DIR})
-endif(${WITH_YAML})
+endif(WITH_YAML)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h )
 
