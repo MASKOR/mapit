@@ -59,6 +59,6 @@
       #define log_info(msg) (std::cout << "\033[1;32m" << std::string() + msg << "\033[0m" << std::endl)
     #endif
   #endif // UPNS_DEBUG
-#endif // LOG4CPLUS_FOUND
 #define upns_init_logging()
+#endif // LOG4CPLUS_FOUND
 #endif

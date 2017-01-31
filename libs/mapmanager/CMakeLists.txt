@@ -2,7 +2,7 @@ project(upns_mapmanager)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-find_package(Boost COMPONENTS filesystem )
+find_package(Boost COMPONENTS filesystem iostreams)
 
 ############# Protobuf
 
