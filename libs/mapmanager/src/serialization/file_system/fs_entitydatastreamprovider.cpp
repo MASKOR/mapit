@@ -3,11 +3,26 @@
 #include <string>
 #include <sstream>
 #include <assert.h>
-#include <sys/mman.h>
+
+#ifdef _WIN32
+# include <io.h>
+# include <windows.h>
+# define memmap_open                    _open
+# define memmap_close(fd)               _close(fd)
+# define memmap_lseek(fd,offset,origin) _lseek(fd,offset,origin)
+#else
+# include <sys/mman.h>
+# define memmap_open                    open
+# define memmap_close(fd)               close(fd)
+# define memmap_lseek(fd,offset,origin) lseek(fd,offset,origin)
+#endif
+
+//#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
+
 #include <upns_logging.h>
 #define FILEMODE S_IRWXU | S_IRGRP | S_IROTH
 
@@ -16,7 +31,7 @@ namespace upns {
 struct FileSystemReadWriteHandle {
     int filedescriptor;
     size_t length;
-    __off_t offset;
+    size_t offset;
 };
 
 FileSystemEntitydataStreamProvider::FileSystemEntitydataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite)
@@ -89,9 +104,10 @@ void FileSystemEntitydataStreamProvider::unlock(LockHandle)
     //TODO: impl
 }
 
-void *mapFile(const upnsuint64 &len, const upnsuint64 &start, upnsString &filename, int &handle, int flag, int privShared, int openflag)
+void *mapFileRead(const upnsuint64 &len, const upnsuint64 &start, upnsString &filename, int &handle, int flag, int privShared, int openflag)
 {
-    if ((handle = open(filename.c_str(), openflag | O_CREAT, FILEMODE)) < 0)
+    handle = memmap_open(filename.c_str(), openflag | O_CREAT, FILEMODE);
+    if (handle < 0)
     {
         log_error("Error in file opening");
         return nullptr;
@@ -103,13 +119,65 @@ void *mapFile(const upnsuint64 &len, const upnsuint64 &start, upnsString &filena
 //        return nullptr;
 //    }
     void *addr;
-    if ((addr = mmap(NULL, len, PROT_READ, MAP_SHARED, handle, start)) == MAP_FAILED)
+#ifdef _WIN32
+    HANDLE filehandle = CreateFileMapping ((HANDLE) _get_osfhandle(handle), NULL, PAGE_READONLY, 0, 0, NULL);
+    char *map = static_cast<char*>(MapViewOfFile (filehandle, FILE_MAP_READ, 0, 0, 0));
+    if (map == nullptr)
+    {
+      CloseHandle(handle);
+      memmap_close(filehandle);
+      log_error("Memory mapped File error for file \"" + filename.c_str () + "\"");
+      return -1;
+    }
+#else
+    addr = mmap(NULL, len, PROT_READ, MAP_SHARED, handle, start);
+    if (addr == MAP_FAILED)
     {
         log_error("Error in file mapping");
         return nullptr;
     }
+#endif
     return addr;
 }
+void *mapFileWrite(const upnsuint64 &len, const upnsuint64 &start, upnsString &filename, int &handle, int flag, int privShared, int openflag)
+{
+    handle = memmap_open(filename.c_str(), openflag | O_CREAT, FILEMODE);
+    if (handle < 0)
+    {
+        log_error("Error in file opening");
+        return nullptr;
+    }
+//    result = lseek(handle, FILESIZE-1, SEEK_SET);
+//    if (result == -1) {
+//        close(handle);
+//        log_error("Error calling lseek() to 'stretch' the file");
+//        return nullptr;
+//    }
+    void *addr;
+#ifdef _WIN32
+    HANDLE filehandle = CreateFileMapping ((HANDLE) _get_osfhandle(handle), NULL, PAGE_READONLY, 0, 0, NULL);
+    char *map = static_cast<char*>(MapViewOfFile (filehandle, FILE_MAP_READ, 0, 0, 0));
+    if (map == nullptr)
+    {
+      CloseHandle(handle);
+      memmap_close(filehandle);
+      log_error("Memory mapped File error for file \"" + filename.c_str () + "\"");
+      return -1;
+    }
+#else
+    addr = mmap(NULL, len, PROT_READ, MAP_SHARED, handle, start);
+    if (addr == MAP_FAILED)
+    {
+        log_error("Error in file mapping");
+        return nullptr;
+    }
+#endif
+    return addr;
+}
+
+
+
+
 
 void *FileSystemEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
 {

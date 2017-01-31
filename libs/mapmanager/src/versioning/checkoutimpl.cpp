@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <log4cplus/logger.h>
 #include "module.h"
 #include "operationenvironmentimpl.h"
 #include "serialization/entitystreammanager.h"

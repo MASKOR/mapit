@@ -1,11 +1,10 @@
 
 # TODO: Cleanup Cmake
-# 1) Put all frameworks in root cmake once. Make them optional. PCL, Boost (some components may be required for mapmanager), OpenVdb, Assimp
-# 2) compile some operators/layertypes only if these frameworks are found
-# 3) Make pcl cmake silent? Remove its clumsy output
-# 4) Output which frameworks were found and wich projects will/will not be built.
-# 5) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames.
-# 6) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
+# 1) compile some operators/layertypes only if these frameworks are found
+# 2) Make pcl cmake silent? Remove its clumsy output
+# 3) Output which frameworks were found and wich projects will/will not be built.
+# 4) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames. Pcl seems to break findBoost.
+# 5) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
 
 project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
@@ -35,11 +34,14 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
-include(FindLog4cplus)
+set(WITH_LOG4CPLUS TRUE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
 
-if(LOG4CPLUS_FOUND)
+if(WITH_LOG4CPLUS)
+  include(FindLog4cplus)
+  if(LOG4CPLUS_FOUND)
     add_definitions(-DLOG4CPLUS_FOUND)
-endif(LOG4CPLUS_FOUND)
+  endif(LOG4CPLUS_FOUND)
+endif(WITH_LOG4CPLUS)
 
 
 if(WIN32)
@@ -93,12 +95,12 @@ file(GLOB_RECURSE Resources_All ${ResourceDir}/*)
 
 include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
 include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
-include_directories(${LOG4CPLUS_INCLUDE_DIR})
+if(WITH_LOG4CPLUS)
+  include_directories(${LOG4CPLUS_INCLUDE_DIR})
+endif(WITH_LOG4CPLUS)
 #include_directories(${UPNS_ROOT_DIR}/externals/include) # for sha initially
 
 set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
-
-include(FindLog4cplus)
 
 add_subdirectory(libs/mapmanager)
 add_subdirectory(libs/operator_modules_collection)

@@ -24,7 +24,11 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 # PCL was linked statically against boost. PCL is linkes statically to layertype.
 # Layertype has nothing to do with mapmanager. (linked dynmic and at runtime)
 # Somehow boost dependency comes in here. I guess a static library wants it, thus the executable/dynamic-library must have it.
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_interface_cpp ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
+
+if(WITH_LOG4CPLUS)
+  target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
+endif(WITH_LOG4CPLUS)
 
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} dl)

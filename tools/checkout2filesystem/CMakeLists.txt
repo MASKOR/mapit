@@ -28,7 +28,11 @@ endif(WIN32)
 find_package(Boost COMPONENTS iostreams REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${LOG4CPLUS_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES})
+
+if(WITH_LOG4CPLUS)
+  target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
+endif(WITH_LOG4CPLUS)
 
 execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin

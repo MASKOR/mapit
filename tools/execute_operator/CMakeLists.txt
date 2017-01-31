@@ -20,7 +20,12 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager standard_repository_factory ${Boost_LIBRARIES})
+
+if(WITH_LOG4CPLUS)
+  target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
+endif(WITH_LOG4CPLUS)
+
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(WIN32)

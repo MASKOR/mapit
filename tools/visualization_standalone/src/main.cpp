@@ -7,9 +7,7 @@
 #include <QDebug>
 #include "bindings/qmlmapsrenderviewport.h"
 #include "bindings/qmlentitydata.h"
-#include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
-#include <log4cplus/configurator.h>
+#include "upns_logging.h"
 #include "stubs/qmlstubentitydatapointcloud2.h"
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
@@ -51,8 +49,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
-    log4cplus::BasicConfigurator logconfig;
-    logconfig.configure();
+    upns_init_logging();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
 

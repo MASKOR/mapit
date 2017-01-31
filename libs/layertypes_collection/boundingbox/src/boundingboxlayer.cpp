@@ -129,7 +129,7 @@ void BoundingboxEntitydata::endWrite(upnsOStream *strm)
 
 size_t BoundingboxEntitydata::size() const
 {
-    m_streamProvider->getStreamSize();
+    return m_streamProvider->getStreamSize();
 }
 
 // Win32 does not like anything but void pointers handled between libraries

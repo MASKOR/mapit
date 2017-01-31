@@ -4,8 +4,7 @@
 #include "versioning/repository.h"
 #include "versioning/repositoryfactorystandard.h"
 #include "upns_errorcodes.h"
-#include <log4cplus/configurator.h>
-#include <log4cplus/consoleappender.h>
+#include "upns_logging.h"
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -28,8 +27,7 @@ void buildCommitList(upns::Repository *repo, upns::upnsVec< upns::upnsPair<upns:
 
 int main(int argc, char *argv[])
 {
-    log4cplus::BasicConfigurator logconfig;
-    logconfig.configure();
+    upns_init_logging();
 
     po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name>");
     program_options_desc.add_options()

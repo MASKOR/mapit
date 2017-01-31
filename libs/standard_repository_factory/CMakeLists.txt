@@ -27,7 +27,11 @@ add_library(${PROJECT_NAME} ${UPNS_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src )
 
-target_link_libraries(${PROJECT_NAME} upns_mapmanager networking_node ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAMLCPP_LIBRARY} ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_mapmanager networking_node ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAMLCPP_LIBRARY})
+
+if(WITH_LOG4CPLUS)
+  target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
+endif(WITH_LOG4CPLUS)
 
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} dl)
