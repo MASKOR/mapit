@@ -34,6 +34,9 @@ struct FileSystemReadWriteHandle {
     size_t length;
     size_t offset;
 };
+struct FileSystemReadWritePointerHandle {
+    boost::iostreams::mapped_file file;
+};
 
 FileSystemEntitydataStreamProvider::FileSystemEntitydataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite)
     :m_filenameRead(filenameRead),
@@ -105,53 +108,60 @@ void FileSystemEntitydataStreamProvider::unlock(LockHandle)
     //TODO: impl
 }
 
-void *mapFile(const upnsuint64 &len, const upnsuint64 &start, upnsString &filename, boost::iostreams::mapped_file_source &file)
-{
-    file.open(filename.c_str(), len, start);
-    if(file.is_open())
-    {
-        // Get pointer to the data
-        return reinterpret_cast<void*>(file.data());
-    }
-    else
-    {
-        log_error("Error opening file as mapped memory file: " + filename);
-    }
-}
-
-void *FileSystemEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
+const void *FileSystemEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
 {
     FileSystemReadWriteHandle *fsHandle = new FileSystemReadWriteHandle;
     handle = static_cast<ReadWriteHandle>(fsHandle);
     fsHandle->length = len;
     fsHandle->offset = start;
-    return mapFile(len?len:getStreamSize(), start, m_filenameRead, fsHandle->file);
+    fsHandle->file.open(m_filenameRead.c_str(), len?len:getStreamSize(), start);
+    if(fsHandle->file.is_open())
+    {
+        // Get pointer to the data
+        return reinterpret_cast<const void*>(fsHandle->file.data());
+    }
+    else
+    {
+        log_error("Error opening file as mapped memory file: " + m_filenameRead);
+        return nullptr;
+    }
 }
 
-void FileSystemEntitydataStreamProvider::endReadPointer(void* ptr, ReadWriteHandle &handle)
+void FileSystemEntitydataStreamProvider::endReadPointer(const void *ptr, ReadWriteHandle &handle)
 {
+    assert(ptr);
     FileSystemReadWriteHandle *fsHandle(static_cast<FileSystemReadWriteHandle*>(handle));
+    assert(fsHandle->file.is_open());
     // Remember to unmap the file
     fsHandle->file.close();
+    if (fsHandle->file.is_open())
+    {
+        log_error("Error un-mmapping the file");
+    }
     delete fsHandle;
 }
 
 void *FileSystemEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
 {
-    FileSystemReadWriteHandle *fsHandle = new FileSystemReadWriteHandle;
+    FileSystemReadWritePointerHandle *fsHandle = new FileSystemReadWritePointerHandle;
     handle = static_cast<ReadWriteHandle>(fsHandle);
-    fsHandle->length = len;
-    fsHandle->offset = start;
-    return mapFile(len?len:getStreamSize(), start, m_filenameWrite, fsHandle->filedescriptor, PROT_WRITE, MAP_SHARED, O_WRONLY);
+    fsHandle->file.open(m_filenameWrite, boost::iostreams::mapped_file::priv, len?len:getStreamSize(), start);
+    return fsHandle->file.data();
+//    boost::iostreams::mapped_file_params params;
+//    params.path          = m_filenameWrite;
+//    params.new_file_size = len?len:getStreamSize();
+//    params.flags         = boost::iostreams::mapped_file::mapmode::readwrite;
+
+//    boost::iostreams::stream<boost::iostreams::mapped_file_sink> out(params);
 }
 
 void FileSystemEntitydataStreamProvider::endWritePointer(void* ptr, ReadWriteHandle &handle)
 {
-    FileSystemReadWriteHandle *fsHandle(static_cast<FileSystemReadWriteHandle*>(handle));
-    if (munmap(ptr, fsHandle->length) == -1)
+    FileSystemReadWritePointerHandle *fsHandle(static_cast<FileSystemReadWritePointerHandle*>(handle));
+    fsHandle->file.close();
+    if (fsHandle->file.is_open())
     {
         log_error("Error un-mmapping the file");
-        close(fsHandle->filedescriptor);
     }
     delete fsHandle;
 }

@@ -169,16 +169,16 @@ void upns::ZmqEntitydataStreamProvider::unlock(upns::LockHandle)
 
 }
 
-void *upns::ZmqEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upns::upnsuint64 start, upns::upnsuint64 len)
+const void *upns::ZmqEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upns::upnsuint64 start, upns::upnsuint64 len)
 {
     upnsuint64 outLen;
     char* ptr = startRead(start, len, outLen);
     return static_cast<void *>(ptr);
 }
 
-void upns::ZmqEntitydataStreamProvider::endReadPointer(void *ptr, ReadWriteHandle &handle)
+void upns::ZmqEntitydataStreamProvider::endReadPointer(const void *ptr, ReadWriteHandle &handle)
 {
-    delete [] static_cast<char*>(ptr);
+    delete [] static_cast<const char*>(ptr);
 }
 
 void *upns::ZmqEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, upns::upnsuint64 start, upns::upnsuint64 len)

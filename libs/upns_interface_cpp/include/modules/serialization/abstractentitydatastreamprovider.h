@@ -67,14 +67,14 @@ public:
      * @param len defaultvalue of 0 indicates, that data will be read until end
      * @return a stream to read data from
      */
-    virtual void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start = 0, upnsuint64 len = 0 ) = 0;
+    virtual const void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start = 0, upnsuint64 len = 0 ) = 0;
 
     /**
      * @brief endRead Tell underlying implementation, that the buffer is no longer needed in memory.
      * May unlock other operations on the stream/pointer/file.
      * @param strm The stream returned by startRead()
      */
-    virtual void endReadPointer(void* ptr, ReadWriteHandle &handle) = 0;
+    virtual void endReadPointer(const void* ptr, ReadWriteHandle &handle) = 0;
 
     /**
      * @brief startRead Used to write data as pointer.

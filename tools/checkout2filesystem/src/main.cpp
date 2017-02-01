@@ -11,7 +11,7 @@
 #include <boost/program_options.hpp>
 
 namespace fs = boost::filesystem;
-namespace iostr = boost::iostreams;
+//namespace iostr = boost::iostreams;
 
 namespace po = boost::program_options;
 

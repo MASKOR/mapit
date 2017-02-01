@@ -21,8 +21,8 @@ public:
     LockHandle lock();
     void unlock(LockHandle);
 
-    void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
-    void endReadPointer(void *ptr, ReadWriteHandle &handle);
+    const void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void endReadPointer(const void *ptr, ReadWriteHandle &handle);
     void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
     void endWritePointer(void* ptr, ReadWriteHandle &handle);
     upnsString startReadFile(ReadWriteHandle &handle);
