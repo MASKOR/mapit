@@ -12,6 +12,9 @@ aux_source_directory(. SRC_LIST)
 
 set (CMAKE_CXX_STANDARD 11)
 
+set(UPNS_INSTALL_INCLUDE "upns")
+set(UPNS_INSTALL_LAYERTYPES "upns_layertypes")
+
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         message(WARNING "WARNING: In-Place Build not recommended.")
 endif()
@@ -79,6 +82,8 @@ set(CMAKE_AUTOMOC ON)
 set(UPNS_QTVERSION)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
+
+include(CPack)
 
 string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
 if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
