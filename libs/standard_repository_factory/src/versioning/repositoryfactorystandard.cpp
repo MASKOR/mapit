@@ -60,9 +60,10 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program
 #endif
     else
     {
-        log_error("No Repository specified. (--repository-directory, --url)");
-        log_info(usage());
-        return nullptr;
+        return RepositoryFactory::openLocalRepository(".");
+//        log_error("No Repository specified. (--repository-directory, --url)");
+//        log_info(usage());
+//        return nullptr;
     }
 }
 

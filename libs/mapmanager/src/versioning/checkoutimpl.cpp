@@ -145,6 +145,7 @@ upnsSharedPointer<Entity> CheckoutImpl::getEntityConflict(const ObjectId &object
     return NULL;
 }
 
+//TODO: Streamline with layertype loading code
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 {
     //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
@@ -163,25 +164,38 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     upnsString prefix("lib");
     upnsString postfix(".so");
 #endif
-    std::stringstream filename;
-    filename << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    std::stringstream filenam;
+    filenam << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
-        filename << "." << desc.operatorversion();
+        filenam << "." << desc.operatorversion();
     }
-    std::string filenamestr = filename.str();
+    std::stringstream fixpathfilenam;
+    fixpathfilenam << "./libs/operator_modules_collection/" << filenam.str();
+    std::string filenamestr = fixpathfilenam.str();
     log_info("loading operator module \"" + filenamestr + "\"");
 #ifdef _WIN32
-    HMODULE handle = LoadLibrary(filename.str().c_str());
+    HMODULE handle = LoadLibrary(fixpathfilenam.str().c_str());
 #else
-    void* handle = dlopen(filenamestr.c_str(), RTLD_NOW);
+    void* handle = dlopen(fixpathfilenam.str().c_str(), RTLD_NOW);
 #endif
     if (!handle) {
-#ifdef _WIN32
-#else
-        std::cerr << "Cannot open library: " << dlerror() << '\n';
-#endif
-        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+        std::stringstream systempathfilenam;
+        systempathfilenam << "upns_operators/" << filenam.str();
+        std::string filenamestr = fixpathfilenam.str();
+        log_info("loading operator module \"" + filenamestr + "\"");
+    #ifdef _WIN32
+        HMODULE handle = LoadLibrary(systempathfilenam.str().c_str());
+    #else
+        void* handle = dlopen(systempathfilenam.str().c_str(), RTLD_NOW);
+    #endif
+        if (!handle) {
+        #ifdef _WIN32
+        #else
+            std::cerr << "Cannot open library: " << dlerror() << '\n';
+        #endif
+            return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+        }
     }
 #ifdef _WIN32
     //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");

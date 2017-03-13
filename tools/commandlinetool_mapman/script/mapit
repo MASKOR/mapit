@@ -1,0 +1,15 @@
+#!/bin/bash
+cmd=`which $0`
+cmddir=${cmd%/*}
+subcmd=$cmddir/upns_tools/$1
+
+if [ "$#" -ne 1 ]; then
+    echo "no parameters given"
+fi
+
+if [[ -x "$subcmd" ]]
+then
+    $subcmd ${@:2}
+else
+    echo "mapit subcommand '$1' does not exist"
+fi

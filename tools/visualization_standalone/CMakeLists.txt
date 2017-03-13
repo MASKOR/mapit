@@ -153,3 +153,4 @@ else(WIN32)
 
 endif(WIN32)
 
+install(TARGETS ${PROJECT_NAME} DESTINATION bin/upns_tools)

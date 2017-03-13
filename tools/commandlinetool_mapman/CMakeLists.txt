@@ -1,22 +1,38 @@
 project(mapman)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
-set(CMAKE_AUTOMOC ON)
+#file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/script/*)
+add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add bash script files to project" SOURCES ${UPNS_SOURCES})
 
-find_package( Boost 1.54 COMPONENTS program_options REQUIRED )
-include_directories( ${Boost_INCLUDE_DIR} )
+#add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-link_directories(${YAML_CPP_LIB_DIR})
+#target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES})
 
-use_protobuf()
+#if(NOT WIN32)
+#  target_link_libraries(${PROJECT_NAME} uuid ${libzip})
+#endif(NOT WIN32)
 
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/include/)
-include_directories(${UPNS_INTERFACE_INCLUDE})
-include_directories(${YAML_CPP_INCLUDE})
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin
+)
 
-file(GLOB_RECURSE UPNS_MAPMAN_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/repo.yaml
+)
 
-add_executable(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MAPMAN_SOURCES} )
-target_link_libraries(${PROJECT_NAME} upns_mapmanager upns_interface yaml-cpp log4cplus ${Boost_PROGRAM_OPTIONS_LIBRARY})
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/bin/libs
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/src/repo.yaml ${CMAKE_BINARY_DIR}/tools/bin/repo.yaml
+)
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
+)
+
+#install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(PROGRAMS script/mapit DESTINATION bin )

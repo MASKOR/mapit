@@ -35,21 +35,32 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
     upnsString prefix = "lib";
     upnsString postfix = ".so";
 #endif
-    std::stringstream filename;
-    filename << "./libs/layertypes_collection/" << prefix << layertypeName << debug << postfix;
+    std::stringstream filenam;
+    filenam << prefix << layertypeName << debug << postfix;
+    std::stringstream fixpathfilename;
+    fixpathfilename << "./libs/layertypes_collection/" << filenam.str();
 #ifdef _WIN32
-    HMODULE handle = LoadLibrary(filename.str().c_str());
+    HMODULE handle = LoadLibrary(fixpathfilename.str().c_str());
 #else
-    void* handle = dlopen(filename.str().c_str(), RTLD_NOW);
+    void* handle = dlopen(fixpathfilename.str().c_str(), RTLD_NOW);
 #endif
     if (!handle) {
-#ifdef _WIN32
-        DWORD dw = GetLastError();
-        std::cerr << "Cannot open library: " << filename.str() <<  "errorcode: " << dw << '\n';
-#else
-        std::cerr << "Cannot open library: " << dlerror() << '\n';
-#endif
-        return upnsSharedPointer<AbstractEntitydata>(NULL);
+        std::stringstream systempathfilename;
+        systempathfilename << "upns_layertypes/" << filenam.str();
+    #ifdef _WIN32
+        HMODULE handle = LoadLibrary(systempathfilename.str().c_str());
+    #else
+        void* handle = dlopen(systempathfilename.str().c_str(), RTLD_NOW);
+    #endif
+        if (!handle) {
+        #ifdef _WIN32
+            DWORD dw = GetLastError();
+            std::cerr << "Cannot open library: " << filename.str() <<  "errorcode: " << dw << '\n';
+        #else
+            std::cerr << "Cannot open library: " << dlerror() << '\n';
+        #endif
+            return upnsSharedPointer<AbstractEntitydata>(NULL);
+        }
     }
 #ifdef _WIN32
     CreateEntitydataFunc wrap = (CreateEntitydataFunc)GetProcAddress(handle,"createEntitydata");

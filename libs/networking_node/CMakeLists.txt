@@ -16,7 +16,7 @@ include_directories(${CPPZMQ_INCLUDE_DIR})
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h )
 
-add_library(${PROJECT_NAME} ${UPNS_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${UPNS_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src )
 
@@ -35,4 +35,4 @@ if(NOT WIN32)
 endif(NOT WIN32)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE}/${UPNS_INSTALL_INCLUDE} )
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${UPNS_INSTALL_INCLUDE} )

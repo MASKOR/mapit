@@ -17,7 +17,7 @@ file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                   ${PROJECT_SOURCE_DIR}/src/sha/*.cpp
                                   ${PROJECT_SOURCE_DIR}/src/sha/*.h)
 
-add_library(${PROJECT_NAME} ${SRC_LIST} ${UPNS_MM_SOURCES} ${UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_MM_SOURCES} ${UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP} )
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 #Note: Windows (and also linux in some cases?):
@@ -40,3 +40,6 @@ endif(NOT WIN32)
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/
                                                    ${Boost_INCLUDE_DIRS})
+
+install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${UPNS_INSTALL_INCLUDE}/${PROJECT_NAME} )
