@@ -27,12 +27,19 @@ file(GLOB_RECURSE LAYERTYPE_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
 
 set(HAVE_GDAL FALSE CACHE BOOL "Enable GDAL for LibLAS")
+set(HAVE_LIBGEOTIFF FALSE CACHE BOOL "Enable libGeoTIFF for LibLAS")
 
 if(NOT HAVE_GDAL)
   file(GLOB_RECURSE GT_SRC ${PROJECT_SOURCE_DIR}/libLAS/src/gt_*.cpp
                            ${PROJECT_SOURCE_DIR}/libLAS/src/gt_*.h)
   list(REMOVE_ITEM LAYERTYPE_SOURCES ${GT_SRC})
 endif(NOT HAVE_GDAL)
+
+if(NOT HAVE_LIBGEOTIFF)
+  file(GLOB_RECURSE GEO_SRC ${PROJECT_SOURCE_DIR}/libLAS/src/tifvsi.cpp)
+  list(REMOVE_ITEM LAYERTYPE_SOURCES ${GEO_SRC})
+endif(NOT HAVE_LIBGEOTIFF)
+
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES})
 target_link_libraries( ${PROJECT_NAME} upns_interface upns_interface_cpp ${BOOST_LIBRARIES})
