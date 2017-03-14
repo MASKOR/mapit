@@ -10,9 +10,11 @@ namespace upns
 {
 
 /**
- * @brief The RepositoryNetworkingFactory class
+ * @brief The RepositoryFactoryStandard class
  * Returned Repositories must be deleted manually. Caller has ownership.
  * Deleting the object does NOT delete the repositories contents from disk.
+ * This factory is able to create repository objects configured using the command line.
+ * Depending on the commandline arguments a networking repository may be created by the factory.
  */
 
 class RepositoryFactoryStandard
@@ -24,7 +26,6 @@ public:
 
     static void addProgramOptions(boost::program_options::options_description &desc);
     static Repository* openRepository(boost::program_options::variables_map &vars);
-
 };
 
 }
