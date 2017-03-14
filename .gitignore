@@ -19,6 +19,12 @@ externals/libs/*
 .directory
 *.swp
 
+*Makefile
+cmake_install.cmake
+*.cbp
+CMakeFiles
+
+
 Release
 Debug
 GeneratedFiles
