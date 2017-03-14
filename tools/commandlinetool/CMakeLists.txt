@@ -1,4 +1,4 @@
-project(mapman)
+project(commandlinetool)
 cmake_minimum_required(VERSION 2.8)
 
 #file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)

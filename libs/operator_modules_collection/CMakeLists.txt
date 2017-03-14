@@ -17,6 +17,7 @@ if(WITH_OPERATORS)
   SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
   #list(REMOVE_ITEM SUBDIRS "common")
+  list(REMOVE_ITEM SUBDIRS "CMakeFiles") # this directory is created by cpack (TODO: validate)
 
   FOREACH(subdir ${SUBDIRS})
     ADD_SUBDIRECTORY(${subdir})
