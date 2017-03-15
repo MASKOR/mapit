@@ -10,20 +10,28 @@
 
 // Apply array of transforms.
 // {
-//    target: "path/to/target.tf"
-//    mode: "relative"|"absolute",
+//    tfentrypoint: "path/to/entrypoint.tf"
+//    create: "path/to/newtf.tf"
+//    tags: [tag1, tag2] //TODO: provide advanced filters for tags -> AND, OR, ...
+//    tagsbefore: []
+//    tagsafter: []
 //    tf: [
 //      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
 //      1: {mat: [0: m00_2, ...]},
 //      2: ...
 //    ]
 // }
-// relative:
-// parent may be a tf or a tree
-// if parent is a tree, timestamp is used to choose a appropiate coordinate system (lerp between two tfs).
-// if parent is empty, target is used.
-// absolute:
-// only one tf (index:0) may be given, parent/timestamp must not be used.
+// Applying transformations has different use cases:
+// Create new transform:
+// "create" is an not yet existing entity. It is created with a new transform containing
+// "tf" as a tf or path (path in case of "tf" beeing an array). tf.parents are preserved.
+// Alter existing transform:
+// It is not always clear where a transform has to be inserted or if a new transform
+// should be insterted into the graph. E.g. ICP is executed the first time: A transform
+// node should be insterted between [pointcloud] and [robot odometry]. "tagsafter" should
+// contain the tag "odometry" to indicate that a transform should be insterted just before
+// an odometry transform. After the ICP has been executed once, subsequent executions should
+// not create new transforms, but overwrite the existing transform!
 
 template<typename Indexable>
 void jsonToMat(float* d, Indexable &json)
