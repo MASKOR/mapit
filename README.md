@@ -15,7 +15,7 @@ Data is read into the checkout and is edited with *execute_operator* command. In
 	mapit checkout2filesystem testcheckout ./export
 
 ## Features
-UPNS-Software is meant to be used with huge files while still maintaining the history of data. This requires the use of new paradigms. Unfortunately editing data is not as easy as opening your favourit editor and start changing it.
+UPNS-Software is meant to be used with huge files while still maintaining the history of data. This requires the use of new paradigms.
 
 **Distributed access and computation**
 
@@ -24,7 +24,7 @@ Data managed with UPNS-Software can be distributed across multiple *repositories
 
 **UPNS-Software tracks Metadata**
 
-Sensordata is not (always) copied and stored in history once the data is changed. By keeping a description of the executed algorithms (Metadata) it ensures that snapshots from the past can be recovered at any time. This comes with the downside, that data must never be changed by the user directly. Thus, data is not visible as editable files in the filesystem.
+Sensordata is not (always) copied and stored in history once the data is changed. By keeping a description of the executed algorithms (Metadata) it ensures that snapshots from the past can be recovered at any time. This comes with the downside, that data must never be changed by the user directly. Thus, data is not visible as editable files in the filesystem. Unfortunately editing data is not as easy as opening your favorit editor and start changing it.
 
 | |\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_![workflow](doc/workflow.svg "Workflow" ) |
 |---|---|
@@ -56,8 +56,8 @@ This is one of the few places where the user has to know about the place of a re
 If none of the two paramters is given, the local repository at "./.mapit" will be used/created.
 Examples:
 
-	mapit <cmd> <args> \-\-repository-directory ~/repositories/mymaps
-	mapit <cmd> <args> \-\-url tcp://mymaps.robotics.fh-aachen.de:55555
+	mapit <cmd> <args> --repository-directory ~/repositories/mymaps
+	mapit <cmd> <args> --url tcp://mymaps.robotics.fh-aachen.de:55555
 
 The *\-\-compute-locale*-Flags specifies, that all computation has to take place on the local machine. If the repository is a remote one, all data is downloaded and uploaded. If the falg is not specified, the computer with the repository (e.g. the computer that runs *maptitd*) does the calculation.
 Different repositories may have differten operators installed. For example there might be a Microsoft Windows machine, witch has no version of PCL on it. A person using this computer can trigger the execution of a PCL algorithm on a remote machine.
@@ -178,12 +178,12 @@ The list of operators is always growing, currently these operators are available
 - Effect: Reconstructs a surface from a pointcloud
 - Algorithm: Creates level-set-spheres for each point
 
-#### transform
+#### transform (nyi)
 
 - Requires: tf (eigen3)
 - Parameters: JSON
 -- target: input and output
-- Effect: 
+- Effect: Creates a transform
 - Algorithm:
 
 #### voxelgridfilter
@@ -191,19 +191,18 @@ The list of operators is always growing, currently these operators are available
 - Requires: 
 - Parameters: JSON
 -- target: input and output
-- Effect: 
-- Algorithm:
+-- leafsize: size of each cell
+- Effect:  Thin out a pointcloud. Each voxel of size <leafsize\> will contain one or zero points.
+- Algorithm: 
 
-#### write_raw
-
-- Requires: 
-- Parameters: JSON
--- target: input and output
-- Effect: 
-- Algorithm:
-Operators are versioned, there actually executed version is stored in metadata.
+Operators are versioned, the actually executed version is stored in metadata.
 
 ### Access remote Repositories
+
+See **Usage Basics** to see how \-\-compute-local flag works.
+Downloading data is done by configuring the repository to the remote by using the *--url* flag.
+Then use
+	mapit export2filesystem <
 
 ### Create an remote accesible Repository
 
