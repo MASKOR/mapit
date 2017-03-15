@@ -165,13 +165,13 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     upnsString postfix(".so");
 #endif
     std::stringstream filenam;
-    filenam << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+    filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
         filenam << "." << desc.operatorversion();
     }
     std::stringstream fixpathfilenam;
-    fixpathfilenam << "./libs/operator_modules_collection/" << filenam.str();
+    fixpathfilenam << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << filenam.str();
     std::string filenamestr = fixpathfilenam.str();
     log_info("loading operator module \"" + filenamestr + "\"");
 #ifdef _WIN32
@@ -181,13 +181,13 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 #endif
     if (!handle) {
         std::stringstream systempathfilenam;
-        systempathfilenam << "upns_operators/" << filenam.str();
-        std::string filenamestr = fixpathfilenam.str();
+        systempathfilenam << filenam.str();
+        filenamestr = systempathfilenam.str();
         log_info("loading operator module \"" + filenamestr + "\"");
     #ifdef _WIN32
-        HMODULE handle = LoadLibrary(systempathfilenam.str().c_str());
+        handle = LoadLibrary(filenamestr.c_str());
     #else
-        void* handle = dlopen(systempathfilenam.str().c_str(), RTLD_NOW);
+        handle = dlopen(filenamestr.c_str(), RTLD_NOW);
     #endif
         if (!handle) {
         #ifdef _WIN32

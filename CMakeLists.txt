@@ -13,8 +13,10 @@ aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 
 set(UPNS_INSTALL_INCLUDE "upns")
-set(UPNS_INSTALL_LAYERTYPES "upns_layertypes")
-set(UPNS_INSTALL_OPERATORS "upns_operators")
+set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_")
+set(UPNS_INSTALL_OPERATORS "upns_operators_")
+add_definitions(-DUPNS_INSTALL_LAYERTYPES="${UPNS_INSTALL_LAYERTYPES}")
+add_definitions(-DUPNS_INSTALL_OPERATORS="${UPNS_INSTALL_OPERATORS}")
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         message(WARNING "WARNING: In-Place Build not recommended.")

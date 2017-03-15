@@ -177,25 +177,38 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::Operat
         upnsString prefix("lib");
         upnsString postfix(".so");
     #endif
-        std::stringstream filename;
-        filename << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << prefix << desc.operatorname() << debug << postfix;
+        std::stringstream filenam;
+        filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
         if(desc.operatorversion())
         {
-            filename << "." << desc.operatorversion();
+            filenam << "." << desc.operatorversion();
         }
-        std::string filenamestr = filename.str();
+        std::stringstream fixpathfilenam;
+        fixpathfilenam << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << filenam.str();
+        std::string filenamestr = fixpathfilenam.str();
         log_info("loading operator module \"" + filenamestr + "\"");
     #ifdef _WIN32
-        HMODULE handle = LoadLibrary(filename.str().c_str());
+        HMODULE handle = LoadLibrary(fixpathfilenam.str().c_str());
     #else
-        void* handle = dlopen(filenamestr.c_str(), RTLD_NOW);
+        void* handle = dlopen(fixpathfilenam.str().c_str(), RTLD_NOW);
     #endif
         if (!handle) {
-    #ifdef _WIN32
-    #else
-            std::cerr << "Cannot open library: " << dlerror() << '\n';
-    #endif
-            return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+            std::stringstream systempathfilenam;
+            systempathfilenam << filenam.str();
+            filenamestr = systempathfilenam.str();
+            log_info("loading operator module \"" + filenamestr + "\"");
+        #ifdef _WIN32
+            handle = LoadLibrary(filenamestr.c_str());
+        #else
+            handle = dlopen(filenamestr.c_str(), RTLD_NOW);
+        #endif
+            if (!handle) {
+        #ifdef _WIN32
+        #else
+                std::cerr << "Cannot open library: " << dlerror() << '\n';
+        #endif
+                return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+            }
         }
     #ifdef _WIN32
         //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");

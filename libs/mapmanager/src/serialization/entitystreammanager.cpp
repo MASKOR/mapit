@@ -36,7 +36,7 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
     upnsString postfix = ".so";
 #endif
     std::stringstream filenam;
-    filenam << prefix << layertypeName << debug << postfix;
+    filenam << prefix << UPNS_INSTALL_LAYERTYPES << layertypeName << debug << postfix;
     std::stringstream fixpathfilename;
     fixpathfilename << "./libs/layertypes_collection/" << filenam.str();
 #ifdef _WIN32
@@ -45,12 +45,12 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
     void* handle = dlopen(fixpathfilename.str().c_str(), RTLD_NOW);
 #endif
     if (!handle) {
-        std::stringstream systempathfilename;
-        systempathfilename << "upns_layertypes/" << filenam.str();
+        //std::stringstream systempathfilename;
+        //systempathfilename << "upns_layertypes/" << filenam.str();
     #ifdef _WIN32
-        HMODULE handle = LoadLibrary(systempathfilename.str().c_str());
+        handle = LoadLibrary(filenam.str().c_str());
     #else
-        void* handle = dlopen(systempathfilename.str().c_str(), RTLD_NOW);
+        handle = dlopen(filenam.str().c_str(), RTLD_NOW);
     #endif
         if (!handle) {
         #ifdef _WIN32
