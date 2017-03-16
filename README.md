@@ -26,16 +26,19 @@ Data managed with UPNS-Software can be distributed across multiple *repositories
 
 Sensordata is not (always) copied and stored in history once the data is changed. By keeping a description of the executed algorithms (Metadata) it ensures that snapshots from the past can be recovered at any time. This comes with the downside, that data must never be changed by the user directly. Thus, data is not visible as editable files in the filesystem. Unfortunately editing data is not as easy as opening your favorit editor and start changing it.
 
-| |\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_![workflow](doc/workflow.svg "Workflow" ) |
-|---|---|
+![workflow](doc/workflow.svg "Workflow" )
+
+Every executed operation is described by one chunk of metadata. A group of operations, executed in sequence is called a *workflow*. UPNS-Software helps to find the perfect workflow, to create a consistent map out of sensordata and scans. Once a good workflow is found, it can be applied to other scans and data (This is not yet supported/implemented).
 
 **Extensible in multiple ways**
 
 For developers UPNS-Software can be extended in 3 ways.
 
 - It is easy to add **new operators**, by using an CMake-Template we provide. You implement a function that receives a simple C++-Class wich enables reading/writing to data. The functions receives a string which can contain more user defined parametrization in any format (e.g. XML, JSON).
-- If the provided layertypes (PCL, OpenVDB, LAS, ...) are not enough, **new layertypes** can be implemented by writin a C++-Class that serializes your custom data to/from a std::stream. Also serialization directly to/from files or memoryadresses is possible to boost performance in certain scenarios (e.g. network access), but these are optional.
+- If the provided layertypes (PCL, OpenVDB, LAS, ...) are not enough, **new layertypes** can be implemented by writing a C++-class that serializes your custom data to/from a std::stream. Also serialization directly to/from files or memoryadresses is possible to boost performance in certain scenarios (e.g. network access), but these are optional.
 - **Tools** (e.g. for visualization, merging, browsing, ...) can be implemented by using UPNS-Software as a library. When used as a library the full power of UPNS-Software is exposed to you, featuring e.g. versioning access. This is only meant for advanced use cases.
+
+We identified that the most common extension will be to add more operators. Consequently we made the interface for new operators as easy to use as possible.
 
 ## Usage	(for non-developers)
 
@@ -236,10 +239,20 @@ For even more features there is a docker container that comes with several exten
 - server/mapitd
 - helper (TODO)
 
+### Checkout
+
+For basic usage it is only required to understand the concept of *checkouts*. Details about versioning can be ignored, when working only with one checkout. When using git as an analogy, this is like working with an directory tree, completely forgetting about verioning.
+A checkout is nothing more than a directory tree. In UPNS-Software, folders are called 'tree' (at the moment) and 'entities', which represent files.
+A checkout is one specific version of all the data you are currently working on.
+In contrast to git and other versioning systems, a checkout has name in UPNS-Software. There can be multiple checkouts and checkouts might also exist on remote machines.
+
+A checkout can only be accessed by UPNS-Software tools or by writing a new tool (see *using UPNS-Software as a library*). Usually tools only **read** the structure.
+**Writing** is meant to be done by executing operators.
+
 ### Repository
 
+If it is required to access the history of the data, a checkout is not enough. A repository gives you access to existing checkouts. Moreover you can create a checkout from version which existed in the past.
+These version 
 
-
-#
 
 ## Extending UPNS-Software
