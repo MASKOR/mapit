@@ -203,9 +203,14 @@ Operators are versioned, the actually executed version is stored in metadata.
 ### Access remote Repositories
 
 See **Usage Basics** to see how \-\-compute-local flag works.
-Downloading data is done by configuring the repository to the remote by using the *--url* flag.
-Then use
-	mapit export2filesystem <
+Downloading und uploading data is done by configuring the repository to the remote by using the *--url* flag.
+For downloading use
+
+	mapit export2filesystem <checkout> <local_destination_directory> --url tcp://<ip|hostname>:<port>
+
+To upload pointclouds to a remote repository use:
+
+	mapit execute_operator <checkout> load_pointcloud '{"filename":"<filename>", "target":"<name_of_new_entity>"}'
 
 ### Create an remote accesible Repository
 
@@ -220,22 +225,44 @@ This makes it ready to use from the commandline and extensible.
 
 For even more features there is a docker container that comes with several extensions. The Dockercontainer container may enable PCL, OpenVDB and more features in the future witch would be hard to configure otherwise.
 
-**Binaries:**
+### Binaries:
+
 - bin/mapit: executable that servers for an entrypoint for other mapit-tools
 - bin/upns_tools: tools and aliases. This contains basically the first argument of the *mapit* command.
 
-**Libaries:**
+
+### Libaries
+
 - lib/libupns_mapmanager.so: shared library containing symbols for all extensions. This is the core of UPNS-software
 - lib/libstandard_repository_factory.so: library used by tools to create C++-Classes to access and manipulate *Repositories* and *Checkouts*.
 - lib/upns_layertypes/*: types of sensordata the system can work with. For example Pointclouds (PCL).
 - lib/upns_operators/*: each shared library represents an algorithm that can be executed on the data.
 
-**Headers**
-- include/upns/standard_repository_factory/*: Headers for tools. This is only needed for new *tools*.
-- include/upns/upns_layertypes/*: Headers for new layertypes. This is only needed for new *layertypes* and *operators*.
+### Headers
+
+**common headers**
+
+- include/upns/upns_layertypes/*: Headers for concrete layertypes. Also the corresponding shared library of a concrete layertype must be linked. Note that most layertypes come with dependencies which must be satisfied (e.g. PCL). Only needed layertypes should be included into a project. Concrete layertypes are needed for **operators** and **tools**, but very unlikely for other layertypes.
+
+
+
+**for implementing new operators**
+**for implementing new layertypes**
+
+
+
+**for implementing new tools**
+
+- Repository Factories:
+-- include/upns/versioning/repositoryfactorystandard.h: Header for commandline tools. This is only needed for new *tools*.
+-- include/upns/versioning/repositoryfactory.h: Header to create a local directory repository. This is only needed for new *tools*.
+-- include/versioning/repositorynetworkingfactory.h: Header to create a remote repository that always uses network. This is only needed for new *tools*.
+
+
 - include/upns/upns_operators/*: Headers for new algorithms. This is only needed for new *operators*.
 
 **Docker Container**
+
 - server/mapitd
 - helper (TODO)
 
