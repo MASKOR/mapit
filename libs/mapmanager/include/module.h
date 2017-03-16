@@ -51,12 +51,23 @@ struct ModuleInfo
 };
 }
 
+#ifdef __GNUC__
+static const char* g_compiler = "GNU";
+#elif _MSC_VER
+static const char* g_compiler = "MSVC";
+//TODO: Add more compilers if needed...
+#endif
+#ifdef __GNUC__
+static const char* g_compilerconfig = "TODO";
+#elif _MSC_VER
+static const char* g_compilerconfig = "TODO";
+#endif
 #define UPNS_MODULE(moduleName, description, author, moduleVersion, layerType, operateFunc) \
   extern "C" { \
       MODULE_EXPORT ModuleInfo* getModuleInfo() \
       { \
-          static ModuleInfo info = { "BOOST_COMPILER", \
-                                 "BOOST_COMPILER_CONFIG", \
+          static ModuleInfo info = { g_compiler, \
+                                 g_compilerconfig, \
                                  __DATE__, \
                                  __TIME__, \
                                  moduleName, \

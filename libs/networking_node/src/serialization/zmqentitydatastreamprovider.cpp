@@ -284,7 +284,7 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
 
 upns::upnsString upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHandle &handle)
 {
-    // tmpnam is cross platform but has the chance of returning a temp filename,
+    // tmpnam is cross platform but has the chance of returning an invalid temp filename:
     // if another process also requested a tmpfile but has not yet created it.
 
     char *filename = new char[L_tmpnam];

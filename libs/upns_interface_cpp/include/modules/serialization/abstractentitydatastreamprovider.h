@@ -8,13 +8,20 @@ namespace upns
 
 typedef void * ReadWriteHandle;
 /**
- * @brief The AbstractEntitydataStreamProvider class can be called by a concrete layerData implementation to store/read an abstract stream of data.
+ * @brief The AbstractEntitydataStreamProvider class can be called by a concrete layertype implementation to store/read an abstract stream of data.
  * While AbstractLayerData is responsible for the communication from the mapmanager to the concrete implementation, this is the other direction.
  * Storage is a service implemented in a common way for all layerdata. A concrete Layerdata-Implementation must be able to "translate" between
- * streamed and localized data in 3D space. For native pointcloud2 this might be slow, as there is no information on where to find points of
+ * streamed bytes and layertype-data in 3D space. For native pointcloud2 this might be slow, as there is no information on where to find points of
  * a specific region in a 1 dimensional stream. For more sophisticated datastructures (octrees, ...) operations will be faster.
- * TODO: Might be called AbstractObjectDataStreamProvider
  * Do not read the write stream and do not write the read stream.
+ *
+ * Update: The interface has been updated to be able to read/write from/to 1) std::streams, files or memory.
+ * There are two reasons for this:
+ *  1) There are several frameworks (PCL) which can not read/write their known compressed fileformats from std::streams.
+ *  2) Files: MappedMemory files makes loading big files much faster!
+ * All StreamProviders (at the time of this writing FileSystemEntitydataStreamProvider and ZmqEntitydataStreamprovider) have to be able to
+ * read/write from/to all storage types! Using "preferredReadType" and "preferredWriteType" the implementations can communicate with concrete layertypes.
+ * Concrete layertypes can read from/write to anything: streams, files, memory. For layertypes it is okay to only implement one way to read/write.
  */
 
 class AbstractEntitydataStreamProvider
