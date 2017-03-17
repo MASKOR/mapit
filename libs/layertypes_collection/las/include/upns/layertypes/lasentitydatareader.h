@@ -2,7 +2,7 @@
 #define LASENTITYREADER_H
 
 #include "liblas/liblas.hpp"
-#include "laztype.h"
+#include "upns/layertypes/lastype.h"
 
 class LASEntitydataReaderPrivate;
 class LASEntitydataReader /* acts like : public liblas::Reader */

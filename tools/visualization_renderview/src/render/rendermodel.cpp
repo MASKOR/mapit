@@ -4,9 +4,10 @@
 #include <QOpenGLFunctions_3_0>
 
 #include "bindings/qmlentitydata.h"
+#include <upns/logging.h>
 #include <upns/services.pb.h>
 #include <upns/versioning/checkout.h>
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
+#include <upns/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>

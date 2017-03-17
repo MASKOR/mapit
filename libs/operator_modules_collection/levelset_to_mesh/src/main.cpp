@@ -1,7 +1,7 @@
 #include <upns/operators/module.h>
 #include <upns/logging.h>
-#include "libs/layertypes_collection/asset/include/assettype.h"
-#include "libs/layertypes_collection/openvdb/include/openvdblayer.h"
+#include <upns/layertypes/assettype.h>
+#include <upns/layertypes/openvdblayer.h>
 #include <openvdb/openvdb.h>
 #include <openvdb/Grid.h>
 #include <openvdb/tools/VolumeToMesh.h>

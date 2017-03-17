@@ -1,4 +1,4 @@
-#include "assettype.h"
+#include "upns/layertypes/assettype.h"
 #include <upns/logging.h>
 #include <upns/errorcodes.h>
 #include "tinyply.h"

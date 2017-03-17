@@ -1,5 +1,6 @@
 #include <upns/operators/module.h>
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
+#include <upns/logging.h>
+#include <upns/layertypes/pointcloudlayer.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
 #include <iostream>

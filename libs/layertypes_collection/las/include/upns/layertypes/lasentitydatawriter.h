@@ -2,7 +2,7 @@
 #define LASENTITYWRITER_H
 
 #include "liblas/liblas.hpp"
-#include "laztype.h"
+#include "upns/layertypes/lastype.h"
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 
 class LASEntitydataWriterPrivate;

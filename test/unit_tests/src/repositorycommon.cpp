@@ -1,5 +1,5 @@
 #include "repositorycommon.h"
-#include "repositoryserver.h"
+#include <upns/repositoryserver.h>
 #include <upns/versioning/repositoryfactory.h>
 #include <upns/versioning/repositorynetworkingfactory.h>
 #include <upns/versioning/checkout.h>

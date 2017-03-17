@@ -112,7 +112,7 @@ endif(WITH_LOG4CPLUS)
 
 set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
-add_subdirectory(libs/mapmanager)
+add_subdirectory(libs/core)
 add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(libs/upns_interface)
 add_subdirectory(libs/upns_interface_cpp)

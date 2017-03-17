@@ -1,7 +1,7 @@
 #include "qmlentitydatarenderer.h"
 #include <upns/abstractentitydata.h>
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
-#include "libs/layertypes_collection/tf/include/tflayer.h"
+#include <upns/layertypes/pointcloudlayer.h>
+#include <upns/layertypes/tflayer.h>
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
 #include <QMatrix4x4>

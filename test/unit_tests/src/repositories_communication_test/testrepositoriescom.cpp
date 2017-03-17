@@ -16,7 +16,7 @@
 #include <upns/errorcodes.h>
 
 #include <upns/operators/versioning/checkoutraw.h>
-#include "pointcloudlayer.h"
+#include <upns/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/voxel_grid.h>

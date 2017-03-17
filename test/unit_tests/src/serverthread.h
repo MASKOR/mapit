@@ -4,7 +4,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <upns/typedefs.h>
-#include <repositoryserver.h>
+#include <upns/repositoryserver.h>
 
 // Client Calls send() followed by stopServer().
 // The server waits MAX_NETWORK_LATENCY ms and tries to hanlde the last message in that time

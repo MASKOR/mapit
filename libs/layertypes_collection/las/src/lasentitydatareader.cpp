@@ -1,4 +1,4 @@
-#include "lasentitydatareader.h"
+#include "upns/layertypes/lasentitydatareader.h"
 #include <upns/logging.h>
 
 class LASEntitydataReaderPrivate

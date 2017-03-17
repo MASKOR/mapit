@@ -1,6 +1,6 @@
 #include <upns/operators/module.h>
 #include <upns/logging.h>
-#include "libs/layertypes_collection/tf/include/tflayer.h"
+#include <upns/layertypes/tflayer.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
 #include <iostream>

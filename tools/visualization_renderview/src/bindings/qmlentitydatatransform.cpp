@@ -1,6 +1,8 @@
 #include "bindings/qmlentitydatatransform.h"
 #include "qmlcheckout.h"
-#include "libs/layertypes_collection/tf/include/tflayer.h"
+#include <upns/logging.h>
+#include <upns/layertypes/tflayer.h>
+
 QmlEntitydataTransform::QmlEntitydataTransform()
     :QmlEntitydata()
 {

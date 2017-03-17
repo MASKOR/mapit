@@ -1,4 +1,4 @@
-#include "boundingboxlayer.h"
+#include "upns/layertypes/boundingboxlayer.h"
 #include <sstream>
 #include <upns/logging.h>
 

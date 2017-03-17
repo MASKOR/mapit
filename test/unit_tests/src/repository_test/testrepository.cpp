@@ -10,7 +10,7 @@
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactory.h>
 #include <upns/versioning/repositorynetworkingfactory.h>
-#include <pointcloudlayer.h>
+#include <upns/layertypes/pointcloudlayer.h>
 #include <functional>
 #include <pcl/io/pcd_io.h>
 #include <iostream>

@@ -1,4 +1,5 @@
 #include <upns/operators/module.h>
+#include <upns/logging.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
@@ -6,8 +7,8 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/surface/gp3.h>
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
-#include "libs/layertypes_collection/openvdb/include/openvdblayer.h"
+#include <upns/layertypes/pointcloudlayer.h>
+#include <upns/layertypes/openvdblayer.h>
 #include <openvdb/Grid.h>
 #include <openvdb/tools/ParticlesToLevelSet.h>
 #include <openvdb/tools/LevelSetUtil.h>

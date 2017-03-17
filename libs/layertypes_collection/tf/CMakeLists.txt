@@ -27,16 +27,15 @@ else(WIN32)
 endif(WIN32)
 
 # TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
-file(GLOB_RECURSE LAYERTYPE_TF_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
-                                                ${PROJECT_SOURCE_DIR}/src/*.h
-                                                ${PROJECT_SOURCE_DIR}/include/*.h )
+file(GLOB_RECURSE LAYERTYPE_TF_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp )
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_TF_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${EIGEN3_LIBRARIES})
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS}
+                                                  ${PROJECT_SOURCE_DIR}/include)
 
 
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})

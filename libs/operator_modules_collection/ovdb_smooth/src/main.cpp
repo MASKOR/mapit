@@ -3,7 +3,7 @@
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
 #include <upns/operators/versioning/checkoutraw.h>
-#include "openvdblayer.h"
+#include <upns/layertypes/openvdblayer.h>
 #include "openvdb/tools/LevelSetFilter.h"
 #include <iostream>
 #include <memory>
