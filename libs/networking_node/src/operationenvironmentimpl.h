@@ -1,7 +1,7 @@
 #ifndef __OPERATIONENVIRONMENTIMPL_H
 #define __OPERATIONENVIRONMENTIMPL_H
 #include <upns/operators/operationenvironment.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 
 namespace upns
 {

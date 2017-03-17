@@ -2,7 +2,7 @@
 #define CHECKOUT_H
 
 #include <upns/typedefs.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include "checkoutcommon.h"
 
 namespace upns

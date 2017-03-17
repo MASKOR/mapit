@@ -1,5 +1,5 @@
 #include "upnszmqrequestercheckout.h"
-#include "services_internal.pb.h"
+#include <upns/services_internal.pb.h>
 #include <upns/serialization/entitydatalibrarymanager.h> //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"
 #include "operationenvironmentimpl.h"

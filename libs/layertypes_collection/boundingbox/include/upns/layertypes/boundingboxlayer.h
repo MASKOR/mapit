@@ -3,7 +3,7 @@
 
 #include <upns/entitydata.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
-#include "datastructs.pb.h"
+#include <upns/datastructs.pb.h>
 
 using namespace upns;
 

@@ -1,5 +1,5 @@
 #include "upnszmqresponder_p.h"
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <functional>
 #include <upns/versioning/repository.h>
 #include <upns/operators/operationenvironment.h>

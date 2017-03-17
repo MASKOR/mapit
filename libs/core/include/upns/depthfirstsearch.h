@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 #include <upns/logging.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <upns/versioning/checkout.h>
 
 namespace upns

@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 #include <upns/logging.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 #include "serialization/abstractserializer.h"
 #include <upns/entitydata.h>

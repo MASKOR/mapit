@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/errorcodes.h>

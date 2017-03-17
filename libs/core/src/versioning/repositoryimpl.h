@@ -2,7 +2,7 @@
 #define REPOSITORYIMPL_H
 
 #include <upns/typedefs.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 #include <upns/entitydata.h>
 #include <upns/versioning/checkout.h>

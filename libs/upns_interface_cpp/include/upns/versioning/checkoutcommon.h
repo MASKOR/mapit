@@ -2,7 +2,7 @@
 #define CHECKOUTCOMMON_H
 
 #include <upns/typedefs.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <upns/abstractentitydata.h>
 #include <functional>
 

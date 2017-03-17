@@ -11,7 +11,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-#include "datastructs.pb.h"
+#include <upns/datastructs.pb.h>
 
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>

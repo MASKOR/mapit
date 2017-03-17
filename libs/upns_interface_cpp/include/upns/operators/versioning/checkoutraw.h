@@ -2,7 +2,7 @@
 #define CHECKOUTRAW_H
 
 #include <upns/typedefs.h>
-#include "services.pb.h"
+#include <upns/services.pb.h>
 #include <upns/entitydata.h>
 #include <upns/versioning/checkoutcommon.h>
 
