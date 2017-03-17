@@ -15,11 +15,11 @@ using namespace upns;
 #endif
 namespace upns
 {
-    typedef upnsSharedPointer<upns::Boundingbox> BoundingboxPtr;
+    typedef std::shared_ptr<upns::Boundingbox> BoundingboxPtr;
 }
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
 class BoundingboxEntitydata : public Entitydata<upns::Boundingbox>
@@ -27,7 +27,7 @@ class BoundingboxEntitydata : public Entitydata<upns::Boundingbox>
 public:
     static const char* TYPENAME();
 
-    BoundingboxEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+    BoundingboxEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -59,7 +59,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     BoundingboxPtr m_aabb;  // Axis Aligned Bounding Box
 };
 

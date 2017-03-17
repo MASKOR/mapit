@@ -23,8 +23,8 @@ private slots:
     void testReadRemoteComputeLocalWriteRemote();
     void testReadRemoteComputeRemoteWriteLocal();
 private:
-    upns::upnsSharedPointer<upns::Repository> initEmptyLocal();
-    upns::upnsSharedPointer<upns::Repository> initNetwork(bool computeLocal);
+    std::shared_ptr<upns::Repository> initEmptyLocal();
+    std::shared_ptr<upns::Repository> initNetwork(bool computeLocal);
 
     //// functions to execute on the repositories
     void readPcd(upns::Checkout *checkout);

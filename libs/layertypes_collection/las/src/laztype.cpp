@@ -5,8 +5,8 @@
 class LASEntitydataPrivate
 {
 public:
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
-    LASEntitydataPrivate(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
+    LASEntitydataPrivate(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
         :m_streamProvider( streamProvider ) {}
 };
 
@@ -15,7 +15,7 @@ const char *LASEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-LASEntitydata::LASEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+LASEntitydata::LASEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_pimpl(new LASEntitydataPrivate(streamProvider))
 {
 }
@@ -219,8 +219,8 @@ void deleteEntitydata(AbstractEntitydata *ld)
     LASEntitydata *p = static_cast<LASEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydata);
 }
 

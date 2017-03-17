@@ -26,7 +26,7 @@ set(CMAKE_AUTOMOC ON)
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
 
-target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager)
+target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_core)
 
 #if(TARGET json11)
     target_link_libraries( ${PROJECT_NAME} json11)

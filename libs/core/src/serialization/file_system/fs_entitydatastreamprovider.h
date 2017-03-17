@@ -25,9 +25,9 @@ public:
     void endReadPointer(const void *ptr, ReadWriteHandle &handle);
     void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
     void endWritePointer(void* ptr, ReadWriteHandle &handle);
-    upnsString startReadFile(ReadWriteHandle &handle);
+    std::string startReadFile(ReadWriteHandle &handle);
     void endReadFile(ReadWriteHandle &handle);
-    upnsString startWriteFile(ReadWriteHandle &handle);
+    std::string startWriteFile(ReadWriteHandle &handle);
     void endWriteFile(ReadWriteHandle &handle);
 
     ReadWriteType preferredReadType();

@@ -61,16 +61,16 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 
     std::string target = params["target"].string_value();
 
-    upnsSharedPointer<Entity> pclEntity(new Entity);
+    std::shared_ptr<Entity> pclEntity(new Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
     StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
+    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
     entityData->setData( pc2 );
 
     OperationDescription out;

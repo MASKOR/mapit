@@ -79,26 +79,26 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
         }
     }
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    upnsSharedPointer<FloatGridEntitydata> entityDataInput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
     upnsFloatGridPtr inputGrid = entityDataInput->getData();
 
-    upnsSharedPointer<Entity> ent = env->getCheckout()->getEntity(output);
+    std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
     if(ent)
     {
         log_info("Output grid already exists. ignoring voxelsize.");
-        upnsSharedPointer<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
+        std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)
         {
             log_error("could not read output grid");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
-        upnsSharedPointer<FloatGridEntitydata> entityDataOutput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
@@ -107,7 +107,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
     }
     else
     {
-        ent = upnsSharedPointer<Entity>(new Entity);
+        ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
         StatusCode s = env->getCheckout()->storeEntity(output, ent);
         if(!upnsIsOk(s))
@@ -125,13 +125,13 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
     filter.offset(dilateerode);
     std::cout << "Erosion finished";
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output asset");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    upnsSharedPointer<FloatGridEntitydata> entityDataOutput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");

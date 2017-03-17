@@ -25,7 +25,7 @@ public:
      * Blocking call. Can only be stopped by sigint/sigterm at the moment
      * @return
      */
-    static RepositoryServer* openRepositoryAsServer(const int port, upns::Repository* repo, upns::upnsString urlNext = upns::upnsString() );
+    static RepositoryServer* openRepositoryAsServer(const int port, upns::Repository* repo, std::string urlNext = std::string() );
 
     /**
      * @brief connectToRemoteRepository. Creates a shim repository, which delegates all requests to a repository in the network. It also handles replies.
@@ -34,7 +34,7 @@ public:
      * //TODO: Rename to clone/...
      * @return
      */
-    static upns::Repository* connectToRemoteRepository(upns::upnsString url, Repository* cache, bool operationsLocal = false);
+    static upns::Repository* connectToRemoteRepository(std::string url, Repository* cache, bool operationsLocal = false);
 };
 
 }

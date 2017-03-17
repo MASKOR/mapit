@@ -8,7 +8,7 @@ const char *AssetEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-AssetEntitydata::AssetEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+AssetEntitydata::AssetEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_asset( NULL )
 {
@@ -132,8 +132,8 @@ void deleteEntitydata(AbstractEntitydata *ld)
     AssetEntitydata *p = static_cast<AssetEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntitydata>(new AssetEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new AssetEntitydata( streamProvider ), deleteEntitydata);
 }
 

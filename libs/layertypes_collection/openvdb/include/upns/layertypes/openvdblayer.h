@@ -16,11 +16,11 @@ using namespace upns;
 #endif
 
 // Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-typedef upnsSharedPointer<openvdb::FloatGrid> upnsFloatGridPtr;
+typedef std::shared_ptr<openvdb::FloatGrid> upnsFloatGridPtr;
 
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
 class FloatGridEntitydata : public Entitydata<openvdb::FloatGrid>
@@ -28,7 +28,7 @@ class FloatGridEntitydata : public Entitydata<openvdb::FloatGrid>
 public:
     static const char* TYPENAME();
 
-    FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+    FloatGridEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -60,7 +60,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     upnsFloatGridPtr m_floatGrid;
 };
 #endif

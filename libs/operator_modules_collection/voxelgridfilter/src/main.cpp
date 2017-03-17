@@ -28,8 +28,8 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 
     std::string target = params["target"].string_value();
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     pcl::VoxelGrid<pcl::PCLPointCloud2> sor;

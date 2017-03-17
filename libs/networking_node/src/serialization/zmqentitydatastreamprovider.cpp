@@ -6,6 +6,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <stdio.h> // tempnam
+#include <features.h>
 #include <fcntl.h>
 #include <unistd.h>
 #define FILEMODE S_IRWXU | S_IRGRP | S_IROTH
@@ -73,7 +75,7 @@ void *mapFile(const uint64_t &len, const uint64_t &start, const char *filename, 
     }
     return addr;
 }
-upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(upns::upnsString checkoutName, upns::upnsString pathOrOid, ZmqProtobufNode *node)
+upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node)
     :m_checkoutName(checkoutName),
      m_pathOrOid(pathOrOid),
      m_node(node),
@@ -129,7 +131,7 @@ upns::upnsuint64 upns::ZmqEntitydataStreamProvider::getStreamSize() const
         req->set_offset(0ul);
         req->set_maxlength(0ul);
         m_node->send(std::move(req));
-        upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
+        std::shared_ptr<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
         if(rep->status() != upns::ReplyEntitydata::SUCCESS)
         {
             log_error("received error from server when storing entitydata");
@@ -152,7 +154,7 @@ void upns::ZmqEntitydataStreamProvider::setStreamSize(upns::upnsuint64 entitylen
     req->set_sendlength(0ul);
     req->set_entitylength(m_entityLength);
     m_node->send(std::move(req));
-    upnsSharedPointer<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
+    std::shared_ptr<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
     if(rep->status() != upns::ReplyStoreEntity::SUCCESS)
     {
         log_error("received error from server when setting entitydata length");
@@ -211,7 +213,7 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
     req->set_offset(start);
     req->set_maxlength(maxBufferSize);
     m_node->send(std::move(req));
-    upnsSharedPointer<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
+    std::shared_ptr<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
     if(rep->status() != upns::ReplyEntitydata::SUCCESS)
     {
         log_error("received error from server when asked for entitydata");
@@ -275,20 +277,24 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
     m_node->send(std::move(req), ZMQ_SNDMORE);
     m_node->send_raw_body( reinterpret_cast<const unsigned char*>(memory), length ); //TODO: add zero copy support!
 
-    upnsSharedPointer<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
+    std::shared_ptr<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
     if(rep->status() != upns::ReplyStoreEntity::SUCCESS)
     {
         log_error("received error from server when asked for entitydata");
     }
 }
 
-upns::upnsString upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHandle &handle)
+std::string upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHandle &handle)
 {
     // tmpnam is cross platform but has the chance of returning an invalid temp filename:
     // if another process also requested a tmpfile but has not yet created it.
 
     char *filename = new char[L_tmpnam];
+
+    // TODO: use something save. This is the only crossplatform solution. "tempnam" (with e) is in the making!
+    // mkstemp is no option, as we can not obtain the filename. Filename is needed for layertypes (e.g. PCL, which uses filenames).
     std::string tmpfilename = std::tmpnam(filename);
+
     handle = static_cast<ReadWriteHandle>(filename);
     std::ofstream outfile (tmpfilename,std::ofstream::binary);
 
@@ -305,7 +311,7 @@ void upns::ZmqEntitydataStreamProvider::endReadFile(upns::ReadWriteHandle &handl
     std::remove(filename);
 }
 
-upns::upnsString upns::ZmqEntitydataStreamProvider::startWriteFile(upns::ReadWriteHandle &handle)
+std::string upns::ZmqEntitydataStreamProvider::startWriteFile(upns::ReadWriteHandle &handle)
 {
     // tmpnam is cross platform but has the chance of returning a temp filename,
     // if another process also requested a tmpfile but has not yet created it.

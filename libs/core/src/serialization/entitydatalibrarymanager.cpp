@@ -11,8 +11,8 @@
 namespace upns
 {
 
-upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
-                                                                  upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,
+                                                                  std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
     std::string layertypeName(type);
 
@@ -23,17 +23,17 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
        layertypeName.erase (std::remove(layertypeName.begin(), layertypeName.end(), illegalCharacters[i]), layertypeName.end());
     }
 #ifndef NDEBUG
-    upnsString debug = DEBUG_POSTFIX;
+    std::string debug = DEBUG_POSTFIX;
 #else
-    upnsString debug = "";
+    std::string debug = "";
 #endif
 
 #ifdef _WIN32
-    upnsString prefix = "";
-    upnsString postfix = ".dll";
+    std::string prefix = "";
+    std::string postfix = ".dll";
 #else
-    upnsString prefix = "lib";
-    upnsString postfix = ".so";
+    std::string prefix = "lib";
+    std::string postfix = ".so";
 #endif
     std::stringstream filenam;
     filenam << prefix << UPNS_INSTALL_LAYERTYPES << layertypeName << debug << postfix;
@@ -59,7 +59,7 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
         #else
             std::cerr << "Cannot open library: " << dlerror() << '\n';
         #endif
-            return upnsSharedPointer<AbstractEntitydata>(NULL);
+            return std::shared_ptr<AbstractEntitydata>(NULL);
         }
     }
 #ifdef _WIN32
@@ -67,17 +67,17 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
 #else
     CreateEntitydataFunc wrap = (CreateEntitydataFunc)dlsym(handle, "createEntitydata");
 #endif
-    upnsSharedPointer<AbstractEntitydata> ret;
+    std::shared_ptr<AbstractEntitydata> ret;
     wrap(&ret, streamProvider);
     return ret;
-    //return upnsSharedPointer<AbstractEntitydata>( wrap( streamProvider ) );
+    //return std::shared_ptr<AbstractEntitydata>( wrap( streamProvider ) );
 }
 
-//upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
-//                                                                   upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+//std::shared_ptr<AbstractEntitydata> wrapEntityOfType(LayerType type,
+//                                                                   std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //{
 //    // Layertypes loosly coupled. Name is used to call library to handle concrete datatypes.
-//    upnsString layerName;
+//    std::string layerName;
 //    switch(type)
 //    {
 //    case POINTCLOUD:
@@ -102,14 +102,14 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
 //    }
 //    default:
 //        log_error("Unknown layertype: " + std::to_string(type));
-//        return upnsSharedPointer<AbstractEntitydata>(NULL);
+//        return std::shared_ptr<AbstractEntitydata>(NULL);
 //    }
 //    return wrapEntityOfType( layerName, streamProvider );
 //}
 
-upnsSharedPointer<AbstractEntitydata> EntityDataLibraryManager::getEntitydataFromProvider(const std::string &type, upnsSharedPointer<AbstractEntitydataProvider> edsp, bool canRead)
+std::shared_ptr<AbstractEntitydata> EntityDataLibraryManager::getEntitydataFromProvider(const std::string &type, std::shared_ptr<AbstractEntitydataProvider> edsp, bool canRead)
 {
-    upnsSharedPointer<AbstractEntitydata> edata = wrapEntityOfType( type, edsp );
+    std::shared_ptr<AbstractEntitydata> edata = wrapEntityOfType( type, edsp );
     return edata;
 }
 

@@ -64,7 +64,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
 void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 {
     std::unique_ptr<upns::ReplyCheckout> ptr(new upns::ReplyCheckout());
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
         if(msg->createifnotexists())
@@ -90,8 +90,8 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
     }
     else
     {
-        upnsVec<CommitId> ids(co->getParentCommitIds());
-        for(upnsVec<CommitId>::const_iterator citer(ids.cbegin()); citer != ids.cend() ; ++citer)
+        std::vector<CommitId> ids(co->getParentCommitIds());
+        for(std::vector<CommitId>::const_iterator citer(ids.cbegin()); citer != ids.cend() ; ++citer)
         {
             ptr->add_commit( *citer );
         }
@@ -105,7 +105,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
     std::unique_ptr<upns::ReplyEntitydata> ptr(new upns::ReplyEntitydata());
 
     // Validate input
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
         ptr->set_status( upns::ReplyEntitydata::NOT_FOUND );
@@ -114,7 +114,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
         send( std::move( ptr ) );
         return;
     }
-    upnsSharedPointer<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
+    std::shared_ptr<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
 
     upns::ReplyEntitydata::Status status;
     if(ed == nullptr )
@@ -190,7 +190,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 //    // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
 //    // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
     std::unique_ptr<upns::ReplyHierarchy> rep(new upns::ReplyHierarchy());
-//    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+//    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
 //    if(co == NULL)
 //    {
 //        // TODO: Introduce Error-type
@@ -202,27 +202,27 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 //        //ptr->set_status( upns::ReplyHierarchy::SUCCESS );
 
 
-//        upnsSharedPointer<Tree> root = co->getRoot();
+//        std::shared_ptr<Tree> root = co->getRoot();
 
 //        for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cmap( root->refs().cbegin() );
 //            cmap != root->refs().cend();
 //            ++cmap)
 //        {
 //            upns::ReplyHierarchyMap treeLevel0;
-//            upnsSharedPointer<Tree> map = co->getTree(cmap->first);
+//            std::shared_ptr<Tree> map = co->getTree(cmap->first);
 //            for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator clayer( map->refs().cbegin() );
 //                clayer != map->refs().cend();
 //                ++clayer)
 //            {
 //                upns::ReplyHierarchyLayer treeLevel1;
 //                //Path layerPath( cmap->first + "/" + clayer->first );
-//                upnsSharedPointer<Tree> layer = co->getTree( clayer->second.path() );
+//                std::shared_ptr<Tree> layer = co->getTree( clayer->second.path() );
 //                assert(layer); //TODO? Just reimplement request hierechy and interface
 //                for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cent( layer->refs().cbegin() );
 //                    cent != layer->refs().cend();
 //                    ++cent)
 //                {
-//                    upnsSharedPointer<Entity> ent = co->getEntity( cent->second.path() );
+//                    std::shared_ptr<Entity> ent = co->getEntity( cent->second.path() );
 //                    if(ent)
 //                    {
 //                        treeLevel1.mutable_entities()->insert(::google::protobuf::MapPair< ::std::string, ::std::string>( cent->first, ent->type()));
@@ -238,31 +238,31 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 //        }
         send(std::move(rep));
 //        upns::StatusCode s = co->depthFirstSearch([&](
-//            upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
+//            std::shared_ptr<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
 //            {
 //                //before commit
 //                return true;
 //            },
-//            [&](upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
+//            [&](std::shared_ptr<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
 //            {
 //                //after commit
 //                return true;
 //            },
-//            [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
+//            [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
 //            {
 //                //before tree
 //                return true;
-//            }, [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
+//            }, [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
 //            {
 //                //after tree
 //                return true;
 //            },
-//            [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
+//            [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
 //            {
 //                //before entity
 //                return true;
 //            },
-//            [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
+//            [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
 //            {
 //                //after entity
 //                return true;
@@ -273,7 +273,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
 {
     std::unique_ptr<upns::ReplyHierarchyPlain> rep(new upns::ReplyHierarchyPlain());
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
         // TODO: Introduce Error-type
@@ -283,16 +283,16 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
     else
     {
         StatusCode s = co->depthFirstSearch(
-            [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
-            [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path) {return true;},
-            [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
-            [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path) {return true;},
-            [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path)
+            [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
+            [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path) {return true;},
+            [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
+            [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path) {return true;},
+            [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
             {
                 rep->add_entities(path);
                 return true;
             },
-            [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path){return true;});
+            [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path){return true;});
         if(!upnsIsOk(s))
         {
             log_error("error while listing entities (dfs)");
@@ -303,8 +303,8 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
 void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
 {
     std::unique_ptr<upns::ReplyListCheckouts> rep(new upns::ReplyListCheckouts());
-    upnsVec<upnsString> cos = m_repo->listCheckoutNames();
-    for(upnsVec<upnsString>::const_iterator iter(cos.cbegin()) ; iter != cos.cend() ; ++iter)
+    std::vector<std::string> cos = m_repo->listCheckoutNames();
+    for(std::vector<std::string>::const_iterator iter(cos.cbegin()) ; iter != cos.cend() ; ++iter)
     {
         rep->add_checkouts(*iter);
     }
@@ -314,7 +314,7 @@ void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts 
 void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorExecution *msg)
 {
     std::unique_ptr<upns::ReplyOperatorExecution> rep(new upns::ReplyOperatorExecution());
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     upns::OperationResult result = co->doOperation(msg->param());
     rep->set_status_code(result.first);
     rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
@@ -343,7 +343,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         send( std::move( rep ) );
         return;
     }
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     OperationDescription desc;
     desc.set_operatorname("StoreEntity");
     desc.set_params("{source:\"network\"}");
@@ -355,11 +355,11 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         if(msg->offset() == 0)
         {
             // Receive Entity out of the message and compare to existing entity
-            upns::upnsSharedPointer<upns::Entity> entity(coraw->getEntity(msg->path()));
+            std::shared_ptr<upns::Entity> entity(coraw->getEntity(msg->path()));
             if(nullptr == entity)
             {
                 // There was no entity yet
-                entity = upns::upnsSharedPointer<upns::Entity>(new upns::Entity);
+                entity = std::shared_ptr<upns::Entity>(new upns::Entity);
             }
             if( !entity->type().empty()
                && !msg->type().empty()
@@ -401,7 +401,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
         // write entitydata
-        upnsSharedPointer<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
+        std::shared_ptr<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
         upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
         size_t offset = 0;
         while(has_more())
@@ -443,7 +443,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreTree(upns::RequestStoreTree *m
     std::unique_ptr<upns::ReplyStoreTree> rep(new upns::ReplyStoreTree());
 
     // Validate input
-    upnsSharedPointer<Checkout> checkout = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> checkout = m_repo->getCheckout(msg->checkout());
     if(checkout == NULL)
     {
         rep->set_status( upns::ReplyStoreTree::CHECKOUT_NOT_FOUND );
@@ -462,7 +462,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreTree(upns::RequestStoreTree *m
     desc.set_params("{source:\"network\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
         upns::CheckoutRaw* coraw = env->getCheckout();
-        upnsSharedPointer<Tree> tree;
+        std::shared_ptr<Tree> tree;
         StatusCode s = coraw->storeTree(msg->path(), tree);
         return s;
     });
@@ -483,11 +483,11 @@ void upns::ZmqResponderPrivate::handleRequestGenericEntry(upns::RequestGenericEn
 {
     Replier<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry(), this);
     //std::unique_ptr<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry());
-    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     MessageType type = co->typeOfObject(msg->path());
     if(type == MessageTree)
     {
-        upnsSharedPointer<Tree> tree = co->getTree(msg->path());
+        std::shared_ptr<Tree> tree = co->getTree(msg->path());
         if(tree)
         {
             rep.reply()->set_status( upns::ReplyGenericEntry::SUCCESS );
@@ -501,7 +501,7 @@ void upns::ZmqResponderPrivate::handleRequestGenericEntry(upns::RequestGenericEn
     }
     else if(type == MessageEntity)
     {
-        upnsSharedPointer<Entity> entity = co->getEntity(msg->path());
+        std::shared_ptr<Entity> entity = co->getEntity(msg->path());
         if(entity)
         {
             rep.reply()->set_status( upns::ReplyGenericEntry::SUCCESS );
@@ -519,8 +519,8 @@ void upns::ZmqResponderPrivate::handleRequestGenericEntry(upns::RequestGenericEn
 //void upns::ZmqResponderPrivate::handleRequestTree(upns::RequestTree *msg)
 //{
 //    std::unique_ptr<upns::ReplyTree> rep(new upns::ReplyTree());
-//    upnsSharedPointer<Checkout> co = m_repo->getCheckout(msg->checkout());
-//    upnsSharedPointer<Tree> t = co->getTree(msg->path());
+//    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+//    std::shared_ptr<Tree> t = co->getTree(msg->path());
 //    if(t)
 //    {
 //        rep->set_status( upns::ReplyTree::SUCCESS );

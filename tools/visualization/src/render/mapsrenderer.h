@@ -3,42 +3,70 @@
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
 #include <QVector>
 
-#include "versioning/checkout.h"
-#include "versioning/repository.h"
+#include <upns/abstractentitydata.h>
+#include "upns/ui/bindings/qmlentitydata.h"
+#include "upns/ui/bindings/renderdata.h"
+
+#include <pcl/PCLPointCloud2.h> //< Note: Only for workaround boost::serialization
 
 class MapsRenderer : protected QOpenGLFunctions
 {
 public:
-    MapsRenderer();
+    MapsRenderer(Renderdata *renderdata);
     ~MapsRenderer();
 
-    void render();
+    void render(const QMatrix4x4 &view, const QMatrix4x4 &proj, QVector4D &viewportSize, float heightOfNearPlane);
     void initialize();
     bool isInitialized();
 
-    void setMapmanager(upns::Repository *mapman);
-    void setEntityId( upns::ObjectId mapId);
-    //void setLayerId(upns::LayerIdentifier layerId);
-    void setMatrix( const QMatrix4x4 &mat );
-    void reloadMap();
+//    void setEntitydata(std::shared_ptr<upns::AbstractEntitydata> entityData);
+//    void setMatrix( const QMatrix4x4 &mat );
+    void reload();
+//    void setScreenSize(const QSizeF &size);
+//    void setPointSize(const float size);
+//    void setDistanceDetail(const float detail);
+//    void setFilename(const QString &filename);
 private:
-    QMatrix4x4   m_matrix;
+//    QMatrix4x4   m_matrix;
 
     void drawPointcloud();
     void createGeometry();
+    void createGeometry(QString filename);
+    void createGeometry(pcl::PCLPointCloud2 &pointcoud);
 
     QVector<QVector3D> vertices;
     QVector<QVector3D> normals;
-    QOpenGLShaderProgram program1;
-    int vertexAttr1;
-    int normalAttr1;
-    int matrixUniform1;
+    QVector<QVector3D> colors;
+    QOpenGLShaderProgram m_shaderProgram;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_positionBuffer;
+    QOpenGLBuffer m_colorBuffer;
+    QOpenGLBuffer m_normalBuffer;
 
-    upns::Repository *m_mapManager;
-    upns::ObjectId m_mapId;
+    int m_positionAttr;
+    int m_normalAttr;
+    int m_colorAttr;
+    int matrixUniformModelView;
+    int matrixUniformProj;
+    int matrixUniformProjInv;
+    int matrixUniformModelViewNormal;
+    int screenSizeUniform;
+    int pointSizeUniform;
+    int heightOfNearPlaneUniform;
+    int discUniform;
+    int distanceDetailUniform;
+
     bool m_initialized;
+    std::shared_ptr<upns::AbstractEntitydata> m_entitydata;
+//    //Note: Filenames are a workaround, as long as stubs are used and as long as boost::serialization is used and too slow
+//    QString m_filename;
+//    QSizeF m_screenSize;
+    unsigned int m_pointcloudSize;
+    Renderdata *m_renderdata;
 };
 
 #endif

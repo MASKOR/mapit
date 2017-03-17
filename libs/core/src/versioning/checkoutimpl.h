@@ -44,43 +44,43 @@ public:
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(upns::upnsSharedPointer<AbstractSerializer> serializer, upnsSharedPointer<CheckoutObj> checkoutCommit, upnsString name, const upnsString branchname = "");
+    CheckoutImpl(std::shared_ptr<AbstractSerializer> serializer, std::shared_ptr<CheckoutObj> checkoutCommit, std::string name, const std::string branchname = "");
 
     virtual bool isInConflictMode();
-    virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts();
-    virtual upnsSharedPointer<Tree> getRoot();
-    virtual upnsSharedPointer<Tree> getTree(const Path &path);
-    virtual upnsSharedPointer<Entity> getEntity(const Path &path);
+    virtual std::vector< std::shared_ptr<Conflict> > getPendingConflicts();
+    virtual std::shared_ptr<Tree> getRoot();
+    virtual std::shared_ptr<Tree> getTree(const Path &path);
+    virtual std::shared_ptr<Entity> getEntity(const Path &path);
     virtual MessageType typeOfObject(const Path &path);
-    virtual upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId);
-    virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);
+    virtual std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId);
+    virtual std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
     virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(OperationEnvironment *)> operate);
 
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataForReadWrite(const Path &path);
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &path);
 
-    virtual StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);
-    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity);
+    virtual StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree);
+    virtual StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity);
 
     virtual void setConflictSolved(const Path &path, const ObjectId &oid);
 
-    virtual upnsSharedPointer<Branch> getParentBranch();
-    virtual upnsVec<CommitId> getParentCommitIds();
+    virtual std::shared_ptr<Branch> getParentBranch();
+    virtual std::vector<CommitId> getParentCommitIds();
 
     template <typename T>
-    inline upnsString generateTransientOid(const upnsSharedPointer<T> &obj);
+    inline std::string generateTransientOid(const std::shared_ptr<T> &obj);
 
-    StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference&, const Path&)> afterEntity);
-    upnsSharedPointer<CheckoutObj> getCheckoutObj();
-    const upnsString& getName() const;
+    StatusCode depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
+                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
+                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
+    std::shared_ptr<CheckoutObj> getCheckoutObj();
+    const std::string& getName() const;
 private:
 
-    upnsSharedPointer<Tree> getTree(const ObjectReference &ref);
-    upnsSharedPointer<Entity> getEntity(const ObjectReference &ref);
+    std::shared_ptr<Tree> getTree(const ObjectReference &ref);
+    std::shared_ptr<Entity> getEntity(const ObjectReference &ref);
     MessageType typeOfObject(const ObjectReference &ref);
     /**
      * @brief objectReferenceOfChild Used to get reference of children
@@ -88,7 +88,7 @@ private:
      * @param name of the child (path segment, without slashes)
      * @return Oid or empty oid
      */
-    ObjectReference objectReferenceOfChild(upnsSharedPointer<Tree> tree, const std::string &name);
+    ObjectReference objectReferenceOfChild(std::shared_ptr<Tree> tree, const std::string &name);
 
     /**
      * @brief oidForPath Used to convert path to oids.
@@ -107,58 +107,58 @@ private:
      * @param createLeaf null, if the leaf exists as non-exclusive tree/entity. Can also be a new entity. Can also be a tree (e.g. copy/move operation).
      */
     template <typename T>
-    StatusCode createPath(const Path &path, upnsSharedPointer<T> createLeaf = upnsSharedPointer<T>(nullptr));
+    StatusCode createPath(const Path &path, std::shared_ptr<T> createLeaf = std::shared_ptr<T>(nullptr));
 
     /**
      * @brief Stores all kind of objects at a path.
      */
     template <typename T>
-    upnsPair<StatusCode, PathInternal> storeObject(upnsSharedPointer<T> leafObject, const PathInternal &pathInternal);
+    std::pair<StatusCode, PathInternal> storeObject(std::shared_ptr<T> leafObject, const PathInternal &pathInternal);
 
     bool forEachPathSegment(const Path &path,
-                                  std::function<bool(upnsString, size_t, bool)> before, std::function<bool(upnsString, size_t, bool)> after, const int start = 0);
+                                  std::function<bool(std::string, size_t, bool)> before, std::function<bool(std::string, size_t, bool)> after, const int start = 0);
 
 //    /**
 //     * @brief Depth first search for Commit, Tree and Entity.
 //     * Does not work for branches. Does not visit Entitydata (must be done manually).
 //     * If "before" returns false, "after" will not be executed.
 //     */
-//    StatusCode depthFirstSearch(upnsSharedPointer<Commit> obj, const ObjectId& oid, const Path &path,
-//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> afterCommit,
-//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
-//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
+//    StatusCode depthFirstSearch(std::shared_ptr<Commit> obj, const ObjectId& oid, const Path &path,
+//                                std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> afterCommit,
+//                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> afterTree,
+//                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> afterEntity);
 
-//    StatusCode depthFirstSearch(upnsSharedPointer<Tree> obj, const ObjectId& oid, const Path &path,
-//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> afterCommit,
-//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
-//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
+//    StatusCode depthFirstSearch(std::shared_ptr<Tree> obj, const ObjectId& oid, const Path &path,
+//                                std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> afterCommit,
+//                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> afterTree,
+//                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> afterEntity);
 
-//    StatusCode depthFirstSearch(upnsSharedPointer<Entity> obj, const ObjectId& oid, const Path &path,
-//                                std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference &)> afterCommit,
-//                                std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference &)> afterTree,
-//                                std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference &)> afterEntity);
+//    StatusCode depthFirstSearch(std::shared_ptr<Entity> obj, const ObjectId& oid, const Path &path,
+//                                std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> afterCommit,
+//                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> afterTree,
+//                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> afterEntity);
 
-    upns::upnsSharedPointer<AbstractSerializer> m_serializer;
+    std::shared_ptr<AbstractSerializer> m_serializer;
 
     // Branch, the checkout is based on, if any
-    upnsString m_branchname;
+    std::string m_branchname;
 
     // Name of the checkout
-    upnsString m_name;
+    std::string m_name;
 
-    upnsSharedPointer<CheckoutObj> m_checkout;
+    std::shared_ptr<CheckoutObj> m_checkout;
 
-    upnsVec<ObjectId> m_transientOids;
+    std::vector<ObjectId> m_transientOids;
     ObjectId m_nextTransientOid;
 };
 
 //TODO: This method could be implemented shorter with less branching and duplication in code.
 template <typename T>
-StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> createLeaf)
+StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf)
 {
     Path p = preparePath(path);
-    upnsVec< upnsSharedPointer<Tree> > exclusiveTreePath;
-    upnsSharedPointer<Tree> current;
+    std::vector< std::shared_ptr<Tree> > exclusiveTreePath;
+    std::shared_ptr<Tree> current;
     bool rootMissing = !m_checkout->rollingcommit().has_root() || m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty();
     // root is not transient and must be copied to edit.
     bool rootNotExclusive = (!rootMissing) && (!m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty());
@@ -174,7 +174,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
         {
             // create new root
             originOid = "";
-            current = upnsSharedPointer<Tree>(new Tree);
+            current = std::shared_ptr<Tree>(new Tree);
         }
         else
         {
@@ -198,7 +198,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     bool leafWasStored = false;
     PathInternal leafPathIntenal;
     forEachPathSegment(p,
-    [&](upnsString seg, size_t idx, bool isLast)
+    [&](std::string seg, size_t idx, bool isLast)
     {
         if(current == NULL) return false; // can not go futher
         if(seg.empty()) return false; // "//" not allowed
@@ -216,7 +216,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
             if(!isLast || (isLast && createLeaf == NULL))
             {
                 // append tree
-                upnsSharedPointer<Tree> tree(new Tree);
+                std::shared_ptr<Tree> tree(new Tree);
                 exclusiveTreePath.push_back( tree );
                 m_checkout->mutable_transientoidstoorigin()
                         ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ""));
@@ -225,7 +225,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
             else
             {
                 // create Leaf. This is executed once. Next step is after(...).
-                upnsPair<StatusCode, PathInternal> pathStatus = storeObject(createLeaf, pathInternal);
+                std::pair<StatusCode, PathInternal> pathStatus = storeObject(createLeaf, pathInternal);
                 leafPathIntenal = pathStatus.second;
                 if(!upnsIsOk(pathStatus.first)) return false;
                 m_checkout->mutable_transientoidstoorigin()
@@ -246,7 +246,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // put tree in vector and do nothing
-                    upnsSharedPointer<Tree> tree(m_serializer->getTreeTransient(ref.path()));
+                    std::shared_ptr<Tree> tree(m_serializer->getTreeTransient(ref.path()));
                     if(tree == NULL)
                     {
                         log_error("Segment of path was not a tree or path was wrong");
@@ -261,7 +261,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                     // Note: here might be two transient ids in the pair
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, "")); //TODO: history of createLeaf lost, if ther was one
-                    upnsPair<StatusCode, PathInternal> statusPath = storeObject(createLeaf, pathInternal);
+                    std::pair<StatusCode, PathInternal> statusPath = storeObject(createLeaf, pathInternal);
                     if(!upnsIsOk(statusPath.first)) return false;
                     leafPathIntenal = statusPath.second;
                     leafWasStored = true;
@@ -274,7 +274,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // copy existing tree under transient oid
-                    upnsSharedPointer<Tree> tree(m_serializer->getTree(ref.id()));
+                    std::shared_ptr<Tree> tree(m_serializer->getTree(ref.id()));
                     if(tree == NULL)
                     {
                         log_error("Segment of path was not a tree or corrupt oids");
@@ -291,7 +291,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     //createLeaf->set_id(nextOid);
-                    upnsPair<StatusCode, PathInternal> status_path = storeObject(createLeaf, pathInternal);
+                    std::pair<StatusCode, PathInternal> status_path = storeObject(createLeaf, pathInternal);
                     if(!upnsIsOk(status_path.first)) return false;
                     leafPathIntenal = status_path.second;
                     leafWasStored = true;
@@ -301,7 +301,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
         }
         return true; // continue thru path
     },
-    [&](upnsString seg, size_t idx, bool isLast)
+    [&](std::string seg, size_t idx, bool isLast)
     {
         PathInternal pathInternal;
         if(leafWasStored && isLast) // leaf already created in "before"
@@ -314,7 +314,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
             current = exclusiveTreePath.back();
             exclusiveTreePath.pop_back();
             pathInternal = m_name + "/" + p.substr(0, idx);
-            upnsPair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(current, pathInternal);
+            std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(current, pathInternal);
             pathInternal = status_path.second;
             if(!upnsIsOk(status_path.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
             if(exclusiveTreePath.empty())
@@ -323,7 +323,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
                 return false;
             }
         }
-        upnsSharedPointer<Tree> parent = exclusiveTreePath.back();
+        std::shared_ptr<Tree> parent = exclusiveTreePath.back();
         ObjectReference oref;
         oref.set_path(pathInternal);
         //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
@@ -334,9 +334,9 @@ StatusCode CheckoutImpl::createPath(const Path &path, upnsSharedPointer<T> creat
     });
 
     // store/create root
-    upnsSharedPointer<Tree> obj = exclusiveTreePath.back();
+    std::shared_ptr<Tree> obj = exclusiveTreePath.back();
     exclusiveTreePath.pop_back();
-    upnsPair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(obj, m_name + "/");
+    std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(obj, m_name + "/");
     if(!upnsIsOk(status_path.first)) return status_path.first;
 
     // update checkout commit

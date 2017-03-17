@@ -28,8 +28,8 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 
     std::string target = params["target"].string_value();
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
@@ -50,7 +50,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     // Compute the features
     ne.compute (cloud_normals);
 
-    upns::upnsSharedPointer<pcl::PCLPointCloud2> outp(new pcl::PCLPointCloud2);
+    std::shared_ptr<pcl::PCLPointCloud2> outp(new pcl::PCLPointCloud2);
     pcl::PCLPointCloud2 cloud_normals2;
     pcl::toPCLPointCloud2(cloud_normals, cloud_normals2);
     pcl::concatenateFields(*pc2, cloud_normals2, *outp);

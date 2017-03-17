@@ -16,15 +16,15 @@ using namespace upns;
 #endif
 
 // Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
+typedef std::shared_ptr<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
 
 
 extern "C"
 {
 //Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
-//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+//MODULE_EXPORT std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
 }
 
@@ -60,7 +60,7 @@ public:
         Rep_Other
     };
 
-    PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+    PointcloudEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -92,7 +92,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
     upnsPointcloud2Ptr m_pointcloud;
 };

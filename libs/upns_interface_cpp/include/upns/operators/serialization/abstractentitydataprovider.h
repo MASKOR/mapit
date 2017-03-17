@@ -104,7 +104,7 @@ public:
      * @param len defaultvalue of 0 indicates, that data will be read until end
      * @return a stream to read data from
      */
-    virtual upnsString startReadFile(ReadWriteHandle &handle) = 0;
+    virtual std::string startReadFile(ReadWriteHandle &handle) = 0;
 
     /**
      * @brief endRead Tell underlying implementation, that the file is no longer needed.
@@ -119,7 +119,7 @@ public:
      * @param len defaultvalue of 0 indicates, that data will be read until end
      * @return a stream to read data from
      */
-    virtual upnsString startWriteFile(ReadWriteHandle &handle) = 0;
+    virtual std::string startWriteFile(ReadWriteHandle &handle) = 0;
 
     /**
      * @brief endRead Tell underlying implementation, that the file.

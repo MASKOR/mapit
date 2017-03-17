@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo->createCheckout( vars["commitref"].as<std::string>(), vars["checkout"].as<std::string>() );
+    std::shared_ptr<upns::Checkout> co = repo->createCheckout( vars["commitref"].as<std::string>(), vars["checkout"].as<std::string>() );
     if(co != nullptr)
     {
         std::cout << "checkout " << vars["checkout"].as<std::string>() << " successfully created" << std::endl;

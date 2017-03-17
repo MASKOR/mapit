@@ -34,7 +34,7 @@ public:
      * @param tree
      * @return
      */
-    virtual StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree) = 0;
+    virtual StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree) = 0;
 
     /**
      * @brief storeEntity changes the entity at a given path. No conflict is generated.
@@ -43,7 +43,7 @@ public:
      * @param tree
      * @return
      */
-    virtual StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity) = 0;
+    virtual StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity) = 0;
 
     /**
      * @brief getEntitydata Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.
@@ -54,7 +54,7 @@ public:
      * No conflict is generated, the old version is overwritten. If there was a conflict before, another candidate is added for this path/conflict.
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity) = 0;
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity) = 0;
 
     //TODO: deprecated, use stroreXXX
 //    /**
@@ -63,7 +63,7 @@ public:
 //     * @param path
 //     * @return
 //     */
-//    virtual StatusCode createConflictSolvingTree(const Path &path, upnsSharedPointer<Tree> tree) = 0;
+//    virtual StatusCode createConflictSolvingTree(const Path &path, std::shared_ptr<Tree> tree) = 0;
 
 //    /**
 //     * @brief createEntity creates a new tree at the given path. If there already is another tree/entity, a conflict is generated.
@@ -71,7 +71,7 @@ public:
 //     * @param path
 //     * @return
 //     */
-//    virtual StatusCode createConflictSolvingEntity(const Path &path, upnsSharedPointer<Entity> entity) = 0;
+//    virtual StatusCode createConflictSolvingEntity(const Path &path, std::shared_ptr<Entity> entity) = 0;
 
     //TODO: deprecated, use above
 //    /**
@@ -79,7 +79,7 @@ public:
 //     * @param entity
 //     * @return
 //     */
-//    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataConflictSolvingForWrite(const Path &entity) = 0;
+//    virtual std::shared_ptr<AbstractEntitydata> getEntitydataConflictSolvingForWrite(const Path &entity) = 0;
 };
 
 }

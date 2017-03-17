@@ -3,13 +3,13 @@
 #include "upnszmqresponder.h"
 #include "upns/repositoryserver.h"
 
-upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, upns::Repository *repo, upns::upnsString urlNext)
+upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, upns::Repository *repo, std::string urlNext)
 {
     ZmqResponder* resp = new ZmqResponder(port, repo, urlNext);
     return resp;
 }
 
-upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(upns::upnsString url, Repository *cache, bool operationsLocal)
+upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(std::string url, Repository *cache, bool operationsLocal)
 {
     //requester
     ZmqRequester* req = new ZmqRequester( cache, url, operationsLocal );

@@ -4,7 +4,7 @@
 class LASEntitydataReaderPrivate
 {
 public:
-    LASEntitydataReaderPrivate(upnsSharedPointer<AbstractEntitydataProvider> prov)
+    LASEntitydataReaderPrivate(std::shared_ptr<AbstractEntitydataProvider> prov)
         :m_streamProvider(prov)
     {
         liblas::ReaderFactory f;
@@ -21,7 +21,7 @@ public:
         m_streamProvider->endRead(m_istream);
         m_istream = nullptr;
     }
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     liblas::Reader *m_reader;
     upnsIStream    *m_istream;
 };

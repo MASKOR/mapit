@@ -8,13 +8,13 @@ namespace upns
 {
 class RepositoryPrivate
 {
-    RepositoryPrivate(upns::upnsSharedPointer<AbstractSerializer> ser):m_serializer(ser){}
+    RepositoryPrivate(std::shared_ptr<AbstractSerializer> ser):m_serializer(ser){}
 
-    upns::upnsSharedPointer<AbstractSerializer> m_serializer;
+    std::shared_ptr<AbstractSerializer> m_serializer;
     friend class RepositoryImpl;
 };
 
-RepositoryImpl::RepositoryImpl(upns::upnsSharedPointer<AbstractSerializer> serializer)
+RepositoryImpl::RepositoryImpl(std::shared_ptr<AbstractSerializer> serializer)
     :m_p(new RepositoryPrivate(serializer))
 {}
 
@@ -23,17 +23,17 @@ RepositoryImpl::~RepositoryImpl()
     delete m_p;
 }
 
-upnsSharedPointer<Checkout> RepositoryImpl::createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name)
+std::shared_ptr<Checkout> RepositoryImpl::createCheckout(const CommitId &commitIdOrBranchname, const std::string &name)
 {
-    upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
+    std::shared_ptr<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
     if(co != NULL)
     {
         log_warn("Checkout with this name already exist: " + name);
         return NULL;
     }
-    upnsSharedPointer<Branch> branch(m_p->m_serializer->getBranch(commitIdOrBranchname));
+    std::shared_ptr<Branch> branch(m_p->m_serializer->getBranch(commitIdOrBranchname));
     CommitId commitId;
-    upnsString branchName;
+    std::string branchName;
     if(branch != NULL)
     {
         // assert: empty, if this is the inial commit and "master"
@@ -47,7 +47,7 @@ upnsSharedPointer<Checkout> RepositoryImpl::createCheckout(const CommitId &commi
     }
     else
     {
-        upnsSharedPointer<Commit> commit(m_p->m_serializer->getCommit(commitIdOrBranchname));
+        std::shared_ptr<Commit> commit(m_p->m_serializer->getCommit(commitIdOrBranchname));
         if(commit != NULL)
         {
             commitId = commitIdOrBranchname;
@@ -59,42 +59,42 @@ upnsSharedPointer<Checkout> RepositoryImpl::createCheckout(const CommitId &commi
             return NULL;
         }
     }
-    co = upnsSharedPointer<CheckoutObj>(new CheckoutObj());
+    co = std::shared_ptr<CheckoutObj>(new CheckoutObj());
     co->mutable_rollingcommit()->add_parentcommitids(commitId);
     StatusCode s = m_p->m_serializer->createCheckoutCommit( co, name );
     if(!upnsIsOk(s))
     {
         log_error("Could not create checkout.");
     }
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
+    return std::shared_ptr<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
 }
 
-upnsVec<upnsString> RepositoryImpl::listCheckoutNames()
+std::vector<std::string> RepositoryImpl::listCheckoutNames()
 {
     return m_p->m_serializer->listCheckoutNames();
 }
 
-upnsSharedPointer<Tree> RepositoryImpl::getTree(const ObjectId &oid)
+std::shared_ptr<Tree> RepositoryImpl::getTree(const ObjectId &oid)
 {
     return m_p->m_serializer->getTree(oid);
 }
 
-upnsSharedPointer<Entity> RepositoryImpl::getEntity(const ObjectId &oid)
+std::shared_ptr<Entity> RepositoryImpl::getEntity(const ObjectId &oid)
 {
     return m_p->m_serializer->getEntity(oid);
 }
 
-upnsSharedPointer<Commit> RepositoryImpl::getCommit(const ObjectId &oid)
+std::shared_ptr<Commit> RepositoryImpl::getCommit(const ObjectId &oid)
 {
     return m_p->m_serializer->getCommit(oid);
 }
 
-upnsSharedPointer<CheckoutObj> RepositoryImpl::getCheckoutObj(const upnsString &name)
+std::shared_ptr<CheckoutObj> RepositoryImpl::getCheckoutObj(const std::string &name)
 {
     return m_p->m_serializer->getCheckoutCommit(name);
 }
 
-upnsSharedPointer<Branch> RepositoryImpl::getBranch(const upnsString &name)
+std::shared_ptr<Branch> RepositoryImpl::getBranch(const std::string &name)
 {
     return m_p->m_serializer->getBranch(name);
 }
@@ -106,11 +106,11 @@ MessageType RepositoryImpl::typeOfObject(const ObjectId &oid)
     return m_p->m_serializer->typeOfObject(oid);
 }
 
-upnsSharedPointer<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(const ObjectId &oid)
+std::shared_ptr<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(const ObjectId &oid)
 {
     // For entitydata it is not enough to call serializer directly.
     // Moreover special classes need to be created by layertype plugins.
-    upnsSharedPointer<Entity> ent = m_p->m_serializer->getEntity( oid );
+    std::shared_ptr<Entity> ent = m_p->m_serializer->getEntity( oid );
     if( ent == NULL )
     {
         log_error("Entity not found." + oid);
@@ -120,20 +120,20 @@ upnsSharedPointer<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(cons
     return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
 }
 
-upnsSharedPointer<Checkout> RepositoryImpl::getCheckout(const upnsString &checkoutName)
+std::shared_ptr<Checkout> RepositoryImpl::getCheckout(const std::string &checkoutName)
 {
-    upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
+    std::shared_ptr<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
     if(co == NULL)
     {
         log_info("Checkout does not exist: " + checkoutName);
         return NULL;
     }
-    return upnsSharedPointer<Checkout>(new CheckoutImpl(m_p->m_serializer, co, checkoutName));
+    return std::shared_ptr<Checkout>(new CheckoutImpl(m_p->m_serializer, co, checkoutName));
 }
 
-StatusCode RepositoryImpl::deleteCheckoutForced(const upnsString &checkoutName)
+StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
 {
-    upnsSharedPointer<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
+    std::shared_ptr<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
     if(co == NULL)
     {
         log_info("Checkout with this name does not exist: " + checkoutName);
@@ -143,14 +143,14 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const upnsString &checkoutName)
     return m_p->m_serializer->removeCheckoutCommit(checkoutName);
 }
 
-CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upnsString msg)
+CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg)
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
     CommitId ret;
     StatusCode s = co->depthFirstSearch(
-        [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
-        [&](upnsSharedPointer<Commit> obj, const ObjectReference &ref, const Path &path)
+        [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
+        [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path)
         {
             const Path pathOfRootDir("");
             assert(ref.path().empty() != ref.id().empty()); //XOR
@@ -177,13 +177,13 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
             obj->set_datetime(millisecs);
             obj->set_author("tester <test@maskor.fh-aachen.de>");
 
-            upnsPair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(obj);
+            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(obj);
             if(upnsIsOk(!statusOid.first)) return false;
             ret = statusOid.second;
             return true;
         },
-        [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
-        [&](upnsSharedPointer<Tree> obj, const ObjectReference &ref, const Path &path)
+        [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
+        [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path)
         {
             assert(obj != NULL);
             ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
@@ -201,15 +201,15 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
                 }
                 iter++;
             }
-            upnsPair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
+            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
             if(upnsIsOk(!statusOid.first)) return false;
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
-        [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path){return true;},
-        [&](upnsSharedPointer<Entity> obj, const ObjectReference &ref, const Path &path)
+        [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path){return true;},
+        [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
         {
-            upnsPair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());
+            std::pair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());
             if(upnsIsOk(!statusEntitydataOid.first)) return false;
             bool entityNeedsStore;
             if(statusEntitydataOid.second != obj->dataid())
@@ -225,7 +225,7 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
 
             if(entityNeedsStore)
             {
-                upnsPair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(obj);
+                std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(obj);
                 if(upnsIsOk(!statusOid.first)) return false;
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             }
@@ -252,7 +252,7 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
     //ci->clear_root();
     ci->clear_transitions();
     ci->add_parentcommitids(ret);
-    upnsSharedPointer<CheckoutObj> obj(co->getCheckoutObj());
+    std::shared_ptr<CheckoutObj> obj(co->getCheckoutObj());
     s = m_p->m_serializer->storeCheckoutCommit(obj, co->getName());
     if(!upnsIsOk(s))
     {
@@ -262,9 +262,9 @@ CommitId RepositoryImpl::commit(const upnsSharedPointer<Checkout> checkout, upns
     return ret;
 }
 
-upnsVec<upnsSharedPointer<Branch> > RepositoryImpl::getBranches()
+std::vector<std::shared_ptr<Branch> > RepositoryImpl::getBranches()
 {
-    return upnsVec<upnsSharedPointer<Branch> >();
+    return std::vector<std::shared_ptr<Branch> >();
 }
 
 StatusCode RepositoryImpl::push(Repository &repo)
@@ -277,19 +277,19 @@ StatusCode RepositoryImpl::pull(Repository &repo)
     return UPNS_STATUS_OK;
 }
 
-CommitId RepositoryImpl::parseCommitRef(const upnsString &commitRef)
+CommitId RepositoryImpl::parseCommitRef(const std::string &commitRef)
 {
     return "";
 }
 
-upnsSharedPointer<Checkout> RepositoryImpl::merge(const CommitId mine, const CommitId theirs, const CommitId base)
+std::shared_ptr<Checkout> RepositoryImpl::merge(const CommitId mine, const CommitId theirs, const CommitId base)
 {
     return NULL;
 }
 
-upnsVec<upnsPair<CommitId, ObjectId> > RepositoryImpl::ancestors(const CommitId &commitId, const ObjectId &objectId, const int level)
+std::vector<std::pair<CommitId, ObjectId> > RepositoryImpl::ancestors(const CommitId &commitId, const ObjectId &objectId, const int level)
 {
-    return upnsVec<upnsPair<CommitId, ObjectId> >();
+    return std::vector<std::pair<CommitId, ObjectId> >();
 }
 
 bool RepositoryImpl::canRead()

@@ -19,8 +19,8 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     upnsPointcloud2Ptr pc2 = entityData->getData();
     pcl::PointCloud<pcl::PointXYZ> pc; // TODO: make generic
     pcl::fromPCLPointCloud2(*pc2, pc);

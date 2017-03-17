@@ -98,7 +98,7 @@ endif(WIN32)
 
 qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
-target_link_libraries(${PROJECT_NAME} upns_visualization_renderview upns_mapmanager upns_interface_cpp standard_repository_factory Qt3DPointcloudRenderer layertype_tf ${YAML_CPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_visualization upns_core upns_interface_cpp standard_repository_factory Qt3DPointcloudRenderer layertype_tf ${YAML_CPP_LIBRARIES})
 
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})

@@ -15,7 +15,7 @@ namespace upns {
 
 // Not in namespace upns so this can be replaced by a macro when qt types are used.
 template<class T>
-QVector<T> upnsToQVector(upns::upnsVec<T> vec)
+QVector<T> upnsToQVector(std::vector<T> vec)
 {
     return QVector<T>::fromStdVector(vec);
 }

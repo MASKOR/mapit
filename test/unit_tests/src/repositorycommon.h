@@ -21,11 +21,11 @@ protected:
     void startServer();
     void stopServer();
 private:
-    upns::upnsSharedPointer<upns::Repository> m_repo[3];
-    upns::upnsSharedPointer<upns::Checkout> m_checkout[3];
+    std::shared_ptr<upns::Repository> m_repo[3];
+    std::shared_ptr<upns::Checkout> m_checkout[3];
     std::function<void()> m_serverCallback;
-    upns::upnsSharedPointer<ServerThread> m_serverThread;
-    upns::upnsSharedPointer<upns::Repository> m_networkRepo;
+    std::shared_ptr<ServerThread> m_serverThread;
+    std::shared_ptr<upns::Repository> m_networkRepo;
 
     // Start only after stop has finished. Let the last recv() run into it's timeout.
     QMutex m_serverThreadMutex;

@@ -4,7 +4,7 @@
 class LASEntitydataWriterPrivate
 {
 public:
-    LASEntitydataWriterPrivate(upnsSharedPointer<AbstractEntitydataProvider> prov, liblas::Header const& header)
+    LASEntitydataWriterPrivate(std::shared_ptr<AbstractEntitydataProvider> prov, liblas::Header const& header)
         :m_streamProvider(prov)
     {
         liblas::WriterFactory f;
@@ -21,7 +21,7 @@ public:
         m_streamProvider->endWrite(m_ostream);
         m_ostream = nullptr;
     }
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     liblas::Writer *m_writer;
     upnsOStream    *m_ostream;
 };

@@ -51,8 +51,8 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     //TODO: Helper Library: Query for entities in frustum. Query for level of detail.
@@ -88,8 +88,8 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
 //        pcl::PCLPointCloud2 p2;
 //        extractIndices.filter(p2);
 
-//        upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( prefix + postfix );
-//        upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+//        std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( prefix + postfix );
+//        std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
 //        entityData->setData(p2);
     }
 

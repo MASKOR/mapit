@@ -2,6 +2,7 @@
 #define ABSTRACTLAYERDATA_H
 
 #include <upns/typedefs.h>
+#include <memory>
 #include "services.pb.h"
 #include <limits>
 
@@ -19,9 +20,9 @@ extern "C"
  * important that the returned shared pointer has a custom deleter. In most cases this deleter will only call "delete"
  * for the previously allocated LayerData. See \sa PointcloudLayerdata for an example.
  */
-typedef void (*CreateEntitydataFunc)(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
-//typedef upnsSharedPointer<AbstractEntitydata> (*CreateEntitydataFunc)( upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
-//typedef upnsSharedPointer<AbstractEntitydata> (*DeleteEntityFunc)(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+typedef void (*CreateEntitydataFunc)(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
+//typedef std::shared_ptr<AbstractEntitydata> (*CreateEntitydataFunc)( std::shared_ptr<AbstractEntitydataProvider> streamProvider);
+//typedef std::shared_ptr<AbstractEntitydata> (*DeleteEntityFunc)(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
 /**

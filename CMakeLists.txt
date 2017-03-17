@@ -139,14 +139,15 @@ endif()
 
 # json11 is a static library that is meant to be used in a shared library.
 # Thus the cmake target itself is added and slightly reconfigured here
-add_subdirectory(externals/json11)
-set_property(TARGET json11 PROPERTY POSITION_INDEPENDENT_CODE 1)
+if(WIN32)
+  add_subdirectory(externals/json11)
+  set_property(TARGET json11 PROPERTY POSITION_INDEPENDENT_CODE 1)
+endif(WIN32)
 
 set(UPNS_ENABLE_VISUALIZATION ON CACHE BOOL "Generate Visualization tools")
 
 if(UPNS_ENABLE_VISUALIZATION)
-  #add_subdirectory(tools/visualization)
-  add_subdirectory(tools/visualization_renderview)
+  add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_standalone)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
 endif(UPNS_ENABLE_VISUALIZATION)
@@ -175,9 +176,9 @@ endif(UPNS_ENABLE_VISUALIZATION)
 # Note: QtCreator crashes when text is searched and it starts to search in Gigabytes of Pointclouds
 # make data and resources visible in qtcreator
 #add_custom_target(dataFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})
-add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add resources to qt project. nop" SOURCES ${Resources_All})
+#add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add resources to qt project. nop" SOURCES ${Resources_All})
 
 # make qml visible in qtcreator
-file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir ${PROJECT_SOURCE_DIR}/*.properties)
+#file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir ${PROJECT_SOURCE_DIR}/*.properties)
 
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
+#add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})

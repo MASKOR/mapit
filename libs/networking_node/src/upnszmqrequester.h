@@ -16,29 +16,29 @@ class ZmqRequesterPrivate;
 class ZmqRequester : public upns::Repository
 {
 public:
-    ZmqRequester(Repository* cache, upnsString urlOutgoingRequests = std::string(), bool operationsLocal = false);
+    ZmqRequester(Repository* cache, std::string urlOutgoingRequests = std::string(), bool operationsLocal = false);
     ~ZmqRequester();
 
     // Repository interface
 public:
-    upnsVec<upnsString> listCheckoutNames();
-    upnsSharedPointer<Tree> getTree(const ObjectId &oid);
-    upnsSharedPointer<Entity> getEntity(const ObjectId &oid);
-    upnsSharedPointer<Commit> getCommit(const ObjectId &oid);
-    upnsSharedPointer<CheckoutObj> getCheckoutObj(const upnsString &name);
-    upnsSharedPointer<Branch> getBranch(const upnsString &name);
+    std::vector<std::string> listCheckoutNames();
+    std::shared_ptr<Tree> getTree(const ObjectId &oid);
+    std::shared_ptr<Entity> getEntity(const ObjectId &oid);
+    std::shared_ptr<Commit> getCommit(const ObjectId &oid);
+    std::shared_ptr<CheckoutObj> getCheckoutObj(const std::string &name);
+    std::shared_ptr<Branch> getBranch(const std::string &name);
     MessageType typeOfObject(const ObjectId &oid);
-    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
-    upnsSharedPointer<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name);
-    upnsSharedPointer<Checkout> getCheckout(const upnsString &checkoutName);
-    StatusCode deleteCheckoutForced(const upnsString &checkoutName);
-    CommitId commit(const upnsSharedPointer<Checkout> checkout, upnsString msg);
-    upnsVec<upnsSharedPointer<Branch> > getBranches();
+    std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
+    std::shared_ptr<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const std::string &name);
+    std::shared_ptr<Checkout> getCheckout(const std::string &checkoutName);
+    StatusCode deleteCheckoutForced(const std::string &checkoutName);
+    CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg);
+    std::vector<std::shared_ptr<Branch> > getBranches();
     StatusCode push(Repository &repo);
     StatusCode pull(Repository &repo);
-    CommitId parseCommitRef(const upnsString &commitRef);
-    upnsSharedPointer<Checkout> merge(const CommitId mine, const CommitId theirs, const CommitId base);
-    upnsVec<upnsPair<CommitId, ObjectId> > ancestors(const CommitId &commitId, const ObjectId &objectId, const int level);
+    CommitId parseCommitRef(const std::string &commitRef);
+    std::shared_ptr<Checkout> merge(const CommitId mine, const CommitId theirs, const CommitId base);
+    std::vector<std::pair<CommitId, ObjectId> > ancestors(const CommitId &commitId, const ObjectId &objectId, const int level);
     bool canRead();
     bool canWrite();
 

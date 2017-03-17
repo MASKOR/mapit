@@ -16,7 +16,7 @@ static upns::AbstractSerializer *initializeSerializer(std::string directory)
 //        numElems = m_serializer->listCheckoutNames().size();
 //        if(numElems) return;
     log_warn("Selected empty repository, create master");
-    upns::upnsSharedPointer<upns::Branch> master(new upns::Branch());
+    std::shared_ptr<upns::Branch> master(new upns::Branch());
     master->set_commitid(""); //< InitialCommit
     mser->createBranch(master, "master");
     return mser;
@@ -24,6 +24,6 @@ static upns::AbstractSerializer *initializeSerializer(std::string directory)
 
 upns::Repository *upns::RepositoryFactory::openLocalRepository(std::string directory)
 {
-    upns::upnsSharedPointer<AbstractSerializer> mser( initializeSerializer( directory ) );
+    std::shared_ptr<AbstractSerializer> mser( initializeSerializer( directory ) );
     return new upns::RepositoryImpl( mser );
 }

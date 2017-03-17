@@ -39,7 +39,7 @@ void writeFloatGridToStream(std::ostream &os, openvdb::FloatGrid::Ptr grid)
 }
 
 
-FloatGridEntitydata::FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+FloatGridEntitydata::FloatGridEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_floatGrid( NULL )
 {
@@ -160,8 +160,8 @@ void deleteEntitydata(AbstractEntitydata *ld)
     FloatGridEntitydata *p = static_cast<FloatGridEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
 }
 

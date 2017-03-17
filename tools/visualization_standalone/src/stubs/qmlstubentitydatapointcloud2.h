@@ -4,7 +4,7 @@
 //#include <QtCore>
 //#include <QJsonObject>
 //#include <upns/services.pb.h>
-//#include "bindings/qmlmapsrenderviewport.h"
+//#include <upns/ui/bindings/qmlmapsrenderviewport.h"
 //#include "stubs/fileserializer.h"
 
 //class QmlEntitydataPointcloud2 : public QmlEntitydata

@@ -40,21 +40,21 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
     if(co == nullptr)
     {
         log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
-        upns::upnsVec<upns::upnsString> possibleCheckouts = repo->listCheckoutNames();
+        std::vector<std::string> possibleCheckouts = repo->listCheckoutNames();
         if (possibleCheckouts.size() == 0) {
             log_info("No possible checkout");
         }
-        for ( upns::upnsString checkout : possibleCheckouts ) {
+        for ( std::string checkout : possibleCheckouts ) {
             log_info("Possible checkout: " + checkout);
         }
         return 1;
     }
 
-    upns::upnsSharedPointer<upns::Tree> currentDirectory(co->getRoot());
+    std::shared_ptr<upns::Tree> currentDirectory(co->getRoot());
     fs::path rootPath(vars["destination"].as<std::string>());
     if ( rootPath.leaf() != vars["checkout"].as<std::string>() ) {
         // otherwise, use subfolder with checkout name
@@ -62,15 +62,15 @@ int main(int argc, char *argv[])
     }
 
     upns::StatusCode s = co->depthFirstSearch([&](
-        upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        std::shared_ptr<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             fs::path current( rootPath );
             fs::path path_new = rootPath / fs::path(path);
@@ -81,11 +81,11 @@ int main(int argc, char *argv[])
                 }
             }
             return true;
-        }, [&](upns::upnsSharedPointer<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        }, [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             fs::path current(rootPath / fs::path(path));
             if ( fs::exists( current ) ) {
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
             }
 
             // get the stream to write into a file
-            upns::upnsSharedPointer<upns::AbstractEntitydata> reader = co->getEntitydataReadOnly(path);
+            std::shared_ptr<upns::AbstractEntitydata> reader = co->getEntitydataReadOnly(path);
             upns::upnsIStream *entityStream = reader->startReadBytes();
 
             // calculate the step size to write into the file
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 
             return true;
         },
-        [&](upns::upnsSharedPointer<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
         {
             return true;
         });

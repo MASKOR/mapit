@@ -20,7 +20,7 @@ using namespace upns;
 
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
 class LASEntitydataPrivate;
@@ -43,7 +43,7 @@ class LASEntitydata : public AbstractEntitydata
 public:
     static const char* TYPENAME();
 
-    LASEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+    LASEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
     ~LASEntitydata();
 
     const char *type() const;

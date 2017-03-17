@@ -29,7 +29,7 @@ public:
      * All conflicts, marked as solved are not returned.
      * @return
      */
-    virtual upnsVec< upnsSharedPointer<Conflict> > getPendingConflicts() = 0;
+    virtual std::vector< std::shared_ptr<Conflict> > getPendingConflicts() = 0;
 
     /**
      * @brief setConflictSolved Used to choose one blob for a given path. The chosen oid can also be a new one which
@@ -43,7 +43,7 @@ public:
      * @brief getRoot get Entry point to all objects of this commit.
      * @return
      */
-    virtual upnsSharedPointer<Tree> getRoot() = 0;
+    virtual std::shared_ptr<Tree> getRoot() = 0;
 
     /**
      * @brief getTreeConflict gets a Tree from repository/checkout. Tree must be reachable from this checkout (descendant of <root>)
@@ -51,7 +51,7 @@ public:
      * @param objectId
      * @return child
      */
-    virtual upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId) = 0;
+    virtual std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId) = 0;
 
     /**
      * @brief getEntityConflict gets an Entity from repository/checkout. Entity must be reachable from this checkout (descendant of <root>)
@@ -59,33 +59,33 @@ public:
      * @param objectId
      * @return child
      */
-    virtual upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId) = 0;
+    virtual std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId) = 0;
 
     /**
      * @brief getTree
      * @param path
      * @return
      */
-    virtual upnsSharedPointer<Tree> getTree(const Path &path) = 0;
+    virtual std::shared_ptr<Tree> getTree(const Path &path) = 0;
 
     /**
      * @brief getEntity
      * @param path
      * @return
      */
-    virtual upnsSharedPointer<Entity> getEntity(const Path &path) = 0;
+    virtual std::shared_ptr<Entity> getEntity(const Path &path) = 0;
 
     /**
      * @brief getParentBranch
      * @return
      */
-    virtual upnsSharedPointer<Branch> getParentBranch() = 0;
+    virtual std::shared_ptr<Branch> getParentBranch() = 0;
 
     /**
      * @brief getParentCommitIds. This is the parrent of the current rolling commit
      * @return
      */
-    virtual upnsVec<CommitId> getParentCommitIds() = 0;
+    virtual std::vector<CommitId> getParentCommitIds() = 0;
 
     /**
      * @brief getEntitydata Retrieves a data of the entity, which can be casted to a concrete type
@@ -97,14 +97,14 @@ public:
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId) = 0;
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId) = 0;
 
     /**
      * @brief getEntitydataConflictingReadOnly because a path is not enough to identify a conflicting entitydata, this method is introduced.
      * @param entityId
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId) = 0;
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId) = 0;
 
     /**
      * @brief depthFirstSearch goes through all reachable elements with a DFS. If one of the callbacks returns false, all other descending
@@ -118,9 +118,9 @@ public:
      * @param afterEntity
      * @return
      */
-    virtual StatusCode depthFirstSearch(std::function<bool(upnsSharedPointer<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(upnsSharedPointer<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                        std::function<bool(upnsSharedPointer<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(upnsSharedPointer<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                        std::function<bool(upnsSharedPointer<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(upnsSharedPointer<Entity>, const ObjectReference&, const Path&)> afterEntity) = 0;
+    virtual StatusCode depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
+                                        std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
+                                        std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity) = 0;
 
     virtual MessageType typeOfObject(const Path &oidOrName) = 0;
 };

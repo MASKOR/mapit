@@ -15,11 +15,11 @@ using namespace upns;
 #endif
 
 // Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-typedef upnsSharedPointer<tinyply::PlyFile> upnsAssetPtr;
+typedef std::shared_ptr<tinyply::PlyFile> upnsAssetPtr;
 
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
 class AssetEntitydata : public Entitydata<tinyply::PlyFile>
@@ -27,7 +27,7 @@ class AssetEntitydata : public Entitydata<tinyply::PlyFile>
 public:
     static const char* TYPENAME();
 
-    AssetEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+    AssetEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -59,7 +59,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     upnsAssetPtr m_asset;
 };
 #endif

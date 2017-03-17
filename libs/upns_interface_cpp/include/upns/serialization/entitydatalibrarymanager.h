@@ -24,7 +24,7 @@ namespace upns {
 class EntityDataLibraryManager
 {
 public:
-    static upnsSharedPointer<AbstractEntitydata> getEntitydataFromProvider(const std::string &type, upnsSharedPointer<AbstractEntitydataProvider> streamprovider, bool canRead = true);
+    static std::shared_ptr<AbstractEntitydata> getEntitydataFromProvider(const std::string &type, std::shared_ptr<AbstractEntitydataProvider> streamprovider, bool canRead = true);
 };
 
 }

@@ -4,11 +4,21 @@
 #include <QOpenGLFramebufferObject>
 #include <QOffscreenSurface>
 #include <QMatrix4x4>
-#include "../bindings/qmlmapmanager.h"
-#include "versioning/repository.h"
+#include <QThread>
+#include "upns/ui/bindings/qmlentitydata.h"
+#include <QOpenGLDebugMessage>
+#include "upns/ui/bindings/renderdata.h"
+#include <boost/timer.hpp>
 
+#ifdef VRMODE
+#include <OVR_CAPI_GL.h>
+#endif
+
+#define FRAMES_AVERAGE_WINDOW 100
 class MapsRenderer;
 
+class TextureBuffer;
+class DepthBuffer;
 /*
  * The render thread shares a context with the scene graph and will
  * render into two separate FBOs, one to use for display and one
@@ -17,57 +27,68 @@ class MapsRenderer;
 class RenderThread : public QThread
 {
     Q_OBJECT
-    Q_PROPERTY(QString mapId READ mapId WRITE setMapId NOTIFY mapIdChanged)
-    //Q_PROPERTY(upns::Repository *mapManager READ mapManager WRITE setMapManager NOTIFY mapManagerChanged)
-    Q_PROPERTY(qreal width READ width WRITE setWidth NOTIFY widthChanged)
-    Q_PROPERTY(qreal height READ height WRITE setHeight NOTIFY heightChanged)
-    Q_PROPERTY(QMatrix4x4 matrix READ matrix WRITE setMatrix NOTIFY matrixChanged)
-
+    Q_PROPERTY(Renderdata *renderdata READ renderdata)
 public:
-    RenderThread(const QSize &size);
+    RenderThread();
     virtual ~RenderThread();
 
     const MapsRenderer* mapsRenderer();
     QOffscreenSurface *surface;
     QOpenGLContext *context;
 
-    //upns::Repository *mapManager() const;
-
-    QString mapId() const;
-    qreal width() const;
-    qreal height() const;
-    QMatrix4x4 matrix() const;
+    Renderdata *renderdata()
+    {
+        return &m_renderdata;
+    }
 
 public Q_SLOTS:
-    void reloadMap();
+    void onMessageLogged( QOpenGLDebugMessage message);
+    void reload();
+    #ifdef VRMODE
+    void renderNextVR();
+    void vrThreadMainloop();
+    #endif
+    void renderNextNonVR();
     void renderNext();
     void shutDown();
 
-    void setMapManager(upns::Checkout * mapManager);
-    void setMapId(QString mapId);
-    void setWidth(qreal width);
-    void setHeight(qreal height);
-    void setMatrix(QMatrix4x4 matrix);
-
 Q_SIGNALS:
+    void updated();
+    void frameFinished();
+
     void textureReady(int id, const QSize &size);
 
-    void mapManagerChanged(upns::Checkout * mapManager);
-    void mapIdChanged(QString mapId);
-    void widthChanged(qreal width);
-    void heightChanged(qreal height);
-    void matrixChanged(QMatrix4x4 matrix);
-    void layerIdChanged(QString layerId);
-
+private Q_SLOTS:
+//    void setHeadOrientation(QMatrix4x4 headOrientation);
+//    void setHeadMatrix(QMatrix4x4 headMatrix);
+//    void setHeadDirection(QVector3D headDirection);
+//    void setRunning(bool running);
+    void initialize();
 private:
+
+    void resetMirror();
     QOpenGLFramebufferObject *m_renderFbo;
     QOpenGLFramebufferObject *m_displayFbo;
 
+    bool m_vrInitialized;
     MapsRenderer *m_mapsRenderer;
-    QSize m_size;
-    upns::Checkout *m_mapManager;
-    QString m_mapId;
-    QMatrix4x4 m_matrix;
+#ifdef VRMODE
+void initVR();
+    ovrEyeRenderDesc m_eyeRenderDesc[2];
+    ovrHmd m_HMD;
+    TextureBuffer *m_eyeRenderTexture[2];
+    DepthBuffer   *m_eyeDepthBuffer[2];
+    ovrGLTexture  *m_mirrorTexture;
+    GLuint         m_mirrorFBO;
+    ovrHmdDesc m_hmdDesc;
+    std::shared_ptr<QMetaObject::Connection> m_vrMainLoopConnection;
+#endif
+    QOpenGLDebugLogger m_logger;
+    Renderdata m_renderdata;
+    boost::timer m_timer;
+    int m_framecount;
+    int m_frameIndex;
+    double m_frametimes[FRAMES_AVERAGE_WINDOW][3];
 };
 
 #endif // MapsRenderer_H

@@ -14,7 +14,7 @@
 #include <upns/operators/module.h>
 typedef ModuleInfo* (*GetModuleInfo)();
 
-upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, Checkout *cache, bool operationsLocal)
+upns::ZmqRequesterCheckout::ZmqRequesterCheckout(std::string name, ZmqProtobufNode *node, Checkout *cache, bool operationsLocal)
     :m_checkoutName( name ),
      m_node( node ),
      m_cache( cache ),
@@ -29,11 +29,11 @@ bool upns::ZmqRequesterCheckout::isInConflictMode()
     return false;
 }
 
-upns::upnsVec<upns::upnsSharedPointer<upns::Conflict> > upns::ZmqRequesterCheckout::getPendingConflicts()
+std::vector<std::shared_ptr<upns::Conflict> > upns::ZmqRequesterCheckout::getPendingConflicts()
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsVec<upns::upnsSharedPointer<upns::Conflict> >();
+    return std::vector<std::shared_ptr<upns::Conflict> >();
 }
 
 void upns::ZmqRequesterCheckout::setConflictSolved(const upns::Path &path, const upns::ObjectId &oid)
@@ -54,13 +54,13 @@ upns::MessageType upns::ZmqRequesterCheckout::typeOfObject(const upns::Path &oid
     return MessageEmpty;
 }
 
-upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
+std::shared_ptr<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
 {
 //    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
 //    req->set_checkout(m_checkoutName);
 //    m_node->send(std::move(req));
 //    std::unique_ptr<upns::ReplyHierarchy> rep(m_node->receive<upns::ReplyHierarchy>());
-//    upns::upnsSharedPointer<upns::Tree> ret(new upns::Tree);
+//    std::shared_ptr<upns::Tree> ret(new upns::Tree);
 //    for(google::protobuf::Map< ::std::string, ::upns::ReplyHierarchyMap >::const_iterator ch( rep->maps().cbegin() );
 //        ch != rep->maps().cend();
 //        ++ch)
@@ -73,81 +73,81 @@ upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getRoot()
     return getTree("/");
 }
 
-upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTreeConflict(const upns::ObjectId &objectId)
+std::shared_ptr<upns::Tree> upns::ZmqRequesterCheckout::getTreeConflict(const upns::ObjectId &objectId)
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsSharedPointer<upns::Tree>();
+    return std::shared_ptr<upns::Tree>();
 }
 
-upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntityConflict(const upns::ObjectId &objectId)
+std::shared_ptr<upns::Entity> upns::ZmqRequesterCheckout::getEntityConflict(const upns::ObjectId &objectId)
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsSharedPointer<upns::Entity>();
+    return std::shared_ptr<upns::Entity>();
 }
 
-upns::upnsSharedPointer<upns::Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path)
+std::shared_ptr<upns::Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path)
 {
     std::unique_ptr<upns::RequestGenericEntry> req(new upns::RequestGenericEntry);
     req->set_checkout(m_checkoutName);
     req->set_path(path);
     m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyGenericEntry> rep(m_node->receive<upns::ReplyGenericEntry>());
-    upns::upnsSharedPointer<upns::Tree> ret(rep->mutable_entry()->release_tree());
+    std::shared_ptr<upns::ReplyGenericEntry> rep(m_node->receive<upns::ReplyGenericEntry>());
+    std::shared_ptr<upns::Tree> ret(rep->mutable_entry()->release_tree());
     return ret;
 }
 
-upns::upnsSharedPointer<upns::Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &path)
+std::shared_ptr<upns::Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &path)
 {
     std::unique_ptr<upns::RequestGenericEntry> req(new upns::RequestGenericEntry);
     req->set_checkout(m_checkoutName);
     req->set_path(path);
     m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyGenericEntry> rep(m_node->receive<upns::ReplyGenericEntry>());
-    upns::upnsSharedPointer<upns::Entity> ret(rep->mutable_entry()->release_entity());
+    std::shared_ptr<upns::ReplyGenericEntry> rep(m_node->receive<upns::ReplyGenericEntry>());
+    std::shared_ptr<upns::Entity> ret(rep->mutable_entry()->release_entity());
     return ret;
 }
 
-upns::upnsSharedPointer<upns::Branch> upns::ZmqRequesterCheckout::getParentBranch()
+std::shared_ptr<upns::Branch> upns::ZmqRequesterCheckout::getParentBranch()
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsSharedPointer<upns::Branch>();
+    return std::shared_ptr<upns::Branch>();
 }
 
-upns::upnsVec<upns::CommitId> upns::ZmqRequesterCheckout::getParentCommitIds()
+std::vector<upns::CommitId> upns::ZmqRequesterCheckout::getParentCommitIds()
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsVec<upns::CommitId>();
+    return std::vector<upns::CommitId>();
 }
 
-upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnly(const upns::Path &entityId)
+std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnly(const upns::Path &entityId)
 {
-    upnsSharedPointer<Entity> e = getEntity(entityId);
+    std::shared_ptr<Entity> e = getEntity(entityId);
     if(!e)
     {
         log_error("Entity could not be queried for entitydata: " + entityId);
-        return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
+        return std::shared_ptr<upns::AbstractEntitydata>(nullptr);
     }
-    upns::upnsSharedPointer<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }
 
-upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
+std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
 {
     //TODO: nyi
     assert(false);
-    return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
+    return std::shared_ptr<upns::AbstractEntitydata>(nullptr);
 }
 
-upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectReference &, const upns::Path &)> beforeCommit,
-                                                              std::function<bool (upns::upnsSharedPointer<upns::Commit>, const upns::ObjectReference &, const upns::Path &)> afterCommit,
-                                                              std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectReference &, const upns::Path &)> beforeTree,
-                                                              std::function<bool (upns::upnsSharedPointer<upns::Tree>, const upns::ObjectReference &, const upns::Path &)> afterTree,
-                                                              std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectReference &, const upns::Path &)> beforeEntity,
-                                                              std::function<bool (upns::upnsSharedPointer<upns::Entity>, const upns::ObjectReference &, const upns::Path &)> afterEntity)
+upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (std::shared_ptr<upns::Commit>, const upns::ObjectReference &, const upns::Path &)> beforeCommit,
+                                                              std::function<bool (std::shared_ptr<upns::Commit>, const upns::ObjectReference &, const upns::Path &)> afterCommit,
+                                                              std::function<bool (std::shared_ptr<upns::Tree>, const upns::ObjectReference &, const upns::Path &)> beforeTree,
+                                                              std::function<bool (std::shared_ptr<upns::Tree>, const upns::ObjectReference &, const upns::Path &)> afterTree,
+                                                              std::function<bool (std::shared_ptr<upns::Entity>, const upns::ObjectReference &, const upns::Path &)> beforeEntity,
+                                                              std::function<bool (std::shared_ptr<upns::Entity>, const upns::ObjectReference &, const upns::Path &)> afterEntity)
 {
     //TODO: remove "Commit" from depthFirstSearch! There is no commit in checkout by design. (only technically)
     // Use internal service instead of ReplyHierarchy
@@ -165,17 +165,17 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::Operat
         OperationEnvironmentImpl env(desc);
         env.setCheckout( this );
     #ifndef NDEBUG
-        upnsString debug(DEBUG_POSTFIX);
+        std::string debug(DEBUG_POSTFIX);
     #else
-        upnsString debug("");
+        std::string debug("");
     #endif
 
     #ifdef _WIN32
-        upnsString prefix("");
-        upnsString postfix(".dll");
+        std::string prefix("");
+        std::string postfix(".dll");
     #else
-        upnsString prefix("lib");
-        upnsString postfix(".so");
+        std::string prefix("lib");
+        std::string postfix(".so");
     #endif
         std::stringstream filenam;
         filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
@@ -232,7 +232,7 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const upns::Operat
         req->set_checkout(m_checkoutName);
         *req->mutable_param() = desc;
         m_node->send(std::move(req));
-        upns::upnsSharedPointer<upns::ReplyOperatorExecution> rep(m_node->receive<upns::ReplyOperatorExecution>());
+        std::shared_ptr<upns::ReplyOperatorExecution> rep(m_node->receive<upns::ReplyOperatorExecution>());
         upns::OperationResult res;
         res.first = rep->status_code();
         res.second = rep->result();
@@ -264,12 +264,12 @@ upns::OperationResult upns::ZmqRequesterCheckout::doUntraceableOperation(const u
 //    //m_cache->
 //}
 
-upns::StatusCode upns::ZmqRequesterCheckout::storeTree(const upns::Path &path, upnsSharedPointer<upns::Tree> tree)
+upns::StatusCode upns::ZmqRequesterCheckout::storeTree(const upns::Path &path, std::shared_ptr<upns::Tree> tree)
 {
     return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path, upnsSharedPointer<upns::Entity> entity)
+upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path, std::shared_ptr<upns::Entity> entity)
 {
     std::unique_ptr<upns::RequestStoreEntity> req(new upns::RequestStoreEntity);
     req->set_checkout(m_checkoutName);
@@ -279,7 +279,7 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     req->set_sendlength(0ul);
     req->set_entitylength(0ul);
     m_node->send(std::move(req));
-    upns::upnsSharedPointer<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
+    std::shared_ptr<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
     if(rep->status() == upns::ReplyStoreEntity::SUCCESS)
     {
         return UPNS_STATUS_OK;
@@ -291,14 +291,14 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     }
 }
 
-upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataForReadWrite(const upns::Path &entity)
+std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataForReadWrite(const upns::Path &entity)
 {
-    upnsSharedPointer<Entity> e = getEntity(entity);
+    std::shared_ptr<Entity> e = getEntity(entity);
     if(!e)
     {
         log_error("Entity could not be queried for entitydata: " + entity);
-        return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
+        return std::shared_ptr<upns::AbstractEntitydata>(nullptr);
     }
-    upns::upnsSharedPointer<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
+    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }

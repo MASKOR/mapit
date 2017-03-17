@@ -17,7 +17,7 @@
 #include "tinyply.h"
 
 
-void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher, upnsSharedPointer<AssetEntitydata> output)
+void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher, std::shared_ptr<AssetEntitydata> output)
 {
     unsigned int trianglecount = 0;
     for (openvdb::Index64 n = 0, N = mesher->polygonPoolListSize(); n < N; ++n)
@@ -125,22 +125,22 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         }
     }
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    upnsSharedPointer<FloatGridEntitydata> entityDataInput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
     upnsFloatGridPtr inputGrid = entityDataInput->getData();
 
-    upnsSharedPointer<Entity> ent = env->getCheckout()->getEntity(output);
+    std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
     if(ent)
     {
         log_info("Output asset already exists. overwrite");
     }
 
-    upnsSharedPointer<Entity> assetEntity(new Entity);
+    std::shared_ptr<Entity> assetEntity(new Entity);
     assetEntity->set_type(AssetEntitydata::TYPENAME());
     StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
     if(!upnsIsOk(s))
@@ -287,13 +287,13 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 //        m_mesh->setPrimitiveCount( vertexCount );
 //    }
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output asset");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    upnsSharedPointer<AssetEntitydata> entityDataOutput = upns::static_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<AssetEntitydata> entityDataOutput = std::static_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");

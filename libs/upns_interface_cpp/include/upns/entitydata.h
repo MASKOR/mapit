@@ -29,7 +29,7 @@ public:
      * @param lod level of detail. higher values mean more detail. TODO: negative values? -1 is maximum detail?
      * @return layer data for the area in the bb (and slightly around)
      */
-    virtual upnsSharedPointer<LayerDataType> getData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, bool clipMode, int lod) = 0;
+    virtual std::shared_ptr<LayerDataType> getData(upnsReal x1, upnsReal y1, upnsReal z1,upnsReal x2, upnsReal y2, upnsReal z2, bool clipMode, int lod) = 0;
 
     /**
      * @brief setData deleted layerData for the given region and replaces it with the given data
@@ -43,7 +43,7 @@ public:
      * @param lod level of detail. The layertype module might recompute some detaillevels based on the new data and may discard levels.
      * @return 0 on success. Other than zero indicates errors.
      */
-    virtual int setData(upnsReal x1, upnsReal y1, upnsReal z1, upnsReal x2, upnsReal y2, upnsReal z2, upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+    virtual int setData(upnsReal x1, upnsReal y1, upnsReal z1, upnsReal x2, upnsReal y2, upnsReal z2, std::shared_ptr<LayerDataType> &data, int lod) = 0;
 
     /**
      * @brief getData get all the layers data.
@@ -51,7 +51,7 @@ public:
      * @param lod
      * @return
      */
-    virtual upnsSharedPointer<LayerDataType> getData( int lod) = 0;
+    virtual std::shared_ptr<LayerDataType> getData( int lod) = 0;
 
     /**
      * @brief setData set data of the complete layer. overwrite everything
@@ -59,7 +59,7 @@ public:
      * @param lod
      * @return
      */
-    virtual int setData(upnsSharedPointer<LayerDataType> &data, int lod) = 0;
+    virtual int setData(std::shared_ptr<LayerDataType> &data, int lod) = 0;
 
     // TODO: Make the containing map/mapmanager decide, if the object occupies certain space
     virtual int getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) = 0;

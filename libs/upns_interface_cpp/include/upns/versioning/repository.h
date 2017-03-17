@@ -44,14 +44,14 @@ public:
      * finish its work, so a new commit is generated (and the branch-tag is forwared). The the old commitId can be used.
      * @return all the checkouts
      */
-    virtual upnsVec<upnsString> listCheckoutNames() = 0;
+    virtual std::vector<std::string> listCheckoutNames() = 0;
 
 
-    virtual upnsSharedPointer<Tree> getTree(const ObjectId &oid) = 0;
-    virtual upnsSharedPointer<Entity> getEntity(const ObjectId &oid) = 0;
-    virtual upnsSharedPointer<Commit> getCommit(const ObjectId &oid) = 0;
-    virtual upnsSharedPointer<CheckoutObj> getCheckoutObj(const upnsString &name) = 0;
-    virtual upnsSharedPointer<Branch> getBranch(const upnsString &name) = 0;
+    virtual std::shared_ptr<Tree> getTree(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<Entity> getEntity(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<Commit> getCommit(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<CheckoutObj> getCheckoutObj(const std::string &name) = 0;
+    virtual std::shared_ptr<Branch> getBranch(const std::string &name) = 0;
     virtual MessageType typeOfObject(const ObjectId &oid) = 0;
 
     /**
@@ -59,7 +59,7 @@ public:
      * @param oid
      * @return
      */
-    virtual upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid) = 0;
 
     /**
      * @brief checkout creates a new checkout from a commit.
@@ -69,8 +69,8 @@ public:
      * @param name
      * @return
      */
-    virtual upnsSharedPointer<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const upnsString &name) = 0;
-    //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &branch, const upnsString &name) = 0;
+    virtual std::shared_ptr<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const std::string &name) = 0;
+    //std::shared_ptr<Checkout> checkout(const std::shared_ptr<Branch> &branch, const std::string &name) = 0;
     /**
      * @brief checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
      * Changes are not fully recorded at this level. Individual Stream-writes are recorded, without knowing the "OperationDescriptor".
@@ -83,16 +83,16 @@ public:
      * @param commit
      * @return new empty checkout object, representing exactly the state of <commit>.
      */
-    virtual upnsSharedPointer<Checkout> getCheckout(const upnsString &checkoutName) = 0;
+    virtual std::shared_ptr<Checkout> getCheckout(const std::string &checkoutName) = 0;
     // when commiting we check if we are on a branch head. if so... update branch pointer
-    //upnsSharedPointer<Checkout> checkout(const upnsSharedPointer<Branch> &commit) = 0;
+    //std::shared_ptr<Checkout> checkout(const std::shared_ptr<Branch> &commit) = 0;
 
     /**
      * @brief deleteCheckoutForced Deletes a checkout forever. This cannot be undone, like deleting changed files in git
      * @param checkout to delete
      * @return status
      */
-    virtual StatusCode deleteCheckoutForced(const upnsString &checkoutName) = 0;
+    virtual StatusCode deleteCheckoutForced(const std::string &checkoutName) = 0;
 
     /**
      * @brief commit Commits checked out data. The checkout must not be used after committing it. TODO: checkout should be updated to be based on new commit.
@@ -100,13 +100,13 @@ public:
      * @param msg
      * @return commitId of new commit.
      */
-    virtual CommitId commit(const upnsSharedPointer<Checkout> checkout, upnsString msg) = 0;
+    virtual CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg) = 0;
 
     /**
      * @brief getBranches List all Branches
      * @return all Branches, names with their current HEAD commitIds.
      */
-    virtual upnsVec< upnsSharedPointer<Branch> > getBranches() = 0;
+    virtual std::vector< std::shared_ptr<Branch> > getBranches() = 0;
 
     /**
      * @brief push alls branches to <repo>
@@ -127,7 +127,7 @@ public:
      * @param commitRef string
      * @return found commitId or InvalidCommitId
      */
-    virtual CommitId parseCommitRef(const upnsString &commitRef) = 0;
+    virtual CommitId parseCommitRef(const std::string &commitRef) = 0;
 
     /**
      * @brief merge two commits. TODO: merge vs. rebase. Based on Changed data or "replay" operations.
@@ -136,7 +136,7 @@ public:
      * @param base
      * @return A checkout in conflict mode.
      */
-    virtual upnsSharedPointer<Checkout> merge(const CommitId mine, const CommitId theirs, const CommitId base) = 0;
+    virtual std::shared_ptr<Checkout> merge(const CommitId mine, const CommitId theirs, const CommitId base) = 0;
 
     /**
      * @brief ancestors retrieves all (or all until <level>) ancestors of an object. Note that a merged object has more parent.
@@ -147,7 +147,7 @@ public:
      * @param level
      * @return A List off commits with objectsIds, the complete (or up to <level>) history of an object
      */
-    virtual upnsVec< upnsPair<CommitId, ObjectId> > ancestors(const CommitId &commitId, const ObjectId &objectId, const int level = 0) = 0;
+    virtual std::vector< std::pair<CommitId, ObjectId> > ancestors(const CommitId &commitId, const ObjectId &objectId, const int level = 0) = 0;
 
     virtual bool canRead() = 0;
     virtual bool canWrite() = 0;
