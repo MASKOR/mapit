@@ -1,10 +1,10 @@
 #ifndef __MODULE_H
 #define __MODULE_H
 
-#include "upns.h"
-#include "entitydata.h"
+
+#include <upns/entitydata.h>
 //#include <boost/config.hpp>
-#include "libs/upns_interface/services.pb.h"
+#include <upns/services.pb.h>
 
 // Always export. Headernot needed for import, because of dynamic loading at runtime.
 #ifdef _WIN32
@@ -12,6 +12,8 @@
 #else
 #define MODULE_EXPORT // empty
 #endif
+
+#define UPNS_MODULE_API_VERSION 0001
 
 /**
  * Every module can include this header and implement the functions. Implementations of the operator module are contained in a binary file.

@@ -338,12 +338,12 @@ void upns::ZmqEntitydataStreamProvider::endWriteFile(upns::ReadWriteHandle &hand
     std::remove(filename);
 }
 
-upns::AbstractEntitydataStreamProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredReadType()
+upns::AbstractEntitydataProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredReadType()
 {
     return ReadWritePointer;
 }
 
-upns::AbstractEntitydataStreamProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredWriteType()
+upns::AbstractEntitydataProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredWriteType()
 {
     return ReadWritePointer;
 }

@@ -1,14 +1,14 @@
 #ifndef __ABSTRACTLAYERDATALOADER_H
 #define __ABSTRACTLAYERDATALOADER_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 
 namespace upns
 {
 
 typedef void * ReadWriteHandle;
 /**
- * @brief The AbstractEntitydataStreamProvider class can be called by a concrete layertype implementation to store/read an abstract stream of data.
+ * @brief The AbstractEntitydataProvider class can be called by a concrete layertype implementation to store/read an abstract stream of data.
  * While AbstractLayerData is responsible for the communication from the mapmanager to the concrete implementation, this is the other direction.
  * Storage is a service implemented in a common way for all layerdata. A concrete Layerdata-Implementation must be able to "translate" between
  * streamed bytes and layertype-data in 3D space. For native pointcloud2 this might be slow, as there is no information on where to find points of
@@ -24,7 +24,7 @@ typedef void * ReadWriteHandle;
  * Concrete layertypes can read from/write to anything: streams, files, memory. For layertypes it is okay to only implement one way to read/write.
  */
 
-class AbstractEntitydataStreamProvider
+class AbstractEntitydataProvider
 {
 public:
     /**

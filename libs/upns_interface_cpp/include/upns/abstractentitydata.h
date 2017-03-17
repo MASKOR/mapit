@@ -1,7 +1,7 @@
 #ifndef ABSTRACTLAYERDATA_H
 #define ABSTRACTLAYERDATA_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
 #include <limits>
 
@@ -9,7 +9,7 @@ namespace upns
 {
 
 class AbstractEntitydata;
-class AbstractEntitydataStreamProvider;
+class AbstractEntitydataProvider;
 
 extern "C"
 {
@@ -19,14 +19,14 @@ extern "C"
  * important that the returned shared pointer has a custom deleter. In most cases this deleter will only call "delete"
  * for the previously allocated LayerData. See \sa PointcloudLayerdata for an example.
  */
-typedef void (*CreateEntitydataFunc)(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
-//typedef upnsSharedPointer<AbstractEntitydata> (*CreateEntitydataFunc)( upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
-//typedef upnsSharedPointer<AbstractEntitydata> (*DeleteEntityFunc)(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+typedef void (*CreateEntitydataFunc)(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+//typedef upnsSharedPointer<AbstractEntitydata> (*CreateEntitydataFunc)( upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+//typedef upnsSharedPointer<AbstractEntitydata> (*DeleteEntityFunc)(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 }
 
 /**
  * @brief The AbstractLayerData class is interface between a concrete layerdata implementation and layer. Basically an LayerData-Implementation will
- * translate/delegate requests of "getData" to LayerDataStreamProvider \sa AbstractEntitydataStreamProvider.
+ * translate/delegate requests of "getData" to LayerDataStreamProvider \sa AbstractEntitydataProvider.
  * "setData" does not contain logic (e.g. registration)
  * This abstract interface can be used to query metainformation from any type of layer. For reading/writing data, see \sa LayerData
  */

@@ -1,12 +1,12 @@
 #ifndef FS_ENTITYDATASTREAMPROVIDER_H
 #define FS_ENTITYDATASTREAMPROVIDER_H
 
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 
 namespace upns
 {
 
-class FileSystemEntitydataStreamProvider : public AbstractEntitydataStreamProvider
+class FileSystemEntitydataStreamProvider : public AbstractEntitydataProvider
 {
 public:
     FileSystemEntitydataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite);

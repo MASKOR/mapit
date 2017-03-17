@@ -1,7 +1,7 @@
 #include "repositoryimpl.h"
 #include "serialization/abstractserializer.h"
 #include "versioning/checkoutimpl.h"
-#include "serialization/entitystreammanager.h"
+#include <upns/serialization/entitydatalibrarymanager.h>
 #include <chrono>
 
 namespace upns
@@ -117,7 +117,7 @@ upnsSharedPointer<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(cons
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
 }
 
 upnsSharedPointer<Checkout> RepositoryImpl::getCheckout(const upnsString &checkoutName)

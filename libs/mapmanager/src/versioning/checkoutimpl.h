@@ -1,14 +1,14 @@
 #ifndef CHECKOUTIMPL_H
 #define CHECKOUTIMPL_H
 
-#include "upns_typedefs.h"
-#include "upns_logging.h"
+#include <upns/typedefs.h>
+#include <upns/logging.h>
 #include "services.pb.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 #include "serialization/abstractserializer.h"
-#include "entitydata.h"
-#include "versioning/checkout.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/entitydata.h>
+#include <upns/versioning/checkout.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "util.h"
 #include <functional>
 

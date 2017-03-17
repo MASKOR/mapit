@@ -8,8 +8,8 @@
 #include "qmlcheckout.h"
 #include "qmlbranch.h"
 #include "qmlentitydata.h"
-#include "libs/upns_interface/services.pb.h"
-#include "versioning/repository.h"
+#include <upns/services.pb.h>
+#include <upns/versioning/repository.h>
 
 class QmlCheckout;
 class QmlEntitydata;

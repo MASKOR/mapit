@@ -1,17 +1,17 @@
 #include "upnszmqrequestercheckout.h"
 #include "services_internal.pb.h"
-#include "serialization/entitystreammanager.h" //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
+#include <upns/serialization/entitydatalibrarymanager.h> //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"
 #include "operationenvironmentimpl.h"
-#include "upns_errorcodes.h"
-#include "depthfirstsearch.h"
+#include <upns/errorcodes.h>
+#include <upns/depthfirstsearch.h>
 
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <dlfcn.h>
 #endif
-#include "module.h"
+#include <upns/operators/module.h>
 typedef ModuleInfo* (*GetModuleInfo)();
 
 upns::ZmqRequesterCheckout::ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, Checkout *cache, bool operationsLocal)
@@ -131,8 +131,8 @@ upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::ge
         log_error("Entity could not be queried for entitydata: " + entityId);
         return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
     }
-    upns::upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
-    return EntityStreamManager::getEntitydataFromStreamImpl(e->type(), streamProvider);
+    upns::upnsSharedPointer<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+    return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }
 
 upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
@@ -299,6 +299,6 @@ upns::upnsSharedPointer<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::ge
         log_error("Entity could not be queried for entitydata: " + entity);
         return upns::upnsSharedPointer<upns::AbstractEntitydata>(nullptr);
     }
-    upns::upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
-    return EntityStreamManager::getEntitydataFromStreamImpl(e->type(), streamProvider);
+    upns::upnsSharedPointer<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
+    return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }

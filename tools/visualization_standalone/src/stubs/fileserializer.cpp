@@ -16,7 +16,7 @@
 //        this->setg(base, base, base + n);
 //    }
 //};
-//class FileEntitydataStreamProvider : public AbstractEntitydataStreamProvider
+//class FileEntitydataStreamProvider : public AbstractEntitydataProvider
 //{
 //    upnsString m_filename;
 //public:
@@ -228,9 +228,9 @@
 //    return 0;
 //}
 
-//upnsSharedPointer<AbstractEntitydataStreamProvider> FileSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
+//upnsSharedPointer<AbstractEntitydataProvider> FileSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
 //{
-//    upnsSharedPointer<AbstractEntitydataStreamProvider> ptr(new FileEntitydataStreamProvider(entityId));
+//    upnsSharedPointer<AbstractEntitydataProvider> ptr(new FileEntitydataStreamProvider(entityId));
 //    return ptr;
 //}
 

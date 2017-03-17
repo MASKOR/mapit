@@ -1,6 +1,6 @@
 #include "operationenvironmentimpl.h"
-#include "modules/versioning/checkoutraw.h"
-#include "../include/modules/operationenvironment.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 
 namespace upns
 {

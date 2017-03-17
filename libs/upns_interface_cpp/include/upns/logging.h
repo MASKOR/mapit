@@ -1,7 +1,7 @@
 #ifndef __UPNS_GLOBALS_H
 #define __UPNS_GLOBALS_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 
 #ifdef LOG4CPLUS_FOUND
   #include <log4cplus/logger.h>

@@ -1,8 +1,8 @@
 #ifndef POINTCLOUDLAYER_H
 #define POINTCLOUDLAYER_H
 
-#include "entitydata.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/entitydata.h>
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/point_types.h>
 
@@ -22,9 +22,9 @@ typedef upnsSharedPointer<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
 extern "C"
 {
 //Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
-//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
 }
 
@@ -60,7 +60,7 @@ public:
         Rep_Other
     };
 
-    PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+    PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -92,7 +92,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
     upnsPointcloud2Ptr m_pointcloud;
 };

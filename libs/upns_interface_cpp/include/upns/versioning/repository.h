@@ -1,10 +1,10 @@
 #ifndef REPOSITORY_H
 #define REPOSITORY_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "entitydata.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
+#include <upns/entitydata.h>
 #include "checkout.h"
 
 namespace upns

@@ -1,5 +1,5 @@
 #include "qmlcommit.h"
-
+#include <upns/typedefs.h>
 
 QmlCommit::QmlCommit()
     :m_commit( nullptr )

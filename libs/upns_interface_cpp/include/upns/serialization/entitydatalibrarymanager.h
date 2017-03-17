@@ -1,8 +1,8 @@
-#ifndef ENTITYSTREAMMANAGER_H
-#define ENTITYSTREAMMANAGER_H
+#ifndef ENTITYDATALIBRARYMANAGER_H
+#define ENTITYDATALIBRARYMANAGER_H
 
-#include "upns_typedefs.h"
-#include "abstractentitydata.h"
+#include <upns/typedefs.h>
+#include <upns/abstractentitydata.h>
 
 /**
  *  Note: This class should usually not be used directly. An implementation for
@@ -14,17 +14,17 @@
  *  kinds of layertypes (e.g. PCL, OVDB, Octomap, ...).
  *
  *  E.g. An application/user requests a pointcloud. The Pointcloud is capsulated
- *  in a concrete "PointcloudEntitydata" Object. EntityStreamManager has to create
+ *  in a concrete "PointcloudEntitydata" Object. EntityDatalibraryManager has to create
  *  a "PointcloudEntity" internally from the data in the "streamprovider". The
  *  Pointcloud is then returned to the application as a AbstractEntitydata.
  *  AbstractEntitydata can the be casted to "PointcloudEntity" from the application.
  */
 
 namespace upns {
-class EntityStreamManager
+class EntityDataLibraryManager
 {
 public:
-    static upnsSharedPointer<AbstractEntitydata> getEntitydataFromStreamImpl(const std::string &type, upnsSharedPointer<AbstractEntitydataStreamProvider> streamprovider, bool canRead = true);
+    static upnsSharedPointer<AbstractEntitydata> getEntitydataFromProvider(const std::string &type, upnsSharedPointer<AbstractEntitydataProvider> streamprovider, bool canRead = true);
 };
 
 }

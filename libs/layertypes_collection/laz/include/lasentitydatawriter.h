@@ -3,7 +3,7 @@
 
 #include "liblas/liblas.hpp"
 #include "laztype.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 
 class LASEntitydataWriterPrivate;
 class LASEntitydataWriter /* acts like : public liblas::Writer */
@@ -19,7 +19,7 @@ public:
     std::vector<liblas::TransformPtr> GetTransforms() const;
 private:
     LASEntitydataWriterPrivate *m_pimpl;
-    LASEntitydataWriter(std::shared_ptr<upns::AbstractEntitydataStreamProvider> prov, liblas::Header const& header);
+    LASEntitydataWriter(std::shared_ptr<upns::AbstractEntitydataProvider> prov, liblas::Header const& header);
     friend class LASEntitydata;
 };
 

@@ -1,14 +1,14 @@
-#include "module.h"
+#include <upns/operators/module.h>
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/common/centroid.h>
 #include <pcl/common/transforms.h>
 #include <pcl/common/common.h>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 

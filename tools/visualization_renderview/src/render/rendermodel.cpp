@@ -2,10 +2,10 @@
 
 #include <QtMath>
 #include <QOpenGLFunctions_3_0>
-#include "upns.h"
+
 #include "bindings/qmlentitydata.h"
-#include "libs/upns_interface/services.pb.h"
-#include "libs/upns_interface_cpp/include/versioning/checkout.h"
+#include <upns/services.pb.h>
+#include <upns/versioning/checkout.h>
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 
 #include <pcl/io/pcd_io.h>

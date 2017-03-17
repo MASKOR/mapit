@@ -1,11 +1,11 @@
-#include "versioning/repositoryfactorystandard.h"
+#include "upns/versioning/repositoryfactorystandard.h"
 #include <algorithm>
 #ifdef WITH_YAML
 #  include <yaml-cpp/yaml.h>
 #endif
-#include "versioning/repositoryfactory.h"
-#include "versioning/repositorynetworkingfactory.h"
-#include "upns_logging.h"
+#include <upns/versioning/repositoryfactory.h>
+#include <upns/versioning/repositorynetworkingfactory.h>
+#include <upns/logging.h>
 
 void upns::RepositoryFactoryStandard::addProgramOptions(boost::program_options::options_description &desc)
 {

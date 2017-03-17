@@ -1,6 +1,6 @@
 #include "testoperators.h"
-#include "upns_typedefs.h"
-#include "upns_errorcodes.h"
+#include <upns/typedefs.h>
+#include <upns/errorcodes.h>
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
@@ -12,8 +12,8 @@
 
 #include "datastructs.pb.h"
 
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 

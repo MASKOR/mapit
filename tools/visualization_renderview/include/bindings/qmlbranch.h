@@ -2,8 +2,8 @@
 #define QMLBRANCH
 
 #include <QtCore>
-#include "upns.h"
-#include "libs/upns_interface/services.pb.h"
+#include <upns/typedefs.h>
+#include <upns/services.pb.h>
 
 class QmlBranch : public QObject
 {

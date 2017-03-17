@@ -7,7 +7,7 @@
 #include <QOpenGLBuffer>
 #include <QVector>
 
-#include "abstractentitydata.h"
+#include <upns/abstractentitydata.h>
 #include "bindings/qmlentitydata.h"
 #include "bindings/renderdata.h"
 

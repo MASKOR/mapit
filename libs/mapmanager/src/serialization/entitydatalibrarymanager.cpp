@@ -1,7 +1,7 @@
-#include "serialization/entitystreammanager.h"
+#include <upns/serialization/entitydatalibrarymanager.h>
 #include <sstream>
 #include <algorithm>
-#include "upns_logging.h"
+#include <upns/logging.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -12,7 +12,7 @@ namespace upns
 {
 
 upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
-                                                                  upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+                                                                  upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 {
     std::string layertypeName(type);
 
@@ -74,7 +74,7 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
 }
 
 //upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(LayerType type,
-//                                                                   upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//                                                                   upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 //{
 //    // Layertypes loosly coupled. Name is used to call library to handle concrete datatypes.
 //    upnsString layerName;
@@ -107,7 +107,7 @@ upnsSharedPointer<AbstractEntitydata> wrapEntityOfType(const std::string &type,
 //    return wrapEntityOfType( layerName, streamProvider );
 //}
 
-upnsSharedPointer<AbstractEntitydata> EntityStreamManager::getEntitydataFromStreamImpl(const std::string &type, upnsSharedPointer<AbstractEntitydataStreamProvider> edsp, bool canRead)
+upnsSharedPointer<AbstractEntitydata> EntityDataLibraryManager::getEntitydataFromProvider(const std::string &type, upnsSharedPointer<AbstractEntitydataProvider> edsp, bool canRead)
 {
     upnsSharedPointer<AbstractEntitydata> edata = wrapEntityOfType( type, edsp );
     return edata;

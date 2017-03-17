@@ -56,4 +56,4 @@ execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin/upns_tools)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)

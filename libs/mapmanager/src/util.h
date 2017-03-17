@@ -1,7 +1,7 @@
 #ifndef __UPNS_UTIL_H
 #define __UPNS_UTIL_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include <string>
 #include <algorithm>
 #include <google/protobuf/repeated_field.h>

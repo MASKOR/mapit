@@ -2,8 +2,8 @@
 #define LAZTYPE_H
 
 #include <memory>
-#include "entitydata.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/entitydata.h>
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 #include "liblas/liblas.hpp"
 
 #include "lasentitydatareader.h"
@@ -20,7 +20,7 @@ using namespace upns;
 
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 }
 
 class LASEntitydataPrivate;
@@ -43,7 +43,7 @@ class LASEntitydata : public AbstractEntitydata
 public:
     static const char* TYPENAME();
 
-    LASEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+    LASEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
     ~LASEntitydata();
 
     const char *type() const;

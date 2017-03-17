@@ -1,6 +1,6 @@
 #include "assettype.h"
-#include "upns_logging.h"
-#include "upns_errorcodes.h"
+#include <upns/logging.h>
+#include <upns/errorcodes.h>
 #include "tinyply.h"
 
 const char *AssetEntitydata::TYPENAME()
@@ -8,7 +8,7 @@ const char *AssetEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-AssetEntitydata::AssetEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+AssetEntitydata::AssetEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_asset( NULL )
 {
@@ -132,7 +132,7 @@ void deleteEntitydata(AbstractEntitydata *ld)
     AssetEntitydata *p = static_cast<AssetEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 {
     *out = upnsSharedPointer<AbstractEntitydata>(new AssetEntitydata( streamProvider ), deleteEntitydata);
 }

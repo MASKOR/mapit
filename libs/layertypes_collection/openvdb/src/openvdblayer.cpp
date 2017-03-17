@@ -4,7 +4,7 @@
 #include <openvdb/Grid.h>
 #include <openvdb/io/io.h>
 #include <openvdb/io/Stream.h>
-#include "upns_logging.h"
+#include <upns/logging.h>
 
 const char *FloatGridEntitydata::TYPENAME()
 {
@@ -39,7 +39,7 @@ void writeFloatGridToStream(std::ostream &os, openvdb::FloatGrid::Ptr grid)
 }
 
 
-FloatGridEntitydata::FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+FloatGridEntitydata::FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_floatGrid( NULL )
 {
@@ -160,7 +160,7 @@ void deleteEntitydata(AbstractEntitydata *ld)
     FloatGridEntitydata *p = static_cast<FloatGridEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 {
     *out = upnsSharedPointer<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
 }

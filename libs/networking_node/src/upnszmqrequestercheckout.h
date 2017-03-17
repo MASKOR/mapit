@@ -2,8 +2,8 @@
 #define UPNSZMQREQUESTERCHECKOUT_H
 
 #include <string>
-#include "versioning/repository.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/versioning/repository.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "zmqprotobufnode.h"
 
 namespace upns {

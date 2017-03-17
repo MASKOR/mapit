@@ -1,12 +1,13 @@
-#include "module.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "openvdblayer.h"
 #include "openvdb/tools/LevelSetFilter.h"
 #include <iostream>
 #include <memory>
-#include "upns_errorcodes.h"
+#include <upns/errorcodes.h>
 #include "json11.hpp"
 
 struct PrintInterrupter

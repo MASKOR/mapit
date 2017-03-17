@@ -1,9 +1,9 @@
 #ifndef REPOSITORYNETWOKINGFACTORY_H
 #define REPOSITORYNETWOKINGFACTORY_H
 
-#include "upns_typedefs.h"
-#include "versioning/repository.h"
-#include "repositoryserver.h"
+#include <upns/typedefs.h>
+#include <upns/versioning/repository.h>
+#include "upns/repositoryserver.h"
 
 namespace upns
 {

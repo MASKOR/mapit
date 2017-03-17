@@ -1,13 +1,13 @@
-#include "module.h"
+#include <upns/operators/module.h>
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <memory>
-#include "upns_errorcodes.h"
+#include <upns/errorcodes.h>
 //#include "param.pb.h"
 #include "json11.hpp"
 

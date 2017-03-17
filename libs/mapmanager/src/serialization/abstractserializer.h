@@ -1,11 +1,11 @@
 #ifndef ABSTRACTSERIALIZER_H
 #define ABSTRACTSERIALIZER_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
-#include "entitydata.h"
-#include "upns_errorcodes.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
+#include <upns/entitydata.h>
+#include <upns/errorcodes.h>
 
 namespace upns
 {
@@ -59,8 +59,8 @@ public:
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name) = 0;
     virtual StatusCode removeBranch(const upnsString &name) = 0;
 
-    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
-    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
+    virtual upnsSharedPointer<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
+    virtual upnsSharedPointer<AbstractEntitydataProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
 
 
     virtual MessageType typeOfObject(const ObjectId &oid) = 0;

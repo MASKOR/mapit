@@ -1,15 +1,15 @@
 #ifndef DEPTHFIRSTSEARCH_H
 #define DEPTHFIRSTSEARCH_H
 
-#include "upns_typedefs.h"
-#include "upns_logging.h"
+#include <upns/typedefs.h>
+#include <upns/logging.h>
 #include "services.pb.h"
-#include "versioning/checkout.h"
+#include <upns/versioning/checkout.h>
 
 namespace upns
 {
 /**
- * @brief Depth first search for Commit, Tree and Entity.
+ * @brief Depth first search for Commit, Tree and Entity. This is often very handy.
  * Does not work for branches. Does not visit Entitydata (must be done manually).
  * If "before" returns false, "after" will not be executed.
  */

@@ -1,8 +1,9 @@
-#include "module.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 upns::StatusCode operate(upns::OperationEnvironment* env)

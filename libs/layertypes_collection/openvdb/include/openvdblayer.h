@@ -1,8 +1,8 @@
 #ifndef OPENVDBLAYERTYPE_H
 #define OPENVDBLAYERTYPE_H
 
-#include "entitydata.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/entitydata.h>
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 
 #include <openvdb/openvdb.h>
 #include <openvdb/Grid.h>
@@ -20,7 +20,7 @@ typedef upnsSharedPointer<openvdb::FloatGrid> upnsFloatGridPtr;
 
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 }
 
 class FloatGridEntitydata : public Entitydata<openvdb::FloatGrid>
@@ -28,7 +28,7 @@ class FloatGridEntitydata : public Entitydata<openvdb::FloatGrid>
 public:
     static const char* TYPENAME();
 
-    FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+    FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -60,7 +60,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     upnsFloatGridPtr m_floatGrid;
 };
 #endif

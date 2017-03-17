@@ -1,12 +1,12 @@
 #include "laztype.h"
-#include "upns_logging.h"
-#include "upns_errorcodes.h"
+#include <upns/logging.h>
+#include <upns/errorcodes.h>
 
 class LASEntitydataPrivate
 {
 public:
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
-    LASEntitydataPrivate(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
+    LASEntitydataPrivate(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
         :m_streamProvider( streamProvider ) {}
 };
 
@@ -15,7 +15,7 @@ const char *LASEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-LASEntitydata::LASEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+LASEntitydata::LASEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
     :m_pimpl(new LASEntitydataPrivate(streamProvider))
 {
 }
@@ -219,7 +219,7 @@ void deleteEntitydata(AbstractEntitydata *ld)
     LASEntitydata *p = static_cast<LASEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 {
     *out = upnsSharedPointer<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydata);
 }

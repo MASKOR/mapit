@@ -24,7 +24,7 @@
 //#include <fcntl.h>
 ////#include <unistd.h>
 
-#include <upns_logging.h>
+#include <upns/logging.h>
 #define FILEMODE S_IRWXU | S_IRGRP | S_IROTH
 
 namespace upns {
@@ -186,12 +186,12 @@ void FileSystemEntitydataStreamProvider::endWriteFile(ReadWriteHandle &handle)
     //Nothing to do here, file has been written
 }
 
-AbstractEntitydataStreamProvider::ReadWriteType FileSystemEntitydataStreamProvider::preferredReadType()
+AbstractEntitydataProvider::ReadWriteType FileSystemEntitydataStreamProvider::preferredReadType()
 {
     return ReadWriteFile;
 }
 
-AbstractEntitydataStreamProvider::ReadWriteType FileSystemEntitydataStreamProvider::preferredWriteType()
+AbstractEntitydataProvider::ReadWriteType FileSystemEntitydataStreamProvider::preferredWriteType()
 {
     return ReadWriteFile;
 }

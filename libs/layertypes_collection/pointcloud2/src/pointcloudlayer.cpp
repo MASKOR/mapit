@@ -11,7 +11,7 @@ const char *PointcloudEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_pointcloud( NULL )
 {
@@ -137,14 +137,14 @@ size_t PointcloudEntitydata::size() const
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
-//upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
-//void* createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
+//void* createEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 void deleteEntitydata(AbstractEntitydata *ld)
 {
     PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider)
 {
     //return upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
     *out = upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);

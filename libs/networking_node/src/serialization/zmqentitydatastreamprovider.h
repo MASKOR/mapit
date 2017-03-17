@@ -1,10 +1,10 @@
 #ifndef ZMQENTITYDATASTREAMPROVIDER_H
 #define ZMQENTITYDATASTREAMPROVIDER_H
 
-#include "upns_typedefs.h"
-#include "versioning/repository.h"
+#include <upns/typedefs.h>
+#include <upns/versioning/repository.h>
 #include "zmqprotobufnode.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 
 namespace upns
 {
@@ -13,9 +13,9 @@ namespace upns
  * @brief ZmqEntitydataStreamProvider sends binary data over network
  */
 
-class ZmqEntitydataStreamProvider : public AbstractEntitydataStreamProvider
+class ZmqEntitydataStreamProvider : public AbstractEntitydataProvider
 {
-    // AbstractEntitydataStreamProvider interface
+    // AbstractEntitydataProvider interface
 public:
     ZmqEntitydataStreamProvider(upnsString checkoutName, upnsString pathOrOid, ZmqProtobufNode *node);
     bool isCached();

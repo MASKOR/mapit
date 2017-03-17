@@ -3,7 +3,7 @@
 
 #include <QTest>
 
-#include "versioning/repository.h"
+#include <upns/versioning/repository.h>
 
 namespace upns {
 class RepositoryServer;

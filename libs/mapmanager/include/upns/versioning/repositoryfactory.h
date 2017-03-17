@@ -1,8 +1,8 @@
 #ifndef REPOSITORYFACTORY_H
 #define REPOSITORYFACTORY_H
 
-#include "upns_typedefs.h"
-#include "versioning/repository.h"
+#include <upns/typedefs.h>
+#include <upns/versioning/repository.h>
 
 namespace upns
 {

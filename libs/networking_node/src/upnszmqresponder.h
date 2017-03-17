@@ -2,7 +2,7 @@
 #define UPNSZMQRESPONDER_H
 
 #include <string>
-#include "repositoryserver.h"
+#include "upns/repositoryserver.h"
 
 namespace upns {
 

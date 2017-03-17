@@ -1,5 +1,5 @@
 #include "qmlentitydatarenderer.h"
-#include "abstractentitydata.h"
+#include <upns/abstractentitydata.h>
 #include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
 #include "libs/layertypes_collection/tf/include/tflayer.h"
 #include "qpointcloudgeometry.h"

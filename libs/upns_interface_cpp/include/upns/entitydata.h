@@ -1,9 +1,9 @@
 #ifndef __ENTITYDATA_H
 #define __ENTITYDATA_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
-#include "abstractentitydata.h"
+#include <upns/abstractentitydata.h>
 #include <limits>
 
 namespace upns

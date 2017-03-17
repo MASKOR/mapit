@@ -7,7 +7,7 @@
 #include <QDebug>
 #include "bindings/qmlmapsrenderviewport.h"
 #include "bindings/qmlentitydata.h"
-#include "upns_logging.h"
+#include <upns/logging.h>
 #include "stubs/qmlstubentitydatapointcloud2.h"
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
@@ -38,10 +38,10 @@
 #include "qpointfield.h"
 #include "bindings/qmlentitydatarenderer.h"
 #include "models/qmlroottreemodel.h"
-#include "versioning/repositoryfactorystandard.h"
+#include <upns/versioning/repositoryfactorystandard.h>
 
 #include "services.pb.h"
-#include "upns_errorcodes.h"
+#include <upns/errorcodes.h>
 
 #include <boost/program_options.hpp>
 

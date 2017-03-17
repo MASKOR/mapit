@@ -7,10 +7,10 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include "module.h"
+#include <upns/operators/module.h>
 #include "operationenvironmentimpl.h"
-#include "serialization/entitystreammanager.h"
-#include "depthfirstsearch.h"
+#include <upns/serialization/entitydatalibrarymanager.h>
+#include <upns/depthfirstsearch.h>
 
 namespace upns
 {
@@ -232,7 +232,7 @@ upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const 
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
 }
 
 upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
@@ -244,7 +244,7 @@ upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflic
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
 }
 
 upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(const Path &path)
@@ -257,7 +257,7 @@ upnsSharedPointer<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(co
         return NULL;
     }
     assert( ent );
-    return EntityStreamManager::getEntitydataFromStreamImpl(ent->type(), m_serializer->getStreamProviderTransient(p, true, true), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(p, true, true), true);
 }
 
 StatusCode CheckoutImpl::storeTree(const Path &path, upnsSharedPointer<Tree> tree)

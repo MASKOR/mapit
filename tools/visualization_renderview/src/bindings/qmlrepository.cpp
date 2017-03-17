@@ -1,6 +1,6 @@
 #include "qmlrepository.h"
-#include "versioning/repositoryfactory.h"
-#include "upns_errorcodes.h"
+#include <upns/versioning/repositoryfactory.h>
+#include <upns/errorcodes.h>
 
 QmlRepository::QmlRepository(upns::upnsSharedPointer<upns::Repository> repo)
     :QmlRepository(repo, nullptr)

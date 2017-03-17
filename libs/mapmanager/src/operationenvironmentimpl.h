@@ -1,6 +1,6 @@
 #ifndef __OPERATIONENVIRONMENTIMPL_H
 #define __OPERATIONENVIRONMENTIMPL_H
-#include "modules/operationenvironment.h"
+#include <upns/operators/operationenvironment.h>
 #include "services.pb.h"
 
 namespace upns

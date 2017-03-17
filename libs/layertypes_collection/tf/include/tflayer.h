@@ -1,8 +1,8 @@
 #ifndef TFLAYER_H
 #define TFLAYER_H
 
-#include "entitydata.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/entitydata.h>
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 
 #include <Eigen/Geometry>
 
@@ -63,8 +63,8 @@ using namespace upns;
 extern "C"
 {
 //Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
-//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+//MODULE_EXPORT upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 //MODULE_EXPORT void deleteEntitydata(upnsSharedPointer<AbstractEntitydata> streamProvider);
 }
 
@@ -76,7 +76,7 @@ class TfEntitydata : public Entitydata<TfMat>
 public:
     static const char* TYPENAME();
 
-    TfEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+    TfEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -109,7 +109,7 @@ public:
     size_t size() const;
 
 private:
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     TfMatPtr m_tf;
 
 };

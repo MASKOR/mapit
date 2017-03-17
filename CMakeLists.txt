@@ -13,13 +13,15 @@ aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 
 set(UPNS_INSTALL_INCLUDE "upns")
-set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_")
-set(UPNS_INSTALL_OPERATORS "upns_operators_")
+# include directory as subfolder. final form: #include <${UPNS_INSTALL_INCLUDE}/${UPNS_INSTALL_INCLUDE_LAYERTYPES}/*.h>
+set(UPNS_INSTALL_INCLUDE_LAYERTYPES "layertypes")
+set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_") # prefix for shared libraries
+set(UPNS_INSTALL_OPERATORS "upns_operators_") # prefix for shared libraries
 add_definitions(-DUPNS_INSTALL_LAYERTYPES="${UPNS_INSTALL_LAYERTYPES}")
 add_definitions(-DUPNS_INSTALL_OPERATORS="${UPNS_INSTALL_OPERATORS}")
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-        message(WARNING "WARNING: In-Place Build not recommended.")
+        message(WARNING "WARNING: In-Place Build not recommended. If you accidently commit and push wrong files to the repository, you owe a cup of coffee to your teammembers.")
 endif()
 
 if(NOT WIN32)

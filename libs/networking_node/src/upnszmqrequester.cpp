@@ -2,7 +2,7 @@
 #include "upnszmqrequester_p.h"
 #include "upnszmqrequestercheckout.h"
 #include <zmq.hpp>
-#include "upns_errorcodes.h"
+#include <upns/errorcodes.h>
 
 upns::ZmqRequester::ZmqRequester(Repository *cache, upns::upnsString urlOutgoingRequests, bool operationsLocal)
     :m_d( new upns::ZmqRequesterPrivate( cache, urlOutgoingRequests, operationsLocal ) )

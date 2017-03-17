@@ -1,9 +1,9 @@
 #ifndef QMLTREE
 #define QMLTREE
 
-#include "upns.h"
+#include <upns/typedefs.h>
 #include <QtCore>
-#include "libs/upns_interface/services.pb.h"
+#include <upns/services.pb.h>
 #include <QQmlListProperty>
 
 class QmlTree : public QObject

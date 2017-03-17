@@ -1,10 +1,10 @@
 #ifndef FS_SERIALIZER_H
 #define FS_SERIALIZER_H
 
-#include "upns_typedefs.h"
-#include "upns_logging.h"
+#include <upns/typedefs.h>
+#include <upns/logging.h>
 #include "serialization/abstractserializer.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -83,8 +83,8 @@ namespace upns
     virtual StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
     virtual StatusCode removeBranch(const upnsString &name);
 
-    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
-    virtual upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite);
+    virtual upnsSharedPointer<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
+    virtual upnsSharedPointer<AbstractEntitydataProvider> getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite);
 
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.

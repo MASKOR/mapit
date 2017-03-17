@@ -1,5 +1,5 @@
 #include "autotest.h"
-#include "upns.h"
+
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <iostream>

@@ -36,7 +36,7 @@
 //    StatusCode storeBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
 //    StatusCode createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name);
 //    StatusCode removeBranch(const upnsString &name);
-//    upnsSharedPointer<AbstractEntitydataStreamProvider> getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite);
+//    upnsSharedPointer<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite);
 //    MessageType typeOfObject(const ObjectId &oidOrName);
 //    bool exists(const ObjectId &oidOrName);
 //    StatusCode cleanUp();

@@ -1,9 +1,9 @@
 #ifndef CHECKOUTCOMMON_H
 #define CHECKOUTCOMMON_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
-#include "abstractentitydata.h"
+#include <upns/abstractentitydata.h>
 #include <functional>
 
 namespace upns

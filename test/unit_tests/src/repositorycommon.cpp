@@ -1,8 +1,8 @@
 #include "repositorycommon.h"
 #include "repositoryserver.h"
-#include "versioning/repositoryfactory.h"
-#include "versioning/repositorynetworkingfactory.h"
-#include "versioning/checkout.h"
+#include <upns/versioning/repositoryfactory.h>
+#include <upns/versioning/repositorynetworkingfactory.h>
+#include <upns/versioning/checkout.h>
 #include <QThread>
 #include "serverthread.h"
 

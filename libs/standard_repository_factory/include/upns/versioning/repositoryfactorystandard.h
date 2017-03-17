@@ -1,9 +1,9 @@
 #ifndef REPOSITORYFACTORYSTANDARD_H
 #define REPOSITORYFACTORYSTANDARD_H
 
-#include "upns_typedefs.h"
-#include "versioning/repository.h"
-#include "repositoryserver.h"
+#include <upns/typedefs.h>
+#include <upns/versioning/repository.h>
+#include "upns/repositoryserver.h"
 #include <boost/program_options.hpp>
 
 namespace upns

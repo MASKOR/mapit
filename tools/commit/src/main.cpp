@@ -1,10 +1,10 @@
 #include <iostream>
-#include "upns.h"
+
 #include "services.pb.h"
-#include "versioning/repository.h"
-#include "versioning/repositoryfactorystandard.h"
-#include "upns_errorcodes.h"
-#include "upns_logging.h"
+#include <upns/versioning/repository.h>
+#include <upns/versioning/repositoryfactorystandard.h>
+#include <upns/errorcodes.h>
+#include <upns/logging.h>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;

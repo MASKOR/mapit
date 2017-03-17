@@ -1,5 +1,5 @@
 #include "testrepository.h"
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
 #include "../../src/autotest.h"
 #include <QDir>
@@ -7,9 +7,9 @@
 #include <QString>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "versioning/repository.h"
-#include "versioning/repositoryfactory.h"
-#include "versioning/repositorynetworkingfactory.h"
+#include <upns/versioning/repository.h>
+#include <upns/versioning/repositoryfactory.h>
+#include <upns/versioning/repositorynetworkingfactory.h>
 #include <pointcloudlayer.h>
 #include <functional>
 #include <pcl/io/pcd_io.h>

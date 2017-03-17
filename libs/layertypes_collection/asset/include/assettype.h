@@ -1,8 +1,8 @@
 #ifndef ASSETTYPE_H
 #define ASSETTYPE_H
 
-#include "entitydata.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/entitydata.h>
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 #include "tinyply.h"
 
 using namespace upns;
@@ -19,7 +19,7 @@ typedef upnsSharedPointer<tinyply::PlyFile> upnsAssetPtr;
 
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 }
 
 class AssetEntitydata : public Entitydata<tinyply::PlyFile>
@@ -27,7 +27,7 @@ class AssetEntitydata : public Entitydata<tinyply::PlyFile>
 public:
     static const char* TYPENAME();
 
-    AssetEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+    AssetEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -59,7 +59,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     upnsAssetPtr m_asset;
 };
 #endif

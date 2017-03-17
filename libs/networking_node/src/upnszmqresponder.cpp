@@ -1,7 +1,7 @@
 #include "upnszmqresponder.h"
 #include "upnszmqresponder_p.h"
-#include "versioning/repository.h"
-#include "repositoryserver.h"
+#include <upns/versioning/repository.h>
+#include "upns/repositoryserver.h"
 #include <zmq.hpp>
 
 upns::ZmqResponder::ZmqResponder(int portIncomingRequests, Repository* repo, std::__cxx11::string urlOutgoingRequests)

@@ -1,4 +1,4 @@
-#include "module.h"
+#include <upns/operators/module.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
@@ -11,12 +11,12 @@
 #include <openvdb/Grid.h>
 #include <openvdb/tools/ParticlesToLevelSet.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 template<typename ParticlePointT>

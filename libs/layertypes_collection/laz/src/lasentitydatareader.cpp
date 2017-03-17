@@ -1,10 +1,10 @@
 #include "lasentitydatareader.h"
-#include "upns_logging.h"
+#include <upns/logging.h>
 
 class LASEntitydataReaderPrivate
 {
 public:
-    LASEntitydataReaderPrivate(upnsSharedPointer<AbstractEntitydataStreamProvider> prov)
+    LASEntitydataReaderPrivate(upnsSharedPointer<AbstractEntitydataProvider> prov)
         :m_streamProvider(prov)
     {
         liblas::ReaderFactory f;
@@ -21,7 +21,7 @@ public:
         m_streamProvider->endRead(m_istream);
         m_istream = nullptr;
     }
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     liblas::Reader *m_reader;
     upnsIStream    *m_istream;
 };
@@ -76,7 +76,7 @@ std::vector<liblas::TransformPtr> LASEntitydataReader::GetTransforms() const
     return m_pimpl->m_reader->GetTransforms();
 }
 
-LASEntitydataReader::LASEntitydataReader(std::shared_ptr<AbstractEntitydataStreamProvider> prov)
+LASEntitydataReader::LASEntitydataReader(std::shared_ptr<AbstractEntitydataProvider> prov)
     :m_pimpl(new LASEntitydataReaderPrivate(prov))
 {
 }

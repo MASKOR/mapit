@@ -1,8 +1,8 @@
-#include "upns_errorcodes.h"
-#include "module.h"
-#include "modules/operationenvironment.h"
-#include "modules/versioning/checkoutraw.h"
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/module.h>
+#include <upns/operators/operationenvironment.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/layertypes/pointcloudlayer.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>

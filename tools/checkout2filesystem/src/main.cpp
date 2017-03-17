@@ -1,9 +1,9 @@
 #include <iostream>
-#include "upns.h"
+
 #include "services.pb.h"
-#include "versioning/repository.h"
-#include "versioning/repositoryfactorystandard.h"
-#include "upns_logging.h"
+#include <upns/versioning/repository.h>
+#include <upns/versioning/repositoryfactorystandard.h>
+#include <upns/logging.h>
 #include <boost/filesystem.hpp>
 //#include <boost/iostreams/device/mapped_file.hpp>
 #include <fstream>

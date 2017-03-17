@@ -3,7 +3,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QMutexLocker>
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include <repositoryserver.h>
 
 // Client Calls send() followed by stopServer().

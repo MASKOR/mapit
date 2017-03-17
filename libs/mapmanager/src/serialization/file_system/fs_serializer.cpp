@@ -1,5 +1,5 @@
 #include "fs_serializer.h"
-#include "upns.h"
+
 #include "util.h"
 #include "../hash.h"
 #include "fs_entitydatastreamprovider.h"
@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include "upns_errorcodes.h"
+#include <upns/errorcodes.h>
 
 #define LDBSER_DELIM "!"
 #define KEY_PREFIX_CHECKOUT "co"
@@ -553,22 +553,22 @@ FSSerializer::removeBranch(const upnsString &name)
     return UPNS_STATUS_ERR_DB_IO_ERROR;
 }
 
-upnsSharedPointer<AbstractEntitydataStreamProvider>
+upnsSharedPointer<AbstractEntitydataProvider>
 FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
     //TODO: Get entity data by oid. Might be a file with name "entityId" in folder "_PREFIX_ENTITYDATA"?
     fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(entityId);
     std::string fn(path.string());
-    return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
+    return upnsSharedPointer<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
 }
 
-upnsSharedPointer<AbstractEntitydataStreamProvider>
+upnsSharedPointer<AbstractEntitydataProvider>
 FSSerializer::getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite)
 {
     //TODO: Get entity data by path. Might be a file at path "_PREFIX_CHECKOUT" / "path"?
     fs::path path = objectid_to_checkout_fs_path(oid) / _CHECKOUT_ENTITY_DATA_;
     std::string fn( path.string() );
-    return upnsSharedPointer<AbstractEntitydataStreamProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
+    return upnsSharedPointer<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
 }
 
 StatusCode

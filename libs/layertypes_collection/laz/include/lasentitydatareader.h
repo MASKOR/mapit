@@ -20,7 +20,7 @@ public:
     std::vector<liblas::TransformPtr> GetTransforms() const;
 private:
     LASEntitydataReaderPrivate *m_pimpl;
-    LASEntitydataReader(std::shared_ptr<upns::AbstractEntitydataStreamProvider> prov);
+    LASEntitydataReader(std::shared_ptr<upns::AbstractEntitydataProvider> prov);
     friend class LASEntitydata;
 };
 

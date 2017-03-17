@@ -1,10 +1,10 @@
 #include "lasentitydatawriter.h"
-#include "upns_logging.h"
+#include <upns/logging.h>
 
 class LASEntitydataWriterPrivate
 {
 public:
-    LASEntitydataWriterPrivate(upnsSharedPointer<AbstractEntitydataStreamProvider> prov, liblas::Header const& header)
+    LASEntitydataWriterPrivate(upnsSharedPointer<AbstractEntitydataProvider> prov, liblas::Header const& header)
         :m_streamProvider(prov)
     {
         liblas::WriterFactory f;
@@ -21,7 +21,7 @@ public:
         m_streamProvider->endWrite(m_ostream);
         m_ostream = nullptr;
     }
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     liblas::Writer *m_writer;
     upnsOStream    *m_ostream;
 };
@@ -66,7 +66,7 @@ std::vector<liblas::TransformPtr> LASEntitydataWriter::GetTransforms() const
     return m_pimpl->m_writer->GetTransforms();
 }
 
-LASEntitydataWriter::LASEntitydataWriter(std::shared_ptr<AbstractEntitydataStreamProvider> prov, liblas::Header const& header)
+LASEntitydataWriter::LASEntitydataWriter(std::shared_ptr<AbstractEntitydataProvider> prov, liblas::Header const& header)
     :m_pimpl(new LASEntitydataWriterPrivate(prov, header))
 {
 }

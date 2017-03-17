@@ -1,10 +1,10 @@
 #ifndef CHECKOUTRAW_H
 #define CHECKOUTRAW_H
 
-#include "upns_typedefs.h"
+#include <upns/typedefs.h>
 #include "services.pb.h"
-#include "entitydata.h"
-#include "versioning/checkoutcommon.h"
+#include <upns/entitydata.h>
+#include <upns/versioning/checkoutcommon.h>
 
 namespace upns
 {

@@ -1,10 +1,10 @@
 #include "upnszmqresponder_p.h"
 #include "services.pb.h"
 #include <functional>
-#include "versioning/repository.h"
-#include "modules/operationenvironment.h"
-#include "modules/versioning/checkoutraw.h"
-#include "upns_errorcodes.h"
+#include <upns/versioning/repository.h>
+#include <upns/operators/operationenvironment.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/errorcodes.h>
 
 template < typename T, void (upns::ZmqResponderPrivate::*func)(T*) >
 void upns::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)
@@ -57,6 +57,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreTree>( fn );
 
+    //TODO: allow ssh://?
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
 

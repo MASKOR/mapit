@@ -1,11 +1,12 @@
-#include "module.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
 #include "libs/layertypes_collection/tf/include/tflayer.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 // Apply array of transforms.

@@ -2,7 +2,7 @@
 #define QMLCHECKOUT
 
 #include <QtCore>
-#include "upns.h"
+
 #include "qmltree.h"
 #include "qmlentity.h"
 #include "qmlcommit.h"
@@ -10,8 +10,8 @@
 #include "qmlbranch.h"
 #include "qmlentitydata.h"
 #include "qmlrepository.h"
-#include "versioning/checkout.h"
-#include "libs/upns_interface/services.pb.h"
+#include <upns/versioning/checkout.h>
+#include <upns/services.pb.h>
 #include <QJsonObject>
 
 class QmlRepository;

@@ -2,8 +2,8 @@
 #define QMLENTITYDATA
 
 #include <QObject>
-#include "libs/upns_interface/services.pb.h"
-#include "abstractentitydata.h"
+#include <upns/services.pb.h>
+#include <upns/abstractentitydata.h>
 #include "qmlcheckout.h"
 
 class QmlCheckout;

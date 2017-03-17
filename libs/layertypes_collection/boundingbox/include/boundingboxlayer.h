@@ -1,8 +1,8 @@
 #ifndef BOUNDINGBOXLAYER_H
 #define BOUNDINGBOXLAYER_H
 
-#include "entitydata.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/entitydata.h>
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 #include "datastructs.pb.h"
 
 using namespace upns;
@@ -19,7 +19,7 @@ namespace upns
 }
 extern "C"
 {
-MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+MODULE_EXPORT void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 }
 
 class BoundingboxEntitydata : public Entitydata<upns::Boundingbox>
@@ -27,7 +27,7 @@ class BoundingboxEntitydata : public Entitydata<upns::Boundingbox>
 public:
     static const char* TYPENAME();
 
-    BoundingboxEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider);
+    BoundingboxEntitydata(upnsSharedPointer<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -59,7 +59,7 @@ public:
 
     size_t size() const;
 private:
-    upnsSharedPointer<AbstractEntitydataStreamProvider> m_streamProvider;
+    upnsSharedPointer<AbstractEntitydataProvider> m_streamProvider;
     BoundingboxPtr m_aabb;  // Axis Aligned Bounding Box
 };
 

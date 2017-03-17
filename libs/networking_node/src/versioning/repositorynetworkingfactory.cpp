@@ -1,7 +1,7 @@
-#include "versioning/repositorynetworkingfactory.h"
+#include "upns/versioning/repositorynetworkingfactory.h"
 #include "upnszmqrequester.h"
 #include "upnszmqresponder.h"
-#include "repositoryserver.h"
+#include "upns/repositoryserver.h"
 
 upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, upns::Repository *repo, upns::upnsString urlNext)
 {
