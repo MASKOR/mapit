@@ -34,5 +34,7 @@ if(NOT WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(NOT WIN32)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME upns_${PROJECT_NAME})
+
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
