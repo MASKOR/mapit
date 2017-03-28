@@ -41,6 +41,11 @@ For developers mapit can be extended in 3 ways.
 
 We identified that the most common extension will be to add more operators. Consequently we made the interface for new operators as easy to use as possible.
 
+## Setup
+
+Obtain the upns **Dockerfile** and **upns-<version\>-Linux.tar.gz**.
+
+
 ## Usage	(for non-developers)
 
 To use mapit to access and edit data there is no need to develop a line of code.

@@ -16,9 +16,6 @@ add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
 
 file(GLOB_RECURSE LAYERTYPE_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
-                                                #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/src/*.hpp
-                                                #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/src/*.cpp
-                                                #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/include/*.hpp
                                                 ${PROJECT_SOURCE_DIR}/libLAS/include/*.hpp
                                                 ${PROJECT_SOURCE_DIR}/libLAS/include/*.h
                                                 ${PROJECT_SOURCE_DIR}/libLAS/src/*.hpp
