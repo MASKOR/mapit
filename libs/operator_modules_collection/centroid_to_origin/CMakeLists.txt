@@ -47,7 +47,7 @@ message("PCL FILTER" ${PCL_FILTER_LIBRARIES})
 message("PCL FILTERS" ${PCL_FILTERS_LIBRARIES})
 message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_mapmanager layertype_pointcloud2)
+target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_core layertype_pointcloud2)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

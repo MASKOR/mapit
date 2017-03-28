@@ -5,9 +5,9 @@
 #include <QQmlContext>
 #include <QResource>
 #include <QDebug>
-#include "bindings/qmlmapsrenderviewport.h"
-#include "bindings/qmlentitydata.h"
-#include "upns_logging.h"
+#include <upns/ui/bindings/qmlmapsrenderviewport.h>
+#include <upns/ui/bindings/qmlentitydata.h>
+#include <upns/logging.h>
 #include "stubs/qmlstubentitydatapointcloud2.h"
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
@@ -24,24 +24,24 @@
 #include <pcl/octree/octree_impl.h>
 #include <QDir>
 #include "controls/xboxcontroller.h"
-#include "bindings/renderdata.h"
-#include "bindings/qmlrepository.h"
-#include "bindings/qmlcheckout.h"
-#include "bindings/qmlcommit.h"
-#include "bindings/qmltree.h"
-#include "bindings/qmlentity.h"
-#include "bindings/qmlentitydata.h"
-#include "bindings/qmlentitydatatransform.h"
-#include "bindings/qmlbranch.h"
+#include <upns/ui/bindings/renderdata.h>
+#include <upns/ui/bindings/qmlrepository.h>
+#include <upns/ui/bindings/qmlcheckout.h>
+#include <upns/ui/bindings/qmlcommit.h>
+#include <upns/ui/bindings/qmltree.h>
+#include <upns/ui/bindings/qmlentity.h>
+#include <upns/ui/bindings/qmlentitydata.h>
+#include <upns/ui/bindings/qmlentitydatatransform.h>
+#include <upns/ui/bindings/qmlbranch.h>
 #include "qpointcloud.h"
 #include "qpointcloudgeometry.h"
 #include "qpointfield.h"
-#include "bindings/qmlentitydatarenderer.h"
-#include "models/qmlroottreemodel.h"
-#include "versioning/repositoryfactorystandard.h"
+#include <upns/ui/bindings/qmlentitydatarenderer.h>
+#include <upns/ui/models/qmlroottreemodel.h>
+#include <upns/versioning/repositoryfactorystandard.h>
 
-#include "services.pb.h"
-#include "upns_errorcodes.h"
+#include <upns/services.pb.h>
+#include <upns/errorcodes.h>
 
 #include <boost/program_options.hpp>
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     }
     po::notify(vars);
 
-    upns::upnsSharedPointer<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+    std::shared_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
     if(repo == nullptr)
     {

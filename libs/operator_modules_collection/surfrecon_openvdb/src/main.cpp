@@ -1,4 +1,5 @@
-#include "module.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
@@ -6,17 +7,17 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/surface/gp3.h>
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
-#include "libs/layertypes_collection/openvdb/include/openvdblayer.h"
+#include <upns/layertypes/pointcloudlayer.h>
+#include <upns/layertypes/openvdblayer.h>
 #include <openvdb/Grid.h>
 #include <openvdb/tools/ParticlesToLevelSet.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 template<typename ParticlePointT>
@@ -110,27 +111,27 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         }
     }
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    upnsSharedPointer<PointcloudEntitydata> entityDataInput = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<PointcloudEntitydata> entityDataInput = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
     upnsPointcloud2Ptr inputPcd = entityDataInput->getData();
 
     upnsFloatGridPtr outputFloatGrid;
-    upnsSharedPointer<Entity> ent = env->getCheckout()->getEntity(output);
+    std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
     if(ent)
     {
         log_info("Output grid already exists. ignoring voxelsize.");
-        upnsSharedPointer<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
+        std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)
         {
             log_error("could not read output grid");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
-        upnsSharedPointer<FloatGridEntitydata> entityDataOutput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
@@ -140,7 +141,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     }
     else
     {
-        ent = upnsSharedPointer<Entity>(new Entity);
+        ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
         StatusCode s = env->getCheckout()->storeEntity(output, ent);
         if(!upnsIsOk(s))
@@ -161,13 +162,13 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     log_info("Voxelize " + std::to_string(spheres.size()) + " Points as Spheres.");
     particlesToLevelset.rasterizeSpheres( spheres, spheresize );
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output grid");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    upnsSharedPointer<FloatGridEntitydata> entityDataOutput = upns::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");

@@ -1,12 +1,13 @@
-#include "module.h"
-#include "libs/layertypes_collection/pointcloud2/include/pointcloudlayer.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
+#include <upns/layertypes/pointcloudlayer.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
@@ -27,8 +28,8 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 
     std::string target = params["target"].string_value();
 
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     pcl::VoxelGrid<pcl::PCLPointCloud2> sor;

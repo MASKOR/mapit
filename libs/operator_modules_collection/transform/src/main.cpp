@@ -1,11 +1,12 @@
-#include "module.h"
-#include "libs/layertypes_collection/tf/include/tflayer.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
+#include <upns/layertypes/tflayer.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 // Apply array of transforms.
@@ -60,11 +61,11 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 
     bool newlyCreated = false; // In this case, there will be no tf to read
     // Get Target
-    upnsSharedPointer<Entity> tfEntity = env->getCheckout()->getEntity(target);
+    std::shared_ptr<Entity> tfEntity = env->getCheckout()->getEntity(target);
     if(tfEntity == NULL)
     {
         // If target could not be received, create new entity
-        tfEntity = upnsSharedPointer<Entity>(new Entity);
+        tfEntity = std::shared_ptr<Entity>(new Entity);
         tfEntity->set_type(TfEntitydata::TYPENAME());
         StatusCode s = env->getCheckout()->storeEntity(target, tfEntity);
         if(!upnsIsOk(s))
@@ -74,12 +75,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         }
         newlyCreated = true;
     }
-    upnsSharedPointer<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     if(abstractEntitydata == NULL)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    upnsSharedPointer<TfEntitydata> entityData = upns::static_pointer_cast<TfEntitydata>( abstractEntitydata );
+    std::shared_ptr<TfEntitydata> entityData = std::static_pointer_cast<TfEntitydata>( abstractEntitydata );
     TfMatPtr tf;
     if(newlyCreated)
     {

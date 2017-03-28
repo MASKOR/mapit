@@ -4,7 +4,7 @@
 //#include <pcl/PCLPointCloud2.h>
 //#include <pcl/io/pcd_io.h>
 //#include <pcl/io/ply_io.h>
-//#include "libs/layertypes_collection/pointcloud2/src/pointcloudhelper.h"
+//#include <upns/layertypes/pointcloud2/src/pointcloudhelper.h"
 //#include <boost/archive/text_oarchive.hpp>
 //#include <boost/archive/text_iarchive.hpp>
 //#include <boost/serialization/vector.hpp>
@@ -16,11 +16,11 @@
 //        this->setg(base, base, base + n);
 //    }
 //};
-//class FileEntitydataStreamProvider : public AbstractEntitydataStreamProvider
+//class FileEntitydataStreamProvider : public AbstractEntitydataProvider
 //{
-//    upnsString m_filename;
+//    std::string m_filename;
 //public:
-//    FileEntitydataStreamProvider(const upnsString &filename)
+//    FileEntitydataStreamProvider(const std::string &filename)
 //        :m_filename(filename)
 //    { }
 //    bool isCached() { return true; }
@@ -111,17 +111,17 @@
 //    return false;
 //}
 
-//upnsSharedPointer<Tree> FileSerializer::getTree(const ObjectId &oid)
+//std::shared_ptr<Tree> FileSerializer::getTree(const ObjectId &oid)
 //{
 //    return NULL;
 //}
 
-//StatusCode FileSerializer::storeTree(upnsSharedPointer<Tree> &obj)
+//StatusCode FileSerializer::storeTree(std::shared_ptr<Tree> &obj)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::createTree(upnsSharedPointer<Tree> &obj)
+//StatusCode FileSerializer::createTree(std::shared_ptr<Tree> &obj)
 //{
 //    return 0;
 //}
@@ -131,19 +131,19 @@
 //    return 0;
 //}
 
-//upnsSharedPointer<Entity> FileSerializer::getEntity(const ObjectId oid)
+//std::shared_ptr<Entity> FileSerializer::getEntity(const ObjectId oid)
 //{
-//    upnsSharedPointer<Entity> dummyPointcloud2Entity(new Entity());
+//    std::shared_ptr<Entity> dummyPointcloud2Entity(new Entity());
 //    dummyPointcloud2Entity->set_type(LayerType::POINTCLOUD2);
 //    return dummyPointcloud2Entity;
 //}
 
-//StatusCode FileSerializer::storeEntity(upnsSharedPointer<Entity> &obj)
+//StatusCode FileSerializer::storeEntity(std::shared_ptr<Entity> &obj)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::createEntity(upnsSharedPointer<Entity> &obj)
+//StatusCode FileSerializer::createEntity(std::shared_ptr<Entity> &obj)
 //{
 //    return 0;
 //}
@@ -153,17 +153,17 @@
 //    return 0;
 //}
 
-//upnsSharedPointer<Commit> FileSerializer::getCommit(const ObjectId &oid)
+//std::shared_ptr<Commit> FileSerializer::getCommit(const ObjectId &oid)
 //{
 //    return NULL;
 //}
 
-//StatusCode FileSerializer::storeCommit(upnsSharedPointer<Commit> &obj)
+//StatusCode FileSerializer::storeCommit(std::shared_ptr<Commit> &obj)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::createCommit(upnsSharedPointer<Commit> &obj)
+//StatusCode FileSerializer::createCommit(std::shared_ptr<Commit> &obj)
 //{
 //    return 0;
 //}
@@ -173,64 +173,64 @@
 //    return 0;
 //}
 
-//upnsVec<upnsString> FileSerializer::listCheckoutNames()
+//std::vector<std::string> FileSerializer::listCheckoutNames()
 //{
-//    return upnsVec<upnsString>();
+//    return std::vector<std::string>();
 //}
 
-//upnsVec<upnsSharedPointer<CheckoutObj> > FileSerializer::listCheckouts()
+//std::vector<std::shared_ptr<CheckoutObj> > FileSerializer::listCheckouts()
 //{
-//    return upnsVec<upnsSharedPointer<CheckoutObj> >();
+//    return std::vector<std::shared_ptr<CheckoutObj> >();
 //}
 
-//upnsSharedPointer<CheckoutObj> FileSerializer::getCheckoutCommit(const upnsString &name)
+//std::shared_ptr<CheckoutObj> FileSerializer::getCheckoutCommit(const std::string &name)
 //{
 //    return NULL;
 //}
 
-//StatusCode FileSerializer::storeCheckoutCommit(upnsSharedPointer<CheckoutObj> &obj, const upnsString &name)
+//StatusCode FileSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::createCheckoutCommit(upnsSharedPointer<CheckoutObj> &obj, const upnsString &name)
+//StatusCode FileSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::removeCheckoutCommit(const upnsString &name)
+//StatusCode FileSerializer::removeCheckoutCommit(const std::string &name)
 //{
 //    return 0;
 //}
 
-//upnsVec<upnsSharedPointer<Branch> > FileSerializer::listBranches()
+//std::vector<std::shared_ptr<Branch> > FileSerializer::listBranches()
 //{
-//    return upnsVec<upnsSharedPointer<Branch> >();
+//    return std::vector<std::shared_ptr<Branch> >();
 //}
 
-//upnsSharedPointer<Branch> FileSerializer::getBranch(const upnsString &name)
+//std::shared_ptr<Branch> FileSerializer::getBranch(const std::string &name)
 //{
 //    return NULL;
 //}
 
-//StatusCode FileSerializer::storeBranch(upnsSharedPointer<Branch> &obj, const upnsString &name)
+//StatusCode FileSerializer::storeBranch(std::shared_ptr<Branch> &obj, const std::string &name)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::createBranch(upnsSharedPointer<Branch> &obj, const upnsString &name)
+//StatusCode FileSerializer::createBranch(std::shared_ptr<Branch> &obj, const std::string &name)
 //{
 //    return 0;
 //}
 
-//StatusCode FileSerializer::removeBranch(const upnsString &name)
+//StatusCode FileSerializer::removeBranch(const std::string &name)
 //{
 //    return 0;
 //}
 
-//upnsSharedPointer<AbstractEntitydataStreamProvider> FileSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
+//std::shared_ptr<AbstractEntitydataProvider> FileSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, bool canWrite)
 //{
-//    upnsSharedPointer<AbstractEntitydataStreamProvider> ptr(new FileEntitydataStreamProvider(entityId));
+//    std::shared_ptr<AbstractEntitydataProvider> ptr(new FileEntitydataStreamProvider(entityId));
 //    return ptr;
 //}
 

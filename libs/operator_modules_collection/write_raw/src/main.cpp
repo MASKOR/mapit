@@ -1,10 +1,10 @@
-#include "module.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
+#include <upns/operators/module.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {

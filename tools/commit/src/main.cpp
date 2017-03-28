@@ -1,10 +1,10 @@
 #include <iostream>
-#include "upns.h"
-#include "services.pb.h"
-#include "versioning/repository.h"
-#include "versioning/repositoryfactorystandard.h"
-#include "upns_errorcodes.h"
-#include "upns_logging.h"
+
+#include <upns/services.pb.h>
+#include <upns/versioning/repository.h>
+#include <upns/versioning/repositoryfactorystandard.h>
+#include <upns/errorcodes.h>
+#include <upns/logging.h>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
-    upns::upnsSharedPointer<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
 
     if(co)
     {

@@ -1,22 +1,22 @@
 #include "testrepositoriescom.h"
-#include "upns_typedefs.h"
-#include "services.pb.h"
+#include <upns/typedefs.h>
+#include <upns/services.pb.h>
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
 #include <QString>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "versioning/repository.h"
-#include "versioning/repositoryfactory.h"
-#include "versioning/repositorynetworkingfactory.h"
+#include <upns/versioning/repository.h>
+#include <upns/versioning/repositoryfactory.h>
+#include <upns/versioning/repositorynetworkingfactory.h>
 #include <functional>
 #include "../serverthread.h"
-#include "modules/operationenvironment.h"
-#include "upns_errorcodes.h"
+#include <upns/operators/operationenvironment.h>
+#include <upns/errorcodes.h>
 
-#include "modules/versioning/checkoutraw.h"
-#include "pointcloudlayer.h"
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/voxel_grid.h>
@@ -50,8 +50,8 @@ void TestRepositoriesCommunication::initTestCase()
         {
             if(!*test_finished)
             {
-                upns::upnsSharedPointer<upns::Repository> serverRepo(initEmptyLocal());
-                upns::upnsSharedPointer<upns::RepositoryServer> server(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, serverRepo.get()));
+                std::shared_ptr<upns::Repository> serverRepo(initEmptyLocal());
+                std::shared_ptr<upns::RepositoryServer> server(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, serverRepo.get()));
                 while(!*test_finished)
                 {
                     *server_running = true;
@@ -109,14 +109,14 @@ void TestRepositoriesCommunication::cleanup()
 
 void TestRepositoriesCommunication::testReadLocalComputeRemoteWriteLocal()
 {
-    upns::upnsSharedPointer<upns::Repository> local(initNetwork(true));
+    std::shared_ptr<upns::Repository> local(initNetwork(true));
     QVERIFY( nullptr != local );
-    upns::upnsSharedPointer<upns::Repository> networkRemoteCompute(initNetwork(false));
+    std::shared_ptr<upns::Repository> networkRemoteCompute(initNetwork(false));
     QVERIFY( nullptr != networkRemoteCompute );
 
-    upns::upnsSharedPointer<upns::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
+    std::shared_ptr<upns::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
     QVERIFY( nullptr != checkoutLocal );
-    upns::upnsSharedPointer<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
+    std::shared_ptr<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
     QVERIFY( nullptr != checkoutRemote );
     readPcd(checkoutLocal.get());
     voxelgrid(checkoutRemote.get());
@@ -127,13 +127,13 @@ void TestRepositoriesCommunication::testReadLocalComputeRemoteWriteLocal()
 
 void TestRepositoriesCommunication::testReadRemoteComputeLocalWriteRemote()
 {
-    upns::upnsSharedPointer<upns::Repository> local(initNetwork(true));
+    std::shared_ptr<upns::Repository> local(initNetwork(true));
     QVERIFY( nullptr != local );
-    upns::upnsSharedPointer<upns::Repository> networkRemoteCompute(initNetwork(false));
+    std::shared_ptr<upns::Repository> networkRemoteCompute(initNetwork(false));
     QVERIFY( nullptr != networkRemoteCompute );
 
-    upns::upnsSharedPointer<upns::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
-    upns::upnsSharedPointer<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
+    std::shared_ptr<upns::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
+    std::shared_ptr<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
     readPcd(checkoutRemote.get());
     voxelgrid(checkoutLocal.get());
     const char* filename = FILENAME_OUT2;
@@ -144,13 +144,13 @@ void TestRepositoriesCommunication::testReadRemoteComputeLocalWriteRemote()
 
 void TestRepositoriesCommunication::testReadRemoteComputeRemoteWriteLocal()
 {
-    upns::upnsSharedPointer<upns::Repository> local(initNetwork(true));
+    std::shared_ptr<upns::Repository> local(initNetwork(true));
     QVERIFY( nullptr != local );
-    upns::upnsSharedPointer<upns::Repository> networkRemoteCompute(initNetwork(false));
+    std::shared_ptr<upns::Repository> networkRemoteCompute(initNetwork(false));
     QVERIFY( nullptr != networkRemoteCompute );
 
-    upns::upnsSharedPointer<upns::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
-    upns::upnsSharedPointer<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
+    std::shared_ptr<upns::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
+    std::shared_ptr<upns::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
     readPcd(checkoutRemote.get());
     voxelgrid(checkoutRemote.get());
     // Note: This writes local, there is not yet a way to distinguish which thread wrote the file.
@@ -188,7 +188,7 @@ void TestRepositoriesCommunication::compareFileToExpected(const char* filename)
     }
 }
 
-upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initEmptyLocal()
+std::shared_ptr<upns::Repository> TestRepositoriesCommunication::initEmptyLocal()
 {
     const char* fileSystemName = "testrepocom.mapit";
     QDir dir(fileSystemName);
@@ -197,20 +197,20 @@ upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initEmp
         bool result = dir.removeRecursively();
         if( false == result )
         {
-            return upns::upnsSharedPointer<upns::Repository>(nullptr);
+            return std::shared_ptr<upns::Repository>(nullptr);
         }
     }
-    return upns::upnsSharedPointer<upns::Repository>(upns::RepositoryFactory::openLocalRepository( fileSystemName ));
+    return std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository( fileSystemName ));
 }
 
-upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initNetwork(/*upns::upnsSharedPointer<upns::Repository> other,*/ bool computeLocal)
+std::shared_ptr<upns::Repository> TestRepositoriesCommunication::initNetwork(/*std::shared_ptr<upns::Repository> other,*/ bool computeLocal)
 {
 //    // get is okay here, server and localRepo have same lifecycle. Don't copy/paste this.
-//    upns::upnsSharedPointer<upns::RepositoryServer> server(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, other.get()));
+//    std::shared_ptr<upns::RepositoryServer> server(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, other.get()));
 //    ServerThread *serverThread(new ServerThread(server));
 //    // networkRepo will be returned. server and serverThread should have the same lifecycle as networkRepo.
 //    // The customDeleter should implement that and stops the server when the repo-object is deleted.
-//    upns::upnsSharedPointer<upns::Repository> networkRepo(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", nullptr, computeLocal),
+//    std::shared_ptr<upns::Repository> networkRepo(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", nullptr, computeLocal),
 //                                                          [serverThread](upns::Repository *data)
 //    {
 //        serverThread->stop();
@@ -218,7 +218,7 @@ upns::upnsSharedPointer<upns::Repository> TestRepositoriesCommunication::initNet
 //    });
 //    serverThread->start();
 //    return networkRepo;
-    return upns::upnsSharedPointer<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", nullptr, computeLocal));
+    return std::shared_ptr<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", nullptr, computeLocal));
 }
 
 void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
@@ -252,12 +252,12 @@ void TestRepositoriesCommunication::writePcdLocalOnly(upns::Checkout *checkout, 
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&filename](upns::OperationEnvironment* env)
     {
         upns::CheckoutRaw *coraw = env->getCheckout();
-        upns::upnsSharedPointer<upns::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataReadOnly("themap/thelayer/bunny");
+        std::shared_ptr<upns::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataReadOnly("themap/thelayer/bunny");
         if( abstractEntitydata == nullptr)
         {
             return UPNS_STATUS_ERROR;
         }
-        upns::upnsSharedPointer<PointcloudEntitydata> entityData = upns::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+        std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
 
         pcl::PCDWriter writer;
 

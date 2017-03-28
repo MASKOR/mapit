@@ -1,10 +1,10 @@
 #ifndef ZMQENTITYDATASTREAMPROVIDER_H
 #define ZMQENTITYDATASTREAMPROVIDER_H
 
-#include "upns_typedefs.h"
-#include "versioning/repository.h"
+#include <upns/typedefs.h>
+#include <upns/versioning/repository.h>
 #include "zmqprotobufnode.h"
-#include "modules/serialization/abstractentitydatastreamprovider.h"
+#include <upns/operators/serialization/abstractentitydataprovider.h>
 
 namespace upns
 {
@@ -13,11 +13,11 @@ namespace upns
  * @brief ZmqEntitydataStreamProvider sends binary data over network
  */
 
-class ZmqEntitydataStreamProvider : public AbstractEntitydataStreamProvider
+class ZmqEntitydataStreamProvider : public AbstractEntitydataProvider
 {
-    // AbstractEntitydataStreamProvider interface
+    // AbstractEntitydataProvider interface
 public:
-    ZmqEntitydataStreamProvider(upnsString checkoutName, upnsString pathOrOid, ZmqProtobufNode *node);
+    ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node);
     bool isCached();
     bool isReadWriteSame();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 length);
@@ -37,16 +37,16 @@ public:
     //void endRead();
     void endWrite(const char *memory, const upns::upnsuint64 &length, const upnsuint64 &offset);
 
-    upnsString startReadFile(ReadWriteHandle &handle);
+    std::string startReadFile(ReadWriteHandle &handle);
     void endReadFile(ReadWriteHandle &handle);
-    upnsString startWriteFile(ReadWriteHandle &handle);
+    std::string startWriteFile(ReadWriteHandle &handle);
     void endWriteFile(ReadWriteHandle &handle);
 
     ReadWriteType preferredReadType();
     ReadWriteType preferredWriteType();
 private:
-    upnsString m_checkoutName;
-    upnsString m_pathOrOid;
+    std::string m_checkoutName;
+    std::string m_pathOrOid;
     ZmqProtobufNode *m_node;
     mutable upnsuint64 m_entityLength;
 };

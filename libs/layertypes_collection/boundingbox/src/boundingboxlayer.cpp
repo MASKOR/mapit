@@ -1,6 +1,6 @@
-#include "boundingboxlayer.h"
+#include "upns/layertypes/boundingboxlayer.h"
 #include <sstream>
-#include "upns_logging.h"
+#include <upns/logging.h>
 
 const char *BoundingboxEntitydata::TYPENAME()
 {
@@ -8,7 +8,7 @@ const char *BoundingboxEntitydata::TYPENAME()
 }
 
 
-BoundingboxEntitydata::BoundingboxEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+BoundingboxEntitydata::BoundingboxEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_aabb( NULL )
 {
@@ -135,17 +135,17 @@ size_t BoundingboxEntitydata::size() const
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers.
-//upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
-//void* createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+//void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 void deleteEntitydata(AbstractEntitydata *ld)
 {
     BoundingboxEntitydata *p = static_cast<BoundingboxEntitydata*>(ld);
     delete p;
 }
 
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    //return upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = upnsSharedPointer<AbstractEntitydata>(new BoundingboxEntitydata( streamProvider ), deleteEntitydata);
+    //return std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
+    *out = std::shared_ptr<AbstractEntitydata>(new BoundingboxEntitydata( streamProvider ), deleteEntitydata);
 }
 

@@ -1,10 +1,10 @@
-#include "openvdblayer.h"
+#include "upns/layertypes/openvdblayer.h"
 #include <sstream>
 #include <openvdb/openvdb.h>
 #include <openvdb/Grid.h>
 #include <openvdb/io/io.h>
 #include <openvdb/io/Stream.h>
-#include "upns_logging.h"
+#include <upns/logging.h>
 
 const char *FloatGridEntitydata::TYPENAME()
 {
@@ -39,7 +39,7 @@ void writeFloatGridToStream(std::ostream &os, openvdb::FloatGrid::Ptr grid)
 }
 
 
-FloatGridEntitydata::FloatGridEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+FloatGridEntitydata::FloatGridEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_floatGrid( NULL )
 {
@@ -160,8 +160,8 @@ void deleteEntitydata(AbstractEntitydata *ld)
     FloatGridEntitydata *p = static_cast<FloatGridEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = upnsSharedPointer<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
 }
 

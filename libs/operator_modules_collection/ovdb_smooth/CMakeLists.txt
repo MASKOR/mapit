@@ -20,7 +20,7 @@ file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJEC
 set(CMAKE_AUTOMOC ON)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_mapmanager layertype_openvdb json11)
+target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_core layertype_openvdb json11)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

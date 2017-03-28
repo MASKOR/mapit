@@ -13,13 +13,15 @@ aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 
 set(UPNS_INSTALL_INCLUDE "upns")
-set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_")
-set(UPNS_INSTALL_OPERATORS "upns_operators_")
+# include directory as subfolder. final form: #include <${UPNS_INSTALL_INCLUDE}/${UPNS_INSTALL_INCLUDE_LAYERTYPES}/*.h>
+set(UPNS_INSTALL_INCLUDE_LAYERTYPES "layertypes")
+set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_") # prefix for shared libraries
+set(UPNS_INSTALL_OPERATORS "upns_operators_") # prefix for shared libraries
 add_definitions(-DUPNS_INSTALL_LAYERTYPES="${UPNS_INSTALL_LAYERTYPES}")
 add_definitions(-DUPNS_INSTALL_OPERATORS="${UPNS_INSTALL_OPERATORS}")
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-        message(WARNING "WARNING: In-Place Build not recommended.")
+        message(WARNING "WARNING: In-Place Build not recommended. If you accidently commit and push wrong files to the repository, you owe a cup of coffee to your teammembers.")
 endif()
 
 if(NOT WIN32)
@@ -110,7 +112,7 @@ endif(WITH_LOG4CPLUS)
 
 set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
-add_subdirectory(libs/mapmanager)
+add_subdirectory(libs/core)
 add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(libs/upns_interface)
 add_subdirectory(libs/upns_interface_cpp)
@@ -137,14 +139,15 @@ endif()
 
 # json11 is a static library that is meant to be used in a shared library.
 # Thus the cmake target itself is added and slightly reconfigured here
-add_subdirectory(externals/json11)
-set_property(TARGET json11 PROPERTY POSITION_INDEPENDENT_CODE 1)
+if(WIN32)
+  add_subdirectory(externals/json11)
+  set_property(TARGET json11 PROPERTY POSITION_INDEPENDENT_CODE 1)
+endif(WIN32)
 
 set(UPNS_ENABLE_VISUALIZATION ON CACHE BOOL "Generate Visualization tools")
 
 if(UPNS_ENABLE_VISUALIZATION)
-  #add_subdirectory(tools/visualization)
-  add_subdirectory(tools/visualization_renderview)
+  add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_standalone)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
 endif(UPNS_ENABLE_VISUALIZATION)
@@ -173,9 +176,9 @@ endif(UPNS_ENABLE_VISUALIZATION)
 # Note: QtCreator crashes when text is searched and it starts to search in Gigabytes of Pointclouds
 # make data and resources visible in qtcreator
 #add_custom_target(dataFiles ALL ${CMAKE_COMMAND} -E echo "add datas to qt project. nop" SOURCES ${Datas_All})
-add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add resources to qt project. nop" SOURCES ${Resources_All})
+#add_custom_target(resourceFiles ALL ${CMAKE_COMMAND} -E echo "add resources to qt project. nop" SOURCES ${Resources_All})
 
 # make qml visible in qtcreator
-file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir ${PROJECT_SOURCE_DIR}/*.properties)
+#file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*/qmldir ${PROJECT_SOURCE_DIR}/*.properties)
 
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
+#add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})

@@ -2,8 +2,8 @@
 #define UPNSZMQREQUESTERCHECKOUT_H
 
 #include <string>
-#include "versioning/repository.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/versioning/repository.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "zmqprotobufnode.h"
 
 namespace upns {
@@ -19,29 +19,29 @@ namespace upns {
 class ZmqRequesterCheckout : public upns::Checkout, public upns::CheckoutRaw
 {
 public:
-    ZmqRequesterCheckout(upnsString name, ZmqProtobufNode *node, upns::Checkout *cache = NULL, bool operationsLocal = false);
+    ZmqRequesterCheckout(std::string name, ZmqProtobufNode *node, upns::Checkout *cache = NULL, bool operationsLocal = false);
 
     // CheckoutCommon interface
 public:
     bool isInConflictMode();
-    upnsVec<upnsSharedPointer<Conflict> > getPendingConflicts();
+    std::vector<std::shared_ptr<Conflict> > getPendingConflicts();
     void setConflictSolved(const Path &path, const ObjectId &oid);
     virtual MessageType typeOfObject(const Path &oidOrName);
-    upnsSharedPointer<Tree> getRoot();
-    upnsSharedPointer<Tree> getTreeConflict(const ObjectId &objectId);
-    upnsSharedPointer<Entity> getEntityConflict(const ObjectId &objectId);
-    upnsSharedPointer<Tree> getTree(const Path &path);
-    upnsSharedPointer<Entity> getEntity(const Path &path);
-    upnsSharedPointer<Branch> getParentBranch();
-    upnsVec<CommitId> getParentCommitIds();
-    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId);
-    upnsSharedPointer<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
-    StatusCode depthFirstSearch(std::function<bool (upnsSharedPointer<Commit>, const ObjectReference &, const Path &)> beforeCommit,
-                                std::function<bool (upnsSharedPointer<Commit>, const ObjectReference &, const Path &)> afterCommit,
-                                std::function<bool (upnsSharedPointer<Tree>, const ObjectReference &, const Path &)> beforeTree,
-                                std::function<bool (upnsSharedPointer<Tree>, const ObjectReference &, const Path &)> afterTree,
-                                std::function<bool (upnsSharedPointer<Entity>, const ObjectReference &, const Path &)> beforeEntity,
-                                std::function<bool (upnsSharedPointer<Entity>, const ObjectReference &, const Path &)> afterEntity);
+    std::shared_ptr<Tree> getRoot();
+    std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId);
+    std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);
+    std::shared_ptr<Tree> getTree(const Path &path);
+    std::shared_ptr<Entity> getEntity(const Path &path);
+    std::shared_ptr<Branch> getParentBranch();
+    std::vector<CommitId> getParentCommitIds();
+    std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId);
+    std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
+    StatusCode depthFirstSearch(std::function<bool (std::shared_ptr<Commit>, const ObjectReference &, const Path &)> beforeCommit,
+                                std::function<bool (std::shared_ptr<Commit>, const ObjectReference &, const Path &)> afterCommit,
+                                std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> beforeTree,
+                                std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> afterTree,
+                                std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity,
+                                std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> afterEntity);
 
     // Checkout interface
 public:
@@ -50,12 +50,12 @@ public:
 
     // CheckoutRaw interface
 public:
-    StatusCode storeTree(const Path &path, upnsSharedPointer<Tree> tree);
-    StatusCode storeEntity(const Path &path, upnsSharedPointer<Entity> entity);
-    upnsSharedPointer<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity);
+    StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree);
+    StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity);
+    std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity);
 
 private:
-    upnsString m_checkoutName;
+    std::string m_checkoutName;
     ZmqProtobufNode *m_node;
     upns::Checkout *m_cache;
     bool m_operationsLocal;

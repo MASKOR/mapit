@@ -1,6 +1,6 @@
 //#include "qmlstubentitydatapointcloud2.h"
-//#include "serialization/entitystreammanager.h"
-//#include "abstractentitydata.h"
+//#include <upns/serialization/entitydatalibrarymanager.h>
+//#include <upns/abstractentitydata.h>
 
 //void QmlEntitydataPointcloud2::setFilename(QString filename)
 //{
@@ -13,6 +13,6 @@
 //    // Stub interprets "ObjectId" as filename. This is a hack and should not usually not be done.
 
 //    //TODO: Thread Copy stuff
-//    m_entitydata = upns::EntityStreamManager::getEntitydataImpl(&m_fileSerializer, filename.toStdString(), true, true);
+//    m_entitydata = upns::EntityDataLibraryManager::getEntitydataImpl(&m_fileSerializer, filename.toStdString(), true, true);
 //    Q_EMIT updated();
 //}

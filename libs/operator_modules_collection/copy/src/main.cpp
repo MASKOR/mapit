@@ -1,8 +1,9 @@
-#include "module.h"
-#include "modules/versioning/checkoutraw.h"
-#include "modules/operationenvironment.h"
-#include "upns_errorcodes.h"
-#include "modules/versioning/checkoutraw.h"
+#include <upns/operators/module.h>
+#include <upns/logging.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
+#include <upns/errorcodes.h>
+#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
@@ -27,7 +28,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         log_error("could not copy, target is not set");
     }
 
-    upns::upnsSharedPointer< upns::Entity > srcEnt( env->getCheckout()->getEntity(source) );
+    std::shared_ptr< upns::Entity > srcEnt( env->getCheckout()->getEntity(source) );
     upns::StatusCode s;
     if(srcEnt)
     {
@@ -40,8 +41,8 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         }
         else
         {
-            upns::upnsSharedPointer<upns::AbstractEntitydata> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
-            upns::upnsSharedPointer<upns::AbstractEntitydata> aedTarget = env->getCheckout()->getEntitydataForReadWrite(target);
+            std::shared_ptr<upns::AbstractEntitydata> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
+            std::shared_ptr<upns::AbstractEntitydata> aedTarget = env->getCheckout()->getEntitydataForReadWrite(target);
             upns::upnsIStream *is = aedSource->startReadBytes();
             upns::upnsOStream *os = aedTarget->startWriteBytes();
 
@@ -62,7 +63,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     }
     else
     {
-        upns::upnsSharedPointer< upns::Tree > srcTree( env->getCheckout()->getTree(source) );
+        std::shared_ptr< upns::Tree > srcTree( env->getCheckout()->getTree(source) );
         if(srcTree)
         {
             s = env->getCheckout()->storeTree(target, srcTree);

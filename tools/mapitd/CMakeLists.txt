@@ -25,7 +25,7 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} networking_node upns_mapmanager standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} networking_node upns_core standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES})
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
@@ -56,4 +56,4 @@ execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin/upns_tools)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)

@@ -2,7 +2,7 @@
 #define __MESSAGESTEST_H
 
 #include <QTest>
-#include "libs/upns_interface/services.pb.h"
+#include <upns/services.pb.h>
 
 class TestMessages : public QObject
 {

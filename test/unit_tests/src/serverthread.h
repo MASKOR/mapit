@@ -3,8 +3,8 @@
 #include <QThread>
 #include <QMutex>
 #include <QMutexLocker>
-#include "upns_typedefs.h"
-#include <repositoryserver.h>
+#include <upns/typedefs.h>
+#include <upns/repositoryserver.h>
 
 // Client Calls send() followed by stopServer().
 // The server waits MAX_NETWORK_LATENCY ms and tries to hanlde the last message in that time
@@ -13,11 +13,11 @@
 class ServerThread : public QThread
 {
     Q_OBJECT
-    upns::upnsSharedPointer<upns::RepositoryServer> m_srv;
+    std::shared_ptr<upns::RepositoryServer> m_srv;
     bool m_isStopped;
     QMutex m_mutex;
 public:
-    ServerThread(upns::upnsSharedPointer<upns::RepositoryServer> server):m_srv(server), m_isStopped(false) {}
+    ServerThread(std::shared_ptr<upns::RepositoryServer> server):m_srv(server), m_isStopped(false) {}
 
     void run() Q_DECL_OVERRIDE
     {

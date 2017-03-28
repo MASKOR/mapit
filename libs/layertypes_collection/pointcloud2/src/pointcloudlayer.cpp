@@ -1,4 +1,4 @@
-#include "pointcloudlayer.h"
+#include "upns/layertypes/pointcloudlayer.h"
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -11,7 +11,7 @@ const char *PointcloudEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-PointcloudEntitydata::PointcloudEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+PointcloudEntitydata::PointcloudEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_pointcloud( NULL )
 {
@@ -41,7 +41,7 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
     {
         m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
         ReadWriteHandle handle;
-        upnsString filename = m_streamProvider->startReadFile(handle);
+        std::string filename = m_streamProvider->startReadFile(handle);
         {
             pcl::PCDReader reader;
             reader.read(filename, *m_pointcloud);
@@ -58,7 +58,7 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 {
     int result = -1;
     ReadWriteHandle handle;
-    upnsString filename = m_streamProvider->startWriteFile(handle);
+    std::string filename = m_streamProvider->startWriteFile(handle);
     {
         m_pointcloud = data;
         pcl::PCDWriter writer;
@@ -137,16 +137,16 @@ size_t PointcloudEntitydata::size() const
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
-//upnsSharedPointer<AbstractEntitydata> createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
-//void* createEntitydata(upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+//std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+//void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 void deleteEntitydata(AbstractEntitydata *ld)
 {
     PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(upnsSharedPointer<AbstractEntitydata> *out, upnsSharedPointer<AbstractEntitydataStreamProvider> streamProvider)
+void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    //return upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = upnsSharedPointer<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
+    //return std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
+    *out = std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
 }
 

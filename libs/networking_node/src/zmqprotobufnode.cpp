@@ -1,5 +1,5 @@
 #include "zmqprotobufnode.h"
-#include "transport.pb.h"
+#include <upns/transport.pb.h>
 #include <algorithm>
 
 void my_free(void *data, void *hint)

@@ -1,15 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/main.qml</file>
-        <file>qml/loadMapname.js</file>
         <file>qml/components/qmldir</file>
-        <file>qml/components/Globals.qml</file>
-        <file>qml/components/MapChooser.qml</file>
         <file>qml/operators/ButtonDefaultOperation.qml</file>
         <file>qml/operators/ButtonLoadPointcloud.qml</file>
         <file>qml/operators/ButtonVoxelGridFilter.qml</file>
-        <file>qml/components/MapsListView.qml</file>
-        <file>qml/components/MapLayerView.qml</file>
-        <file>qml/components/LayerChooser.qml</file>
     </qresource>
 </RCC>
