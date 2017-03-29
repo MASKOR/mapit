@@ -1,0 +1,15 @@
+Guide Documentation uses jekyll, minima theme and gulp.
+
+* jekyll: used to build static site in _site folder
+* gulp: sync browser and live preview changes.
+
+installation:
+
+install ruby
+
+* gem install bundle
+* bundle / bundle install / bundle update
+* npm install
+
+* gulp -> start webserver + synced browser
+* jekyll build -> deploy to _site

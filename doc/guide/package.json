@@ -1,0 +1,17 @@
+{
+  "name": "mapit-doc",
+  "version": "1.0.0",
+  "description": "Documentation of Mapit/Upns",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dbulla",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.18.8",
+    "gulp": "^3.9.1",
+    "gulp-shell": "^0.6.3",
+    "lodash": "^4.17.4"
+  }
+}
