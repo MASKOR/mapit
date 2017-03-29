@@ -5,11 +5,13 @@ Guide Documentation uses jekyll, minima theme and gulp.
 
 installation:
 
-install ruby
+install ruby-dev npm
 
-* gem install bundle
-* bundle / bundle install / bundle update
+* sudo gem install bundle
+* cd guide/
+* bundle
 * npm install
 
 * gulp -> start webserver + synced browser
 * jekyll build -> deploy to _site
+* jekyll serve --watch -> deploy to _site and start webserver
