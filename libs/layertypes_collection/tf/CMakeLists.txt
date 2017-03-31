@@ -9,7 +9,7 @@ if(WITH_LOG4CPLUS)
   include_directories(${PROJECT_SOURCE_DIR}/../../../externals/log4cplus/include/)
 endif(WITH_LOG4CPLUS)
 if(WIN32)
-include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
+  include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
 
 include(FindLog4cplus)

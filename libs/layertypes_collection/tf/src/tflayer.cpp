@@ -8,30 +8,39 @@ public:
 };
 
 
-void readTfFromStream(upnsIStream &in, TfMat &tfout )
+void readTfFromStream(upnsIStream &in, tf::Transform &tfout )
 {
-    mapit::msgs::Transform tf;
-    if(!tf.ParseFromIstream(&in))
-    {
-        log_warn("Could not read tranform from stream. Proceeding with identity");
-        //assert(false);
-        tfout = TfMat::Identity();
-    }
-    else
-    {
-        tfout.matrix() << tf.m00(), tf.m10(), tf.m20(), tf.m30(),
-                          tf.m01(), tf.m11(), tf.m21(), tf.m31(),
-                          tf.m02(), tf.m12(), tf.m22(), tf.m32(),
-                          tf.m03(), tf.m13(), tf.m23(), tf.m33();
-    }
+  mapit::msgs::Transform tf;
+  if(!stream_tf.ParseFromIstream(&in)) {
+    log_error("Could not read tranform from stream. Proceeding with identity");
+    // TODO: throw exeption
+  } else {
+    tfout.translation.x() = stream_tf.translation().x();
+    tfout.translation.y() = stream_tf.translation().y();
+    tfout.translation.z() = stream_tf.translation().z();
+
+    tfout.rotation.w() = stream_tf.rotation().w();
+    tfout.rotation.x() = stream_tf.rotation().x();
+    tfout.rotation.y() = stream_tf.rotation().y();
+    tfout.rotation.z() = stream_tf.rotation().z();
+
+    tfout.child_frame_id = stream_tf.child_frame_id();
+  }
 }
-void writeTfToStream(upnsOStream &out, TfMat &data )
+void writeTfToStream(upnsOStream &out, tf::Transform &data )
 {
     mapit::msgs::Transform tf;
-    tf.set_m00( data(0, 0) ); tf.set_m10( data(1, 0) ); tf.set_m20( data(2, 0) ); tf.set_m30( data(3, 0) );
-    tf.set_m01( data(0, 1) ); tf.set_m11( data(1, 1) ); tf.set_m21( data(2, 1) ); tf.set_m31( data(3, 1) );
-    tf.set_m02( data(0, 2) ); tf.set_m12( data(1, 2) ); tf.set_m22( data(2, 2) ); tf.set_m32( data(3, 2) );
-    tf.set_m03( data(0, 3) ); tf.set_m13( data(1, 3) ); tf.set_m23( data(2, 3) ); tf.set_m33( data(3, 3) );
+    tf.mutable_translation()->set_x( data.translation.x() );
+    tf.mutable_translation()->set_y( data.translation.y() );
+    tf.mutable_translation()->set_z( data.translation.z() );
+
+    tf.mutable_rotation()->set_w( data.rotation.w() );
+    tf.mutable_rotation()->set_x( data.rotation.x() );
+    tf.mutable_rotation()->set_y( data.rotation.y() );
+    tf.mutable_rotation()->set_z( data.rotation.z() );
+
+    tf.set_child_frame_id( data.child_frame_id );
+
     tf.SerializePartialToOstream(&out);
 }
 
@@ -42,7 +51,7 @@ const char *TfEntitydata::TYPENAME()
 
 TfEntitydata::TfEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
-     m_tf( NULL )
+     m_transform( NULL )
 {
 }
 
@@ -61,100 +70,99 @@ bool TfEntitydata::canSaveRegions() const
     return false;
 }
 
-TfMatPtr TfEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                                upnsReal x2, upnsReal y2, upnsReal z2,
-                                                bool clipMode,
-                                                int lod)
+tf::TransformPtr TfEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
+                                       upnsReal x2, upnsReal y2, upnsReal z2,
+                                       bool clipMode,
+                                       int lod)
 {
-    if(m_tf == NULL)
+  if(m_transform == NULL) {
+    m_transform = tf::TransformPtr( new tf::Transform );
+    upnsIStream *in = m_streamProvider->startRead();
     {
-        m_tf = TfMatPtr(new TfMat);
-        upnsIStream *in = m_streamProvider->startRead();
-        {
-            readTfFromStream( *in, *m_tf );
-        }
-        m_streamProvider->endRead(in);
+      readTfFromStream( *in, *m_transform );
     }
-    return m_tf;
+    m_streamProvider->endRead(in);
+  }
+  return m_transform;
 }
 
 int TfEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                 upnsReal x2, upnsReal y2, upnsReal z2,
-                                 TfMatPtr &data,
-                                 int lod)
+                          upnsReal x2, upnsReal y2, upnsReal z2,
+                          tf::TransformPtr &data,
+                          int lod)
 {
-    upnsOStream *out = m_streamProvider->startWrite();
-    {
-        writeTfToStream( *out, *data );
-    }
-    m_streamProvider->endWrite(out);
+  upnsOStream *out = m_streamProvider->startWrite();
+  {
+    writeTfToStream( *out, *data );
+  }
+  m_streamProvider->endWrite(out);
 	return 0; //TODO: MSVC: What to return here?
 }
 
-TfMatPtr TfEntitydata::getData(int lod)
+tf::TransformPtr TfEntitydata::getData(int lod)
 {
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                   false, lod);
+  return getData(-std::numeric_limits<upnsReal>::infinity(),
+                 -std::numeric_limits<upnsReal>::infinity(),
+                 -std::numeric_limits<upnsReal>::infinity(),
+                  std::numeric_limits<upnsReal>::infinity(),
+                  std::numeric_limits<upnsReal>::infinity(),
+                  std::numeric_limits<upnsReal>::infinity(),
+                 false, lod);
 }
 
-int TfEntitydata::setData(TfMatPtr &data, int lod)
+int TfEntitydata::setData(tf::TransformPtr &data, int lod)
 {
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                   data, lod);
+  return setData(-std::numeric_limits<upnsReal>::infinity(),
+                 -std::numeric_limits<upnsReal>::infinity(),
+                 -std::numeric_limits<upnsReal>::infinity(),
+                  std::numeric_limits<upnsReal>::infinity(),
+                  std::numeric_limits<upnsReal>::infinity(),
+                  std::numeric_limits<upnsReal>::infinity(),
+                 data, lod);
 }
 
 void TfEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                     upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+                              upnsReal &x1, upnsReal &y1, upnsReal &z1,
+                              upnsReal &x2, upnsReal &y2, upnsReal &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+  x1 = -std::numeric_limits<upnsReal>::infinity();
+  y1 = -std::numeric_limits<upnsReal>::infinity();
+  z1 = -std::numeric_limits<upnsReal>::infinity();
+  x2 = +std::numeric_limits<upnsReal>::infinity();
+  y2 = +std::numeric_limits<upnsReal>::infinity();
+  z2 = +std::numeric_limits<upnsReal>::infinity();
 }
 
 int TfEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                              upnsReal &x2, upnsReal &y2, upnsReal &z2)
+                                       upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-    //TODO
-    return 0;
+  //TODO
+  return 0;
 }
 
 upnsIStream *TfEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 {
-    return m_streamProvider->startRead(start, len);
+  return m_streamProvider->startRead(start, len);
 }
 
 void TfEntitydata::endRead(upnsIStream *&strm)
 {
-    m_streamProvider->endRead(strm);
+  m_streamProvider->endRead(strm);
 }
 
 upnsOStream *TfEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
 {
-    return m_streamProvider->startWrite(start, len);
+  return m_streamProvider->startWrite(start, len);
 }
 
 void TfEntitydata::endWrite(upnsOStream *&strm)
 {
-    m_streamProvider->endWrite(strm);
+  m_streamProvider->endWrite(strm);
 }
 
 size_t TfEntitydata::size() const
 {
-    return m_streamProvider->getStreamSize();
+  return m_streamProvider->getStreamSize();
 }
 
 // Win32 does not like anything but void pointers handled between libraries
