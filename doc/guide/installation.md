@@ -19,13 +19,17 @@ First, build the docker container, by invoking the following command **in the di
 
 This will take a few minutes depending on internet connection, as it will download an operating system to execute mapit in.
 
-You may have to start dockerd with admin-privileges before!
+You may have to start
+```bash
+dockerd
+```
+with admin-privileges before!
 
-Using
+All docker images can be listed using
 
     docker image ls
 
-all docker images can be listed. At this time there should be at least one image named *fhac/mapit* (in version 0.1).
+At this time there should be at least one image named *fhac/mapit* (in version 0.1).
 
 Commands can be executed using
 
