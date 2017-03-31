@@ -93,3 +93,9 @@ mapit execute_operator <checkout> load_pointcloud '{"filename":"<filename>", "ta
 ```
 
 ### Create an remote accesible Repository
+
+```bash
+mapitd [--repository-directory| --url] [--compute-local] <port>
+```
+
+```Mapitd``` is implemented as a tool that works on a given repository and makes it available over network.

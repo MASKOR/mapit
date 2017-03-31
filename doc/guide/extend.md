@@ -26,9 +26,9 @@ At the end of you code, use this macro to make the library usable for mapit_core
 ```cpp
 UPNS_MODULE(<OPERATOR_NAME>, "description of your operator",
                              "author",
-                            <OPERATOR_VERSION>,
-                            "reserved",
-                            &<name_of_entry_function>)
+                             <OPERATOR_VERSION>,
+                             "reserved",
+                             &<name_of_entry_function>)
 ```
 
 The parameter of the function is upns::OperationEnvironment, which exposes all data you need.
@@ -235,13 +235,15 @@ For writing tools use the **Repository** and **Checkout** class. Moreover GUIs c
 
 There are fast C++ implementations for Qml Components to display an Checkout. Moreover there is a Qt3D GeometryRenderer to visualize common layertypes (like pointclouds).
 
-There is a binding for **Repository** and **Checkout** to easyly access and manipulate both. They have no visual representation but can be used to show a list of checkouts or in combination with **RootTreeModel** to create a tree view for a checkout,
 
-(TODO: At the moment this is needed:
-  ```qml
+To import the C++ classes and use them with the namespace ```Mapit``` the following line is needed.
+
+```qml
 import fhac.upns 1.0 as Mapit
 ```
-)
+
+
+There is a binding for **Repository** and **Checkout** to easyly access and manipulate both. They have no visual representation but can be used to show a list of checkouts or in combination with **RootTreeModel** to create a tree view for a checkout,
 
 ```qml
 Mapit.Repository {
@@ -250,9 +252,9 @@ Mapit.Repository {
 }
 
 Mapit.Checkout {
-    id: checkout
-    repository: globalRepository
-    name: "testcheckout"
+  id: checkout
+  repository: globalRepository
+  name: "testcheckout"
 }
 ```
 
@@ -269,17 +271,17 @@ This can be used to create a TreeView
 
 ```qml
 TreeView {
-    id: treeViewCheckout
-    model: rootTreeModel
-    TableViewColumn {
-        role: "displayRole"
-        title: "Name"
-    }
-    TableViewColumn {
-        id: pathColumn
-        role: "path"
-        title: "Path"
-    }
+  id: treeViewCheckout
+  model: rootTreeModel
+  TableViewColumn {
+    role: "displayRole"
+    title: "Name"
+  }
+  TableViewColumn {
+    id: pathColumn
+    role: "path"
+    title: "Path"
+  }
 }
 ```
 
