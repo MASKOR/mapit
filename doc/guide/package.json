@@ -12,6 +12,7 @@
     "browser-sync": "^2.18.8",
     "gulp": "^3.9.1",
     "gulp-shell": "^0.6.3",
+    "highlight.js": "^9.10.0",
     "lodash": "^4.17.4"
   }
 }

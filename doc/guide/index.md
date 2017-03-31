@@ -5,8 +5,7 @@
 layout: home
 theme: minima
 ---
-
-# UPNS-Software (mapit)
+# Mapit
 
 ## Overview
 
@@ -27,17 +26,21 @@ Mapit is meant to be used with huge files while still maintaining the history of
 
 **Distributed access and computation**
 
+![workflow](assets/repositories.svg "Workflow" )
+
 Data managed with mapit can be distributed across multiple *repositories*. When executing algorithms on data, the download/upload of huge amounts of data can be overcome and calculation can be done in-place. At the same time there is no need to repeatedly store all data in every repository.
 
-![workflow](assets/repositories.svg "Workflow" )
 
 **Mapit tracks Metadata**
 
+<img src="assets/workflow.svg" width="60%" style="float: right">
+[//]: # (![workflow](assets/workflow.svg "Workflow" ) )
+
 Sensordata is not (always) copied and stored in history once the data is changed. By keeping a description of the executed algorithms (Metadata) it ensures that snapshots from the past can be recovered at any time. This comes with the downside, that data must never be changed by the user directly. Thus, data is not visible as editable files in the filesystem. Data can be changed by existing or self implemented operators in the system.
 
-![workflow](assets/workflow.svg "Workflow" )
 
 Every executed operation is described by one chunk of metadata. A group of operations, executed in sequence is called a *workflow*. With mapit its possible to group several operations together into one workflow which then can be easly applied onto new sensoric data. (This is not yet supported/implemented).
+
 
 **Extensible in multiple ways**
 
