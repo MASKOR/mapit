@@ -345,7 +345,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     }
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     OperationDescription desc;
-    desc.set_operatorname("StoreEntity");
+    desc.mutable_operator_()->set_operatorname("StoreEntity");
     desc.set_params("{source:\"network\"}");
 
     upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
@@ -458,7 +458,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
         return;
     }
     OperationDescription desc;
-    desc.set_operatorname("StoreTree");
+    desc.mutable_operator_()->set_operatorname("StoreTree");
     desc.set_params("{source:\"network\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
         upns::CheckoutRaw* coraw = env->getCheckout();

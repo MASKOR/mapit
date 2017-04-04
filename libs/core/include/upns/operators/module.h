@@ -49,7 +49,25 @@ struct ModuleInfo
     const int           moduleVersion;  //< version
     const int           apiVersion;     //< mapmanager api version
     const char*         layerType;      //< LayerType enum
-    OperateFunc         operate;
+    const OperateFunc   operate;
+    ModuleInfo(const ModuleInfo &o)
+        : compiler(o.compiler)
+        , compilerConfig(o.compilerConfig)
+        , date(o.date)
+        , time(o.time)
+        , moduleName(o.moduleName)
+        , description(o.description)
+        , author(o.author)
+        , moduleVersion(o.moduleVersion)
+        , apiVersion(o.apiVersion)
+        , layerType(o.layerType)
+        , operate(o.operate)
+    {}
+
+private:
+    // Prevent manual deletion of returned pointer
+    ~ModuleInfo() {}
+    friend MODULE_EXPORT ModuleInfo* getModuleInfo();
 };
 }
 
@@ -64,6 +82,9 @@ static const char* g_compilerconfig = "TODO";
 #elif _MSC_VER
 static const char* g_compilerconfig = "TODO";
 #endif
+
+typedef ModuleInfo* (*GetModuleInfo)();
+
 #define UPNS_MODULE(moduleName, description, author, moduleVersion, layerType, operateFunc) \
   extern "C" { \
       MODULE_EXPORT ModuleInfo* getModuleInfo() \

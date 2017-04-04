@@ -52,7 +52,7 @@ void TestRepository::testCreateCheckout()
     std::shared_ptr<Checkout> co(repo->createCheckout("master", "testcheckout_created_new"));
     QVERIFY(co != nullptr);
     OperationDescription operationCreateTree;
-    operationCreateTree.set_operatorname("load_pointcloud");
+    operationCreateTree.mutable_operator_()->set_operatorname("load_pointcloud");
     QJsonObject params;
     params["filename"] = filename_.c_str();
     QString entityPath(checkoutPath_.c_str());
@@ -90,7 +90,7 @@ void TestRepository::testGetCheckout()
     QVERIFY(co != nullptr);
 
     OperationDescription operation;
-    operation.set_operatorname("load_pointcloud");
+    operation.mutable_operator_()->set_operatorname("load_pointcloud");
     QJsonObject params;
     params["filename"] = filename_.c_str();
     params["target"] = checkoutPath_.c_str();
@@ -165,7 +165,7 @@ void TestRepository::testVoxelgridfilter()
     std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
     OperationDescription operation;
-    operation.set_operatorname("voxelgridfilter");
+    operation.mutable_operator_()->set_operatorname("voxelgridfilter");
     QJsonObject params;
     params["leafsize"] = 0.01;
     params["target"] = checkoutPath_.c_str();

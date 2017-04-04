@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     }
 
     OperationDescription desc;
-    desc.set_operatorname(vars["operator"].as<std::string>());
+    desc.mutable_operator_()->set_operatorname(vars["operator"].as<std::string>());
     desc.set_params(vars["parameters"].as<std::string>());
     log_info("Executing: " + vars["operator"].as<std::string>() + ", with params: " + vars["parameters"].as<std::string>());
     upns::OperationResult res = co->doOperation(desc);

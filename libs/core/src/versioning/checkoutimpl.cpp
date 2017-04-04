@@ -11,6 +11,7 @@
 #include "operationenvironmentimpl.h"
 #include <upns/serialization/entitydatalibrarymanager.h>
 #include <upns/depthfirstsearch.h>
+#include <upns/serialization/operatorlibrarymanager.h>
 
 namespace upns
 {
@@ -149,69 +150,28 @@ std::shared_ptr<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 {
     //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
-    OperationEnvironmentImpl env(desc);
-    env.setCheckout( this );
-#ifndef NDEBUG
-    std::string debug(DEBUG_POSTFIX);
-#else
-    std::string debug("");
-#endif
 
-#ifdef _WIN32
-    std::string prefix("");
-    std::string postfix(".dll");
-#else
-    std::string prefix("lib");
-    std::string postfix(".so");
-#endif
-    std::stringstream filenam;
-    filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
-    if(desc.operatorversion())
+    std::pair<HandleOpModule, ModuleInfo*> modInfo = OperatorLibraryManager::loadOperatorModule(desc.operator_());
+    if(!modInfo.first)
     {
-        filenam << "." << desc.operatorversion();
+        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
     }
-    std::stringstream fixpathfilenam;
-    fixpathfilenam << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << filenam.str();
-    std::string filenamestr = fixpathfilenam.str();
-    log_info("loading operator module \"" + filenamestr + "\"");
-#ifdef _WIN32
-    HMODULE handle = LoadLibrary(fixpathfilenam.str().c_str());
-#else
-    void* handle = dlopen(fixpathfilenam.str().c_str(), RTLD_NOW);
-#endif
-    if (!handle) {
-        std::stringstream systempathfilenam;
-        systempathfilenam << filenam.str();
-        filenamestr = systempathfilenam.str();
-        log_info("loading operator module \"" + filenamestr + "\"");
-    #ifdef _WIN32
-        handle = LoadLibrary(filenamestr.c_str());
-    #else
-        handle = dlopen(filenamestr.c_str(), RTLD_NOW);
-    #endif
-        if (!handle) {
-        #ifdef _WIN32
-        #else
-            std::cerr << "Cannot open library: " << dlerror() << '\n';
-        #endif
-            return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
-        }
-    }
-#ifdef _WIN32
-    //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");
-    GetModuleInfo getModInfo = (GetModuleInfo)GetProcAddress(handle,"getModuleInfo");
-#else
-    GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
-#endif
-    ModuleInfo* info = getModInfo();
-    StatusCode result = info->operate( &env );
-    if(!upnsIsOk(result))
+    OperationResult result = OperatorLibraryManager::doOperation(modInfo.second, desc, this);
+    if(!upnsIsOk(result.first))
     {
         std::stringstream strm;
-        strm << "operator '" << desc.operatorname() << "' reported an error. (code:" << result << ")";
+        strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result.first << ")";
         log_error(strm.str());
     }
-    return OperationResult(result, env.outputDescription());
+    StatusCode status = OperatorLibraryManager::closeOperatorModule(modInfo.first);
+    if(!upnsIsOk(status))
+    {
+        std::stringstream strm;
+        strm << "operator '" << desc.operator_().operatorname() << "' could not be unloaded. (code:" << status << ")";
+        log_error(strm.str());
+    }
+    //Note: returnvalue is always from doOperation, if execution came thus far.
+    return result;
 }
 
 OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate)
@@ -306,7 +266,8 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const ObjectReference &ref)
     {
         return m_serializer->getTreeTransient(ref.path());
     }
-    assert(false);
+    return std::shared_ptr<Tree>(nullptr);
+    //assert(false);
 }
 
 std::shared_ptr<Entity> CheckoutImpl::getEntity(const ObjectReference &ref)

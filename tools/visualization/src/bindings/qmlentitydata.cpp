@@ -16,7 +16,7 @@ QmlEntitydata::QmlEntitydata(std::shared_ptr<upns::AbstractEntitydata> &entityda
 {
     if(m_checkout)
     {
-        connect(m_checkout, &QmlCheckout::intenalCheckoutChanged, this, &QmlEntitydata::setCheckout);
+        connect(m_checkout, &QmlCheckout::internalCheckoutChanged, this, &QmlEntitydata::setCheckout);
     }
 }
 
@@ -37,12 +37,12 @@ void QmlEntitydata::setCheckout(QmlCheckout *checkout)
     {
         if(m_checkout)
         {
-            disconnect(m_checkout, &QmlCheckout::intenalCheckoutChanged, this, &QmlEntitydata::setCheckout);
+            disconnect(m_checkout, &QmlCheckout::internalCheckoutChanged, this, &QmlEntitydata::setCheckout);
         }
         m_checkout = checkout;
         if(m_checkout)
         {
-            connect(m_checkout, &QmlCheckout::intenalCheckoutChanged, this, &QmlEntitydata::setCheckout);
+            connect(m_checkout, &QmlCheckout::internalCheckoutChanged, this, &QmlEntitydata::setCheckout);
         }
         Q_EMIT checkoutChanged(checkout);
         changed = true;

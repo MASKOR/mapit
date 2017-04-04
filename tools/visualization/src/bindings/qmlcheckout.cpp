@@ -26,7 +26,7 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     QJsonDocument doc(desc);
     QString strJson(doc.toJson(QJsonDocument::Compact));
     mapit::msgs::OperationDescription descript;
-    descript.set_operatorname(operatorname.toStdString());
+    descript.mutable_operator_()->set_operatorname(operatorname.toStdString());
     descript.set_params(strJson.toStdString());
     upns::OperationResult res = m_checkout->doOperation(descript);
     if(upnsIsOk(res.first)) return "error";
@@ -152,7 +152,7 @@ void QmlCheckout::setRepository(QmlRepository *repository)
     if(!m_name.isEmpty())
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
-        Q_EMIT intenalCheckoutChanged( this );
+        Q_EMIT internalCheckoutChanged( this );
     }
     //TODO: there might be some rare cases, where this is set intentionally to "".
     //Important: on merge it is "" and should not be overwritten.
@@ -171,7 +171,7 @@ void QmlCheckout::setName(QString name)
     if(m_repository)
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
-        Q_EMIT intenalCheckoutChanged( this );
+        Q_EMIT internalCheckoutChanged( this );
     }
 
     Q_EMIT nameChanged(name);

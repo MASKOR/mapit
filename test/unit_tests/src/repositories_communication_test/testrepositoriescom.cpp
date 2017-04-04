@@ -224,7 +224,7 @@ std::shared_ptr<upns::Repository> TestRepositoriesCommunication::initNetwork(/*s
 void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 {
     OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
+    desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params(std::string("{\"filename\":\"") + FILENAME + "\", \"target\":\"themap/thelayer/bunny\"}");
     upns::OperationResult ret = checkout->doOperation( desc );
     //QVERIFY( upnsIsOk(ret.first) );
@@ -233,7 +233,7 @@ void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 void TestRepositoriesCommunication::voxelgrid(upns::Checkout *checkout)
 {
     OperationDescription operation;
-    operation.set_operatorname("voxelgridfilter");
+    operation.mutable_operator_()->set_operatorname("voxelgridfilter");
     QJsonObject params;
     params["leafsize"] = LEAF_SIZE;
     params["target"] = "themap/thelayer/bunny";
@@ -247,7 +247,7 @@ void TestRepositoriesCommunication::voxelgrid(upns::Checkout *checkout)
 void TestRepositoriesCommunication::writePcdLocalOnly(upns::Checkout *checkout, std::string filename)
 {
     OperationDescription desc;
-    desc.set_operatorname("myUntraceable");
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
     desc.set_params("{\"source:\":\"testInlineOperator\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&filename](upns::OperationEnvironment* env)
     {

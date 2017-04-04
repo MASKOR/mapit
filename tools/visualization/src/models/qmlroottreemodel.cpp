@@ -21,12 +21,12 @@ void QmlRootTreeModel::setRoot(QmlCheckout *root)
     {
         if(m_root)
         {
-            disconnect(m_root, &QmlCheckout::intenalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+            disconnect(m_root, &QmlCheckout::internalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
         }
         m_root = root;
         if(m_root)
         {
-            connect(m_root, &QmlCheckout::intenalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+            connect(m_root, &QmlCheckout::internalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
         }
         Q_EMIT rootChanged(root);
     }

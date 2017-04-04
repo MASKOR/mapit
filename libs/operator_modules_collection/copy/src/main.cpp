@@ -83,7 +83,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         log_info("copied \"" + source + "\" to \"" + target + "\"");
     }
 
-    mapit::msgs::OperationDescription out;
+//    mapit::msgs::OperationDescription out;
 //    out.set_operatorname(OPERATOR_NAME);
 //    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();

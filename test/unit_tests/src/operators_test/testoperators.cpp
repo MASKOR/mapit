@@ -50,7 +50,7 @@ void TestOperators::testOperatorLoadPointcloud()
 {
     QFETCH(std::shared_ptr<upns::Checkout>, checkout);
     OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
+    desc.mutable_operator_()->set_operatorname("load_pointcloud");
     //desc.set_params("{\"filename\":\"data/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"corridor/laser/eins\"}");
     OperationResult ret = checkout->doOperation( desc );
@@ -104,7 +104,7 @@ void TestOperators::testInlineOperator()
 
     QFETCH(std::shared_ptr<upns::Checkout>, checkout);
     OperationDescription desc;
-    desc.set_operatorname("myUntraceable");
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
     desc.set_params("{\"source:\":\"testInlineOperator\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&cloud, &epath](upns::OperationEnvironment* env)
     {
@@ -144,17 +144,17 @@ void TestOperators::testPointcloudToMesh()
 {
     QFETCH(std::shared_ptr<upns::Checkout>, checkout);
     OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
+    desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
     OperationResult ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
 
-    desc.set_operatorname("surfrecon_openvdb");
+    desc.mutable_operator_()->set_operatorname("surfrecon_openvdb");
     desc.set_params("{\"voxelsize\":0.1, \"radius\":1, \"input\":\"bunny/laser/eins\", \"output\":\"bunny/laser/levelset\"}");
     ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
 #ifdef WITH_OPENVDB
-    desc.set_operatorname("levelset_to_mesh");
+    desc.mutable_operator_()->set_operatorname("levelset_to_mesh");
     desc.set_params("{\"input\":\"bunny/laser/levelset\", \"output\":\"bunny/laser/asset\"}");
     ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );

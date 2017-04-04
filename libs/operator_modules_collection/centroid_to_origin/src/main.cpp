@@ -39,7 +39,7 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
 
     entityData->setData(pc2Out);
 //    OperationDescription out;
-//    out.set_operatorname(OPERATOR_NAME);
+//    out.mutable_operator_()->set_operatorname(OPERATOR_NAME);
 //    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");

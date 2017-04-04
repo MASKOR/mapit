@@ -69,7 +69,7 @@ Q_SIGNALS:
 
     void nameChanged(QString name);
 
-    void intenalCheckoutChanged(QmlCheckout *co);
+    void internalCheckoutChanged(QmlCheckout *co);
 
 protected:
     std::shared_ptr<upns::Checkout> m_checkout;
