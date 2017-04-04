@@ -7,6 +7,12 @@
 #include <iostream>
 #include <memory>
 
+namespace mapit {
+  namespace msgs {
+    class OperationDescription;
+  }
+}
+
 namespace upns
 {
 
@@ -40,8 +46,7 @@ typedef std::string Path;
 typedef std::pair<MapIdentifier, StatusCode> StatusPair;
 typedef std::vector<StatusPair> MapResultsVector;
 
-class OperationDescription;
-typedef std::pair<StatusCode, OperationDescription> OperationResult;
+typedef std::pair<StatusCode, mapit::msgs::OperationDescription> OperationResult;
 }
 
 #endif // __UPNS_TYPEDEFS_H

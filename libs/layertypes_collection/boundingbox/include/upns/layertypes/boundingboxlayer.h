@@ -3,7 +3,7 @@
 
 #include <upns/entitydata.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
-#include <upns/datastructs.pb.h>
+#include <mapit/msgs/datastructs.pb.h>
 
 using namespace upns;
 
@@ -13,16 +13,19 @@ using namespace upns;
 #else
 #define MODULE_EXPORT // empty
 #endif
-namespace upns
+namespace mapit
 {
-    typedef std::shared_ptr<upns::Boundingbox> BoundingboxPtr;
+  namespace msgs {
+    typedef std::shared_ptr<mapit::msgs::Boundingbox> BoundingboxPtr;
+  }
 }
+using namespace mapit::msgs;
 extern "C"
 {
 MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
-class BoundingboxEntitydata : public Entitydata<upns::Boundingbox>
+class BoundingboxEntitydata : public Entitydata<mapit::msgs::Boundingbox>
 {
 public:
     static const char* TYPENAME();

@@ -10,7 +10,7 @@ public:
 
 void readTfFromStream(upnsIStream &in, TfMat &tfout )
 {
-    upns::Transform tf;
+    mapit::msgs::Transform tf;
     if(!tf.ParseFromIstream(&in))
     {
         log_warn("Could not read tranform from stream. Proceeding with identity");
@@ -27,7 +27,7 @@ void readTfFromStream(upnsIStream &in, TfMat &tfout )
 }
 void writeTfToStream(upnsOStream &out, TfMat &data )
 {
-    upns::Transform tf;
+    mapit::msgs::Transform tf;
     tf.set_m00( data(0, 0) ); tf.set_m01( data(0, 1) ); tf.set_m02( data(0, 2) ); tf.set_m03( data(0, 3) );
     tf.set_m10( data(1, 0) ); tf.set_m11( data(1, 1) ); tf.set_m12( data(1, 2) ); tf.set_m13( data(1, 3) );
     tf.set_m20( data(2, 0) ); tf.set_m21( data(2, 1) ); tf.set_m22( data(2, 2) ); tf.set_m23( data(2, 3) );

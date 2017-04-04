@@ -29,14 +29,14 @@ bool BoundingboxEntitydata::canSaveRegions() const
     return false;
 }
 
-upns::BoundingboxPtr BoundingboxEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
+BoundingboxPtr BoundingboxEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                                 bool clipMode,
                                                 int lod)
 {
     if(m_aabb == NULL)
     {
-        m_aabb = upns::BoundingboxPtr(new upns::Boundingbox);
+        m_aabb = BoundingboxPtr(new Boundingbox);
         upnsIStream *in = m_streamProvider->startRead();
         {
             if(!m_aabb->ParseFromIstream(in))
@@ -66,7 +66,7 @@ int BoundingboxEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 	return 0; //TODO: MSVC: What to return here?
 }
 
-upns::BoundingboxPtr BoundingboxEntitydata::getData(int lod)
+BoundingboxPtr BoundingboxEntitydata::getData(int lod)
 {
     return getData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -77,7 +77,7 @@ upns::BoundingboxPtr BoundingboxEntitydata::getData(int lod)
                    false, lod);
 }
 
-int BoundingboxEntitydata::setData(upns::BoundingboxPtr &data, int lod)
+int BoundingboxEntitydata::setData(BoundingboxPtr &data, int lod)
 {
     return setData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),

@@ -31,8 +31,8 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const
         afterTree(obj, ref, path);
         return UPNS_STATUS_OK;
     }
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
     while(iter != refs.cend())
     {
         const ObjectReference &childref = iter->second;

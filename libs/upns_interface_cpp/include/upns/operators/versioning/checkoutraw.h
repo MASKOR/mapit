@@ -2,9 +2,11 @@
 #define CHECKOUTRAW_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/entitydata.h>
 #include <upns/versioning/checkoutcommon.h>
+
+using namespace mapit::msgs;
 
 namespace upns
 {

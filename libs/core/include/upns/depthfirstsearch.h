@@ -3,8 +3,10 @@
 
 #include <upns/typedefs.h>
 #include <upns/logging.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/checkout.h>
+
+using namespace mapit::msgs;
 
 namespace upns
 {

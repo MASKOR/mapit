@@ -2,7 +2,7 @@
 #define UPNS_HASH_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <google/protobuf/message.h>
 #include <string>
 #include <sstream>

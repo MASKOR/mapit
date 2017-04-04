@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/logging.h>
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::shared_ptr<upns::Tree> currentDirectory(co->getRoot());
+    std::shared_ptr<Tree> currentDirectory(co->getRoot());
     fs::path rootPath(vars["destination"].as<std::string>());
     if ( rootPath.leaf() != vars["checkout"].as<std::string>() ) {
         // otherwise, use subfolder with checkout name
@@ -62,15 +62,15 @@ int main(int argc, char *argv[])
     }
 
     upns::StatusCode s = co->depthFirstSearch([&](
-        std::shared_ptr<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](std::shared_ptr<upns::Commit> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
         {
             fs::path current( rootPath );
             fs::path path_new = rootPath / fs::path(path);
@@ -81,11 +81,11 @@ int main(int argc, char *argv[])
                 }
             }
             return true;
-        }, [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
         {
             return true;
         },
-        [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
         {
             fs::path current(rootPath / fs::path(path));
             if ( fs::exists( current ) ) {
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 
             return true;
         },
-        [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
         {
             return true;
         });

@@ -28,7 +28,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         log_error("could not copy, target is not set");
     }
 
-    std::shared_ptr< upns::Entity > srcEnt( env->getCheckout()->getEntity(source) );
+    std::shared_ptr< mapit::msgs::Entity > srcEnt( env->getCheckout()->getEntity(source) );
     upns::StatusCode s;
     if(srcEnt)
     {
@@ -63,7 +63,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     }
     else
     {
-        std::shared_ptr< upns::Tree > srcTree( env->getCheckout()->getTree(source) );
+        std::shared_ptr< mapit::msgs::Tree > srcTree( env->getCheckout()->getTree(source) );
         if(srcTree)
         {
             s = env->getCheckout()->storeTree(target, srcTree);
@@ -83,7 +83,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         log_info("copied \"" + source + "\" to \"" + target + "\"");
     }
 
-    upns::OperationDescription out;
+    mapit::msgs::OperationDescription out;
     out.set_operatorname(OPERATOR_NAME);
     out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();

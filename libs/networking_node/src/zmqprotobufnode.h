@@ -4,11 +4,13 @@
 #include <upns/typedefs.h>
 #include <upns/logging.h>
 #include <google/protobuf/message.h>
-#include <upns/transport.pb.h>
+#include <mapit/msgs/transport.pb.h>
 #include <zmq.hpp>
 #include <memory>
 #include <map>
 #include <functional>
+
+using namespace mapit::msgs;
 
 ///
 /// \brief The ZmqProtobufNode class is the low level interface to access network using zmq and req/rep.
@@ -190,7 +192,7 @@ MT* ZmqProtobufNode::receive()
     }
 
     // receive header
-    upns::Header h;
+    Header h;
     zmq::message_t msg_h;
     bool status = socket_->recv( &msg_h );
     if(!status) return nullptr;

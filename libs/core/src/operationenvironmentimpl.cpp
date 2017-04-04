@@ -5,7 +5,7 @@
 namespace upns
 {
 
-OperationEnvironmentImpl::OperationEnvironmentImpl(const OperationDescription &desc)
+OperationEnvironmentImpl::OperationEnvironmentImpl(const mapit::msgs::OperationDescription &desc)
     :m_operationDesc( desc )
 {
 }
@@ -20,7 +20,7 @@ CheckoutRaw *OperationEnvironmentImpl::getCheckout() const
     return m_checkout;
 }
 
-const OperationDescription *OperationEnvironmentImpl::getDescription() const
+const mapit::msgs::OperationDescription *OperationEnvironmentImpl::getDescription() const
 {
     return &m_operationDesc;
 }
@@ -35,7 +35,7 @@ void OperationEnvironmentImpl::setOutputDescription(const std::string& out)
     m_outDesc.set_params(out);
 }
 
-const OperationDescription OperationEnvironmentImpl::outputDescription() const
+const mapit::msgs::OperationDescription OperationEnvironmentImpl::outputDescription() const
 {
     return m_outDesc;
 }

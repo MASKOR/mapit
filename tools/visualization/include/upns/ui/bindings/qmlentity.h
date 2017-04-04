@@ -3,18 +3,18 @@
 
 #include <QtCore>
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 
 class QmlEntity : public QObject
 {
     Q_OBJECT
 public:
     QmlEntity(QObject *parent = nullptr);
-    QmlEntity(std::shared_ptr<upns::Entity> &obj);
+    QmlEntity(std::shared_ptr<mapit::msgs::Entity> &obj);
 
     Q_INVOKABLE bool isValid() const;
 protected:
-    std::shared_ptr<upns::Entity> m_entity;
+    std::shared_ptr<mapit::msgs::Entity> m_entity;
 };
 
 #endif

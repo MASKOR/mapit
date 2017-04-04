@@ -67,7 +67,7 @@ void QmlEntitydata::setPath(QString path)
     m_path = path;
     if( m_checkout && m_checkout->getCheckoutObj() && !m_path.isEmpty() )
     {
-        std::shared_ptr<upns::Entity> e = m_checkout->getCheckoutObj()->getEntity(m_path.toStdString());
+        std::shared_ptr<mapit::msgs::Entity> e = m_checkout->getCheckoutObj()->getEntity(m_path.toStdString());
         if(e)
         {
             m_entitydata = m_checkout->getCheckoutObj()->getEntitydataReadOnly(m_path.toStdString());

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/errorcodes.h>

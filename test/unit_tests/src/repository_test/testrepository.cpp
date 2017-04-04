@@ -1,6 +1,6 @@
 #include "testrepository.h"
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
@@ -20,6 +20,7 @@ Q_DECLARE_METATYPE(std::shared_ptr<upns::Repository>)
 Q_DECLARE_METATYPE(std::shared_ptr<upns::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
+using namespace mapit::msgs;
 using namespace upns;
 
 void TestRepository::init()
@@ -67,7 +68,7 @@ void TestRepository::testCreateCheckout()
     {
         std::string childName(entityPath.mid( entityPath.lastIndexOf('/')+1 ).toStdString());
         bool childFound = false;
-        for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator ch( tr->refs().cbegin() );
+        for(google::protobuf::Map< ::std::string, ::ObjectReference >::const_iterator ch( tr->refs().cbegin() );
             ch != tr->refs().cend();
             ++ch)
         {
@@ -112,11 +113,11 @@ void TestRepository::testReadCheckout()
     QVERIFY(co != nullptr);
 
     upns::Path path = checkoutPath_;
-    std::shared_ptr<upns::Entity> entity = co->getEntity(path);
+    std::shared_ptr<Entity> entity = co->getEntity(path);
 
     QVERIFY(entity != nullptr);
 
-    std::shared_ptr<upns::AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
+    std::shared_ptr<AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
     QVERIFY(strcmp(entityDataAbstract->type(), PointcloudEntitydata::TYPENAME()) == 0);
     std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>(entityDataAbstract);
 

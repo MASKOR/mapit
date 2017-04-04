@@ -16,7 +16,7 @@ static upns::AbstractSerializer *initializeSerializer(std::string directory)
 //        numElems = m_serializer->listCheckoutNames().size();
 //        if(numElems) return;
     log_warn("Selected empty repository, create master");
-    std::shared_ptr<upns::Branch> master(new upns::Branch());
+    std::shared_ptr<mapit::msgs::Branch> master(new mapit::msgs::Branch());
     master->set_commitid(""); //< InitialCommit
     mser->createBranch(master, "master");
     return mser;

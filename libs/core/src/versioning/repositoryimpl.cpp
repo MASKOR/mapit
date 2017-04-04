@@ -186,8 +186,8 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
         [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path)
         {
             assert(obj != NULL);
-            ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
-            ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
+            ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
+            ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
             while(iter != refs.end())
             {
                 Path childPath(path + "/" + iter->second.path());
@@ -242,7 +242,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
         log_error("error while commiting");
     }
     //TODO: What to do with old ids?
-    ::upns::Commit *ci = co->getCheckoutObj()->mutable_rollingcommit();
+    ::mapit::msgs::Commit *ci = co->getCheckoutObj()->mutable_rollingcommit();
     ci->clear_author();
     ci->clear_commitmessage();
     ci->clear_datetime();

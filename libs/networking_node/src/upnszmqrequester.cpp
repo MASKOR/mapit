@@ -17,9 +17,9 @@ upns::ZmqRequester::~ZmqRequester()
 
 std::vector<std::string> upns::ZmqRequester::listCheckoutNames()
 {
-    std::unique_ptr<upns::RequestListCheckouts> req(new upns::RequestListCheckouts);
+    std::unique_ptr<RequestListCheckouts> req(new RequestListCheckouts);
     m_d->send(std::move(req));
-    std::shared_ptr<upns::ReplyListCheckouts> rep(m_d->receive<upns::ReplyListCheckouts>());
+    std::shared_ptr<ReplyListCheckouts> rep(m_d->receive<ReplyListCheckouts>());
 
     std::vector<std::string> ret(rep->checkouts_size());
     for(int i=0 ; i<rep->checkouts_size() ; ++i)
@@ -29,42 +29,42 @@ std::vector<std::string> upns::ZmqRequester::listCheckoutNames()
     return ret;
 }
 
-std::shared_ptr<upns::Tree> upns::ZmqRequester::getTree(const upns::ObjectId &oid)
+std::shared_ptr<Tree> upns::ZmqRequester::getTree(const upns::ObjectId &oid)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<upns::Entity> upns::ZmqRequester::getEntity(const upns::ObjectId &oid)
+std::shared_ptr<Entity> upns::ZmqRequester::getEntity(const upns::ObjectId &oid)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<upns::Commit> upns::ZmqRequester::getCommit(const upns::ObjectId &oid)
+std::shared_ptr<Commit> upns::ZmqRequester::getCommit(const upns::ObjectId &oid)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<upns::CheckoutObj> upns::ZmqRequester::getCheckoutObj(const std::string &name)
+std::shared_ptr<CheckoutObj> upns::ZmqRequester::getCheckoutObj(const std::string &name)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<upns::Branch> upns::ZmqRequester::getBranch(const std::string &name)
+std::shared_ptr<Branch> upns::ZmqRequester::getBranch(const std::string &name)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-upns::MessageType upns::ZmqRequester::typeOfObject(const upns::ObjectId &oid)
+MessageType upns::ZmqRequester::typeOfObject(const upns::ObjectId &oid)
 {
     //TODO: Define network message or use RequestGenericEntry
     if(this->getTree(oid) != nullptr) return MessageTree;
@@ -86,14 +86,14 @@ std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequester::getEntitydataReadO
 
 std::shared_ptr<upns::Checkout> upns::ZmqRequester::createCheckout(const upns::CommitId &commitIdOrBranchname, const std::string &name)
 {
-    std::unique_ptr<upns::RequestCheckout> req(new upns::RequestCheckout);
+    std::unique_ptr<RequestCheckout> req(new RequestCheckout);
     req->set_checkout(name);
     req->add_commit(commitIdOrBranchname);
     req->set_createifnotexists(true);
     m_d->send(std::move(req));
-    std::shared_ptr<upns::ReplyCheckout> rep(m_d->receive<upns::ReplyCheckout>());
-    if(rep->status() == upns::ReplyCheckout::SUCCESS ||
-       rep->status() == upns::ReplyCheckout::EXISTED)
+    std::shared_ptr<ReplyCheckout> rep(m_d->receive<ReplyCheckout>());
+    if(rep->status() == ReplyCheckout::SUCCESS ||
+       rep->status() == ReplyCheckout::EXISTED)
     {
         return std::shared_ptr<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
     }
@@ -130,11 +130,11 @@ upns::CommitId upns::ZmqRequester::commit(const std::shared_ptr<upns::Checkout> 
     return "nyi";
 }
 
-std::vector<std::shared_ptr<upns::Branch> > upns::ZmqRequester::getBranches()
+std::vector<std::shared_ptr<Branch> > upns::ZmqRequester::getBranches()
 {
     //TODO: nyi
     assert(false);
-    return std::vector<std::shared_ptr<upns::Branch> >();
+    return std::vector<std::shared_ptr<Branch> >();
 }
 
 upns::StatusCode upns::ZmqRequester::push(upns::Repository &repo)

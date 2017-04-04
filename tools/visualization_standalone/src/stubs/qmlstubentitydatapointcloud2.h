@@ -3,7 +3,7 @@
 
 //#include <QtCore>
 //#include <QJsonObject>
-//#include <upns/services.pb.h>
+//#include <mapit/msgs/services.pb.h>
 //#include <upns/ui/bindings/qmlmapsrenderviewport.h"
 //#include "stubs/fileserializer.h"
 

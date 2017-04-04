@@ -2,10 +2,12 @@
 #define ABSTRACTSERIALIZER_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 #include <upns/entitydata.h>
 #include <upns/errorcodes.h>
+
+using namespace mapit::msgs;
 
 namespace upns
 {

@@ -11,7 +11,7 @@
 #include "qmlentitydata.h"
 #include "qmlrepository.h"
 #include <upns/versioning/checkout.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <QJsonObject>
 
 class QmlRepository;
