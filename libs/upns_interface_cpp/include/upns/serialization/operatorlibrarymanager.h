@@ -18,9 +18,9 @@ namespace upns {
 class OperatorLibraryManager
 {
 public:
-    static OperationResult doOperation(const OperationDescription &desc, CheckoutRaw *checkout);
+    static upns::OperationResult doOperation(const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout);
 
-    static std::vector<ModuleInfo*> listOperators();
+    static std::vector<ModuleInfo> listOperators();
 };
 
 }

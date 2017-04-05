@@ -150,28 +150,7 @@ std::shared_ptr<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 {
     //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
-
-    std::pair<HandleOpModule, ModuleInfo*> modInfo = OperatorLibraryManager::loadOperatorModule(desc.operator_());
-    if(!modInfo.first)
-    {
-        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
-    }
-    OperationResult result = OperatorLibraryManager::doOperation(modInfo.second, desc, this);
-    if(!upnsIsOk(result.first))
-    {
-        std::stringstream strm;
-        strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result.first << ")";
-        log_error(strm.str());
-    }
-    StatusCode status = OperatorLibraryManager::closeOperatorModule(modInfo.first);
-    if(!upnsIsOk(status))
-    {
-        std::stringstream strm;
-        strm << "operator '" << desc.operator_().operatorname() << "' could not be unloaded. (code:" << status << ")";
-        log_error(strm.str());
-    }
-    //Note: returnvalue is always from doOperation, if execution came thus far.
-    return result;
+    return OperatorLibraryManager::doOperation(desc, this);
 }
 
 OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate)

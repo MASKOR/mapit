@@ -63,11 +63,34 @@ struct ModuleInfo
         , layerType(o.layerType)
         , operate(o.operate)
     {}
+    ModuleInfo(  const char*       compiler
+               , const char*       compilerConfig
+               , const char*       date
+               , const char*       time
+               , const char*       moduleName
+               , const char*       description
+               , const char*       author
+               , const int         moduleVersion
+               , const int         apiVersion
+               , const char*       layerType
+               , const OperateFunc operate)
+    : compiler(compiler)
+    , compilerConfig(compilerConfig)
+    , date(date)
+    , time(time)
+    , moduleName(moduleName)
+    , description(description)
+    , author(author)
+    , moduleVersion(moduleVersion)
+    , apiVersion(apiVersion)
+    , layerType(layerType)
+    , operate(operate)
+{}
 
-private:
+//private:
     // Prevent manual deletion of returned pointer
-    ~ModuleInfo() {}
-    friend MODULE_EXPORT ModuleInfo* getModuleInfo();
+    //~ModuleInfo() {}
+    //friend MODULE_EXPORT ModuleInfo* getModuleInfo();
 };
 }
 
@@ -89,17 +112,17 @@ typedef ModuleInfo* (*GetModuleInfo)();
   extern "C" { \
       MODULE_EXPORT ModuleInfo* getModuleInfo() \
       { \
-          static ModuleInfo info = { g_compiler, \
-                                 g_compilerconfig, \
-                                 __DATE__, \
-                                 __TIME__, \
-                                 moduleName, \
-                                 description, \
-                                 author, \
-                                 moduleVersion, \
-                                 UPNS_MODULE_API_VERSION, \
-                                 layerType, \
-                                 operateFunc }; \
+          static ModuleInfo info = ModuleInfo( g_compiler \
+                                             , g_compilerconfig \
+                                             , __DATE__ \
+                                             , __TIME__ \
+                                             , moduleName \
+                                             , description \
+                                             , author \
+                                             , moduleVersion \
+                                             , UPNS_MODULE_API_VERSION \
+                                             , layerType \
+                                             , operateFunc ); \
           return &info; \
       } \
   }

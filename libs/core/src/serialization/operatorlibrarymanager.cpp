@@ -19,6 +19,8 @@
 #include <dlfcn.h>
 #endif
 
+#define MAPIT_LOCAL_OPERATOR_DIR "./libs/operator_modules_collection/"
+
 namespace upns
 {
 
@@ -28,74 +30,81 @@ typedef HMODULE HandleOpModule;
 typedef void* HandleOpModule;
 #endif
 
-std::string operatorLibraryName(const OperatorDescription &desc)
+std::string operatorLibraryName(const mapit::msgs::OperatorDescription &desc)
 {
+#ifndef NDEBUG
+    std::string debug = DEBUG_POSTFIX;
+#else
+    std::string debug = "";
+#endif
+
+#ifdef _WIN32
+    std::string prefix = "";
+    std::string postfix = ".dll";
+#else
+    std::string prefix = "lib";
+    std::string postfix = ".so";
+#endif
     std::stringstream filenam;
     filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
         filenam << "." << desc.operatorversion();
     }
+    return filenam.str();
 }
 
-std::pair<HandleOpModule, ModuleInfo*> loadOperatorModule(const OperatorDescription &desc)
+HandleOpModule loadOperatorModule(const std::string filename, bool printerror = true)
 {
-#ifndef NDEBUG
-    std::string debug(DEBUG_POSTFIX);
-#else
-    std::string debug("");
-#endif
-
 #ifdef _WIN32
-    std::string prefix("");
-    std::string postfix(".dll");
+    HandleOpModule handle = LoadLibrary(filename.c_str());
 #else
-    std::string prefix("lib");
-    std::string postfix(".so");
+    HandleOpModule handle = dlopen(filename.c_str(), RTLD_NOW);
 #endif
-
-    std::stringstream fixpathfilenam;
-    fixpathfilenam << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << filenam.str();
-    std::string filenamestr = fixpathfilenam.str();
-    log_info("loading operator module \"" + filenamestr + "\"");
-    std::pair<HandleOpModule, ModuleInfo*> result;
-#ifdef _WIN32
-    HMODULE handle = LoadLibrary(fixpathfilenam.str().c_str());
-#else
-    void* handle = dlopen(fixpathfilenam.str().c_str(), RTLD_NOW);
-#endif
-    if (!handle) {
-        std::stringstream systempathfilenam;
-        systempathfilenam << filenam.str();
-        filenamestr = systempathfilenam.str();
-        log_info("loading operator module \"" + filenamestr + "\"");
+    if (!handle && printerror) {
     #ifdef _WIN32
-        handle = LoadLibrary(filenamestr.c_str());
+        log_error("Cannot open library: " + filename);
     #else
-        handle = dlopen(filenamestr.c_str(), RTLD_NOW);
+        log_error("Cannot open library: " + dlerror());
     #endif
-        if (!handle) {
-        #ifdef _WIN32
-        #else
-            std::cerr << "Cannot open library: " << dlerror() << '\n';
-        #endif
-            result.first = nullptr;
-            return result;
-            //return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
-        }
     }
-    result.first = handle;
+    return handle;
+}
+
+HandleOpModule loadOperatorModule(const mapit::msgs::OperatorDescription &desc)
+{
+    std::string filenam = operatorLibraryName(desc);
+    std::stringstream fixpathfilenam;
+    fixpathfilenam << MAPIT_LOCAL_OPERATOR_DIR << desc.operatorname() << "/" << filenam;
+    std::string fixedfilenamestr = fixpathfilenam.str();
+    log_info("loading operator module \"" + fixedfilenamestr + "\"");
+    std::pair<HandleOpModule, ModuleInfo*> result;
+    HandleOpModule handle = loadOperatorModule(fixedfilenamestr, false);
+    if (!handle) {
+        std::string systemfilenamestr = filenam;
+        log_info("loading operator module \"" + systemfilenamestr + "\"");
+        handle = loadOperatorModule(systemfilenamestr);
+    }
+    return handle;
+}
+
+ModuleInfo* getModuleInfo(HandleOpModule &handle)
+{
 #ifdef _WIN32
     //FARPROC getModInfo = GetProcAddress(handle, "getModuleInfo");
     GetModuleInfo getModInfo = (GetModuleInfo)GetProcAddress(handle, "getModuleInfo");
 #else
     GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
 #endif
-    result.second = getModInfo();
-    return result;
+    if(!getModInfo)
+    {
+        log_error("could not get symbol \"getModuleInfo\".");
+        return nullptr;
+    }
+    return getModInfo();
 }
 
-OperationResult _doOperation(const ModuleInfo *module, const upns::OperationDescription &desc, CheckoutRaw *checkout)
+upns::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout)
 {
 //    OperationDescription opdesc;
 //    // protobuf has no methods to handle members as const. We won't change opdesc.operator()
@@ -125,6 +134,7 @@ StatusCode closeOperatorModule(HandleOpModule handle)
     } else {
         //TODO: GetLastError()...
         result = UPNS_STATUS_ERR_UNKNOWN;
+        log_warn("could not close library");
     }
 #else
     int status = dlclose(handle);
@@ -132,26 +142,32 @@ StatusCode closeOperatorModule(HandleOpModule handle)
         result = UPNS_STATUS_OK;
     } else {
         result = UPNS_STATUS_ERR_UNKNOWN;
+        log_warn("could not close library");
     }
 #endif
     return result;
 }
 
-OperationResult OperatorLibraryManager::doOperation(const OperationDescription &desc, CheckoutRaw *checkout)
+OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout)
 {
-    std::pair<HandleOpModule, ModuleInfo*> modInfo = loadOperatorModule(desc.operator_());
-    if(!modInfo.first)
+    HandleOpModule handle = loadOperatorModule(desc.operator_());
+    if(!handle)
     {
-        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
+        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
     }
-    OperationResult result = _doOperation(modInfo.second, desc, checkout);
+    ModuleInfo* modInfo = getModuleInfo(handle);
+    if(!modInfo)
+    {
+        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
+    }
+    OperationResult result = _doOperation(modInfo, desc, checkout);
     if(!upnsIsOk(result.first))
     {
         std::stringstream strm;
         strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result.first << ")";
         log_error(strm.str());
     }
-    StatusCode status = closeOperatorModule(modInfo.first);
+    StatusCode status = closeOperatorModule(handle);
     if(!upnsIsOk(status))
     {
         std::stringstream strm;
@@ -162,9 +178,9 @@ OperationResult OperatorLibraryManager::doOperation(const OperationDescription &
     return result;
 }
 
-void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, std::string& dirname)
+void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, const std::string dirname)
 {
-    std::string prefix("lib"UPNS_INSTALL_OPERATORS);
+    std::string prefix("lib" UPNS_INSTALL_OPERATORS);
 #ifdef _WIN32
     //TODO
     WIN32_FIND_DATA FindFileData;
@@ -183,27 +199,46 @@ void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, std::string& dirnam
 #else
     DIR *dir;
     dirent *ent;
-    if ((dir = opendir (dirname.c_str())) != nullptr) {
-        /* print all the files and directories within directory */
-        while ((ent = readdir (dir)) != nullptr) {
-            std::string name(ent->d_name);
-            if(!name.compare(0, prefix.length(), prefix))
+    if ((dir = opendir (dirname.c_str())) == nullptr)
+    {
+        log_error("could not open directory");
+        return;
+    }
+    /* print all the files and directories within directory */
+    while ((ent = readdir (dir)) != nullptr) {
+        std::string name(ent->d_name);
+        if(!name.compare(0, prefix.length(), prefix))
+        {
+            HandleOpModule handle = loadOperatorModule(name);
+            if(!handle)
             {
-                loadOperatorModule()
+                log_warn("could not open library: " + name);
+                continue;
+            }
+            ModuleInfo* modInfo = getModuleInfo(handle);
+            if(!modInfo)
+            {
+                log_warn("not a library: " + name);
+                continue;
+            }
+            vec.push_back(*modInfo);
+            StatusCode status = closeOperatorModule(handle);
+            if(!upnsIsOk(status))
+            {
+                log_warn("Could not close library: " + name);
             }
         }
-        closedir (dir);
-    } else {
-        /* could not open directory */
-        perror ("");
-        return EXIT_FAILURE;
     }
+    closedir (dir);
 #endif
 }
 
 std::vector<ModuleInfo> OperatorLibraryManager::listOperators()
 {
-
+    std::vector<ModuleInfo> moduleInfos;
+    addOperatorsFromDirectory(moduleInfos, MAPIT_LOCAL_OPERATOR_DIR);
+    addOperatorsFromDirectory(moduleInfos, "/usr/lib/"); //TODO
+    return moduleInfos;
 }
 
 
