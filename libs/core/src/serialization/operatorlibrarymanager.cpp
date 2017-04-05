@@ -178,9 +178,16 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
     return result;
 }
 
-void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, const std::string dirname)
+void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string dirname, bool recursive = false)
 {
     std::string prefix("lib" UPNS_INSTALL_OPERATORS);
+
+    std::string path = dirname;
+    if(path.length() != 0 && path[path.length()-1] != '/')
+    {
+        path += "/";
+    }
+
 #ifdef _WIN32
     //TODO
     WIN32_FIND_DATA FindFileData;
@@ -207,9 +214,18 @@ void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, const std::string d
     /* print all the files and directories within directory */
     while ((ent = readdir (dir)) != nullptr) {
         std::string name(ent->d_name);
-        if(!name.compare(0, prefix.length(), prefix))
+        if(ent->d_type == DT_DIR)
         {
-            HandleOpModule handle = loadOperatorModule(name);
+            if(   recursive
+               && strcmp(ent->d_name, ".") != 0
+               && strcmp(ent->d_name, "..") != 0)
+            {
+                addOperatorsFromDirectory(vec, path + name, recursive);
+            }
+        }
+        else if(!name.compare(0, prefix.length(), prefix))
+        {
+            HandleOpModule handle = loadOperatorModule(path + name);
             if(!handle)
             {
                 log_warn("could not open library: " + name);
@@ -221,7 +237,7 @@ void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, const std::string d
                 log_warn("not a library: " + name);
                 continue;
             }
-            vec.push_back(*modInfo);
+            vec.push_back(OperatorInfo(*modInfo));
             StatusCode status = closeOperatorModule(handle);
             if(!upnsIsOk(status))
             {
@@ -233,11 +249,11 @@ void addOperatorsFromDirectory(std::vector<ModuleInfo> &vec, const std::string d
 #endif
 }
 
-std::vector<ModuleInfo> OperatorLibraryManager::listOperators()
+std::vector<OperatorInfo> OperatorLibraryManager::listOperators()
 {
-    std::vector<ModuleInfo> moduleInfos;
-    addOperatorsFromDirectory(moduleInfos, MAPIT_LOCAL_OPERATOR_DIR);
-    addOperatorsFromDirectory(moduleInfos, "/usr/lib/"); //TODO
+    std::vector<OperatorInfo> moduleInfos;
+    addOperatorsFromDirectory(moduleInfos, MAPIT_LOCAL_OPERATOR_DIR, true);
+    //addOperatorsFromDirectory(moduleInfos, "/usr/lib/"); //TODO
     return moduleInfos;
 }
 

@@ -1,6 +1,7 @@
 #include "upns/ui/bindings/qmlrepository.h"
 #include <upns/versioning/repositoryfactory.h>
 #include <upns/errorcodes.h>
+#include <upns/serialization/operatorlibrarymanager.h>
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
     :QmlRepository(repo, nullptr)
@@ -95,6 +96,28 @@ QmlEntitydata *QmlRepository::getEntitydataReadOnly(QString oid)
     std::shared_ptr<upns::AbstractEntitydata> obj( m_repository->getEntitydataReadOnly( o ) );
     if(!obj) return nullptr;
     return new QmlEntitydata( obj, NULL );
+}
+
+QList<QJsonObject> QmlRepository::listOperators()
+{
+    QList<QJsonObject> result;
+    std::vector<upns::OperatorInfo> moduleInfos = upns::OperatorLibraryManager::listOperators();
+    for(auto iter = moduleInfos.cbegin(); iter != moduleInfos.cend() ; ++iter)
+    {
+        QJsonObject obj;
+        obj["compiler"] = QJsonValue(iter->compiler.c_str());
+        obj["compilerConfig"] = QJsonValue(iter->compilerConfig.c_str());
+        obj["date"] = QJsonValue(iter->date.c_str());
+        obj["time"] = QJsonValue(iter->time.c_str());
+        obj["moduleName"] = QJsonValue(iter->moduleName.c_str());
+        obj["description"] = QJsonValue(iter->description.c_str());
+        obj["author"] = QJsonValue(iter->author.c_str());
+        obj["moduleVersion"] = iter->moduleVersion;
+        obj["apiVersion"] = iter->apiVersion;
+        obj["layerType"] = QJsonValue(iter->layerType.c_str());
+        result.append(obj);
+    }
+    return result;
 }
 
 QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString name)

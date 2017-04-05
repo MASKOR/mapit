@@ -87,10 +87,10 @@ struct ModuleInfo
     , operate(operate)
 {}
 
-//private:
+private:
     // Prevent manual deletion of returned pointer
-    //~ModuleInfo() {}
-    //friend MODULE_EXPORT ModuleInfo* getModuleInfo();
+    ~ModuleInfo() {}
+    friend MODULE_EXPORT ModuleInfo* getModuleInfo();
 };
 }
 

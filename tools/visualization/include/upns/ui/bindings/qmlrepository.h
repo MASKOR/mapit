@@ -29,6 +29,9 @@ public:
     Q_INVOKABLE QString typeOfObject(QString oid);
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString oid);
 
+    //TODO: this might find a better place in the future. It is not part of repository.
+    Q_INVOKABLE QList<QJsonObject> listOperators();
+
     /**
      * @brief checkout creates a new checkout from a commit.
      * name not existing: create new commit

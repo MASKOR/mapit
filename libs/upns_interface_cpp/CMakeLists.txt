@@ -2,6 +2,8 @@ project(upns_interface_cpp)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
+# upns_interface_cpp contains headers with virtual interfaces, which can be implemented by different libraries.
+
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/src/)

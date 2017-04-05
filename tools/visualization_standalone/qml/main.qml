@@ -33,6 +33,10 @@ QCtl.ApplicationWindow {
         id: checkout
         repository: globalRepository
         name: "testcheckout"
+        Component.onCompleted: {
+            var ops = globalRepository.listOperators()
+            globalRepository.listOperators().forEach(function(n){console.log(n)})
+        }
     }
 
     RowLayout {
