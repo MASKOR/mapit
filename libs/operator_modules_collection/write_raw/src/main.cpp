@@ -10,9 +10,9 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 {
     assert(false); // Not yet implemented
     mapit::msgs::OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

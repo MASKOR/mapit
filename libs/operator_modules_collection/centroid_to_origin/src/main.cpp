@@ -12,6 +12,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+using namespace mapit::msgs;
+
 upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
@@ -36,9 +38,9 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
     pcl::toPCLPointCloud2( pc, *pc2Out);
 
     entityData->setData(pc2Out);
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");
 ////    outTarget->set_mapval( map->id() );
@@ -47,7 +49,7 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
 //    OperationParameter *outMapname = out.add_params();
 //    outMapname->set_key("leafsize");
 //    outMapname->set_realval( leafSize );
-    env->setOutputDescription( out.SerializeAsString() );
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

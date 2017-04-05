@@ -20,6 +20,8 @@
 #include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
+using namespace mapit::msgs;
+
 template<typename ParticlePointT>
 class ParticleFromCloudList {
     typedef typename pcl::PointCloud<ParticlePointT>::Ptr ParticlePointCloudPtr;
@@ -176,10 +178,10 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     }
     entityDataOutput->setData(outputFloatGrid);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

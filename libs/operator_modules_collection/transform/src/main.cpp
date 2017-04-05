@@ -34,6 +34,8 @@
 // an odometry transform. After the ICP has been executed once, subsequent executions should
 // not create new transforms, but overwrite the existing transform!
 
+using namespace mapit::msgs;
+
 template<typename Indexable>
 void jsonToMat(float* d, Indexable &json)
 {
@@ -144,10 +146,10 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     entityData->setData(tf);
 
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

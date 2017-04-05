@@ -16,6 +16,7 @@
 #include "json11.hpp"
 #include "tinyply.h"
 
+using namespace mapit::msgs;
 
 void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher, std::shared_ptr<AssetEntitydata> output)
 {
@@ -301,10 +302,10 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     }
     generateAiSceneWithTinyPly(std::move(mesher), entityDataOutput);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

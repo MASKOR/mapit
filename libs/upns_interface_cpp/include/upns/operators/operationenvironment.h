@@ -11,11 +11,9 @@ namespace mapit
   }
 }
 
-using namespace mapit::msgs;
-
 namespace upns
 {
-  class CheckoutRaw;
+class CheckoutRaw;
 
 class OperationEnvironment
 {

@@ -4,6 +4,8 @@
 namespace upns
 {
 
+using namespace mapit::msgs;
+
 StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path& path,
                             std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
                             std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,

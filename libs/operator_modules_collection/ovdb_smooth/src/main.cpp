@@ -10,6 +10,8 @@
 #include <upns/errorcodes.h>
 #include "json11.hpp"
 
+using namespace mapit::msgs;
+
 struct PrintInterrupter
 {
     int counter = 0;
@@ -139,9 +141,9 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
     }
     entityDataOutput->setData(inputGrid);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");
 ////    outTarget->set_mapval( map->id() );
@@ -150,7 +152,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
 //    OperationParameter *outMapname = out.add_params();
 //    outMapname->set_key("mapname");
 //    outMapname->set_strval( map->name() );
-    env->setOutputDescription( out.SerializeAsString() );
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

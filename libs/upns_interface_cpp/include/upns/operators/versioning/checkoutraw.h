@@ -6,8 +6,6 @@
 #include <upns/entitydata.h>
 #include <upns/versioning/checkoutcommon.h>
 
-using namespace mapit::msgs;
-
 namespace upns
 {
 
@@ -36,7 +34,7 @@ public:
      * @param tree
      * @return
      */
-    virtual StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree) = 0;
+    virtual StatusCode storeTree(const Path &path, std::shared_ptr<mapit::msgs::Tree> tree) = 0;
 
     /**
      * @brief storeEntity changes the entity at a given path. No conflict is generated.
@@ -45,7 +43,7 @@ public:
      * @param tree
      * @return
      */
-    virtual StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity) = 0;
+    virtual StatusCode storeEntity(const Path &path, std::shared_ptr<mapit::msgs::Entity> entity) = 0;
 
     /**
      * @brief getEntitydata Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.
