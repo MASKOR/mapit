@@ -2,7 +2,7 @@
 #define CHECKOUTCOMMON_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/abstractentitydata.h>
 #include <functional>
 
@@ -29,7 +29,7 @@ public:
      * All conflicts, marked as solved are not returned.
      * @return
      */
-    virtual std::vector< std::shared_ptr<Conflict> > getPendingConflicts() = 0;
+    virtual std::vector< std::shared_ptr<mapit::msgs::Conflict> > getPendingConflicts() = 0;
 
     /**
      * @brief setConflictSolved Used to choose one blob for a given path. The chosen oid can also be a new one which
@@ -43,7 +43,7 @@ public:
      * @brief getRoot get Entry point to all objects of this commit.
      * @return
      */
-    virtual std::shared_ptr<Tree> getRoot() = 0;
+    virtual std::shared_ptr<mapit::msgs::Tree> getRoot() = 0;
 
     /**
      * @brief getTreeConflict gets a Tree from repository/checkout. Tree must be reachable from this checkout (descendant of <root>)
@@ -51,7 +51,7 @@ public:
      * @param objectId
      * @return child
      */
-    virtual std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId) = 0;
+    virtual std::shared_ptr<mapit::msgs::Tree> getTreeConflict(const ObjectId &objectId) = 0;
 
     /**
      * @brief getEntityConflict gets an Entity from repository/checkout. Entity must be reachable from this checkout (descendant of <root>)
@@ -59,27 +59,27 @@ public:
      * @param objectId
      * @return child
      */
-    virtual std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId) = 0;
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntityConflict(const ObjectId &objectId) = 0;
 
     /**
      * @brief getTree
      * @param path
      * @return
      */
-    virtual std::shared_ptr<Tree> getTree(const Path &path) = 0;
+    virtual std::shared_ptr<mapit::msgs::Tree> getTree(const Path &path) = 0;
 
     /**
      * @brief getEntity
      * @param path
      * @return
      */
-    virtual std::shared_ptr<Entity> getEntity(const Path &path) = 0;
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const Path &path) = 0;
 
     /**
      * @brief getParentBranch
      * @return
      */
-    virtual std::shared_ptr<Branch> getParentBranch() = 0;
+    virtual std::shared_ptr<mapit::msgs::Branch> getParentBranch() = 0;
 
     /**
      * @brief getParentCommitIds. This is the parrent of the current rolling commit
@@ -118,11 +118,11 @@ public:
      * @param afterEntity
      * @return
      */
-    virtual StatusCode depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                        std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                        std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity) = 0;
+    virtual StatusCode depthFirstSearch(std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::msgs::ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::msgs::ObjectReference&, const Path&)> afterCommit,
+                                        std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree,
+                                        std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity) = 0;
 
-    virtual MessageType typeOfObject(const Path &oidOrName) = 0;
+    virtual mapit::msgs::MessageType typeOfObject(const Path &oidOrName) = 0;
 };
 
 }

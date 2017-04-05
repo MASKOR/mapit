@@ -13,6 +13,7 @@ aux_source_directory(. SRC_LIST)
 set (CMAKE_CXX_STANDARD 11)
 
 set(UPNS_INSTALL_INCLUDE "upns")
+set(MAPIT_INSTALL_INCLUDE "mapit") # TODO: replace UPNS_* with MAPIT
 # include directory as subfolder. final form: #include <${UPNS_INSTALL_INCLUDE}/${UPNS_INSTALL_INCLUDE_LAYERTYPES}/*.h>
 set(UPNS_INSTALL_INCLUDE_LAYERTYPES "layertypes")
 set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_") # prefix for shared libraries

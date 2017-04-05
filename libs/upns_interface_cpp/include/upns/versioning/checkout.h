@@ -2,8 +2,10 @@
 #define CHECKOUT_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include "checkoutcommon.h"
+
+using namespace mapit::msgs;
 
 namespace upns
 {

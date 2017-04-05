@@ -6,7 +6,7 @@ QmlBranch::QmlBranch(QObject *parent)
 
 }
 
-QmlBranch::QmlBranch(std::shared_ptr<upns::Branch> &branch)
+QmlBranch::QmlBranch(std::shared_ptr<mapit::msgs::Branch> &branch)
     :m_branch( branch )
 {
 

@@ -1,6 +1,6 @@
 #include "testrepositoriescom.h"
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
@@ -223,7 +223,7 @@ std::shared_ptr<upns::Repository> TestRepositoriesCommunication::initNetwork(/*s
 
 void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 {
-    upns::OperationDescription desc;
+    OperationDescription desc;
     desc.set_operatorname("load_pointcloud");
     desc.set_params(std::string("{\"filename\":\"") + FILENAME + "\", \"target\":\"themap/thelayer/bunny\"}");
     upns::OperationResult ret = checkout->doOperation( desc );
@@ -232,7 +232,7 @@ void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 
 void TestRepositoriesCommunication::voxelgrid(upns::Checkout *checkout)
 {
-    upns::OperationDescription operation;
+    OperationDescription operation;
     operation.set_operatorname("voxelgridfilter");
     QJsonObject params;
     params["leafsize"] = LEAF_SIZE;

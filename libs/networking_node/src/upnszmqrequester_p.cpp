@@ -1,6 +1,6 @@
 #include "upnszmqrequester_p.h"
-#include <upns/services.pb.h>
-#include <upns/services_internal.pb.h>
+#include <mapit/msgs/services.pb.h>
+#include <mapit/msgs/services_internal.pb.h>
 #include <functional>
 
 upns::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string urlOutgoingRequests, bool operationsLocal)

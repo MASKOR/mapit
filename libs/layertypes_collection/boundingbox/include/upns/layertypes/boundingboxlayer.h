@@ -3,7 +3,7 @@
 
 #include <upns/entitydata.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
-#include <upns/datastructs.pb.h>
+#include <mapit/msgs/datastructs.pb.h>
 
 using namespace upns;
 
@@ -13,16 +13,19 @@ using namespace upns;
 #else
 #define MODULE_EXPORT // empty
 #endif
-namespace upns
+namespace mapit
 {
-    typedef std::shared_ptr<upns::Boundingbox> BoundingboxPtr;
+  namespace msgs {
+    typedef std::shared_ptr<mapit::msgs::Boundingbox> BoundingboxPtr;
+  }
 }
+
 extern "C"
 {
 MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
-class BoundingboxEntitydata : public Entitydata<upns::Boundingbox>
+class BoundingboxEntitydata : public Entitydata<mapit::msgs::Boundingbox>
 {
 public:
     static const char* TYPENAME();
@@ -32,17 +35,17 @@ public:
     const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
-    BoundingboxPtr      getData(upnsReal x1, upnsReal y1, upnsReal z1,
+    mapit::msgs::BoundingboxPtr      getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                 bool clipMode,
                                 int lod = 0);
     int                 setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                 upnsReal x2, upnsReal y2, upnsReal z2,
-                                BoundingboxPtr &data,
+                                mapit::msgs::BoundingboxPtr &data,
                                 int lod = 0);
 
-    BoundingboxPtr      getData(int lod = 0);
-    int                 setData(BoundingboxPtr &data, int lod = 0);
+    mapit::msgs::BoundingboxPtr      getData(int lod = 0);
+    int                 setData(mapit::msgs::BoundingboxPtr &data, int lod = 0);
 
     void gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
@@ -60,7 +63,7 @@ public:
     size_t size() const;
 private:
     std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
-    BoundingboxPtr m_aabb;  // Axis Aligned Bounding Box
+    mapit::msgs::BoundingboxPtr m_aabb;  // Axis Aligned Bounding Box
 };
 
 #endif // BOUNDINGBOXLAYER_H

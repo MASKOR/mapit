@@ -2,7 +2,7 @@
 #define REPOSITORY_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 #include <upns/entitydata.h>
 #include "checkout.h"
@@ -47,12 +47,12 @@ public:
     virtual std::vector<std::string> listCheckoutNames() = 0;
 
 
-    virtual std::shared_ptr<Tree> getTree(const ObjectId &oid) = 0;
-    virtual std::shared_ptr<Entity> getEntity(const ObjectId &oid) = 0;
-    virtual std::shared_ptr<Commit> getCommit(const ObjectId &oid) = 0;
-    virtual std::shared_ptr<CheckoutObj> getCheckoutObj(const std::string &name) = 0;
-    virtual std::shared_ptr<Branch> getBranch(const std::string &name) = 0;
-    virtual MessageType typeOfObject(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Tree> getTree(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::CheckoutObj> getCheckoutObj(const std::string &name) = 0;
+    virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;
+    virtual mapit::msgs::MessageType typeOfObject(const ObjectId &oid) = 0;
 
     /**
      * @brief getEntitydataReadOnly reads an object, without checkout
@@ -106,7 +106,7 @@ public:
      * @brief getBranches List all Branches
      * @return all Branches, names with their current HEAD commitIds.
      */
-    virtual std::vector< std::shared_ptr<Branch> > getBranches() = 0;
+    virtual std::vector< std::shared_ptr<mapit::msgs::Branch> > getBranches() = 0;
 
     /**
      * @brief push alls branches to <repo>

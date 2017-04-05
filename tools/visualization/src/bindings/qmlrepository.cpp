@@ -30,7 +30,7 @@ QmlTree *QmlRepository::getTree(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::Tree> obj( m_repository->getTree( o ) );
+    std::shared_ptr<mapit::msgs::Tree> obj( m_repository->getTree( o ) );
     if(!obj) return nullptr;
     return new QmlTree( obj );
 }
@@ -39,7 +39,7 @@ QmlEntity *QmlRepository::getEntity(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::Entity> obj( m_repository->getEntity( o ) );
+    std::shared_ptr<mapit::msgs::Entity> obj( m_repository->getEntity( o ) );
     if(!obj) return nullptr;
     return new QmlEntity( obj );
 }
@@ -48,7 +48,7 @@ QmlCommit *QmlRepository::getCommit(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::Commit> obj( m_repository->getCommit( o ) );
+    std::shared_ptr<mapit::msgs::Commit> obj( m_repository->getCommit( o ) );
     if(!obj) return nullptr;
     return new QmlCommit( obj );
 }
@@ -57,7 +57,7 @@ QmlBranch *QmlRepository::getBranch(QString name)
 {
     if(!m_repository) return nullptr;
     std::string o = name.toStdString();
-    std::shared_ptr<upns::Branch> obj( m_repository->getBranch( o ) );
+    std::shared_ptr<mapit::msgs::Branch> obj( m_repository->getBranch( o ) );
     if(!obj) return nullptr;
     return new QmlBranch( obj );
 }
@@ -66,22 +66,22 @@ QString QmlRepository::typeOfObject(QString oid)
 {
     if(!m_repository) return "";
     std::string o(oid.toStdString());
-    upns::MessageType mt = m_repository->typeOfObject(o);
+    mapit::msgs::MessageType mt = m_repository->typeOfObject(o);
     switch(mt)
     {
-    case upns::MessageTree:
+    case mapit::msgs::MessageTree:
         return"MessageTree";
-    case upns::MessageEntity:
+    case mapit::msgs::MessageEntity:
         return"MessageEntity";
-    case upns::MessageCommit:
+    case mapit::msgs::MessageCommit:
         return"MessageCommit";
-    case upns::MessageCheckout:
+    case mapit::msgs::MessageCheckout:
         return"MessageCheckout";
-    case upns::MessageBranch:
+    case mapit::msgs::MessageBranch:
         return"MessageBranch";
-    case upns::MessageEntitydata:
+    case mapit::msgs::MessageEntitydata:
         return"MessageEntitydata";
-    case upns::MessageEmpty:
+    case mapit::msgs::MessageEmpty:
         return"MessageEmpty";
     default:
         return"";
@@ -137,13 +137,13 @@ QString QmlRepository::commit(QmlCheckout *checkout, QString msg)
 QList<QmlBranch *> QmlRepository::getBranches()
 {
     if(!m_repository) return QList<QmlBranch *>();
-    std::vector<std::shared_ptr<upns::Branch> > b(m_repository->getBranches());
+    std::vector<std::shared_ptr<mapit::msgs::Branch> > b(m_repository->getBranches());
     QList<QmlBranch *> ret;
-    for(std::vector<std::shared_ptr<upns::Branch> >::const_iterator iter(b.cbegin());
+    for(std::vector<std::shared_ptr<mapit::msgs::Branch> >::const_iterator iter(b.cbegin());
         iter != b.cend();
         ++iter)
     {
-        std::shared_ptr<upns::Branch> p(*iter);
+        std::shared_ptr<mapit::msgs::Branch> p(*iter);
         ret.push_back(new QmlBranch( p ));
     }
     return ret;

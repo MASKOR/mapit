@@ -25,7 +25,7 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     if(!m_checkout) return "not initialized, too early";
     QJsonDocument doc(desc);
     QString strJson(doc.toJson(QJsonDocument::Compact));
-    upns::OperationDescription descript;
+    mapit::msgs::OperationDescription descript;
     descript.set_operatorname(operatorname.toStdString());
     descript.set_params(strJson.toStdString());
     upns::OperationResult res = m_checkout->doOperation(descript);
@@ -47,7 +47,7 @@ void QmlCheckout::setConflictSolved(QString path, QString oid)
 QmlTree *QmlCheckout::getRoot()
 {
     if(!m_checkout) return new QmlTree(this);
-    std::shared_ptr<upns::Tree> tree(m_checkout->getRoot());
+    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getRoot());
     return new QmlTree(tree);
 }
 
@@ -55,7 +55,7 @@ QmlTree *QmlCheckout::getTreeConflict(QString objectId)
 {
     if(!m_checkout) return new QmlTree(this);
     std::string p = objectId.toStdString();
-    std::shared_ptr<upns::Tree> tree(m_checkout->getTreeConflict(p));
+    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getTreeConflict(p));
     return new QmlTree(tree);
 }
 
@@ -63,7 +63,7 @@ QmlEntity *QmlCheckout::getEntityConflict(QString objectId)
 {
     if(!m_checkout) return new QmlEntity(this);
     std::string p = objectId.toStdString();
-    std::shared_ptr<upns::Entity> ent(m_checkout->getEntityConflict(p));
+    std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntityConflict(p));
     return new QmlEntity(ent);
 }
 
@@ -71,7 +71,7 @@ QmlTree *QmlCheckout::getTree(QString path)
 {
     if(!m_checkout) return new QmlTree(this);
     std::string p = path.toStdString();
-    std::shared_ptr<upns::Tree> tree(m_checkout->getTree(p));
+    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getTree(p));
     return new QmlTree(tree);
 }
 
@@ -79,14 +79,14 @@ QmlEntity *QmlCheckout::getEntity(QString path)
 {
     if(!m_checkout) return new QmlEntity(this);
     std::string p = path.toStdString();
-    std::shared_ptr<upns::Entity> ent(m_checkout->getEntity(p));
+    std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntity(p));
     return new QmlEntity(ent);
 }
 
 QmlBranch *QmlCheckout::getParentBranch()
 {
     if(!m_checkout) return new QmlBranch(this);
-    std::shared_ptr<upns::Branch> br(m_checkout->getParentBranch());
+    std::shared_ptr<mapit::msgs::Branch> br(m_checkout->getParentBranch());
     return new QmlBranch(br);
 }
 

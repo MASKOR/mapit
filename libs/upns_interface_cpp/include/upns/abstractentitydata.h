@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 #include <memory>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <limits>
 
 namespace upns

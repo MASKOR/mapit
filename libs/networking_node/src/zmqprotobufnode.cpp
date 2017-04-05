@@ -1,5 +1,5 @@
 #include "zmqprotobufnode.h"
-#include <upns/transport.pb.h>
+#include <mapit/msgs/transport.pb.h>
 #include <algorithm>
 
 void my_free(void *data, void *hint)
@@ -81,7 +81,7 @@ ZmqProtobufNode::send(std::unique_ptr< ::google::protobuf::Message> msg, bool sn
   int msg_type = key.second;
 
   // send header
-  std::unique_ptr<upns::Header> h(new upns::Header);
+  std::unique_ptr<Header> h(new Header);
   h->set_comp_id(comp_id);
   h->set_msg_type(msg_type);
 
@@ -117,7 +117,7 @@ ZmqProtobufNode::receive_and_dispatch(int milliseconds)
   socket_->setsockopt(ZMQ_RCVTIMEO, &milliseconds, sizeof(milliseconds));
 
   // receive header
-  upns::Header h;
+  Header h;
   zmq::message_t msg_h;
   bool status = socket_->recv( &msg_h );
   if(!status) return; // hopefully timeout

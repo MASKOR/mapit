@@ -12,8 +12,11 @@ class QLockFile;
 
 namespace fs = boost::filesystem;
 
+using namespace mapit::msgs;
+
 namespace upns
 {
+
 
   /**
  * @brief The FSSerializer class stores all data using a file system.
@@ -58,10 +61,10 @@ namespace upns
     //virtual std::pair<StatusCode, ObjectId> createTreeTransient(std::shared_ptr<Tree> &obj, const Path &path);
     virtual StatusCode removeTree(const ObjectId &oid);
 
-    virtual std::shared_ptr<Entity> getEntity(const ObjectId oid);
-    virtual std::shared_ptr<Entity> getEntityTransient(const PathInternal oid);
-    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<Entity> &obj);
-    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInternal &transientId);
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId oid);
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntityTransient(const PathInternal oid);
+    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> &obj);
+    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> &obj, const PathInternal &transientId);
     //virtual StatusCode createEntityTransient(std::shared_ptr<Entity> &obj);
     virtual StatusCode removeEntity(const ObjectId &oid);
 

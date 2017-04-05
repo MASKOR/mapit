@@ -11,7 +11,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-#include <upns/datastructs.pb.h>
+#include <mapit/msgs/datastructs.pb.h>
 
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
@@ -109,7 +109,7 @@ void TestOperators::testInlineOperator()
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&cloud, &epath](upns::OperationEnvironment* env)
     {
         upns::CheckoutRaw *coraw = env->getCheckout();
-        std::shared_ptr<upns::Entity> e(new upns::Entity);
+        std::shared_ptr<Entity> e(new Entity);
         e->set_type(PointcloudEntitydata::TYPENAME());
         upns::StatusCode status = coraw->storeEntity(epath, e);
         if(!upnsIsOk(status))

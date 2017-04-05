@@ -40,7 +40,7 @@
 #include <upns/ui/models/qmlroottreemodel.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/errorcodes.h>
 
 #include <boost/program_options.hpp>

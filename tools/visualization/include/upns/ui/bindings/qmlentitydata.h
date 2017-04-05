@@ -2,7 +2,7 @@
 #define QMLENTITYDATA
 
 #include <QObject>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/abstractentitydata.h>
 #include "qmlcheckout.h"
 

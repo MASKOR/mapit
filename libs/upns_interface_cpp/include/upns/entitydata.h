@@ -2,7 +2,7 @@
 #define __ENTITYDATA_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/abstractentitydata.h>
 #include <limits>
 

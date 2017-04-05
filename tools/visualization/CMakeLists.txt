@@ -103,6 +103,7 @@ endif(WIN32)
 target_link_libraries(${PROJECT_NAME} upns_core upns_interface upns_interface_cpp Qt3DPointcloudRenderer layertype_pointcloud2 layertype_tf)
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 
+
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})

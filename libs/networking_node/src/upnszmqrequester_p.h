@@ -3,7 +3,7 @@
 
 #include <string>
 #include "zmqprotobufnode.h"
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 
 namespace upns {

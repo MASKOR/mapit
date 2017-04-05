@@ -8,7 +8,7 @@
 #include "qmlcheckout.h"
 #include "qmlbranch.h"
 #include "qmlentitydata.h"
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 
 class QmlCheckout;

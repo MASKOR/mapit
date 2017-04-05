@@ -4,7 +4,7 @@
 #include "../hash.h"
 #include "fs_entitydatastreamprovider.h"
 #include <assert.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <stdlib.h>
 #include <time.h>
 #include <algorithm>

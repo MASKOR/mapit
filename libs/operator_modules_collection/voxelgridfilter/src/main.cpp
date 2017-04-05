@@ -45,9 +45,9 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 
     entityData->setData(cloud_filtered);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");
 ////    outTarget->set_mapval( map->id() );
@@ -56,7 +56,7 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 //    OperationParameter *outMapname = out.add_params();
 //    outMapname->set_key("leafsize");
 //    outMapname->set_realval( leafSize );
-    env->setOutputDescription( out.SerializeAsString() );
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

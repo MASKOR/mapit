@@ -339,8 +339,8 @@ ObjectReference CheckoutImpl::objectReferenceOfChild(std::shared_ptr<Tree> tree,
 {
     assert(tree != NULL);
     assert(!name.empty());
-    const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
+    const ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = tree->refs();
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
     {
         const ::std::string &refname(iter->first);
@@ -546,9 +546,9 @@ std::pair<StatusCode, PathInternal> CheckoutImpl::storeObject<Entity>(std::share
 //    return UPNS_STATUS_OK;
 //}
 
-std::shared_ptr<upns::Branch> upns::CheckoutImpl::getParentBranch()
+std::shared_ptr<mapit::msgs::Branch> upns::CheckoutImpl::getParentBranch()
 {
-    std::shared_ptr<upns::Branch> branch;
+    std::shared_ptr<mapit::msgs::Branch> branch;
     if(!m_branchname.empty())
     {
         branch = m_serializer->getBranch(m_branchname);

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/errorcodes.h>
@@ -9,16 +9,16 @@
 
 namespace po = boost::program_options;
 
-void buildCommitList(upns::Repository *repo, std::vector< std::pair<upns::CommitId, std::shared_ptr<upns::Commit> > > &commits, const ::google::protobuf::RepeatedPtrField< ::std::string> &currentParents)
+void buildCommitList(upns::Repository *repo, std::vector< std::pair<upns::CommitId, std::shared_ptr<Commit> > > &commits, const ::google::protobuf::RepeatedPtrField< ::std::string> &currentParents)
 {
     ::google::protobuf::RepeatedPtrField< ::std::string>::const_iterator currentParent( currentParents.cbegin() );
     while(currentParent != currentParents.cend())
     {
         if(!currentParent->empty())
         {
-            std::shared_ptr<upns::Commit> ci(repo->getCommit(*currentParent));
+            std::shared_ptr<Commit> ci(repo->getCommit(*currentParent));
             assert(ci);
-            commits.push_back(std::pair< upns::CommitId, std::shared_ptr<upns::Commit> >(*currentParent, ci));
+            commits.push_back(std::pair< upns::CommitId, std::shared_ptr<Commit> >(*currentParent, ci));
             buildCommitList(repo, commits, ci->parentcommitids());
         }
         currentParent++;
@@ -55,22 +55,22 @@ int main(int argc, char *argv[])
         std::cout << "failed to log checkout " << vars["checkout"].as<std::string>() << std::endl;
         return 1;
     }
-    std::vector< std::pair<upns::CommitId, std::shared_ptr<upns::Commit> > > commits;
+    std::vector< std::pair<upns::CommitId, std::shared_ptr<Commit> > > commits;
     const std::vector<upns::CommitId> parents(co->getParentCommitIds());
     std::vector<upns::CommitId>::const_iterator currentParent( parents.cbegin() );
     while(currentParent != parents.cend())
     {
         if(!currentParent->empty())
         {
-            std::shared_ptr<upns::Commit> ci(repo->getCommit(*currentParent));
+            std::shared_ptr<Commit> ci(repo->getCommit(*currentParent));
             assert(ci);
-            commits.push_back(std::pair< upns::CommitId, std::shared_ptr<upns::Commit> >(*currentParent, ci));
+            commits.push_back(std::pair< upns::CommitId, std::shared_ptr<Commit> >(*currentParent, ci));
             buildCommitList(repo.get(), commits, ci->parentcommitids());
         }
         currentParent++;
     }
 
-    std::vector< std::pair<upns::CommitId, std::shared_ptr<upns::Commit> > >::const_iterator iter(commits.cbegin());
+    std::vector< std::pair<upns::CommitId, std::shared_ptr<Commit> > >::const_iterator iter(commits.cbegin());
     while(iter != commits.cend())
     {
         std::cout << iter->first << " : ";
