@@ -98,12 +98,23 @@ QmlEntitydata *QmlRepository::getEntitydataReadOnly(QString oid)
     return new QmlEntitydata( obj, NULL );
 }
 
-QList<QJsonObject> QmlRepository::listOperators()
+QList<QVariant> QmlRepository::listOperators()
 {
-    QList<QJsonObject> result;
+    QList<QVariant> result;
     std::vector<upns::OperatorInfo> moduleInfos = upns::OperatorLibraryManager::listOperators();
     for(auto iter = moduleInfos.cbegin(); iter != moduleInfos.cend() ; ++iter)
     {
+        bool any = false;
+        for(auto iter2=result.cbegin() ; iter2 != result.cend() ; ++iter2)
+        {
+            if(iter2->toJsonObject()["moduleName"].toString() == QString::fromStdString(iter->moduleName))
+            {
+                any = true;
+                break;
+            }
+        }
+        if(any) continue;
+
         QJsonObject obj;
         obj["compiler"] = QJsonValue(iter->compiler.c_str());
         obj["compilerConfig"] = QJsonValue(iter->compilerConfig.c_str());

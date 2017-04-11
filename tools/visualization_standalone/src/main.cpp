@@ -44,6 +44,7 @@
 #include <upns/errorcodes.h>
 
 #include <boost/program_options.hpp>
+#include "iconimageprovider.h"
 
 namespace po = boost::program_options;
 
@@ -101,6 +102,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
+    engine.addImageProvider("icon", new IconImageProvider(":/icon/"));
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     int result = app.exec();

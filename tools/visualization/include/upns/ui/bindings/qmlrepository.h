@@ -30,7 +30,7 @@ public:
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString oid);
 
     //TODO: this might find a better place in the future. It is not part of repository.
-    Q_INVOKABLE QList<QJsonObject> listOperators();
+    Q_INVOKABLE QList<QVariant> listOperators();
 
     /**
      * @brief checkout creates a new checkout from a commit.
