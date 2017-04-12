@@ -11,6 +11,7 @@
 #include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 
+class OperatorLoader;
 class QmlCheckout;
 class QmlEntitydata;
 class QmlRepository : public QObject
@@ -18,9 +19,12 @@ class QmlRepository : public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList checkoutNames READ checkoutNames NOTIFY checkoutNamesChanged)
 
+    Q_PROPERTY(QVariantList operators READ operators NOTIFY operatorsChanged)
 public:
     QmlRepository(std::shared_ptr<upns::Repository> repo);
     QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent);
+    ~QmlRepository();
+    QVariantList operators();
     Q_INVOKABLE QmlTree* getTree(QString oid);
     Q_INVOKABLE QmlEntity* getEntity(QString oid);
     Q_INVOKABLE QmlCommit* getCommit(QString oid);
@@ -30,7 +34,7 @@ public:
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString oid);
 
     //TODO: this might find a better place in the future. It is not part of repository.
-    Q_INVOKABLE QList<QVariant> listOperators();
+    Q_INVOKABLE void reloadOperators();
 
     /**
      * @brief checkout creates a new checkout from a commit.
@@ -105,6 +109,7 @@ public:
         return m_checkoutNames;
     }
 
+    QVariantList m_operators;
 public Q_SLOTS:
     std::shared_ptr<upns::Repository> getRepository();
 
@@ -112,11 +117,14 @@ Q_SIGNALS:
     void checkoutNamesChanged(QStringList checkoutNames);
 
     void internalRepositoryChanged(QmlRepository* repo);
+
+    void operatorsChanged();
 protected:
     std::shared_ptr<upns::Repository> m_repository;
 
 private:
     QStringList m_checkoutNames;
+    OperatorLoader *m_opLoaderWorker;
 };
 
 #endif

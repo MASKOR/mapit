@@ -2,6 +2,7 @@
 #include <upns/versioning/repositoryfactory.h>
 #include <upns/errorcodes.h>
 #include <upns/serialization/operatorlibrarymanager.h>
+#include "operatorloader.h"
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
     :QmlRepository(repo, nullptr)
@@ -11,6 +12,7 @@ QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent)
     :QObject( parent )
 {
+    m_opLoaderWorker = new OperatorLoader();
     m_repository = repo;
     m_checkoutNames.clear();
     std::vector<std::string> coNames(m_repository->listCheckoutNames());
@@ -18,8 +20,43 @@ QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *pa
     {
         m_checkoutNames.append(QString::fromStdString(*iter));
     }
+    connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
+        for(auto iter = result.cbegin(); iter != result.cend(); ++iter)
+        {
+            m_operators.append(*iter);
+        }
+        operatorsChanged();
+    }, Qt::QueuedConnection);
+    reloadOperators();
     Q_EMIT checkoutNamesChanged( m_checkoutNames );
     Q_EMIT internalRepositoryChanged( this );
+}
+
+QmlRepository::~QmlRepository()
+{
+    delete m_opLoaderWorker;
+}
+void AppendFunctionOps(QQmlListProperty<QVariant> *list, QVariant* variant)
+{
+    QmlRepository *repo = qobject_cast<QmlRepository*>(list->object);
+    repo->m_operators.append(*variant);
+}
+
+int CountFunctionOps(QQmlListProperty<QVariant> *list)
+{
+    QmlRepository *repo = qobject_cast<QmlRepository*>(list->object);
+    return repo->m_operators.count();
+}
+
+QVariant *AtFunctionOps(QQmlListProperty<QVariant> *list, int i)
+{
+    QmlRepository *repo = qobject_cast<QmlRepository*>(list->object);
+    return new QVariant(&repo->m_operators.at(i)); //TODO: confirm this is not a memory leak
+}
+
+QVariantList QmlRepository::operators()
+{
+    return m_operators;//QQmlListProperty<QVariant>(this, nullptr, &CountFunctionOps, &AtFunctionOps);
 }
 
 QStringList QmlRepository::listCheckoutNames() const
@@ -98,37 +135,9 @@ QmlEntitydata *QmlRepository::getEntitydataReadOnly(QString oid)
     return new QmlEntitydata( obj, NULL );
 }
 
-QList<QVariant> QmlRepository::listOperators()
+void QmlRepository::reloadOperators()
 {
-    QList<QVariant> result;
-    std::vector<upns::OperatorInfo> moduleInfos = upns::OperatorLibraryManager::listOperators();
-    for(auto iter = moduleInfos.cbegin(); iter != moduleInfos.cend() ; ++iter)
-    {
-        bool any = false;
-        for(auto iter2=result.cbegin() ; iter2 != result.cend() ; ++iter2)
-        {
-            if(iter2->toJsonObject()["moduleName"].toString() == QString::fromStdString(iter->moduleName))
-            {
-                any = true;
-                break;
-            }
-        }
-        if(any) continue;
-
-        QJsonObject obj;
-        obj["compiler"] = QJsonValue(iter->compiler.c_str());
-        obj["compilerConfig"] = QJsonValue(iter->compilerConfig.c_str());
-        obj["date"] = QJsonValue(iter->date.c_str());
-        obj["time"] = QJsonValue(iter->time.c_str());
-        obj["moduleName"] = QJsonValue(iter->moduleName.c_str());
-        obj["description"] = QJsonValue(iter->description.c_str());
-        obj["author"] = QJsonValue(iter->author.c_str());
-        obj["moduleVersion"] = iter->moduleVersion;
-        obj["apiVersion"] = iter->apiVersion;
-        obj["layerType"] = QJsonValue(iter->layerType.c_str());
-        result.append(obj);
-    }
-    return result;
+    m_opLoaderWorker->start();
 }
 
 QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString name)

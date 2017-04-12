@@ -255,5 +255,9 @@
         <file>icon/zoom-in-24-ns.png</file>
         <file>icon/zoom-out-16-ns.png</file>
         <file>icon/zoom-out-24-ns.png</file>
+        <file>qml/EntityChooser.qml</file>
+        <file>qml/CheckoutChooser.qml</file>
+        <file>qml/CheckoutTreeView.qml</file>
+        <file>qml/QuickAccessMenu.qml</file>
     </qresource>
 </RCC>

@@ -1,5 +1,6 @@
 #include "upns/ui/bindings/qmlcheckout.h"
 #include <upns/errorcodes.h>
+#include "upns/depthfirstsearch.h"
 
 QmlCheckout::QmlCheckout()
     :m_checkout( NULL ),
@@ -30,6 +31,7 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     descript.set_params(strJson.toStdString());
     upns::OperationResult res = m_checkout->doOperation(descript);
     if(upnsIsOk(res.first)) return "error";
+    reloadEntities();
     //TODO Q_EMIT something changed()
     // TODO: wrap operation result.
     return "";
@@ -134,6 +136,11 @@ QString QmlCheckout::name() const
     return m_name;
 }
 
+QStringList QmlCheckout::entities() const
+{
+    return m_entities;
+}
+
 void QmlCheckout::setRepository(QmlRepository *repository)
 {
     if (m_repository != repository)
@@ -175,4 +182,46 @@ void QmlCheckout::setName(QString name)
     }
 
     Q_EMIT nameChanged(name);
+}
+
+void QmlCheckout::setEntities(QStringList entities)
+{
+    if (m_entities == entities)
+        return;
+
+    m_entities = entities;
+    Q_EMIT entitiesChanged(entities);
+}
+
+
+void QmlCheckout::reloadEntities()
+{
+    m_entities.clear();
+    upns::StatusCode s = m_checkout->depthFirstSearch([&](
+        std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            return true;
+        },
+        [&](std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            return true;
+        },
+        [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            return true;
+        }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            return true;
+        },
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            m_entities.append(QString::fromStdString(path));
+            return true;
+        },
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            return true;
+        });
+
+    Q_EMIT entitiesChanged(m_entities);
 }

@@ -72,7 +72,7 @@ Item {
             Layout.fillHeight: true
             Button {
                 text: "Execute"
-                enabled: currentOperatorUiItem.valid
+                enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
                 onClicked: {
                     currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameter);
                 }

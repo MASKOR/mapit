@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<QPointcloud>("pcl", 1, 0, "Pointcloud", "Please use factory method (not yet available).");
     qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
     qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
+
     QQmlApplicationEngine engine;
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
