@@ -49,6 +49,8 @@ QCtl.ApplicationWindow {
             height: 200
             Layout.fillWidth: true
             currentOperator: leftPanels.currentOperator
+            currentCheckout: leftPanels.currentCheckout
+            currentEntity: "text/layer/entity"
         }
     }
 

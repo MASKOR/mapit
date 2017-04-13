@@ -4,6 +4,7 @@ import QtQuick.Controls 1.4
 
 Item {
     id: root
+    property var currentEntity // to prefill operator
     property var currentOperator
     property var currentCheckout
     property var currentOperatorUiItem
@@ -18,7 +19,9 @@ Item {
     function finish( controlComponent ) {
         if (controlComponent.status === Component.Ready) {
             if( typeof root.currentOperator == "undefined" ) return;
-            root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentOperator: root.currentOperator});
+            root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentOperator: root.currentOperator,
+                                                                                       currentCheckout: root.currentCheckout,
+                                                                                       currentEntity: root.currentEntity});
             if (root.currentOperatorUiItem === null) {
                 // Error Handling
                 console.log("Error creating detailsView");
@@ -74,7 +77,9 @@ Item {
                 text: "Execute"
                 enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
                 onClicked: {
-                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameter);
+                    console.log(currentOperator.moduleName + "executed, params:")
+                    console.log(currentOperatorUiItem.parameters)
+                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters);
                 }
             }
         }

@@ -22,7 +22,7 @@ class QmlCheckout : public QObject
     Q_PROPERTY(bool isInConflictMode READ isInConflictMode NOTIFY isInConflictModeChanged)
     Q_PROPERTY(QmlRepository* repository READ repository WRITE setRepository NOTIFY repositoryChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QStringList entities READ entities WRITE setEntities NOTIFY entitiesChanged)
+    Q_PROPERTY(QStringList entities READ entities NOTIFY entitiesChanged)
 public:
     QmlCheckout();
     QmlCheckout( std::shared_ptr<upns::Checkout> &co, QmlRepository* repo = NULL, QString name = "" );
@@ -64,8 +64,6 @@ public:
 public Q_SLOTS:
     void setRepository(QmlRepository* repository);
     void setName(QString name);
-
-    void setEntities(QStringList entities);
 
 Q_SIGNALS:
     void isInConflictModeChanged(bool isInConflictMode);

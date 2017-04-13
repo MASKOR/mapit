@@ -12,7 +12,7 @@ Item {
     }
     height: 24
     property var currentCheckout
-    property string currentEntity
+    property alias currentEntityPath: filter.currentText
     property real extendedHeight: 200
     property bool allowNewMap: true
 //    onChoosenMapIdChanged: {
@@ -23,9 +23,10 @@ Item {
 //        comboButton.text = Globals.getMap(choosenMapId).name
 //    }
     QuickAccessMenu {
+        id: filter
         anchors.fill: parent
         allowNew: true
-        onAction: { root.currentEntity = currentEntity }
+
         model: currentCheckout.entities
     }
 

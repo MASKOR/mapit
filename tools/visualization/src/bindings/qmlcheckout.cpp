@@ -19,6 +19,7 @@ QmlCheckout::QmlCheckout(std::shared_ptr<upns::Checkout> &co, QmlRepository* rep
     {
         connect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlCheckout::setRepository);
     }
+    reloadEntities();
 }
 
 QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
@@ -30,10 +31,11 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     descript.mutable_operator_()->set_operatorname(operatorname.toStdString());
     descript.set_params(strJson.toStdString());
     upns::OperationResult res = m_checkout->doOperation(descript);
-    if(upnsIsOk(res.first)) return "error";
     reloadEntities();
+    Q_EMIT internalCheckoutChanged(this);
     //TODO Q_EMIT something changed()
     // TODO: wrap operation result.
+    if(upnsIsOk(res.first)) return "error";
     return "";
 }
 
@@ -159,6 +161,7 @@ void QmlCheckout::setRepository(QmlRepository *repository)
     if(!m_name.isEmpty())
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
+        reloadEntities();
         Q_EMIT internalCheckoutChanged( this );
     }
     //TODO: there might be some rare cases, where this is set intentionally to "".
@@ -178,21 +181,12 @@ void QmlCheckout::setName(QString name)
     if(m_repository)
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
+        reloadEntities();
         Q_EMIT internalCheckoutChanged( this );
     }
 
     Q_EMIT nameChanged(name);
 }
-
-void QmlCheckout::setEntities(QStringList entities)
-{
-    if (m_entities == entities)
-        return;
-
-    m_entities = entities;
-    Q_EMIT entitiesChanged(entities);
-}
-
 
 void QmlCheckout::reloadEntities()
 {
@@ -222,6 +216,5 @@ void QmlCheckout::reloadEntities()
         {
             return true;
         });
-
     Q_EMIT entitiesChanged(m_entities);
 }

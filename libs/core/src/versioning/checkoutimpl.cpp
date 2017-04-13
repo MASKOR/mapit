@@ -167,7 +167,7 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Pa
     std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( p );
     if( ent == NULL )
     {
-        log_error("Entity not found." + path);
+        log_warn("Entity not found." + path);
         return NULL;
     }
     assert( ent );
@@ -179,7 +179,7 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(
     std::shared_ptr<Entity> ent = m_serializer->getEntity( entityId );
     if( ent == NULL )
     {
-        log_error("Entity not found." + entityId);
+        log_warn("Entity not found." + entityId);
         return NULL;
     }
     assert( ent );

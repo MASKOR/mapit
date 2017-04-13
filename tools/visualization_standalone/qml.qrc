@@ -259,5 +259,9 @@
         <file>qml/CheckoutChooser.qml</file>
         <file>qml/CheckoutTreeView.qml</file>
         <file>qml/QuickAccessMenu.qml</file>
+        <file>qml/operators/levelset_to_mesh.qml</file>
+        <file>qml/operators/normalestimation.qml</file>
+        <file>qml/operators/surfrecon_openvdb.qml</file>
+        <file>qml/operators/voxelgridfilter.qml</file>
     </qresource>
 </RCC>

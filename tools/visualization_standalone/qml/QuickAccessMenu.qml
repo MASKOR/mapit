@@ -6,10 +6,11 @@ import QtQuick.Layouts 1.1
 Rectangle {
     id: root
     property bool allowNew: true
-    property ListModel model: ListModel {}
+    property var model
 
     property ListModel filteredModel: ListModel {}
     property alias selection: lv.currentItem
+    property alias currentText: ff.text
     signal action(var item)
     border.width: 1
     border.color: "orange"
@@ -26,8 +27,8 @@ Rectangle {
             ff.forceActiveFocus();
         }
         filteredModel.clear();
-        for(var i=0; i<root.model.count ; ++i) {
-            filteredModel.append(model.get(i));
+        for(var i=0; i<root.model.length ; ++i) {
+            filteredModel.append({"displayName": model[i]});
         }
     }
     ColumnLayout {
@@ -35,7 +36,11 @@ Rectangle {
         anchors.bottomMargin: 2
 
         Keys.onReturnPressed: {
-            root.action(filteredModel.get(lv.currentIndex));
+            if(allowNew) {
+                root.action(ff.text);
+            } else {
+                root.action(filteredModel.get(lv.currentIndex).displayName);
+            }
             event.accepted = true;
         }
 
@@ -55,13 +60,15 @@ Rectangle {
             onTextChanged: {
                 filteredModel.clear();
                 var re = new RegExp(ff.text, "i"); //Case insensitive
-                for(var i=0; i<blocksModel.count ; ++i) {
-                    var block = blocksModel.get(i);
-                    if(block.displayName.match(re)) {
-                        filteredModel.append(block);
+                for(var i=0; i<model.length ; ++i) {
+                    var block = model[i];
+                    if(block.match(re)) {
+                        filteredModel.append({"displayName": block});
+                        console.log(block)
                     }
                 }
                 lv.currentIndex = 0;
+                console.log("done!!!")
             }
         }
         ListView {
@@ -75,8 +82,17 @@ Rectangle {
                 color: lv.currentIndex===index?"grey":"black"
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: lv.currentIndex = index
-                    onDoubleClicked: root.createBlock(filteredModel.get(lv.currentIndex))
+                    onClicked: {
+                        lv.currentIndex = index
+                        ff.text = displayName
+                    }
+                    onDoubleClicked: {
+                        if(allowNew) {
+                            root.action(ff.text);
+                        } else {
+                            root.action(filteredModel.get(lv.currentIndex).displayName);
+                        }
+                    }
                 }
             }
         }

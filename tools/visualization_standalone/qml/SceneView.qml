@@ -161,7 +161,7 @@ Item {
                                 }
                             }
                             parameters: [
-                                Parameter { name: "pointSize"; value: 5},//pointSizeSlider.value },
+                                Parameter { name: "pointSize"; value: pointSizeSlider.value },
                                 Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
                                 Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
                                 Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
