@@ -27,10 +27,10 @@ set(CMAKE_AUTOMOC ON)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
-find_package(Qt5Core 5.6 REQUIRED)
-find_package(Qt5Qml 5.6 REQUIRED)
-find_package(Qt5Widgets 5.6 REQUIRED)
-find_package(Qt5Quick 5.6 REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Qml REQUIRED)
+#find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Quick REQUIRED)
 find_package(Qt53DCore REQUIRED)
 find_package(Qt53DInput REQUIRED)
 find_package(Qt53DLogic REQUIRED)
@@ -39,14 +39,16 @@ find_package(Qt53DRender REQUIRED)
 find_package(Qt53DQuickInput REQUIRED)
 find_package(Qt53DQuickRender REQUIRED)
 
-if(WITH_PCL)
-    find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
-    #find_package(PCL REQUIRED COMPONENTS common io search kdtree features filters)
-    include_directories(${PCL_INCLUDE_DIRS})
-    link_directories(${PCL_LIBRARY_DIRS})
-    add_definitions(${PCL_DEFINITIONS})
-else(WITH_PCL)
-endif(WITH_PCL)
+#if(WITH_PCL)
+#    #find_package(PCL REQUIRED COMPONENTS common io filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
+#    find_package(PCL REQUIRED COMPONENTS common io) # apps visualization)
+
+#    #find_package(PCL REQUIRED COMPONENTS common io search kdtree features filters)
+#    include_directories(${PCL_INCLUDE_DIRS})
+#    link_directories(${PCL_LIBRARY_DIRS})
+#    add_definitions(${PCL_DEFINITIONS})
+#else(WITH_PCL)
+#endif(WITH_PCL)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${UPNS_VISUALIZATION_INCLUDE})
@@ -90,15 +92,24 @@ find_package(Boost COMPONENTS filesystem system date_time)
 
 if(WIN32)
 #target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb)
-target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick Qt5::WinMain Xinput9_1_0 ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick Qt5::WinMain Xinput9_1_0)
     #set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
+#qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
-target_link_libraries(${PROJECT_NAME} upns_visualization upns_core upns_interface_cpp standard_repository_factory Qt3DPointcloudRenderer layertype_tf ${YAML_CPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_visualization
+    upns_core
+    upns_interface_cpp
+    standard_repository_factory
+    Qt3DPointcloudRenderer
+    layertype_tf
+    ${YAML_CPP_LIBRARIES}
+    ${PCL_LIBRARIES}
+    ${Boost_LIBRARIES}
+    stdc++)
 
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
@@ -107,7 +118,7 @@ if(WIN32)
     message("Please Create Symlinc MANUALLY (see visualization_standalone cmake:95")
     # Steps, Windows takes to not let us create symlinks:
     # 1) cmake does not have a platform agnostic way
-    # 2) usermanagement: user has not the privileges to create a stupid symlink
+    # 2) usermanagement: user has not the privileges to create a symlink
     # 3) backslashes have to be done manually
     # The words windows and developer do just not fit together.
     # please execute following lines manually once after first build, with administrative privileges in the lovely win cmd:

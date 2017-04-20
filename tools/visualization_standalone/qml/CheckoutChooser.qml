@@ -26,9 +26,9 @@ QCtl.Button {
             ListView {
                 id: checkoutList
                 delegate: RowLayout {
-                    Image {
-                        source: "image://icon/asset-green"
-                    }
+                        Image {
+                            source: "image://icon/asset-green"
+                        }
                         Text {
                             text: globalRepository.checkoutNames[index]
                             color: palette.text

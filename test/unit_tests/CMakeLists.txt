@@ -56,7 +56,7 @@ FOREACH(subdir ${SUBDIRS})
 
   target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} upns_core upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
-                                  ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES})
+                                  ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
@@ -92,7 +92,7 @@ find_package(Boost COMPONENTS filesystem system date_time)
 
 target_link_libraries(TestAll Qt5::Test upns_core upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
                               ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
-                              ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES})
+                              ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
 if(WITH_OPENVDB)
 target_link_libraries(TestAll levelset_to_mesh)

@@ -50,11 +50,13 @@ void QmlEntitydataRenderer::updateGeometry()
 
     if(strcmp(ed->type(), PointcloudEntitydata::TYPENAME()) == 0)
     {
+        QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
         *pointcloud->pointcloud() = *std::static_pointer_cast< PointcloudEntitydata >(ed)->getData();
-        static_cast<QPointcloudGeometry *>(geometry())->setPointcloud(pointcloud);
-        QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
+        QPointcloudGeometry * pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
+        QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
+        //pointcloudGeometry->setPointcloud(pointcloud);
     }
     else if(strcmp(ed->type(), PointcloudEntitydata::TYPENAME()) == 0)
     {

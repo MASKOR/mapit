@@ -30,12 +30,37 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
     std::shared_ptr<upns::AbstractEntitydata> abstractEntitydata = co->getEntitydataReadOnly(p);
     if(abstractEntitydata == NULL)
     {
-        log_error("Wrong path given in qml for transform entity");
+        if(m_mustExist)
+        {
+            log_error("Wrong path given in qml for transform entity");
+        }
+        return QMatrix4x4();
+    }
+    if(abstractEntitydata->type() != TfEntitydata::TYPENAME())
+    {
+        //if(m_mustExist)
+        //{
+            log_error("Wrong path given in qml for transform entity (not a transform)");
+        //}
         return QMatrix4x4();
     }
 
     QMatrix4x4 ret( std::static_pointer_cast<TfEntitydata>( abstractEntitydata )->getData()->data());
     return ret;
+}
+
+bool QmlEntitydataTransform::mustExist() const
+{
+    return m_mustExist;
+}
+
+void QmlEntitydataTransform::setMustExist(bool mustExist)
+{
+    if (m_mustExist == mustExist)
+        return;
+
+    m_mustExist = mustExist;
+    Q_EMIT mustExistChanged(mustExist);
 }
 
 void QmlEntitydataTransform::setMatrix()

@@ -25,9 +25,6 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-#find_package(Qt5Qml 5.5 REQUIRED)
-#find_package(Qt5Widgets 5.5 REQUIRED)
-#find_package(Qt5Quick 5.5 REQUIRED)
 find_package(Qt5Qml REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Quick REQUIRED)
@@ -92,15 +89,25 @@ add_library(${PROJECT_NAME} SHARED ${SRC_LIST}
 
 add_custom_target(resourceFilesVizRenderview ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
+#target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+
 if(WIN32)
 #target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb)
-target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OCULUSVR_LIBRARIES})
 else(WIN32)
-  target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} ${libzip} ${PCL_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME} upns_core upns_interface upns_interface_cpp Qt3DPointcloudRenderer layertype_pointcloud2 layertype_tf)
+target_link_libraries(${PROJECT_NAME}   upns_core
+                                        upns_interface
+                                        upns_interface_cpp
+                                        Qt3DPointcloudRenderer
+                                        layertype_pointcloud2
+                                        layertype_tf
+                                        Qt5::Qml Qt5::Quick
+                                        ${Boost_LIBRARIES}
+                                        ${PCL_LIBRARIES}
+                                        stdc++)
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 
 

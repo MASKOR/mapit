@@ -42,7 +42,7 @@ QCtl.ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 currentEntitydata: leftPanels.currentEntitydata
-                currentEntitydataTranform: leftPanels.currentEntitydataTransform
+                currentEntitydataTransform: leftPanels.currentEntitydataTransform
             }
         }
         BottomPanels {

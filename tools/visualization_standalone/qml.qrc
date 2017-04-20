@@ -263,5 +263,6 @@
         <file>qml/operators/normalestimation.qml</file>
         <file>qml/operators/surfrecon_openvdb.qml</file>
         <file>qml/operators/voxelgridfilter.qml</file>
+        <file>qml/MapitEntity.qml</file>
     </qresource>
 </RCC>

@@ -23,7 +23,7 @@ Item {
     UPNS.Entitydata {
         id: currentEntitydataId
         checkout: checkout
-        path: root.currentEntityPath// "corridor/lidar/pc1"
+        path: root.currentEntityPath
         onPathChanged: {
             console.log("Path of current entity: " + path)
         }
@@ -31,9 +31,9 @@ Item {
     UPNS.EntitydataTransform {
         id: currentEntitydataTransformId
         checkout: checkout
-        property bool addTfToPath: root.currentEntitydata.path.length > 3 && currentEntitydata.path.lastIndexOf(".tf") !== currentEntitydata.path.length-3
-        path: currentEntitydata.path + (addTfToPath ? ".tf" : "")
-        onPathChanged: console.log("New Path of Tf is: " + path)
+        path: root.currentEntityPath + ((root.currentEntityPath.length > 3
+                                      && root.currentEntityPath.lastIndexOf(".tf") !== root.currentEntityPath.length-3)
+                                        ? ".tf" : "")
     }
     ColumnLayout {
         anchors.fill: parent
@@ -79,6 +79,10 @@ Item {
                     }
                 });
             }
+        }
+
+        Text {
+            text: "Checkout: " + checkout.name
         }
 
         CheckoutTreeView {

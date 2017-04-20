@@ -17,7 +17,7 @@ Item {
     id: root
     property real pointSize
     property var currentEntitydata
-    property var currentEntitydataTranform
+    property var currentEntitydataTransform
     property string currentEntityPath
     ColumnLayout {
         anchors.fill: parent
@@ -104,8 +104,20 @@ Item {
                                                 layers: solidLayer
                                             }
                                             LayerFilter {
-                                                layers: pointLayer
-                                                RenderStateSet {
+                                                layers: Layer {
+                                                    id: pointLayer
+                                                }
+                                                RenderPass {
+                                                    parameters: [
+                                                        Parameter { name: "pointSize"; value: pointSizeSlider.value },
+                                                        Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
+                                                        Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
+                                                        Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
+                                                        Parameter { name: "farPlane"; value: mainCamera.farPlane },
+                                                        Parameter { name: "width"; value: scene3d.width },
+                                                        Parameter { name: "height"; value: scene3d.height }
+                                                    ]
+
                                                     renderStates: [
                                                         //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
                                                         PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
@@ -126,51 +138,16 @@ Item {
                         }
                     ]
 
-                    Q3D.Entity {
+                    MapitEntity {
                         id: pointcloud
-                        property Layer layerPoints: Layer {
-                                id: pointLayer
-                            }
-                        property ObjectPicker picker: ObjectPicker {
-                            onClicked: console.log("Clicked pcd", pick.distance, pick.triangleIndex)
-                        }
-                        property var meshTransform: Q3D.Transform {
-                                id: theMeshTransform
-                                //property real userAngle: -90.0
-                                //scale: 10
-                                //rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
-                                matrix: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
-                                                                                                                                0, 1, 0, 0,
-                                                                                                                                0, 0, 1, 0,
-                                                                                                                                0, 0, 0, 1)
-                            }
-                        property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
-                                entitydata: root.currentEntitydata
-                            }
-                        property Material materialPoint: Material {
-                            effect: Effect {
-                                techniques: Technique {
-                                    renderPasses: RenderPass {
-                                        shaderProgram: ShaderProgram {
-                                            //vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
-                                            //fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
-                                            vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
-                                            fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
-                                        }
-                                    }
-                                }
-                            }
-                            parameters: [
-                                Parameter { name: "pointSize"; value: pointSizeSlider.value },
-                                Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
-                                Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
-                                Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
-                                Parameter { name: "farPlane"; value: mainCamera.farPlane },
-                                Parameter { name: "width"; value: scene3d.width },
-                                Parameter { name: "height"; value: scene3d.height }
-                            ]
-                        }
-                        components: [ customMesh, materialPoint, meshTransform, layerPoints, picker ]
+                        //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
+                        //                                                                                                      0, 1, 0, 0,
+                        //                                                                                                      0, 0, 1, 0,
+                        //                                                                                                      0, 0, 0, 1)
+                        layer: pointLayer
+                        mainCameratmp: mainCamera
+                        scene3dtmp: scene3d
+                        currentEntitydata: root.currentEntitydata
                     }
 
                     Q3D.Entity {
