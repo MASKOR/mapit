@@ -15,10 +15,13 @@ import QtQuick 2.0 as QQ2
 
 Item {
     id: root
-    property real pointSize
     property var currentEntitydata
     property var currentEntitydataTransform
-    property string currentEntityPath
+    property alias visibleEntityItems: entityInstantiator.model
+    onVisibleEntityItemsChanged: {
+        console.log("DBG: chan" + visibleEntityItems.length)
+    }
+
     ColumnLayout {
         anchors.fill: parent
         //QCtl.ToolBar {
@@ -38,6 +41,16 @@ Item {
                     value: 0.5
                     minimumValue: 0.01
                     maximumValue:  2.0
+                }
+                Text { text: "Renderstyle:"}
+                QCtl.ComboBox {
+                    id: renderstyleSelect
+                    model: [ "points", "discs", "surfel"]
+                }
+                Text { text: "Color:"}
+                QCtl.ComboBox {
+                    id: colorizeSelect
+                    model: [ "x", "y", "z", "intensity"]
                 }
             }
         //}
@@ -106,24 +119,31 @@ Item {
                                             LayerFilter {
                                                 layers: Layer {
                                                     id: pointLayer
-                                                }
-                                                RenderPass {
-                                                    parameters: [
-                                                        Parameter { name: "pointSize"; value: pointSizeSlider.value },
-                                                        Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
-                                                        Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
-                                                        Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
-                                                        Parameter { name: "farPlane"; value: mainCamera.farPlane },
-                                                        Parameter { name: "width"; value: scene3d.width },
-                                                        Parameter { name: "height"; value: scene3d.height }
-                                                    ]
-
-                                                    renderStates: [
-                                                        //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
-                                                        PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
-                                                        DepthTest { depthFunction: DepthTest.Less }
-                                                        //DepthMask { mask: true }
-                                                    ]
+                                                    TechniqueFilter {
+                                                        id: techniqueFilter
+                                                        property list<FilterKey> filters: [ FilterKey { name: "primitiveType"; value: "point" },
+                                                            FilterKey { name: "renderstyle";   value: renderstyleSelect.currentText; onValueChanged: {techniqueFilter.matchAll = []; console.log("redone"); techniqueFilter.matchAll = techniqueFilter.filters} }
+                                                          ]
+                                                        matchAll: filters TODO
+                                                        parameters: [
+                                                            Parameter { name: "colorize"; value: colorizeSelect.currentIndex },
+                                                            Parameter { name: "pointSize"; value: pointSizeSlider.value },
+                                                            Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
+                                                            Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
+                                                            Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
+                                                            Parameter { name: "farPlane"; value: mainCamera.farPlane },
+                                                            Parameter { name: "width"; value: scene3d.width },
+                                                            Parameter { name: "height"; value: scene3d.height }
+                                                        ]
+//                                                        RenderStateSet {
+//                                                            renderStates: [
+//                                                                //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+//                                                                PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+//                                                                DepthTest { depthFunction: DepthTest.Less }
+//                                                                //DepthMask { mask: true }
+//                                                            ]
+//                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -138,16 +158,29 @@ Item {
                         }
                     ]
 
-                    MapitEntity {
-                        id: pointcloud
-                        //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
-                        //                                                                                                      0, 1, 0, 0,
-                        //                                                                                                      0, 0, 1, 0,
-                        //                                                                                                      0, 0, 0, 1)
-                        layer: pointLayer
-                        mainCameratmp: mainCamera
-                        scene3dtmp: scene3d
-                        currentEntitydata: root.currentEntitydata
+                    Q3D.NodeInstantiator {
+                        id: entityInstantiator
+                        model: root.visibleEntityItems
+                        delegate: MapitEntity {
+                            mainCameratmp: mainCamera
+                            scene3dtmp: scene3d
+
+                            //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
+                            //                                                                                                      0, 1, 0, 0,
+                            //                                                                                                      0, 0, 1, 0,
+                            //                                                                                                      0, 0, 0, 1)
+                            layer: pointLayer
+                            parametersTmp: techniqueFilter.parameters
+                            currentCheckout: UPNS.Checkout {
+                                id: co
+                                repository: globalRepository
+                                name: model.checkoutName
+                            }
+                            currentEntitydata: UPNS.Entitydata {
+                                checkout: co
+                                path: model.path
+                            }
+                        }
                     }
 
                     Q3D.Entity {

@@ -16,16 +16,17 @@ QCtl.TreeView {
         role: "displayRole"
         title: "Name"
     }
-    QCtl.TableViewColumn {
-        id: pathColumn
-        role: "path"
-        title: "Path"
-    }
+//    QCtl.TableViewColumn {
+//        id: pathColumn
+//        role: "path"
+//        title: "Path"
+//    }
     QCtl.TableViewColumn {
         id: visibleColumn
         role: "visible"
         title: "Vis"
         delegate: QCtl.CheckBox {
+            enabled: model.type
             onCheckedChanged: {
                 if(!checked) {
                     for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
@@ -35,7 +36,7 @@ QCtl.TreeView {
                         }
                     }
                 } else {
-                    treeViewCheckout.visibleElems.append({idx:styleData.row, path:treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole)})
+                    treeViewCheckout.visibleElems.append({idx:styleData.row, path:model.path, checkoutName: currentCheckout.name})
                 }
             }
         }

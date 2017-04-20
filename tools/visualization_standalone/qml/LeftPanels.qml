@@ -14,6 +14,7 @@ Item {
     property alias currentEntitydata: currentEntitydataId
     property alias currentEntitydataTransform: currentEntitydataTransformId
     property alias currentCheckout: checkout
+    property alias visibleElems: treeViewCheckout.visibleElems
     property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
     UPNS.Checkout {
         id: checkout

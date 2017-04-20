@@ -33,8 +33,8 @@ QCtl.ApplicationWindow {
             Layout.fillWidth: true
             Layout.fillHeight: true
             LeftPanels {
-                Layout.fillHeight: true
                 id: leftPanels
+                Layout.fillHeight: true
                 width: 200
             }
             SceneView {
@@ -43,6 +43,7 @@ QCtl.ApplicationWindow {
                 Layout.fillHeight: true
                 currentEntitydata: leftPanels.currentEntitydata
                 currentEntitydataTransform: leftPanels.currentEntitydataTransform
+                visibleEntityItems: leftPanels.visibleElems
             }
         }
         BottomPanels {
@@ -50,7 +51,7 @@ QCtl.ApplicationWindow {
             Layout.fillWidth: true
             currentOperator: leftPanels.currentOperator
             currentCheckout: leftPanels.currentCheckout
-            currentEntity: "text/layer/entity"
+            currentEntity: "map/layer/entity"
         }
     }
 

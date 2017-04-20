@@ -22,6 +22,7 @@ public:
     QmlRootTreeModel();
     QmlCheckout* root() const;
 
+    Q_INVOKABLE QVariantMap get(int idx) const;
 public Q_SLOTS:
     void setRoot(QmlCheckout *root);
 

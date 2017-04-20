@@ -10,6 +10,15 @@ QmlRootTreeModel::QmlRootTreeModel()
     m_roleNameMapping[Qt::UserRole] = "node";
 }
 
+QVariantMap QmlRootTreeModel::get(int idx) const
+{
+    QVariantMap map;
+    Q_FOREACH(int k, roleNames().keys()) {
+        map[roleNames().value(k)] = data(index(idx, 0), k);
+    }
+    return map;
+}
+
 QmlCheckout *QmlRootTreeModel::root() const
 {
     return m_root;

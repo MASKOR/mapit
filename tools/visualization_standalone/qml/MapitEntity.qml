@@ -11,15 +11,16 @@ Q3D.Entity {
     property alias currentEntitydata : edrender.entitydata
     //property var currentEntitydata
     property alias currentTransform : currentEntitydataTransform
+    property alias currentCheckout : currentEntitydataTransform.checkout
     property var mainCameratmp
     property var scene3dtmp
     property Layer layer
+    property alias parametersTmp: surfelTechnique.parameters
     id: pointcloud
 
     UPNS.EntitydataTransform {
         id: currentEntitydataTransform
-        checkout: checkout
-        path: edrender.entitydata + ".tf"
+        path: currentEntitydata.path + ".tf"
         mustExist: false
     }
     property ObjectPicker picker: ObjectPicker {
@@ -38,28 +39,52 @@ Q3D.Entity {
         }
     property Material materialPoint: Material {
         effect: Effect {
-            techniques: Technique {
-                renderPasses: RenderPass {
-                    shaderProgram: ShaderProgram {
-                        //vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
-                        //fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
-                        vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
-                        fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
+            techniques: [
+                Technique {
+                    id: surfelTechnique
+                    filterKeys: [ FilterKey { name: "primitiveType"; value: "point" },
+                                  FilterKey { name: "renderstyle";   value:"surfel" } ]
+                    renderPasses: RenderPass {
+                        shaderProgram: ShaderProgram {
+                            vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
+                            fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
+                        }
+                        renderStates: [
+                            //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+                            PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+                            DepthTest { depthFunction: DepthTest.Less }
+                            //DepthMask { mask: true }
+                        ]
+                    }
+                },
+                Technique {
+                    id: pointsTechnique
+                    filterKeys: [ FilterKey { name: "primitiveType"; value: "point" },
+                                  FilterKey { name: "renderstyle";   value:"points" } ]
+                    renderPasses: RenderPass {
+                        shaderProgram: ShaderProgram {
+                            vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
+                            fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
+                        }
+                        renderStates: [
+                            //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+                            PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+                            DepthTest { depthFunction: DepthTest.Less }
+                            //DepthMask { mask: true }
+                        ]
                     }
                 }
-            }
+            ]
         }
-        parameters: [
-            Parameter { name: "pointSize"; value: 0.5 },
-            Parameter { name: "fieldOfView"; value: mainCameratmp.fieldOfView },
-            Parameter { name: "fieldOfViewVertical"; value: mainCameratmp.fieldOfView/mainCameratmp.aspectRatio },
-            Parameter { name: "nearPlane"; value: mainCameratmp.nearPlane },
-            Parameter { name: "farPlane"; value: mainCameratmp.farPlane },
-            Parameter { name: "width"; value: scene3dtmp.width },
-            Parameter { name: "height"; value: scene3dtmp.height }
-        ]
+//        parameters: [
+//            Parameter { name: "pointSize"; value: 2.5 },
+//            Parameter { name: "fieldOfView"; value: mainCameratmp.fieldOfView },
+//            Parameter { name: "fieldOfViewVertical"; value: mainCameratmp.fieldOfView/mainCameratmp.aspectRatio },
+//            Parameter { name: "nearPlane"; value: mainCameratmp.nearPlane },
+//            Parameter { name: "farPlane"; value: mainCameratmp.farPlane },
+//            Parameter { name: "width"; value: scene3dtmp.width },
+//            Parameter { name: "height"; value: scene3dtmp.height }
+//        ]
     }
-//    property var componentsWMesh: [ customMesh, materialPoint, meshTransform, layer, picker ]
-//    property var componentsWOMesh: [ materialPoint, meshTransform, layer, picker ]
-    components: [ customMesh, materialPoint, meshTransform, layer, picker ] //componentsWOMesh
+    components: [ customMesh, materialPoint, meshTransform, layer, picker ]
 }
