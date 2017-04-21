@@ -119,30 +119,30 @@ Item {
                                             LayerFilter {
                                                 layers: Layer {
                                                     id: pointLayer
-                                                    TechniqueFilter {
-                                                        id: techniqueFilter
-                                                        property list<FilterKey> filters: [ FilterKey { name: "primitiveType"; value: "point" },
-                                                            FilterKey { name: "renderstyle";   value: renderstyleSelect.currentText; onValueChanged: {techniqueFilter.matchAll = []; console.log("redone"); techniqueFilter.matchAll = techniqueFilter.filters} }
-                                                          ]
-                                                        matchAll: filters TODO
-                                                        parameters: [
-                                                            Parameter { name: "colorize"; value: colorizeSelect.currentIndex },
-                                                            Parameter { name: "pointSize"; value: pointSizeSlider.value },
-                                                            Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
-                                                            Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
-                                                            Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
-                                                            Parameter { name: "farPlane"; value: mainCamera.farPlane },
-                                                            Parameter { name: "width"; value: scene3d.width },
-                                                            Parameter { name: "height"; value: scene3d.height }
+                                                }
+                                                TechniqueFilter {
+                                                    id: techniqueFilter
+                                                    matchAll: [
+                                                        FilterKey { name: "primitiveType"; value: "point" },
+                                                        FilterKey { name: "renderstyle";   value: renderstyleSelect.currentText }
+                                                    ]
+                                                    parameters: [
+                                                        Parameter { name: "colorize"; value: colorizeSelect.currentIndex },
+                                                        Parameter { name: "pointSize"; value: pointSizeSlider.value },
+                                                        Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
+                                                        Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
+                                                        Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
+                                                        Parameter { name: "farPlane"; value: mainCamera.farPlane },
+                                                        Parameter { name: "width"; value: scene3d.width },
+                                                        Parameter { name: "height"; value: scene3d.height }
+                                                    ]
+                                                    RenderStateSet {
+                                                        renderStates: [
+                                                            //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+                                                            PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+                                                            DepthTest { depthFunction: DepthTest.Less }
+                                                            //DepthMask { mask: true }
                                                         ]
-//                                                        RenderStateSet {
-//                                                            renderStates: [
-//                                                                //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
-//                                                                PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
-//                                                                DepthTest { depthFunction: DepthTest.Less }
-//                                                                //DepthMask { mask: true }
-//                                                            ]
-//                                                        }
                                                     }
                                                 }
                                             }

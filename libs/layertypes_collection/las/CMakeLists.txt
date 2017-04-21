@@ -1,4 +1,4 @@
-project(layertype_laz)
+project(layertype_las)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
@@ -25,6 +25,7 @@ file(GLOB_RECURSE LAYERTYPE_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
 
 set(HAVE_GDAL FALSE CACHE BOOL "Enable GDAL for LibLAS")
 set(HAVE_LIBGEOTIFF FALSE CACHE BOOL "Enable libGeoTIFF for LibLAS")
+set(HAVE_LASZIP TRUE CACHE BOOL "Enable Laszip for LibLAS")
 
 if(NOT HAVE_GDAL)
   file(GLOB_RECURSE GT_SRC ${PROJECT_SOURCE_DIR}/libLAS/src/gt_*.cpp
@@ -37,9 +38,13 @@ if(NOT HAVE_LIBGEOTIFF)
   list(REMOVE_ITEM LAYERTYPE_SOURCES ${GEO_SRC})
 endif(NOT HAVE_LIBGEOTIFF)
 
+if(HAVE_LASZIP)
+  file(GLOB_RECURSE LASZIP_SRC ${PROJECT_SOURCE_DIR}/LASzip/src/* ${PROJECT_SOURCE_DIR}/LASzip/include/*)
+endif(HAVE_LASZIP)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES} ${LASZIP_SRC})
 target_link_libraries( ${PROJECT_NAME} upns_interface upns_interface_cpp ${BOOST_LIBRARIES})
+
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
                                                    #${PROJECT_SOURCE_DIR}/laszip-src-2.2.0/include/
@@ -49,7 +54,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include
                                                    ${Boost_INCLUDE_DIRS})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
-                                           PUBLIC  LASzipEntitydata_TYPENAME="${PROJECT_NAME}")
+                                           PUBLIC  LASEntitydata_TYPENAME="${PROJECT_NAME}"
+                                                   WITH_LAS)
+
+if(HAVE_LASZIP)
+   target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/LASzip/src/
+                                                      ${PROJECT_SOURCE_DIR}/LASzip/include/
+                                                      ${PROJECT_SOURCE_DIR}/LASzip/include/laszip)
+   target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_LASZIP)
+endif(HAVE_LASZIP)
 
 if(UNIX)
     # tell CMake Prefix is "lib" otherwise it can not be queried

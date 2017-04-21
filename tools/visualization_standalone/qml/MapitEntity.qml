@@ -33,10 +33,10 @@ Q3D.Entity {
             //scale: 10
             //rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
 
-        }
+    }
     property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
         id: edrender
-        }
+    }
     property Material materialPoint: Material {
         effect: Effect {
             techniques: [
@@ -59,6 +59,7 @@ Q3D.Entity {
                 },
                 Technique {
                     id: pointsTechnique
+                    parameters: surfelTechnique.parameters
                     filterKeys: [ FilterKey { name: "primitiveType"; value: "point" },
                                   FilterKey { name: "renderstyle";   value:"points" } ]
                     renderPasses: RenderPass {

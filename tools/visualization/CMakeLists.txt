@@ -43,6 +43,7 @@ if(WITH_PCL)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
     add_definitions(${PCL_DEFINITIONS})
+    add_definitions(-DWITH_POINTCLOUD)
 else(WITH_PCL)
 endif(WITH_PCL)
 
@@ -102,12 +103,18 @@ target_link_libraries(${PROJECT_NAME}   upns_core
                                         upns_interface
                                         upns_interface_cpp
                                         Qt3DPointcloudRenderer
-                                        layertype_pointcloud2
                                         layertype_tf
+                                        layertype_las
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
-                                        ${PCL_LIBRARIES}
                                         stdc++)
+if(WITH_PCL)
+    target_link_libraries(${PROJECT_NAME}
+                                        Qt3DPointcloudRenderer
+                                        layertype_pointcloud2
+                                        ${PCL_LIBRARIES})
+endif(WITH_PCL)
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 
 

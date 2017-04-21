@@ -264,5 +264,6 @@
         <file>qml/operators/surfrecon_openvdb.qml</file>
         <file>qml/operators/voxelgridfilter.qml</file>
         <file>qml/MapitEntity.qml</file>
+        <file>qml/operators/load_las.qml</file>
     </qresource>
 </RCC>

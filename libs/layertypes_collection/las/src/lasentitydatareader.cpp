@@ -76,6 +76,11 @@ std::vector<liblas::TransformPtr> LASEntitydataReader::GetTransforms() const
     return m_pimpl->m_reader->GetTransforms();
 }
 
+liblas::Reader *LASEntitydataReader::getReaderRaw()
+{
+    return m_pimpl->m_reader;
+}
+
 LASEntitydataReader::LASEntitydataReader(std::shared_ptr<AbstractEntitydataProvider> prov)
     :m_pimpl(new LASEntitydataReaderPrivate(prov))
 {

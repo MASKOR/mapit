@@ -18,6 +18,12 @@ public:
     std::vector<liblas::FilterPtr> GetFilters() const;
     void SetTransforms(std::vector<liblas::TransformPtr> const& transforms);
     std::vector<liblas::TransformPtr> GetTransforms() const;
+    ///
+    /// \brief getReaderRaw WARNING: This readers stream lives only as long as this Entitydata Reader.
+    /// By using this method some flexibility is stolen from LASEntitydataReader for datamanegement.
+    /// \return reader
+    ///
+    liblas::Reader *getReaderRaw();
 private:
     LASEntitydataReaderPrivate *m_pimpl;
     LASEntitydataReader(std::shared_ptr<upns::AbstractEntitydataProvider> prov);
