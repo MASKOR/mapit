@@ -52,7 +52,13 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
-    std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(reader.GetHeader());
+    liblas::Header header = reader.GetHeader();
+    header.SetCompressed(false);
+    std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
+    writer->SetFilters(reader.GetFilters());
+    writer->SetTransforms(reader.GetTransforms());
+    //    std::copy(lasreader_iterator(reader),  lasreader_iterator(),
+    //                      laswriter_iterator(writer));
     int i=0;
     while(reader.ReadNextPoint())
     {

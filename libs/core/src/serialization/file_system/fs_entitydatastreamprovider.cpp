@@ -57,9 +57,8 @@ bool FileSystemEntitydataStreamProvider::isReadWriteSame()
 
 upnsIStream* upns::FileSystemEntitydataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
-    std::ifstream *is = new std::ifstream(m_filenameRead);
-    //TODO: SEEK
-
+    std::ifstream *is = new std::ifstream(m_filenameRead, std::ifstream::in | std::ios_base::binary);
+    is->seekg(start, std::ios::beg);
     return is;
 }
 
@@ -71,7 +70,7 @@ void FileSystemEntitydataStreamProvider::endRead(upnsIStream *strm)
 upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 {
     //TODO: seek, overwrite
-    return new std::ofstream(m_filenameWrite);
+    return new std::ofstream(m_filenameWrite, std::ios::out | std::ios::binary);
 }
 
 void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *strm)

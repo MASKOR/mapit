@@ -13,6 +13,7 @@ QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
 {
     QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
     QGeometryRenderer::setGeometry(geometry);
+    QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points); //TODO: To fix error where IndexAttribute is called and is null
 }
 
 QmlEntitydata *QmlEntitydataRenderer::entitydata() const
@@ -54,7 +55,7 @@ void QmlEntitydataRenderer::updateGeometry()
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
-        *pointcloud->pointcloud() = *std::static_pointer_cast< PointcloudEntitydata >(ed)->getData();
+        pointcloud->setPointcloud(*std::static_pointer_cast< PointcloudEntitydata >(ed)->getData());
         QPointcloudGeometry *pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
         QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
         //pointcloudGeometry->setPointcloud(pointcloud);

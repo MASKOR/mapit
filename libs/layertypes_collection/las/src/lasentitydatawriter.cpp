@@ -8,8 +8,13 @@ public:
         :m_streamProvider(prov)
     {
         liblas::WriterFactory f;
+        //m_tmpFile.open(m_streamProvider->startWriteFile(m_readWriteHandleTmp));
+        //m_writer = new liblas::Writer(f.CreateWithStream(m_tmpFile, header));
+        //m_ostream = &m_tmpFile;
         m_ostream = m_streamProvider->startWrite();
         m_writer = new liblas::Writer(f.CreateWithStream(*m_ostream, header));
+        m_writer->SetHeader(header);
+        m_writer->WriteHeader();
     }
     ~LASEntitydataWriterPrivate()
     {
@@ -18,12 +23,15 @@ public:
             log_error("End writing, but never started writing before.");
             return;
         }
+        //m_streamProvider->endWriteFile(m_readWriteHandleTmp);
         m_streamProvider->endWrite(m_ostream);
         m_ostream = nullptr;
     }
     std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
     liblas::Writer *m_writer;
     upnsOStream    *m_ostream;
+//    ReadWriteHandle m_readWriteHandleTmp;
+//    std::ofstream   m_tmpFile;
 };
 
 const liblas::Header &LASEntitydataWriter::GetHeader() const
