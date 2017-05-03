@@ -26,6 +26,11 @@ public:
     upnsIStream    *m_istream;
 };
 
+const liblas::Header &LASEntitydataReader::GetHeader() const
+{
+    return m_pimpl->m_reader->GetHeader();
+}
+
 const liblas::Point &LASEntitydataReader::GetPoint() const
 {
     return m_pimpl->m_reader->GetPoint();

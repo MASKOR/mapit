@@ -5,7 +5,7 @@ import QtQuick.Window 2.2 as Wnd
 
 import fhac.upns 1.0 as UPNS
 
-QCtl.Button {
+StyledButton {
     text: "Checkout"
     property var currentCheckoutName
     onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible

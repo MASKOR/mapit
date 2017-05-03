@@ -1,6 +1,7 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0
 
 import fhac.upns 1.0 as UPNS
 
@@ -8,6 +9,8 @@ QCtl.TreeView {
     property var currentCheckout
     property var contextMenu
     property var visibleElems: ListModel {}
+    alternatingRowColors: true
+    headerVisible: false
     id: treeViewCheckout
     model: UPNS.RootTreeModel {
         root: currentCheckout
@@ -15,6 +18,8 @@ QCtl.TreeView {
     QCtl.TableViewColumn {
         role: "displayRole"
         title: "Name"
+        resizable: true
+        width: treeViewCheckout.width-30-4
     }
 //    QCtl.TableViewColumn {
 //        id: pathColumn
@@ -25,10 +30,31 @@ QCtl.TreeView {
         id: visibleColumn
         role: "visible"
         title: "Vis"
-        delegate: QCtl.CheckBox {
-            enabled: model.type
-            onCheckedChanged: {
-                if(!checked) {
+        movable: false
+        resizable: false
+        width: 30
+        delegate: MouseArea {
+            id: itemMA
+            property bool showObj: false
+            Image {
+                id: visibleImage
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                fillMode: Image.PreserveAspectFit
+                //anchors.verticalCenter: parent.verticalCenter
+                source: "image://icon/eye"
+                visible: model.type
+            }
+            ColorOverlay {
+                anchors.fill: visibleImage
+                source: visibleImage
+                color: itemMA.showObj ? "#43adee" : "#565656"
+                visible: model.type
+            }
+            onClicked: {
+                if(!model.type) return
+                itemMA.showObj = !itemMA.showObj
+                if(!itemMA.showObj) {
                     for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
                         var obj = treeViewCheckout.visibleElems.get(i);
                         if(obj.idx === styleData.row) {
@@ -40,6 +66,21 @@ QCtl.TreeView {
                 }
             }
         }
+//            QCtl.CheckBox {
+//            enabled: model.type
+//            onCheckedChanged: {
+//                if(!checked) {
+//                    for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
+//                        var obj = treeViewCheckout.visibleElems.get(i);
+//                        if(obj.idx === styleData.row) {
+//                            treeViewCheckout.visibleElems.remove(i);
+//                        }
+//                    }
+//                } else {
+//                    treeViewCheckout.visibleElems.append({idx:styleData.row, path:model.path, checkoutName: currentCheckout.name})
+//                }
+//            }
+//        }
     }
     //onCurrentIndexChanged: console.log("SEL:"+treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole));//treeViewCheckout.currentIndex.data(Qt.ToolTipRole));//treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole))
     rowDelegate: Item {

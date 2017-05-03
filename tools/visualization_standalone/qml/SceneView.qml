@@ -13,11 +13,14 @@ import fhac.upns 1.0 as UPNS
 
 import QtQuick 2.0 as QQ2
 
+import qt3deditorlib 1.0
+
 Item {
     id: root
     property var currentEntitydata
     property var currentEntitydataTransform
     property alias visibleEntityItems: entityInstantiator.model
+    property alias camera: mainCamera
     onVisibleEntityItemsChanged: {
         console.log("DBG: chan" + visibleEntityItems.length)
     }
@@ -66,6 +69,9 @@ Item {
             onExited: {
                 priv.mouseOver = false
             }
+            onWheel: {
+                cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
+            }
 
             Item {
                 id: priv
@@ -90,14 +96,11 @@ Item {
                         upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
                         viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
                     }
-
-                    FirstPersonCameraController {
-                    //OrbitCameraController {
+                    EditorCameraController {
                         id: cameraController
-                        camera: mainCamera
-                        linearSpeed: priv.mouseOver*12.0
+                        camera: sceneView.camera
+                        viewportSize: Qt.size(scene3d.width, scene3d.height)
                     }
-
                     components: [
                         RenderSettings {
                             activeFrameGraph: Viewport {
@@ -110,7 +113,7 @@ Item {
                                         FrustumCulling {
                                             ClearBuffers {
                                                 buffers : ClearBuffers.ColorDepthBuffer
-                                                clearColor: "white"
+                                                clearColor: "#c0c0c0"
                                                 NoDraw {}
                                             }
                                             LayerFilter {
@@ -181,6 +184,22 @@ Item {
                                 path: model.path
                             }
                         }
+                    }
+
+                    Q3D.Entity {
+                        id: gridEntity
+                        Q3D.Transform {
+                            id: gridTransform
+                            translation: Qt.vector3d(0, 0, 0)
+                        }
+                        HelperGridMesh {
+                            id: gridMesh
+                        }
+
+                        property Material materialPhong: PhongMaterial {
+                            ambient: Qt.rgba(0.0,0.0,0.0,1.0)
+                        }
+                        components: [ gridMesh, materialPhong, gridTransform, solidLayer ]
                     }
 
                     Q3D.Entity {

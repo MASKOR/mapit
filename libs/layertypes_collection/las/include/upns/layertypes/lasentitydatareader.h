@@ -8,6 +8,7 @@ class LASEntitydataReaderPrivate;
 class LASEntitydataReader /* acts like : public liblas::Reader */
 {
 public:
+    liblas::Header const& GetHeader() const;
     liblas::Point const& GetPoint() const;
     bool ReadNextPoint();
     bool ReadPointAt(std::size_t n);

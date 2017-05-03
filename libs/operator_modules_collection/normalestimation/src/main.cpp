@@ -55,9 +55,6 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     pcl::toPCLPointCloud2(cloud_normals, cloud_normals2);
     pcl::concatenateFields(*pc2, cloud_normals2, *outp);
 
-    std::cout << "FIELDS: " << outp->fields.size() << std::endl;
-    std::cout << "FIELDS2: " << cloud_normals2.fields.size() << std::endl;
-    std::cout << "FIELDS1: " << pc2->fields.size() << std::endl;
 //    std::stringstream strstr;
 //    strstr << "got normals";
 //    log_info( strstr.str() );

@@ -2,6 +2,7 @@ import QtQuick 2.4
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.4
 
+import ".."
 Item {
     id: root
     property var currentEntity // to prefill operator
@@ -64,22 +65,34 @@ Item {
             controlComponent.statusChanged.connect(function() {finish(controlComponent);});
         }
     }
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
-        Item {
+        StyledHeader {
+            Layout.fillWidth: true
+            id: operatorHeader
+            text: qsTr("Operator: ") + currentOperator.moduleName
+        }
+
+        ColumnLayout {
+            visible: operatorHeader.checked
             Layout.fillHeight: true
             Layout.fillWidth: true
-            id: controlHolder
-        }
-        ColumnLayout {
-            Layout.fillHeight: true
-            Button {
-                text: "Execute"
-                enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
-                onClicked: {
-                    console.log(currentOperator.moduleName + "executed, params:")
-                    console.log(currentOperatorUiItem.parameters)
-                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters);
+            onWidthChanged: controlHolder.width = width
+            Item {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                id: controlHolder
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Button {
+                    text: "Execute"
+                    enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
+                    onClicked: {
+                        console.log(currentOperator.moduleName + "executed, params:")
+                        console.log(currentOperatorUiItem.parameters)
+                        currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters);
+                    }
                 }
             }
         }

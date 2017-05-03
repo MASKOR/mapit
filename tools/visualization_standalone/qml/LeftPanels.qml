@@ -39,66 +39,95 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         id: controlColumn
-        Text {
-            text: qsTr("Operators:")
-            color: palette.text
-        }
-        OperatorListPane {
+
+        QCtl.SplitView {
+            orientation: Qt.Vertical
             Layout.fillWidth: true
-            id: operatorListPane
-            height: 200
-        }
-
-        CheckoutChooser {
-            id: checkoutChooser
-        }
-
-        QCtl.Action {
-            id: transformAction
-            text: "&Transform"
-            shortcut: "T"
-            //iconName: "edit-copy"
-            enabled: currentEntitydataTransform.path.length > 0
-            //    target: "path/to/target.tf"
-            //    mode: "relative"|"absolute",
-            //    tf: [
-            //      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
-            //      1: {mat: [0: m00_2, ...]},
-            //      2: ...
-            //    ]
-            // }
-            onTriggered: {
-                console.log("executing");
-                checkout.doOperation("transform", {
-                    target: currentEntitydataTransform.path,
-                    mode: "absolute",
-                    tf: {
-                        mat:[100,   0,   0,   0,
-                               0, 100,   0,   0,
-                               0,   0, 100,   0,
-                               0,   0,   0,   1]
+            Layout.fillHeight: true
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: appStyle.controlMargin
+                StyledHeader {
+                    Layout.fillWidth: true
+                    id: headerOpPane
+                    text: qsTr("Operators")
+                }
+                OperatorListPane {
+                    Layout.fillWidth: true
+                    id: operatorListPane
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 160
+                    Layout.preferredHeight: 500
+                    visible: headerOpPane.checked
+                }
+                QCtl.Action {
+                    id: transformAction
+                    text: "&Transform"
+                    shortcut: "T"
+                    //iconName: "edit-copy"
+                    enabled: currentEntitydataTransform.path.length > 0
+                    //    target: "path/to/target.tf"
+                    //    mode: "relative"|"absolute",
+                    //    tf: [
+                    //      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
+                    //      1: {mat: [0: m00_2, ...]},
+                    //      2: ...
+                    //    ]
+                    // }
+                    onTriggered: {
+                        console.log("executing");
+                        checkout.doOperation("transform", {
+                            target: currentEntitydataTransform.path,
+                            mode: "absolute",
+                            tf: {
+                                mat:[100,   0,   0,   0,
+                                       0, 100,   0,   0,
+                                       0,   0, 100,   0,
+                                       0,   0,   0,   1]
+                            }
+                        });
                     }
-                });
-            }
-        }
-
-        Text {
-            text: "Checkout: " + checkout.name
-        }
-
-        CheckoutTreeView {
-            id: treeViewCheckout
-            currentCheckout: checkout
-            contextMenu: QCtl.Menu {
-                id: contextMenu
-                QCtl.MenuItem {
-                    action: transformAction
                 }
             }
-        }
-        Rectangle {
-            Layout.fillHeight: true
-            color: "red"
+            ColumnLayout {
+                Layout.preferredHeight: 300
+                Layout.fillWidth: true
+                spacing: appStyle.controlMargin
+                StyledHeader {
+                    Layout.fillWidth: true
+                    id: headerCheckout
+                    text: qsTr("Checkout")
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: appStyle.controlMargin
+                    visible: headerCheckout.checked
+                    RowLayout {
+                        Layout.fillWidth: true
+                        StyledLabel {
+                            text: checkout.name
+                            Layout.fillWidth: true
+                        }
+                        CheckoutChooser {
+                            width: implicitWidth
+
+                            id: checkoutChooser
+                        }
+                    }
+                    CheckoutTreeView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        id: treeViewCheckout
+                        currentCheckout: checkout
+                        contextMenu: QCtl.Menu {
+                            id: contextMenu
+                            QCtl.MenuItem {
+                                action: transformAction
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

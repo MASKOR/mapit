@@ -265,5 +265,18 @@
         <file>qml/operators/voxelgridfilter.qml</file>
         <file>qml/MapitEntity.qml</file>
         <file>qml/operators/load_las.qml</file>
+        <file>qml/operators/levelset_to_mesh.png</file>
+        <file>qml/operators/load_pointcloud.png</file>
+        <file>qml/operators/voxelgridfilter.png</file>
+        <file>qml/operators/load_las.png</file>
+        <file>qml/operators/normalestimation.png</file>
+        <file>qml/operators/surfrecon_openvdb.png</file>
+        <file>qml/HelperGridMesh.qml</file>
+        <file>qml/AppStyle.qml</file>
+        <file>qml/StyledHeader.qml</file>
+        <file>qml/StyledButton.qml</file>
+        <file>icon/eye-16-ns.png</file>
+        <file>icon/eye-24-ns.png</file>
+        <file>qml/StyledLabel.qml</file>
     </qresource>
 </RCC>

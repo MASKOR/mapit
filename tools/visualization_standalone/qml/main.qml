@@ -27,31 +27,40 @@ QCtl.ApplicationWindow {
 //        conf: "./repo.yaml"
 //    }
 
+    AppStyle {
+        id:appStyle
+        visible:false
+    }
+
     ColumnLayout {
         anchors.fill: parent
-        RowLayout {
+        QCtl.SplitView {
+            orientation: Qt.Horizontal
             Layout.fillWidth: true
             Layout.fillHeight: true
             LeftPanels {
                 id: leftPanels
                 Layout.fillHeight: true
-                width: 200
+                Layout.minimumWidth: 50
+                width: 210
             }
             SceneView {
-                Layout.minimumWidth: 50
+                id: sceneView
+                Layout.minimumWidth: 150
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 currentEntitydata: leftPanels.currentEntitydata
                 currentEntitydataTransform: leftPanels.currentEntitydataTransform
                 visibleEntityItems: leftPanels.visibleElems
             }
-        }
-        BottomPanels {
-            height: 200
-            Layout.fillWidth: true
-            currentOperator: leftPanels.currentOperator
-            currentCheckout: leftPanels.currentCheckout
-            currentEntity: "map/layer/entity"
+            BottomPanels {
+                Layout.fillHeight: true
+                Layout.minimumWidth: 50
+                width: 220
+                currentOperator: leftPanels.currentOperator
+                currentCheckout: leftPanels.currentCheckout
+                currentEntity: "map/layer/entity"
+            }
         }
     }
 

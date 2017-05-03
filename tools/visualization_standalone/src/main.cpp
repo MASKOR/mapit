@@ -43,8 +43,12 @@
 #include <mapit/msgs/services.pb.h>
 #include <upns/errorcodes.h>
 
+#include "inputcontrols/editorcameracontroller.h"
+
 #include <boost/program_options.hpp>
 #include "iconimageprovider.h"
+
+#include <Qt3DQuick/Qt3DQuick>
 
 namespace po = boost::program_options;
 
@@ -100,11 +104,22 @@ int main(int argc, char *argv[])
     qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
     qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
 
+    qmlRegisterType<EditorCameraController>("qt3deditorlib", 1, 0, "EditorCameraController");
+
     QQmlApplicationEngine engine;
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
     engine.addImageProvider("icon", new IconImageProvider(":/icon/"));
+    engine.addImageProvider("operator", new IconImageProvider(":/qml/operators", false));
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
+
+    Qt3DCore::Quick::QQmlAspectEngine * test = engine.findChild<Qt3DCore::Quick::QQmlAspectEngine *>();
+//    Qt3DInput::QInputSettings *inputSettings = m_entity->findChild<Qt3DInput::QInputSettings *>();
+//    if (inputSettings) {
+//        inputSettings->setEventSource(this);
+//    } else {
+//        qCDebug(Scene3D) << "No Input Settings found, keyboard and mouse events won't be handled";
+//    }
 
     int result = app.exec();
     return result;
