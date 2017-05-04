@@ -14,6 +14,7 @@
 
 upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
 {
+    std::cout << "DBG: START" << std::endl;
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
 
@@ -49,6 +50,7 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     }
     liblas::Reader reader = f.CreateWithStream(ifs);
 
+    std::cout << "DBG: RWEAD" << std::endl;
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
@@ -60,13 +62,16 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     //    std::copy(lasreader_iterator(reader),  lasreader_iterator(),
     //                      laswriter_iterator(writer));
     int i=0;
+    std::cout << "DBG: DRLENG " << reader.GetHeader().GetDataRecordLength();
     while(reader.ReadNextPoint())
     {
+        std::cout << "."; //"DBG: DRLENG " << reader.GetHeader().GetDataRecordLength();
         liblas::Point const&  current(reader.GetPoint());
         writer->WritePoint(current);
         ++i;
     }
     log_info("Points read:" + std::to_string(i));
+    std::cout << "DBG: DONE " << std::to_string(i);
     return UPNS_STATUS_OK;
 }
 

@@ -10,14 +10,14 @@ Item {
     //// in ////
     property bool editable
     property var currentCheckout
-    property string currentEntityPath
+    property string currentEntity
 
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
     }
 
     //// out ////
-    property bool valid: fileNamePcd.text != "" && entityChooser.currentEntityPath != ""
+    property bool valid: entityChooser.currentEntityPath != ""
     property var parameters: {
         "target":entityChooser.currentEntityPath
     }
@@ -25,7 +25,6 @@ Item {
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
-        height: root.height
         RowLayout {
             Layout.fillWidth: true
             Text {

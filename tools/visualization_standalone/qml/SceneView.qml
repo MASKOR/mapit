@@ -28,13 +28,18 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         //QCtl.ToolBar {
-            RowLayout {
+            Flow {
                 id: toolbar
-                Layout.fillWidth: true
-                Layout.maximumHeight: 32
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.right: parent.right
+//                Layout.fillWidth: true
+//                Layout.maximumHeight: 32
                 AxisGizmo {
-                    Layout.preferredHeight: toolbar.height
-                    Layout.preferredWidth: toolbar.height
+                    height: pointSizeSlider.height
+                    width: height
+//                    Layout.preferredHeight: toolbar.height
+//                    Layout.preferredWidth: toolbar.height
                     finalTransform: mainCamera.viewMatrix
                 }
                 Text { text: "PointSize: " + pointSizeSlider.value.toFixed(2); color: palette.text }
@@ -54,6 +59,13 @@ Item {
                 QCtl.ComboBox {
                     id: colorizeSelect
                     model: [ "x", "y", "z", "intensity"]
+                }
+                QCtl.Slider {
+                    id: cameraSizeSlider
+                    width: 100
+                    value: 1.0
+                    minimumValue: 1.0
+                    maximumValue:  100.0
                 }
             }
         //}
@@ -82,7 +94,7 @@ Item {
                 anchors.fill: parent
                 id: scene3d
                 aspects: ["render", "logic", "input"]
-                focus: priv.mouseOver
+                //focus: priv.mouseOver
                 Q3D.Entity {
                     id: sceneRoot
                     Camera {
@@ -90,11 +102,12 @@ Item {
                         projectionType: CameraLens.PerspectiveProjection
                         fieldOfView: 45
                         aspectRatio: scene3d.width/scene3d.height
-                        nearPlane : 0.1
-                        farPlane : 1000.0
+                        nearPlane : 0.1*cameraSizeSlider.value
+                        farPlane : 1000.0*cameraSizeSlider.value
                         position: Qt.vector3d( 0.0, 0.0, -40.0 )
                         upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
                         viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
+
                     }
                     EditorCameraController {
                         id: cameraController
@@ -158,6 +171,10 @@ Item {
                         InputSettings {
                             eventSource: scene3d
                             enabled: true
+                        },
+                        Q3D.Transform {
+                            id: worldTransform
+                            scale: cameraSizeSlider.value
                         }
                     ]
 

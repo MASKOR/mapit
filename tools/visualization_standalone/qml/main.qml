@@ -31,7 +31,6 @@ QCtl.ApplicationWindow {
         id:appStyle
         visible:false
     }
-
     ColumnLayout {
         anchors.fill: parent
         QCtl.SplitView {
@@ -59,7 +58,7 @@ QCtl.ApplicationWindow {
                 width: 220
                 currentOperator: leftPanels.currentOperator
                 currentCheckout: leftPanels.currentCheckout
-                currentEntity: "map/layer/entity"
+                currentEntityPath: leftPanels.currentEntityPath
             }
         }
     }

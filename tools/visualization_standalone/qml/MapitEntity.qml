@@ -32,7 +32,6 @@ Q3D.Entity {
             //property real userAngle: -90.0
             //scale: 10
             //rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
-
     }
     property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
         id: edrender

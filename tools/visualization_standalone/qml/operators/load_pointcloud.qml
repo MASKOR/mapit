@@ -7,10 +7,11 @@ import ".."
 
 Item {
     id: root
+    height: implicitHeight
     //// in ////
     property bool editable
     property var currentCheckout
-    property string currentEntity
+    property string currentEntityPath
 
     function fromParameters(params) {
         parameters = params
@@ -27,7 +28,6 @@ Item {
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
-        height: root.height
         RowLayout {
             Layout.fillWidth: true
             TextField {
@@ -42,7 +42,6 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.fillHeight: true
             Text {
                 Layout.alignment: Qt.AlignTop
                 text: "Target:"
@@ -52,9 +51,8 @@ Item {
             EntityChooser {
                 id: entityChooser
                 Layout.fillWidth: true
-                Layout.fillHeight: true
                 currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntity
+                currentEntityPath: root.currentEntityPath
             }
         }
         FileDialog {
@@ -68,6 +66,9 @@ Item {
                 filename = filename.replace(/^(file:\/{2})/,"")
                 fileNamePcd.text = filename
             }
+        }
+        Item {
+            Layout.fillHeight: true
         }
         SystemPalette {
             id: palette

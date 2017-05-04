@@ -3,7 +3,7 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 //import "qrc:/qml/theme/";
 
-Rectangle {
+Item {
     id: root
     property bool allowNew: true
     property var model
@@ -12,8 +12,6 @@ Rectangle {
     property alias selection: lv.currentItem
     property alias currentText: ff.text
     signal action(var item)
-    border.width: 1
-    border.color: "orange"
 //    gradient: Gradient {
 //        GradientStop { position: 0.0; color: ColorTheme.contextMenu1 }
 //        GradientStop { position: 1.0; color: ColorTheme.contextMenu2 }
@@ -21,6 +19,7 @@ Rectangle {
     onXChanged: reinit()
     onYChanged: reinit()
     onVisibleChanged: reinit()
+    z: 1000
     function reinit() {
         if(visible) {
             ff.text = "";
@@ -31,9 +30,9 @@ Rectangle {
             filteredModel.append({"displayName": model[i]});
         }
     }
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.bottomMargin: 2
+//    ColumnLayout {
+//        anchors.fill: parent
+//        anchors.bottomMargin: 2
 
         Keys.onReturnPressed: {
             if(allowNew) {
@@ -51,10 +50,14 @@ Rectangle {
             } else if(event.key === Qt.Key_Down) {
                 lv.currentIndex = lv.currentIndex + 1;
                 event.accepted = true;
+            } else if(event.key === Qt.Key_Tab) {
+                ff.focus = false
+                lv.focus = false
             }
         }
         TextField {
-            Layout.fillWidth: true
+            //Layout.fillWidth: true
+            anchors.fill: parent
             id: ff
             placeholderText: "filter..."
             onTextChanged: {
@@ -70,11 +73,22 @@ Rectangle {
                 lv.currentIndex = 0;
                 console.log("done!!!")
             }
-        }
+//        }
+    }
+    Rectangle {
+        visible: lv.focus || ff.focus
+        anchors.top: ff.bottom
+        anchors.left: ff.left
+        anchors.right: ff.right
+        color: appStyle.backgroundColor
+        border.width: 1
+        border.color: "orange"
+        height: 200
+        z: 1000
         ListView {
+            anchors.leftMargin: 3
+            anchors.fill: parent
             clip: true
-            Layout.fillWidth: true
-            Layout.fillHeight: true
             id: lv
             model: filteredModel
             delegate: Text {

@@ -11,6 +11,7 @@ Item {
         id: palette
     }
     height: 24
+    z: 1000
     property var currentCheckout
     property alias currentEntityPath: filter.currentText
     property real extendedHeight: 200
@@ -26,7 +27,6 @@ Item {
         id: filter
         anchors.fill: parent
         allowNew: true
-
         model: currentCheckout.entities
     }
 

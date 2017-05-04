@@ -4,6 +4,7 @@ Item {
     property color textColor: "#ffffff"
     property color textColorDisabled: "#a0a1a2"
     property color selectionColor: "#43adee"
+    property color selectionBorderColor: "orange"
     property color highlightColor: "#585a5c"
     property color backgroundColor: "#2e2f30"
     property color backgroundHighlightColor: "#373839"

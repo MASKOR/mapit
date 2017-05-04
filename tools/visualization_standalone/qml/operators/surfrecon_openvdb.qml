@@ -10,11 +10,12 @@ Item {
     //// in ////
     property bool editable
     property var currentCheckout
-    property string currentEntity
+    property string currentEntityPath
 
     function fromParameters(params) {
-        parameters = params
-
+        radiusTextfiled.text = params.radius
+        voxelsizeTextfiled.text = params.voxelsize
+        entityChooser.currentEntityPath = params.target
     }
 
     //// out ////
@@ -68,7 +69,6 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.fillHeight: true
             Text {
                 Layout.alignment: Qt.AlignTop
                 text: "Target:"
@@ -78,10 +78,12 @@ Item {
             EntityChooser {
                 id: entityChooser
                 Layout.fillWidth: true
-                Layout.fillHeight: true
                 currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntity
+                currentEntityPath: root.currentEntityPath
             }
+        }
+        Item {
+            Layout.fillHeight: true
         }
         SystemPalette {
             id: palette

@@ -2,10 +2,12 @@ import QtQuick 2.4
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.4
 
+import fhac.upns 1.0 as UPNS
+
 import ".."
 Item {
     id: root
-    property var currentEntity // to prefill operator
+    property var currentEntityPath // to prefill operator
     property var currentOperator
     property var currentCheckout
     property var currentOperatorUiItem
@@ -22,7 +24,7 @@ Item {
             if( typeof root.currentOperator == "undefined" ) return;
             root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentOperator: root.currentOperator,
                                                                                        currentCheckout: root.currentCheckout,
-                                                                                       currentEntity: root.currentEntity});
+                                                                                       currentEntityPath: root.currentEntityPath});
             if (root.currentOperatorUiItem === null) {
                 // Error Handling
                 console.log("Error creating detailsView");
@@ -70,14 +72,18 @@ Item {
         StyledHeader {
             Layout.fillWidth: true
             id: operatorHeader
-            text: qsTr("Operator: ") + currentOperator.moduleName
+            text: qsTr("Operator")
         }
-
         ColumnLayout {
+            Layout.maximumHeight: 300
             visible: operatorHeader.checked
             Layout.fillHeight: true
             Layout.fillWidth: true
             onWidthChanged: controlHolder.width = width
+            StyledLabel {
+                Layout.fillWidth: true
+                text: currentOperator?currentOperator.moduleName:""
+            }
             Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
@@ -95,6 +101,31 @@ Item {
                     }
                 }
             }
+        }
+        StyledHeader {
+            Layout.fillWidth: true
+            id: entityHeader
+            text: qsTr("Entity")
+        }
+        ColumnLayout {
+            Layout.fillWidth: true
+            visible: entityHeader.checked && root.currentEntityPath !== undefined
+            RowLayout {
+                Layout.fillWidth: true
+                StyledLabel {
+                    Layout.fillWidth: true
+                    text: "Type: "
+                    font.weight: Font.Bold
+                }
+
+                StyledLabel {
+                    Layout.fillWidth: true
+                    text: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath).type : ""
+                }
+            }
+        }
+        Item {
+            Layout.fillHeight: true
         }
     }
 }

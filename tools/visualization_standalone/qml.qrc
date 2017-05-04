@@ -278,5 +278,7 @@
         <file>icon/eye-16-ns.png</file>
         <file>icon/eye-24-ns.png</file>
         <file>qml/StyledLabel.qml</file>
+        <file>qml/operators/las2pcd.qml</file>
+        <file>qml/operators/centroid_to_origin.qml</file>
     </qresource>
 </RCC>

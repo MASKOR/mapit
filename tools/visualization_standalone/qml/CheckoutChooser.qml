@@ -6,7 +6,8 @@ import QtQuick.Window 2.2 as Wnd
 import fhac.upns 1.0 as UPNS
 
 StyledButton {
-    text: "Checkout"
+    text: qsTr("Checkout")
+    tooltip: qsTr("Open Dialog to choose checkout to work on")
     property var currentCheckoutName
     onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
     Wnd.Window {
@@ -18,7 +19,7 @@ StyledButton {
         minimumWidth: width
         maximumWidth: width
         flags: Qt.Dialog
-        title: "Choose Checkout"
+        title: qsTr("Choose Checkout")
         color: palette.window
         ColumnLayout {
             anchors.fill: parent

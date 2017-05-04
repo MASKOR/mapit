@@ -11,7 +11,7 @@ import "panes"
 Item {
     property alias currentOperator: opPane.currentOperator
     property alias currentCheckout: opPane.currentCheckout
-    property alias currentEntity: opPane.currentEntity
+    property alias currentEntityPath: opPane.currentEntityPath
     RowLayout {
         anchors.fill: parent
         OperatorPane {

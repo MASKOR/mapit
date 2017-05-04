@@ -19,3 +19,8 @@ bool QmlEntity::isValid() const
 {
     return m_entity != nullptr;
 }
+
+QString QmlEntity::type() const
+{
+    return QString::fromStdString(m_entity->type());
+}

@@ -53,11 +53,13 @@ Item {
                 height: gridRoot.buttonSize
                 style: ButtonStyle {
                     background: Rectangle {
-                        border.width: 0
+                        property bool selected: root.currentOperator.moduleName === gridRoot.model[index].moduleName
+                        border.width: selected ? 1 : 0
+                        border.color: appStyle.selectionBorderColor
                         color: Qt.darker("grey")
                     }
                 }
-                tooltip: qsTr("You can click here show details of <i>%1</i>.").arg(
+                tooltip: qsTr("Show details of <i>%1</i>.").arg(
                              gridRoot.model[index].moduleName)
                 Column {
                     anchors.centerIn: parent

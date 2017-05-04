@@ -16,11 +16,9 @@ Rectangle {
         font.weight: appStyle.headerFontWeight
     }
     Button {
-        id: resetButton
         anchors.right: parent.right
         anchors.rightMargin: 8
         anchors.verticalCenter: parent.verticalCenter
-        visible: resetButtonShown
         style: ButtonStyle {
             padding.top: 0
             padding.bottom: 0
