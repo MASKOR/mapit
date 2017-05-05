@@ -30,53 +30,54 @@ Item {
             filteredModel.append({"displayName": model[i]});
         }
     }
-//    ColumnLayout {
-//        anchors.fill: parent
-//        anchors.bottomMargin: 2
+    Keys.onReturnPressed: {
+        if(allowNew) {
+            root.action(ff.text);
+        } else {
+            root.action(filteredModel.get(lv.currentIndex).displayName);
+        }
+        event.accepted = true;
+    }
 
-        Keys.onReturnPressed: {
-            if(allowNew) {
-                root.action(ff.text);
-            } else {
-                root.action(filteredModel.get(lv.currentIndex).displayName);
-            }
+    Keys.onPressed: {
+        if (event.key === Qt.Key_Up) {
+            lv.currentIndex = Math.max(0, lv.currentIndex - 1);
             event.accepted = true;
+        } else if(event.key === Qt.Key_Down) {
+            lv.currentIndex = lv.currentIndex + 1;
+            event.accepted = true;
+        } else if(event.key === Qt.Key_Tab) {
+            ff.focus = false
+            lv.focus = false
         }
-
-        Keys.onPressed: {
-            if (event.key === Qt.Key_Up) {
-                lv.currentIndex = Math.max(0, lv.currentIndex - 1);
-                event.accepted = true;
-            } else if(event.key === Qt.Key_Down) {
-                lv.currentIndex = lv.currentIndex + 1;
-                event.accepted = true;
-            } else if(event.key === Qt.Key_Tab) {
-                ff.focus = false
-                lv.focus = false
-            }
-        }
-        TextField {
-            //Layout.fillWidth: true
-            anchors.fill: parent
-            id: ff
-            placeholderText: "filter..."
-            onTextChanged: {
-                filteredModel.clear();
-                var re = new RegExp(ff.text, "i"); //Case insensitive
-                for(var i=0; i<model.length ; ++i) {
-                    var block = model[i];
-                    if(block.match(re)) {
-                        filteredModel.append({"displayName": block});
-                        console.log(block)
-                    }
+    }
+    TextField {
+        anchors.fill: parent
+        id: ff
+        placeholderText: "filter..."
+        onTextChanged: {
+            filteredModel.clear();
+            var re = new RegExp(ff.text, "i"); //Case insensitive
+            for(var i=0; i<model.length ; ++i) {
+                var block = model[i];
+                if(block.match(re)) {
+                    filteredModel.append({"displayName": block});
+                    console.log(block)
                 }
-                lv.currentIndex = 0;
-                console.log("done!!!")
             }
+            lv.currentIndex = 0;
+            console.log("done!!!")
+        }
+//        onFocusChanged: {
+//            if(!focus
+//            && !dropDown.focus
+//            && !lv.focus)
+//                dropDown.visible = false
 //        }
     }
     Rectangle {
-        visible: lv.focus || ff.focus
+        id: dropDown
+        visible: ff.activeFocus || lv.activeFocus
         anchors.top: ff.bottom
         anchors.left: ff.left
         anchors.right: ff.right

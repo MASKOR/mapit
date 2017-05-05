@@ -14,12 +14,16 @@ Item {
 
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
+        demeanCheckbox.checked = params.demean;
+        normalizeCheckbox.checked = params.normalize;
     }
 
     //// out ////
     property bool valid: entityChooser.currentEntityPath != ""
     property var parameters: {
-        "target":entityChooser.currentEntityPath
+        "target":entityChooser.currentEntityPath,
+        "demean": demeanCheckbox.checked,
+        "normalize": normalizeCheckbox.checked
     }
 
     //// UI ////
@@ -38,6 +42,26 @@ Item {
                 Layout.fillWidth: true
                 currentCheckout: root.currentCheckout
                 currentEntityPath: root.currentEntity
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Demean:"
+            }
+            CheckBox {
+                id: demeanCheckbox
+                Layout.fillWidth: true
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Normalize"
+            }
+            CheckBox {
+                id: normalizeCheckbox
+                Layout.fillWidth: true
             }
         }
         Item {

@@ -66,7 +66,7 @@ void QmlEntitydataRenderer::updateGeometry()
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
         std::unique_ptr<LASEntitydataReader> reader = std::static_pointer_cast< LASEntitydata >(ed)->getReader();
-        pointcloud->read(reader->getReaderRaw());
+        pointcloud->read(reader->getReaderRaw(), true, true, 10.0f, true);
         QPointcloudGeometry *pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
         QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
     }

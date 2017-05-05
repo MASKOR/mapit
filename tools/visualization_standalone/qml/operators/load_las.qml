@@ -14,14 +14,19 @@ Item {
 
     function fromParameters(params) {
         parameters = params
-
+        fileNamePcd.text = params.filename;
+        ntityChooser.currentEntityPath = params.target;
+        demeanCheckbox.checked = params.demean;
+        normalizeCheckbox.checked = params.normalize;
     }
 
     //// out ////
     property bool valid: fileNamePcd.text != "" && entityChooser.currentEntityPath != ""
     property var parameters: {
         "filename":fileNamePcd.text,
-        "target":entityChooser.currentEntityPath
+        "target":entityChooser.currentEntityPath,
+        "demean": demeanCheckbox.checked,
+        "normalize": normalizeCheckbox.checked
     }
 
     //// UI ////
@@ -42,17 +47,35 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Text {
-                Layout.alignment: Qt.AlignTop
+            z: 100
+            StyledLabel {
                 text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
             }
             EntityChooser {
                 id: entityChooser
                 Layout.fillWidth: true
                 currentCheckout: root.currentCheckout
                 currentEntityPath: root.currentEntityPath
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Demean:"
+            }
+            CheckBox {
+                id: demeanCheckbox
+                Layout.fillWidth: true
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Normalize"
+            }
+            CheckBox {
+                id: normalizeCheckbox
+                Layout.fillWidth: true
             }
         }
         Item {
