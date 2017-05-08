@@ -20,4 +20,8 @@ Item {
     property color headerColor: itemBackgroundColor
     property int maximumControlWidth: 200
     property int controlMargin: 4
+
+    property bool tmpUsePreviewMatrix: false
+    property matrix4x4 tmpPreviewMatrix
+    property string tmpCurrentEditEntity
 }

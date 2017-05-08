@@ -68,7 +68,8 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, st
 //MODULE_EXPORT void deleteEntitydata(std::shared_ptr<AbstractEntitydata> streamProvider);
 }
 
-typedef Eigen::Affine3f TfMat;
+// Warn: Code expects TfMat to have a member data() with 16 floats.
+typedef Eigen::Matrix4f TfMat;
 typedef std::shared_ptr<TfMat> TfMatPtr;
 
 class TfEntitydata : public Entitydata<TfMat>

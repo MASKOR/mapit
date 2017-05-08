@@ -37,7 +37,9 @@ Rectangle {
         Image {
             id: visibleImage
             anchors.verticalCenter: parent.verticalCenter
-            source: root.checked ? "image://icon/badge-square-direction-down" : "image://icon/badge-square-direction-up"
+            source: "image://icon/ic_arrow_drop_down_black"
+            rotation: root.checked ? 0 : 180
+            //source: root.checked ? "image://icon/badge-square-direction-down" : "image://icon/badge-square-direction-up"
         }
         onClicked: {
             root.checked = !root.checked

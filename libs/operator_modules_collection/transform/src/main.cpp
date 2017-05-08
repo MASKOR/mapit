@@ -83,6 +83,11 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         return UPNS_STATUS_ERR_UNKNOWN;
     }
     std::shared_ptr<TfEntitydata> entityData = std::static_pointer_cast<TfEntitydata>( abstractEntitydata );
+    if(entityData == NULL)
+    {
+        log_error("Tf Transform has wrong type.");
+        return UPNS_STATUS_ERR_UNKNOWN;
+    }
     TfMatPtr tf;
     if(newlyCreated)
     {
@@ -145,11 +150,6 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     }
     entityData->setData(tf);
 
-
-//    OperationDescription out;
-//    out.set_operatorname(OPERATOR_NAME);
-//    out.set_operatorversion(OPERATOR_VERSION);
-//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

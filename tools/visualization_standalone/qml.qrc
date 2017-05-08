@@ -280,5 +280,8 @@
         <file>qml/StyledLabel.qml</file>
         <file>qml/operators/las2pcd.qml</file>
         <file>qml/operators/centroid_to_origin.qml</file>
+        <file>icon/ic_arrow_drop_down_black-24-ns.png</file>
+        <file>icon/ic_arrow_drop_down_black-16-ns.png</file>
+        <file>qml/operators/transform.qml</file>
     </qresource>
 </RCC>

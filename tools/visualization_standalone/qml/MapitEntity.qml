@@ -28,10 +28,7 @@ Q3D.Entity {
     }
     property var meshTransform: Q3D.Transform {
             id: theMeshTransform
-            matrix: currentEntitydataTransform.matrix
-            //property real userAngle: -90.0
-            //scale: 10
-            //rotation: fromAxisAndAngle(Qt.vector3d(1, 0, 0), userAngle)
+            matrix: (appStyle.tmpUsePreviewMatrix && pointcloud.currentEntitydata.path === appStyle.tmpCurrentEditEntity) ? appStyle.tmpPreviewMatrix : currentEntitydataTransform.matrix
     }
     property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
         id: edrender

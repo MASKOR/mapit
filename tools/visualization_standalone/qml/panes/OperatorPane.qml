@@ -95,8 +95,6 @@ Item {
                     text: "Execute"
                     enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
                     onClicked: {
-                        console.log(currentOperator.moduleName + "executed, params:")
-                        console.log(currentOperatorUiItem.parameters)
                         currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters);
                     }
                 }

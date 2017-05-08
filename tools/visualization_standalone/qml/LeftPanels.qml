@@ -6,6 +6,7 @@ import QtGraphicalEffects 1.0
 import pcl 1.0
 import fhac.upns 1.0 as UPNS
 import QtQuick 2.0 as QQ2
+import fhac.upns 1.0 as UPNS
 import "panes"
 
 Item {
@@ -16,6 +17,7 @@ Item {
     property alias currentCheckout: checkout
     property alias visibleElems: treeViewCheckout.visibleElems
     property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
+    onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath
     UPNS.Checkout {
         id: checkout
         repository: globalRepository
@@ -32,9 +34,8 @@ Item {
     UPNS.EntitydataTransform {
         id: currentEntitydataTransformId
         checkout: checkout
-        path: root.currentEntityPath + ((root.currentEntityPath.length > 3
-                                      && root.currentEntityPath.lastIndexOf(".tf") !== root.currentEntityPath.length-3)
-                                        ? ".tf" : "")
+        path: root.currentEntityPath
+        mustExist: false
     }
     ColumnLayout {
         anchors.fill: parent

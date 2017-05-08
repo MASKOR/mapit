@@ -22,7 +22,7 @@ Item {
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
     onVisibleEntityItemsChanged: {
-        console.log("DBG: chan" + visibleEntityItems.length)
+        console.log("DBG: Visibel Entities len: " + visibleEntityItems.length)
     }
 
     ColumnLayout {
@@ -46,9 +46,9 @@ Item {
                 QCtl.Slider {
                     id: pointSizeSlider
                     width: 100
-                    value: 0.5
+                    value: 0.01
                     minimumValue: 0.01
-                    maximumValue:  2.0
+                    maximumValue:  1.0
                 }
                 Text { text: "Renderstyle:"}
                 QCtl.ComboBox {
@@ -66,6 +66,13 @@ Item {
                     value: 1.0
                     minimumValue: 1.0
                     maximumValue:  100.0
+                }
+                QCtl.Slider {
+                    id: lodSlider
+                    width: 100
+                    value: 1.0
+                    minimumValue: 0.01
+                    maximumValue: 20000.0
                 }
             }
         //}
@@ -150,7 +157,8 @@ Item {
                                                         Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
                                                         Parameter { name: "farPlane"; value: mainCamera.farPlane },
                                                         Parameter { name: "width"; value: scene3d.width },
-                                                        Parameter { name: "height"; value: scene3d.height }
+                                                        Parameter { name: "height"; value: scene3d.height },
+                                                        Parameter { name: "lod"; value: lodSlider.value }
                                                     ]
                                                     RenderStateSet {
                                                         renderStates: [

@@ -39,8 +39,8 @@ Item {
 //        }
         anchors.leftMargin: gridRoot.gridMargin
         GridView {
-            property int gridMargin: 10
-            property int buttonSize: 80
+            property int gridMargin: 5
+            property int buttonSize: 85
             id: gridRoot
             clip: true
             topMargin: gridMargin
@@ -62,15 +62,21 @@ Item {
                 tooltip: qsTr("Show details of <i>%1</i>.").arg(
                              gridRoot.model[index].moduleName)
                 Column {
-                    anchors.centerIn: parent
+                    y: 8
+                    anchors.horizontalCenter: parent.horizontalCenter
                     Image {
+                        anchors.topMargin: 8
                         source: "image://operator/"+gridRoot.model[index].moduleName//"image://icon/badge-circle-direction-right"
-                        width: 50
+                        width: 64
+                        height: 64
                         fillMode: Image.PreserveAspectFit
                         anchors.horizontalCenter: parent.horizontalCenter
+                        smooth: false
+                        mipmap: true
                     }
                     Text {
                         width: gridRoot.buttonSize
+                        height: 8
                         text: gridRoot.model[index].moduleName
                         anchors.horizontalCenter: parent.horizontalCenter
                         //anchors.bottom: parent.bottom

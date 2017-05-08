@@ -38,10 +38,10 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
     }
     if(abstractEntitydata->type() != TfEntitydata::TYPENAME())
     {
-        //if(m_mustExist)
-        //{
+        if(m_mustExist)
+        {
             log_error("Wrong path given in qml for transform entity (not a transform)");
-        //}
+        }
         return QMatrix4x4();
     }
 

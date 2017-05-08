@@ -31,6 +31,7 @@ Item {
         }
     }
     Keys.onReturnPressed: {
+        ff.text = filteredModel.get(lv.currentIndex).displayName
         if(allowNew) {
             root.action(ff.text);
         } else {
@@ -55,6 +56,7 @@ Item {
         anchors.fill: parent
         id: ff
         placeholderText: "filter..."
+        onActiveFocusChanged: dropDown.visible = activeFocus
         onTextChanged: {
             filteredModel.clear();
             var re = new RegExp(ff.text, "i"); //Case insensitive
@@ -62,22 +64,15 @@ Item {
                 var block = model[i];
                 if(block.match(re)) {
                     filteredModel.append({"displayName": block});
-                    console.log(block)
                 }
             }
             lv.currentIndex = 0;
-            console.log("done!!!")
+            dropDown.visible = activeFocus
         }
-//        onFocusChanged: {
-//            if(!focus
-//            && !dropDown.focus
-//            && !lv.focus)
-//                dropDown.visible = false
-//        }
     }
     Rectangle {
+        visible: false
         id: dropDown
-        visible: ff.activeFocus || lv.activeFocus
         anchors.top: ff.bottom
         anchors.left: ff.left
         anchors.right: ff.right
@@ -87,6 +82,7 @@ Item {
         height: 200
         z: 1000
         ListView {
+            z:10
             anchors.leftMargin: 3
             anchors.fill: parent
             clip: true
@@ -97,9 +93,11 @@ Item {
                 color: lv.currentIndex===index?"grey":"black"
                 MouseArea {
                     anchors.fill: parent
+                    property var drop: dropDown
                     onClicked: {
                         lv.currentIndex = index
                         ff.text = displayName
+                        drop.visible = false
                     }
                     onDoubleClicked: {
                         if(allowNew) {
@@ -109,6 +107,12 @@ Item {
                         }
                     }
                 }
+            }
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                dropDown.visible = false
             }
         }
     }
