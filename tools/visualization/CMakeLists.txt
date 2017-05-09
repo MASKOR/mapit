@@ -105,6 +105,7 @@ target_link_libraries(${PROJECT_NAME}   upns_core
                                         Qt3DPointcloudRenderer
                                         layertype_tf
                                         layertype_las
+                                        layertype_pose_path
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)

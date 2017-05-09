@@ -3,14 +3,17 @@
 #include <upns/layertypes/pointcloudlayer.h>
 #include <upns/layertypes/lastype.h>
 #include <upns/layertypes/tflayer.h>
+#include <upns/layertypes/pose_path.h>
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
+#include "upns/ui/bindings/qmlpathgeometry.h"
 #include <QMatrix4x4>
 
 QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
     : QGeometryRenderer(parent),
       m_entitydata(NULL)
 {
+    qRegisterMetaType<TfMatPosePathPtr>("TfMatPosePathPtr");
     QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
     QGeometryRenderer::setGeometry(geometry);
     QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points); //TODO: To fix error where IndexAttribute is called and is null
@@ -81,9 +84,20 @@ void QmlEntitydataRenderer::updateGeometry()
 //    else if(strcmp(ed->type(), AssetEntitydata::TYPENAME()) == 0)
 //    {
 //    }
+    else if(strcmp(ed->type(), PosePathEntitydata::TYPENAME()) == 0)
+    {
+        QGeometryRenderer::setPrimitiveType(QGeometryRenderer::LineStrip);
+        QGeometryRenderer::setGeometry(new QmlPathGeometry(this));
+        TfMatPosePathPtr path = std::static_pointer_cast< PosePathEntitydata >(ed)->getData();
+        QmlPathGeometry *pointcloudGeometry = static_cast<QmlPathGeometry *>(geometry());
+        // TODO: does shared pointer survive here? Will the pointer be cleaned?
+        QMetaObject::invokeMethod(pointcloudGeometry, "setPath", Qt::QueuedConnection, Q_ARG(TfMatPosePathPtr, path) );
+    }
     else
     {
         qDebug() << "unknown entitytype for visualization";
     }
 
 }
+
+//Q_DECLARE_METATYPE(TfMatPosePathPtr)

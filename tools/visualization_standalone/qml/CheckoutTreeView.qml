@@ -13,7 +13,46 @@ QCtl.TreeView {
     headerVisible: false
     id: treeViewCheckout
     model: UPNS.RootTreeModel {
+//        property var visiblePathToVisibility: {}
         root: currentCheckout
+//        function forEachItem(parentItem, callback) {
+//            for(var i = 0; hasIndex(i, 0, parentItem); ++i) {
+//                var itemIndex = index(i, 0, parentItem)
+//                callback(itemIndex, i, parentItem)
+//                if(hasChildren(itemIndex))
+//                    forEachItem(itemIndex, callback, parentItem)
+//            }
+//        }
+
+//        onDataChanged: {
+//            forEachItem(null, function(itemIndex, i, parentItem) {
+//                var itemPath = data(itemIndex, UPNS.RootTreeModel.NodePathRole)
+//                console.log("DBG: path: " + itemPath)
+//                var newVisibleItems = []
+//                var found = false
+//                for (var i=0; i < treeViewCheckout.visibleElems.count; i++)
+//                    if(treeViewCheckout.visibleElems.get(i).path === itemPath) {
+//                        found = true
+//                        continue;
+//                    }
+//                }
+//                for (var visiblePath in visiblePathToVisibility)
+//                {
+//                    if(visiblePath === itemPath) {
+//                        newVisibleItems.push()
+//                        continue;
+//                    }
+//                }
+//            })
+
+//            for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
+//                var propertyname
+//                var obj = treeViewCheckout.visibleElems.get(i);
+//                if(obj.path === styleData.row) {
+//                    treeViewCheckout.visibleElems.remove(i);
+//                }
+//            }
+//        }
     }
     QCtl.TableViewColumn {
         role: "displayRole"
@@ -43,13 +82,22 @@ QCtl.TreeView {
                 fillMode: Image.PreserveAspectFit
                 //anchors.verticalCenter: parent.verticalCenter
                 source: "image://icon/eye"
-                visible: model.type
+                visible: model?model.type:false
             }
             ColorOverlay {
                 anchors.fill: visibleImage
                 source: visibleImage
-                color: itemMA.showObj ? "#43adee" : "#565656"
-                visible: model.type
+                color: {
+                    for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
+                        var obj = treeViewCheckout.visibleElems.get(i);
+                        if(obj.idx === styleData.row) {
+                            return "#43adee"
+                        }
+                    }
+                    return "#565656"
+                    //itemMA.showObj ? "#43adee" : "#565656"
+                }
+                visible: model?model.type:false
             }
             onClicked: {
                 if(!model.type) return

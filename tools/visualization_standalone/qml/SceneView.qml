@@ -22,7 +22,7 @@ Item {
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
     onVisibleEntityItemsChanged: {
-        console.log("DBG: Visibel Entities len: " + visibleEntityItems.length)
+        console.log("DBG: Visible Entities len: " + visibleEntityItems.length)
     }
 
     ColumnLayout {
@@ -72,7 +72,7 @@ Item {
                     width: 100
                     value: 1.0
                     minimumValue: 0.01
-                    maximumValue: 20000.0
+                    maximumValue: 20.0
                 }
             }
         //}

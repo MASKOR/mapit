@@ -16,7 +16,10 @@ public:
         EntityNode
     };
     enum RootTreeViewRoles {
-        NodeTypeRole = Qt::UserRole + 1
+        NodeDisplayRole = Qt::DisplayRole,
+        NodePathRole = Qt::ToolTipRole,
+        NodeTypeRole = Qt::UserRole + 1,
+        NodeNodeRole = Qt::UserRole
     };
 
     QmlRootTreeModel();

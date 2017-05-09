@@ -50,11 +50,11 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 
     bool newlyCreated = false; // In this case, there will be no tf to read
     // Get Target
-    std::shared_ptr<Entity> tfEntity = env->getCheckout()->getEntity(target);
+    std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(target);
     if(tfEntity == NULL)
     {
         // If target could not be received, create new entity
-        tfEntity = std::shared_ptr<Entity>(new Entity);
+        tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         tfEntity->set_type(TfEntitydata::TYPENAME());
         StatusCode s = env->getCheckout()->storeEntity(target, tfEntity);
         if(!upnsIsOk(s))

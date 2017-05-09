@@ -4,10 +4,10 @@ QmlRootTreeModel::QmlRootTreeModel()
     :m_root( NULL )
 {
 
-    m_roleNameMapping[Qt::DisplayRole] = "displayRole";
-    m_roleNameMapping[Qt::ToolTipRole] = "path";
+    m_roleNameMapping[NodeDisplayRole] = "displayRole";
+    m_roleNameMapping[NodePathRole] = "path";
     m_roleNameMapping[NodeTypeRole] = "type";
-    m_roleNameMapping[Qt::UserRole] = "node";
+    m_roleNameMapping[NodeNodeRole] = "node";
 }
 
 QVariantMap QmlRootTreeModel::get(int idx) const

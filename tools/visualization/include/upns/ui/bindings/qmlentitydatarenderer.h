@@ -34,6 +34,4 @@ private:
     void setPrimitiveType(PrimitiveType primitiveType);
 };
 
-
-
 #endif

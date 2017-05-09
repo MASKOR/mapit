@@ -44,8 +44,8 @@ void main()
 
     float nearMaxDetailDistance = 20;
     float farMinDetailDistance = 1000;
-    float cappedDist = max(nearMaxDetailDistance, min(farMinDetailDistance,sqrt(dist*lod)));
-    float percentSkipped = smoothstep(nearMaxDetailDistance, farMinDetailDistance, cappedDist);
+    float cappedDist = max(nearMaxDetailDistance, min(farMinDetailDistance,dist*lod));
+    float percentSkipped = pow(smoothstep(nearMaxDetailDistance, farMinDetailDistance, cappedDist), 0.1)*0.999;
     float random01 = max(0.0, min(1.0, (vertexRand+1.0)*0.5));
     float visibility = step(percentSkipped, random01);
 

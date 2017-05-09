@@ -14,7 +14,6 @@
 
 upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
 {
-    std::cout << "DBG: START" << std::endl;
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
 
@@ -71,7 +70,6 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     }
     liblas::Reader reader = f.CreateWithStream(ifs);
 
-    std::cout << "DBG: READ" << std::endl;
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
@@ -83,7 +81,6 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     //    std::copy(lasreader_iterator(reader),  lasreader_iterator(),
     //                      laswriter_iterator(writer));
     int i=0;
-    std::cout << "DBG: DRLENG " << reader.GetHeader().GetDataRecordLength();
     if(demean || normalize)
     {
         double minX = reader.GetHeader().GetMinX();
@@ -102,22 +99,14 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
         double cx = minX+sx*0.5;
         double cy = minY+sy*0.5;
         double cz = minZ+sz*0.5;
-        std::cout << "DBG: minx:" << minX << ", maxX " << maxX << ", minY " << minY << ", maxY " << maxY << std::endl;
 
-        std::cout << "DBG: demean+normalize: scale:" << scale << ", cx " << cx << ", cy " << cy << ", cz " << cz << std::endl;
         while(reader.ReadNextPoint())
         {
             liblas::Point current(reader.GetPoint());
             liblas::Point newpoint(&reader.GetHeader());
-            if(i%10000 == 0) {
-                std::cout << "1x" << current.GetX() << " 1y" << current.GetY() << "; " ; //DBG
-            }
             newpoint.SetX((current.GetX()-cx)*scale);
             newpoint.SetY((current.GetY()-cy)*scale);
             newpoint.SetZ((current.GetZ()-cz)*scale);
-            if(i%10000 == 0) {
-                std::cout << "2x" << newpoint.GetX() << " 2y" << newpoint.GetY() << "; " ; //DBG
-            }
             writer->WritePoint(newpoint);
             ++i;
         }
@@ -126,7 +115,6 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     {
         while(reader.ReadNextPoint())
         {
-            std::cout << "."; //"DBG: DRLENG " << reader.GetHeader().GetDataRecordLength();
             liblas::Point const&  current(reader.GetPoint());
 
             writer->WritePoint(current);
@@ -134,7 +122,6 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
         }
     }
     log_info("Points read:" + std::to_string(i));
-    std::cout << "DBG: DONE " << std::to_string(i);
     return UPNS_STATUS_OK;
 }
 

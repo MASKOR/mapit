@@ -57,7 +57,7 @@ Item {
         }
         FileDialog {
             id: openPcdFileDialog
-            title: "Open Pcd"
+            title: "Open JSON"
             selectExisting: true
             selectFolder: false
             selectMultiple: false
