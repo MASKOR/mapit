@@ -1,5 +1,5 @@
-#ifndef POSE_PATH_H
-#define POSE_PATH_H
+#ifndef LAYERTYPE_PRIMITIVE_H
+#define LAYERTYPE_PRIMITIVE_H
 
 #include <upns/entitydata.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
@@ -21,29 +21,29 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, st
 //MODULE_EXPORT void deleteEntitydata(std::shared_ptr<AbstractEntitydata> streamProvider);
 }
 
-typedef std::shared_ptr<mapit::msgs::PosePath> PosePathPtr;
+typedef std::shared_ptr<mapit::msgs::Primitive> PrimitivePtr;
 
-class PosePathEntitydata : public Entitydata<mapit::msgs::PosePath>
+class PrimitiveEntitydata : public Entitydata<mapit::msgs::Primitive>
 {
 public:
     static const char* TYPENAME();
 
-    PosePathEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
+    PrimitiveEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
-    PosePathPtr    getData(upnsReal x1, upnsReal y1, upnsReal z1,
+    PrimitivePtr        getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                 bool clipMode,
                                 int lod = 0);
     int                 setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                 upnsReal x2, upnsReal y2, upnsReal z2,
-                                PosePathPtr &data,
+                                PrimitivePtr &data,
                                 int lod = 0);
 
-    PosePathPtr    getData(int lod = 0);
-    int                 setData(PosePathPtr &data, int lod = 0);
+    PrimitivePtr        getData(int lod = 0);
+    int                 setData(PrimitivePtr &data, int lod = 0);
 
     void gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
@@ -62,7 +62,7 @@ public:
 
 private:
     std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
-    PosePathPtr m_posePath;
+    PrimitivePtr m_primitive;
 };
 
 #endif

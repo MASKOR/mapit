@@ -10,7 +10,7 @@
 class PathVertexDataGenerator : public Qt3DRender::QBufferDataGenerator
 {
 public:
-    PathVertexDataGenerator(TfMatPosePathPtr path)
+    PathVertexDataGenerator(PosePathPtr path)
         : m_path(path)
     {
     }
@@ -18,15 +18,16 @@ public:
     QByteArray operator ()() Q_DECL_OVERRIDE
     {
         QByteArray arr;
-        arr.resize(m_path->size()*sizeof(float)*3);
-        int i=0;
-        for(TfMatPosePath::const_iterator iter = m_path->cbegin() ; iter!=m_path->cend() ; iter++)
+        arr.resize(m_path->poses_size() * sizeof(float) * 3);
+
+        for(int i=0 ; i<m_path->poses_size() ; i++)
         {
-            float* val = reinterpret_cast<float*>(&arr.data()[i]);
-            val[0] = static_cast<float>(iter->data()[12]);
-            val[1] = static_cast<float>(iter->data()[13]);
-            val[2] = static_cast<float>(iter->data()[14]);
-            i+=sizeof(float)*3;
+            const mapit::msgs::Pose &pose = m_path->poses(i);
+            int offset = i * sizeof(float) * 3;
+            float* val = reinterpret_cast<float*>(&arr.data()[offset]);
+            val[0] = pose.x();
+            val[1] = pose.y();
+            val[2] = pose.z();
         }
         return arr;
     }
@@ -42,7 +43,7 @@ public:
     QT3D_FUNCTOR(PathVertexDataGenerator)
 
 private:
-    TfMatPosePathPtr m_path;
+    PosePathPtr m_path;
 };
 
 class QmlPathGeometryPrivate
@@ -52,7 +53,7 @@ public:
         :m_vertexBuffer( nullptr ),
          m_path( nullptr ){}
     Qt3DRender::QBuffer *m_vertexBuffer;
-    TfMatPosePathPtr m_path;
+    PosePathPtr m_path;
 };
 
 QmlPathGeometry::QmlPathGeometry(Qt3DCore::QNode *parent)
@@ -97,12 +98,12 @@ void QmlPathGeometry::updateAttributes()
     attrib->setBuffer(m_p->m_vertexBuffer);
     attrib->setByteStride(3*sizeof(float));
     attrib->setByteOffset(0);
-    attrib->setCount(m_p->m_path->size());
+    attrib->setCount(m_p->m_path->poses_size());
     addAttribute(attrib);
     setBoundingVolumePositionAttribute(attrib);
 }
 
-void QmlPathGeometry::setPath(TfMatPosePathPtr path)
+void QmlPathGeometry::setPath(PosePathPtr path)
 {
     if (m_p->m_path == path)
         return;

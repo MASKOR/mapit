@@ -63,8 +63,8 @@ EditorCameraController::EditorCameraController(Qt3DCore::QNode *parent)
     , m_cameraUp(QVector3D(0.0f, 1.0f, 0.0f))
     , m_panSpeed(360.0f)
     , m_orbitSpeed(600.0f)
-    , m_translateSpeed(7.0f)
-    , m_wheelSpeed(-0.05f)
+    , m_translateSpeed(3.0f)
+    , m_wheelSpeed(-0.01f)
 {
     init();
 }
@@ -141,13 +141,10 @@ void EditorCameraController::handleTriggered(float dt)
             if (m_ignoreFirstRightMousePress) {
                 m_ignoreFirstRightMousePress = false;
             } else {
-                // Move camera around with right mouse button
-                QMatrix4x4 viewMatrix = m_camera->viewMatrix().inverted();
-                float translateMultiplier = m_translateSpeed * dt * m_camera->viewVector().length();
-                QVector3D translateVec(m_rxAxis->value() * translateMultiplier,
-                                       m_ryAxis->value() * translateMultiplier, 0.0f);
-                translateVec = viewMatrix.mapVector(translateVec);
-                adjustCamera(translateVec);
+                // Orbit camera around viewCenter with right mouse button
+                m_camera->panAboutViewCenter(-m_rxAxis->value() * m_orbitSpeed * dt, m_cameraUp);
+                m_camera->tiltAboutViewCenter(-m_ryAxis->value() * m_orbitSpeed * dt);
+                m_adjustCameraAtMouseRelease = true;
             }
         } else if (m_leftMouseButtonAction->isActive()) {
             if (m_ignoreFirstLeftMousePress) {
@@ -162,10 +159,13 @@ void EditorCameraController::handleTriggered(float dt)
             if (m_ignoreFirstMiddleMousePress) {
                 m_ignoreFirstMiddleMousePress = false;
             } else {
-                // Orbit camera around viewCenter with middle mouse button
-                m_camera->panAboutViewCenter(-m_rxAxis->value() * m_orbitSpeed * dt, m_cameraUp);
-                m_camera->tiltAboutViewCenter(-m_ryAxis->value() * m_orbitSpeed * dt);
-                m_adjustCameraAtMouseRelease = true;
+                // Move camera around with middle mouse button
+                QMatrix4x4 viewMatrix = m_camera->viewMatrix().inverted();
+                float translateMultiplier = -m_translateSpeed * dt * m_camera->viewVector().length();
+                QVector3D translateVec(m_rxAxis->value() * translateMultiplier,
+                                       m_ryAxis->value() * translateMultiplier, 0.0f);
+                translateVec = viewMatrix.mapVector(translateVec);
+                adjustCamera(translateVec);
             }
         }
     }

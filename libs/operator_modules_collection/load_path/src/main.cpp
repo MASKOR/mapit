@@ -49,7 +49,7 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
         log_error("Tf Transform has wrong type. (This should never happen)");
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    TfMatPosePathPtr posePath(new TfMatPosePath);
+    PosePathPtr posePath(new mapit::msgs::PosePath);
 
     QString jsonString;
     QFile file(QString::fromStdString(filename));
@@ -85,33 +85,31 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
         QJsonArray points = json["points"].toArray();
         for(QJsonArray::const_iterator iter=points.constBegin() ; iter != points.constEnd() ; ++iter)
         {
-            TfMatPose pose(TfMatPose::Identity());
-            float *d = pose.data();
+            mapit::msgs::Pose *pose = posePath->add_poses();
             if(iter->isObject())
             {
                 QJsonObject pt = iter->toObject();
                 QJsonValue val = pt["x"];
                 if(val.isDouble())
                 {
-                    d[12] = val.toDouble();
+                    pose->set_x( val.toDouble() );
                 }
                 else
                     log_error("point without x");
                 val = pt["y"];
                 if(val.isDouble())
                 {
-                    d[13] = val.toDouble();
+                    pose->set_y( val.toDouble() );
                 }
                 else
                     log_error("point without y");
                 val = pt["z"];
                 if(val.isDouble())
                 {
-                    d[14] = val.toDouble();
+                    pose->set_z( val.toDouble() );
                 }
                 else
                     log_error("point without z");
-                posePath->push_back(pose);
             }
             else
             {

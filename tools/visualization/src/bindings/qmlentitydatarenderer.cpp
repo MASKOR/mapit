@@ -13,7 +13,7 @@ QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
     : QGeometryRenderer(parent),
       m_entitydata(NULL)
 {
-    qRegisterMetaType<TfMatPosePathPtr>("TfMatPosePathPtr");
+    qRegisterMetaType<PosePathPtr>("PosePathPtr");
     QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
     QGeometryRenderer::setGeometry(geometry);
     QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points); //TODO: To fix error where IndexAttribute is called and is null
@@ -88,10 +88,10 @@ void QmlEntitydataRenderer::updateGeometry()
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::LineStrip);
         QGeometryRenderer::setGeometry(new QmlPathGeometry(this));
-        TfMatPosePathPtr path = std::static_pointer_cast< PosePathEntitydata >(ed)->getData();
+        PosePathPtr path = std::static_pointer_cast< PosePathEntitydata >(ed)->getData();
         QmlPathGeometry *pointcloudGeometry = static_cast<QmlPathGeometry *>(geometry());
         // TODO: does shared pointer survive here? Will the pointer be cleaned?
-        QMetaObject::invokeMethod(pointcloudGeometry, "setPath", Qt::QueuedConnection, Q_ARG(TfMatPosePathPtr, path) );
+        QMetaObject::invokeMethod(pointcloudGeometry, "setPath", Qt::QueuedConnection, Q_ARG(PosePathPtr, path) );
     }
     else
     {
@@ -100,4 +100,4 @@ void QmlEntitydataRenderer::updateGeometry()
 
 }
 
-//Q_DECLARE_METATYPE(TfMatPosePathPtr)
+//Q_DECLARE_METATYPE(mapit::msgs::PosePathPtr)

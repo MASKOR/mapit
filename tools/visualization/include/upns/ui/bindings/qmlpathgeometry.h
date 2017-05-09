@@ -15,11 +15,11 @@ public:
     void updateVertices();
 
 public Q_SLOTS:
-    void setPath(TfMatPosePathPtr path);
+    void setPath(PosePathPtr path);
 private Q_SLOTS:
     void updateAttributes();
 Q_SIGNALS:
-    void pathChanged(TfMatPosePathPtr path);
+    void pathChanged(PosePathPtr path);
 private:
     QmlPathGeometryPrivate *m_p;
 };

@@ -1,4 +1,4 @@
-#include "upns/layertypes/pose_path.h"
+#include "upns/layertypes/primitive.h"
 #include <upns/logging.h>
 
 template <typename T>
@@ -7,55 +7,55 @@ public:
   void operator()(T* ptr){}
 };
 
-const char *PosePathEntitydata::TYPENAME()
+const char *PrimitiveEntitydata::TYPENAME()
 {
     return PROJECT_NAME;
 }
 
-PosePathEntitydata::PosePathEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+PrimitiveEntitydata::PrimitiveEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
-     m_posePath( nullptr )
+     m_primitive( nullptr )
 {
 }
 
-const char* PosePathEntitydata::type() const
+const char* PrimitiveEntitydata::type() const
 {
-    return PosePathEntitydata::TYPENAME();
+    return PrimitiveEntitydata::TYPENAME();
 }
 
-bool PosePathEntitydata::hasFixedGrid() const
-{
-    return false;
-}
-
-bool PosePathEntitydata::canSaveRegions() const
+bool PrimitiveEntitydata::hasFixedGrid() const
 {
     return false;
 }
 
-PosePathPtr PosePathEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
+bool PrimitiveEntitydata::canSaveRegions() const
+{
+    return false;
+}
+
+PrimitivePtr PrimitiveEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                                 bool clipMode,
                                                 int lod)
 {
-    if(m_posePath == NULL)
+    if(m_primitive == NULL)
     {
-        m_posePath = PosePathPtr(new mapit::msgs::PosePath);
+        m_primitive = PrimitivePtr(new mapit::msgs::Primitive);
         upnsIStream *in = m_streamProvider->startRead();
         {
-            if(!m_posePath->ParseFromIstream(in))
+            if(!m_primitive->ParseFromIstream(in))
             {
                 log_warn("Could not read tranforms from stream. Proceeding with empty path");
             }
         }
         m_streamProvider->endRead(in);
     }
-    return m_posePath;
+    return m_primitive;
 }
 
-int PosePathEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
+int PrimitiveEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                  upnsReal x2, upnsReal y2, upnsReal z2,
-                                 PosePathPtr &data,
+                                 PrimitivePtr &data,
                                  int lod)
 {
     upnsOStream *out = m_streamProvider->startWrite();
@@ -66,7 +66,7 @@ int PosePathEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 	return 0; //TODO: MSVC: What to return here?
 }
 
-PosePathPtr PosePathEntitydata::getData(int lod)
+PrimitivePtr PrimitiveEntitydata::getData(int lod)
 {
     return getData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -77,7 +77,7 @@ PosePathPtr PosePathEntitydata::getData(int lod)
                    false, lod);
 }
 
-int PosePathEntitydata::setData(PosePathPtr &data, int lod)
+int PrimitiveEntitydata::setData(PrimitivePtr &data, int lod)
 {
     return setData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -88,7 +88,7 @@ int PosePathEntitydata::setData(PosePathPtr &data, int lod)
                    data, lod);
 }
 
-void PosePathEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
+void PrimitiveEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                                      upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                      upnsReal &x2, upnsReal &y2, upnsReal &z2) const
 {
@@ -100,34 +100,34 @@ void PosePathEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
     z2 = +std::numeric_limits<upnsReal>::infinity();
 }
 
-int PosePathEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
+int PrimitiveEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
     //TODO
     return 0;
 }
 
-upnsIStream *PosePathEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+upnsIStream *PrimitiveEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void PosePathEntitydata::endRead(upnsIStream *strm)
+void PrimitiveEntitydata::endRead(upnsIStream *strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *PosePathEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+upnsOStream *PrimitiveEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void PosePathEntitydata::endWrite(upnsOStream *strm)
+void PrimitiveEntitydata::endWrite(upnsOStream *strm)
 {
     m_streamProvider->endWrite(strm);
 }
 
-size_t PosePathEntitydata::size() const
+size_t PrimitiveEntitydata::size() const
 {
     return m_streamProvider->getStreamSize();
 }
@@ -139,11 +139,11 @@ size_t PosePathEntitydata::size() const
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 void deleteEntitydata(AbstractEntitydata *ld)
 {
-    PosePathEntitydata *p = static_cast<PosePathEntitydata*>(ld);
+    PrimitiveEntitydata *p = static_cast<PrimitiveEntitydata*>(ld);
     delete p;
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new PosePathEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new PrimitiveEntitydata( streamProvider ), deleteEntitydata);
 }
 
