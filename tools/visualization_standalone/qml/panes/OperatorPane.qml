@@ -29,8 +29,9 @@ Item {
                 // Error Handling
                 console.log("Error creating detailsView");
             }
-            root.currentOperatorUiItem.width = controlHolder.width;
-            root.currentOperatorUiItem.height = controlHolder.height;
+            root.currentOperatorUiItem.width = controlHolder.width
+            root.currentOperatorUiItem.height = controlHolder.height
+            root.currentOperatorUiItem.anchors.fill = controlHolder
 
         } else if (controlComponent.status === Component.Error) {
             // Error Handling
@@ -80,6 +81,7 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             onWidthChanged: controlHolder.width = width
+            z: 100
             StyledLabel {
                 Layout.fillWidth: true
                 text: currentOperator?currentOperator.moduleName:""
@@ -88,10 +90,11 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 id: controlHolder
+                z: 100
             }
             RowLayout {
                 Layout.fillWidth: true
-                Button {
+                StyledButton {
                     text: "Execute"
                     enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
                     onClicked: {

@@ -68,6 +68,7 @@ Item {
             }
         }
         RowLayout {
+            z: 100
             Layout.fillWidth: true
             Text {
                 Layout.alignment: Qt.AlignTop

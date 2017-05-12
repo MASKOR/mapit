@@ -27,6 +27,7 @@ Item {
         anchors.fill: parent
         height: root.height
         RowLayout {
+            z: 100
             Layout.fillWidth: true
             Text {
                 Layout.alignment: Qt.AlignTop

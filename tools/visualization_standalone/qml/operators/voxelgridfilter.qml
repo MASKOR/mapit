@@ -42,6 +42,7 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
+            z: 100
             Text {
                 Layout.alignment: Qt.AlignTop
                 text: "Target:"

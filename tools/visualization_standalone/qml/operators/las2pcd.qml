@@ -6,6 +6,7 @@ import QtQuick.Dialogs 1.2
 import ".."
 
 Item {
+    anchors.fill: parent
     id: root
     //// in ////
     property bool editable
@@ -31,6 +32,7 @@ Item {
         anchors.fill: parent
         RowLayout {
             Layout.fillWidth: true
+            z: 100
             Text {
                 Layout.alignment: Qt.AlignTop
                 text: "Target:"

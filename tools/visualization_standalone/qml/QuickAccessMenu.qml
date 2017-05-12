@@ -7,6 +7,13 @@ Item {
     id: root
     property bool allowNew: true
     property var model
+    property var blurMouseArea
+    property alias dropDownVisible: dropDown.visible
+
+    Connections {
+        target: blurMouseArea
+        onClicked: dropDown.visible = false
+    }
 
     property ListModel filteredModel: ListModel {}
     property alias selection: lv.currentItem
@@ -52,14 +59,23 @@ Item {
             lv.focus = false
         }
     }
-    TextField {
+//    MouseArea {
+//        anchors.fill: parent
+//        preventStealing: true
+//        onClicked: {
+//            dropDownVisible = true
+//            ff.focus = true
+//        }
+//        z: 10
+//    }
+    StyledTextField {
         anchors.fill: parent
         id: ff
         placeholderText: "filter..."
         onActiveFocusChanged: dropDown.visible = activeFocus
         onTextChanged: {
             filteredModel.clear();
-            var re = new RegExp(ff.text, "i"); //Case insensitive
+            var re = new RegExp(ff.text, "i"); // Case insensitive
             for(var i=0; i<model.length ; ++i) {
                 var block = model[i];
                 if(block.match(re)) {
@@ -76,11 +92,21 @@ Item {
         anchors.top: ff.bottom
         anchors.left: ff.left
         anchors.right: ff.right
-        color: appStyle.backgroundColor
+        color: appStyle.itemBackgroundColor
         border.width: 1
         border.color: "orange"
         height: 200
         z: 1000
+
+        Component {
+            id: highlightBar
+            Rectangle {
+                color: appStyle.selectionColor
+//                y: listView.currentItem.y;
+//                Behavior on y { SpringAnimation { spring: 2; damping: 0.1 } }
+            }
+        }
+
         ListView {
             z:10
             anchors.leftMargin: 3
@@ -88,9 +114,11 @@ Item {
             clip: true
             id: lv
             model: filteredModel
-            delegate: Text {
+            highlight: highlightBar
+            highlightFollowsCurrentItem: true
+            delegate: StyledLabel {
                 text: displayName
-                color: lv.currentIndex===index?"grey":"black"
+                //color: lv.currentIndex===index?"grey":"black"
                 MouseArea {
                     anchors.fill: parent
                     property var drop: dropDown

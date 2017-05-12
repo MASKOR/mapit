@@ -47,8 +47,12 @@
 
 #include <boost/program_options.hpp>
 #include "iconimageprovider.h"
+#include "fileio.h"
 
 #include <Qt3DQuick/Qt3DQuick>
+#include <Qt3DInput/QInputSettings>
+
+#include "imageupdater.h"
 
 namespace po = boost::program_options;
 
@@ -57,6 +61,9 @@ int main(int argc, char *argv[])
     upns_init_logging();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
+    app.setOrganizationName("Fachhochschule Aachen");
+    app.setOrganizationDomain("fh-aachen.de");
+    app.setApplicationName("Mapit Viewer");
 
     po::options_description program_options_desc(std::string("Usage: ") + argv[0] + "");
     program_options_desc.add_options()
@@ -106,20 +113,53 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<EditorCameraController>("qt3deditorlib", 1, 0, "EditorCameraController");
 
+    qmlRegisterType<FileIO, 1>("FileIO", 1, 0, "FileIO");
+
     QQmlApplicationEngine engine;
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
-    engine.addImageProvider("icon", new IconImageProvider(":/icon/"));
-    engine.addImageProvider("operator", new IconImageProvider(":/qml/operators", false));
+    IconImageProvider *imgProviderIcon = new IconImageProvider(":/icon/");
+    IconImageProvider *imgProviderMaterialDesign = new IconImageProvider(":/icon/material");
+    IconImageProvider *imgProviderOperator = new IconImageProvider(":/qml/operators", false, true);
+    engine.addImageProvider("icon", imgProviderIcon);
+    engine.addImageProvider("material", imgProviderMaterialDesign);
+    engine.addImageProvider("operator", imgProviderOperator);
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
-    Qt3DCore::Quick::QQmlAspectEngine * test = engine.findChild<Qt3DCore::Quick::QQmlAspectEngine *>();
-//    Qt3DInput::QInputSettings *inputSettings = m_entity->findChild<Qt3DInput::QInputSettings *>();
-//    if (inputSettings) {
-//        inputSettings->setEventSource(this);
-//    } else {
-//        qCDebug(Scene3D) << "No Input Settings found, keyboard and mouse events won't be handled";
-//    }
+    if(!engine.rootObjects().empty())
+    {
+        QObject *appStyle = engine.rootObjects().first()->findChild<QObject *>("appStyle");
+        if(appStyle)
+        {
+            ImageUpdater *updater(new ImageUpdater(appStyle, &engine, appStyle));
+            const QMetaObject *appStyleMeta = appStyle->metaObject();
+            int isDarkIndex = appStyleMeta->indexOfProperty("isDark");
+            QMetaMethod isDarkChanged = appStyleMeta->property(isDarkIndex).notifySignal();
+
+    //        const QMetaObject *imgProvMeta = &IconImageProvider::staticMetaObject;
+    //        int setDarkIconsIndex = imgProvMeta->indexOfSlot("setDarkIcons(bool)");
+    //        QMetaMethod setDarkIcons = imgProvMeta->method(setDarkIconsIndex);
+
+    //        QObject::connect(appStyle, isDarkChanged, imgProviderIcon, setDarkIcons);
+    //        QObject::connect(appStyle, isDarkChanged, imgProviderMaterialDesign, setDarkIcons);
+    //        QObject::connect(appStyle, isDarkChanged, imgProviderOperator, setDarkIcons);
+
+            const QMetaObject *imgUpdMeta = &ImageUpdater::staticMetaObject;
+            int updateAllIdx = imgUpdMeta->indexOfSlot("updateAllImages()");
+            QMetaMethod updateAll = imgUpdMeta->method(updateAllIdx);
+
+            QObject::connect(appStyle, isDarkChanged, updater, updateAll);
+            updater->updateAllImages();
+        }
+        //Qt3DCore::Quick::QQmlAspectEngine * test = engine.findChild<Qt3DCore::Quick::QQmlAspectEngine *>();
+        QObject *mainWindow = engine.rootObjects().first()->findChild<QObject *>("mainWindow");
+        Qt3DInput::QInputSettings *inputSettings = engine.rootObjects().first()->findChild<Qt3DInput::QInputSettings *>();
+        if (inputSettings) {
+            inputSettings->setEventSource(mainWindow);
+        } else {
+            qDebug() << "No Input Settings found, keyboard and mouse events won't be handled";
+        }
+    }
 
     int result = app.exec();
     return result;

@@ -21,6 +21,7 @@ Item {
                 text: "x"
                 color: parent.color
                 rotation: -parent.rotation
+                font.pixelSize: 8
             }
         }
         Rectangle {
@@ -35,6 +36,7 @@ Item {
                 text: "y"
                 color: parent.color
                 rotation: -parent.rotation
+                font.pixelSize: 8
             }
         }
         Rectangle {
@@ -48,6 +50,7 @@ Item {
                 text: "z"
                 color: parent.color
                 rotation: -parent.rotation
+                font.pixelSize: 8
             }
         }
     }

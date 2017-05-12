@@ -6,12 +6,13 @@ import QtGraphicalEffects 1.0
 import fhac.upns 1.0 as UPNS
 
 QCtl.TreeView {
+    id: treeViewCheckout
     property var currentCheckout
     property var contextMenu
     property var visibleElems: ListModel {}
     alternatingRowColors: true
     headerVisible: false
-    id: treeViewCheckout
+    selectionMode: SelectionMode.SingleSelection
     model: UPNS.RootTreeModel {
 //        property var visiblePathToVisibility: {}
         root: currentCheckout
@@ -58,7 +59,12 @@ QCtl.TreeView {
         role: "displayRole"
         title: "Name"
         resizable: true
-        width: treeViewCheckout.width-30-4
+        width: treeViewCheckout.width-appStyle.controlHeight-visibleColumn.width
+        delegate: StyledLabel {
+            height: appStyle.controlHeight
+            verticalAlignment:  Text.AlignVCenter
+            text: styleData.value
+        }
     }
 //    QCtl.TableViewColumn {
 //        id: pathColumn
@@ -71,7 +77,7 @@ QCtl.TreeView {
         title: "Vis"
         movable: false
         resizable: false
-        width: 30
+        width: appStyle.controlHeight
         delegate: MouseArea {
             id: itemMA
             property bool showObj: false
@@ -82,7 +88,16 @@ QCtl.TreeView {
                 fillMode: Image.PreserveAspectFit
                 //anchors.verticalCenter: parent.verticalCenter
                 source: "image://icon/eye"
-                visible: model?model.type:false
+                sourceSize: Qt.size(appStyle.iconSize, appStyle.iconSize)
+                visible: styleData.value
+//                Connections {
+//                    target: appStyle
+//                    darkLightChanged: {
+//                        var tmp = visibleImage.source
+//                        visibleImage.source = ""
+//                        visibleImage.source = tmp
+//                    }
+//                }
             }
             ColorOverlay {
                 anchors.fill: visibleImage
@@ -97,7 +112,7 @@ QCtl.TreeView {
                     return "#565656"
                     //itemMA.showObj ? "#43adee" : "#565656"
                 }
-                visible: model?model.type:false
+                visible: model ? model.type : false
             }
             onClicked: {
                 if(!model.type) return
@@ -132,6 +147,7 @@ QCtl.TreeView {
     }
     //onCurrentIndexChanged: console.log("SEL:"+treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole));//treeViewCheckout.currentIndex.data(Qt.ToolTipRole));//treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole))
     rowDelegate: Item {
+        height: appStyle.controlHeight
         Rectangle {
             anchors {
                 left: parent.left
@@ -139,13 +155,12 @@ QCtl.TreeView {
                 verticalCenter: parent.verticalCenter
             }
             height: parent.height
-            color: styleData.selected ? palette.highlight : palette.base
+            color: styleData.selected ? appStyle.highlightColor : appStyle.itemBackgroundColor
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.RightButton
                 onClicked: {
-                    if (mouse.button === Qt.RightButton)
-                    {
+                    if (mouse.button === Qt.RightButton) {
                         treeViewCheckout.contextMenu.popup()
                     }
                 }

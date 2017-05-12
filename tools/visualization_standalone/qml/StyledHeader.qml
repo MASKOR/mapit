@@ -7,7 +7,7 @@ Rectangle {
     property alias text: headerLabel.text
     property bool checked: true
     color: appStyle.headerColor
-    height: 25
+    height: appStyle.controlHeight
     StyledLabel {
         id: headerLabel
         anchors.left: parent.left
@@ -30,14 +30,16 @@ Rectangle {
                 color: "transparent"
             }
         }
-        height: 24
-        width: 24
-        tooltip: qsTr("Reset Transform")
+        height: root.height
+        width: height
+        tooltip: root.checked ? qsTr("Collapse") : qsTr("Expand")
 
         Image {
             id: visibleImage
+            height: appStyle.iconSize
+            width: appStyle.iconSize
             anchors.verticalCenter: parent.verticalCenter
-            source: "image://icon/ic_arrow_drop_down_black"
+            source: "image://material/ic_arrow_drop_down"
             rotation: root.checked ? 0 : 180
             //source: root.checked ? "image://icon/badge-square-direction-down" : "image://icon/badge-square-direction-up"
         }

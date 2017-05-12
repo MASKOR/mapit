@@ -284,5 +284,62 @@
         <file>icon/ic_arrow_drop_down_black-16-ns.png</file>
         <file>qml/operators/transform.qml</file>
         <file>qml/operators/load_path.qml</file>
+        <file>qml/About.qml</file>
+        <file>icon/cone-skinny.png</file>
+        <file>icon/cube-skinny.png</file>
+        <file>icon/cylinder-skinny.png</file>
+        <file>icon/plane-skinny.png</file>
+        <file>icon/sphere-skinny.png</file>
+        <file>icon/torus-skinny.png</file>
+        <file>license/LICENSE.GPL3-EXCEPT</file>
+        <file>icon/material/ic_list_black_24dp_1x.png</file>
+        <file>icon/material/ic_list_black_24dp_2x.png</file>
+        <file>icon/material/ic_settings_black_24dp_1x.png</file>
+        <file>icon/material/ic_settings_black_24dp_2x.png</file>
+        <file>icon/material/ic_settings_overscan_black_24dp_1x.png</file>
+        <file>icon/material/ic_settings_overscan_black_24dp_2x.png</file>
+        <file>icon/material/ic_toc_black_24dp_1x.png</file>
+        <file>icon/material/ic_toc_black_24dp_2x.png</file>
+        <file>icon/material/ic_view_list_black_24dp_1x.png</file>
+        <file>icon/material/ic_view_list_black_24dp_2x.png</file>
+        <file>icon/material/ic_view_module_black_24dp_1x.png</file>
+        <file>icon/material/ic_view_module_black_24dp_2x.png</file>
+        <file>icon/material/ic_visibility_black_24dp_1x.png</file>
+        <file>icon/material/ic_visibility_black_24dp_2x.png</file>
+        <file>icon/material/ic_visibility_off_black_24dp_1x.png</file>
+        <file>icon/material/ic_visibility_off_black_24dp_2x.png</file>
+        <file>icon/material/ic_keyboard_arrow_down_black_24dp_1x.png</file>
+        <file>icon/material/ic_keyboard_arrow_down_black_24dp_2x.png</file>
+        <file>icon/material/ic_arrow_drop_down_black_24dp_1x.png</file>
+        <file>icon/material/ic_arrow_drop_down_black_24dp_2x.png</file>
+        <file>icon/material/ic_settings_overscan_white_24dp_2x.png</file>
+        <file>icon/material/ic_settings_overscan_white_24dp_1x.png</file>
+        <file>icon/material/ic_settings_white_24dp_2x.png</file>
+        <file>icon/material/ic_settings_white_24dp_1x.png</file>
+        <file>icon/material/ic_view_list_white_24dp_2x.png</file>
+        <file>icon/material/ic_view_list_white_24dp_1x.png</file>
+        <file>icon/material/ic_view_module_white_24dp_2x.png</file>
+        <file>icon/material/ic_view_module_white_24dp_1x.png</file>
+        <file>icon/material/ic_visibility_white_24dp_2x.png</file>
+        <file>icon/material/ic_visibility_white_24dp_1x.png</file>
+        <file>icon/material/ic_visibility_off_white_24dp_2x.png</file>
+        <file>icon/material/ic_visibility_off_white_24dp_1x.png</file>
+        <file>icon/material/ic_keyboard_arrow_down_white_24dp_2x.png</file>
+        <file>icon/material/ic_keyboard_arrow_down_white_24dp_1x.png</file>
+        <file>icon/material/ic_list_white_24dp_2x.png</file>
+        <file>icon/material/ic_list_white_24dp_1x.png</file>
+        <file>icon/material/ic_toc_white_24dp_2x.png</file>
+        <file>icon/material/ic_toc_white_24dp_1x.png</file>
+        <file>icon/material/ic_arrow_drop_down_white_24dp_2x.png</file>
+        <file>icon/material/ic_arrow_drop_down_white_24dp_1x.png</file>
+        <file>qml/StyleColorChooser.qml</file>
+        <file>qml/StyledSlider.qml</file>
+        <file>qml/StyledComboBox.qml</file>
+        <file>qml/StyledTextField.qml</file>
+        <file>icon/material/ic_info_white_24dp_2x.png</file>
+        <file>icon/material/ic_info_white_24dp_1x.png</file>
+        <file>icon/material/ic_info_black_24dp_2x.png</file>
+        <file>icon/material/ic_info_black_24dp_1x.png</file>
+        <file>qml/StyledSplitView.qml</file>
     </qresource>
 </RCC>

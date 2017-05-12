@@ -41,7 +41,7 @@ Item {
         anchors.fill: parent
         id: controlColumn
 
-        QCtl.SplitView {
+        StyledSplitView {
             orientation: Qt.Vertical
             Layout.fillWidth: true
             Layout.fillHeight: true

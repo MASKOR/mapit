@@ -14,10 +14,12 @@ import "panes"
 
 QCtl.ApplicationWindow {
     id: window
-    title: qsTr("Map Visualization")
+    objectName: "mainWindow"
+    title: qsTr("Mapit Visualization")
     width: 1200
     height: 800
     visible: true
+    color: appStyle.backgroundColor
     menuBar: MainMenubar {
         id: menubar
         //uiEnabled: drawingArea.renderdata.running
@@ -28,12 +30,12 @@ QCtl.ApplicationWindow {
 //    }
 
     AppStyle {
-        id:appStyle
-        visible:false
+        id: appStyle
+        visible: false
     }
     ColumnLayout {
         anchors.fill: parent
-        QCtl.SplitView {
+        StyledSplitView {
             orientation: Qt.Horizontal
             Layout.fillWidth: true
             Layout.fillHeight: true

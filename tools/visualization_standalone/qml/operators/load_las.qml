@@ -25,8 +25,8 @@ Item {
     property var parameters: {
         "filename":fileNamePcd.text,
         "target":entityChooser.currentEntityPath,
-        "demean": demeanCheckbox.checked,
-        "normalize": normalizeCheckbox.checked
+        //"demean": demeanCheckbox.checked,
+        //"normalize": normalizeCheckbox.checked
     }
 
     //// UI ////
@@ -58,26 +58,26 @@ Item {
                 currentEntityPath: root.currentEntityPath
             }
         }
-        RowLayout {
-            Layout.fillWidth: true
-            StyledLabel {
-                text: "Demean:"
-            }
-            CheckBox {
-                id: demeanCheckbox
-                Layout.fillWidth: true
-            }
-        }
-        RowLayout {
-            Layout.fillWidth: true
-            StyledLabel {
-                text: "Normalize"
-            }
-            CheckBox {
-                id: normalizeCheckbox
-                Layout.fillWidth: true
-            }
-        }
+//        RowLayout {
+//            Layout.fillWidth: true
+//            StyledLabel {
+//                text: "Demean:"
+//            }
+//            CheckBox {
+//                id: demeanCheckbox
+//                Layout.fillWidth: true
+//            }
+//        }
+//        RowLayout {
+//            Layout.fillWidth: true
+//            StyledLabel {
+//                text: "Normalize"
+//            }
+//            CheckBox {
+//                id: normalizeCheckbox
+//                Layout.fillWidth: true
+//            }
+//        }
         Item {
             Layout.fillHeight: true
         }

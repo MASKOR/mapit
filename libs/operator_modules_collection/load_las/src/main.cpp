@@ -30,26 +30,30 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
         log_error("parameter \"filename\" missing");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    bool demean = params["demean"].bool_value();
-    bool normalize = params["normalize"].bool_value();
-    double normalizeScale = params["normalizeScale"].number_value();
-    if(normalizeScale < 0.001)
-    {
-        if(normalizeScale < 0.0)
-        {
-            log_error("normalizeScale was negative");
-            return UPNS_STATUS_INVALID_ARGUMENT;
-        }
-        normalizeScale = 10.0; // 10m is default
-    }
-    else if(!normalize)
-    {
-        if(normalizeScale != 1.0)
-        {
-            log_warn("normalizeScale was set, but normalize was not active");
-        }
-        normalizeScale = 1.0;
-    }
+// demean and normalize not supported!
+// Reason: This would require to rebuild the read LAS datastructure and create custom points.
+// Points may vary in dataformat which might result in multiple codepaths.
+// Pcds can be demeaned.
+//    bool demean = params["demean"].bool_value();
+//    bool normalize = params["normalize"].bool_value();
+//    double normalizeScale = params["normalizeScale"].number_value();
+//    if(normalizeScale < 0.001)
+//    {
+//        if(normalizeScale < 0.0)
+//        {
+//            log_error("normalizeScale was negative");
+//            return UPNS_STATUS_INVALID_ARGUMENT;
+//        }
+//        normalizeScale = 10.0; // 10m is default
+//    }
+//    else if(!normalize)
+//    {
+//        if(normalizeScale != 1.0)
+//        {
+//            log_warn("normalizeScale was set, but normalize was not active");
+//        }
+//        normalizeScale = 1.0;
+//    }
 
     std::ifstream ifs;
     ifs.open(filename, std::ifstream::in);
@@ -81,38 +85,38 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
     //    std::copy(lasreader_iterator(reader),  lasreader_iterator(),
     //                      laswriter_iterator(writer));
     int i=0;
-    if(demean || normalize)
-    {
-        double minX = reader.GetHeader().GetMinX();
-        double minY = reader.GetHeader().GetMinY();
-        double minZ = reader.GetHeader().GetMinZ();
-        double maxX = reader.GetHeader().GetMaxX();
-        double maxY = reader.GetHeader().GetMaxY();
-        double maxZ = reader.GetHeader().GetMaxZ();
+//    if(demean || normalize)
+//    {
+//        double minX = reader.GetHeader().GetMinX();
+//        double minY = reader.GetHeader().GetMinY();
+//        double minZ = reader.GetHeader().GetMinZ();
+//        double maxX = reader.GetHeader().GetMaxX();
+//        double maxY = reader.GetHeader().GetMaxY();
+//        double maxZ = reader.GetHeader().GetMaxZ();
 
-        double sx = maxX-minX;
-        double sy = maxY-minY;
-        double sz = maxZ-minZ;
-        double maxDim = std::max(std::max(sx, sy), sz);
-        double scale = normalizeScale / maxDim;
+//        double sx = maxX-minX;
+//        double sy = maxY-minY;
+//        double sz = maxZ-minZ;
+//        double maxDim = std::max(std::max(sx, sy), sz);
+//        double scale = normalizeScale / maxDim;
 
-        double cx = minX+sx*0.5;
-        double cy = minY+sy*0.5;
-        double cz = minZ+sz*0.5;
+//        double cx = minX+sx*0.5;
+//        double cy = minY+sy*0.5;
+//        double cz = minZ+sz*0.5;
 
-        while(reader.ReadNextPoint())
-        {
-            liblas::Point current(reader.GetPoint());
-            liblas::Point newpoint(&reader.GetHeader());
-            newpoint.SetX((current.GetX()-cx)*scale);
-            newpoint.SetY((current.GetY()-cy)*scale);
-            newpoint.SetZ((current.GetZ()-cz)*scale);
-            writer->WritePoint(newpoint);
-            ++i;
-        }
-    }
-    else
-    {
+//        while(reader.ReadNextPoint())
+//        {
+//            liblas::Point current(reader.GetPoint());
+//            liblas::Point newpoint(&reader.GetHeader());
+//            newpoint.SetX((current.GetX()-cx)*scale);
+//            newpoint.SetY((current.GetY()-cy)*scale);
+//            newpoint.SetZ((current.GetZ()-cz)*scale);
+//            writer->WritePoint(newpoint);
+//            ++i;
+//        }
+//    }
+//    else
+//    {
         while(reader.ReadNextPoint())
         {
             liblas::Point const&  current(reader.GetPoint());
@@ -120,7 +124,7 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
             writer->WritePoint(current);
             ++i;
         }
-    }
+//    }
     log_info("Points read:" + std::to_string(i));
     return UPNS_STATUS_OK;
 }

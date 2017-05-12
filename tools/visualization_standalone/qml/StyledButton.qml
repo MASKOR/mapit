@@ -3,8 +3,13 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 
 Button {
+    id: root
+    property bool isIcon: false
+    property string iconSource
+    property color color: appStyle.itemBackgroundColor
     style: ButtonStyle {
         label: Label {
+            visible: !control.isIcon
             renderType: Text.NativeRendering
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -16,13 +21,28 @@ Button {
         }
 
         background: Rectangle {
-            implicitWidth: 100
-            implicitHeight: 25
-            color: control.hovered ? appStyle.backgroundHighlightColor : appStyle.backgroundColor
+            implicitWidth: control.isIcon ? appStyle.controlHeight : appStyle.controlHeight*4.0
+            implicitHeight: appStyle.controlHeight
+            color: control.checked
+                   ? appStyle.backgroundHighlightColor
+                   : control.hovered
+                     ? appStyle.backgroundHighlightColor
+                     : control.isIcon
+                       ? "transparent"
+                       : control.color
             border.width: control.activeFocus ? 2 : 1
-            border.color: appStyle.buttonBorderColor
+            border.color: control.isIcon ? "transparent" : appStyle.buttonBorderColor
             smooth: false
-            radius: 2
+            radius: appStyle.radius
+            Image {
+                id: img
+                sourceSize: Qt.size(appStyle.iconSize, appStyle.iconSize)
+                anchors.centerIn: parent
+                visible: control.isIcon
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                source: control.iconSource ? control.iconSource : "image://icon/"
+            }
         }
     }
 }

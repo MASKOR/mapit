@@ -29,6 +29,7 @@ Item {
         anchors.fill: parent
         //QCtl.ToolBar {
             Flow {
+                spacing: appStyle.controlMargin
                 id: toolbar
                 anchors.left: parent.left
                 anchors.top: parent.top
@@ -36,43 +37,71 @@ Item {
 //                Layout.fillWidth: true
 //                Layout.maximumHeight: 32
                 AxisGizmo {
-                    height: pointSizeSlider.height
+                    height: pointSizeSlider.height*1.5
                     width: height
-//                    Layout.preferredHeight: toolbar.height
+                    Layout.preferredHeight: toolbar.height
 //                    Layout.preferredWidth: toolbar.height
                     finalTransform: mainCamera.viewMatrix
                 }
-                Text { text: "PointSize: " + pointSizeSlider.value.toFixed(2); color: palette.text }
-                QCtl.Slider {
+                StyledLabel {
+                    text: "PointSize: " + pointSizeSlider.value.toFixed(2)
+                    verticalAlignment: Text.AlignVCenter
+                    height: appStyle.controlHeight
+                }
+                StyledSlider {
                     id: pointSizeSlider
                     width: 100
                     value: 0.01
                     minimumValue: 0.01
                     maximumValue:  1.0
                 }
-                Text { text: "Renderstyle:"}
-                QCtl.ComboBox {
+                StyledLabel {
+                    text: "Renderstyle:"
+                    verticalAlignment: Text.AlignVCenter
+                    height: appStyle.controlHeight
+                }
+                StyledComboBox {
                     id: renderstyleSelect
                     model: [ "points", "discs", "surfel"]
                 }
-                Text { text: "Color:"}
-                QCtl.ComboBox {
+                StyledLabel {
+                    text: "Color:"
+                    verticalAlignment: Text.AlignVCenter
+                    height: appStyle.controlHeight
+                }
+                StyledComboBox {
                     id: colorizeSelect
                     model: [ "x", "y", "z", "intensity"]
                 }
-                QCtl.Slider {
+                StyledSlider {
                     id: cameraSizeSlider
                     width: 100
                     value: 1.0
                     minimumValue: 1.0
                     maximumValue:  100.0
                 }
-                QCtl.Slider {
+                StyledSlider {
                     id: lodSlider
                     width: 100
                     value: 1.0
                     minimumValue: 0.01
                     maximumValue: 20.0
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://material/ic_settings"
+                    onClicked: settings.open()
+                }
+                VisualizationSettings {
+                    id: settings
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://material/ic_info"
+                    onClicked: about.open()
+                }
+                About {
+                    id: about
                 }
             }
         //}
@@ -177,6 +206,7 @@ Item {
                         },
                         // Event Source will be set by the Qt3DQuickWindow
                         InputSettings {
+                            objectName: "inputSettings"
                             eventSource: scene3d
                             enabled: true
                         },
