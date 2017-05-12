@@ -7,6 +7,7 @@ Button {
     property bool isIcon: false
     property string iconSource
     property color color: appStyle.itemBackgroundColor
+    property bool useHoverHighlight: true
     style: ButtonStyle {
         label: Label {
             visible: !control.isIcon
@@ -25,7 +26,7 @@ Button {
             implicitHeight: appStyle.controlHeight
             color: control.checked
                    ? appStyle.backgroundHighlightColor
-                   : control.hovered
+                   : control.hovered && control.useHoverHighlight
                      ? appStyle.backgroundHighlightColor
                      : control.isIcon
                        ? "transparent"
@@ -41,7 +42,7 @@ Button {
                 visible: control.isIcon
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                source: control.iconSource ? control.iconSource : "image://icon/"
+                source: control.iconSource && control.iconSource!="" ? control.iconSource : "image://icon/"
             }
         }
     }

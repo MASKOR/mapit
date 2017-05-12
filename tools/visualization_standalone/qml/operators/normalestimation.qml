@@ -17,7 +17,7 @@ Item {
     }
 
     //// out ////
-    property bool valid: entityChooser.currentEntityPath != ""
+    property bool valid: entityChooser.valid
     property var parameters: {
         "target":entityChooser.currentEntityPath
     }
@@ -25,27 +25,13 @@ Item {
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
-        RowLayout {
-            z: 100
-            Layout.fillWidth: true
-            Text {
-                Layout.alignment: Qt.AlignTop
-                text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
-            }
-            EntityChooser {
-                id: entityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
         Item {
             Layout.fillHeight: true
-        }
-        SystemPalette {
-            id: palette
         }
     }
 }

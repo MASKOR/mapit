@@ -21,7 +21,7 @@ Item {
     //// out ////
     property bool valid: radiusTextfiled.valid
                       && voxelsizeTextfiled.valid
-                      && entityChooser.currentEntityPath != ""
+                      && entityChooser.valid
     property var parameters: {
         "radius": radiusTextfiled.text,
         "voxelsize": voxelsizeTextfiled.text,
@@ -67,21 +67,10 @@ Item {
                 }
             }
         }
-        RowLayout {
-            z: 100
-            Layout.fillWidth: true
-            Text {
-                Layout.alignment: Qt.AlignTop
-                text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
-            }
-            EntityChooser {
-                id: entityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
         Item {
             Layout.fillHeight: true

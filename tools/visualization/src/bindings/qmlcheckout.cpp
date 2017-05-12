@@ -158,7 +158,7 @@ void QmlCheckout::setRepository(QmlRepository *repository)
         }
         Q_EMIT repositoryChanged(repository);
     }
-    if(!m_name.isEmpty())
+    if(!m_name.isEmpty() && m_repository->getRepository())
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
         reloadEntities();

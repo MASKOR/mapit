@@ -2,14 +2,18 @@ import QtQuick 2.4
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
-import QtQuick.Dialogs 1.2
+import QtQuick.Window 2.0
 
-Dialog {
+Window {
     id: root
-    width: 300
+    width: controlsContainer.width
     height: 400
-    modality: Qt.WindowModal
+    color: appStyle.backgroundColor
+    flags: Qt.Tool
+    modality: Qt.NonModal
     visible: false
+    maximumWidth: controlsContainer.width
+    minimumWidth: controlsContainer.width
     property var model: ListModel {
         ListElement { label: "Background Color"; propName: "backgroundColor" }
         ListElement { label: "Text Color"; propName: "textColor" }
@@ -28,21 +32,29 @@ Dialog {
     onVisibleChanged: {
         if(visible) {
             sizeSlider.value = appStyle.controlHeight
+            radiansCheckbox.checked = appStyle.useRadians
+            axisCheckbox.checked = appStyle.coordinateSystemYPointsUp
+            gridLinesInput.text = appStyle.gridLines
+            gridSpacingInput.text = appStyle.gridSpacing
+            lodSlider.value = appStyle.pointcloudLod
+            camScaleSlider.value = appStyle.cameraScale
         }
     }
 
     title: "Visualization Settings"
-    contentItem: Rectangle {
+    Rectangle {
         anchors.fill: parent
         color: appStyle.backgroundColor
         ScrollView {
             anchors.fill: parent
             ColumnLayout {
+                id: controlsContainer
                 RowLayout {
+                    anchors.leftMargin: appStyle.controlMargin
                     Layout.fillWidth: true
                     StyledLabel {
                         width: 200
-                        text: "Size"
+                        text: "UI Size"
                     }
                     Slider {
                         id: sizeSlider
@@ -50,7 +62,6 @@ Dialog {
                         maximumValue: 50
                         minimumValue: 10
                         Binding {
-                            id: theBinding
                             target: appStyle
                             property: "controlHeight"
                             value: sizeSlider.value
@@ -74,7 +85,143 @@ Dialog {
                         }
                     }
                 }
+                StyledHeader {
+                    id: headerSettingsGrid
+                    text: "Grid Settings"
+                    Layout.fillWidth: true
+                }
                 GridLayout {
+                    anchors.leftMargin: appStyle.controlMargin
+                    visible: headerSettingsGrid.checked
+                    Layout.fillWidth: true
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                        text: "Grid Lines"
+                    }
+                    StyledTextField {
+                        id: gridLinesInput
+                        Layout.column: 1
+                        Layout.row: 0
+                        validator: IntValidator {}
+                        Binding {
+                            target: appStyle
+                            property: "gridLines"
+                            value: gridLinesInput.text
+                            when: root.visible
+                        }
+                    }
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 1
+                        Layout.fillWidth: true
+                        text: "Line Spacing (meters)"
+                    }
+                    StyledTextField {
+                        id: gridSpacingInput
+                        Layout.column: 1
+                        Layout.row: 1
+                        validator: DoubleValidator {}
+                        Binding {
+                            target: appStyle
+                            property: "gridSpacing"
+                            value: gridSpacingInput.text
+                            when: root.visible
+                        }
+                    }
+                }
+                StyledHeader {
+                    id: headerSettingsCoordinateSystem
+                    text: "Coordinate System and 3D Settings"
+                    Layout.fillWidth: true
+                }
+                GridLayout {
+                    anchors.leftMargin: appStyle.controlMargin
+                    visible: headerSettingsCoordinateSystem.checked
+                    Layout.fillWidth: true
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                        text: "Use Radians"
+                    }
+                    StyledCheckBox {
+                        id: radiansCheckbox
+                        Layout.column: 1
+                        Layout.row: 0
+                        Binding {
+                            target: appStyle
+                            property: "useRadians"
+                            value: radiansCheckbox.checked
+                            when: root.visible
+                        }
+                    }
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 1
+                        Layout.fillWidth: true
+                        text: "Y-AxisPoints up"
+                    }
+                    StyledCheckBox {
+                        id: axisCheckbox
+                        Layout.column: 1
+                        Layout.row: 1
+                        Binding {
+                            target: appStyle
+                            property: "coordinateSystemYPointsUp"
+                            value: axisCheckbox.checked
+                            when: root.visible
+                        }
+                    }
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 2
+                        Layout.fillWidth: true
+                        text: "Level of Detail (Pointclouds)"
+                    }
+                    StyledSlider {
+                        id: lodSlider
+                        Layout.column: 1
+                        Layout.row: 2
+                        minimumValue: 0.01
+                        maximumValue: 20.0
+                        Binding {
+                            target: appStyle
+                            property: "pointcloudLod"
+                            value: lodSlider.value
+                            when: root.visible
+                        }
+                    }
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 3
+                        Layout.fillWidth: true
+                        text: "Camera Scale"
+                    }
+                    StyledSlider {
+                        id: camScaleSlider
+                        Layout.column: 1
+                        Layout.row: 3
+                        minimumValue: 1.0
+                        maximumValue:  20.0
+                        Binding {
+                            target: appStyle
+                            property: "cameraScale"
+                            value: camScaleSlider.value
+                            when: root.visible
+                        }
+                    }
+                }
+                StyledHeader {
+                    id: headerSettingsUi
+                    text: "UI Settings"
+                    Layout.fillWidth: true
+                    checked: false
+                }
+                GridLayout {
+                    anchors.leftMargin: appStyle.controlMargin
+                    visible: headerSettingsUi.checked
                     Layout.fillWidth: true
                     columns: 2
                     Repeater {
@@ -89,11 +236,26 @@ Dialog {
                     Repeater {
                         model: root.model
                         StyleColorChooser {
+                            id: colorChooser
                             Layout.column: 1
                             Layout.row: index
                             stylePropertyName: propName
                             isShowing: root.visible
+                            Connections {
+                                target: appStyle
+                                onThemeChanged: colorChooser.reload()
+                            }
                         }
+                    }
+                }
+                RowLayout {
+                    StyledButton {
+                        text: "Reset colors Dark"
+                        onClicked: appStyle.resetDefaultColorsDark();
+                    }
+                    StyledButton {
+                        text: "Reset colors System"
+                        onClicked: appStyle.resetDefaultColorsSystem();
                     }
                 }
             }

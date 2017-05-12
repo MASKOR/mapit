@@ -12,22 +12,17 @@ import QtQuick 2.0 as QQ2
 
 import "panes"
 
-QCtl.ApplicationWindow {
+MainMenubar {
     id: window
     objectName: "mainWindow"
     title: qsTr("Mapit Visualization")
     width: 1200
     height: 800
     visible: true
-    color: appStyle.backgroundColor
-    menuBar: MainMenubar {
-        id: menubar
-        //uiEnabled: drawingArea.renderdata.running
+    UPNS.Repository {
+        id: globalRepository
+        url: ""
     }
-//    UPNS.Repository {
-//        id: repo
-//        conf: "./repo.yaml"
-//    }
 
     AppStyle {
         id: appStyle

@@ -115,7 +115,12 @@ Item {
                             id: checkoutChooser
                         }
                     }
+                    StyledLabel {
+                        visible: !globalRepository.isLoaded
+                        text: "No Repository loaded"
+                    }
                     CheckoutTreeView {
+                        visible: globalRepository.isLoaded
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         id: treeViewCheckout

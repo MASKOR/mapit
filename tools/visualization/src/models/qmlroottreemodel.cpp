@@ -3,11 +3,11 @@
 QmlRootTreeModel::QmlRootTreeModel()
     :m_root( NULL )
 {
-
     m_roleNameMapping[NodeDisplayRole] = "displayRole";
     m_roleNameMapping[NodePathRole] = "path";
     m_roleNameMapping[NodeTypeRole] = "type";
     m_roleNameMapping[NodeNodeRole] = "node";
+    m_roleNameMapping[NodeVisibleRole] = "visible";
 }
 
 QVariantMap QmlRootTreeModel::get(int idx) const
@@ -79,6 +79,7 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
             {
                 csi->setData(QVariant::fromValue(ent), Qt::UserRole);
                 csi->setData(QmlRootTreeModel::EntityNode, NodeTypeRole);
+                csi->setData(false, NodeVisibleRole);
             }
             //TODO: conflicts
         }
@@ -91,6 +92,7 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
             this->appendRow( csi );
         }
     }
+    Q_EMIT itemsChanged();
 }
 
 QHash<int, QByteArray> QmlRootTreeModel::roleNames() const

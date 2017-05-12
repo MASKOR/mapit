@@ -26,6 +26,8 @@ public:
 
     static void addProgramOptions(boost::program_options::options_description &desc);
     static Repository* openRepository(boost::program_options::variables_map &vars);
+
+    static Repository* openRepositorySimple(std::string url, bool computeLocal);
 };
 
 }

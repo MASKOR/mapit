@@ -3,33 +3,25 @@
 #include <upns/errorcodes.h>
 #include <upns/serialization/operatorlibrarymanager.h>
 #include "operatorloader.h"
+#include <upns/versioning/repositoryfactorystandard.h>
+
+QmlRepository::QmlRepository(QObject *parent)
+    :QmlRepository(nullptr, nullptr)
+{
+
+}
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
     :QmlRepository(repo, nullptr)
 {
+
 }
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent)
     :QObject( parent )
 {
     m_opLoaderWorker = new OperatorLoader();
-    m_repository = repo;
-    m_checkoutNames.clear();
-    std::vector<std::string> coNames(m_repository->listCheckoutNames());
-    for(std::vector<std::string>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
-    {
-        m_checkoutNames.append(QString::fromStdString(*iter));
-    }
-    connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
-        for(auto iter = result.cbegin(); iter != result.cend(); ++iter)
-        {
-            m_operators.append(*iter);
-        }
-        operatorsChanged();
-    }, Qt::QueuedConnection);
-    reloadOperators();
-    Q_EMIT checkoutNamesChanged( m_checkoutNames );
-    Q_EMIT internalRepositoryChanged( this );
+    reload();
 }
 
 QmlRepository::~QmlRepository()
@@ -59,9 +51,41 @@ QVariantList QmlRepository::operators()
     return m_operators;//QQmlListProperty<QVariant>(this, nullptr, &CountFunctionOps, &AtFunctionOps);
 }
 
+void QmlRepository::reload()
+{
+
+    m_checkoutNames.clear();
+    if(m_repository == nullptr) return;
+    std::vector<std::string> coNames(m_repository->listCheckoutNames());
+    for(std::vector<std::string>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
+    {
+        m_checkoutNames.append(QString::fromStdString(*iter));
+    }
+    connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
+        for(auto iter = result.cbegin(); iter != result.cend(); ++iter)
+        {
+            m_operators.append(*iter);
+        }
+        operatorsChanged();
+    }, Qt::QueuedConnection);
+    reloadOperators();
+    Q_EMIT checkoutNamesChanged( m_checkoutNames );
+    Q_EMIT internalRepositoryChanged( this );
+}
+
 QStringList QmlRepository::listCheckoutNames() const
 {
     return checkoutNames();
+}
+
+QStringList QmlRepository::checkoutNames() const
+{
+    return m_checkoutNames;
+}
+
+QString QmlRepository::url() const
+{
+    return m_url;
 }
 
 QmlTree *QmlRepository::getTree(QString oid)
@@ -238,4 +262,22 @@ bool QmlRepository::canWrite()
 std::shared_ptr<upns::Repository> QmlRepository::getRepository()
 {
     return m_repository;
+}
+
+void QmlRepository::setUrl(QString url)
+{
+    if (m_url == url)
+        return;
+    m_repository = std::shared_ptr<upns::Repository>(upns::RepositoryFactoryStandard::openRepositorySimple(url.toStdString(), true));
+
+    m_url = url;
+    reload();
+    Q_EMIT isLoadedChanged(m_repository != nullptr);
+    Q_EMIT urlChanged(url);
+    Q_EMIT internalRepositoryChanged(this);
+}
+
+bool QmlRepository::isLoaded() const
+{
+    return m_repository != nullptr;
 }

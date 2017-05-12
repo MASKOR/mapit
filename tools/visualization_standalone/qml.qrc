@@ -341,5 +341,8 @@
         <file>icon/material/ic_info_black_24dp_2x.png</file>
         <file>icon/material/ic_info_black_24dp_1x.png</file>
         <file>qml/StyledSplitView.qml</file>
+        <file>qml/StyledCheckBox.qml</file>
+        <file>qml/operators/HelperTarget.qml</file>
+        <file>qml/operators/HelperOpenFile.qml</file>
     </qresource>
 </RCC>

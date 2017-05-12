@@ -22,7 +22,7 @@ Item {
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
     onVisibleEntityItemsChanged: {
-        console.log("DBG: Visible Entities len: " + visibleEntityItems.length)
+        console.log("DBG: Visible Entities len: " + root.visibleEntityItems.length)
     }
 
     ColumnLayout {
@@ -37,7 +37,7 @@ Item {
 //                Layout.fillWidth: true
 //                Layout.maximumHeight: 32
                 AxisGizmo {
-                    height: pointSizeSlider.height*1.5
+                    height: pointSizeSlider.height
                     width: height
                     Layout.preferredHeight: toolbar.height
 //                    Layout.preferredWidth: toolbar.height
@@ -73,24 +73,10 @@ Item {
                     id: colorizeSelect
                     model: [ "x", "y", "z", "intensity"]
                 }
-                StyledSlider {
-                    id: cameraSizeSlider
-                    width: 100
-                    value: 1.0
-                    minimumValue: 1.0
-                    maximumValue:  100.0
-                }
-                StyledSlider {
-                    id: lodSlider
-                    width: 100
-                    value: 1.0
-                    minimumValue: 0.01
-                    maximumValue: 20.0
-                }
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_settings"
-                    onClicked: settings.open()
+                    onClicked: settings.show()
                 }
                 VisualizationSettings {
                     id: settings
@@ -138,8 +124,8 @@ Item {
                         projectionType: CameraLens.PerspectiveProjection
                         fieldOfView: 45
                         aspectRatio: scene3d.width/scene3d.height
-                        nearPlane : 0.1*cameraSizeSlider.value
-                        farPlane : 1000.0*cameraSizeSlider.value
+                        nearPlane : 0.1*appStyle.cameraScale
+                        farPlane : 1000.0*appStyle.cameraScale
                         position: Qt.vector3d( 0.0, 20.0, -40.0 )
                         upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
                         viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
@@ -162,11 +148,22 @@ Item {
                                         FrustumCulling {
                                             ClearBuffers {
                                                 buffers : ClearBuffers.ColorDepthBuffer
-                                                clearColor: "#c0c0c0"
+                                                clearColor: appStyle.background3d
                                                 NoDraw {}
                                             }
                                             LayerFilter {
-                                                layers: solidLayer
+                                                Layer {
+                                                    id: noGridLayer
+                                                }
+                                                Layer {
+                                                    id: gridLayer
+                                                }
+                                                layers: appStyle.showGrid ? gridLayer : noGridLayer
+                                            }
+                                            LayerFilter {
+                                                layers: Layer {
+                                                    id: solidLayer
+                                                }
                                             }
                                             LayerFilter {
                                                 layers: Layer {
@@ -187,7 +184,7 @@ Item {
                                                         Parameter { name: "farPlane"; value: mainCamera.farPlane },
                                                         Parameter { name: "width"; value: scene3d.width },
                                                         Parameter { name: "height"; value: scene3d.height },
-                                                        Parameter { name: "lod"; value: lodSlider.value }
+                                                        Parameter { name: "lod"; value: appStyle.pointcloudLod }
                                                     ]
                                                     RenderStateSet {
                                                         renderStates: [
@@ -212,34 +209,9 @@ Item {
                         },
                         Q3D.Transform {
                             id: worldTransform
-                            scale: cameraSizeSlider.value
+                            scale: appStyle.cameraScale
                         }
                     ]
-
-                    Q3D.NodeInstantiator {
-                        id: entityInstantiator
-                        model: root.visibleEntityItems
-                        delegate: MapitEntity {
-                            mainCameratmp: mainCamera
-                            scene3dtmp: scene3d
-
-                            //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
-                            //                                                                                                      0, 1, 0, 0,
-                            //                                                                                                      0, 0, 1, 0,
-                            //                                                                                                      0, 0, 0, 1)
-                            layer: pointLayer
-                            parametersTmp: techniqueFilter.parameters
-                            currentCheckout: UPNS.Checkout {
-                                id: co
-                                repository: globalRepository
-                                name: model.checkoutName
-                            }
-                            currentEntitydata: UPNS.Entitydata {
-                                checkout: co
-                                path: model.path
-                            }
-                        }
-                    }
 
                     Q3D.Entity {
                         id: gridEntity
@@ -249,50 +221,80 @@ Item {
                         }
                         HelperGridMesh {
                             id: gridMesh
+                            gridSpacing: appStyle.gridSpacing
+                            lines: appStyle.gridLines
                         }
 
                         property Material materialPhong: PhongMaterial {
                             ambient: Qt.rgba(0.0,0.0,0.0,1.0)
                         }
-                        components: [ gridMesh, materialPhong, gridTransform, solidLayer ]
+                        components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
                     }
 
                     Q3D.Entity {
-                        id: sphereEntity
-                        property Layer layerSolid: Layer {
-                                id: solidLayer
+                        id: objectsRoot
+
+                        components: [
+                            Q3D.Transform {
+                                id: coordianteSystemTransform
+                                rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
+                            }]
+                        Q3D.NodeInstantiator {
+                            id: entityInstantiator
+                            model: root.visibleEntityItems
+                            delegate: MapitEntity {
+                                mainCameratmp: mainCamera
+                                scene3dtmp: scene3d
+
+                                //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
+                                //                                                                                                      0, 1, 0, 0,
+                                //                                                                                                      0, 0, 1, 0,
+                                //                                                                                                      0, 0, 0, 1)
+                                layer: pointLayer
+                                parametersTmp: techniqueFilter.parameters
+                                currentCheckout: UPNS.Checkout {
+                                    id: co
+                                    repository: globalRepository
+                                    name: model.checkoutName
+                                }
+                                currentEntitydata: UPNS.Entitydata {
+                                    checkout: co
+                                    path: model.path
+                                }
                             }
-                        property ObjectPicker picker: ObjectPicker {
-                            onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
                         }
 
-                        property var meshTransform: Q3D.Transform {
-                            id: sphereTransform
-                            property real userAngle: 0.0
-                            translation: Qt.vector3d(20, 0, 0)
-                            rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
-                        }
-                        property var sphereMesh: SphereMesh {
-                            radius: 4
-                        }
-                        property Material materialPhong: PhongMaterial { }
-                        components: [ sphereMesh, materialPhong, meshTransform, layerSolid, picker ]
-                    }
-                    NumberAnimation {
-                        target: sphereTransform
-                        property: "userAngle"
-                        duration: 10000
-                        from: 0
-                        to: 360
+//                        Q3D.Entity {
+//                            id: sphereEntity
+//                            property ObjectPicker picker: ObjectPicker {
+//                                onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
+//                            }
 
-                        loops: Animation.Infinite
-                        running: true
+//                            property var meshTransform: Q3D.Transform {
+//                                id: sphereTransform
+//                                property real userAngle: 0.0
+//                                translation: Qt.vector3d(20, 0, 0)
+//                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
+//                            }
+//                            property var sphereMesh: SphereMesh {
+//                                radius: 4
+//                            }
+//                            property Material materialPhong: PhongMaterial { }
+//                            components: [ sphereMesh, materialPhong, meshTransform, layerSolid, picker ]
+//                            NumberAnimation {
+//                                target: sphereTransform
+//                                property: "userAngle"
+//                                duration: 10000
+//                                from: 0
+//                                to: 360
+
+//                                loops: Animation.Infinite
+//                                running: true
+//                            }
+//                        }
                     }
                 }
             }
         }
-    }
-    SystemPalette {
-        id: palette
     }
 }

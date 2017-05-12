@@ -6,6 +6,14 @@ StyledButton {
     id: root
     property string stylePropertyName
     property bool isShowing
+    useHoverHighlight: false
+    function reload() {
+        if(isShowing) {
+            colorDialog.originalColor = appStyle[root.stylePropertyName]
+            colorDialog.shownColor = colorDialog.originalColor
+        }
+    }
+
     Binding {
         id: theBinding
         target: appStyle
@@ -13,12 +21,7 @@ StyledButton {
         value: colorDialog.shownColor
         when: colorDialog.visible
     }
-    onIsShowingChanged: {
-        if(isShowing) {
-            colorDialog.originalColor = appStyle[root.stylePropertyName]
-            colorDialog.shownColor = colorDialog.originalColor
-        }
-    }
+    onIsShowingChanged: reload()
 
     color: colorDialog.shownColor
     onClicked: colorDialog.open()

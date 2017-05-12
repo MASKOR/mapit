@@ -11,7 +11,7 @@ Item {
     //// in ////
     property bool editable
     property var currentCheckout
-    property string currentEntity
+    property string currentEntityPath
 
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
@@ -20,7 +20,7 @@ Item {
     }
 
     //// out ////
-    property bool valid: entityChooser.currentEntityPath != ""
+    property bool valid: entityChooser.valid
     property var parameters: {
         "target":entityChooser.currentEntityPath,
         "demean": demeanCheckbox.checked,
@@ -30,21 +30,10 @@ Item {
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
-        RowLayout {
-            Layout.fillWidth: true
-            z: 100
-            Text {
-                Layout.alignment: Qt.AlignTop
-                text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
-            }
-            EntityChooser {
-                id: entityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntity
-            }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
         RowLayout {
             Layout.fillWidth: true

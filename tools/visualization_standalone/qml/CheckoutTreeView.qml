@@ -12,36 +12,44 @@ QCtl.TreeView {
     property var visibleElems: ListModel {}
     alternatingRowColors: true
     headerVisible: false
-    selectionMode: SelectionMode.SingleSelection
+    //selectionMode: SelectionMode.SingleSelection
     model: UPNS.RootTreeModel {
-//        property var visiblePathToVisibility: {}
-        root: currentCheckout
-//        function forEachItem(parentItem, callback) {
-//            for(var i = 0; hasIndex(i, 0, parentItem); ++i) {
-//                var itemIndex = index(i, 0, parentItem)
-//                callback(itemIndex, i, parentItem)
-//                if(hasChildren(itemIndex))
-//                    forEachItem(itemIndex, callback, parentItem)
-//            }
+        id: rootModel
+//        Component.onCompleted: {
+//            visiblePathToVisibility = {}
 //        }
+//        property var visiblePathToVisibility
+        root: currentCheckout
+        function forEachItem(parentItem, callback) {
+            console.log("DBG: a" + hasIndex(0, UPNS.RootTreeModel.NodeTypeRole))
+            for(var i = 0; hasIndex(i, 0, parentItem); ++i) {
+                var itemIndex = index(i, 0, parentItem)
+                console.log("DBG: b" + itemIndex)
+                callback(itemIndex, i, parentItem)
+                if(hasChildren(itemIndex))
+                    forEachItem(itemIndex, callback, parentItem)
+            }
+        }
 
-//        onDataChanged: {
+        onItemsChanged: {
 //            forEachItem(null, function(itemIndex, i, parentItem) {
 //                var itemPath = data(itemIndex, UPNS.RootTreeModel.NodePathRole)
 //                console.log("DBG: path: " + itemPath)
 //                var newVisibleItems = []
 //                var found = false
-//                for (var i=0; i < treeViewCheckout.visibleElems.count; i++)
+//                for (var i=0; i < treeViewCheckout.visibleElems.count; i++) {
 //                    if(treeViewCheckout.visibleElems.get(i).path === itemPath) {
 //                        found = true
-//                        continue;
+//                        break;
 //                    }
 //                }
-//                for (var visiblePath in visiblePathToVisibility)
+//                for (var visiblePath in rootModel.visiblePathToVisibility)
 //                {
 //                    if(visiblePath === itemPath) {
-//                        newVisibleItems.push()
-//                        continue;
+//                        rootModel.visiblePathToVisibility[itemPath] = found
+//                        if( !found )
+//                            rootModel.visiblePathToVisibility.remove(itemPath)
+//                        break;
 //                    }
 //                }
 //            })
@@ -53,7 +61,25 @@ QCtl.TreeView {
 //                    treeViewCheckout.visibleElems.remove(i);
 //                }
 //            }
-//        }
+            //TODO: rebuild list!
+            console.log("DBG: CALLED: " + treeViewCheckout.visibleElems.count)
+            var i=treeViewCheckout.visibleElems.count
+            while (i--) {
+                console.log("DBG: arr:" + i)
+                var found = false
+                forEachItem(null, function(itemIndex, i2, parentItem) {
+                    var itemPath = data(itemIndex, UPNS.RootTreeModel.NodePathRole)
+                    console.log("DBG: i:" + itemPath + "  " + treeViewCheckout.visibleElems.get(i).path)
+                    if(treeViewCheckout.visibleElems.get(i).path === itemPath) {
+                        found = true
+                    }
+                })
+                if( !found ) {
+                    console.log("DBG: REMOVED: " + i)
+                    treeViewCheckout.visibleElems.remove(i)
+                }
+            }
+        }
     }
     QCtl.TableViewColumn {
         role: "displayRole"
@@ -80,7 +106,6 @@ QCtl.TreeView {
         width: appStyle.controlHeight
         delegate: MouseArea {
             id: itemMA
-            property bool showObj: false
             Image {
                 id: visibleImage
                 anchors.top: parent.top
@@ -89,15 +114,7 @@ QCtl.TreeView {
                 //anchors.verticalCenter: parent.verticalCenter
                 source: "image://icon/eye"
                 sourceSize: Qt.size(appStyle.iconSize, appStyle.iconSize)
-                visible: styleData.value
-//                Connections {
-//                    target: appStyle
-//                    darkLightChanged: {
-//                        var tmp = visibleImage.source
-//                        visibleImage.source = ""
-//                        visibleImage.source = tmp
-//                    }
-//                }
+                visible: false
             }
             ColorOverlay {
                 anchors.fill: visibleImage
@@ -116,8 +133,8 @@ QCtl.TreeView {
             }
             onClicked: {
                 if(!model.type) return
-                itemMA.showObj = !itemMA.showObj
-                if(!itemMA.showObj) {
+                model.visible = !model.visible
+                if(!styleData.value) {
                     for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
                         var obj = treeViewCheckout.visibleElems.get(i);
                         if(obj.idx === styleData.row) {

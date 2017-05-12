@@ -13,18 +13,17 @@ Item {
     property string currentEntityPath
 
     function fromParameters(params) {
-        parameters = params
-        fileNamePcd.text = params.filename;
-        ntityChooser.currentEntityPath = params.target;
-        demeanCheckbox.checked = params.demean;
-        normalizeCheckbox.checked = params.normalize;
+        fileChooser.filename = params.filename;
+        entityChooser.currentEntityPath = params.target;
+//        demeanCheckbox.checked = params.demean;
+//        normalizeCheckbox.checked = params.normalize;
     }
 
     //// out ////
-    property bool valid: fileNamePcd.text != "" && entityChooser.currentEntityPath != ""
+    property bool valid: fileChooser.valid && entityChooser.valid
     property var parameters: {
-        "filename":fileNamePcd.text,
-        "target":entityChooser.currentEntityPath,
+        "filename": fileChooser.filename,
+        "target": entityChooser.currentEntityPath,
         //"demean": demeanCheckbox.checked,
         //"normalize": normalizeCheckbox.checked
     }
@@ -33,68 +32,17 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         height: root.height
-        RowLayout {
-            Layout.fillWidth: true
-            TextField {
-                id: fileNamePcd
-            }
-            Button {
-                text: "Open"
-                onClicked: {
-                    openPcdFileDialog.open()
-                }
-            }
+        HelperOpenFile {
+            id: fileChooser
+            fileExtension: "pcd"
         }
-        RowLayout {
-            Layout.fillWidth: true
-            z: 100
-            StyledLabel {
-                text: "Target:"
-            }
-            EntityChooser {
-                id: entityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
-//        RowLayout {
-//            Layout.fillWidth: true
-//            StyledLabel {
-//                text: "Demean:"
-//            }
-//            CheckBox {
-//                id: demeanCheckbox
-//                Layout.fillWidth: true
-//            }
-//        }
-//        RowLayout {
-//            Layout.fillWidth: true
-//            StyledLabel {
-//                text: "Normalize"
-//            }
-//            CheckBox {
-//                id: normalizeCheckbox
-//                Layout.fillWidth: true
-//            }
-//        }
         Item {
             Layout.fillHeight: true
-        }
-        FileDialog {
-            id: openPcdFileDialog
-            title: "Open Las"
-            selectExisting: true
-            selectFolder: false
-            selectMultiple: false
-            onAccepted: {
-                var filename = fileUrl.toString()
-                filename = filename.replace(/^(file:\/{2})/,"")
-                fileNamePcd.text = filename
-            }
-        }
-        SystemPalette {
-            id: palette
         }
     }
 }

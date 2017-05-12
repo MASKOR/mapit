@@ -38,36 +38,36 @@ Item {
         torsoPos = torsoPos.plus(moveOrientation.row(2).toVector3d().times(forward))
     }
 
-    function rotateYaw(yaw) {
-        var yawMat = Qt.matrix4x4(
-            Math.cos(yaw),    0.0, -Math.sin(yaw),    0.0,
-            0.0,              1.0, 0.0,               0.0,
-            Math.sin(yaw),    0.0, Math.cos(yaw),     0.0,
-            0.0,              0.0, 0.0,               1.0)
-        if(fixedUpVector) {
-            torsoOrientation = yawMat.times(torsoOrientation);
-        } else {
-            torsoOrientation = headOrientation.times(yawMat.times(headOrientationInverse.times(torsoOrientation)))
-        }
-    }
-    function rotatePitch(pitch) {
-        if(fixedUpVector) return;
-        var pitchMat = Qt.matrix4x4(
-           1.0,              0.0, 0.0,               0.0,
-           0.0,  Math.cos(pitch),  -Math.sin(pitch), 0.0,
-           0.0,  Math.sin(pitch),   Math.cos(pitch), 0.0,
-           0.0,              0.0, 0.0              , 1.0)
-        torsoOrientation = headOrientation.times(pitchMat.times(headOrientationInverse.times(torsoOrientation)))
-    }
-    function rotateBank(bank) {
-        if(fixedUpVector) return;
-        var bankMat = Qt.matrix4x4(
-           Math.cos(bank), -Math.sin(bank),  0.0, 0.0,
-           Math.sin(bank),  Math.cos(bank),  0.0, 0.0,
-           0.0,             0.0,             1.0, 0.0,
-           0.0,             0.0,             0.0, 1.0)
-        torsoOrientation = headOrientation.times(bankMat.times(headOrientationInverse.times(torsoOrientation)))
-    }
+//    function rotateYaw(yaw) {
+//        var yawMat = Qt.matrix4x4(
+//            Math.cos(yaw),    0.0, -Math.sin(yaw),    0.0,
+//            0.0,              1.0, 0.0,               0.0,
+//            Math.sin(yaw),    0.0, Math.cos(yaw),     0.0,
+//            0.0,              0.0, 0.0,               1.0)
+//        if(fixedUpVector) {
+//            torsoOrientation = yawMat.times(torsoOrientation);
+//        } else {
+//            torsoOrientation = headOrientation.times(yawMat.times(headOrientationInverse.times(torsoOrientation)))
+//        }
+//    }
+//    function rotatePitch(pitch) {
+//        if(fixedUpVector) return;
+//        var pitchMat = Qt.matrix4x4(
+//           1.0,              0.0, 0.0,               0.0,
+//           0.0,  Math.cos(pitch),  -Math.sin(pitch), 0.0,
+//           0.0,  Math.sin(pitch),   Math.cos(pitch), 0.0,
+//           0.0,              0.0, 0.0              , 1.0)
+//        torsoOrientation = headOrientation.times(pitchMat.times(headOrientationInverse.times(torsoOrientation)))
+//    }
+//    function rotateBank(bank) {
+//        if(fixedUpVector) return;
+//        var bankMat = Qt.matrix4x4(
+//           Math.cos(bank), -Math.sin(bank),  0.0, 0.0,
+//           Math.sin(bank),  Math.cos(bank),  0.0, 0.0,
+//           0.0,             0.0,             1.0, 0.0,
+//           0.0,             0.0,             0.0, 1.0)
+//        torsoOrientation = headOrientation.times(bankMat.times(headOrientationInverse.times(torsoOrientation)))
+//    }
     property var gimbalLockBorder: 0.01
     property var gimbalLockCos: Qt.vector3d(0.0,1.0,0.0).dotProduct(Qt.vector3d(0.0,1.0-gimbalLockBorder,0.0))
 

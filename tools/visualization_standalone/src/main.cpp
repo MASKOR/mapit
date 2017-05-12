@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
     //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
 
-    qmlRegisterUncreatableType<QmlRepository>("fhac.upns", 1, 0, "Repository", "Not yet implemented. Uses RAII and must be wrapped to set all program_options for repo. Use global \"globalRepository\" for now.");
-    //qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
+    //qmlRegisterUncreatableType<QmlRepository>("fhac.upns", 1, 0, "Repository", "Not yet implemented. Uses RAII and must be wrapped to set all program_options for repo. Use global \"globalRepository\" for now.");
+    qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
     qmlRegisterType<QmlCheckout>("fhac.upns", 1, 0, "Checkout");
     qmlRegisterType<QmlCommit>("fhac.upns", 1, 0, "Commit");
     qmlRegisterType<QmlTree>("fhac.upns", 1, 0, "Tree");

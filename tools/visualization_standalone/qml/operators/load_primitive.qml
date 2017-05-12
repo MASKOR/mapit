@@ -1,51 +1,43 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
-import QtQuick.Dialogs 1.2
 
 import ".."
 
 Item {
     id: root
+    height: implicitHeight
     //// in ////
     property bool editable
     property var currentCheckout
     property string currentEntityPath
 
     function fromParameters(params) {
+        fileChooser.filename = params.filename
         entityChooser.currentEntityPath = params.target
     }
 
     //// out ////
-    property bool valid: entityChooser.currentEntityPath != ""
+    property bool valid: fileChooser.valid && entityChooser.valid
     property var parameters: {
+        "filename":fileChooser.filename,
         "target":entityChooser.currentEntityPath
     }
 
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
-        RowLayout {
-            z: 100
-            Layout.fillWidth: true
-            Text {
-                Layout.alignment: Qt.AlignTop
-                text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
-            }
-            EntityChooser {
-                id: entityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+        HelperOpenFile {
+            id: fileChooser
+            fileExtension: "json"
+        }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
         Item {
             Layout.fillHeight: true
-        }
-        SystemPalette {
-            id: palette
         }
     }
 }

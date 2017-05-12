@@ -67,6 +67,19 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program
     }
 }
 
+upns::Repository *upns::RepositoryFactoryStandard::openRepositorySimple(std::string url, bool computeLocal)
+{
+    std::string urlPrefix("tcp://");
+    if(!url.compare(0, urlPrefix.length(), urlPrefix))
+    {
+        return RepositoryNetworkingFactory::connectToRemoteRepository(url, nullptr, computeLocal);
+    }
+    else
+    {
+        return RepositoryFactory::openLocalRepository(url);
+    }
+}
+
 const char* upns::RepositoryFactoryStandard::usage()
 {
     return  "mapit tool usage:"

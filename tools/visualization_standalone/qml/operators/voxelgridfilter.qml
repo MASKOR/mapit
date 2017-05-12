@@ -14,66 +14,40 @@ Item {
 
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
-        fileNamePcd.text = params.filename
+        leafsizeInput.text = params.leafsize
     }
 
     //// out ////
-    property bool valid: fileNamePcd.text != "" && entityChooser.currentEntityPath != ""
+    property bool valid: entityChooser.valid && leafsizeInput.text != ""
     property var parameters: {
-        "filename":fileNamePcd.text,
-        "target":entityChooser.currentEntityPath
+        "target": entityChooser.currentEntityPath,
+        "leafsize": parseFloat(leafsizeInput.text)
     }
 
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
         height: root.height
-        RowLayout {
-            Layout.fillWidth: true
-            TextField {
-                id: fileNamePcd
-            }
-            Button {
-                text: "Open"
-                onClicked: {
-                    openPcdFileDialog.open()
-                }
-            }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
         RowLayout {
             Layout.fillWidth: true
-            z: 100
-            Text {
-                Layout.alignment: Qt.AlignTop
-                text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
+            StyledLabel {
+                text: "Leafsize"
             }
-            EntityChooser {
-                id: entityChooser
+            StyledTextField {
+                id: leafsizeInput
                 Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
+                validator: DoubleValidator {}
+                text: "0.01"
+                onTextChanged: console.log(parameters.leafsize)
             }
         }
         Item {
             Layout.fillHeight: true
-        }
-
-        FileDialog {
-            id: openPcdFileDialog
-            title: "Open Pcd"
-            selectExisting: true
-            selectFolder: false
-            selectMultiple: false
-            onAccepted: {
-                var filename = fileUrl.toString()
-                filename = filename.replace(/^(file:\/{2})/,"")
-                fileNamePcd.text = filename
-            }
-        }
-        SystemPalette {
-            id: palette
         }
     }
 }

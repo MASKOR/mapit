@@ -19,7 +19,8 @@ public:
         NodeDisplayRole = Qt::DisplayRole,
         NodePathRole = Qt::ToolTipRole,
         NodeTypeRole = Qt::UserRole + 1,
-        NodeNodeRole = Qt::UserRole
+        NodeNodeRole = Qt::UserRole,
+        NodeVisibleRole = Qt::UserRole +2
     };
 
     QmlRootTreeModel();
@@ -35,6 +36,7 @@ public Q_SLOTS:
     QHash<int, QByteArray> roleNames() const;
 Q_SIGNALS:
     void rootChanged(QmlCheckout *root);
+    void itemsChanged();
 
 private:
     QmlCheckout *m_root;

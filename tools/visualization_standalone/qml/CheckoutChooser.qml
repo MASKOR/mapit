@@ -20,7 +20,7 @@ StyledButton {
         maximumWidth: width
         flags: Qt.Dialog
         title: qsTr("Choose Checkout")
-        color: palette.window
+        color: appStyle.backgroundColor
         ColumnLayout {
             anchors.fill: parent
 
@@ -30,9 +30,8 @@ StyledButton {
                         Image {
                             source: "image://icon/asset-green"
                         }
-                        Text {
+                        StyledLabel {
                             text: globalRepository.checkoutNames[index]
-                            color: palette.text
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: checkoutList.currentIndex = index
@@ -41,7 +40,7 @@ StyledButton {
                     }
 
                 model: globalRepository.checkoutNames
-                highlight: Rectangle { color: palette.highlight }
+                highlight: Rectangle { color: appStyle.selectionColor }
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -61,36 +60,36 @@ StyledButton {
                     maximumWidth: width
                     flags: Qt.Dialog
                     title: "Choose Checkout"
-                    color: palette.window
+                    color: appStyle.backgroundColor
                     GridLayout {
-                        QCtl.Label {
+                        StyledLabel {
                             text: "Branchname"
                             Layout.column: 0
                             Layout.row: 0
                         }
-                        QCtl.TextField {
+                        StyledTextField {
                             id: branchnameTextedit
                             text: "master"
                             Layout.column: 1
                             Layout.row: 0
                         }
-                        QCtl.Label {
+                        StyledLabel {
                             text: "Checkoutname"
                             Layout.column: 0
                             Layout.row: 1
                         }
-                       QCtl. TextField {
+                        StyledTextField {
                             id: checkoutnameTextedit
                             Layout.column: 1
                             Layout.row: 1
                         }
-                        QCtl.Button {
+                        StyledButton {
                             text: "Cancel"
                             onClicked: newCheckoutDialog.visible = false
                             Layout.column: 0
                             Layout.row: 2
                         }
-                        QCtl.Button {
+                        StyledButton {
                             text: "Ok"
                             enabled: branchnameTextedit.text.trim().length !== 0
                                      && checkoutnameTextedit.text.trim().length !== 0
@@ -106,11 +105,11 @@ StyledButton {
             }
             RowLayout {
                 Layout.fillWidth: true
-                QCtl.Button {
+                StyledButton {
                     text: "Cancel"
                     onClicked: chooseCheckoutDialog.visible = false
                 }
-                QCtl.Button {
+                StyledButton {
                     text: "Ok"
                     onClicked: {
                         currentCheckoutName = globalRepository.checkoutNames[checkoutList.currentIndex];

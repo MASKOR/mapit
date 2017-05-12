@@ -20,11 +20,15 @@ class QmlRepository : public QObject
     Q_PROPERTY(QStringList checkoutNames READ checkoutNames NOTIFY checkoutNamesChanged)
 
     Q_PROPERTY(QVariantList operators READ operators NOTIFY operatorsChanged)
+    Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY urlChanged)
+    Q_PROPERTY(bool isLoaded READ isLoaded NOTIFY isLoadedChanged)
 public:
+    QmlRepository(QObject *parent = nullptr);
     QmlRepository(std::shared_ptr<upns::Repository> repo);
     QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent);
     ~QmlRepository();
     QVariantList operators();
+    Q_INVOKABLE void reload();
     Q_INVOKABLE QmlTree* getTree(QString oid);
     Q_INVOKABLE QmlEntity* getEntity(QString oid);
     Q_INVOKABLE QmlCommit* getCommit(QString oid);
@@ -104,14 +108,17 @@ public:
 
     Q_INVOKABLE QStringList listCheckoutNames() const;
 
-    QStringList checkoutNames() const
-    {
-        return m_checkoutNames;
-    }
+    QStringList checkoutNames() const;
 
     QVariantList m_operators;
+    QString url() const;
+
+    bool isLoaded() const;
+
 public Q_SLOTS:
     std::shared_ptr<upns::Repository> getRepository();
+
+    void setUrl(QString url);
 
 Q_SIGNALS:
     void checkoutNamesChanged(QStringList checkoutNames);
@@ -119,12 +126,20 @@ Q_SIGNALS:
     void internalRepositoryChanged(QmlRepository* repo);
 
     void operatorsChanged();
+    void urlChanged(QString url);
+
+    void isLoadedChanged(bool isLoaded);
+
 protected:
     std::shared_ptr<upns::Repository> m_repository;
 
 private:
     QStringList m_checkoutNames;
     OperatorLoader *m_opLoaderWorker;
+    QString m_url;
+    bool m_isLoaded;
 };
+
+
 
 #endif

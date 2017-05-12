@@ -32,7 +32,7 @@ GeometryRenderer {
                 id: buffer
                 type: Buffer.VertexBuffer
                 function buildGrid() {
-                    var vertices = positionAttribute.count;
+                    var vertices = root.lines*4;
                     var vertexFloats = 3;
                     var vertexArray = new Float32Array(vertexFloats * vertices);
                     for(var i=0 ; i<vertices ; i++) {

@@ -32,8 +32,13 @@ Item {
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            StyledLabel {
+                anchors.centerIn: parent
+                visible: !globalRepository.isLoaded
+                text: "No Repository loaded"
+            }
             ScrollView {
-                visible: viewListButton.checked
+                visible: viewListButton.checked && globalRepository.isLoaded
                 anchors.fill: parent
                 ListView {
                     id: listview
@@ -89,7 +94,7 @@ Item {
                                 property bool selected: root.currentOperator ? root.currentOperator.moduleName === gridRoot.model[index].moduleName : false
                                 border.width: selected ? 1 : 0
                                 border.color: appStyle.selectionBorderColor
-                                color: Qt.darker("grey")
+                                color: appStyle.itemBackgroundColor
                             }
                         }
                         tooltip: qsTr("Show details of <i>%1</i>.").arg(

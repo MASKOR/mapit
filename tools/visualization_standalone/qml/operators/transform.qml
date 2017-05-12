@@ -14,6 +14,8 @@ Item {
     property var currentCheckout
     property string currentEntityPath
 
+    readonly property string angleUnit: appStyle.useRadians ? "rad" : qsTr( "\u00B0" ) // degree
+    readonly property string angleUnitBracket: "(" + angleUnit + ")"
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
         scaleInp.text = params.tf.mat[0];
@@ -57,7 +59,7 @@ Item {
 
     property matrix4x4 finalMatrix: matRotX.times(matRotY.times(matRotZ)).times(scaleInp.text);
 
-    property real deg2rad: Math.PI/180.0
+    property real deg2rad: appStyle.useRadians ? 1 : Math.PI/180.0
     property real rx: rxInp.text*deg2rad
     property real ry: ryInp.text*deg2rad
     property real rz: rzInp.text*deg2rad
@@ -77,22 +79,10 @@ Item {
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
-        RowLayout {
-            z: 100
-            Layout.fillWidth: true
-            Text {
-                Layout.alignment: Qt.AlignTop
-                text: "Target:"
-                color: palette.text
-                renderType: Text.NativeRendering
-            }
-            EntityChooser {
-                z: 100
-                id: entityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+        HelperTarget {
+            id: entityChooser
+            currentEntityPath: root.currentEntityPath
+            dialogRoot: root
         }
         RowLayout {
             Layout.fillWidth: true
@@ -113,7 +103,7 @@ Item {
             Layout.fillWidth: true
             Text {
                 Layout.alignment: Qt.AlignTop
-                text: "Rot x:"
+                text: "Rot x " + root.angleUnitBracket
                 color: palette.text
                 renderType: Text.NativeRendering
             }
@@ -128,7 +118,7 @@ Item {
             Layout.fillWidth: true
             Text {
                 Layout.alignment: Qt.AlignTop
-                text: "Rot y:"
+                text: "Rot y " + root.angleUnitBracket
                 color: palette.text
                 renderType: Text.NativeRendering
             }
@@ -143,7 +133,7 @@ Item {
             Layout.fillWidth: true
             Text {
                 Layout.alignment: Qt.AlignTop
-                text: "Rot z:"
+                text: "Rot z " + root.angleUnitBracket
                 color: palette.text
                 renderType: Text.NativeRendering
             }
