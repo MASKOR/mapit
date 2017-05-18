@@ -14,12 +14,16 @@ Item {
 
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
+        checkboxAABB.checked = params.useAABB
+        genTfCheckbox.checked = params.genTf
     }
 
     //// out ////
     property bool valid: entityChooser.valid
     property var parameters: {
-        "target":entityChooser.currentEntityPath
+        "target": entityChooser.currentEntityPath,
+        "useAABB": checkboxAABB.checked,
+        "genTf": genTfCheckbox.checked
     }
 
     //// UI ////
@@ -29,6 +33,24 @@ Item {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
             dialogRoot: root
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Bounding Box:"
+            }
+            StyledCheckBox {
+                id: checkboxAABB
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Gen Transform:"
+            }
+            StyledCheckBox {
+                id: genTfCheckbox
+            }
         }
     }
 }
