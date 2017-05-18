@@ -21,7 +21,7 @@ Item {
     UPNS.Checkout {
         id: checkout
         repository: globalRepository
-        name: checkoutChooser.currentCheckoutName?checkoutChooser.currentCheckoutName : "testcheckout"
+        name: checkoutChooser.currentCheckoutName?checkoutChooser.currentCheckoutName : "testcheckout" // InitDemo
     }
     UPNS.Entitydata {
         id: currentEntitydataId
@@ -110,8 +110,8 @@ Item {
                             Layout.fillWidth: true
                         }
                         CheckoutChooser {
+                            Layout.rightMargin: appStyle.controlMargin
                             width: implicitWidth
-
                             id: checkoutChooser
                         }
                     }

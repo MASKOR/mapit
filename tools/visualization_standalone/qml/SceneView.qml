@@ -50,7 +50,7 @@ Item {
                 }
                 StyledSlider {
                     id: pointSizeSlider
-                    width: 100
+                    width: 60
                     value: 0.01
                     minimumValue: 0.01
                     maximumValue:  1.0
@@ -71,7 +71,19 @@ Item {
                 }
                 StyledComboBox {
                     id: colorizeSelect
-                    model: [ "x", "y", "z", "intensity"]
+                    model: [ "x", "y", "z"]//, "intensity"]
+                }
+                StyledLabel {
+                    text: "Colorscale"
+                    verticalAlignment: Text.AlignVCenter
+                    height: appStyle.controlHeight
+                }
+                StyledSlider {
+                    id: colorscaleSlider
+                    width: 60
+                    value: 1.1
+                    minimumValue: 0.1
+                    maximumValue:  10.0
                 }
                 StyledButton {
                     isIcon: true
@@ -184,7 +196,9 @@ Item {
                                                         Parameter { name: "farPlane"; value: mainCamera.farPlane },
                                                         Parameter { name: "width"; value: scene3d.width },
                                                         Parameter { name: "height"; value: scene3d.height },
-                                                        Parameter { name: "lod"; value: appStyle.pointcloudLod }
+                                                        Parameter { name: "lod"; value: appStyle.pointcloudLod },
+                                                        Parameter { name: "colorscale"; value: colorscaleSlider.value }
+
                                                     ]
                                                     RenderStateSet {
                                                         renderStates: [

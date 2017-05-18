@@ -14,9 +14,13 @@ uniform mat4 mvp;
 uniform mat4 projectionMatrix;
 uniform mat4 viewportMatrix;
 
+uniform int colorize;
+
 uniform float lod;
 
 uniform float pointSize;
+
+uniform float colorscale;
 
 //in int gl_VertexID;
 
@@ -30,6 +34,34 @@ int LFSR_Rand_Gen(in int n)
 float rand(in int n)
 {
     return float(LFSR_Rand_Gen(n))*(1.0/2147483647.0); // max int
+}
+
+vec4 hsv_to_rgb(float h, float s, float v, float a)
+{
+        float c = v * s;
+        h = mod((h * 6.0), 6.0);
+        float x = c * (1.0 - abs(mod(h, 2.0) - 1.0));
+        vec4 color;
+
+        if (0.0 <= h && h < 1.0) {
+                color = vec4(c, x, 0.0, a);
+        } else if (1.0 <= h && h < 2.0) {
+                color = vec4(x, c, 0.0, a);
+        } else if (2.0 <= h && h < 3.0) {
+                color = vec4(0.0, c, x, a);
+        } else if (3.0 <= h && h < 4.0) {
+                color = vec4(0.0, x, c, a);
+        } else if (4.0 <= h && h < 5.0) {
+                color = vec4(x, 0.0, c, a);
+        } else if (5.0 <= h && h < 6.0) {
+                color = vec4(c, 0.0, x, a);
+        } else {
+                color = vec4(0.0, 0.0, 0.0, a);
+        }
+
+        color.rgb += v - c;
+
+        return color;
 }
 
 void main()
@@ -52,5 +84,13 @@ void main()
     gl_PointSize = max(0.5,viewportMatrix[1][1] * projectionMatrix[1][1] * pointSize / dist) * visibility;
 
 
-    color = vertexPosition * 0.1;//vertexColor;
+    //color = vertexPosition * 0.1;//vertexColor;
+    float axis;
+    if(colorize == 0)
+        axis = vertexPosition.x;
+    else if(colorize == 1)
+        axis = vertexPosition.y;
+    else if(colorize == 2)
+        axis = vertexPosition.z;
+    color = hsv_to_rgb(axis*-colorscale, 0.7, 1.0, 0.0).rgb;
 }

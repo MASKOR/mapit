@@ -7,7 +7,7 @@ import ".."
 
 Item {
     id: root
-    height: implicitHeight
+    height: childrenRect.height
     //// in ////
     property bool editable
     property var currentCheckout
@@ -21,8 +21,8 @@ Item {
     //// out ////
     property bool valid: fileChooser.valid && entityChooser.valid
     property var parameters: {
-        "filename":fileChooser.filename,
-        "target":entityChooser.currentEntityPath
+        "filename": fileChooser.filename,
+        "target": entityChooser.currentEntityPath
     }
 
     //// UI ////

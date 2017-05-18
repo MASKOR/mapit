@@ -16,12 +16,19 @@ MainMenubar {
     id: window
     objectName: "mainWindow"
     title: qsTr("Mapit Visualization")
-    width: 1200
-    height: 800
+    width: appStyle.windowWidth
+    height: appStyle.windowHeight
+    onWidthChanged: {
+        appStyle.windowWidth = width
+    }
+    onHeightChanged: {
+        appStyle.windowHeight = height
+    }
+
     visible: true
     UPNS.Repository {
         id: globalRepository
-        url: ""
+        url: "./demo_repository" // InitDemo
     }
 
     AppStyle {
@@ -38,7 +45,10 @@ MainMenubar {
                 id: leftPanels
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
-                width: 210
+                width: appStyle.splitViewLeftWidth
+                onWidthChanged: {
+                    appStyle.splitViewLeftWidth = width
+                }
             }
             SceneView {
                 id: sceneView
@@ -52,10 +62,13 @@ MainMenubar {
             BottomPanels {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
-                width: 220
+                width: appStyle.splitViewRightWidth
                 currentOperator: leftPanels.currentOperator
                 currentCheckout: leftPanels.currentCheckout
                 currentEntityPath: leftPanels.currentEntityPath
+                onWidthChanged: {
+                    appStyle.splitViewRightWidth = width
+                }
             }
         }
     }

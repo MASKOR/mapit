@@ -16,17 +16,27 @@ Item {
                 isIcon: true
                 iconSource: "image://material/ic_view_list"
                 checkable: true
+                checked: appStyle.currentOperatorListView === 0
                 enabled: !checked
-                onCheckedChanged: if(checked) viewModuleButton.checked = false
+                onCheckedChanged: {
+                    if(checked) viewModuleButton.checked = false
+                }
+//                Binding {
+//                    target: appStyle
+//                    property: "currentOperatorListView"
+//                    value: viewListButton.checked ? 1 : 0
+//                }
             }
             StyledButton {
                 id: viewModuleButton
                 isIcon: true
                 iconSource: "image://material/ic_view_module"
                 checkable: true
-                checked: true
+                checked: appStyle.currentOperatorListView === 1
                 enabled: !checked
-                onCheckedChanged: if(checked) viewListButton.checked = false
+                onCheckedChanged: {
+                    if(checked) viewListButton.checked = false
+                }
             }
         }
         Item {

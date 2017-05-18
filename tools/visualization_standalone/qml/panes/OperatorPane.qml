@@ -24,14 +24,19 @@ Item {
             if( typeof root.currentOperator == "undefined" ) return;
             root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentOperator: root.currentOperator,
                                                                                        currentCheckout: root.currentCheckout,
-                                                                                       currentEntityPath: root.currentEntityPath});
+                                                                                       currentEntityPath: root.currentEntityPath,
+                                                                                       shown: true});
             if (root.currentOperatorUiItem === null) {
                 // Error Handling
                 console.log("Error creating detailsView");
             }
-            root.currentOperatorUiItem.width = controlHolder.width
             root.currentOperatorUiItem.height = controlHolder.height
-            root.currentOperatorUiItem.anchors.fill = controlHolder
+            root.currentOperatorUiItem.width = controlHolder.width
+
+//            console.log("IH: " + root.currentOperatorUiItem.implicitHeight + ", H: " + root.currentOperatorUiItem.height)
+//            controlColumn.height = root.currentOperatorUiItem.implicitHeight
+            //root.currentOperatorUiItem.height = controlHolder.height
+            //root.height = controlHolder.height
 
         } else if (controlComponent.status === Component.Error) {
             // Error Handling
@@ -56,9 +61,13 @@ Item {
             //turn caching off temporarily for development
             //priv.controls[renderWidget.selectedGraphicObject.objectType] = controlComponent;
         }
+        for(var i = controlHolder.children.length; i > 0 ; i--) {
+            if(typeof controlHolder.children[i-1].shown !== "undefined")
+                controlHolder.children[i-1].shown = false
+        }
         controlHolder.children = "";
 //        for(var i = controlHolder.children.length; i > 0 ; i--) {
-//            controlHolder.children[i-1].destroy();
+//            controlHolder.children[i-1].destroy()
 //        }
         if (controlComponent.status === Component.Ready) {
             finish(controlComponent);
@@ -69,64 +78,42 @@ Item {
         }
     }
     ColumnLayout {
-        anchors.fill: parent
-        StyledHeader {
+        id: controlColumn
+        anchors.left: parent.left
+        anchors.right: parent.right
+        onWidthChanged: controlHolder.width = width
+        //maximumHeight: 300
+        height: Math.min(root.height, 300)
+        z: 100
+        StyledLabel {
             Layout.fillWidth: true
-            id: operatorHeader
-            text: qsTr("Operator")
-        }
-        ColumnLayout {
-            Layout.maximumHeight: 300
-            visible: operatorHeader.checked
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            onWidthChanged: controlHolder.width = width
-            z: 100
-            StyledLabel {
-                Layout.fillWidth: true
-                text: currentOperator?currentOperator.moduleName:""
-            }
-            Item {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                id: controlHolder
-                z: 100
-            }
-            RowLayout {
-                Layout.fillWidth: true
-                StyledButton {
-                    text: "Execute"
-                    enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
-                    onClicked: {
-                        currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters);
-                    }
-                }
-            }
-        }
-        StyledHeader {
-            Layout.fillWidth: true
-            id: entityHeader
-            text: qsTr("Entity")
-        }
-        ColumnLayout {
-            Layout.fillWidth: true
-            visible: entityHeader.checked && root.currentEntityPath !== undefined
-            RowLayout {
-                Layout.fillWidth: true
-                StyledLabel {
-                    Layout.fillWidth: true
-                    text: "Type: "
-                    font.weight: Font.Bold
-                }
-
-                StyledLabel {
-                    Layout.fillWidth: true
-                    text: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath).type : ""
-                }
-            }
+            Layout.leftMargin: appStyle.controlMargin
+            text: currentOperator?currentOperator.moduleName:""
         }
         Item {
+            Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.margins: appStyle.controlMargin
+            id: controlHolder
+            z: 100
+//            onChildrenChanged: {
+//                if(children.length > 0) {
+//                    console.log("height: " + childrenRect.height)
+//                } else {
+
+//                }
+//            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledButton {
+                Layout.leftMargin: appStyle.controlMargin
+                text: "Execute"
+                enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
+                onClicked: {
+                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters);
+                }
+            }
         }
     }
 }

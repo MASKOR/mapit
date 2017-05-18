@@ -1,21 +1,46 @@
 import QtQuick 2.4
+import QtQml 2.2
 import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
+import "panes"
 
 ApplicationWindow {
     id: root
     color: appStyle.backgroundColor
     onClosing: Qt.quit()
     Window {
-        id: openRepoDialog
-        flags: Qt.Tool
-        title: "Choose Checkout"
+        id: executeOperatorDialog
+        flags: Qt.Tool | Qt.WindowCloseButtonHint
+        title: qsTr( "Execute Operator" )
         color: appStyle.backgroundColor
         width: 420
         height: 260
+        minimumHeight: height
+        maximumHeight: height
+        minimumWidth: width
+        maximumWidth: width
+        property alias currentOperator: opPane.currentOperator
+        property alias currentCheckout: opPane.currentCheckout
+        property alias currentEntityPath: opPane.currentEntityPath
+        RowLayout {
+            anchors.fill: parent
+            OperatorPane {
+                id: opPane
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+        }
+    }
+    Window {
+        id: openRepoDialog
+        flags: Qt.Tool
+        title: qsTr( "Choose Checkout" )
+        color: appStyle.backgroundColor
+        width: 420
+        height: openRepoGrid.implicitHeight
         minimumHeight: height
         maximumHeight: height
         minimumWidth: width
@@ -25,8 +50,10 @@ ApplicationWindow {
 //            text: "At the moment the repository is fixed an can be changed using command line options on start. type \"mapit_viewer help\" for more information"
 //        }
         GridLayout {
+            id: openRepoGrid
+            anchors.fill: parent
             StyledLabel {
-                text: "Url or Filename"
+                text: qsTr( "Url or Filename" )
                 Layout.column: 0
                 Layout.row: 0
             }
@@ -35,6 +62,7 @@ ApplicationWindow {
                 text: "tcp://"
                 Layout.column: 1
                 Layout.row: 0
+                Layout.fillWidth: true
             }
             StyledButton {
                 text: "Cancel"
@@ -43,7 +71,7 @@ ApplicationWindow {
                 Layout.row: 1
             }
             StyledButton {
-                text: "Ok"
+                text: qsTr( "Ok" )
                 enabled: repoUrl.text.trim().length !== 0
                          && repoUrl.text.trim().length !== 0
                 onClicked: {
@@ -156,6 +184,26 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("&Paste")
                 onTriggered: console.log("not yet implemented.");
+            }
+        }
+        Menu {
+            id: operatorsMenu
+            title: qsTr("&Operators")
+            Instantiator {
+                id: operatorInstantiator
+                model: globalRepository.operators
+                onObjectAdded: operatorsMenu.insertItem( index, object )
+                onObjectRemoved: operatorsMenu.removeItem( object )
+                onModelChanged: console.log("Model Changed" + globalRepository.operators.length)
+                MenuItem {
+                    text: operatorInstantiator.model[index].moduleName
+                    onTriggered: {
+                        executeOperatorDialog.currentCheckout = leftPanels.currentCheckout //TODO: do not rely on "leftPanels"
+                        executeOperatorDialog.currentEntityPath = leftPanels.currentEntityPath //TODO: do not rely on "leftPanels"
+                        executeOperatorDialog.currentOperator = operatorInstantiator.model[index]
+                        executeOperatorDialog.show()
+                    }
+                }
             }
         }
         Menu {

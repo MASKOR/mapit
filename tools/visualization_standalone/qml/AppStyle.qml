@@ -76,6 +76,12 @@ Item {
                                      ? 8
                                      : 4
 
+    property real windowWidth: 1200
+    property real windowHeight: 800
+    property int currentOperatorListView: 0
+    property real splitViewLeftWidth: 210
+    property real splitViewRightWidth: 220
+
     Settings {
         property alias textColor: root.textColor
         property alias textColorDisabled: root.textColorDisabled
@@ -97,12 +103,20 @@ Item {
         property alias headerColor: root.headerColor
         property alias maximumControlWidth: root.maximumControlWidth
         property alias controlMargin: root.controlMargin
+        property alias controlHeight: root.controlHeight
         property alias useRadians: root.useRadians
         property alias coordinateSystemYPointsUp: root.coordinateSystemYPointsUp
         property alias gridLines: root.gridLines
         property alias gridSpacing: root.gridSpacing
         property alias pointcloudLod: root.pointcloudLod
         property alias cameraScale: root.cameraScale
+
+
+        property alias windowWidth: root.windowWidth
+        property alias windowHeight: root.windowHeight
+        property alias currentOperatorListView: root.currentOperatorListView
+        property alias splitViewLeftWidth: root.splitViewLeftWidth
+        property alias splitViewRightWidth: root.splitViewRightWidth
     }
     Item {
         id: defaultDarkTheme
