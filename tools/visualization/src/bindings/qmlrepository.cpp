@@ -19,14 +19,19 @@ QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent)
     :QObject( parent )
+    , m_opLoaderWorker( nullptr )
+    , m_isLoaded(false)
 {
-    m_opLoaderWorker = new OperatorLoader();
+
     reload();
 }
 
 QmlRepository::~QmlRepository()
 {
-    delete m_opLoaderWorker;
+    if(m_opLoaderWorker)
+    {
+        delete m_opLoaderWorker;
+    }
 }
 void AppendFunctionOps(QQmlListProperty<QVariant> *list, QVariant* variant)
 {
@@ -61,13 +66,23 @@ void QmlRepository::reload()
     {
         m_checkoutNames.append(QString::fromStdString(*iter));
     }
-    connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
+    m_operators.clear();
+    if(m_opLoaderWorker == nullptr)
+    {
+        m_opLoaderWorker = new OperatorLoader();
+    }
+    else
+    {
+        disconnect(m_operatorWorkerConnection);
+    }
+    m_operatorWorkerConnection = connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
         for(auto iter = result.cbegin(); iter != result.cend(); ++iter)
         {
             m_operators.append(*iter);
         }
         operatorsChanged();
     }, Qt::QueuedConnection);
+
     reloadOperators();
     Q_EMIT checkoutNamesChanged( m_checkoutNames );
     Q_EMIT internalRepositoryChanged( this );

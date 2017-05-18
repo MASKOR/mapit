@@ -78,6 +78,7 @@ std::shared_ptr<Tree> CheckoutImpl::getRoot()
 std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
 {
     Path p(preparePath(path));
+    if(p.empty()) return nullptr;
 //    if(p.compare(0, m_name.size(), m_name) == 0) // TODO this does not work if checkoutname equals map name at the beginning, e.g. co=test map=testmap/, results in testmap/ being changed to map/
 //    {
 //        p = p.substr(m_name.size(), p.length()-m_name.size());
@@ -99,6 +100,7 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
 std::shared_ptr<Entity> CheckoutImpl::getEntity(const Path &path)
 {
     Path p(preparePath(path));
+    if(p.empty()) return nullptr;
 //    if(p.compare(0, m_name.size(), m_name) == 0)
 //    {
 //        p = p.substr(m_name.size(), p.length()-m_name.size());
@@ -118,6 +120,7 @@ MessageType
 CheckoutImpl::typeOfObject(const Path &path)
 {
     Path p(preparePath(path));
+    if(p.empty()) return MessageEmpty;
 //    if(p.compare(0, m_name.size(), m_name) == 0) // TODO should I fix it
 //    {
 //        p = p.substr(m_name.size(), p.length()-m_name.size());

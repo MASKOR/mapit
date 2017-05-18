@@ -6,13 +6,15 @@
 QmlEntitydataTransform::QmlEntitydataTransform()
     :QmlEntitydata()
 {
-    connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::setMatrix);
+    connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::emitMatrixChanged);
+    connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::emitExistsChanged);
 }
 
 QmlEntitydataTransform::QmlEntitydataTransform(std::shared_ptr<upns::AbstractEntitydata> &entitydata, QmlCheckout *co, QString path)
     :QmlEntitydata(entitydata, co, path)
 {
-    connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::setMatrix);
+    connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::emitMatrixChanged);
+    connect(this, &QmlEntitydata::updated, this, &QmlEntitydataTransform::emitExistsChanged);
 }
 
 QMatrix4x4 QmlEntitydataTransform::matrix() const
@@ -54,6 +56,21 @@ bool QmlEntitydataTransform::mustExist() const
     return m_mustExist;
 }
 
+bool QmlEntitydataTransform::exists() const
+{
+    if(!QmlEntitydata::checkout() || !QmlEntitydata::checkout()->getCheckoutObj() || path().isEmpty())
+    {
+        return false;
+    }
+    std::shared_ptr<upns::Checkout> co = QmlEntitydata::checkout()->getCheckoutObj();
+    std::string p = path().toStdString();
+    if(!co->getEntity(p))
+    {
+        return false;
+    }
+    return true;
+}
+
 void QmlEntitydataTransform::setMustExist(bool mustExist)
 {
     if (m_mustExist == mustExist)
@@ -63,8 +80,15 @@ void QmlEntitydataTransform::setMustExist(bool mustExist)
     Q_EMIT mustExistChanged(mustExist);
 }
 
-void QmlEntitydataTransform::setMatrix()
+void QmlEntitydataTransform::emitMatrixChanged()
 {
+    // When entity updated (see derived class), matrix change is emitted.
     QMatrix4x4 mat = matrix();
     Q_EMIT matrixChanged(mat);
+}
+
+void QmlEntitydataTransform::emitExistsChanged()
+{
+    bool e = exists();
+    Q_EMIT existsChanged(e);
 }

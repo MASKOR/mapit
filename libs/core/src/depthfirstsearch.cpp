@@ -27,7 +27,8 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const
                                                 std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                                                 std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    assert(obj != NULL);
+    if(obj == nullptr) return UPNS_STATUS_ERROR;
+    //assert(obj != NULL);
     if(!beforeTree(obj, ref, path))
     {
         afterTree(obj, ref, path);

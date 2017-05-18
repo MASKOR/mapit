@@ -138,6 +138,7 @@ private:
     OperatorLoader *m_opLoaderWorker;
     QString m_url;
     bool m_isLoaded;
+    QMetaObject::Connection m_operatorWorkerConnection;
 };
 
 
