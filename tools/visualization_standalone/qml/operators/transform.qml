@@ -10,6 +10,7 @@ import ".."
 Item {
     id: root
     //// in ////
+    property bool shown
     property bool editable
     property var currentCheckout
     property string currentEntityPath
@@ -19,6 +20,9 @@ Item {
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
         scaleInp.text = params.tf.mat[0];
+        xInp.text = params.tf.mat[12];
+        yInp.text = params.tf.mat[13];
+        zInp.text = params.tf.mat[14];
     }
 
     //// out ////
@@ -43,6 +47,8 @@ Item {
         appStyle.tmpUsePreviewMatrix = true
     }
     Component.onDestruction: appStyle.tmpUsePreviewMatrix = false
+    onVisibleChanged: appStyle.tmpUsePreviewMatrix = visible
+    onShownChanged: appStyle.tmpUsePreviewMatrix = shown
 
     property var m0: finalMatrix.row(0)
     property var m1: finalMatrix.row(1)
@@ -57,12 +63,14 @@ Item {
         appStyle.tmpPreviewMatrix = finalMatrix
     }
 
-    property matrix4x4 finalMatrix: matRotX.times(matRotY.times(matRotZ)).times(scaleInp.text);
+    property matrix4x4 finalMatrix: matRotX.times(matRotY.times(matRotZ)).times(scaleInp.text).times(translationMatrix);
+    property matrix4x4 translationMatrix
 
     property real deg2rad: appStyle.useRadians ? 1 : Math.PI/180.0
     property real rx: rxInp.text*deg2rad
     property real ry: ryInp.text*deg2rad
     property real rz: rzInp.text*deg2rad
+    //TODO: replace with rotate/...
     property matrix4x4 matRotX: Qt.matrix4x4(1, 0, 0, 0,
                                              0,  Math.cos(rx), -Math.sin(rx), 0,
                                              0,  Math.sin(rx),  Math.cos(rx), 0,
@@ -76,6 +84,12 @@ Item {
                                              0, 0, 1, 0,
                                              0, 0, 0, 1);
 
+    function updateTranslationMatrix() {
+        var translateMatrix = Qt.matrix4x4()
+        translateMatrix.translate(xInp.text, yInp.text, zInp.text)
+        root.translationMatrix = translateMatrix
+    }
+
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
@@ -86,13 +100,11 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Text {
+            StyledLabel {
                 Layout.alignment: Qt.AlignTop
                 text: "Scale:"
-                color: palette.text
-                renderType: Text.NativeRendering
             }
-            TextField {
+            StyledTextField {
                 id: scaleInp
                 Layout.fillWidth: true
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -101,28 +113,24 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Text {
+            StyledLabel {
                 Layout.alignment: Qt.AlignTop
                 text: "Rot x " + root.angleUnitBracket
-                color: palette.text
-                renderType: Text.NativeRendering
             }
-            TextField {
+            StyledTextField {
                 id: rxInp
                 Layout.fillWidth: true
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
-                text: "-90"
+                text: "0"
             }
         }
         RowLayout {
             Layout.fillWidth: true
-            Text {
+            StyledLabel {
                 Layout.alignment: Qt.AlignTop
                 text: "Rot y " + root.angleUnitBracket
-                color: palette.text
-                renderType: Text.NativeRendering
             }
-            TextField {
+            StyledTextField {
                 id: ryInp
                 Layout.fillWidth: true
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -131,17 +139,58 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Text {
+            StyledLabel {
                 Layout.alignment: Qt.AlignTop
                 text: "Rot z " + root.angleUnitBracket
-                color: palette.text
-                renderType: Text.NativeRendering
             }
-            TextField {
+            StyledTextField {
                 id: rzInp
                 Layout.fillWidth: true
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                 text: "0"
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Tr x "
+            }
+            StyledTextField {
+                id: xInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+                onTextChanged: root.updateTranslationMatrix()
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Tr y "
+            }
+            StyledTextField {
+                id: yInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+                onTextChanged: root.updateTranslationMatrix()
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Tr z "
+            }
+            StyledTextField {
+                id: zInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+                onTextChanged: root.updateTranslationMatrix()
             }
         }
         Item {

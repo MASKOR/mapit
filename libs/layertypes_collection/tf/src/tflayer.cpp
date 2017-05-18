@@ -19,19 +19,19 @@ void readTfFromStream(upnsIStream &in, TfMat &tfout )
     }
     else
     {
-        tfout.matrix() << tf.m00(), tf.m01(), tf.m02(), tf.m03(),
-                          tf.m10(), tf.m11(), tf.m12(), tf.m13(),
-                          tf.m20(), tf.m21(), tf.m22(), tf.m23(),
-                          tf.m30(), tf.m31(), tf.m32(), tf.m33();
+        tfout.matrix() << tf.m00(), tf.m10(), tf.m20(), tf.m30(),
+                          tf.m01(), tf.m11(), tf.m21(), tf.m31(),
+                          tf.m02(), tf.m12(), tf.m22(), tf.m32(),
+                          tf.m03(), tf.m13(), tf.m23(), tf.m33();
     }
 }
 void writeTfToStream(upnsOStream &out, TfMat &data )
 {
     mapit::msgs::Transform tf;
-    tf.set_m00( data(0, 0) ); tf.set_m01( data(0, 1) ); tf.set_m02( data(0, 2) ); tf.set_m03( data(0, 3) );
-    tf.set_m10( data(1, 0) ); tf.set_m11( data(1, 1) ); tf.set_m12( data(1, 2) ); tf.set_m13( data(1, 3) );
-    tf.set_m20( data(2, 0) ); tf.set_m21( data(2, 1) ); tf.set_m22( data(2, 2) ); tf.set_m23( data(2, 3) );
-    tf.set_m30( data(3, 0) ); tf.set_m31( data(3, 1) ); tf.set_m32( data(3, 2) ); tf.set_m33( data(3, 3) );
+    tf.set_m00( data(0, 0) ); tf.set_m10( data(1, 0) ); tf.set_m20( data(2, 0) ); tf.set_m30( data(3, 0) );
+    tf.set_m01( data(0, 1) ); tf.set_m11( data(1, 1) ); tf.set_m21( data(2, 1) ); tf.set_m31( data(3, 1) );
+    tf.set_m02( data(0, 2) ); tf.set_m12( data(1, 2) ); tf.set_m22( data(2, 2) ); tf.set_m32( data(3, 2) );
+    tf.set_m03( data(0, 3) ); tf.set_m13( data(1, 3) ); tf.set_m23( data(2, 3) ); tf.set_m33( data(3, 3) );
     tf.SerializePartialToOstream(&out);
 }
 
