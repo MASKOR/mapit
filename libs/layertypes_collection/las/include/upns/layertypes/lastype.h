@@ -53,7 +53,7 @@ public:
     void gridCellAt(upnsReal x, upnsReal y, upnsReal z, upnsReal &x1, upnsReal &y1, upnsReal &z1, upnsReal &x2, upnsReal &y2, upnsReal &z2) const;
 
     std::unique_ptr<LASEntitydataReader> getReader();
-    std::unique_ptr<LASEntitydataWriter> getWriter(const liblas::Header &header);
+    std::unique_ptr<LASEntitydataWriter> getWriter(std::shared_ptr<liblas::Header> header);
 
     upnsIStream *startReadBytes(upnsuint64 start, upnsuint64 len);
     void endRead(upnsIStream *strm);

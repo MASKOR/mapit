@@ -22,6 +22,8 @@ public:
 
     QmlCheckout* checkout() const;
 
+    Q_INVOKABLE QVariant getInfo(QString propertyName);
+
 public Q_SLOTS:
     void setCheckout(QmlCheckout* checkout);
     void setPath(QString path);

@@ -23,7 +23,7 @@
 class XyzCsvReader {
 public:
     template<typename T>
-    static QVector<T> readCsv(QString &path
+    static qint64 readCsv(QString &path
                             , std::function<void(T* data, const int& i)> pointCallback
                             , std::function<void(const int &estimatedPoints)> reallocate
                             , int fields = 3)
@@ -50,7 +50,6 @@ public:
                 // token found and data needed, parse everything from last token to here
                 bool ok;
                 double d = QString(QByteArray(reinterpret_cast<const char*>(&data[tokenBegin]), idx-tokenBegin)).toDouble(&ok);
-                tokenBegin = idx + 1;
                 if(ok)
                 {
                     point[currentPointField] = d;
@@ -58,15 +57,14 @@ public:
                 }
                 else
                 {
-                    // error, process point and skip untill new line
-                    //qDebug() << "could not parse double";
+                    // error, process point and skip until new line
                     for(int i=currentPointField ; i<fields ; ++i)
                     {
                         point[i] = 0.0;
                     }
                     currentPointField = fields;
                 }
-                if(currentPointField == fields-1)
+                if(currentPointField == fields)
                 {
                     // point has enough data and can be processed
                     pointCallback(point, currentPoint);
@@ -74,7 +72,8 @@ public:
                     currentPointField++; // nothing will happen until new line
                 }
             }
-            if(data[idx] != '\n')
+            tokenBegin = idx + 1;
+            if(data[idx] == '\n')
             {
                 if(currentPointField < fields)
                 {
@@ -89,17 +88,24 @@ public:
                 }
                 if(estimatedPoints <= currentPoint)
                 {
-                    double estimatedMax = idx/currentPoint*size;
-                    estimatedPoints = static_cast<int>(qCeil(estimatedMax));
+                    double signsPerPoint = idx/currentPoint;
+                    qint64 signsPerPointInt = static_cast<qint64>(qFloor(signsPerPoint));
+                    estimatedPoints = size/signsPerPointInt;//static_cast<int>(qCeil(estimatedMax));
+                    log_info("Idx: " + std::to_string(idx) + ", p: " + std::to_string(currentPoint) + ", siz: " + std::to_string(size) + ", quot: " + std::to_string(signsPerPoint) + ", int: " + std::to_string(signsPerPointInt));
                     reallocate(estimatedPoints);
                 }
                 currentPointField = 0;
                 if(idx+1 < size)
                 {
-                    if(data[idx+1] == '\r') ++idx;
+                    if(data[idx+1] == '\r')
+                    {
+                        ++idx;
+                        ++tokenBegin;
+                    }
                 }
             }
         }
+        return currentPoint;
     }
 
     template<typename T, typename outT>
@@ -117,7 +123,7 @@ public:
             min[i] = +std::numeric_limits<double>::infinity();
             max[i] = -std::numeric_limits<double>::infinity();
         }
-        readCsv<T>(path, [&](double *point, int idx)
+        qint64 pointsRead = readCsv<T>(path, [&](double *point, int idx)
         {
             for(int i=0 ; i<fields ; ++i)
             {
@@ -146,9 +152,9 @@ public:
             }
         }
         QVector<outT> ret;
-        ret.resize(doubles.size());
+        ret.resize(pointsRead);
         const int maxDemeanFields = qMin(fields, 3);
-        for(int i=0 ; i<doubles.size() ; ++i)
+        for(int i=0 ; i<pointsRead ; ++i)
         {
             for(int field=0 ; field<maxDemeanFields ; ++field)
             {
@@ -234,37 +240,40 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
     std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
 
 
-    liblas::Header header;
-    header.SetDataFormatId(liblas::ePointFormat1); // Time only
+    std::shared_ptr<liblas::Header> header(new liblas::Header());
+    header->SetDataFormatId(liblas::ePointFormat1); // Time only
 
     // Set coordinate system using GDAL support
 //    liblas::SpatialReference srs;
 //    srs.SetFromUserInput("EPSG:4326"); //TODO
 
 //    header.SetSRS(srs);
-    header.SetCompressed(false);
-    std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
+    header->SetCompressed(false);
+    {
+        std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
 //    double minx, miny, minz
 //         , maxx, maxy, maxz
 //         , ctrx, ctry, ctrz;
 //    QVector<double> points;
-    QString file = QString::fromStdString(filename);
-    //XyzCsvReader::readCsv<double, double>(points, file, &minx, &miny, &minz, &maxx, &maxy, &maxz, &ctrx, &ctry, &ctrz);
-    int i=0;
-    XyzCsvReader::readCsv<double>(file, [&](double *point, int idx)
-    {
-        i++;
-        liblas::Point pointl(&header);
-        pointl.SetCoordinates(point[0], point[1], point[2]);
-        log_info("Point: " + std::to_string(idx) + " -> " + std::to_string(point[0]) + ", " + std::to_string(point[1]) + ", " + std::to_string(point[2]));
-        // fill other properties of point record
+        QString file = QString::fromStdString(filename);
+        //XyzCsvReader::readCsv<double, double>(points, file, &minx, &miny, &minz, &maxx, &maxy, &maxz, &ctrx, &ctry, &ctrz);
+        int readPoints = XyzCsvReader::readCsv<double>(file, [&](double *point, int idx)
+        {
+            liblas::Point pointl(header.get());
+            pointl.SetCoordinates(point[0], point[1], point[2]);
+            // fill other properties of point record
 
-        writer->WritePoint(pointl);
-    }, [&](int estimatedPoints)
-    {
-        log_info("Estimated points in file: " + std::to_string(estimatedPoints));
-    }, 3);
-
+            writer->WritePoint(pointl);
+        }, [&](int estimatedPoints)
+        {
+            log_info("Estimated points in file: " + std::to_string(estimatedPoints));
+        }, 3);
+        log_info("Points read:" + std::to_string(readPoints));
+        header->SetPointRecordsCount(readPoints);
+        //header.SetRecordsCount(readPoints*3);
+//        writer->SetHeader(header);
+//        writer->WriteHeader();
+    }
 //    writer->SetFilters(reader.GetFilters());
 //    writer->SetTransforms(reader.GetTransforms());
     //    std::copy(lasreader_iterator(reader),  lasreader_iterator(),
@@ -311,7 +320,6 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
 //            ++i;
 //        }
 //    }
-    log_info("Points read:" + std::to_string(i));
     return UPNS_STATUS_OK;
 }
 

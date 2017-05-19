@@ -1,4 +1,9 @@
 #include "upns/ui/bindings/qmlentitydata.h"
+#include <upns/layertypes/pointcloudlayer.h>
+#include <upns/layertypes/lastype.h>
+#include <upns/layertypes/tflayer.h>
+#include <upns/layertypes/pose_path.h>
+#include <QVector3D>
 
 QmlEntitydata::QmlEntitydata(QObject *parent)
     :QObject(parent),
@@ -28,6 +33,73 @@ QString QmlEntitydata::path() const
 QmlCheckout *QmlEntitydata::checkout() const
 {
     return m_checkout;
+}
+
+QVariant QmlEntitydata::getInfo(QString propertyName)
+{
+#ifdef WITH_PCL
+    if(strcmp(m_entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0)
+    {
+        if(   propertyName.compare("width") == 0
+           || propertyName.compare("length") == 0 )
+        {
+            std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( m_entitydata );
+            upnsPointcloud2Ptr pc2 = entityData->getData();
+            return QVariant(pc2->width);
+        }
+    }
+    else
+#endif
+#ifdef WITH_LAS
+    if(strcmp(m_entitydata->type(), LASEntitydata::TYPENAME()) == 0)
+    {
+        if(   propertyName.compare("width") == 0
+           || propertyName.compare("length") == 0 )
+        {
+            std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>( m_entitydata );
+            std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
+            return QVariant(rdr->GetHeader().GetPointRecordsCount());
+        }
+        else if(   propertyName.compare("min") == 0)
+        {
+            std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>( m_entitydata );
+            std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
+            return QVariant(QVector3D(rdr->GetHeader().GetMinX(),rdr->GetHeader().GetMinY(),rdr->GetHeader().GetMinZ()));
+        }
+        else if(   propertyName.compare("max") == 0)
+        {
+            std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>( m_entitydata );
+            std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
+            return QVariant(QVector3D(rdr->GetHeader().GetMaxX(),rdr->GetHeader().GetMaxY(),rdr->GetHeader().GetMaxZ()));
+        }
+    }
+    else
+#endif
+//    if(strcmp(ed->type(), OctomapEntitydata::TYPENAME()) == 0)
+//    {
+//    }
+    if(strcmp(m_entitydata->type(), TfEntitydata::TYPENAME()) == 0)
+    {
+        // has special qml wrapper
+    }
+//    else if(strcmp(m_entitydata->type(), AssetEntitydata::TYPENAME()) == 0)
+//    {
+//    }
+    else if(strcmp(m_entitydata->type(), PosePathEntitydata::TYPENAME()) == 0)
+    {
+        if(   propertyName.compare("width") == 0
+           || propertyName.compare("length") == 0 )
+        {
+            std::shared_ptr<PosePathEntitydata> entityData = std::static_pointer_cast<PosePathEntitydata>( m_entitydata );
+            PosePathPtr pp = entityData->getData();
+            return QVariant(pp->poses_size());
+        }
+    }
+    else
+    {
+        qDebug() << "unknown entitytype for visualization";
+    }
+    return QVariant();
 }
 
 void QmlEntitydata::setCheckout(QmlCheckout *checkout)

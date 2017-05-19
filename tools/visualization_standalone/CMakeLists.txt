@@ -113,6 +113,10 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
     ${Boost_LIBRARIES}
     stdc++)
 
+######## FOR DEBUGGING PURPOSES ONLY ########
+target_link_libraries(${PROJECT_NAME} load_las_from_csv)
+
+#############################################
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
 

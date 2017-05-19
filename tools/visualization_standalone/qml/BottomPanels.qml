@@ -31,8 +31,12 @@ Item {
             text: qsTr("Entity")
         }
         ColumnLayout {
+            id: entityInfo
             Layout.fillWidth: true
             visible: entityHeader.checked && root.currentEntityPath !== undefined
+            property var currentEntity: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath) : null
+            property string currentEntityType: currentEntity ? currentEntity.type : ""
+            property var currentEntitydata: root.currentEntityPath ? currentCheckout.getEntitydataReadOnly(root.currentEntityPath) : null
             RowLayout {
                 Layout.fillWidth: true
                 StyledLabel {
@@ -40,10 +44,33 @@ Item {
                     text: "Type: "
                     font.weight: Font.Bold
                 }
-
                 StyledLabel {
                     Layout.fillWidth: true
-                    text: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath).type : ""
+                    text: entityInfo.currentEntityType
+                }
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                visible: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
+                RowLayout {
+                    Layout.fillWidth: true
+                    StyledLabel {
+                        Layout.fillWidth: true
+                        text: "# Pts.: " + entityInfo.currentEntitydata.getInfo("width")
+                        font.weight: Font.Bold
+                    }
+                    StyledLabel {
+                        Layout.fillWidth: true
+                        text: "Min: " + entityInfo.currentEntitydata.getInfo("min")
+                    }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    StyledLabel {
+                        Layout.fillWidth: true
+                        text: "Max: " + entityInfo.currentEntitydata.getInfo("max")
+                        font.weight: Font.Bold
+                    }
                 }
             }
             UPNS.EntitydataTransform {
