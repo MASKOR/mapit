@@ -108,13 +108,13 @@ public:
         return currentPoint;
     }
 
-    template<typename T, typename outT>
-    static QVector<outT> readCsv(QVector<T> &doubles, QString &path
+    template<typename T>
+    static int readCsv(QVector<T> &doubles, QString &path
                                    , T *minx, T *miny, T *minz
                                    , T *maxx, T *maxy, T *maxz
                                    , T *offsetx, T *offsety, T *offsetz
-                                   , int fields = 3
-                                   , bool demean = true, bool flipYZ = false)
+                                   , T *scale
+                                   , int fields = 3)
     {
         double max[fields];
         double min[fields];
@@ -137,30 +137,14 @@ public:
         }, fields);
 
         double ctr[fields];
-        if(demean)
+        double maxDim = 0;
+        for(int i=0 ; i<fields ; ++i)
         {
-            for(int i=0 ; i<fields ; ++i)
-            {
-                ctr[i] = min[i]*0.5+max[i]*0.5;
-            }
+            ctr[i] = min[i]*0.5+max[i]*0.5;
+            maxDim = std::max(maxDim, max[i]-min[i]);
         }
-        else
-        {
-            for(int i=0 ; i<fields ; ++i)
-            {
-                ctr[i] = 0.0;
-            }
-        }
-        QVector<outT> ret;
-        ret.resize(pointsRead);
-        const int maxDemeanFields = qMin(fields, 3);
-        for(int i=0 ; i<pointsRead ; ++i)
-        {
-            for(int field=0 ; field<maxDemeanFields ; ++field)
-            {
-                ret[field] = doubles[i+field] - ctr[field];
-            }
-        }
+        *scale = maxDim/static_cast<double>(std::numeric_limits<uint32_t>::max());
+
         if(minx != nullptr) *minx = min[0];
         if(miny != nullptr) *miny = min[1];
         if(minz != nullptr) *minz = min[2];
@@ -172,7 +156,7 @@ public:
         if(offsetx != nullptr) *offsetx = ctr[0];
         if(offsety != nullptr) *offsety = ctr[1];
         if(offsetz != nullptr) *offsetz = ctr[2];
-        return ret;
+        return pointsRead;
     }
 };
 
@@ -194,39 +178,6 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
         log_error("parameter \"filename\" missing");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-// demean and normalize not supported!
-// Reason: This would require to rebuild the read LAS datastructure and create custom points.
-// Points may vary in dataformat which might result in multiple codepaths.
-// Pcds can be demeaned.
-//    bool demean = params["demean"].bool_value();
-//    bool normalize = params["normalize"].bool_value();
-//    double normalizeScale = params["normalizeScale"].number_value();
-//    if(normalizeScale < 0.001)
-//    {
-//        if(normalizeScale < 0.0)
-//        {
-//            log_error("normalizeScale was negative");
-//            return UPNS_STATUS_INVALID_ARGUMENT;
-//        }
-//        normalizeScale = 10.0; // 10m is default
-//    }
-//    else if(!normalize)
-//    {
-//        if(normalizeScale != 1.0)
-//        {
-//            log_warn("normalizeScale was set, but normalize was not active");
-//        }
-//        normalizeScale = 1.0;
-//    }
-
-//    std::ifstream ifs;
-//    ifs.open(filename, std::ifstream::in);
-//    if ( ! ifs.good() )
-//    {
-//        log_error("Couldn't read file" + filename);
-//        return UPNS_STATUS_FILE_NOT_FOUND;
-//    }
-
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(LASEntitydata::TYPENAME());
     StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
@@ -250,76 +201,54 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
 //    header.SetSRS(srs);
     header->SetCompressed(false);
     {
-        std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
-//    double minx, miny, minz
-//         , maxx, maxy, maxz
-//         , ctrx, ctry, ctrz;
-//    QVector<double> points;
         QString file = QString::fromStdString(filename);
-        //XyzCsvReader::readCsv<double, double>(points, file, &minx, &miny, &minz, &maxx, &maxy, &maxz, &ctrx, &ctry, &ctrz);
-        int readPoints = XyzCsvReader::readCsv<double>(file, [&](double *point, int idx)
+
+        double min[3], max[3];
+//        for(int i=0 ; i<3 ; ++i)
+//        {
+//            min[i] = +std::numeric_limits<double>::infinity();
+//            max[i] = -std::numeric_limits<double>::infinity();
+//        }
+//        int readPoints = XyzCsvReader::readCsv<double>(file, [&](double *point, int idx)
+//        {
+//            if(min[0] > point[0]) min[0] = point[0];
+//            if(min[1] > point[1]) min[1] = point[1];
+//            if(min[2] > point[2]) min[2] = point[2];
+//            if(max[0] < point[0]) max[0] = point[0];
+//            if(max[1] < point[1]) max[1] = point[1];
+//            if(max[2] < point[2]) max[2] = point[2];
+//            liblas::Point pointl(header.get());
+//            pointl.SetCoordinates(point[0], point[1], point[2]);
+//            // fill other properties of point record
+
+//            writer->WritePoint(pointl);
+//        }, [&](int estimatedPoints)
+//        {
+//            log_info("Estimated points in file: " + std::to_string(estimatedPoints));
+//        }, 3);
+        QVector<double> doubles;
+        double ctr[3];
+        double scale;
+        XyzCsvReader::readCsv<double>(doubles, file
+                        , &min[0], &min[1], &min[2]
+                        , &max[0], &max[1], &max[2]
+                        , &ctr[0], &ctr[1], &ctr[2]
+                        , &scale );
+        log_info("Points read:" + std::to_string(doubles.size()/3));
+        header->SetPointRecordsCount(doubles.size()/3);
+        header->SetMin(min[0], min[1], min[2]);
+        header->SetMax(max[0], max[1], max[2]);
+        header->SetScale(scale, scale, scale);
+        header->SetOffset(ctr[0], ctr[1], ctr[2]);
+        std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
+        auto iter = doubles.cbegin();
+        while(iter != doubles.cend())
         {
             liblas::Point pointl(header.get());
-            pointl.SetCoordinates(point[0], point[1], point[2]);
-            // fill other properties of point record
-
+            pointl.SetCoordinates(*iter++, *iter++, *iter++);
             writer->WritePoint(pointl);
-        }, [&](int estimatedPoints)
-        {
-            log_info("Estimated points in file: " + std::to_string(estimatedPoints));
-        }, 3);
-        log_info("Points read:" + std::to_string(readPoints));
-        header->SetPointRecordsCount(readPoints);
-        //header.SetRecordsCount(readPoints*3);
-//        writer->SetHeader(header);
-//        writer->WriteHeader();
+        }
     }
-//    writer->SetFilters(reader.GetFilters());
-//    writer->SetTransforms(reader.GetTransforms());
-    //    std::copy(lasreader_iterator(reader),  lasreader_iterator(),
-    //                      laswriter_iterator(writer));
-
-//    int i=0;
-//    if(demean || normalize)
-//    {
-//        double minX = reader.GetHeader().GetMinX();
-//        double minY = reader.GetHeader().GetMinY();
-//        double minZ = reader.GetHeader().GetMinZ();
-//        double maxX = reader.GetHeader().GetMaxX();
-//        double maxY = reader.GetHeader().GetMaxY();
-//        double maxZ = reader.GetHeader().GetMaxZ();
-
-//        double sx = maxX-minX;
-//        double sy = maxY-minY;
-//        double sz = maxZ-minZ;
-//        double maxDim = std::max(std::max(sx, sy), sz);
-//        double scale = normalizeScale / maxDim;
-
-//        double cx = minX+sx*0.5;
-//        double cy = minY+sy*0.5;
-//        double cz = minZ+sz*0.5;
-
-//        while(reader.ReadNextPoint())
-//        {
-//            liblas::Point current(reader.GetPoint());
-//            liblas::Point newpoint(&reader.GetHeader());
-//            newpoint.SetX((current.GetX()-cx)*scale);
-//            newpoint.SetY((current.GetY()-cy)*scale);
-//            newpoint.SetZ((current.GetZ()-cz)*scale);
-//            writer->WritePoint(newpoint);
-//            ++i;
-//        }
-//    }
-//    else
-//    {
-//        while(reader.ReadNextPoint())
-//        {
-//            liblas::Point const&  current(reader.GetPoint());
-
-//            writer->WritePoint(current);
-//            ++i;
-//        }
-//    }
     return UPNS_STATUS_OK;
 }
 

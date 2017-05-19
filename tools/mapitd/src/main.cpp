@@ -10,9 +10,6 @@
 
 #include <upns/versioning/repositorynetworkingfactory.h>
 
-#include <thread>
-#include <chrono>
-
 namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
