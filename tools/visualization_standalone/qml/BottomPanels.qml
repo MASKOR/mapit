@@ -13,6 +13,10 @@ Item {
     property alias currentOperator: opPane.currentOperator
     property alias currentCheckout: opPane.currentCheckout
     property alias currentEntityPath: opPane.currentEntityPath
+    function formatVec3(vec) {
+        return "(" + vec.x.toFixed(2) + ", " + vec.y.toFixed(2) + ", " + vec.z.toFixed(2) + ")"
+    }
+
     ColumnLayout {
         anchors.fill: parent
         StyledHeader {
@@ -37,40 +41,38 @@ Item {
             property var currentEntity: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath) : null
             property string currentEntityType: currentEntity ? currentEntity.type : ""
             property var currentEntitydata: root.currentEntityPath ? currentCheckout.getEntitydataReadOnly(root.currentEntityPath) : null
-            RowLayout {
+
+            GridLayout {
                 Layout.fillWidth: true
+                visible: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
+                columns: 2
                 StyledLabel {
-                    Layout.fillWidth: true
-                    text: "Type: "
+                    text: "Type:"
                     font.weight: Font.Bold
                 }
                 StyledLabel {
-                    Layout.fillWidth: true
                     text: entityInfo.currentEntityType
                 }
-            }
-            ColumnLayout {
-                Layout.fillWidth: true
-                visible: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
-                RowLayout {
-                    Layout.fillWidth: true
-                    StyledLabel {
-                        Layout.fillWidth: true
-                        text: "# Pts.: " + entityInfo.currentEntitydata.getInfo("width")
-                        font.weight: Font.Bold
-                    }
-                    StyledLabel {
-                        Layout.fillWidth: true
-                        text: "Min: " + entityInfo.currentEntitydata.getInfo("min")
-                    }
+                StyledLabel {
+                    text: "# Pts.:"
+                    font.weight: Font.Bold
                 }
-                RowLayout {
-                    Layout.fillWidth: true
-                    StyledLabel {
-                        Layout.fillWidth: true
-                        text: "Max: " + entityInfo.currentEntitydata.getInfo("max")
-                        font.weight: Font.Bold
-                    }
+                StyledLabel {
+                    text: entityInfo.currentEntitydata.getInfo("width")
+                }
+                StyledLabel {
+                    text: "Min:"
+                    font.weight: Font.Bold
+                }
+                StyledLabel {
+                    text: formatVec3(entityInfo.currentEntitydata.getInfo("min"))
+                }
+                StyledLabel {
+                    text: "Max:"
+                    font.weight: Font.Bold
+                }
+                StyledLabel {
+                    text: formatVec3(entityInfo.currentEntitydata.getInfo("max"))
                 }
             }
             UPNS.EntitydataTransform {

@@ -8,6 +8,7 @@ out vec3 position;
 out vec3 normal;
 out vec3 color;
 
+uniform mat4 modelMatrix;
 uniform mat4 modelView;
 uniform mat3 modelViewNormal;
 uniform mat4 mvp;
@@ -22,6 +23,8 @@ uniform float pointSize;
 
 uniform float colorscale;
 
+uniform bool constantSize;
+uniform bool yPointsUp;
 //in int gl_VertexID;
 
 int LFSR_Rand_Gen(in int n)
@@ -72,7 +75,7 @@ void main()
 
     float vertexRand = rand(gl_VertexID);
     float jitter = 1.0+vertexRand*0.1;
-    float dist = gl_Position.w * jitter;
+    float dist = length(position.xyz) * jitter;
 
     float nearMaxDetailDistance = 20;
     float farMinDetailDistance = 1000;
@@ -81,16 +84,26 @@ void main()
     float random01 = max(0.0, min(1.0, (vertexRand+1.0)*0.5));
     float visibility = step(percentSkipped, random01);
 
-    gl_PointSize = max(0.5,viewportMatrix[1][1] * projectionMatrix[1][1] * pointSize / dist) * visibility;
+    if(constantSize)
+    {
+        gl_PointSize = pointSize*20.0;
+    }
+    else
+    {
+        gl_PointSize = max(0.5,viewportMatrix[1][1] * projectionMatrix[1][1] * pointSize / dist) * visibility;
+    }
 
 
     //color = vertexPosition * 0.1;//vertexColor;
     float axis;
+    vec4 worldPos = modelMatrix * vec4(vertexPosition, 1.0);
     if(colorize == 0)
-        axis = vertexPosition.x;
-    else if(colorize == 1)
-        axis = vertexPosition.y;
-    else if(colorize == 2)
-        axis = vertexPosition.z;
+        axis = worldPos.x;
+    else if(   colorize == 1 && yPointsUp == true
+            || colorize == 2 && yPointsUp == false)
+        axis = worldPos.y;
+    else if(   colorize == 1 && yPointsUp == false
+            || colorize == 2 && yPointsUp == true)
+        axis = worldPos.z;
     color = hsv_to_rgb(axis*-colorscale, 0.7, 1.0, 0.0).rgb;
 }

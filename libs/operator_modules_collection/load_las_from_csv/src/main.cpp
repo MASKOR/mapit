@@ -26,6 +26,7 @@ public:
     static qint64 readCsv(QString &path
                             , std::function<void(T* data, const int& i)> pointCallback
                             , std::function<void(const int &estimatedPoints)> reallocate
+                            , std::function<void(T* data, const int& i, const int &field, bool& skipPoint)> handleNaN
                             , int fields = 3)
     {
         QFile file(path);
@@ -41,9 +42,9 @@ public:
         reallocate(estimatedPoints);
         for(qint64 idx = 0; idx < size ; ++idx)
         {
-            if(  data[idx] != ','
-                  && data[idx] != ';'
-                  && data[idx] != '\n')
+            if(   data[idx] != ','
+               && data[idx] != ';'
+               && data[idx] != '\n')
                 continue;
             if(currentPointField < fields)
             {
@@ -58,17 +59,26 @@ public:
                 else
                 {
                     // error, process point and skip until new line
-                    for(int i=currentPointField ; i<fields ; ++i)
+                    bool skipPointOut;
+                    handleNaN(point, currentPoint, currentPointField, skipPointOut);
+//                    for(int i=currentPointField ; i<fields ; ++i)
+//                    {
+//                        point[i] = std::numeric_limits<double>::quiet_NaN();
+//                    }
+                    if(!skipPointOut)
                     {
-                        point[i] = 0.0;
+                        ok = true;
                     }
                     currentPointField = fields;
                 }
                 if(currentPointField == fields)
                 {
                     // point has enough data and can be processed
-                    pointCallback(point, currentPoint);
-                    currentPoint++;
+                    if(ok)
+                    {
+                        pointCallback(point, currentPoint);
+                        currentPoint++;
+                    }
                     currentPointField++; // nothing will happen until new line
                 }
             }
@@ -79,12 +89,17 @@ public:
                 {
                     //qDebug() << "incomplete point, not enough data";
                     // fill rest of point with 0.0
-                    for(int i=currentPointField ; i<fields ; ++i)
+//                    for(int i=currentPointField ; i<fields ; ++i)
+//                    {
+//                        point[i] = 0.0;
+//                    }
+                    bool skipPointOut;
+                    handleNaN(point, currentPoint, currentPointField, skipPointOut);
+                    if(!skipPointOut)
                     {
-                        point[i] = 0.0;
+                        pointCallback(point, currentPoint);
+                        currentPoint++;
                     }
-                    pointCallback(point, currentPoint);
-                    currentPoint++;
                 }
                 if(estimatedPoints <= currentPoint)
                 {
@@ -109,11 +124,11 @@ public:
     }
 
     template<typename T>
-    static int readCsv(QVector<T> &doubles, QString &path
+    static qint64 readCsv(QVector<T> &doubles, QString &path
                                    , T *minx, T *miny, T *minz
                                    , T *maxx, T *maxy, T *maxz
                                    , T *offsetx, T *offsety, T *offsetz
-                                   , T *scale
+                                   , T *scalex, T *scaley, T *scalez
                                    , int fields = 3)
     {
         double max[fields];
@@ -123,19 +138,23 @@ public:
             min[i] = +std::numeric_limits<double>::infinity();
             max[i] = -std::numeric_limits<double>::infinity();
         }
-        qint64 pointsRead = readCsv<T>(path, [&](double *point, int idx)
+        qint64 pointsRead = readCsv<T>(path, [&](double *point, const int& idx)
         {
             for(int i=0 ; i<fields ; ++i)
             {
                 if(min[i] > point[i]) min[i] = point[i];
                 if(max[i] < point[i]) max[i] = point[i];
-                doubles[idx + i] = point[i];
+                doubles[idx*3 + i] = point[i];
             }
         }, [&](int estimatedPoints)
         {
             doubles.resize(estimatedPoints*fields);
+        }, [&](double *point, const int& i, const int &field, bool& skipPoint)
+        {
+            log_warn("Point: " + std::to_string(i) + ", f: " + std::to_string(field) + " was invalid");
+            skipPoint = true;
         }, fields);
-
+        doubles.resize(pointsRead*fields);
         double ctr[fields];
         double maxDim = 0;
         for(int i=0 ; i<fields ; ++i)
@@ -143,7 +162,11 @@ public:
             ctr[i] = min[i]*0.5+max[i]*0.5;
             maxDim = std::max(maxDim, max[i]-min[i]);
         }
-        *scale = maxDim/static_cast<double>(std::numeric_limits<uint32_t>::max());
+        //double scale = maxDim/static_cast<double>(std::numeric_limits<uint32_t>::max());
+
+        if(scalex != nullptr) *scalex = 0.0001;//(max[0]-min[0])/10000.0;//static_cast<double>(std::numeric_limits<uint32_t>::max());
+        if(scaley != nullptr) *scaley = 0.0001;//(max[1]-min[1])/10000.0;//static_cast<double>(std::numeric_limits<uint32_t>::max());
+        if(scalez != nullptr) *scalez = 0.0001;//(max[2]-min[2])/10000.0;//static_cast<double>(std::numeric_limits<uint32_t>::max());
 
         if(minx != nullptr) *minx = min[0];
         if(miny != nullptr) *miny = min[1];
@@ -159,10 +182,6 @@ public:
         return pointsRead;
     }
 };
-
-
-
-
 
 upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
 {
@@ -189,65 +208,41 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
+    QString file = QString::fromStdString(filename);
 
-
-    std::shared_ptr<liblas::Header> header(new liblas::Header());
-    header->SetDataFormatId(liblas::ePointFormat1); // Time only
-
-    // Set coordinate system using GDAL support
-//    liblas::SpatialReference srs;
-//    srs.SetFromUserInput("EPSG:4326"); //TODO
-
-//    header.SetSRS(srs);
-    header->SetCompressed(false);
+    double min[3], max[3];
+    QVector<double> doubles;
+    double ctr[3];
+    double scale[3];
+    qint64 pointsRead = XyzCsvReader::readCsv<double>(doubles, file
+                    , &min[0], &min[1], &min[2]
+                    , &max[0], &max[1], &max[2]
+                    , &ctr[0], &ctr[1], &ctr[2]
+                    , &scale[0], &scale[1], &scale[2] );
+    log_info("Points read:" + std::to_string(doubles.size()/3) );
+    assert(pointsRead == doubles.size()/3);
+    liblas::Header header;
+    header.SetDataFormatId(liblas::ePointFormat0);
+    header.SetSoftwareId("mapit");
+    header.SetRecordsCount(0);
+    header.SetCompressed(false);
+    header.SetPointRecordsCount(doubles.size()/3);
+    header.SetMin(min[0], min[1], min[2]);
+    header.SetMax(max[0], max[1], max[2]);
+    header.SetScale(scale[0], scale[1], scale[2]);
+    header.SetOffset(ctr[0], ctr[1], ctr[2]);
+        // Set coordinate system using GDAL support
+    //    liblas::SpatialReference srs;
+    //    srs.SetFromUserInput("EPSG:4326"); //TODO
+    //    header.SetSRS(srs);
+    std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
+    for(int i=0 ; i<doubles.size() ; i+=3)
     {
-        QString file = QString::fromStdString(filename);
-
-        double min[3], max[3];
-//        for(int i=0 ; i<3 ; ++i)
-//        {
-//            min[i] = +std::numeric_limits<double>::infinity();
-//            max[i] = -std::numeric_limits<double>::infinity();
-//        }
-//        int readPoints = XyzCsvReader::readCsv<double>(file, [&](double *point, int idx)
-//        {
-//            if(min[0] > point[0]) min[0] = point[0];
-//            if(min[1] > point[1]) min[1] = point[1];
-//            if(min[2] > point[2]) min[2] = point[2];
-//            if(max[0] < point[0]) max[0] = point[0];
-//            if(max[1] < point[1]) max[1] = point[1];
-//            if(max[2] < point[2]) max[2] = point[2];
-//            liblas::Point pointl(header.get());
-//            pointl.SetCoordinates(point[0], point[1], point[2]);
-//            // fill other properties of point record
-
-//            writer->WritePoint(pointl);
-//        }, [&](int estimatedPoints)
-//        {
-//            log_info("Estimated points in file: " + std::to_string(estimatedPoints));
-//        }, 3);
-        QVector<double> doubles;
-        double ctr[3];
-        double scale;
-        XyzCsvReader::readCsv<double>(doubles, file
-                        , &min[0], &min[1], &min[2]
-                        , &max[0], &max[1], &max[2]
-                        , &ctr[0], &ctr[1], &ctr[2]
-                        , &scale );
-        log_info("Points read:" + std::to_string(doubles.size()/3));
-        header->SetPointRecordsCount(doubles.size()/3);
-        header->SetMin(min[0], min[1], min[2]);
-        header->SetMax(max[0], max[1], max[2]);
-        header->SetScale(scale, scale, scale);
-        header->SetOffset(ctr[0], ctr[1], ctr[2]);
-        std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);
-        auto iter = doubles.cbegin();
-        while(iter != doubles.cend())
-        {
-            liblas::Point pointl(header.get());
-            pointl.SetCoordinates(*iter++, *iter++, *iter++);
-            writer->WritePoint(pointl);
-        }
+        liblas::Point pointl(&header);
+        pointl.SetCoordinates(doubles.data()[i],
+                              doubles.data()[i+1],
+                              doubles.data()[i+2]);
+        writer->WritePoint(pointl);
     }
     return UPNS_STATUS_OK;
 }

@@ -7,11 +7,13 @@
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
 #include "upns/ui/bindings/qmlpathgeometry.h"
+#include <upns/logging.h>
 #include <QMatrix4x4>
 
 QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
-    : QGeometryRenderer(parent),
-      m_entitydata(NULL)
+    : QGeometryRenderer(parent)
+    , m_entitydata(nullptr)
+    , m_coordinateSystem(nullptr)
 {
     qRegisterMetaType<PosePathPtr>("PosePathPtr");
     QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
@@ -42,6 +44,15 @@ void QmlEntitydataRenderer::setEntitydata(QmlEntitydata *entitydata)
     Q_EMIT entitydataChanged(entitydata);
 }
 
+void QmlEntitydataRenderer::setCoordinateSystem(QmlPointcloudCoordinatesystem *coordinateSystem)
+{
+    if (m_coordinateSystem == coordinateSystem)
+        return;
+
+    m_coordinateSystem = coordinateSystem;
+    Q_EMIT coordinateSystemChanged(coordinateSystem);
+}
+
 void QmlEntitydataRenderer::updateGeometry()
 {
     std::shared_ptr<upns::AbstractEntitydata> ed = m_entitydata->getEntitydata();
@@ -69,9 +80,28 @@ void QmlEntitydataRenderer::updateGeometry()
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
         std::unique_ptr<LASEntitydataReader> reader = std::static_pointer_cast< LASEntitydata >(ed)->getReader();
-        pointcloud->read(reader->getReaderRaw(), true, true, 10.0f, true);
-        QPointcloudGeometry *pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
-        QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
+        const int LEVEL_OF_DETAIL_TEMP=5; //TODO: skip 4 of 5 points for MILAN Dataset
+        if(m_coordinateSystem)
+        {
+            pointcloud->read(reader->getReaderRaw()
+                           , m_coordinateSystem->m_initialized
+                           , &m_coordinateSystem->m_offsetX
+                           , &m_coordinateSystem->m_offsetY
+                           , &m_coordinateSystem->m_offsetZ
+                           , false
+                           , false
+                           , 10.0f
+                           , false
+                           , LEVEL_OF_DETAIL_TEMP);
+            QPointcloudGeometry *pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
+            //QMetaObject::Connection *conn = QMetaObject::connect(pointcloud, &QPointcloud::offsetChanged, [&conn](){});
+            QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
+            m_coordinateSystem->m_initialized = true; //TODO: Thread safe!
+        }
+        else
+        {
+            log_error("Pointcloud has no coordinate system! Can not be loaded.");
+        }
     }
 //    else if(strcmp(ed->type(), OctomapEntitydata::TYPENAME()) == 0)
 //    {
@@ -97,7 +127,11 @@ void QmlEntitydataRenderer::updateGeometry()
     {
         qDebug() << "unknown entitytype for visualization";
     }
+}
 
+QmlPointcloudCoordinatesystem *QmlEntitydataRenderer::coordinateSystem() const
+{
+    return m_coordinateSystem;
 }
 
 //Q_DECLARE_METATYPE(mapit::msgs::PosePathPtr)

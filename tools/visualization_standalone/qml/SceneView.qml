@@ -48,6 +48,9 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     height: appStyle.controlHeight
                 }
+                StyledCheckBox {
+                    id: constantSizeCheckbox
+                }
                 StyledSlider {
                     id: pointSizeSlider
                     width: 60
@@ -197,7 +200,9 @@ Item {
                                                         Parameter { name: "width"; value: scene3d.width },
                                                         Parameter { name: "height"; value: scene3d.height },
                                                         Parameter { name: "lod"; value: appStyle.pointcloudLod },
-                                                        Parameter { name: "colorscale"; value: colorscaleSlider.value }
+                                                        Parameter { name: "colorscale"; value: colorscaleSlider.value },
+                                                        Parameter { name: "constantSize"; value: constantSizeCheckbox.checked },
+                                                        Parameter { name: "yPointsUp"; value: appStyle.coordinateSystemYPointsUp }
 
                                                     ]
                                                     RenderStateSet {
@@ -253,13 +258,16 @@ Item {
                                 id: coordianteSystemTransform
                                 rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
                             }]
+                        UPNS.PointcloudCoordinatesystem {
+                            id: coordSys
+                        }
                         Q3D.NodeInstantiator {
                             id: entityInstantiator
                             model: root.visibleEntityItems
                             delegate: MapitEntity {
                                 mainCameratmp: mainCamera
                                 scene3dtmp: scene3d
-
+                                coordinateSystem: coordSys
                                 //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
                                 //                                                                                                      0, 1, 0, 0,
                                 //                                                                                                      0, 0, 1, 0,

@@ -83,7 +83,7 @@ Item {
         anchors.right: parent.right
         onWidthChanged: controlHolder.width = width
         //maximumHeight: 300
-        height: Math.min(root.height, 300)
+        height: Math.min(root.height, 400)
         z: 100
         StyledLabel {
             Layout.fillWidth: true

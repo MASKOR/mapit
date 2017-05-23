@@ -16,6 +16,7 @@ Q3D.Entity {
     property var scene3dtmp
     property Layer layer
     property alias parametersTmp: surfelTechnique.parameters
+    property alias coordinateSystem: edrender.coordinateSystem
     id: pointcloud
 
     UPNS.EntitydataTransform {

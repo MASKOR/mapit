@@ -20,7 +20,7 @@ public:
     std::vector<liblas::TransformPtr> GetTransforms() const;
 private:
     LASEntitydataWriterPrivate *m_pimpl;
-    LASEntitydataWriter(std::shared_ptr<upns::AbstractEntitydataProvider> prov, std::shared_ptr<liblas::Header>  header);
+    LASEntitydataWriter(std::shared_ptr<upns::AbstractEntitydataProvider> prov, const liblas::Header& header);
 
     friend class LASEntitydata;
 };

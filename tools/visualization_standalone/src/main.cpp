@@ -39,6 +39,7 @@
 #include <upns/ui/bindings/qmlentitydatarenderer.h>
 #include <upns/ui/models/qmlroottreemodel.h>
 #include <upns/versioning/repositoryfactorystandard.h>
+#include <upns/ui/bindings/qmlpointcloudcoordinatesystem.h>
 
 #include <mapit/msgs/services.pb.h>
 #include <upns/errorcodes.h>
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<EditorCameraController>("qt3deditorlib", 1, 0, "EditorCameraController");
 
+    qmlRegisterType<QmlPointcloudCoordinatesystem>("fhac.upns", 1, 0, "PointcloudCoordinatesystem");
     qmlRegisterType<FileIO, 1>("FileIO", 1, 0, "FileIO");
 
     QQmlApplicationEngine engine;

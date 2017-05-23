@@ -57,7 +57,7 @@ std::unique_ptr<LASEntitydataReader> LASEntitydata::getReader()
     return std::unique_ptr<LASEntitydataReader>(new LASEntitydataReader(m_pimpl->m_streamProvider));
 }
 
-std::unique_ptr<LASEntitydataWriter> LASEntitydata::getWriter(std::shared_ptr<liblas::Header> header)
+std::unique_ptr<LASEntitydataWriter> LASEntitydata::getWriter(const liblas::Header &header)
 {
     return std::unique_ptr<LASEntitydataWriter>(new LASEntitydataWriter(m_pimpl->m_streamProvider, header));
 }

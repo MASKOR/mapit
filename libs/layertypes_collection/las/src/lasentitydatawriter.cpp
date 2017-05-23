@@ -5,18 +5,17 @@
 class LASEntitydataWriterPrivate
 {
 public:
-    LASEntitydataWriterPrivate(std::shared_ptr<AbstractEntitydataProvider> prov, std::shared_ptr<liblas::Header> header)
+    LASEntitydataWriterPrivate(std::shared_ptr<AbstractEntitydataProvider> prov, const liblas::Header& header)
         : m_streamProvider(prov)
-        , m_header(header)
     {
         liblas::WriterFactory f;
         //m_tmpFile.open(m_streamProvider->startWriteFile(m_readWriteHandleTmp));
         //m_writer = new liblas::Writer(f.CreateWithStream(m_tmpFile, header));
         //m_ostream = &m_tmpFile;
         m_ostream = m_streamProvider->startWrite();
-        m_writer = new liblas::Writer(f.CreateWithStream(*m_ostream, *header));
-        m_writer->SetHeader(*header);
-//        m_writer->WriteHeader();
+        m_writer = new liblas::Writer(f.CreateWithStream(*m_ostream, header));
+        m_writer->SetHeader(header);
+        m_writer->WriteHeader();
     }
     ~LASEntitydataWriterPrivate()
     {
@@ -26,8 +25,8 @@ public:
             return;
         }
         //m_streamProvider->endWriteFile(m_readWriteHandleTmp);
-        m_writer->SetHeader(*m_header);
-        m_writer->WriteHeader();
+        //m_writer->SetHeader(*m_header);
+        //m_writer->WriteHeader();
         m_streamProvider->endWrite(m_ostream);
         m_ostream = nullptr;
     }
@@ -36,7 +35,7 @@ public:
     upnsOStream    *m_ostream;
     // a copy of the header is needed so it does not need to be set multiple times from outside
     // header must be Set at beginning of writing (for point format) and at the end (to communicate point size).
-    std::shared_ptr<liblas::Header> m_header;
+    //std::shared_ptr<liblas::Header> m_header;
 //    ReadWriteHandle m_readWriteHandleTmp;
 //    std::ofstream   m_tmpFile;
 };
@@ -81,7 +80,7 @@ std::vector<liblas::TransformPtr> LASEntitydataWriter::GetTransforms() const
     return m_pimpl->m_writer->GetTransforms();
 }
 
-LASEntitydataWriter::LASEntitydataWriter(std::shared_ptr<AbstractEntitydataProvider> prov, std::shared_ptr<liblas::Header> header)
+LASEntitydataWriter::LASEntitydataWriter(std::shared_ptr<AbstractEntitydataProvider> prov, const liblas::Header &header)
     :m_pimpl(new LASEntitydataWriterPrivate(prov, header))
 {
 }
