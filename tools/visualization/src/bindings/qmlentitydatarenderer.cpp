@@ -4,9 +4,11 @@
 #include <upns/layertypes/lastype.h>
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
+#include <upns/layertypes/assettype.h>
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
 #include "upns/ui/bindings/qmlpathgeometry.h"
+#include "upns/ui/bindings/qmlplymeshgeometry.h"
 #include <upns/logging.h>
 #include <QMatrix4x4>
 
@@ -94,6 +96,7 @@ void QmlEntitydataRenderer::updateGeometry()
                            , false
                            , LEVEL_OF_DETAIL_TEMP);
             QPointcloudGeometry *pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
+            //TODO: A timer here should solve several crashes!
             //QMetaObject::Connection *conn = QMetaObject::connect(pointcloud, &QPointcloud::offsetChanged, [&conn](){});
             QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
             m_coordinateSystem->m_initialized = true; //TODO: Thread safe!
@@ -111,9 +114,15 @@ void QmlEntitydataRenderer::updateGeometry()
         QMatrix4x4 mat( std::static_pointer_cast< TfEntitydata >(ed)->getData()->data() );
         qDebug() << mat;
     }
-//    else if(strcmp(ed->type(), AssetEntitydata::TYPENAME()) == 0)
-//    {
-//    }
+    else if(strcmp(ed->type(), AssetEntitydata::TYPENAME()) == 0)
+    {
+        QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Triangles);
+        QGeometryRenderer::setGeometry(new QmlPlyMeshGeometry(this));
+        upnsAssetPtr asset = std::static_pointer_cast< AssetEntitydata >(ed)->getData();
+        QmlPlyMeshGeometry *geom = static_cast<QmlPlyMeshGeometry *>(geometry());
+        // TODO: does shared pointer survive here? Will the pointer be cleaned?
+        QMetaObject::invokeMethod(geom, "setAsset", Qt::QueuedConnection, Q_ARG(upnsAssetPtr, asset) );
+    }
     else if(strcmp(ed->type(), PosePathEntitydata::TYPENAME()) == 0)
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::LineStrip);

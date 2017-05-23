@@ -107,6 +107,7 @@ target_link_libraries(${PROJECT_NAME}   upns_core
                                         layertype_tf
                                         layertype_las
                                         layertype_pose_path
+                                        layertype_asset
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)
