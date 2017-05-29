@@ -46,7 +46,7 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
     if(entityData == NULL)
     {
          // Because the Entity is stored (above) with the correct entity type, this should never happen!
-        log_error("Tf Transform has wrong type. (This should never happen)");
+        log_error("Asset has wrong type. (This should never happen)");
         return UPNS_STATUS_ERR_UNKNOWN;
     }
     PosePathPtr posePath(new mapit::msgs::PosePath);

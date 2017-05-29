@@ -18,9 +18,7 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
-set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
-
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_PATH_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_PATH_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} upns_interface upns_core layertype_pose_path)
 
 qt5_use_modules(${PROJECT_NAME} Core Gui)

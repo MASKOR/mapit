@@ -29,7 +29,7 @@ bool AssetEntitydata::canSaveRegions() const
     return false;
 }
 
-upnsAssetPtr AssetEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
+AssetPtr AssetEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                                 bool clipMode,
                                                 int lod)
@@ -38,30 +38,34 @@ upnsAssetPtr AssetEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
     {
         upnsIStream *in = m_streamProvider->startRead();
         {
-            m_asset = upnsAssetPtr(new tinyply::PlyFile);
-            m_asset->read(*in);
+            m_asset = AssetPtr(new AssetDataPair( tinyply::PlyFile(*in),in), [&](AssetDataPair* ply)
+            {
+                //TODO: expose custom class for tinyply
+                m_streamProvider->endRead(in);
+            });
+            //m_asset->first.read(*in);
         }
-        m_streamProvider->endRead(in);
+        //m_streamProvider->endRead(in);
     }
     return m_asset;
 }
 
 int AssetEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                  upnsReal x2, upnsReal y2, upnsReal z2,
-                                 upnsAssetPtr &data,
+                                 AssetPtr &data,
                                  int lod)
 {
     StatusCode s;
     upnsOStream *out = m_streamProvider->startWrite();
     {
         m_asset = data;
-        m_asset->write(*out, true);
+        m_asset->first.write(*out, false);
     }
     m_streamProvider->endWrite(out);
     return s;
 }
 
-upnsAssetPtr AssetEntitydata::getData(int lod)
+AssetPtr AssetEntitydata::getData(int lod)
 {
     return getData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -72,7 +76,7 @@ upnsAssetPtr AssetEntitydata::getData(int lod)
                    false, lod);
 }
 
-int AssetEntitydata::setData(upnsAssetPtr &data, int lod)
+int AssetEntitydata::setData(AssetPtr &data, int lod)
 {
     return setData(-std::numeric_limits<upnsReal>::infinity(),
                    -std::numeric_limits<upnsReal>::infinity(),
@@ -109,7 +113,8 @@ upnsIStream *AssetEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 
 void AssetEntitydata::endRead(upnsIStream *strm)
 {
-    m_streamProvider->endRead(strm);
+    //This is done in destructor/shared pointer deletion
+    //m_streamProvider->endRead(strm);
 }
 
 upnsOStream *AssetEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)

@@ -345,5 +345,6 @@
         <file>qml/operators/HelperTarget.qml</file>
         <file>qml/operators/HelperOpenFile.qml</file>
         <file>qml/operators/load_las_from_csv.qml</file>
+        <file>qml/operators/load_asset.qml</file>
     </qresource>
 </RCC>

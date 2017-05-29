@@ -64,7 +64,16 @@ upnsIStream* upns::FileSystemEntitydataStreamProvider::startRead(upnsuint64 star
 
 void FileSystemEntitydataStreamProvider::endRead(upnsIStream *strm)
 {
-    delete strm;
+    if(strm != nullptr)
+    {
+        delete strm;
+        strm = nullptr;
+    }
+    else
+    {
+        //TODO: this might be a bug with shared objects, shared pointers and casting between abstractEntityData. Valgrind.
+        log_warn("do not end Read twice!");
+    }
 }
 
 upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)

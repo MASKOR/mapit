@@ -7,55 +7,6 @@
 #include <upns/layertypes/assettype.h>
 #include <QSharedPointer>
 
-template<typename T>
-class PlyMeshVertexDataGenerator : public Qt3DRender::QBufferDataGenerator
-{
-public:
-    PlyMeshVertexDataGenerator(upnsAssetPtr asset, const std::string & elementName, std::vector<std::string> propertyKeys)
-        : m_asset(asset)
-        , m_name(elementName)
-        , m_propertyKeys(propertyKeys)
-    {
-    }
-
-    QByteArray operator ()() Q_DECL_OVERRIDE
-    {
-        std::vector<T> verts;
-        m_asset->request_properties_from_element(m_name, m_propertyKeys, verts);
-        return QByteArray(reinterpret_cast<char*>(verts.data()), verts.size()*sizeof(float));
-    }
-
-    bool operator ==(const Qt3DRender::QBufferDataGenerator &other) const Q_DECL_OVERRIDE
-    {
-        const PlyMeshVertexDataGenerator *otherFunctor = Qt3DRender::functor_cast<PlyMeshVertexDataGenerator>(&other);
-        if (otherFunctor != NULL)
-            return otherFunctor->m_asset == m_asset
-                && otherFunctor->m_name == m_name
-                && otherFunctor->m_propertyKeys == m_propertyKeys;
-        return false;
-    }
-
-
-private:
-    upnsAssetPtr m_asset;
-    std::string m_name;
-    std::vector<std::string> m_propertyKeys;
-};
-class PlyMeshVertexDataGeneratorFloat : public PlyMeshVertexDataGenerator<float>
-{
-public:
-    PlyMeshVertexDataGeneratorFloat(upnsAssetPtr asset, const std::string & elementName, std::vector<std::string> propertyKeys)
-        :PlyMeshVertexDataGenerator(asset, elementName, propertyKeys) {}
-    QT3D_FUNCTOR(PlyMeshVertexDataGeneratorFloat)
-};
-class PlyMeshVertexDataGeneratorUInt : public PlyMeshVertexDataGenerator<float>
-{
-public:
-    PlyMeshVertexDataGeneratorUInt(upnsAssetPtr asset, const std::string & elementName, std::vector<std::string> propertyKeys)
-        :PlyMeshVertexDataGenerator(asset, elementName, propertyKeys) {}
-    QT3D_FUNCTOR(PlyMeshVertexDataGeneratorUInt)
-};
-
 class QmlPlyMeshGeometryPrivate
 {
 public:
@@ -64,7 +15,7 @@ public:
          m_asset( nullptr ){}
     Qt3DRender::QBuffer *m_vertexBuffer;
     Qt3DRender::QBuffer *m_indexBuffer;
-    upnsAssetPtr m_asset;
+    AssetPtr m_asset;
 };
 
 QmlPlyMeshGeometry::QmlPlyMeshGeometry(Qt3DCore::QNode *parent)
@@ -81,31 +32,43 @@ QmlPlyMeshGeometry::~QmlPlyMeshGeometry()
 
 void QmlPlyMeshGeometry::updateVertices()
 {
-    updateAttributes();
     //QMetaObject::invokeMethod(this, "updateAttributes", Qt::QueuedConnection);
-    m_p->m_vertexBuffer->setDataGenerator(Qt3DRender::QBufferDataGeneratorPtr(new PlyMeshVertexDataGeneratorFloat(m_p->m_asset, "vertex", { "x", "y", "z" })));
-    m_p->m_indexBuffer->setDataGenerator(Qt3DRender::QBufferDataGeneratorPtr(new PlyMeshVertexDataGeneratorUInt(m_p->m_asset, "face", { "vertex_indices" })));
+
+    std::vector<float> verts;
+    std::vector<uint32_t> faces;
+//    std::vector<uint32_t> faces16;
+    uint32_t vertexCount = m_p->m_asset->first.request_properties_from_element("vertex", { "x", "y", "z" }, verts);
+    m_p->m_asset->first.request_properties_from_element("face", { "vertex_indices" }, faces, 3);
+    m_p->m_asset->first.read(*m_p->m_asset->second);
+//    faces16.reserve(faces.size());
+//    for(uint32_t &t : faces)
+//    {
+//        if(t >= vertexCount) {
+//            qDebug() << "ERROR DBG, IDX was: " << t;
+//        }
+//        faces16.push_back(t);
+//    }
+    m_p->m_vertexBuffer->setData(QByteArray(reinterpret_cast<char*>(verts.data()), verts.size()*sizeof(float)));
+    m_p->m_indexBuffer->setData(QByteArray(reinterpret_cast<char*>(faces.data()), faces.size()*sizeof(uint32_t)));
+    updateAttributes(vertexCount);
 }
 
-void QmlPlyMeshGeometry::updateAttributes()
+void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount)
 {
     // completely rebuild attribute list and remove all previous attributes
     QVector<Qt3DRender::QAttribute *> atts = attributes();
     Q_FOREACH(Qt3DRender::QAttribute *attr, atts)
     {
-        if(attr->attributeType() == Qt3DRender::QAttribute::VertexAttribute)
-        {
+//        if(attr->attributeType() == Qt3DRender::QAttribute::VertexAttribute)
+//        {
             removeAttribute(attr);
             attr->deleteLater();
-        }
-        else
-        {
-            qDebug() << "skipped index";
-        }
+//        }
+//        else
+//        {
+//            qDebug() << "skipped index";
+//        }
     }
-    std::vector<float> verts;
-    uint32_t vertexCount;
-    vertexCount = m_p->m_asset->request_properties_from_element("vertex", { "x", "y", "z" }, verts);
     Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);
     attrib->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
     attrib->setDataType(Qt3DRender::QAttribute::Float);
@@ -115,11 +78,18 @@ void QmlPlyMeshGeometry::updateAttributes()
     attrib->setByteStride(3*sizeof(float));
     attrib->setByteOffset(0);
     attrib->setCount(vertexCount);
-    addAttribute(attrib);
+
+    Qt3DRender::QAttribute* idxAttrib = new Qt3DRender::QAttribute(this);
+    idxAttrib->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
+    idxAttrib->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
+    idxAttrib->setBuffer(m_p->m_indexBuffer);
+    uint faceCount = m_p->m_indexBuffer->data().size()/sizeof(uint32_t);
+    idxAttrib->setCount(faceCount);
+    addAttribute(idxAttrib);
     setBoundingVolumePositionAttribute(attrib);
 }
 
-void QmlPlyMeshGeometry::setAsset(upnsAssetPtr asset)
+void QmlPlyMeshGeometry::setAsset(AssetPtr asset)
 {
     if (m_p->m_asset == asset)
         return;

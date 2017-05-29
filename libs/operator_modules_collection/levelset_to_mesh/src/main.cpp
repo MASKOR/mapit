@@ -61,10 +61,11 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
         }
 
         {
-            upnsAssetPtr myFile(new tinyply::PlyFile);
+            AssetPtr myFile(new AssetDataPair(tinyply::PlyFile(), nullptr));
+            tinyply::PlyFile *ply(&myFile->first);
             std::vector<float> vertsVec(&mesher->pointList()[0][0], &mesher->pointList()[0][0]+mesher->pointListSize() * 3);
-            myFile->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
-            myFile->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
+            ply->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
+            ply->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
             {
                 output->setData(myFile);
 //                mesher.reset(); // hopefully free some memory here

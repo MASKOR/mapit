@@ -18,6 +18,7 @@ QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
     , m_coordinateSystem(nullptr)
 {
     qRegisterMetaType<PosePathPtr>("PosePathPtr");
+    qRegisterMetaType<AssetPtr>("AssetPtr");
     QPointcloudGeometry *geometry = new QPointcloudGeometry(this);
     QGeometryRenderer::setGeometry(geometry);
     QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points); //TODO: To fix error where IndexAttribute is called and is null
@@ -118,10 +119,13 @@ void QmlEntitydataRenderer::updateGeometry()
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Triangles);
         QGeometryRenderer::setGeometry(new QmlPlyMeshGeometry(this));
-        upnsAssetPtr asset = std::static_pointer_cast< AssetEntitydata >(ed)->getData();
+        //QGeometryRenderer::setIndexOffset(0);
+        //QGeometryRenderer::setFirstInstance(0);
+        //QGeometryRenderer::setInstanceCount(1);
+        AssetPtr asset = std::static_pointer_cast< AssetEntitydata >(ed)->getData();
         QmlPlyMeshGeometry *geom = static_cast<QmlPlyMeshGeometry *>(geometry());
         // TODO: does shared pointer survive here? Will the pointer be cleaned?
-        QMetaObject::invokeMethod(geom, "setAsset", Qt::QueuedConnection, Q_ARG(upnsAssetPtr, asset) );
+        QMetaObject::invokeMethod(geom, "setAsset", Qt::QueuedConnection, Q_ARG(AssetPtr, asset) );
     }
     else if(strcmp(ed->type(), PosePathEntitydata::TYPENAME()) == 0)
     {

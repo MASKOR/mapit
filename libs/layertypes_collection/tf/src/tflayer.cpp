@@ -162,6 +162,8 @@ size_t TfEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+//TODO: BIG TODO: Make libraries have a deleteEntitydata function and do not use shared pointers between libraries.
+// TfEntitydata was deleted here although it was a plymesh
 void deleteEntitydata(AbstractEntitydata *ld)
 {
     TfEntitydata *p = static_cast<TfEntitydata*>(ld);

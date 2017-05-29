@@ -15,11 +15,11 @@ public:
     void updateVertices();
 
 public Q_SLOTS:
-    void setAsset(upnsAssetPtr asset);
+    void setAsset(AssetPtr asset);
 private Q_SLOTS:
-    void updateAttributes();
+    void updateAttributes(uint32_t vertexCount);
 Q_SIGNALS:
-    void assetChanged(upnsAssetPtr asset);
+    void assetChanged(AssetPtr asset);
 private:
     QmlPlyMeshGeometryPrivate *m_p;
 };

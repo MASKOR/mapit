@@ -62,7 +62,7 @@ QCtl.TreeView {
 //                }
 //            }
             //TODO: rebuild list!
-            console.log("DBG: CALLED: " + treeViewCheckout.visibleElems.count)
+            //console.log("DBG: CALLED: " + treeViewCheckout.visibleElems.count)
             var i=treeViewCheckout.visibleElems.count
             while (i--) {
                 console.log("DBG: arr:" + i)
