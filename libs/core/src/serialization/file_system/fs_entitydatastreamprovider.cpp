@@ -62,7 +62,7 @@ upnsIStream* upns::FileSystemEntitydataStreamProvider::startRead(upnsuint64 star
     return is;
 }
 
-void FileSystemEntitydataStreamProvider::endRead(upnsIStream *strm)
+void FileSystemEntitydataStreamProvider::endRead(upnsIStream *&strm)
 {
     if(strm != nullptr)
     {
@@ -82,7 +82,7 @@ upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 sta
     return new std::ofstream(m_filenameWrite, std::ios::out | std::ios::binary);
 }
 
-void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *strm)
+void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *&strm)
 {
     assert(static_cast<std::ofstream*>(strm)->is_open());
     strm->flush();

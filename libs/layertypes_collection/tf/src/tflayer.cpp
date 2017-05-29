@@ -137,7 +137,7 @@ upnsIStream *TfEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
     return m_streamProvider->startRead(start, len);
 }
 
-void TfEntitydata::endRead(upnsIStream *strm)
+void TfEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -147,7 +147,7 @@ upnsOStream *TfEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
     return m_streamProvider->startWrite(start, len);
 }
 
-void TfEntitydata::endWrite(upnsOStream *strm)
+void TfEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

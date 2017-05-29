@@ -114,7 +114,7 @@ upnsIStream *PointcloudEntitydata::startReadBytes(upnsuint64 start, upnsuint64 l
     return m_streamProvider->startRead(start, len);
 }
 
-void PointcloudEntitydata::endRead(upnsIStream *strm)
+void PointcloudEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -124,7 +124,7 @@ upnsOStream *PointcloudEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 
     return m_streamProvider->startWrite(start, len);
 }
 
-void PointcloudEntitydata::endWrite(upnsOStream *strm)
+void PointcloudEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

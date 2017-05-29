@@ -112,7 +112,7 @@ upnsIStream *PosePathEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len
     return m_streamProvider->startRead(start, len);
 }
 
-void PosePathEntitydata::endRead(upnsIStream *strm)
+void PosePathEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -122,7 +122,7 @@ upnsOStream *PosePathEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 le
     return m_streamProvider->startWrite(start, len);
 }
 
-void PosePathEntitydata::endWrite(upnsOStream *strm)
+void PosePathEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

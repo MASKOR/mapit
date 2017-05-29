@@ -111,7 +111,7 @@ upnsIStream *AssetEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
     return m_streamProvider->startRead(start, len);
 }
 
-void AssetEntitydata::endRead(upnsIStream *strm)
+void AssetEntitydata::endRead(upnsIStream *&strm)
 {
     //This is done in destructor/shared pointer deletion
     //m_streamProvider->endRead(strm);
@@ -122,7 +122,7 @@ upnsOStream *AssetEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
     return m_streamProvider->startWrite(start, len);
 }
 
-void AssetEntitydata::endWrite(upnsOStream *strm)
+void AssetEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

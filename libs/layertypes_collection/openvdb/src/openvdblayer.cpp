@@ -135,7 +135,7 @@ upnsIStream *FloatGridEntitydata::startReadBytes(upnsuint64 start, upnsuint64 le
     return m_streamProvider->startRead(start, len);
 }
 
-void FloatGridEntitydata::endRead(upnsIStream *strm)
+void FloatGridEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -145,7 +145,7 @@ upnsOStream *FloatGridEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 l
     return m_streamProvider->startWrite(start, len);
 }
 
-void FloatGridEntitydata::endWrite(upnsOStream *strm)
+void FloatGridEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

@@ -62,7 +62,7 @@
 //            return is;
 //        }
 //    }
-//    void endRead(upnsIStream *strm)
+//    void endRead(upnsIStream *&strm)
 //    {
 //        //std::ifstream *is = static_cast<std::ifstream*>(strm);
 //        //is->close();
@@ -73,7 +73,7 @@
 //        std::ofstream *os = new std::ofstream(m_filename.c_str(), std::ifstream::binary);
 //        return os;
 //    }
-//    void endWrite(upnsOStream *strm)
+//    void endWrite(upnsOStream *&strm)
 //    {
 //        std::ofstream *os = static_cast<std::ofstream*>(strm);
 //        os->close();

@@ -65,10 +65,10 @@ public:
     std::unique_ptr<LASEntitydataWriter> getWriter(const liblas::Header &header);
 
     upnsIStream *startReadBytes(upnsuint64 start, upnsuint64 len);
-    void endRead(upnsIStream *strm);
+    void endRead(upnsIStream *&strm);
 
     upnsOStream *startWriteBytes(upnsuint64 start, upnsuint64 len);
-    void endWrite(upnsOStream *strm);
+    void endWrite(upnsOStream *&strm);
 
     size_t size() const;
 

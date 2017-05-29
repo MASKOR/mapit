@@ -112,7 +112,7 @@ upnsIStream *PrimitiveEntitydata::startReadBytes(upnsuint64 start, upnsuint64 le
     return m_streamProvider->startRead(start, len);
 }
 
-void PrimitiveEntitydata::endRead(upnsIStream *strm)
+void PrimitiveEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -122,7 +122,7 @@ upnsOStream *PrimitiveEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 l
     return m_streamProvider->startWrite(start, len);
 }
 
-void PrimitiveEntitydata::endWrite(upnsOStream *strm)
+void PrimitiveEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

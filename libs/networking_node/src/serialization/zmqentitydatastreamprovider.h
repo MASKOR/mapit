@@ -21,9 +21,9 @@ public:
     bool isCached();
     bool isReadWriteSame();
     upnsIStream *startRead(upnsuint64 start, upnsuint64 length);
-    void endRead(upnsIStream *strm);
+    void endRead(upnsIStream *&strm);
     upnsOStream *startWrite(upnsuint64 start, upnsuint64 len);
-    void endWrite(upnsOStream *strm);
+    void endWrite(upnsOStream *&strm);
     upnsuint64 getStreamSize() const;
     void setStreamSize(upnsuint64 entitylength);
     LockHandle lock();

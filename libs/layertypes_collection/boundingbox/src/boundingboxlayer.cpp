@@ -112,7 +112,7 @@ upnsIStream *BoundingboxEntitydata::startReadBytes(upnsuint64 start, upnsuint64 
     return m_streamProvider->startRead(start, len);
 }
 
-void BoundingboxEntitydata::endRead(upnsIStream *strm)
+void BoundingboxEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -122,7 +122,7 @@ upnsOStream *BoundingboxEntitydata::startWriteBytes(upnsuint64 start, upnsuint64
     return m_streamProvider->startWrite(start, len);
 }
 
-void BoundingboxEntitydata::endWrite(upnsOStream *strm)
+void BoundingboxEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }

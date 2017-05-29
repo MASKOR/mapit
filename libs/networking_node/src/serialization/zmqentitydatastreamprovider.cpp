@@ -103,7 +103,7 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
     return new MemoryReaderDeleter(startRead(start, length, outLength), outLength);
 }
 
-void upns::ZmqEntitydataStreamProvider::endRead(upns::upnsIStream *strm)
+void upns::ZmqEntitydataStreamProvider::endRead(upns::upnsIStream *&strm)
 {
     delete strm;
 }
@@ -114,7 +114,7 @@ upns::upnsOStream *upns::ZmqEntitydataStreamProvider::startWrite(upns::upnsuint6
     return new MyWriter(start);
 }
 
-void upns::ZmqEntitydataStreamProvider::endWrite(upns::upnsOStream *strm)
+void upns::ZmqEntitydataStreamProvider::endWrite(upns::upnsOStream *&strm)
 {
     MyWriter *ostrm(static_cast<MyWriter*>(strm));
     std::string buf(ostrm->str());

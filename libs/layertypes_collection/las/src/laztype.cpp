@@ -67,7 +67,7 @@ upnsIStream *LASEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
     return m_pimpl->m_streamProvider->startRead(start, len);
 }
 
-void LASEntitydata::endRead(upnsIStream *strm)
+void LASEntitydata::endRead(upnsIStream *&strm)
 {
     m_pimpl->m_streamProvider->endRead(strm);
 }
@@ -77,7 +77,7 @@ upnsOStream *LASEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
     return m_pimpl->m_streamProvider->startWrite(start, len);
 }
 
-void LASEntitydata::endWrite(upnsOStream *strm)
+void LASEntitydata::endWrite(upnsOStream *&strm)
 {
     m_pimpl->m_streamProvider->endWrite(strm);
 }
