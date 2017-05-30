@@ -257,8 +257,11 @@ void TestRepositoriesCommunication::writePcdLocalOnly(upns::Checkout *checkout, 
         {
             return UPNS_STATUS_ERROR;
         }
-        std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
-
+        std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+        if(entityData == nullptr)
+        {
+            return UPNS_STATUS_ERROR;
+        }
         pcl::PCDWriter writer;
 
         upnsPointcloud2Ptr pc2(entityData->getData());

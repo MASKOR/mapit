@@ -72,7 +72,13 @@ void QmlEntitydataRenderer::updateGeometry()
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
-        pointcloud->setPointcloud(*std::static_pointer_cast< PointcloudEntitydata >(ed)->getData());
+        std::shared_ptr<PointcloudEntitydata> pcEd = std::dynamic_pointer_cast< PointcloudEntitydata >(ed);
+        if(pcEd == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not Pointcloud Entitydata)";
+            return;
+        }
+        pointcloud->setPointcloud(*pcEd->getData());
         QPointcloudGeometry *pointcloudGeometry = static_cast<QPointcloudGeometry *>(geometry());
         QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
         //pointcloudGeometry->setPointcloud(pointcloud);
@@ -82,7 +88,13 @@ void QmlEntitydataRenderer::updateGeometry()
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
         QGeometryRenderer::setGeometry(new QPointcloudGeometry(this));
         QPointcloud *pointcloud(new QPointcloud(this));
-        std::unique_ptr<LASEntitydataReader> reader = std::static_pointer_cast< LASEntitydata >(ed)->getReader();
+        std::shared_ptr<LASEntitydata> lasEd = std::dynamic_pointer_cast< LASEntitydata >(ed);
+        if(lasEd == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not LAS Entitydata)";
+            return;
+        }
+        std::unique_ptr<LASEntitydataReader> reader = lasEd->getReader();
         const int LEVEL_OF_DETAIL_TEMP=5; //TODO: skip 4 of 5 points for MILAN Dataset
         if(m_coordinateSystem)
         {
@@ -112,17 +124,28 @@ void QmlEntitydataRenderer::updateGeometry()
 //    }
     else if(strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
     {
-        QMatrix4x4 mat( std::static_pointer_cast< TfEntitydata >(ed)->getData()->data() );
+        std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast< TfEntitydata >(ed);
+        if(tfEd == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a tf)";
+            return;
+        }
+        QMatrix4x4 mat( tfEd->getData()->data() );
         qDebug() << mat;
     }
     else if(strcmp(ed->type(), AssetEntitydata::TYPENAME()) == 0)
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Triangles);
         QGeometryRenderer::setGeometry(new QmlPlyMeshGeometry(this));
-        //QGeometryRenderer::setIndexOffset(0);
-        //QGeometryRenderer::setFirstInstance(0);
-        //QGeometryRenderer::setInstanceCount(1);
-        AssetPtr asset = std::static_pointer_cast< AssetEntitydata >(ed)->getData();
+        QGeometryRenderer::setIndexOffset(0);
+        QGeometryRenderer::setFirstInstance(0);
+        QGeometryRenderer::setInstanceCount(1);
+        AssetPtr asset = std::dynamic_pointer_cast< AssetEntitydata >(ed)->getData();
+        if(asset == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not an asset)";
+            return;
+        }
         QmlPlyMeshGeometry *geom = static_cast<QmlPlyMeshGeometry *>(geometry());
         // TODO: does shared pointer survive here? Will the pointer be cleaned?
         QMetaObject::invokeMethod(geom, "setAsset", Qt::QueuedConnection, Q_ARG(AssetPtr, asset) );
@@ -131,7 +154,12 @@ void QmlEntitydataRenderer::updateGeometry()
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::LineStrip);
         QGeometryRenderer::setGeometry(new QmlPathGeometry(this));
-        PosePathPtr path = std::static_pointer_cast< PosePathEntitydata >(ed)->getData();
+        PosePathPtr path = std::dynamic_pointer_cast< PosePathEntitydata >(ed)->getData();
+        if(path == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a path)";
+            return;
+        }
         QmlPathGeometry *pointcloudGeometry = static_cast<QmlPathGeometry *>(geometry());
         // TODO: does shared pointer survive here? Will the pointer be cleaned?
         QMetaObject::invokeMethod(pointcloudGeometry, "setPath", Qt::QueuedConnection, Q_ARG(PosePathPtr, path) );

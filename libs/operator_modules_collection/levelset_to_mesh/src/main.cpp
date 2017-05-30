@@ -133,7 +133,12 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    if(entityDataInput == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsFloatGridPtr inputGrid = entityDataInput->getData();
 
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
@@ -295,7 +300,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         log_error("could not read output asset");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<AssetEntitydata> entityDataOutput = std::static_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<AssetEntitydata> entityDataOutput = std::dynamic_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");

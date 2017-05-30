@@ -207,7 +207,12 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
-    std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
+    std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>(abstractEntitydata);
+    if(entityData == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     QString file = QString::fromStdString(filename);
 
     double min[3], max[3];

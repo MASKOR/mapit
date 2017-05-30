@@ -69,7 +69,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    std::shared_ptr<TfEntitydata> entityData = std::static_pointer_cast<TfEntitydata>( abstractEntitydata );
+    std::shared_ptr<TfEntitydata> entityData = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydata );
     if(entityData == NULL)
     {
         log_error("Tf Transform has wrong type.");

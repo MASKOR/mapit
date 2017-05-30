@@ -76,7 +76,12 @@ upns::StatusCode operate_load_las(upns::OperationEnvironment* env)
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
-    std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>(abstractEntitydata);
+    std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>(abstractEntitydata);
+    if(entityData == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     liblas::Header header(reader.GetHeader());
     header.SetCompressed(false);
     std::unique_ptr<LASEntitydataWriter> writer = entityData->getWriter(header);

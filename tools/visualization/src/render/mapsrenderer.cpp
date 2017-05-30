@@ -216,7 +216,12 @@ void MapsRenderer::createGeometry()
     }
     assert(m_entitydata != NULL);
 
-    std::shared_ptr<PointcloudEntitydata> pcdData = std::static_pointer_cast<PointcloudEntitydata>(m_entitydata);
+    std::shared_ptr<PointcloudEntitydata> pcdData = std::dynamic_pointer_cast<PointcloudEntitydata>(m_entitydata);
+    if(pcdData == nullptr)
+    {
+        qWarning() << "FATAL: Corrupt pcd entitydata";
+        return;
+    }
     upnsPointcloud2Ptr pc2 = pcdData->getData();
 
     createGeometry(*pc2);

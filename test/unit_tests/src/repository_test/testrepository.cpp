@@ -119,7 +119,8 @@ void TestRepository::testReadCheckout()
 
     std::shared_ptr<AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
     QVERIFY(strcmp(entityDataAbstract->type(), PointcloudEntitydata::TYPENAME()) == 0);
-    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>(entityDataAbstract);
+    std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>(entityDataAbstract);
+    QVERIFY(entityData != nullptr);
 
     // compare pointcloud from repo with pointcloud from filesystem
     upnsPointcloud2Ptr cloud_repo_2 = entityData->getData();

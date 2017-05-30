@@ -43,7 +43,11 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
         if(   propertyName.compare("width") == 0
            || propertyName.compare("length") == 0 )
         {
-            std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( m_entitydata );
+            std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( m_entitydata );
+            if(entityData == nullptr)
+            {
+                return QVariant(0);
+            }
             upnsPointcloud2Ptr pc2 = entityData->getData();
             return QVariant(pc2->width);
         }
@@ -56,19 +60,31 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
         if(   propertyName.compare("width") == 0
            || propertyName.compare("length") == 0 )
         {
-            std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>( m_entitydata );
+            std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>( m_entitydata );
+            if(entityData == nullptr)
+            {
+                return QVariant(0);
+            }
             std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
             return QVariant(rdr->GetHeader().GetPointRecordsCount());
         }
         else if(   propertyName.compare("min") == 0)
         {
-            std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>( m_entitydata );
+            std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>( m_entitydata );
+            if(entityData == nullptr)
+            {
+                return QVariant(QVector3D(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()));
+            }
             std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
             return QVariant(QVector3D(rdr->GetHeader().GetMinX(),rdr->GetHeader().GetMinY(),rdr->GetHeader().GetMinZ()));
         }
         else if(   propertyName.compare("max") == 0)
         {
-            std::shared_ptr<LASEntitydata> entityData = std::static_pointer_cast<LASEntitydata>( m_entitydata );
+            std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>( m_entitydata );
+            if(entityData == nullptr)
+            {
+                return QVariant(QVector3D(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN()));
+            }
             std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
             return QVariant(QVector3D(rdr->GetHeader().GetMaxX(),rdr->GetHeader().GetMaxY(),rdr->GetHeader().GetMaxZ()));
         }
@@ -90,7 +106,11 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
         if(   propertyName.compare("width") == 0
            || propertyName.compare("length") == 0 )
         {
-            std::shared_ptr<PosePathEntitydata> entityData = std::static_pointer_cast<PosePathEntitydata>( m_entitydata );
+            std::shared_ptr<PosePathEntitydata> entityData = std::dynamic_pointer_cast<PosePathEntitydata>( m_entitydata );
+            if(entityData == nullptr)
+            {
+                return QVariant(0);
+            }
             PosePathPtr pp = entityData->getData();
             return QVariant(pp->poses_size());
         }

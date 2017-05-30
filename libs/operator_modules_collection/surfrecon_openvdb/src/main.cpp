@@ -119,7 +119,12 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<PointcloudEntitydata> entityDataInput = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<PointcloudEntitydata> entityDataInput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
+    if(entityDataInput == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsPointcloud2Ptr inputPcd = entityDataInput->getData();
 
     upnsFloatGridPtr outputFloatGrid;
@@ -133,7 +138,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
             log_error("could not read output grid");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
-        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
@@ -170,7 +175,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         log_error("could not read output grid");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");

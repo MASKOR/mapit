@@ -47,8 +47,14 @@ QMatrix4x4 QmlEntitydataTransform::matrix() const
         return QMatrix4x4();
     }
 
-    QMatrix4x4 ret( std::static_pointer_cast<TfEntitydata>( abstractEntitydata )->getData()->data());
-    return ret;
+    std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast< TfEntitydata >(abstractEntitydata);
+    if(tfEd == nullptr)
+    {
+        qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a tf)";
+        return QMatrix4x4();
+    }
+    QMatrix4x4 mat( tfEd->getData()->data() );
+    return mat;
 }
 
 bool QmlEntitydataTransform::mustExist() const

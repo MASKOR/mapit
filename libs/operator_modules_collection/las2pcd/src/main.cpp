@@ -64,7 +64,12 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
     }
     pcl::PointCloud<pcl::PointXYZINormal> pc;
     {
-        std::shared_ptr<LASEntitydata> entityDataLASInput = std::static_pointer_cast<LASEntitydata>( abstractEntitydataInput );
+        std::shared_ptr<LASEntitydata> entityDataLASInput = std::dynamic_pointer_cast<LASEntitydata>( abstractEntitydataInput );
+        if(entityDataLASInput == nullptr)
+        {
+            log_error("Wrong type");
+            return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        }
         std::unique_ptr<LASEntitydataReader> reader = entityDataLASInput->getReader();
 
         const liblas::Header header = reader->GetHeader();
@@ -139,8 +144,12 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
         log_error("Failed to create entity.");
     }
     std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( target );
-    std::shared_ptr<PointcloudEntitydata> entityDataPCLOutput = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydataOutput );
-
+    std::shared_ptr<PointcloudEntitydata> entityDataPCLOutput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataOutput );
+    if(entityDataPCLOutput == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     std::shared_ptr<pcl::PCLPointCloud2> cloud(new pcl::PCLPointCloud2);
     pcl::toPCLPointCloud2(pc, *cloud);
 

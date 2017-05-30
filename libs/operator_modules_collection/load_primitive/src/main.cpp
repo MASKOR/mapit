@@ -72,7 +72,7 @@ upns::StatusCode operate_load_primitive(upns::OperationEnvironment* env)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    std::shared_ptr<PrimitiveEntitydata> entityData = std::static_pointer_cast<PrimitiveEntitydata>( abstractEntitydata );
+    std::shared_ptr<PrimitiveEntitydata> entityData = std::dynamic_pointer_cast<PrimitiveEntitydata>( abstractEntitydata );
     if(entityData == NULL)
     {
          // Because the Entity is stored (above) with the correct entity type, this should never happen!

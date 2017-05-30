@@ -42,7 +42,7 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    std::shared_ptr<PosePathEntitydata> entityData = std::static_pointer_cast<PosePathEntitydata>( abstractEntitydata );
+    std::shared_ptr<PosePathEntitydata> entityData = std::dynamic_pointer_cast<PosePathEntitydata>( abstractEntitydata );
     if(entityData == NULL)
     {
          // Because the Entity is stored (above) with the correct entity type, this should never happen!

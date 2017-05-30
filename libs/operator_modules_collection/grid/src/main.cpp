@@ -3,6 +3,7 @@
 #include <upns/operators/operationenvironment.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/layertypes/pointcloudlayer.h>
+#include <upns/logging.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -52,7 +53,12 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
     std::string target = params["target"].toString().toStdString();
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    if(entityData == nullptr)
+    {
+        log_error("Wrong type (not a pointcloud)");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     //TODO: Helper Library: Query for entities in frustum. Query for level of detail.
@@ -89,7 +95,12 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
 //        extractIndices.filter(p2);
 
 //        std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( prefix + postfix );
-//        std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+//        std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+//        if(entityData == nullptr)
+//        {
+//            log_error("Wrong type");
+//            return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+//        }
 //        entityData->setData(p2);
     }
 

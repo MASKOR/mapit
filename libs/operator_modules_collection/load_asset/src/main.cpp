@@ -42,7 +42,7 @@ upns::StatusCode operate_load_asset(upns::OperationEnvironment* env)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    std::shared_ptr<AssetEntitydata> entityData = std::static_pointer_cast<AssetEntitydata>( abstractEntitydata );
+    std::shared_ptr<AssetEntitydata> entityData = std::dynamic_pointer_cast<AssetEntitydata>( abstractEntitydata );
     if(entityData == NULL)
     {
          // Because the Entity is stored (above) with the correct entity type, this should never happen!
