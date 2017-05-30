@@ -164,13 +164,20 @@ size_t TfEntitydata::size() const
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //TODO: BIG TODO: Make libraries have a deleteEntitydata function and do not use shared pointers between libraries.
 // TfEntitydata was deleted here although it was a plymesh
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataTf(AbstractEntitydata *ld)
 {
-    TfEntitydata *p = static_cast<TfEntitydata*>(ld);
-    delete p;
+    TfEntitydata *p = dynamic_cast<TfEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydataTf);
 }
 

@@ -214,13 +214,20 @@ size_t LASEntitydata::size() const
 //    m_ostream = nullptr;
 //}
 
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataLAS(AbstractEntitydata *ld)
 {
-    LASEntitydata *p = static_cast<LASEntitydata*>(ld);
-    delete p;
+    LASEntitydata *p = dynamic_cast<LASEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydataLAS);
 }
 

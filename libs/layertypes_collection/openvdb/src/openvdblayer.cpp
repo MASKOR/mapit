@@ -155,13 +155,21 @@ size_t FloatGridEntitydata::size() const
     m_streamProvider->getStreamSize();
 }
 
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataGrid(AbstractEntitydata *ld)
 {
-    FloatGridEntitydata *p = static_cast<FloatGridEntitydata*>(ld);
-    delete p;
+    FloatGridEntitydata *p = dynamic_cast<FloatGridEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
+
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydataGrid);
 }
 

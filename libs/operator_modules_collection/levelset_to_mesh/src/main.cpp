@@ -29,9 +29,9 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
     }
     log_info("Triangles: " + std::to_string(trianglecount) + ".");
 
-    // Scopes for memory deletion, only buf will survive
-    std::string buf;
-    {
+//    // Scopes for memory deletion, only buf will survive
+//    std::string buf;
+//    {
         std::vector<uint32_t> indicesBuf;
         indicesBuf.resize(3 * trianglecount);
 
@@ -60,7 +60,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
             }
         }
 
-        {
+//        {
             AssetPtr myFile(new AssetDataPair(tinyply::PlyFile(), nullptr));
             tinyply::PlyFile *ply(&myFile->first);
             std::vector<float> vertsVec(&mesher->pointList()[0][0], &mesher->pointList()[0][0]+mesher->pointListSize() * 3);
@@ -71,8 +71,8 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
 //                mesher.reset(); // hopefully free some memory here
 //                buf = ostrstr.str();
             }
-        }
-    }
+//        }
+//    }
 //    size_t size = buf.size();
 //    log_info("Binary ply size: " + std::to_string(size) + ".");
 //    Assimp::Importer importer;

@@ -13,13 +13,14 @@ Item {
     property string currentEntityPath
 
     function fromParameters(params) {
-        entityChooser.currentEntityPath = params.target
+        entityChooser.currentEntityPath = params.input
     }
 
     //// out ////
     property bool valid: entityChooser.valid
     property var parameters: {
-        "target":entityChooser.currentEntityPath
+        "input" : entityChooser.currentEntityPath,
+        "output" : entityChooser.currentEntityPath + "-ply"
     }
 
     //// UI ////

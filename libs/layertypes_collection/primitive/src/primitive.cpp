@@ -137,13 +137,20 @@ size_t PrimitiveEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataPrimitive(AbstractEntitydata *ld)
 {
-    PrimitiveEntitydata *p = static_cast<PrimitiveEntitydata*>(ld);
-    delete p;
+    PrimitiveEntitydata *p = dynamic_cast<PrimitiveEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new PrimitiveEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new PrimitiveEntitydata( streamProvider ), deleteEntitydataPrimitive);
 }
 

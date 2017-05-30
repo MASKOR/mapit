@@ -41,10 +41,9 @@ Item {
             property var currentEntity: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath) : null
             property string currentEntityType: currentEntity ? currentEntity.type : ""
             property var currentEntitydata: root.currentEntityPath ? currentCheckout.getEntitydataReadOnly(root.currentEntityPath) : null
-
+            property bool isPointcloud: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
             GridLayout {
                 Layout.fillWidth: true
-                visible: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
                 columns: 2
                 StyledLabel {
                     text: "Type:"
@@ -54,24 +53,30 @@ Item {
                     text: entityInfo.currentEntityType
                 }
                 StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: "# Pts.:"
                     font.weight: Font.Bold
                 }
                 StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: entityInfo.currentEntitydata.getInfo("width")
                 }
                 StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: "Min:"
                     font.weight: Font.Bold
                 }
                 StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: formatVec3(entityInfo.currentEntitydata.getInfo("min"))
                 }
                 StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: "Max:"
                     font.weight: Font.Bold
                 }
                 StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: formatVec3(entityInfo.currentEntitydata.getInfo("max"))
                 }
             }

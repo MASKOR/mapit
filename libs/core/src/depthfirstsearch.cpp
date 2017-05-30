@@ -65,7 +65,7 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const
         }
         else
         {
-            log_error("Unsupported type during depth search " + iter->first);
+            log_warn("Unsupported type during depth search: " + iter->first + ".\nYou probably changed (deleted) filed in the mapit folder manually.");
         }
         iter++;
     }

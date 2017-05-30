@@ -137,15 +137,22 @@ size_t BoundingboxEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers.
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataBB(AbstractEntitydata *ld)
 {
-    BoundingboxEntitydata *p = static_cast<BoundingboxEntitydata*>(ld);
-    delete p;
+    BoundingboxEntitydata *p = dynamic_cast<BoundingboxEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
     //return std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = std::shared_ptr<AbstractEntitydata>(new BoundingboxEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new BoundingboxEntitydata( streamProvider ), deleteEntitydataBB);
 }
 

@@ -1,4 +1,5 @@
 #include "upns/layertypes/pointcloudlayer.h"
+#include <upns/logging.h>
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -139,14 +140,21 @@ size_t PointcloudEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataPcd(AbstractEntitydata *ld)
 {
-    PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
-    delete p;
+    PointcloudEntitydata *p = dynamic_cast<PointcloudEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
     //return std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydataPcd);
 }
 

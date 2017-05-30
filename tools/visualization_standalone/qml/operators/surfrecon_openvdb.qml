@@ -15,7 +15,7 @@ Item {
     function fromParameters(params) {
         radiusTextfiled.text = params.radius
         voxelsizeTextfiled.text = params.voxelsize
-        entityChooser.currentEntityPath = params.target
+        entityChooser.currentEntityPath = params.input
     }
 
     //// out ////
@@ -23,9 +23,10 @@ Item {
                       && voxelsizeTextfiled.valid
                       && entityChooser.valid
     property var parameters: {
-        "radius": radiusTextfiled.text,
-        "voxelsize": voxelsizeTextfiled.text,
-        "target": entityChooser.currentEntityPath
+        "radius": parseFloat(radiusTextfiled.text),
+        "voxelsize": parseFloat(voxelsizeTextfiled.text),
+        "input": entityChooser.currentEntityPath,
+        "output": entityChooser.currentEntityPath + "-ovdb"
     }
 
     //// UI ////
@@ -42,7 +43,7 @@ Item {
             }
             TextField {
                 id: radiusTextfiled
-                text:"0.01"
+                text:"0.1"
                 //property real num: text.toFixed(8)
                 property bool valid: text < validator.top && text > validator.bottom
                 validator: DoubleValidator {
@@ -58,7 +59,7 @@ Item {
             }
             TextField {
                 id: voxelsizeTextfiled
-                text:"0.004"
+                text:"0.04"
                 //property real num: text.toFixed(8)
                 property bool valid: text < validator.top && text > validator.bottom
                 validator: DoubleValidator {

@@ -38,10 +38,10 @@ AssetPtr AssetEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
     {
         upnsIStream *in = m_streamProvider->startRead();
         {
-            m_asset = AssetPtr(new AssetDataPair( tinyply::PlyFile(*in),in), [&](AssetDataPair* ply)
+            m_asset = AssetPtr(new AssetDataPair( tinyply::PlyFile(*in),in), [this](AssetDataPair* ply)
             {
                 //TODO: expose custom class for tinyply
-                m_streamProvider->endRead(in);
+                m_streamProvider->endRead(ply->second);
             });
             //m_asset->first.read(*in);
         }
@@ -132,13 +132,20 @@ size_t AssetEntitydata::size() const
     m_streamProvider->getStreamSize();
 }
 
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataAsset(AbstractEntitydata *ld)
 {
-    AssetEntitydata *p = static_cast<AssetEntitydata*>(ld);
-    delete p;
+    AssetEntitydata *p = dynamic_cast<AssetEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new AssetEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new AssetEntitydata( streamProvider ), deleteEntitydataAsset);
 }
 
