@@ -129,7 +129,7 @@ std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntityd
     std::shared_ptr<Entity> e = getEntity(entityId);
     if(!e)
     {
-        log_error("Entity could not be queried for entitydata: " + entityId);
+        log_warn("Entity could not be queried for entitydata: " + entityId);
         return std::shared_ptr<upns::AbstractEntitydata>(nullptr);
     }
     std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));

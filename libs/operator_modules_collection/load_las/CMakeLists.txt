@@ -13,8 +13,6 @@ include_directories(${UPNS_INTERFACE_INCLUDE})
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
-set(CMAKE_AUTOMOC ON)
-
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
 target_link_libraries( ${PROJECT_NAME} upns_interface upns_core json11 layertype_las)
 

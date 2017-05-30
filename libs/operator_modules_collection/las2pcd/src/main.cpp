@@ -11,32 +11,50 @@
 #include <iostream>
 #include <memory>
 #include <upns/errorcodes.h>
-#include "json11.hpp"
 #include "liblas/liblas.hpp"
 #include <fstream>
 #include <iomanip>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
 {
-    std::string jsonErr;
-    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
-    if ( ! jsonErr.empty() ) {
-        // can't parse json
-        // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
 
-    std::string target = params["target"].string_value();
-    if(target.empty())
+    std::string input =  params["input"].toString().toStdString();
+    std::string output = params["output"].toString().toStdString();
+    if(input.empty())
     {
-        log_error("no target specified");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        input = params["target"].toString().toStdString();
+        if(input.empty())
+        {
+            log_error("no input specified");
+            return UPNS_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    if(output.empty())
+    {
+        output = params["target"].toString().toStdString();
+        if(output.empty())
+        {
+            log_error("no output specified");
+            return UPNS_STATUS_INVALID_ARGUMENT;
+        }
     }
 
-    bool demean = params["demean"].bool_value();
-    bool normalize = params["normalize"].bool_value();
-    double normalizeScale = params["normalizeScale"].number_value();
-    if(normalizeScale < 0.001)
+    bool demean = params["demean"].toBool();
+    bool normalize = params["normalize"].toBool();
+    double normalizeScale = params["normalizeScale"].toDouble();
+    if(!normalize)
+    {
+        if(normalizeScale != 1.0)
+        {
+            log_warn("normalizeScale was set, but normalizization was not active");
+        }
+        normalizeScale = 1.0; // Not used
+    }
+    else if(normalizeScale < 0.001)
     {
         if(normalizeScale < 0.0)
         {
@@ -45,21 +63,13 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
         }
         normalizeScale = 10.0; // 10m is default
     }
-    else if(!normalize)
-    {
-        if(normalizeScale != 1.0)
-        {
-            log_warn("normalizeScale was set, but normalize was not active");
-        }
-        normalizeScale = 1.0;
-    }
 
     std::cout << "normalize: " << normalizeScale << std::endl;
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( target );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
-        log_error("input does not exist ore is not readable.");
+        log_error("input does not exist or is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
     pcl::PointCloud<pcl::PointXYZINormal> pc;
@@ -90,7 +100,7 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
             double sy = maxY-minY;
             double sz = maxZ-minZ;
             double maxDim = std::max(std::max(sx, sy), sz);
-            double scale = normalizeScale / maxDim;
+            double scale = normalize ? normalizeScale / maxDim : 1.0;
 
             double cx = minX+sx*0.5;
             double cy = minY+sy*0.5;
@@ -138,12 +148,12 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
     }
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
-    StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
+    StatusCode s = env->getCheckout()->storeEntity(output, pclEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     std::shared_ptr<PointcloudEntitydata> entityDataPCLOutput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataOutput );
     if(entityDataPCLOutput == nullptr)
     {

@@ -44,6 +44,11 @@ std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,
 #else
     void* handle = dlopen(fixpathfilename.str().c_str(), RTLD_NOW);
 #endif
+#ifdef _WIN32
+    DWORD prevDw = GetLastError();
+#else
+    char* prevDlErr = dlerror();
+#endif
     if (!handle) {
         //std::stringstream systempathfilename;
         //systempathfilename << "upns_layertypes/" << filenam.str();
@@ -55,9 +60,15 @@ std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,
         if (!handle) {
         #ifdef _WIN32
             DWORD dw = GetLastError();
-            std::cerr << "Cannot open library: " << filename.str() <<  "errorcode: " << dw << '\n';
+            std::cerr << "Cannot open library: " << fixpathfilename.str() << '\n'
+                      << "errorcode: " << prevDw
+                      << "nor: " << filenam.str() << '\n'
+                      << "errorcode: " << dw << '\n';
         #else
-            std::cerr << "Cannot open library: " << dlerror() << '\n';
+            std::cerr << "Cannot open library: " << fixpathfilename.str() << '\n'
+                      << prevDlErr << '\n'
+                      << "nor: " << filenam.str() << '\n'
+                      << dlerror() << '\n';
         #endif
             return std::shared_ptr<AbstractEntitydata>(NULL);
         }

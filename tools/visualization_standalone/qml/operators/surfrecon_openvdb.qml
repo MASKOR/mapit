@@ -35,13 +35,10 @@ Item {
         height: root.height
         RowLayout {
             Layout.fillWidth: true
-            Text {
-                Layout.alignment: Qt.AlignTop
+            StyledLabel {
                 text: "Radius:"
-                color: palette.text
-                renderType: Text.NativeRendering
             }
-            TextField {
+            StyledTextField {
                 id: radiusTextfiled
                 text:"0.1"
                 //property real num: text.toFixed(8)
@@ -51,13 +48,10 @@ Item {
                     top: 1.0
                 }
             }
-            Text {
-                Layout.alignment: Qt.AlignTop
+            StyledLabel {
                 text: "Voxelsize:"
-                color: palette.text
-                renderType: Text.NativeRendering
             }
-            TextField {
+            StyledTextField {
                 id: voxelsizeTextfiled
                 text:"0.04"
                 //property real num: text.toFixed(8)
@@ -75,9 +69,6 @@ Item {
         }
         Item {
             Layout.fillHeight: true
-        }
-        SystemPalette {
-            id: palette
         }
     }
 }

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
 find_package(Protobuf)
-find_package(Boost 1.42 COMPONENTS program_options thread system iostreams filesystem REQUIRED)
+find_package(Boost COMPONENTS program_options thread system iostreams filesystem REQUIRED)
 
 if(WITH_LOG4CPLUS)
   include_directories(${PROJECT_SOURCE_DIR}/../../../externals/log4cplus/include/)
@@ -43,7 +43,7 @@ if(HAVE_LASZIP)
 endif(HAVE_LASZIP)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES} ${LASZIP_SRC})
-target_link_libraries( ${PROJECT_NAME} upns_interface upns_interface_cpp ${BOOST_LIBRARIES})
+target_link_libraries( ${PROJECT_NAME} upns_interface upns_interface_cpp ${BOOST_LIBRARIES} ${Boost_LIBRARIES})
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/

@@ -330,6 +330,7 @@ Path CheckoutImpl::preparePath(const Path &path)
     assert(!p.empty());
     while(p[0] == '/')
     {
+        if(p.length() == 1) return p;
         p = p.substr(1);
     }
     if(p.length() != 0 && p[p.length()-1] != '/')

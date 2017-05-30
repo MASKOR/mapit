@@ -6,6 +6,7 @@ import QtQuick.Window 2.2 as Wnd
 import fhac.upns 1.0 as UPNS
 
 StyledButton {
+    id: root
     text: qsTr("Checkout")
     tooltip: qsTr("Open Dialog to choose checkout to work on")
     property var currentCheckoutName
@@ -112,7 +113,7 @@ StyledButton {
                 StyledButton {
                     text: "Ok"
                     onClicked: {
-                        currentCheckoutName = globalRepository.checkoutNames[checkoutList.currentIndex];
+                        root.currentCheckoutName = globalRepository.checkoutNames[checkoutList.currentIndex];
                         chooseCheckoutDialog.visible = false;
                     }
                 }

@@ -119,6 +119,7 @@ target_link_libraries(${PROJECT_NAME} load_asset)
 target_link_libraries(${PROJECT_NAME} surfrecon_openvdb)
 target_link_libraries(${PROJECT_NAME} layertype_openvdb)
 target_link_libraries(${PROJECT_NAME} levelset_to_mesh)
+target_link_libraries(${PROJECT_NAME} las2pcd)
 
 #############################################
 

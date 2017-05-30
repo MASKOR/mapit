@@ -417,6 +417,11 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         }
         // write entitydata
         std::shared_ptr<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
+        if(ed == nullptr)
+        {
+            log_info("Entitydata of type could not be created.");
+            return UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND;
+        }
         upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
         size_t offset = 0;
         while(has_more())

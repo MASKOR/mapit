@@ -13,8 +13,9 @@
 #include <memory>
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
-#include "json11.hpp"
 #include "tinyply.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
 using namespace mapit::msgs;
 
@@ -91,26 +92,15 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
 // - target: input and output at the same time
 upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 {
-    std::string jsonErr;
-    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
-    if ( ! jsonErr.empty() ) {
-        // can't parth json
-        // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    double detail = params["detail"].number_value();
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
 
-//    if(detail > 1.0)
-//    {
-//        log_error("detail out of range. set to 1");
-//        detail = 1.0;
-//    }
 
-    std::string input =  params["input"].string_value();
-    std::string output = params["output"].string_value();
+    std::string input =  params["input"].toString().toStdString();
+    std::string output = params["output"].toString().toStdString();
     if(input.empty())
     {
-        input = params["target"].string_value();
+        input = params["target"].toString().toStdString();
         if(input.empty())
         {
             log_error("no input specified");
@@ -119,13 +109,21 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     }
     if(output.empty())
     {
-        output = params["target"].string_value();
+        output = params["target"].toString().toStdString();
         if(output.empty())
         {
             log_error("no output specified");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
     }
+
+    double detail = params["detail"].toDouble();
+
+//    if(detail > 1.0)
+//    {
+//        log_error("detail out of range. set to 1");
+//        detail = 1.0;
+//    }
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)

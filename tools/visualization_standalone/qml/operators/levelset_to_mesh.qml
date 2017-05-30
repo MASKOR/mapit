@@ -17,16 +17,30 @@ Item {
     }
 
     //// out ////
-    property bool valid: entityChooser.valid
+    property bool valid: entityChooser.valid && detailTextfield.valid
     property var parameters: {
         "input" : entityChooser.currentEntityPath,
-        "output" : entityChooser.currentEntityPath + "-ply"
+        "output" : entityChooser.currentEntityPath + "-ply", //TODO: because input != output at the moment (if entitytypes differ and both streams are open at the same time)
+        "detail" : parseFloat(detailTextfield.text)
     }
 
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
         height: root.height
+        StyledLabel {
+            text: "Detail:"
+        }
+        StyledTextField {
+            id: detailTextfield
+            text:"0.1"
+            //property real num: text.toFixed(8)
+            property bool valid: text <= validator.top && text >= validator.bottom
+            validator: DoubleValidator {
+                bottom: 0.0
+                top: 1.0
+            }
+        }
         HelperTarget {
             id: entityChooser
             currentEntityPath: root.currentEntityPath

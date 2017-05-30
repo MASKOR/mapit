@@ -24,7 +24,8 @@ Item {
     property var parameters: {
         "target":entityChooser.currentEntityPath,
         "demean": demeanCheckbox.checked,
-        "normalize": normalizeCheckbox.checked
+        "normalize": normalizeCheckbox.checked,
+        "normalizeScale": parseFloat("1.0") //TODO
     }
 
     //// UI ////

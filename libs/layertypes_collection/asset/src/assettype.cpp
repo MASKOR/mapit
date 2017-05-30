@@ -59,7 +59,7 @@ int AssetEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
     upnsOStream *out = m_streamProvider->startWrite();
     {
         m_asset = data;
-        m_asset->first.write(*out, false);
+        m_asset->first.write(*out, true);
     }
     m_streamProvider->endWrite(out);
     return s;
