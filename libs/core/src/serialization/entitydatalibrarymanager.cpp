@@ -38,7 +38,7 @@ std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,
     std::stringstream filenam;
     filenam << prefix << UPNS_INSTALL_LAYERTYPES << layertypeName << debug << postfix;
     std::stringstream fixpathfilename;
-    fixpathfilename << "./libs/layertypes_collection/" << filenam.str();
+    fixpathfilename << "./libs/" << filenam.str();
 #ifdef _WIN32
     HMODULE handle = LoadLibrary(fixpathfilename.str().c_str());
 #else

@@ -54,7 +54,7 @@ FOREACH(subdir ${SUBDIRS})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
 
-  target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} upns_core upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
+  target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} upns_core upns_interface upns_interface_cpp upns_networking_node layertype_pointcloud2 load_pointcloud
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                                   ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
@@ -90,7 +90,7 @@ add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} )
 #custom_target_use_boost(${subdir})
 find_package(Boost COMPONENTS filesystem system date_time)
 
-target_link_libraries(TestAll Qt5::Test upns_core upns_interface upns_interface_cpp networking_node layertype_pointcloud2 load_pointcloud
+target_link_libraries(TestAll Qt5::Test upns_core upns_interface upns_interface_cpp upns_networking_node layertype_pointcloud2 load_pointcloud
                               ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                               ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 

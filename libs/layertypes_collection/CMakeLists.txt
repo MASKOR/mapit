@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 if(WIN32)
     # Dll treated as runtime
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs/layertypes_collection)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
 else(WIN32)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs/layertypes_collection)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
 endif(WIN32)
 
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-rdynamic")

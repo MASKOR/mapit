@@ -19,7 +19,7 @@
 #include <dlfcn.h>
 #endif
 
-#define MAPIT_LOCAL_OPERATOR_DIR "./libs/operator_modules_collection/"
+#define MAPIT_LOCAL_OPERATOR_DIR "./libs/"
 
 namespace upns
 {
@@ -75,15 +75,19 @@ HandleOpModule loadOperatorModule(const mapit::msgs::OperatorDescription &desc)
 {
     std::string filenam = operatorLibraryName(desc);
     std::stringstream fixpathfilenam;
-    fixpathfilenam << MAPIT_LOCAL_OPERATOR_DIR << desc.operatorname() << "/" << filenam;
+    fixpathfilenam << MAPIT_LOCAL_OPERATOR_DIR << filenam;
     std::string fixedfilenamestr = fixpathfilenam.str();
     log_info("loading operator module \"" + fixedfilenamestr + "\"");
     std::pair<HandleOpModule, ModuleInfo*> result;
     HandleOpModule handle = loadOperatorModule(fixedfilenamestr, false);
     if (!handle) {
+        std::string prevdlerror( dlerror() );
         std::string systemfilenamestr = filenam;
         log_info("loading operator module \"" + systemfilenamestr + "\"");
-        handle = loadOperatorModule(systemfilenamestr);
+        handle = loadOperatorModule(systemfilenamestr, false);
+        if (!handle) {
+            log_error("Cannot open library: " + prevdlerror + " or " + dlerror());
+        }
     }
     return handle;
 }
@@ -225,7 +229,7 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
         }
         else if(!name.compare(0, prefix.length(), prefix))
         {
-            HandleOpModule handle = loadOperatorModule(path + name);
+            HandleOpModule handle = loadOperatorModule(path + name, false);
             if(!handle)
             {
                 log_warn("could not open library: " + name);

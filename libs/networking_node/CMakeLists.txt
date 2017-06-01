@@ -1,4 +1,4 @@
-project(networking_node)
+project(upns_networking_node)
 cmake_minimum_required(VERSION 2.8)
 
 set (CMAKE_CXX_STANDARD 11)
@@ -33,8 +33,6 @@ endif(NOT WIN32)
 if(NOT WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(NOT WIN32)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME upns_${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )

@@ -7,7 +7,6 @@
 #include <pcl/features/normal_3d.h>
 #include <memory>
 #include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 #include <pcl/search/search.h>
 
