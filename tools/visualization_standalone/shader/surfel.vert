@@ -20,6 +20,8 @@ out vec3 color;
 
 uniform float pointSize;
 
+uniform int lod;
+
 vec4 hsv_to_rgb(float h, float s, float v, float a)
 {
         float c = v * s;

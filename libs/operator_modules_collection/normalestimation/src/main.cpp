@@ -2,6 +2,7 @@
 #include <upns/layertypes/pointcloudlayer.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
+#include <upns/logging.h>
 #include <iostream>
 #include <pcl/features/normal_3d.h>
 #include <memory>
@@ -29,7 +30,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     std::string target = params["target"].string_value();
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
-    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+    if(entityData == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
@@ -55,18 +61,15 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     pcl::toPCLPointCloud2(cloud_normals, cloud_normals2);
     pcl::concatenateFields(*pc2, cloud_normals2, *outp);
 
-    std::cout << "FIELDS: " << outp->fields.size() << std::endl;
-    std::cout << "FIELDS2: " << cloud_normals2.fields.size() << std::endl;
-    std::cout << "FIELDS1: " << pc2->fields.size() << std::endl;
 //    std::stringstream strstr;
 //    strstr << "got normals";
 //    log_info( strstr.str() );
 
     entityData->setData(outp);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");
 ////    outTarget->set_mapval( map->id() );
@@ -75,7 +78,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 //    OperationParameter *outMapname = out.add_params();
 //    outMapname->set_key("leafsize");
 //    outMapname->set_realval( leafSize );
-    env->setOutputDescription( out.SerializeAsString() );
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

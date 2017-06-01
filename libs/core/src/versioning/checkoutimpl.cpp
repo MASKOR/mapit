@@ -11,6 +11,7 @@
 #include "operationenvironmentimpl.h"
 #include <upns/serialization/entitydatalibrarymanager.h>
 #include <upns/depthfirstsearch.h>
+#include <upns/serialization/operatorlibrarymanager.h>
 
 namespace upns
 {
@@ -77,6 +78,7 @@ std::shared_ptr<Tree> CheckoutImpl::getRoot()
 std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
 {
     Path p(preparePath(path));
+    if(p.empty()) return nullptr;
 //    if(p.compare(0, m_name.size(), m_name) == 0) // TODO this does not work if checkoutname equals map name at the beginning, e.g. co=test map=testmap/, results in testmap/ being changed to map/
 //    {
 //        p = p.substr(m_name.size(), p.length()-m_name.size());
@@ -98,6 +100,7 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
 std::shared_ptr<Entity> CheckoutImpl::getEntity(const Path &path)
 {
     Path p(preparePath(path));
+    if(p.empty()) return nullptr;
 //    if(p.compare(0, m_name.size(), m_name) == 0)
 //    {
 //        p = p.substr(m_name.size(), p.length()-m_name.size());
@@ -117,6 +120,7 @@ MessageType
 CheckoutImpl::typeOfObject(const Path &path)
 {
     Path p(preparePath(path));
+    if(p.empty()) return MessageEmpty;
 //    if(p.compare(0, m_name.size(), m_name) == 0) // TODO should I fix it
 //    {
 //        p = p.substr(m_name.size(), p.length()-m_name.size());
@@ -149,69 +153,7 @@ std::shared_ptr<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 {
     //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
-    OperationEnvironmentImpl env(desc);
-    env.setCheckout( this );
-#ifndef NDEBUG
-    std::string debug(DEBUG_POSTFIX);
-#else
-    std::string debug("");
-#endif
-
-#ifdef _WIN32
-    std::string prefix("");
-    std::string postfix(".dll");
-#else
-    std::string prefix("lib");
-    std::string postfix(".so");
-#endif
-    std::stringstream filenam;
-    filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
-    if(desc.operatorversion())
-    {
-        filenam << "." << desc.operatorversion();
-    }
-    std::stringstream fixpathfilenam;
-    fixpathfilenam << "./libs/operator_modules_collection/" << desc.operatorname() << "/" << filenam.str();
-    std::string filenamestr = fixpathfilenam.str();
-    log_info("loading operator module \"" + filenamestr + "\"");
-#ifdef _WIN32
-    HMODULE handle = LoadLibrary(fixpathfilenam.str().c_str());
-#else
-    void* handle = dlopen(fixpathfilenam.str().c_str(), RTLD_NOW);
-#endif
-    if (!handle) {
-        std::stringstream systempathfilenam;
-        systempathfilenam << filenam.str();
-        filenamestr = systempathfilenam.str();
-        log_info("loading operator module \"" + filenamestr + "\"");
-    #ifdef _WIN32
-        handle = LoadLibrary(filenamestr.c_str());
-    #else
-        handle = dlopen(filenamestr.c_str(), RTLD_NOW);
-    #endif
-        if (!handle) {
-        #ifdef _WIN32
-        #else
-            std::cerr << "Cannot open library: " << dlerror() << '\n';
-        #endif
-            return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, OperationDescription());
-        }
-    }
-#ifdef _WIN32
-    //FARPROC getModInfo = GetProcAddress(handle,"getModuleInfo");
-    GetModuleInfo getModInfo = (GetModuleInfo)GetProcAddress(handle,"getModuleInfo");
-#else
-    GetModuleInfo getModInfo = (GetModuleInfo)dlsym(handle, "getModuleInfo");
-#endif
-    ModuleInfo* info = getModInfo();
-    StatusCode result = info->operate( &env );
-    if(!upnsIsOk(result))
-    {
-        std::stringstream strm;
-        strm << "operator '" << desc.operatorname() << "' reported an error. (code:" << result << ")";
-        log_error(strm.str());
-    }
-    return OperationResult(result, env.outputDescription());
+    return OperatorLibraryManager::doOperation(desc, this);
 }
 
 OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate)
@@ -228,7 +170,7 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Pa
     std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( p );
     if( ent == NULL )
     {
-        log_error("Entity not found." + path);
+        log_warn("Entity not found." + path);
         return NULL;
     }
     assert( ent );
@@ -240,7 +182,7 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(
     std::shared_ptr<Entity> ent = m_serializer->getEntity( entityId );
     if( ent == NULL )
     {
-        log_error("Entity not found." + entityId);
+        log_warn("Entity not found." + entityId);
         return NULL;
     }
     assert( ent );
@@ -306,7 +248,8 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const ObjectReference &ref)
     {
         return m_serializer->getTreeTransient(ref.path());
     }
-    assert(false);
+    return std::shared_ptr<Tree>(nullptr);
+    //assert(false);
 }
 
 std::shared_ptr<Entity> CheckoutImpl::getEntity(const ObjectReference &ref)
@@ -339,8 +282,8 @@ ObjectReference CheckoutImpl::objectReferenceOfChild(std::shared_ptr<Tree> tree,
 {
     assert(tree != NULL);
     assert(!name.empty());
-    const ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = tree->refs();
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(refs.cbegin());
+    const ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = tree->refs();
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::const_iterator iter(refs.cbegin());
     while(iter != refs.cend())
     {
         const ::std::string &refname(iter->first);
@@ -387,6 +330,7 @@ Path CheckoutImpl::preparePath(const Path &path)
     assert(!p.empty());
     while(p[0] == '/')
     {
+        if(p.length() == 1) return p;
         p = p.substr(1);
     }
     if(p.length() != 0 && p[p.length()-1] != '/')
@@ -546,9 +490,9 @@ std::pair<StatusCode, PathInternal> CheckoutImpl::storeObject<Entity>(std::share
 //    return UPNS_STATUS_OK;
 //}
 
-std::shared_ptr<upns::Branch> upns::CheckoutImpl::getParentBranch()
+std::shared_ptr<mapit::msgs::Branch> upns::CheckoutImpl::getParentBranch()
 {
-    std::shared_ptr<upns::Branch> branch;
+    std::shared_ptr<mapit::msgs::Branch> branch;
     if(!m_branchname.empty())
     {
         branch = m_serializer->getBranch(m_branchname);

@@ -13,9 +13,11 @@
 #include <memory>
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
-#include "json11.hpp"
 #include "tinyply.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
+using namespace mapit::msgs;
 
 void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher, std::shared_ptr<AssetEntitydata> output)
 {
@@ -28,9 +30,9 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
     }
     log_info("Triangles: " + std::to_string(trianglecount) + ".");
 
-    // Scopes for memory deletion, only buf will survive
-    std::string buf;
-    {
+//    // Scopes for memory deletion, only buf will survive
+//    std::string buf;
+//    {
         std::vector<uint32_t> indicesBuf;
         indicesBuf.resize(3 * trianglecount);
 
@@ -59,18 +61,19 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
             }
         }
 
-        {
-            upnsAssetPtr myFile(new tinyply::PlyFile);
+//        {
+            AssetPtr myFile(new AssetDataPair(tinyply::PlyFile(), nullptr));
+            tinyply::PlyFile *ply(&myFile->first);
             std::vector<float> vertsVec(&mesher->pointList()[0][0], &mesher->pointList()[0][0]+mesher->pointListSize() * 3);
-            myFile->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
-            myFile->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
+            ply->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
+            ply->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
             {
                 output->setData(myFile);
 //                mesher.reset(); // hopefully free some memory here
 //                buf = ostrstr.str();
             }
-        }
-    }
+//        }
+//    }
 //    size_t size = buf.size();
 //    log_info("Binary ply size: " + std::to_string(size) + ".");
 //    Assimp::Importer importer;
@@ -89,26 +92,15 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
 // - target: input and output at the same time
 upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 {
-    std::string jsonErr;
-    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
-    if ( ! jsonErr.empty() ) {
-        // can't parth json
-        // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    double detail = params["detail"].number_value();
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
 
-//    if(detail > 1.0)
-//    {
-//        log_error("detail out of range. set to 1");
-//        detail = 1.0;
-//    }
 
-    std::string input =  params["input"].string_value();
-    std::string output = params["output"].string_value();
+    std::string input =  params["input"].toString().toStdString();
+    std::string output = params["output"].toString().toStdString();
     if(input.empty())
     {
-        input = params["target"].string_value();
+        input = params["target"].toString().toStdString();
         if(input.empty())
         {
             log_error("no input specified");
@@ -117,7 +109,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     }
     if(output.empty())
     {
-        output = params["target"].string_value();
+        output = params["target"].toString().toStdString();
         if(output.empty())
         {
             log_error("no output specified");
@@ -125,13 +117,26 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         }
     }
 
+    double detail = params["detail"].toDouble();
+
+//    if(detail > 1.0)
+//    {
+//        log_error("detail out of range. set to 1");
+//        detail = 1.0;
+//    }
+
     std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    if(entityDataInput == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsFloatGridPtr inputGrid = entityDataInput->getData();
 
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
@@ -293,7 +298,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         log_error("could not read output asset");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<AssetEntitydata> entityDataOutput = std::static_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<AssetEntitydata> entityDataOutput = std::dynamic_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");
@@ -301,10 +306,10 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
     }
     generateAiSceneWithTinyPly(std::move(mesher), entityDataOutput);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

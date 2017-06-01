@@ -2,6 +2,8 @@
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
 
+using namespace mapit::msgs;
+
 namespace upns
 {
 

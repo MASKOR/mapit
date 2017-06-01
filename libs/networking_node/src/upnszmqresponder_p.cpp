@@ -1,5 +1,5 @@
 #include "upnszmqresponder_p.h"
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <functional>
 #include <upns/versioning/repository.h>
 #include <upns/operators/operationenvironment.h>
@@ -63,7 +63,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
 
 void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 {
-    std::unique_ptr<upns::ReplyCheckout> ptr(new upns::ReplyCheckout());
+    std::unique_ptr<ReplyCheckout> ptr(new ReplyCheckout());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
@@ -74,18 +74,18 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
             co = m_repo->createCheckout(commit, msg->checkout());
             if( co == NULL )
             {
-                log_error("Could not get checkout \"" + msg->checkout() + "\"");
-                ptr->set_status( upns::ReplyCheckout::ERROR );
+                log_info("Could not get checkout \"" + msg->checkout() + "\"");
+                ptr->set_status( ReplyCheckout::ERROR );
             }
             else
             {
                 *ptr->mutable_commit() = msg->commit();
-                ptr->set_status( upns::ReplyCheckout::SUCCESS );
+                ptr->set_status( ReplyCheckout::SUCCESS );
             }
         }
         else
         {
-            ptr->set_status( upns::ReplyCheckout::SUCCESS );
+            ptr->set_status( ReplyCheckout::SUCCESS );
         }
     }
     else
@@ -95,20 +95,20 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
         {
             ptr->add_commit( *citer );
         }
-        ptr->set_status( upns::ReplyCheckout::EXISTED );
+        ptr->set_status( ReplyCheckout::EXISTED );
     }
     send( std::move( ptr ) );
 }
 
 void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 {
-    std::unique_ptr<upns::ReplyEntitydata> ptr(new upns::ReplyEntitydata());
+    std::unique_ptr<ReplyEntitydata> ptr(new ReplyEntitydata());
 
     // Validate input
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
-        ptr->set_status( upns::ReplyEntitydata::NOT_FOUND );
+        ptr->set_status( ReplyEntitydata::NOT_FOUND );
         ptr->set_receivedlength( 0 );
         ptr->set_entitylength( 0 );
         send( std::move( ptr ) );
@@ -116,18 +116,18 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
     }
     std::shared_ptr<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
 
-    upns::ReplyEntitydata::Status status;
+    ReplyEntitydata::Status status;
     if(ed == nullptr )
     {
         log_info("Could not find requested entitydata \"" + msg->entitypath() + "\"");
-        status = upns::ReplyEntitydata::NOT_FOUND;
+        status = ReplyEntitydata::NOT_FOUND;
     }
     else
     {
         if(msg->offset() > ed->size())
         {
             log_warn("Server got request with offset exceeding entitydata size.");
-            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
+            status = ReplyEntitydata::EXCEEDED_BOUNDARY;
         }
 //        else if(msg->offset() + msg->maxlength() > ed->size())
 //        {
@@ -137,10 +137,10 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 //        }
         else
         {
-            status = upns::ReplyEntitydata::SUCCESS;
+            status = ReplyEntitydata::SUCCESS;
         }
     }
-    if( status != upns::ReplyEntitydata::SUCCESS )
+    if( status != ReplyEntitydata::SUCCESS )
     {
         // Invalid arguments
         ptr->set_status( status );
@@ -189,7 +189,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 //    // TODO: Can only use paths/transient data at the moment
 //    // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
 //    // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
-    std::unique_ptr<upns::ReplyHierarchy> rep(new upns::ReplyHierarchy());
+    std::unique_ptr<ReplyHierarchy> rep(new ReplyHierarchy());
 //    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
 //    if(co == NULL)
 //    {
@@ -272,12 +272,12 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 
 void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
 {
-    std::unique_ptr<upns::ReplyHierarchyPlain> rep(new upns::ReplyHierarchyPlain());
+    std::unique_ptr<ReplyHierarchyPlain> rep(new ReplyHierarchyPlain());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
         // TODO: Introduce Error-type
-        rep->set_status( upns::ReplyHierarchyPlain::CHECKOUT_NOT_FOUND );
+        rep->set_status( ReplyHierarchyPlain::CHECKOUT_NOT_FOUND );
         send( std::move( rep ) );
     }
     else
@@ -295,14 +295,14 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
             [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path){return true;});
         if(!upnsIsOk(s))
         {
-            log_error("error while listing entities (dfs)");
+            log_info("error while listing entities (dfs)");
         }
     }
 }
 
 void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
 {
-    std::unique_ptr<upns::ReplyListCheckouts> rep(new upns::ReplyListCheckouts());
+    std::unique_ptr<ReplyListCheckouts> rep(new ReplyListCheckouts());
     std::vector<std::string> cos = m_repo->listCheckoutNames();
     for(std::vector<std::string>::const_iterator iter(cos.cbegin()) ; iter != cos.cend() ; ++iter)
     {
@@ -313,8 +313,15 @@ void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts 
 
 void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorExecution *msg)
 {
-    std::unique_ptr<upns::ReplyOperatorExecution> rep(new upns::ReplyOperatorExecution());
+    std::unique_ptr<ReplyOperatorExecution> rep(new ReplyOperatorExecution());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+    if(co == NULL)
+    {
+        rep->set_status_code( UPNS_STATUS_ERR_DB_NOT_FOUND );
+        rep->set_error_msg( "Checkout does not exist" );
+        send( std::move( rep ) );
+        return;
+    }
     upns::OperationResult result = co->doOperation(msg->param());
     rep->set_status_code(result.first);
     rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
@@ -324,28 +331,36 @@ void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorEx
 void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {
     // This method handles two cases: "storeEntity" and "writeEntityData"
-    std::unique_ptr<upns::ReplyStoreEntity> rep(new upns::ReplyStoreEntity());
+    std::unique_ptr<ReplyStoreEntity> rep(new ReplyStoreEntity());
     // Input validation
     // Entity size and offset, don't write out-of-bounds
     if(msg->offset() > msg->sendlength())
     {
         discard_more();
-        log_error("Write offset for entity \"" + msg->path() + "\" was specified wrong.");
-        rep->set_status(upns::ReplyStoreEntity::ERROR);
+        log_info("Write offset for entity \"" + msg->path() + "\" was specified wrong.");
+        rep->set_status(ReplyStoreEntity::ERROR);
         send( std::move( rep ) );
         return;
     }
     if(msg->sendlength() > msg->entitylength())
     {
         discard_more();
-        log_error("Entity \"" + msg->path() + "\" is too small for received data or parameters sendlength and entitylength are wrong.");
-        rep->set_status(upns::ReplyStoreEntity::ERROR);
+        log_info("Entity \"" + msg->path() + "\" is too small for received data or parameters sendlength and entitylength are wrong.");
+        rep->set_status(ReplyStoreEntity::ERROR);
         send( std::move( rep ) );
         return;
     }
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+    if(co == NULL)
+    {
+        discard_more();
+        log_info("Checkout was not available");
+        rep->set_status(ReplyStoreEntity::ERROR);
+        send( std::move( rep ) );
+        return;
+    }
     OperationDescription desc;
-    desc.set_operatorname("StoreEntity");
+    desc.mutable_operator_()->set_operatorname("StoreEntity");
     desc.set_params("{source:\"network\"}");
 
     upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
@@ -355,11 +370,11 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         if(msg->offset() == 0)
         {
             // Receive Entity out of the message and compare to existing entity
-            std::shared_ptr<upns::Entity> entity(coraw->getEntity(msg->path()));
+            std::shared_ptr<Entity> entity(coraw->getEntity(msg->path()));
             if(nullptr == entity)
             {
                 // There was no entity yet
-                entity = std::shared_ptr<upns::Entity>(new upns::Entity);
+                entity = std::shared_ptr<Entity>(new Entity);
             }
             if( !entity->type().empty()
                && !msg->type().empty()
@@ -377,7 +392,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             if(entity->type().empty() && msg->type().empty())
             {
                 // No layertype at all (error)
-                log_error("Tried to write entitydata, but there was no type information in this or previous communication.");
+                log_info("Tried to write entitydata, but there was no type information in this or previous communication.");
                 return UPNS_STATUS_INVALID_ARGUMENT;
             }
             else
@@ -386,7 +401,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
                 upns::StatusCode status = coraw->storeEntity(msg->path(), entity);
                 if(!upnsIsOk(status))
                 {
-                    log_error("Could not store entity: \"" + msg->path() + "\"");
+                    log_info("Could not store entity: \"" + msg->path() + "\"");
                     return status;
                 }
             }
@@ -397,11 +412,16 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         }
         if(!has_more())
         {
-            log_error("Server expected raw data (" + std::to_string(msg->sendlength()) + " bytes for entity \"" + msg->path() + "\"), but nothing was received.");
+            log_info("Server expected raw data (" + std::to_string(msg->sendlength()) + " bytes for entity \"" + msg->path() + "\"), but nothing was received.");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
         // write entitydata
         std::shared_ptr<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
+        if(ed == nullptr)
+        {
+            log_info("Entitydata of type could not be created.");
+            return UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND;
+        }
         upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
         size_t offset = 0;
         while(has_more())
@@ -409,7 +429,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             std::unique_ptr<zmq::message_t> buf( receive_raw_body() );
             if(buf->size() + offset > msg->sendlength())
             {
-                log_error("Tried to store entitydata with sendlength smaller than received datasize.");
+                log_info("Tried to store entitydata with sendlength smaller than received datasize.");
                 ed->endWrite(stream);
                 return UPNS_STATUS_INVALID_ARGUMENT;
             }
@@ -418,7 +438,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         }
         if(offset != msg->sendlength())
         {
-            log_error("Received entitydata of wrong length: should: " + std::to_string(msg->sendlength()) + ", is: " + std::to_string(offset) + "." );
+            log_info("Received entitydata of wrong length: should: " + std::to_string(msg->sendlength()) + ", is: " + std::to_string(offset) + "." );
             ed->endWrite(stream);
             return UPNS_STATUS_INVALID_DATA;
         }
@@ -428,37 +448,37 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     if(upnsIsOk(res.first))
     {
         assert(!has_more());
-        rep->set_status(upns::ReplyStoreEntity::SUCCESS);
+        rep->set_status(ReplyStoreEntity::SUCCESS);
     }
     else
     {
-        log_error("Could not store entity \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
-        rep->set_status(upns::ReplyStoreEntity::ERROR);
+        log_info("Could not store entity \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
+        rep->set_status(ReplyStoreEntity::ERROR);
     }
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestStoreTree(upns::RequestStoreTree *msg)
+void upns::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
 {
-    std::unique_ptr<upns::ReplyStoreTree> rep(new upns::ReplyStoreTree());
+    std::unique_ptr<ReplyStoreTree> rep(new ReplyStoreTree());
 
     // Validate input
     std::shared_ptr<Checkout> checkout = m_repo->getCheckout(msg->checkout());
     if(checkout == NULL)
     {
-        rep->set_status( upns::ReplyStoreTree::CHECKOUT_NOT_FOUND );
+        rep->set_status( ReplyStoreTree::CHECKOUT_NOT_FOUND );
         send( std::move( rep ) );
         return;
     }
     MessageType type = checkout->typeOfObject(msg->path());
     if(type != MessageEmpty)
     {
-        rep->set_status( upns::ReplyStoreTree::EXISTED );
+        rep->set_status( ReplyStoreTree::EXISTED );
         send( std::move( rep ) );
         return;
     }
     OperationDescription desc;
-    desc.set_operatorname("StoreTree");
+    desc.mutable_operator_()->set_operatorname("StoreTree");
     desc.set_params("{source:\"network\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
         upns::CheckoutRaw* coraw = env->getCheckout();
@@ -469,34 +489,41 @@ void upns::ZmqResponderPrivate::handleRequestStoreTree(upns::RequestStoreTree *m
     if(upnsIsOk(res.first))
     {
         assert(!has_more());
-        rep->set_status(upns::ReplyStoreTree::SUCCESS);
+        rep->set_status(ReplyStoreTree::SUCCESS);
     }
     else
     {
-        log_error("Could not store tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
-        rep->set_status(upns::ReplyStoreTree::ERROR);
+        log_info("Could not store tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
+        rep->set_status(ReplyStoreTree::ERROR);
     }
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestGenericEntry(upns::RequestGenericEntry *msg)
+void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
 {
-    Replier<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry(), this);
+    Replier<ReplyGenericEntry> rep(new ReplyGenericEntry(), this);
     //std::unique_ptr<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+    if(co == nullptr)
+    {
+        log_info("Checkout for requestGenericEntry does not exist");
+        rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
+        rep.send();
+        return;
+    }
     MessageType type = co->typeOfObject(msg->path());
     if(type == MessageTree)
     {
         std::shared_ptr<Tree> tree = co->getTree(msg->path());
         if(tree)
         {
-            rep.reply()->set_status( upns::ReplyGenericEntry::SUCCESS );
+            rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
             rep.reply()->mutable_entry()->set_allocated_tree( new Tree(*tree) );
         }
         else
         {
             log_info("Tree \"" + msg->path() + "\" was requested but not found.");
-            rep.reply()->set_status( upns::ReplyGenericEntry::NOT_FOUND );
+            rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
         }
     }
     else if(type == MessageEntity)
@@ -504,13 +531,13 @@ void upns::ZmqResponderPrivate::handleRequestGenericEntry(upns::RequestGenericEn
         std::shared_ptr<Entity> entity = co->getEntity(msg->path());
         if(entity)
         {
-            rep.reply()->set_status( upns::ReplyGenericEntry::SUCCESS );
+            rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
             rep.reply()->mutable_entry()->set_allocated_entity( new Entity(*entity) );
         }
         else
         {
             log_info("Entity \"" + msg->path() + "\" was requested but not found.");
-            rep.reply()->set_status( upns::ReplyGenericEntry::NOT_FOUND );
+            rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
         }
     }
     rep.send();

@@ -26,6 +26,11 @@ public:
     upnsIStream    *m_istream;
 };
 
+const liblas::Header &LASEntitydataReader::GetHeader() const
+{
+    return m_pimpl->m_reader->GetHeader();
+}
+
 const liblas::Point &LASEntitydataReader::GetPoint() const
 {
     return m_pimpl->m_reader->GetPoint();
@@ -74,6 +79,11 @@ void LASEntitydataReader::SetTransforms(const std::vector<liblas::TransformPtr> 
 std::vector<liblas::TransformPtr> LASEntitydataReader::GetTransforms() const
 {
     return m_pimpl->m_reader->GetTransforms();
+}
+
+liblas::Reader *LASEntitydataReader::getReaderRaw()
+{
+    return m_pimpl->m_reader;
 }
 
 LASEntitydataReader::LASEntitydataReader(std::shared_ptr<AbstractEntitydataProvider> prov)

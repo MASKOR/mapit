@@ -5,7 +5,7 @@
 
 //#include "upns/ui/bindings/qmlentitydata.h"
 //#include <upns/logging.h>
-//#include <upns/services.pb.h>
+//#include <mapit/msgs/services.pb.h>
 //#include <upns/versioning/checkout.h>
 //#include <upns/layertypes/pointcloudlayer.h>
 
@@ -216,7 +216,7 @@
 //    }
 //    assert(m_entitydata != NULL);
 
-//    std::shared_ptr<PointcloudEntitydata> pcdData = std::static_pointer_cast<PointcloudEntitydata>(m_entitydata);
+//    std::shared_ptr<PointcloudEntitydata> pcdData = std::d_pointer_cast<PointcloudEntitydata>(m_entitydata);
 //    upnsPointcloud2Ptr pc2 = pcdData->getData();
 
 //    createGeometry(*pc2);

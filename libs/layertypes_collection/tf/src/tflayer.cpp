@@ -10,7 +10,7 @@ public:
 
 void readTfFromStream(upnsIStream &in, TfMat &tfout )
 {
-    upns::Transform tf;
+    mapit::msgs::Transform tf;
     if(!tf.ParseFromIstream(&in))
     {
         log_warn("Could not read tranform from stream. Proceeding with identity");
@@ -19,19 +19,19 @@ void readTfFromStream(upnsIStream &in, TfMat &tfout )
     }
     else
     {
-        tfout.matrix() << tf.m00(), tf.m01(), tf.m02(), tf.m03(),
-                          tf.m10(), tf.m11(), tf.m12(), tf.m13(),
-                          tf.m20(), tf.m21(), tf.m22(), tf.m23(),
-                          tf.m30(), tf.m31(), tf.m32(), tf.m33();
+        tfout.matrix() << tf.m00(), tf.m10(), tf.m20(), tf.m30(),
+                          tf.m01(), tf.m11(), tf.m21(), tf.m31(),
+                          tf.m02(), tf.m12(), tf.m22(), tf.m32(),
+                          tf.m03(), tf.m13(), tf.m23(), tf.m33();
     }
 }
 void writeTfToStream(upnsOStream &out, TfMat &data )
 {
-    upns::Transform tf;
-    tf.set_m00( data(0, 0) ); tf.set_m01( data(0, 1) ); tf.set_m02( data(0, 2) ); tf.set_m03( data(0, 3) );
-    tf.set_m10( data(1, 0) ); tf.set_m11( data(1, 1) ); tf.set_m12( data(1, 2) ); tf.set_m13( data(1, 3) );
-    tf.set_m20( data(2, 0) ); tf.set_m21( data(2, 1) ); tf.set_m22( data(2, 2) ); tf.set_m23( data(2, 3) );
-    tf.set_m30( data(3, 0) ); tf.set_m31( data(3, 1) ); tf.set_m32( data(3, 2) ); tf.set_m33( data(3, 3) );
+    mapit::msgs::Transform tf;
+    tf.set_m00( data(0, 0) ); tf.set_m10( data(1, 0) ); tf.set_m20( data(2, 0) ); tf.set_m30( data(3, 0) );
+    tf.set_m01( data(0, 1) ); tf.set_m11( data(1, 1) ); tf.set_m21( data(2, 1) ); tf.set_m31( data(3, 1) );
+    tf.set_m02( data(0, 2) ); tf.set_m12( data(1, 2) ); tf.set_m22( data(2, 2) ); tf.set_m32( data(3, 2) );
+    tf.set_m03( data(0, 3) ); tf.set_m13( data(1, 3) ); tf.set_m23( data(2, 3) ); tf.set_m33( data(3, 3) );
     tf.SerializePartialToOstream(&out);
 }
 
@@ -137,7 +137,7 @@ upnsIStream *TfEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
     return m_streamProvider->startRead(start, len);
 }
 
-void TfEntitydata::endRead(upnsIStream *strm)
+void TfEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -147,7 +147,7 @@ upnsOStream *TfEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
     return m_streamProvider->startWrite(start, len);
 }
 
-void TfEntitydata::endWrite(upnsOStream *strm)
+void TfEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -162,13 +162,22 @@ size_t TfEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydata(AbstractEntitydata *ld)
+//TODO: BIG TODO: Make libraries have a deleteEntitydata function and do not use shared pointers between libraries.
+// TfEntitydata was deleted here although it was a plymesh
+void deleteEntitydataTf(AbstractEntitydata *ld)
 {
-    TfEntitydata *p = static_cast<TfEntitydata*>(ld);
-    delete p;
+    TfEntitydata *p = dynamic_cast<TfEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydataTf);
 }
 

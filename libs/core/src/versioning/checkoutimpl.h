@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 #include <upns/logging.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 #include "serialization/abstractserializer.h"
 #include <upns/entitydata.h>
@@ -11,6 +11,8 @@
 #include <upns/operators/versioning/checkoutraw.h>
 #include "util.h"
 #include <functional>
+
+using namespace mapit::msgs;
 
 namespace upns
 {
@@ -329,7 +331,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
         assert(parent);
         parent->mutable_refs()
-                ->insert( ::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>( seg, oref));
+                ->insert( ::google::protobuf::MapPair< ::std::string, ::mapit::msgs::ObjectReference>( seg, oref));
         return true;
     });
 

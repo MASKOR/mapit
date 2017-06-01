@@ -6,7 +6,7 @@
 
 /**
  *  Note: This class should usually not be used directly. An implementation for
- *  this class is part of mapmanager. An own implementation may be needed. This
+ *  this class is part of core. An own implementation may be needed. This
  *  class provides a loading mechanism for concrete layertype implementations. Given
  *  an abstract serializer, the one Method of this class creates an entity which can
  *  be read from or can be written to the stream. Internally this features loading

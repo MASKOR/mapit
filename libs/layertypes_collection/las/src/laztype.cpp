@@ -57,7 +57,7 @@ std::unique_ptr<LASEntitydataReader> LASEntitydata::getReader()
     return std::unique_ptr<LASEntitydataReader>(new LASEntitydataReader(m_pimpl->m_streamProvider));
 }
 
-std::unique_ptr<LASEntitydataWriter> LASEntitydata::getWriter(liblas::Header const& header)
+std::unique_ptr<LASEntitydataWriter> LASEntitydata::getWriter(const liblas::Header &header)
 {
     return std::unique_ptr<LASEntitydataWriter>(new LASEntitydataWriter(m_pimpl->m_streamProvider, header));
 }
@@ -67,7 +67,7 @@ upnsIStream *LASEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
     return m_pimpl->m_streamProvider->startRead(start, len);
 }
 
-void LASEntitydata::endRead(upnsIStream *strm)
+void LASEntitydata::endRead(upnsIStream *&strm)
 {
     m_pimpl->m_streamProvider->endRead(strm);
 }
@@ -77,7 +77,7 @@ upnsOStream *LASEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
     return m_pimpl->m_streamProvider->startWrite(start, len);
 }
 
-void LASEntitydata::endWrite(upnsOStream *strm)
+void LASEntitydata::endWrite(upnsOStream *&strm)
 {
     m_pimpl->m_streamProvider->endWrite(strm);
 }
@@ -214,13 +214,20 @@ size_t LASEntitydata::size() const
 //    m_ostream = nullptr;
 //}
 
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataLAS(AbstractEntitydata *ld)
 {
-    LASEntitydata *p = static_cast<LASEntitydata*>(ld);
-    delete p;
+    LASEntitydata *p = dynamic_cast<LASEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydataLAS);
 }
 

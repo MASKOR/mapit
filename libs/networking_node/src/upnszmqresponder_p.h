@@ -3,8 +3,8 @@
 
 #include <string>
 #include "zmqprotobufnode.h"
-#include <upns/services.pb.h>
-#include <upns/services_internal.pb.h>
+#include <mapit/msgs/services.pb.h>
+#include <mapit/msgs/services_internal.pb.h>
 
 namespace upns {
 
@@ -25,9 +25,9 @@ public:
     void handleRequestHierarchyPlain(RequestHierarchyPlain* msg);
     void handleRequestListCheckouts(RequestListCheckouts* msg);
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
-    void handleRequestGenericEntry(upns::RequestGenericEntry *msg);
+    void handleRequestGenericEntry(RequestGenericEntry *msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);
-    void handleRequestStoreTree(upns::RequestStoreTree *msg);
+    void handleRequestStoreTree(RequestStoreTree *msg);
 //    void handleRequestStoreGenericEntry(upns::RequestStoreGenericEntry *msg);
 //    void handleRequestEntity(upns::RequestEntity *msg);
 //    void handleRequestTree(upns::RequestTree *msg);

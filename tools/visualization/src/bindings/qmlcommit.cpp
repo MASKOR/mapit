@@ -7,7 +7,7 @@ QmlCommit::QmlCommit()
 
 }
 
-QmlCommit::QmlCommit(std::shared_ptr<upns::Commit> &commit)
+QmlCommit::QmlCommit(std::shared_ptr<mapit::msgs::Commit> &commit)
     :m_commit( commit )
 {
 

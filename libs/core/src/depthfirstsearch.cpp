@@ -4,6 +4,8 @@
 namespace upns
 {
 
+using namespace mapit::msgs;
+
 StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path& path,
                             std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
                             std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
@@ -25,14 +27,15 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const
                                                 std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                                                 std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    assert(obj != NULL);
+    if(obj == nullptr) return UPNS_STATUS_ERROR;
+    //assert(obj != NULL);
     if(!beforeTree(obj, ref, path))
     {
         afterTree(obj, ref, path);
         return UPNS_STATUS_OK;
     }
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
-    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
     while(iter != refs.cend())
     {
         const ObjectReference &childref = iter->second;
@@ -62,7 +65,7 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const
         }
         else
         {
-            log_error("Unsupported type during depth search " + iter->first);
+            log_warn("Unsupported type during depth search: " + iter->first + ".\nYou probably changed (deleted) filed in the mapit folder manually.");
         }
         iter++;
     }

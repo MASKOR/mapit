@@ -135,7 +135,7 @@ upnsIStream *FloatGridEntitydata::startReadBytes(upnsuint64 start, upnsuint64 le
     return m_streamProvider->startRead(start, len);
 }
 
-void FloatGridEntitydata::endRead(upnsIStream *strm)
+void FloatGridEntitydata::endRead(upnsIStream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
@@ -145,7 +145,7 @@ upnsOStream *FloatGridEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 l
     return m_streamProvider->startWrite(start, len);
 }
 
-void FloatGridEntitydata::endWrite(upnsOStream *strm)
+void FloatGridEntitydata::endWrite(upnsOStream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -155,13 +155,21 @@ size_t FloatGridEntitydata::size() const
     m_streamProvider->getStreamSize();
 }
 
-void deleteEntitydata(AbstractEntitydata *ld)
+void deleteEntitydataGrid(AbstractEntitydata *ld)
 {
-    FloatGridEntitydata *p = static_cast<FloatGridEntitydata*>(ld);
-    delete p;
+    FloatGridEntitydata *p = dynamic_cast<FloatGridEntitydata*>(ld);
+    if(p)
+    {
+        delete p;
+    }
+    else
+    {
+        log_error("Wrong entitytype");
+    }
 }
+
 void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydata);
+    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydataGrid);
 }
 

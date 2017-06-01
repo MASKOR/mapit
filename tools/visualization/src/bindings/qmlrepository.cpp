@@ -1,22 +1,89 @@
 #include "upns/ui/bindings/qmlrepository.h"
 #include <upns/versioning/repositoryfactory.h>
 #include <upns/errorcodes.h>
+#include <upns/serialization/operatorlibrarymanager.h>
+#include "operatorloader.h"
+#include <upns/versioning/repositoryfactorystandard.h>
+
+QmlRepository::QmlRepository(QObject *parent)
+    :QmlRepository(nullptr, nullptr)
+{
+
+}
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
     :QmlRepository(repo, nullptr)
 {
+
 }
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent)
     :QObject( parent )
+    , m_opLoaderWorker( nullptr )
+    , m_isLoaded(false)
 {
-    m_repository = repo;
+
+    reload();
+}
+
+QmlRepository::~QmlRepository()
+{
+    if(m_opLoaderWorker)
+    {
+        delete m_opLoaderWorker;
+    }
+}
+void AppendFunctionOps(QQmlListProperty<QVariant> *list, QVariant* variant)
+{
+    QmlRepository *repo = qobject_cast<QmlRepository*>(list->object);
+    repo->m_operators.append(*variant);
+}
+
+int CountFunctionOps(QQmlListProperty<QVariant> *list)
+{
+    QmlRepository *repo = qobject_cast<QmlRepository*>(list->object);
+    return repo->m_operators.count();
+}
+
+QVariant *AtFunctionOps(QQmlListProperty<QVariant> *list, int i)
+{
+    QmlRepository *repo = qobject_cast<QmlRepository*>(list->object);
+    return new QVariant(&repo->m_operators.at(i)); //TODO: confirm this is not a memory leak
+}
+
+QVariantList QmlRepository::operators()
+{
+    return m_operators;//QQmlListProperty<QVariant>(this, nullptr, &CountFunctionOps, &AtFunctionOps);
+}
+
+void QmlRepository::reload()
+{
+
     m_checkoutNames.clear();
+    if(m_repository == nullptr) return;
     std::vector<std::string> coNames(m_repository->listCheckoutNames());
     for(std::vector<std::string>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
     {
         m_checkoutNames.append(QString::fromStdString(*iter));
     }
+    m_operators.clear();
+    if(m_opLoaderWorker == nullptr)
+    {
+        m_opLoaderWorker = new OperatorLoader();
+    }
+    else
+    {
+        disconnect(m_operatorWorkerConnection);
+    }
+    m_operatorWorkerConnection = connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
+        for(auto iter = result.cbegin(); iter != result.cend(); ++iter)
+        {
+            m_operators.append(*iter);
+        }
+        operatorsChanged();
+    }, Qt::QueuedConnection);
+
+    reloadOperators();
     Q_EMIT checkoutNamesChanged( m_checkoutNames );
     Q_EMIT internalRepositoryChanged( this );
 }
@@ -26,11 +93,21 @@ QStringList QmlRepository::listCheckoutNames() const
     return checkoutNames();
 }
 
+QStringList QmlRepository::checkoutNames() const
+{
+    return m_checkoutNames;
+}
+
+QString QmlRepository::url() const
+{
+    return m_url;
+}
+
 QmlTree *QmlRepository::getTree(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::Tree> obj( m_repository->getTree( o ) );
+    std::shared_ptr<mapit::msgs::Tree> obj( m_repository->getTree( o ) );
     if(!obj) return nullptr;
     return new QmlTree( obj );
 }
@@ -39,7 +116,7 @@ QmlEntity *QmlRepository::getEntity(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::Entity> obj( m_repository->getEntity( o ) );
+    std::shared_ptr<mapit::msgs::Entity> obj( m_repository->getEntity( o ) );
     if(!obj) return nullptr;
     return new QmlEntity( obj );
 }
@@ -48,7 +125,7 @@ QmlCommit *QmlRepository::getCommit(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::Commit> obj( m_repository->getCommit( o ) );
+    std::shared_ptr<mapit::msgs::Commit> obj( m_repository->getCommit( o ) );
     if(!obj) return nullptr;
     return new QmlCommit( obj );
 }
@@ -57,7 +134,7 @@ QmlBranch *QmlRepository::getBranch(QString name)
 {
     if(!m_repository) return nullptr;
     std::string o = name.toStdString();
-    std::shared_ptr<upns::Branch> obj( m_repository->getBranch( o ) );
+    std::shared_ptr<mapit::msgs::Branch> obj( m_repository->getBranch( o ) );
     if(!obj) return nullptr;
     return new QmlBranch( obj );
 }
@@ -66,22 +143,22 @@ QString QmlRepository::typeOfObject(QString oid)
 {
     if(!m_repository) return "";
     std::string o(oid.toStdString());
-    upns::MessageType mt = m_repository->typeOfObject(o);
+    mapit::msgs::MessageType mt = m_repository->typeOfObject(o);
     switch(mt)
     {
-    case upns::MessageTree:
+    case mapit::msgs::MessageTree:
         return"MessageTree";
-    case upns::MessageEntity:
+    case mapit::msgs::MessageEntity:
         return"MessageEntity";
-    case upns::MessageCommit:
+    case mapit::msgs::MessageCommit:
         return"MessageCommit";
-    case upns::MessageCheckout:
+    case mapit::msgs::MessageCheckout:
         return"MessageCheckout";
-    case upns::MessageBranch:
+    case mapit::msgs::MessageBranch:
         return"MessageBranch";
-    case upns::MessageEntitydata:
+    case mapit::msgs::MessageEntitydata:
         return"MessageEntitydata";
-    case upns::MessageEmpty:
+    case mapit::msgs::MessageEmpty:
         return"MessageEmpty";
     default:
         return"";
@@ -95,6 +172,11 @@ QmlEntitydata *QmlRepository::getEntitydataReadOnly(QString oid)
     std::shared_ptr<upns::AbstractEntitydata> obj( m_repository->getEntitydataReadOnly( o ) );
     if(!obj) return nullptr;
     return new QmlEntitydata( obj, NULL );
+}
+
+void QmlRepository::reloadOperators()
+{
+    m_opLoaderWorker->start();
 }
 
 QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString name)
@@ -137,13 +219,13 @@ QString QmlRepository::commit(QmlCheckout *checkout, QString msg)
 QList<QmlBranch *> QmlRepository::getBranches()
 {
     if(!m_repository) return QList<QmlBranch *>();
-    std::vector<std::shared_ptr<upns::Branch> > b(m_repository->getBranches());
+    std::vector<std::shared_ptr<mapit::msgs::Branch> > b(m_repository->getBranches());
     QList<QmlBranch *> ret;
-    for(std::vector<std::shared_ptr<upns::Branch> >::const_iterator iter(b.cbegin());
+    for(std::vector<std::shared_ptr<mapit::msgs::Branch> >::const_iterator iter(b.cbegin());
         iter != b.cend();
         ++iter)
     {
-        std::shared_ptr<upns::Branch> p(*iter);
+        std::shared_ptr<mapit::msgs::Branch> p(*iter);
         ret.push_back(new QmlBranch( p ));
     }
     return ret;
@@ -195,4 +277,22 @@ bool QmlRepository::canWrite()
 std::shared_ptr<upns::Repository> QmlRepository::getRepository()
 {
     return m_repository;
+}
+
+void QmlRepository::setUrl(QString url)
+{
+    if (m_url == url)
+        return;
+    m_repository = std::shared_ptr<upns::Repository>(upns::RepositoryFactoryStandard::openRepositorySimple(url.toStdString(), true));
+
+    m_url = url;
+    reload();
+    Q_EMIT isLoadedChanged(m_repository != nullptr);
+    Q_EMIT urlChanged(url);
+    Q_EMIT internalRepositoryChanged(this);
+}
+
+bool QmlRepository::isLoaded() const
+{
+    return m_repository != nullptr;
 }

@@ -2,7 +2,7 @@
 #define QMLENTITYDATA
 
 #include <QObject>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/abstractentitydata.h>
 #include "qmlcheckout.h"
 
@@ -21,6 +21,8 @@ public:
     QString path() const;
 
     QmlCheckout* checkout() const;
+
+    Q_INVOKABLE QVariant getInfo(QString propertyName);
 
 public Q_SLOTS:
     void setCheckout(QmlCheckout* checkout);

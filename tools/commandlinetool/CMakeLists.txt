@@ -8,7 +8,7 @@ add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} 
 #add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 #target_link_libraries(${PROJECT_NAME} networking_node upns_core standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES})
-
+#target_link_libraries(${PROJECT_NAME} stdc++)
 #if(NOT WIN32)
 #  target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 #endif(NOT WIN32)

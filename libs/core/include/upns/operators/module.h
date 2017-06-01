@@ -4,7 +4,7 @@
 
 #include <upns/entitydata.h>
 //#include <boost/config.hpp>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 
 // Always export. Headernot needed for import, because of dynamic loading at runtime.
 #ifdef _WIN32
@@ -49,7 +49,48 @@ struct ModuleInfo
     const int           moduleVersion;  //< version
     const int           apiVersion;     //< mapmanager api version
     const char*         layerType;      //< LayerType enum
-    OperateFunc         operate;
+    const OperateFunc   operate;
+    ModuleInfo(const ModuleInfo &o)
+        : compiler(o.compiler)
+        , compilerConfig(o.compilerConfig)
+        , date(o.date)
+        , time(o.time)
+        , moduleName(o.moduleName)
+        , description(o.description)
+        , author(o.author)
+        , moduleVersion(o.moduleVersion)
+        , apiVersion(o.apiVersion)
+        , layerType(o.layerType)
+        , operate(o.operate)
+    {}
+    ModuleInfo(  const char*       compiler
+               , const char*       compilerConfig
+               , const char*       date
+               , const char*       time
+               , const char*       moduleName
+               , const char*       description
+               , const char*       author
+               , const int         moduleVersion
+               , const int         apiVersion
+               , const char*       layerType
+               , const OperateFunc operate)
+    : compiler(compiler)
+    , compilerConfig(compilerConfig)
+    , date(date)
+    , time(time)
+    , moduleName(moduleName)
+    , description(description)
+    , author(author)
+    , moduleVersion(moduleVersion)
+    , apiVersion(apiVersion)
+    , layerType(layerType)
+    , operate(operate)
+{}
+
+private:
+    // Prevent manual deletion of returned pointer
+    ~ModuleInfo() {}
+    friend MODULE_EXPORT ModuleInfo* getModuleInfo();
 };
 }
 
@@ -64,21 +105,24 @@ static const char* g_compilerconfig = "TODO";
 #elif _MSC_VER
 static const char* g_compilerconfig = "TODO";
 #endif
+
+typedef ModuleInfo* (*GetModuleInfo)();
+
 #define UPNS_MODULE(moduleName, description, author, moduleVersion, layerType, operateFunc) \
   extern "C" { \
       MODULE_EXPORT ModuleInfo* getModuleInfo() \
       { \
-          static ModuleInfo info = { g_compiler, \
-                                 g_compilerconfig, \
-                                 __DATE__, \
-                                 __TIME__, \
-                                 moduleName, \
-                                 description, \
-                                 author, \
-                                 moduleVersion, \
-                                 UPNS_MODULE_API_VERSION, \
-                                 layerType, \
-                                 operateFunc }; \
+          static ModuleInfo info = ModuleInfo( g_compiler \
+                                             , g_compilerconfig \
+                                             , __DATE__ \
+                                             , __TIME__ \
+                                             , moduleName \
+                                             , description \
+                                             , author \
+                                             , moduleVersion \
+                                             , UPNS_MODULE_API_VERSION \
+                                             , layerType \
+                                             , operateFunc ); \
           return &info; \
       } \
   }

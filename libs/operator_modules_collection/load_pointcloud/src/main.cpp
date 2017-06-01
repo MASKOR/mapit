@@ -12,6 +12,8 @@
 //#include "param.pb.h"
 #include "json11.hpp"
 
+using namespace mapit::msgs;
+
 bool field_present(const std::string& name, const  std::vector<pcl::PCLPointField>& flist){
     for(int i=0; i<flist.size(); i++){
         if (flist[i].name == name) return true;
@@ -70,12 +72,17 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     }
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
-    std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
+    std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
+    if(entityData == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     entityData->setData( pc2 );
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");
 ////    outTarget->set_mapval( map->id() );
@@ -84,7 +91,7 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 //    OperationParameter *outMapname = out.add_params();
 //    outMapname->set_key("mapname");
 //    outMapname->set_strval( map->name() );
-    env->setOutputDescription( out.SerializeAsString() );
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

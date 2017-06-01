@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/errorcodes.h>
@@ -9,9 +9,6 @@
 #include <boost/program_options.hpp>
 
 #include <upns/versioning/repositorynetworkingfactory.h>
-
-#include <thread>
-#include <chrono>
 
 namespace po = boost::program_options;
 

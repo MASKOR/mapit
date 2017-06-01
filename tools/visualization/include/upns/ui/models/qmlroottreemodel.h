@@ -16,12 +16,17 @@ public:
         EntityNode
     };
     enum RootTreeViewRoles {
-        NodeTypeRole = Qt::UserRole + 1
+        NodeDisplayRole = Qt::DisplayRole,
+        NodePathRole = Qt::ToolTipRole,
+        NodeTypeRole = Qt::UserRole + 1,
+        NodeNodeRole = Qt::UserRole,
+        NodeVisibleRole = Qt::UserRole +2
     };
 
     QmlRootTreeModel();
     QmlCheckout* root() const;
 
+    Q_INVOKABLE QVariantMap get(int idx) const;
 public Q_SLOTS:
     void setRoot(QmlCheckout *root);
 
@@ -31,6 +36,7 @@ public Q_SLOTS:
     QHash<int, QByteArray> roleNames() const;
 Q_SIGNALS:
     void rootChanged(QmlCheckout *root);
+    void itemsChanged();
 
 private:
     QmlCheckout *m_root;

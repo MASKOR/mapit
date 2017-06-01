@@ -7,32 +7,26 @@
 #include <memory>
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
-#include "json11.hpp"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 // Apply array of transforms.
 // {
-//    tfentrypoint: "path/to/entrypoint.tf"
-//    create: "path/to/newtf.tf"
-//    tags: [tag1, tag2] //TODO: provide advanced filters for tags -> AND, OR, ...
-//    tagsbefore: []
-//    tagsafter: []
+//    target: "path/to/target.tf"
+//    mode: "relative"|"absolute",
 //    tf: [
 //      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
 //      1: {mat: [0: m00_2, ...]},
 //      2: ...
 //    ]
 // }
-// Applying transformations has different use cases:
-// Create new transform:
-// "create" is an not yet existing entity. It is created with a new transform containing
-// "tf" as a tf or path (path in case of "tf" beeing an array). tf.parents are preserved.
-// Alter existing transform:
-// It is not always clear where a transform has to be inserted or if a new transform
-// should be insterted into the graph. E.g. ICP is executed the first time: A transform
-// node should be insterted between [pointcloud] and [robot odometry]. "tagsafter" should
-// contain the tag "odometry" to indicate that a transform should be insterted just before
-// an odometry transform. After the ICP has been executed once, subsequent executions should
-// not create new transforms, but overwrite the existing transform!
+// relative:
+// parent may be a tf or a tree
+// if parent is a tree, timestamp is used to choose a appropiate coordinate system (lerp between two tfs).
+// if parent is empty, target is used.
+// absolute:
+// only one tf (index:0) may be given, parent/timestamp must not be used.
 
 template<typename Indexable>
 void jsonToMat(float* d, Indexable &json)
@@ -40,32 +34,27 @@ void jsonToMat(float* d, Indexable &json)
     //TODO: unroll
     for(int i=0 ; i<16 ; ++i)
     {
-        if(json[i].type() == json11::Json::NUMBER)
+        if(json[i].isDouble())
         {
-            d[i] = static_cast<float>(json[i].number_value());
+            d[i] = static_cast<float>(json[i].toDouble());
         }
     }
 }
 
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
-    std::string jsonErr;
-    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
-    if ( ! jsonErr.empty() ) {
-        // can't parth json
-        // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
 
-    std::string target = params["target"].string_value();
+    std::string target = params["target"].toString().toStdString();
 
     bool newlyCreated = false; // In this case, there will be no tf to read
     // Get Target
-    std::shared_ptr<Entity> tfEntity = env->getCheckout()->getEntity(target);
+    std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(target);
     if(tfEntity == NULL)
     {
         // If target could not be received, create new entity
-        tfEntity = std::shared_ptr<Entity>(new Entity);
+        tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         tfEntity->set_type(TfEntitydata::TYPENAME());
         StatusCode s = env->getCheckout()->storeEntity(target, tfEntity);
         if(!upnsIsOk(s))
@@ -80,7 +69,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     {
         return UPNS_STATUS_ERR_UNKNOWN;
     }
-    std::shared_ptr<TfEntitydata> entityData = std::static_pointer_cast<TfEntitydata>( abstractEntitydata );
+    std::shared_ptr<TfEntitydata> entityData = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydata );
+    if(entityData == NULL)
+    {
+        log_error("Tf Transform has wrong type.");
+        return UPNS_STATUS_ERR_UNKNOWN;
+    }
     TfMatPtr tf;
     if(newlyCreated)
     {
@@ -91,19 +85,19 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         tf = entityData->getData();
     }
 
-    std::string mode = params["mode"].string_value();
+    std::string mode = params["mode"].toString().toStdString();
 
     if(mode == "absolute")
     {
         TfMat mat;
         *tf = TfMat::Identity();
         float *d = tf->data();
-        if(params["tf"].type() == json11::Json::OBJECT)
+        if(params["tf"].isObject())
         {
-            json11::Json::object obj( params["tf"].object_items() );
-            if(obj["mat"].type() == json11::Json::ARRAY)
+            QJsonObject obj(params["tf"].toObject());
+            if(obj["mat"].isArray())
             {
-                json11::Json::array idxbl(obj["mat"].array_items());
+                QJsonArray idxbl(obj["mat"].toArray());
                 jsonToMat(d, idxbl);
             }
             else
@@ -112,13 +106,13 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                 return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
             }
         }
-        else if(params["tf"].type() == json11::Json::ARRAY && params["tf"].array_items()[0].type() == json11::Json::OBJECT)
+        else if(params["tf"].isArray() && params["tf"].toArray()[0].isObject())
         {
-            json11::Json::array arr( params["tf"].array_items() );
-            json11::Json::object obj( arr[0].object_items() );
-            if(obj["mat"].type() == json11::Json::ARRAY)
+            QJsonArray arr(params["tf"].toArray());
+            QJsonObject obj(arr[0].toObject());
+            if(obj["mat"].isArray())
             {
-                json11::Json::array idxbl(obj["mat"].array_items());
+                QJsonArray idxbl(obj["mat"].toArray());
                 jsonToMat(d, idxbl);
             }
             else
@@ -143,11 +137,6 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     }
     entityData->setData(tf);
 
-
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

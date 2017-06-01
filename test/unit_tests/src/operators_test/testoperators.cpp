@@ -11,7 +11,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-#include <upns/datastructs.pb.h>
+#include <mapit/msgs/datastructs.pb.h>
 
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
@@ -50,7 +50,7 @@ void TestOperators::testOperatorLoadPointcloud()
 {
     QFETCH(std::shared_ptr<upns::Checkout>, checkout);
     OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
+    desc.mutable_operator_()->set_operatorname("load_pointcloud");
     //desc.set_params("{\"filename\":\"data/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"corridor/laser/eins\"}");
     OperationResult ret = checkout->doOperation( desc );
@@ -63,8 +63,9 @@ void TestOperators::testOperatorLoadPointcloud()
     QVERIFY( !(*parent->mutable_refs())["eins"].path().empty() );
     std::shared_ptr<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
     //std::shared_ptr<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
-    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
-    //std::shared_ptr<PointcloudEntitydata> entitydataPC2ByRef = std::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
+    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
+    QVERIFY( entitydataPC2ByPath != nullptr );
+    //std::shared_ptr<PointcloudEntitydata> entitydataPC2ByRef = std::d_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
     upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
     //upnsPointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
 
@@ -104,12 +105,12 @@ void TestOperators::testInlineOperator()
 
     QFETCH(std::shared_ptr<upns::Checkout>, checkout);
     OperationDescription desc;
-    desc.set_operatorname("myUntraceable");
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
     desc.set_params("{\"source:\":\"testInlineOperator\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&cloud, &epath](upns::OperationEnvironment* env)
     {
         upns::CheckoutRaw *coraw = env->getCheckout();
-        std::shared_ptr<upns::Entity> e(new upns::Entity);
+        std::shared_ptr<Entity> e(new Entity);
         e->set_type(PointcloudEntitydata::TYPENAME());
         upns::StatusCode status = coraw->storeEntity(epath, e);
         if(!upnsIsOk(status))
@@ -117,8 +118,11 @@ void TestOperators::testInlineOperator()
             return UPNS_STATUS_ERROR;
         }
         std::shared_ptr<AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
-        std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
-
+        std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+        if(entityData == nullptr)
+        {
+            return UPNS_STATUS_ERROR;
+        }
         std::shared_ptr<pcl::PCLPointCloud2> cloud2(new pcl::PCLPointCloud2);
         pcl::toPCLPointCloud2(cloud, *cloud2);
         entityData->setData(cloud2);
@@ -127,7 +131,8 @@ void TestOperators::testInlineOperator()
     QVERIFY(upnsIsOk(res.first));
 
     std::shared_ptr<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly(epath);
-    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
+    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
+    QVERIFY( entitydataPC2ByPath != nullptr );
     upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPath(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*pc2path, *cloudPath);
@@ -144,17 +149,17 @@ void TestOperators::testPointcloudToMesh()
 {
     QFETCH(std::shared_ptr<upns::Checkout>, checkout);
     OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
+    desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
     OperationResult ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
 
-    desc.set_operatorname("surfrecon_openvdb");
+    desc.mutable_operator_()->set_operatorname("surfrecon_openvdb");
     desc.set_params("{\"voxelsize\":0.1, \"radius\":1, \"input\":\"bunny/laser/eins\", \"output\":\"bunny/laser/levelset\"}");
     ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
 #ifdef WITH_OPENVDB
-    desc.set_operatorname("levelset_to_mesh");
+    desc.mutable_operator_()->set_operatorname("levelset_to_mesh");
     desc.set_params("{\"input\":\"bunny/laser/levelset\", \"output\":\"bunny/laser/asset\"}");
     ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
@@ -185,8 +190,8 @@ void TestOperators::testPointcloudToMesh()
 //    std::shared_ptr<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
 //    //std::shared_ptr<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
 
-//    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
-//    //std::shared_ptr<PointcloudEntitydata> entitydataPC2ByRef = std::static_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
+//    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::d_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
+//    //std::shared_ptr<PointcloudEntitydata> entitydataPC2ByRef = std::d_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
 //    upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
 //    //upnsPointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
 

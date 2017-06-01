@@ -57,24 +57,32 @@ bool FileSystemEntitydataStreamProvider::isReadWriteSame()
 
 upnsIStream* upns::FileSystemEntitydataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
 {
-    std::ifstream *is = new std::ifstream(m_filenameRead);
-    //TODO: SEEK
-
+    std::ifstream *is = new std::ifstream(m_filenameRead, std::ifstream::in | std::ios_base::binary);
+    is->seekg(start, std::ios::beg);
     return is;
 }
 
-void FileSystemEntitydataStreamProvider::endRead(upnsIStream *strm)
+void FileSystemEntitydataStreamProvider::endRead(upnsIStream *&strm)
 {
-    delete strm;
+    if(strm != nullptr)
+    {
+        delete strm;
+        strm = nullptr;
+    }
+    else
+    {
+        //TODO: this might be a bug with shared objects, shared pointers and casting between abstractEntityData. Valgrind.
+        log_warn("do not end Read twice!");
+    }
 }
 
 upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 {
     //TODO: seek, overwrite
-    return new std::ofstream(m_filenameWrite);
+    return new std::ofstream(m_filenameWrite, std::ios::out | std::ios::binary);
 }
 
-void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *strm)
+void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *&strm)
 {
     assert(static_cast<std::ofstream*>(strm)->is_open());
     strm->flush();

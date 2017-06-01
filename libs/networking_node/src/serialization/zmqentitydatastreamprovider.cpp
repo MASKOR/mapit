@@ -103,7 +103,7 @@ upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64
     return new MemoryReaderDeleter(startRead(start, length, outLength), outLength);
 }
 
-void upns::ZmqEntitydataStreamProvider::endRead(upns::upnsIStream *strm)
+void upns::ZmqEntitydataStreamProvider::endRead(upns::upnsIStream *&strm)
 {
     delete strm;
 }
@@ -114,7 +114,7 @@ upns::upnsOStream *upns::ZmqEntitydataStreamProvider::startWrite(upns::upnsuint6
     return new MyWriter(start);
 }
 
-void upns::ZmqEntitydataStreamProvider::endWrite(upns::upnsOStream *strm)
+void upns::ZmqEntitydataStreamProvider::endWrite(upns::upnsOStream *&strm)
 {
     MyWriter *ostrm(static_cast<MyWriter*>(strm));
     std::string buf(ostrm->str());
@@ -125,14 +125,14 @@ upns::upnsuint64 upns::ZmqEntitydataStreamProvider::getStreamSize() const
 {
     if(m_entityLength == 0)
     {
-        std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
+        std::unique_ptr<RequestEntitydata> req(new RequestEntitydata);
         req->set_checkout(m_checkoutName);
         req->set_entitypath(m_pathOrOid);
         req->set_offset(0ul);
         req->set_maxlength(0ul);
         m_node->send(std::move(req));
-        std::shared_ptr<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
-        if(rep->status() != upns::ReplyEntitydata::SUCCESS)
+        std::shared_ptr<ReplyEntitydata> rep(m_node->receive<ReplyEntitydata>());
+        if(rep->status() != ReplyEntitydata::SUCCESS)
         {
             log_error("received error from server when storing entitydata");
         }
@@ -147,15 +147,15 @@ upns::upnsuint64 upns::ZmqEntitydataStreamProvider::getStreamSize() const
 void upns::ZmqEntitydataStreamProvider::setStreamSize(upns::upnsuint64 entitylength)
 {
     m_entityLength = entitylength;
-    std::unique_ptr<upns::RequestStoreEntity> req(new upns::RequestStoreEntity);
+    std::unique_ptr<RequestStoreEntity> req(new RequestStoreEntity);
     req->set_checkout(m_checkoutName);
     req->set_path(m_pathOrOid);
     req->set_offset(0ul);
     req->set_sendlength(0ul);
     req->set_entitylength(m_entityLength);
     m_node->send(std::move(req));
-    std::shared_ptr<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
-    if(rep->status() != upns::ReplyStoreEntity::SUCCESS)
+    std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+    if(rep->status() != ReplyStoreEntity::SUCCESS)
     {
         log_error("received error from server when setting entitydata length");
     }
@@ -207,14 +207,14 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
     {
         length = maxBufferSize;
     }
-    std::unique_ptr<upns::RequestEntitydata> req(new upns::RequestEntitydata);
+    std::unique_ptr<RequestEntitydata> req(new RequestEntitydata);
     req->set_checkout(m_checkoutName);
     req->set_entitypath(m_pathOrOid);
     req->set_offset(start);
     req->set_maxlength(maxBufferSize);
     m_node->send(std::move(req));
-    std::shared_ptr<upns::ReplyEntitydata> rep(m_node->receive<upns::ReplyEntitydata>());
-    if(rep->status() != upns::ReplyEntitydata::SUCCESS)
+    std::shared_ptr<ReplyEntitydata> rep(m_node->receive<ReplyEntitydata>());
+    if(rep->status() != ReplyEntitydata::SUCCESS)
     {
         log_error("received error from server when asked for entitydata");
         return nullptr;
@@ -267,7 +267,7 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
     {
         m_entityLength = length;
     }
-    std::unique_ptr<upns::RequestStoreEntity> req(new upns::RequestStoreEntity);
+    std::unique_ptr<RequestStoreEntity> req(new RequestStoreEntity);
     req->set_checkout(m_checkoutName);
     req->set_path(m_pathOrOid);
     req->set_offset(offset);
@@ -277,8 +277,8 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
     m_node->send(std::move(req), ZMQ_SNDMORE);
     m_node->send_raw_body( reinterpret_cast<const unsigned char*>(memory), length ); //TODO: add zero copy support!
 
-    std::shared_ptr<upns::ReplyStoreEntity> rep(m_node->receive<upns::ReplyStoreEntity>());
-    if(rep->status() != upns::ReplyStoreEntity::SUCCESS)
+    std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+    if(rep->status() != ReplyStoreEntity::SUCCESS)
     {
         log_error("received error from server when asked for entitydata");
     }

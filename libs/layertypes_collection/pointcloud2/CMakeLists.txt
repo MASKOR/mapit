@@ -43,7 +43,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
                                                    ${PROTOBUF_INCLUDE_DIRS})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
-                                           PUBLIC  PointcloudEntitydata_TYPENAME="${PROJECT_NAME}")
+                                           PUBLIC  PointcloudEntitydata_TYPENAME="${PROJECT_NAME}"
+                                                   WITH_PCL)
 
 if(UNIX)
   # tell CMake Prefix is "lib" otherwise it can not be queried

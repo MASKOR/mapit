@@ -2,7 +2,7 @@
 #define ABSTRACTSERIALIZER_H
 
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 #include <upns/entitydata.h>
 #include <upns/errorcodes.h>
@@ -24,47 +24,47 @@ public:
     virtual bool canRead() = 0;
     virtual bool canWrite() = 0;
 
-    virtual std::shared_ptr<Tree> getTree(const ObjectId &oid) = 0;
-    virtual std::shared_ptr<Tree> getTreeTransient(const PathInternal &transientId) = 0;
+    virtual std::shared_ptr<mapit::msgs::Tree> getTree(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Tree> getTreeTransient(const PathInternal &transientId) = 0;
     // Note: storing and creating is only distinguished for transient oid (paths). When
     //       Hashes are used, the system does not know if a tree/entity with the same hash
     //       already exists or if it is a new tree/entity
-    virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<Tree> &obj) = 0;
-    virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal &transientId) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<mapit::msgs::Tree> &obj) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<mapit::msgs::Tree> &obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createTree(std::shared_ptr<Tree> &obj) = 0;
     virtual StatusCode removeTree(const ObjectId &oid) = 0;
 
-    virtual std::shared_ptr<Entity> getEntity(const ObjectId oid) = 0;
-    virtual std::shared_ptr<Entity> getEntityTransient(const PathInternal path) = 0;
-    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<Entity> &obj) = 0;
-    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInternal &transientId) = 0;
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Entity> getEntityTransient(const PathInternal path) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> &obj) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> &obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createEntity(std::shared_ptr<Entity> &obj) = 0;
     virtual StatusCode removeEntity(const ObjectId &oid) = 0;
 
-    virtual std::shared_ptr<Commit> getCommit(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const ObjectId &oid) = 0;
     //virtual StatusCode storeCommit(std::shared_ptr<Commit> &obj) = 0;
-    virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<Commit> &obj) = 0;
+    virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<mapit::msgs::Commit> &obj) = 0;
     virtual StatusCode removeCommit(const ObjectId &oid) = 0;
 
     virtual std::vector< std::string > listCheckoutNames() = 0;
-    virtual std::vector< std::shared_ptr<CheckoutObj> > listCheckouts() = 0;
-    virtual std::shared_ptr<CheckoutObj> getCheckoutCommit(const std::string &name) = 0;
-    virtual StatusCode storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name) = 0;
-    virtual StatusCode createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name) = 0;
+    virtual std::vector< std::shared_ptr<mapit::msgs::CheckoutObj> > listCheckouts() = 0;
+    virtual std::shared_ptr<mapit::msgs::CheckoutObj> getCheckoutCommit(const std::string &name) = 0;
+    virtual StatusCode storeCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> &obj, const std::string &name) = 0;
+    virtual StatusCode createCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> &obj, const std::string &name) = 0;
     virtual StatusCode removeCheckoutCommit(const std::string &name) = 0;
 
-    virtual std::vector< std::shared_ptr<Branch> > listBranches() = 0;
-    virtual std::shared_ptr<Branch> getBranch(const std::string &name) = 0;
-    virtual StatusCode storeBranch(std::shared_ptr<Branch> &obj, const std::string &name) = 0;
-    virtual StatusCode createBranch(std::shared_ptr<Branch> &obj, const std::string &name) = 0;
+    virtual std::vector< std::shared_ptr<mapit::msgs::Branch> > listBranches() = 0;
+    virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;
+    virtual StatusCode storeBranch(std::shared_ptr<mapit::msgs::Branch> &obj, const std::string &name) = 0;
+    virtual StatusCode createBranch(std::shared_ptr<mapit::msgs::Branch> &obj, const std::string &name) = 0;
     virtual StatusCode removeBranch(const std::string &name) = 0;
 
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
 
 
-    virtual MessageType typeOfObject(const ObjectId &oid) = 0;
-    virtual MessageType typeOfObjectTransient(const PathInternal &path) = 0;
+    virtual mapit::msgs::MessageType typeOfObject(const ObjectId &oid) = 0;
+    virtual mapit::msgs::MessageType typeOfObjectTransient(const PathInternal &path) = 0;
     virtual bool exists(const ObjectId &oidOrName) = 0;
 
     virtual std::pair<StatusCode, ObjectId> persistTransientEntitydata(const PathInternal &path) = 0;

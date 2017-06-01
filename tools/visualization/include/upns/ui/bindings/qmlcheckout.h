@@ -11,7 +11,7 @@
 #include "qmlentitydata.h"
 #include "qmlrepository.h"
 #include <upns/versioning/checkout.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <QJsonObject>
 
 class QmlRepository;
@@ -22,6 +22,7 @@ class QmlCheckout : public QObject
     Q_PROPERTY(bool isInConflictMode READ isInConflictMode NOTIFY isInConflictModeChanged)
     Q_PROPERTY(QmlRepository* repository READ repository WRITE setRepository NOTIFY repositoryChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QStringList entities READ entities NOTIFY entitiesChanged)
 public:
     QmlCheckout();
     QmlCheckout( std::shared_ptr<upns::Checkout> &co, QmlRepository* repo = NULL, QString name = "" );
@@ -58,6 +59,8 @@ public:
 
     QString name() const;
 
+    QStringList entities() const;
+
 public Q_SLOTS:
     void setRepository(QmlRepository* repository);
     void setName(QString name);
@@ -69,7 +72,9 @@ Q_SIGNALS:
 
     void nameChanged(QString name);
 
-    void intenalCheckoutChanged(QmlCheckout *co);
+    void internalCheckoutChanged(QmlCheckout *co);
+
+    void entitiesChanged(QStringList entities);
 
 protected:
     std::shared_ptr<upns::Checkout> m_checkout;
@@ -78,6 +83,9 @@ private:
     bool m_isInConflictMode;
     QmlRepository* m_repository;
     QString m_name;
+    QStringList m_entities;
+
+    void reloadEntities();
 };
 
 #endif

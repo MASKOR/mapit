@@ -18,7 +18,7 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} upns_core standard_repository_factory ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_core standard_repository_factory ${Boost_LIBRARIES} stdc++)
 
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})

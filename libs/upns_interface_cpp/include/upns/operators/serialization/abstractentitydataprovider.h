@@ -51,7 +51,7 @@ public:
      * May unlock other operations on the stream.
      * @param strm The stream returned by startRead()
      */
-    virtual void endRead(upnsIStream *strm) = 0;
+    virtual void endRead(upnsIStream *&strm) = 0;
 
     /**
      * @brief startWrite Write data to an entity. The file must manually be opened and closed. This function only returns a filename as string.
@@ -66,7 +66,7 @@ public:
      * This will cause a rehashing of the stream, the entity and all parents.
      * @param strm
      */
-    virtual void endWrite(upnsOStream *strm) = 0;
+    virtual void endWrite(upnsOStream *&strm) = 0;
 
     /**
      * @brief startRead Used to read data as pointer.

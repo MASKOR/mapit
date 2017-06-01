@@ -1,5 +1,6 @@
 #include "upns/ui/bindings/qmlcheckout.h"
 #include <upns/errorcodes.h>
+#include "upns/depthfirstsearch.h"
 
 QmlCheckout::QmlCheckout()
     :m_checkout( NULL ),
@@ -18,6 +19,7 @@ QmlCheckout::QmlCheckout(std::shared_ptr<upns::Checkout> &co, QmlRepository* rep
     {
         connect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlCheckout::setRepository);
     }
+    reloadEntities();
 }
 
 QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
@@ -25,13 +27,15 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     if(!m_checkout) return "not initialized, too early";
     QJsonDocument doc(desc);
     QString strJson(doc.toJson(QJsonDocument::Compact));
-    upns::OperationDescription descript;
-    descript.set_operatorname(operatorname.toStdString());
+    mapit::msgs::OperationDescription descript;
+    descript.mutable_operator_()->set_operatorname(operatorname.toStdString());
     descript.set_params(strJson.toStdString());
     upns::OperationResult res = m_checkout->doOperation(descript);
-    if(upnsIsOk(res.first)) return "error";
+    reloadEntities();
+    Q_EMIT internalCheckoutChanged(this);
     //TODO Q_EMIT something changed()
     // TODO: wrap operation result.
+    if(upnsIsOk(res.first)) return "error";
     return "";
 }
 
@@ -47,7 +51,7 @@ void QmlCheckout::setConflictSolved(QString path, QString oid)
 QmlTree *QmlCheckout::getRoot()
 {
     if(!m_checkout) return new QmlTree(this);
-    std::shared_ptr<upns::Tree> tree(m_checkout->getRoot());
+    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getRoot());
     return new QmlTree(tree);
 }
 
@@ -55,7 +59,7 @@ QmlTree *QmlCheckout::getTreeConflict(QString objectId)
 {
     if(!m_checkout) return new QmlTree(this);
     std::string p = objectId.toStdString();
-    std::shared_ptr<upns::Tree> tree(m_checkout->getTreeConflict(p));
+    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getTreeConflict(p));
     return new QmlTree(tree);
 }
 
@@ -63,7 +67,7 @@ QmlEntity *QmlCheckout::getEntityConflict(QString objectId)
 {
     if(!m_checkout) return new QmlEntity(this);
     std::string p = objectId.toStdString();
-    std::shared_ptr<upns::Entity> ent(m_checkout->getEntityConflict(p));
+    std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntityConflict(p));
     return new QmlEntity(ent);
 }
 
@@ -71,7 +75,7 @@ QmlTree *QmlCheckout::getTree(QString path)
 {
     if(!m_checkout) return new QmlTree(this);
     std::string p = path.toStdString();
-    std::shared_ptr<upns::Tree> tree(m_checkout->getTree(p));
+    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getTree(p));
     return new QmlTree(tree);
 }
 
@@ -79,14 +83,14 @@ QmlEntity *QmlCheckout::getEntity(QString path)
 {
     if(!m_checkout) return new QmlEntity(this);
     std::string p = path.toStdString();
-    std::shared_ptr<upns::Entity> ent(m_checkout->getEntity(p));
+    std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntity(p));
     return new QmlEntity(ent);
 }
 
 QmlBranch *QmlCheckout::getParentBranch()
 {
     if(!m_checkout) return new QmlBranch(this);
-    std::shared_ptr<upns::Branch> br(m_checkout->getParentBranch());
+    std::shared_ptr<mapit::msgs::Branch> br(m_checkout->getParentBranch());
     return new QmlBranch(br);
 }
 
@@ -134,6 +138,11 @@ QString QmlCheckout::name() const
     return m_name;
 }
 
+QStringList QmlCheckout::entities() const
+{
+    return m_entities;
+}
+
 void QmlCheckout::setRepository(QmlRepository *repository)
 {
     if (m_repository != repository)
@@ -149,10 +158,11 @@ void QmlCheckout::setRepository(QmlRepository *repository)
         }
         Q_EMIT repositoryChanged(repository);
     }
-    if(!m_name.isEmpty())
+    if(!m_name.isEmpty() && m_repository->getRepository())
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
-        Q_EMIT intenalCheckoutChanged( this );
+        reloadEntities();
+        Q_EMIT internalCheckoutChanged( this );
     }
     //TODO: there might be some rare cases, where this is set intentionally to "".
     //Important: on merge it is "" and should not be overwritten.
@@ -171,8 +181,43 @@ void QmlCheckout::setName(QString name)
     if(m_repository)
     {
         m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
-        Q_EMIT intenalCheckoutChanged( this );
+        reloadEntities();
+        Q_EMIT internalCheckoutChanged( this );
     }
 
     Q_EMIT nameChanged(name);
+}
+
+void QmlCheckout::reloadEntities()
+{
+    m_entities.clear();
+    if(m_checkout)
+    {
+        upns::StatusCode s = m_checkout->depthFirstSearch([&](
+            std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
+            {
+                return true;
+            },
+            [&](std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
+            {
+                return true;
+            },
+            [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+            {
+                return true;
+            }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+            {
+                return true;
+            },
+            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+            {
+                m_entities.append(QString::fromStdString(path));
+                return true;
+            },
+            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+            {
+                return true;
+            });
+    }
+    Q_EMIT entitiesChanged(m_entities);
 }

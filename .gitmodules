@@ -40,3 +40,6 @@
 [submodule "libs/layertypes_collection/laz/libLAS"]
 	path = libs/layertypes_collection/las/libLAS
 	url = https://github.com/libLAS/libLAS.git
+[submodule "libs/layertypes_collection/las/LASzip"]
+	path = libs/layertypes_collection/las/LASzip
+	url = https://github.com/LASzip/LASzip

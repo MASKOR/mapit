@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/errorcodes.h>
@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    upns::OperationDescription desc;
-    desc.set_operatorname(vars["operator"].as<std::string>());
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname(vars["operator"].as<std::string>());
     desc.set_params(vars["parameters"].as<std::string>());
     log_info("Executing: " + vars["operator"].as<std::string>() + ", with params: " + vars["parameters"].as<std::string>());
     upns::OperationResult res = co->doOperation(desc);

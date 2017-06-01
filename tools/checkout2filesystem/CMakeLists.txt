@@ -28,7 +28,7 @@ endif(WIN32)
 find_package(Boost COMPONENTS iostreams REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} upns_core standard_repository_factory ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} upns_core standard_repository_factory ${Boost_LIBRARIES} stdc++)
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})

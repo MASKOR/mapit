@@ -18,7 +18,11 @@
 #include <memory>
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
-#include "json11.hpp"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
+using namespace mapit::msgs;
 
 template<typename ParticlePointT>
 class ParticleFromCloudList {
@@ -64,37 +68,15 @@ public:
 // - target: input and output at the same time
 upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
 {
-    std::string jsonErr;
-    json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
-    if ( ! jsonErr.empty() ) {
-        // can't parth json
-        // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    double spheresize = params["radius"].number_value();
+    const char* szParams = env->getParameters().c_str();
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(szParams, env->getParameters().length()) );
+    QJsonObject params(paramsDoc.object());
 
-    if(spheresize == 0.0)
-    {
-        spheresize = 0.01f;
-    }
-
-    double voxelsize = params["voxelsize"].number_value();
-
-    if(voxelsize == 0.0)
-    {
-        voxelsize = 0.01f;
-    }
-    if(voxelsize >= spheresize*2.0)
-    {
-        log_warn("radius of spheres is too small for given voxel resolution. Please try a higher \"radius\" or smaller \"voxelsize\".");
-        return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-
-    std::string input =  params["input"].string_value();
-    std::string output = params["output"].string_value();
+    std::string input =  params["input"].toString().toStdString();
+    std::string output = params["output"].toString().toStdString();
     if(input.empty())
     {
-        input = params["target"].string_value();
+        input = params["target"].toString().toStdString();
         if(input.empty())
         {
             log_error("no input specified");
@@ -103,12 +85,28 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     }
     if(output.empty())
     {
-        output = params["target"].string_value();
+        output = params["target"].toString().toStdString();
         if(output.empty())
         {
             log_error("no output specified");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
+    }
+
+    double spheresize = params["radius"].toDouble();
+    if(spheresize == 0.0)
+    {
+        spheresize = 0.01f;
+    }
+    double voxelsize = params["voxelsize"].toDouble();
+    if(voxelsize == 0.0)
+    {
+        voxelsize = 0.04f;
+    }
+    if(voxelsize >= spheresize*2.1)
+    {
+        log_warn("radius of spheres is too small for given voxel resolution. Please try a higher \"radius\" or smaller \"voxelsize\".");
+        return UPNS_STATUS_INVALID_ARGUMENT;
     }
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
@@ -117,7 +115,12 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<PointcloudEntitydata> entityDataInput = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<PointcloudEntitydata> entityDataInput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
+    if(entityDataInput == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsPointcloud2Ptr inputPcd = entityDataInput->getData();
 
     upnsFloatGridPtr outputFloatGrid;
@@ -131,7 +134,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
             log_error("could not read output grid");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
-        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
@@ -168,7 +171,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         log_error("could not read output grid");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");
@@ -176,10 +179,10 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     }
     entityDataOutput->setData(outputFloatGrid);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
-    env->setOutputDescription( out.SerializeAsString() );
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

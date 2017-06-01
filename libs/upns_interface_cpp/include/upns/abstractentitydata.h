@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 #include <memory>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include <limits>
 
 namespace upns
@@ -71,11 +71,11 @@ public:
 
     //TODO: Introduce a pattern that does "endRead" when scope is left (like QLocker)
     virtual upnsIStream *startReadBytes(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
-    virtual void endRead(upnsIStream *strm) = 0;
+    virtual void endRead(upnsIStream *&strm) = 0;
 
     //TODO: Introduce a pattern that does "endRead" when scope is left (like QLocker)
     virtual upnsOStream *startWriteBytes(upnsuint64 start = 0, upnsuint64 len = 0) = 0;
-    virtual void endWrite(upnsOStream *strm) = 0;
+    virtual void endWrite(upnsOStream *&strm) = 0;
 
     virtual size_t size() const = 0;
 };

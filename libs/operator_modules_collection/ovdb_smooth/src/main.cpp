@@ -10,6 +10,8 @@
 #include <upns/errorcodes.h>
 #include "json11.hpp"
 
+using namespace mapit::msgs;
+
 struct PrintInterrupter
 {
     int counter = 0;
@@ -85,7 +87,12 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
         log_error("input does not exist ore is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    std::shared_ptr<FloatGridEntitydata> entityDataInput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
+    if(entityDataInput == nullptr)
+    {
+        log_error("Wrong type");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     upnsFloatGridPtr inputGrid = entityDataInput->getData();
 
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
@@ -98,7 +105,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
             log_error("could not read output grid");
             return UPNS_STATUS_INVALID_ARGUMENT;
         }
-        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+        std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
@@ -131,7 +138,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
         log_error("could not read output asset");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
-    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::static_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
+    std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");
@@ -139,9 +146,9 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
     }
     entityDataOutput->setData(inputGrid);
 
-    OperationDescription out;
-    out.set_operatorname(OPERATOR_NAME);
-    out.set_operatorversion(OPERATOR_VERSION);
+//    OperationDescription out;
+//    out.set_operatorname(OPERATOR_NAME);
+//    out.set_operatorversion(OPERATOR_VERSION);
 //    OperationParameter *outTarget = out.add_params();
 //    outTarget->set_key("target");
 ////    outTarget->set_mapval( map->id() );
@@ -150,7 +157,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
 //    OperationParameter *outMapname = out.add_params();
 //    outMapname->set_key("mapname");
 //    outMapname->set_strval( map->name() );
-    env->setOutputDescription( out.SerializeAsString() );
+//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
 }
 

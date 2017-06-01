@@ -14,15 +14,18 @@ using namespace upns;
 #define MODULE_EXPORT // empty
 #endif
 
-// Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-typedef std::shared_ptr<tinyply::PlyFile> upnsAssetPtr;
+// Ply File is dump and does not know anything about our model except for the header
+// Because of this, the stream has to be used
+// The stream is closed by a custom deleter for this shared pointer.
+typedef std::pair<tinyply::PlyFile, std::istream*> AssetDataPair;
+typedef std::shared_ptr< AssetDataPair > AssetPtr;
 
 extern "C"
 {
 MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 }
 
-class AssetEntitydata : public Entitydata<tinyply::PlyFile>
+class AssetEntitydata : public Entitydata< AssetDataPair >
 {
 public:
     static const char* TYPENAME();
@@ -32,17 +35,18 @@ public:
     const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
-    upnsAssetPtr  getData(upnsReal x1, upnsReal y1, upnsReal z1,
+    AssetPtr  getData(upnsReal x1, upnsReal y1, upnsReal z1,
                                 upnsReal x2, upnsReal y2, upnsReal z2,
                                 bool clipMode,
                                 int lod = 0);
     int                 setData(upnsReal x1, upnsReal y1, upnsReal z1,
                                 upnsReal x2, upnsReal y2, upnsReal z2,
-                                upnsAssetPtr &data,
+                                AssetPtr &data,
                                 int lod = 0);
 
-    upnsAssetPtr  getData(int lod = 0);
-    int                 setData(upnsAssetPtr &data, int lod = 0);
+    AssetPtr  getData(int lod = 0);
+    //TODO: doesn't fit because of stream pair here. second = nullptr. Use AbstractEntitydata directly
+    int                 setData(AssetPtr &data, int lod = 0);
 
     void gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
@@ -52,14 +56,14 @@ public:
                              upnsReal &x2, upnsReal &y2, upnsReal &z2);
 
     upnsIStream *startReadBytes(upnsuint64 start, upnsuint64 len);
-    void endRead(upnsIStream *strm);
+    void endRead(upnsIStream *&strm);
 
     upnsOStream *startWriteBytes(upnsuint64 start, upnsuint64 len);
-    void endWrite(upnsOStream *strm);
+    void endWrite(upnsOStream *&strm);
 
     size_t size() const;
 private:
     std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
-    upnsAssetPtr m_asset;
+    AssetPtr m_asset;
 };
 #endif

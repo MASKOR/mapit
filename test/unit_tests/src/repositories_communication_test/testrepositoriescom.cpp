@@ -1,6 +1,6 @@
 #include "testrepositoriescom.h"
 #include <upns/typedefs.h>
-#include <upns/services.pb.h>
+#include <mapit/msgs/services.pb.h>
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
@@ -223,8 +223,8 @@ std::shared_ptr<upns::Repository> TestRepositoriesCommunication::initNetwork(/*s
 
 void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 {
-    upns::OperationDescription desc;
-    desc.set_operatorname("load_pointcloud");
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params(std::string("{\"filename\":\"") + FILENAME + "\", \"target\":\"themap/thelayer/bunny\"}");
     upns::OperationResult ret = checkout->doOperation( desc );
     //QVERIFY( upnsIsOk(ret.first) );
@@ -232,8 +232,8 @@ void TestRepositoriesCommunication::readPcd(upns::Checkout *checkout)
 
 void TestRepositoriesCommunication::voxelgrid(upns::Checkout *checkout)
 {
-    upns::OperationDescription operation;
-    operation.set_operatorname("voxelgridfilter");
+    OperationDescription operation;
+    operation.mutable_operator_()->set_operatorname("voxelgridfilter");
     QJsonObject params;
     params["leafsize"] = LEAF_SIZE;
     params["target"] = "themap/thelayer/bunny";
@@ -247,7 +247,7 @@ void TestRepositoriesCommunication::voxelgrid(upns::Checkout *checkout)
 void TestRepositoriesCommunication::writePcdLocalOnly(upns::Checkout *checkout, std::string filename)
 {
     OperationDescription desc;
-    desc.set_operatorname("myUntraceable");
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
     desc.set_params("{\"source:\":\"testInlineOperator\"}");
     upns::OperationResult res = checkout->doUntraceableOperation(desc, [&filename](upns::OperationEnvironment* env)
     {
@@ -257,8 +257,11 @@ void TestRepositoriesCommunication::writePcdLocalOnly(upns::Checkout *checkout, 
         {
             return UPNS_STATUS_ERROR;
         }
-        std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
-
+        std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
+        if(entityData == nullptr)
+        {
+            return UPNS_STATUS_ERROR;
+        }
         pcl::PCDWriter writer;
 
         upnsPointcloud2Ptr pc2(entityData->getData());

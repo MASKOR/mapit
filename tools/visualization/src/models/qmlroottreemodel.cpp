@@ -3,11 +3,20 @@
 QmlRootTreeModel::QmlRootTreeModel()
     :m_root( NULL )
 {
-
-    m_roleNameMapping[Qt::DisplayRole] = "displayRole";
-    m_roleNameMapping[Qt::ToolTipRole] = "path";
+    m_roleNameMapping[NodeDisplayRole] = "displayRole";
+    m_roleNameMapping[NodePathRole] = "path";
     m_roleNameMapping[NodeTypeRole] = "type";
-    m_roleNameMapping[Qt::UserRole] = "node";
+    m_roleNameMapping[NodeNodeRole] = "node";
+    m_roleNameMapping[NodeVisibleRole] = "visible";
+}
+
+QVariantMap QmlRootTreeModel::get(int idx) const
+{
+    QVariantMap map;
+    Q_FOREACH(int k, roleNames().keys()) {
+        map[roleNames().value(k)] = data(index(idx, 0), k);
+    }
+    return map;
 }
 
 QmlCheckout *QmlRootTreeModel::root() const
@@ -21,12 +30,12 @@ void QmlRootTreeModel::setRoot(QmlCheckout *root)
     {
         if(m_root)
         {
-            disconnect(m_root, &QmlCheckout::intenalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+            disconnect(m_root, &QmlCheckout::internalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
         }
         m_root = root;
         if(m_root)
         {
-            connect(m_root, &QmlCheckout::intenalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+            connect(m_root, &QmlCheckout::internalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
         }
         Q_EMIT rootChanged(root);
     }
@@ -70,6 +79,7 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
             {
                 csi->setData(QVariant::fromValue(ent), Qt::UserRole);
                 csi->setData(QmlRootTreeModel::EntityNode, NodeTypeRole);
+                csi->setData(false, NodeVisibleRole);
             }
             //TODO: conflicts
         }
@@ -82,6 +92,7 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
             this->appendRow( csi );
         }
     }
+    Q_EMIT itemsChanged();
 }
 
 QHash<int, QByteArray> QmlRootTreeModel::roleNames() const

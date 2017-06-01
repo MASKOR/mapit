@@ -25,7 +25,13 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} networking_node upns_core standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} networking_node upns_core standard_repository_factory networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} stdc++)
+
+######## FOR DEBUGGING PURPOSES ONLY (let gdb find libs with custom cmake output names) ########
+
+target_link_libraries(${PROJECT_NAME} layertype_las)
+
+############################
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
