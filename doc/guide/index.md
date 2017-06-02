@@ -9,7 +9,7 @@ theme: minima
 
 ## Overview
 
-Mapit is designed to offer easy communication between multiple participants for accessing and editing sensordata. This is archieved by following design principles of distributed versioning systems and algorithm pipelines (workflows).
+Mapit is designed to offer easy communication between multiple participants for accessing and editing sensordata. This is achieved by following design principles of distributed versioning systems and algorithm pipelines (workflows).
 
 For example  the following shell script creates a new repository locally (*.mapit* directory).
 It creates a new *checkout*. Note, that *checkouts*, in contrast to other versioning systems, are not visible in the filesystem (yet).

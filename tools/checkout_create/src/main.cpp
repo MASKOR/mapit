@@ -43,5 +43,5 @@ int main(int argc, char *argv[])
     {
         std::cout << "failed to create checkout from " << vars["commitref"].as<std::string>() << std::endl;
     }
-    return co == NULL;
+    return co == nullptr;
 }
