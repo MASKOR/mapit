@@ -12,6 +12,12 @@ aux_source_directory(. SRC_LIST)
 
 set (CMAKE_CXX_STANDARD 11)
 
+set(MAPIT_MAJOR_VERSION 0)
+set(MAPIT_MINOR_VERSION 1)
+set(MAPIT_PATCH_VERSION 0)
+set(MAPIT_VERSION
+  ${MAPIT_MAJOR_VERSION}.${MAPIT_MINOR_VERSION}.${MAPIT_PATCH_VERSION})
+
 set(UPNS_INSTALL_INCLUDE "upns")
 set(MAPIT_INSTALL_INCLUDE "mapit") # TODO: replace UPNS_* with MAPIT
 # include directory as subfolder. final form: #include <${UPNS_INSTALL_INCLUDE}/${UPNS_INSTALL_INCLUDE_LAYERTYPES}/*.h>
@@ -104,14 +110,14 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 set(ResourceDir ${PROJECT_SOURCE_DIR}/resources)
 file(GLOB_RECURSE Resources_All ${ResourceDir}/*)
 
-include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
-include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
+#include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
+#include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 if(WITH_LOG4CPLUS)
   include_directories(${LOG4CPLUS_INCLUDE_DIR})
 endif(WITH_LOG4CPLUS)
 #include_directories(${UPNS_ROOT_DIR}/externals/include) # for sha initially
 
-set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
+#set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
 add_subdirectory(libs/core)
 add_subdirectory(libs/operator_modules_collection)

@@ -4,25 +4,20 @@ aux_source_directory(. SRC_LIST)
 
 find_package(Boost COMPONENTS filesystem iostreams)
 
-############# Protobuf
+file(GLOB_RECURSE UPNS_MM_SOURCES src/*.cpp
+                                  src/*.h
+                                  src/serialization/file_system/*.cpp
+                                  src/serialization/file_system/*.h
+                                  include/*.h
+                                  src/sha/*.cpp
+                                  src/sha/*.h)
 
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-
-file(GLOB_RECURSE UPNS_MM_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
-                                  ${PROJECT_SOURCE_DIR}/src/*.h
-                                  ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.cpp
-                                  ${PROJECT_SOURCE_DIR}/src/serialization/file_system/*.h
-                                  ${PROJECT_SOURCE_DIR}/include/*.h
-                                  ${PROJECT_SOURCE_DIR}/src/sha/*.cpp
-                                  ${PROJECT_SOURCE_DIR}/src/sha/*.h)
-
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_MM_SOURCES} ${UPNS_ADDITIONAL_NOT_FOUND_FILES_TEMP} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_MM_SOURCES} )
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 #Note: Windows (and also linux in some cases?):
-# PCL was linked statically against boost. PCL is linkes statically to layertype.
-# Layertype has nothing to do with mapmanager. (linked dynmic and at runtime)
+# PCL was linked statically against boost. PCL is linked statically to layertype.
+# Layertype has nothing to do with core. (linked dynamic and at runtime)
 # Somehow boost dependency comes in here. I guess a static library wants it, thus the executable/dynamic-library must have it.
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_interface_cpp ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
 
@@ -37,9 +32,64 @@ endif(NOT WIN32)
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib
 #    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_55.lib)
 
-target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
-                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/
-                                                   ${Boost_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+  PRIVATE
+    src
+    ${Boost_INCLUDE_DIRS}
+)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+include(GenerateExportHeader)
+
+generate_export_header(${PROJECT_NAME})
+set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION 1)
+set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION 1)
+set_property(TARGET ${PROJECT_NAME} PROPERTY
+  INTERFACE_mapit_MAJOR_VERSION 1)
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
+  COMPATIBLE_INTERFACE_STRING mapit_MAJOR_VERSION
+)
+
+install(TARGETS ${PROJECT_NAME} EXPORT upns_core_targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(DIRECTORY include DESTINATION include )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreConfigVersion.cmake"
+  VERSION 1
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT upns_core_targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreTargets.cmake"
+  NAMESPACE mapit::
+)
+configure_file(cmake/mapitCoreConfig.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreConfig.cmake"
+  COPYONLY
+)
+
+set(ConfigPackageLocation lib/cmake/mapit)
+install(EXPORT upns_core_targets
+  FILE
+    mapitCoreTargets.cmake
+  NAMESPACE
+    mapit::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+install(
+  FILES
+    cmake/mapitCoreConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
