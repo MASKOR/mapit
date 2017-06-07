@@ -17,10 +17,6 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-
-find_package(Protobuf)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-
 FILE(GLOB TEST_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 MACRO(SUBDIRLIST result curdir)

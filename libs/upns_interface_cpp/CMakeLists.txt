@@ -4,16 +4,11 @@ aux_source_directory(. SRC_LIST)
 
 # upns_interface_cpp contains headers with virtual interfaces, which can be implemented by different libraries.
 
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-#include_directories(${PROJECT_SOURCE_DIR}/src/)
-#include_directories(${PROJECT_SOURCE_DIR}/include/)
-#include_directories(${UPNS_INTERFACE_INCLUDE})
-
 file(GLOB_RECURSE UPNS_INTERFACE_CPP_SOURCES include/*.h)
 
 add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE include)
+target_include_directories(${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
+                                                     $<INSTALL_INTERFACE:include>)
 
 #shows files in qtcreator
 add_custom_target(${PROJECT_NAME}_NOP ALL ${CMAKE_COMMAND} -E echo "show files in qtcreator" SOURCES ${UPNS_INTERFACE_CPP_SOURCES})
@@ -27,7 +22,7 @@ generate_export_header(${PROJECT_NAME})
 #set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${MAPIT_VERSION})
 #set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${MAPIT_VERSION})
 set_property(TARGET ${PROJECT_NAME} PROPERTY
-  INTERFACE_mapit_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
+  INTERFACE_mapit_interface_cpp_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
   COMPATIBLE_INTERFACE_STRING MAPIT_MAJOR_VERSION
 )

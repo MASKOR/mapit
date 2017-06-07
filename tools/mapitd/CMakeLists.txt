@@ -1,9 +1,6 @@
 project(mapitd)
 cmake_minimum_required(VERSION 2.8)
 
-find_package(Protobuf)
-INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
-
 find_package(Boost COMPONENTS program_options REQUIRED)
 
 #zeromq

@@ -2,7 +2,7 @@ project(upns_core)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-find_package(Boost COMPONENTS filesystem iostreams)
+find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
 
 file(GLOB_RECURSE UPNS_MM_SOURCES src/*.cpp
                                   src/*.h
@@ -19,7 +19,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 # PCL was linked statically against boost. PCL is linked statically to layertype.
 # Layertype has nothing to do with core. (linked dynamic and at runtime)
 # Somehow boost dependency comes in here. I guess a static library wants it, thus the executable/dynamic-library must have it.
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_interface_cpp ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
+target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${Boost_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
@@ -34,7 +34,8 @@ endif(NOT WIN32)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
-    include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
+    $<INSTALL_INTERFACE:include>
   PRIVATE
     src
     ${Boost_INCLUDE_DIRS}
@@ -46,7 +47,7 @@ generate_export_header(${PROJECT_NAME})
 set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION 1)
 set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION 1)
 set_property(TARGET ${PROJECT_NAME} PROPERTY
-  INTERFACE_mapit_MAJOR_VERSION 1)
+  INTERFACE_mapit_core_MAJOR_VERSION 1)
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
   COMPATIBLE_INTERFACE_STRING mapit_MAJOR_VERSION
 )

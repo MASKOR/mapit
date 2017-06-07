@@ -6,6 +6,8 @@
 # 4) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames. Pcl seems to break findBoost.
 # 5) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
 
+# TODOS:
+# create Config.cmakes for all layertypes
 project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)
@@ -29,6 +31,7 @@ add_definitions(-DUPNS_INSTALL_OPERATORS="${UPNS_INSTALL_OPERATORS}")
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         message(WARNING "WARNING: In-Place Build not recommended. If you accidently commit and push wrong files to the repository, you owe a cup of coffee to your teammembers.")
+        return(1) # stop messing up source directory if this happens accidently
 endif()
 
 if(NOT WIN32)
@@ -48,6 +51,16 @@ set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
     ${CMAKE_MODULE_PATH}
 )
+
+##### let layertypes and operators know what libraries are available ####
+# Note: This could be part of the layertypes cmake because all operators will depend on the layertype
+# however at this point cmake already created the target for the operator and it might be hard to
+# remove it again. Which layertypes/operators are build is decided in a single space
+# (layertypes_collection and operator_modules_collection)
+set(WITH_PCL TRUE CACHE BOOL "Enable pcl Layers")
+set(WITH_OPENVDB TRUE CACHE BOOL "Enable OpenVDB Layers")
+set(WITH_OCTOMAP TRUE CACHE BOOL "Enable Octomap Layers")
+set(WITH_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
 
 set(WITH_LOG4CPLUS TRUE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
 

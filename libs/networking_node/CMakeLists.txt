@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 
 set (CMAKE_CXX_STANDARD 11)
 
-find_package(Protobuf)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-
 #zeromq
 find_package(ZMQ REQUIRED)
 include_directories(${ZMQ_INCLUDE_DIR})

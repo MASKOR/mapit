@@ -1,5 +1,3 @@
-if(NOT DISABLE_OPENVDB)
-
 project(levelset_to_mesh)
 cmake_minimum_required(VERSION 2.8)
 
@@ -49,5 +47,3 @@ get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_OPERATORS})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-
-endif(NOT DISABLE_OPENVDB)
