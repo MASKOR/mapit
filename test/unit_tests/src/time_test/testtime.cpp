@@ -26,9 +26,6 @@ void TestTime::testTime()
 {
   namespace t = mapit::time;
 
-  t::Stamp now = t::Clock::now();
-  t::Stamp d_5_sec_ago = now - t::Duration(5);
-
   // random time, out of ROS at the time of writing this test
   long ros_sec = 1497347909;
   long ros_nsec = 336102938;
