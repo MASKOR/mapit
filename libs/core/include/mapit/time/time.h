@@ -4,6 +4,12 @@
 #include <chrono>
 #include "date/date.h"
 
+namespace std {
+  namespace chrono {
+    namespace date = ::date;
+  }
+}
+
 namespace mapit
 {
 #if 0 // for autoindent
@@ -12,14 +18,14 @@ namespace mapit
 
 namespace time {
   namespace chrono = std::chrono;
-  namespace date = ::date;
+//  namespace date = ::date;
   using Clock = chrono::high_resolution_clock;
 
   using Stamp = chrono::time_point<Clock>;
 
-  using years = date::years;
-  using month = date::months;
-  using days = date::days;
+  using years = chrono::date::years;
+  using month = chrono::date::months;
+  using days = chrono::date::days;
   using hours = chrono::hours;
   using minutes = chrono::minutes;
   using seconds = chrono::seconds;
@@ -47,37 +53,37 @@ namespace time {
 
   unsigned int only_year(Stamp stamp)
   {
-    date::year_month_day ymd = date::floor<days>( stamp );
+    chrono::date::year_month_day ymd = chrono::date::floor<days>( stamp );
     return int(ymd.year());
   }
 
   unsigned int only_month(Stamp stamp)
   {
-    date::year_month_day ymd = date::floor<days>( stamp );
+    chrono::date::year_month_day ymd = chrono::date::floor<days>( stamp );
     return unsigned(ymd.month());
   }
 
   unsigned int only_day(Stamp stamp)
   {
-    date::year_month_day ymd = date::floor<days>( stamp );
+    chrono::date::year_month_day ymd = chrono::date::floor<days>( stamp );
     return unsigned(ymd.day());
   }
 
   unsigned int only_hours(Stamp stamp)
   {
-    Stamp full_days = date::floor<date::days>( stamp );
+    Stamp full_days = chrono::date::floor<chrono::date::days>( stamp );
     return chrono::duration_cast<hours>( stamp - full_days ).count();
   }
 
   unsigned int only_minutes(Stamp stamp)
   {
-    Stamp full_hours = date::floor<hours>( stamp );
+    Stamp full_hours = chrono::date::floor<hours>( stamp );
     return chrono::duration_cast<minutes>( stamp - full_hours ).count();
   }
 
   unsigned int only_seconds(Stamp stamp)
   {
-    Stamp full_minutes = date::floor<minutes>( stamp );
+    Stamp full_minutes = chrono::date::floor<minutes>( stamp );
     return chrono::duration_cast<seconds>( stamp - full_minutes ).count();
   }
 }
