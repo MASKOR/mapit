@@ -16,24 +16,29 @@ namespace mapit
 };
 #endif
 
-namespace time {
-  namespace chrono = std::chrono;
-//  namespace date = ::date;
-  using Clock = chrono::high_resolution_clock;
+class time {
+public:
+  using Clock = std::chrono::high_resolution_clock;
 
-  using Stamp = chrono::time_point<Clock>;
+  using Stamp = std::chrono::time_point<Clock>;
+  using Duration = std::chrono::duration<double>;
 
-  using years = chrono::date::years;
-  using month = chrono::date::months;
-  using days = chrono::date::days;
-  using hours = chrono::hours;
-  using minutes = chrono::minutes;
-  using seconds = chrono::seconds;
-  using milliseconds = chrono::milliseconds;
-  using microseconds = chrono::microseconds;
-  using nanoseconds = chrono::nanoseconds;
+  using years = std::chrono::date::years;
+  using month = std::chrono::date::months;
+  using days = std::chrono::date::days;
+  using hours = std::chrono::hours;
+  using minutes = std::chrono::minutes;
+  using seconds = std::chrono::seconds;
+  using milliseconds = std::chrono::milliseconds;
+  using microseconds = std::chrono::microseconds;
+  using nanoseconds = std::chrono::nanoseconds;
 
-  Stamp from_sec_and_nsec(long sec, long nsec)
+  static bool is_zero(Stamp stamp)
+  {
+    return stamp.time_since_epoch() == stamp.time_since_epoch().zero();
+  }
+
+  static Stamp from_sec_and_nsec(long sec, long nsec)
   {
     nanoseconds t_nsec(nsec);
     seconds t_sec(sec);
@@ -42,51 +47,28 @@ namespace time {
 
     return t;
   }
-  void to_sec_and_nsec(Stamp stamp, long &sec, long &nsec)
+
+  static void to_sec_and_nsec(Stamp stamp, long &sec, long &nsec)
   {
-    seconds d_sec = chrono::duration_cast<seconds>( stamp.time_since_epoch() );
+    seconds d_sec = std::chrono::duration_cast<seconds>( stamp.time_since_epoch() );
     sec = d_sec.count();
 
     Stamp s_nsec = stamp - d_sec;
-    nsec = chrono::duration_cast<nanoseconds>( s_nsec.time_since_epoch() ).count();
+    nsec = std::chrono::duration_cast<nanoseconds>( s_nsec.time_since_epoch() ).count();
   }
 
-  unsigned int only_year(Stamp stamp)
+  static double to_sec(Stamp stamp)
   {
-    chrono::date::year_month_day ymd = chrono::date::floor<days>( stamp );
-    return int(ymd.year());
+    Stamp full_seconds = std::chrono::date::floor<seconds>( stamp );
+    double ns = std::chrono::duration_cast<nanoseconds>(stamp - full_seconds).count() * 0.000000001; //10**(-9)
+    return std::chrono::duration_cast<seconds>( stamp.time_since_epoch() ).count() + ns;
   }
 
-  unsigned int only_month(Stamp stamp)
+  static double to_sec(Duration dur)
   {
-    chrono::date::year_month_day ymd = chrono::date::floor<days>( stamp );
-    return unsigned(ymd.month());
+    return dur.count();
   }
-
-  unsigned int only_day(Stamp stamp)
-  {
-    chrono::date::year_month_day ymd = chrono::date::floor<days>( stamp );
-    return unsigned(ymd.day());
-  }
-
-  unsigned int only_hours(Stamp stamp)
-  {
-    Stamp full_days = chrono::date::floor<chrono::date::days>( stamp );
-    return chrono::duration_cast<hours>( stamp - full_days ).count();
-  }
-
-  unsigned int only_minutes(Stamp stamp)
-  {
-    Stamp full_hours = chrono::date::floor<hours>( stamp );
-    return chrono::duration_cast<minutes>( stamp - full_hours ).count();
-  }
-
-  unsigned int only_seconds(Stamp stamp)
-  {
-    Stamp full_minutes = chrono::date::floor<minutes>( stamp );
-    return chrono::duration_cast<seconds>( stamp - full_minutes ).count();
-  }
-}
+};
 }
 
 #endif
