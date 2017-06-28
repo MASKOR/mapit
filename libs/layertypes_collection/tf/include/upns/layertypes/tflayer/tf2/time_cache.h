@@ -27,7 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Tully Foote */
+/** \author Tully Foote
+            2017 Tobias Neumann */
 
 #ifndef TF2_TIME_CACHE_H
 #define TF2_TIME_CACHE_H
@@ -38,26 +39,25 @@
 
 #include <sstream>
 
-#include <ros/message_forward.h>
-#include <ros/time.h>
-
-#include <boost/shared_ptr.hpp>
-
-namespace geometry_msgs
+#include <mapit/time/time.h>
+namespace mapit
 {
-ROS_DECLARE_MESSAGE(TransformStamped);
+#if 0 // just to make autoindent happy
 }
-
+#endif
 namespace tf2
 {
+#if 0 // just to make autoindent happy
+}
+#endif
 
-typedef std::pair<ros::Time, CompactFrameID> P_TimeAndFrameID;
+typedef std::pair<mapit::time::Stamp, CompactFrameID> P_TimeAndFrameID;
 
 class TimeCacheInterface
 {
 public:
   /** \brief Access data from the cache */
-  virtual bool getData(ros::Time time, TransformStorage & data_out, std::string* error_str = 0)=0; //returns false if data unavailable (should be thrown as lookup exception
+  virtual bool getData(mapit::time::Stamp time, TransformStorage & data_out, std::string* error_str = 0)=0; //returns false if data unavailable (should be thrown as lookup exception
 
   /** \brief Insert data into the cache */
   virtual bool insertData(const TransformStorage& new_data)=0;
@@ -66,7 +66,7 @@ public:
   virtual void clearList()=0;
 
   /** \brief Retrieve the parent at a specific time */
-  virtual CompactFrameID getParent(ros::Time time, std::string* error_str) = 0;
+  virtual CompactFrameID getParent(mapit::time::Stamp time, std::string* error_str) = 0;
 
   /**
    * \brief Get the latest time stored in this cache, and the parent associated with it.  Returns parent = 0 if no data.
@@ -76,16 +76,16 @@ public:
 
   /// Debugging information methods
   /** @brief Get the length of the stored list */
-  virtual unsigned int getListLength()=0;
+  virtual unsigned long getListLength()=0;
 
   /** @brief Get the latest timestamp cached */
-  virtual ros::Time getLatestTimestamp()=0;
+  virtual mapit::time::Stamp getLatestTimestamp()=0;
 
   /** @brief Get the oldest timestamp cached */
-  virtual ros::Time getOldestTimestamp()=0;
+  virtual mapit::time::Stamp getOldestTimestamp()=0;
 };
 
-typedef boost::shared_ptr<TimeCacheInterface> TimeCacheInterfacePtr;
+typedef std::shared_ptr<TimeCacheInterface> TimeCacheInterfacePtr;
 
 /** \brief A class to keep a sorted linked list in time
  * This builds and maintains a list of timestamped
@@ -98,35 +98,35 @@ class TimeCache : public TimeCacheInterface
   static const unsigned int MAX_LENGTH_LINKED_LIST = 1000000; //!< Maximum length of linked list, to make sure not to be able to use unlimited memory.
   static const int64_t DEFAULT_MAX_STORAGE_TIME = 1ULL * 1000000000LL; //!< default value of 10 seconds storage
 
-  TimeCache(ros::Duration  max_storage_time = ros::Duration().fromNSec(DEFAULT_MAX_STORAGE_TIME));
+  TimeCache(mapit::time::seconds  max_storage_time = mapit::time::seconds(DEFAULT_MAX_STORAGE_TIME));
 
 
   /// Virtual methods
 
-  virtual bool getData(ros::Time time, TransformStorage & data_out, std::string* error_str = 0);
+  virtual bool getData(mapit::time::Stamp time, TransformStorage & data_out, std::string* error_str = 0);
   virtual bool insertData(const TransformStorage& new_data);
   virtual void clearList();
-  virtual CompactFrameID getParent(ros::Time time, std::string* error_str);
+  virtual CompactFrameID getParent(mapit::time::Stamp time, std::string* error_str);
   virtual P_TimeAndFrameID getLatestTimeAndParent();
 
   /// Debugging information methods
-  virtual unsigned int getListLength();
-  virtual ros::Time getLatestTimestamp();
-  virtual ros::Time getOldestTimestamp();
+  virtual unsigned long getListLength();
+  virtual mapit::time::Stamp getLatestTimestamp();
+  virtual mapit::time::Stamp getOldestTimestamp();
   
 
 private:
   typedef std::list<TransformStorage> L_TransformStorage;
   L_TransformStorage storage_;
 
-  ros::Duration max_storage_time_;
+  mapit::time::seconds max_storage_time_;
 
 
   /// A helper function for getData
   //Assumes storage is already locked for it
-  inline uint8_t findClosest(TransformStorage*& one, TransformStorage*& two, ros::Time target_time, std::string* error_str);
+  inline uint8_t findClosest(TransformStorage*& one, TransformStorage*& two, mapit::time::Stamp target_time, std::string* error_str);
 
-  inline void interpolate(const TransformStorage& one, const TransformStorage& two, ros::Time time, TransformStorage& output);
+  inline void interpolate(const TransformStorage& one, const TransformStorage& two, mapit::time::Stamp time, TransformStorage& output);
 
 
   void pruneList();
@@ -140,23 +140,24 @@ class StaticCache : public TimeCacheInterface
  public:
   /// Virtual methods
 
-  virtual bool getData(ros::Time time, TransformStorage & data_out, std::string* error_str = 0); //returns false if data unavailable (should be thrown as lookup exception
+  virtual bool getData(mapit::time::Stamp time, TransformStorage & data_out, std::string* error_str = 0); //returns false if data unavailable (should be thrown as lookup exception
   virtual bool insertData(const TransformStorage& new_data);
   virtual void clearList();
-  virtual CompactFrameID getParent(ros::Time time, std::string* error_str);
+  virtual CompactFrameID getParent(mapit::time::Stamp time, std::string* error_str);
   virtual P_TimeAndFrameID getLatestTimeAndParent();
 
 
   /// Debugging information methods
-  virtual unsigned int getListLength();
-  virtual ros::Time getLatestTimestamp();
-  virtual ros::Time getOldestTimestamp();
+  virtual unsigned long getListLength();
+  virtual mapit::time::Stamp getLatestTimestamp();
+  virtual mapit::time::Stamp getOldestTimestamp();
   
 
 private:
   TransformStorage  storage_;
 };
 
+}
 }
 
 #endif // TF2_TIME_CACHE_H

@@ -27,7 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Tully Foote */
+/** \author Tully Foote
+            2017 Tobias Neumann*/
 
 #ifndef TF2_BUFFER_CORE_H
 #define TF2_BUFFER_CORE_H
@@ -38,10 +39,8 @@
 
 #include <string>
 
-#include "ros/duration.h"
-#include "ros/time.h"
-//#include "geometry_msgs/TwistStamped.h"
-#include "geometry_msgs/TransformStamped.h"
+#include <mapit/time/time.h>
+#include <upns/layertypes/tflayer.h>
 
 //////////////////////////backwards startup for porting
 //#include "tf/tf.h"
@@ -49,17 +48,34 @@
 #include <boost/unordered_map.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
 
+namespace mapit {
+#if 0 // just to make autoindent happy
+}
+#endif
 namespace tf2
 {
+#if 0 // just to make autoindent happy
+}
+#endif
 
-typedef std::pair<ros::Time, CompactFrameID> P_TimeAndFrameID;
+enum TF2Error {
+  NO_ERROR,
+  LOOKUP_ERROR,
+  CONNECTIVITY_ERROR,
+  EXTRAPOLATION_ERROR,
+  INVALID_ARGUMENT_ERROR,
+  TIMEOUT_ERROR,
+  TRANSFORM_ERROR,
+};
+
+typedef std::pair<mapit::time::Stamp, CompactFrameID> P_TimeAndFrameID;
 typedef uint32_t TransformableCallbackHandle;
 typedef uint64_t TransformableRequestHandle;
 
 class TimeCacheInterface;
-typedef boost::shared_ptr<TimeCacheInterface> TimeCacheInterfacePtr;
+typedef std::shared_ptr<TimeCacheInterface> TimeCacheInterfacePtr;
 
 enum TransformableResult
 {
@@ -97,7 +113,7 @@ public:
    * \param cache_time How long to keep a history of transforms in nanoseconds
    *
    */
-  BufferCore(ros::Duration cache_time_ = ros::Duration(DEFAULT_CACHE_TIME));
+  BufferCore(mapit::time::seconds cache_time_ = mapit::time::seconds(DEFAULT_CACHE_TIME));
   virtual ~BufferCore(void);
 
   /** \brief Clear all data */
@@ -109,7 +125,7 @@ public:
    * \param is_static Record this transform as a static transform.  It will be good across all time.  (This cannot be changed after the first call.)
    * \return True unless an error occured
    */
-  bool setTransform(const geometry_msgs::TransformStamped& transform, const std::string & authority, bool is_static = false);
+  bool setTransform(const ::tf::TransformStamped& transform, const std::string & authority, bool is_static = false);
 
   /*********** Accessors *************/
 
@@ -122,9 +138,9 @@ public:
    * Possible exceptions tf2::LookupException, tf2::ConnectivityException,
    * tf2::ExtrapolationException, tf2::InvalidArgumentException
    */
-  geometry_msgs::TransformStamped 
+  ::tf::TransformStamped
     lookupTransform(const std::string& target_frame, const std::string& source_frame,
-		    const ros::Time& time) const;
+                    const mapit::time::Stamp& time) const;
 
   /** \brief Get the transform between two frames by frame ID assuming fixed frame.
    * \param target_frame The frame to which data should be transformed
@@ -138,10 +154,10 @@ public:
    * tf2::ExtrapolationException, tf2::InvalidArgumentException
    */
 
-  geometry_msgs::TransformStamped
-    lookupTransform(const std::string& target_frame, const ros::Time& target_time,
-		    const std::string& source_frame, const ros::Time& source_time,
-		    const std::string& fixed_frame) const;
+  ::tf::TransformStamped
+    lookupTransform(const std::string& target_frame, const mapit::time::Stamp& target_time,
+                    const std::string& source_frame, const mapit::time::Stamp& source_time,
+                    const std::string& fixed_frame) const;
   
   /** \brief Lookup the twist of the tracking_frame with respect to the observation frame in the reference_frame using the reference point
    * \param tracking_frame The frame to track
@@ -194,7 +210,7 @@ public:
    * \return True if the transform is possible, false otherwise 
    */
   bool canTransform(const std::string& target_frame, const std::string& source_frame,
-                    const ros::Time& time, std::string* error_msg = NULL) const;
+                    const mapit::time::Stamp& time, std::string* error_msg = NULL) const;
   
   /** \brief Test if a transform is possible
    * \param target_frame The frame into which to transform
@@ -205,8 +221,8 @@ public:
    * \param error_msg A pointer to a string which will be filled with why the transform failed, if not NULL
    * \return True if the transform is possible, false otherwise 
    */
-  bool canTransform(const std::string& target_frame, const ros::Time& target_time,
-                    const std::string& source_frame, const ros::Time& source_time,
+  bool canTransform(const std::string& target_frame, const mapit::time::Stamp& target_time,
+                    const std::string& source_frame, const mapit::time::Stamp& source_time,
                     const std::string& fixed_frame, std::string* error_msg = NULL) const;
 
   /** \brief A way to see what frames have been cached in yaml format
@@ -224,14 +240,14 @@ public:
   std::string allFramesAsString() const;
   
   typedef boost::function<void(TransformableRequestHandle request_handle, const std::string& target_frame, const std::string& source_frame,
-                               ros::Time time, TransformableResult result)> TransformableCallback;
+                               mapit::time::Stamp time, TransformableResult result)> TransformableCallback;
 
   /// \brief Internal use only
   TransformableCallbackHandle addTransformableCallback(const TransformableCallback& cb);
   /// \brief Internal use only
   void removeTransformableCallback(TransformableCallbackHandle handle);
   /// \brief Internal use only
-  TransformableRequestHandle addTransformableRequest(TransformableCallbackHandle handle, const std::string& target_frame, const std::string& source_frame, ros::Time time);
+  TransformableRequestHandle addTransformableRequest(TransformableCallbackHandle handle, const std::string& target_frame, const std::string& source_frame, mapit::time::Stamp time);
   /// \brief Internal use only
   void cancelTransformableRequest(TransformableRequestHandle handle);
 
@@ -269,7 +285,7 @@ public:
    * @param frame_id The frame id of the frame in question
    * @param parent The reference to the string to fill the parent
    * Returns true unless "NO_PARENT" */
-  bool _getParent(const std::string& frame_id, ros::Time time, std::string& parent) const;
+  bool _getParent(const std::string& frame_id, mapit::time::Stamp time, std::string& parent) const;
 
   /** \brief A way to get a std::vector of available frame ids */
   void _getFrameStrings(std::vector<std::string>& ids) const;
@@ -282,7 +298,7 @@ public:
     return lookupOrInsertFrameNumber(frameid_str); 
   }
 
-  int _getLatestCommonTime(CompactFrameID target_frame, CompactFrameID source_frame, ros::Time& time, std::string* error_string) const {
+  int _getLatestCommonTime(CompactFrameID target_frame, CompactFrameID source_frame, mapit::time::Stamp& time, std::string* error_string) const {
     boost::mutex::scoped_lock lock(frame_mutex_);
     return getLatestCommonTime(target_frame, source_frame, time, error_string);
   }
@@ -292,7 +308,7 @@ public:
   }
 
   /**@brief Get the duration over which this transformer will cache */
-  ros::Duration getCacheLength() { return cache_time_;}
+  mapit::time::seconds getCacheLength() { return cache_time_;}
 
   /** \brief Backwards compatabilityA way to see what frames have been cached
    * Useful for debugging
@@ -303,7 +319,7 @@ public:
   /** \brief Backwards compatabilityA way to see what frames are in a chain
    * Useful for debugging
    */
-  void _chainAsVector(const std::string & target_frame, ros::Time target_time, const std::string & source_frame, ros::Time source_time, const std::string & fixed_frame, std::vector<std::string>& output) const;
+  void _chainAsVector(const std::string & target_frame, mapit::time::Stamp target_time, const std::string & source_frame, mapit::time::Stamp source_time, const std::string & fixed_frame, std::vector<std::string>& output) const;
 
 private:
 
@@ -333,7 +349,7 @@ private:
 
 
   /// How long to cache transform history
-  ros::Duration cache_time_;
+  mapit::time::seconds cache_time_;
 
   typedef boost::unordered_map<TransformableCallbackHandle, TransformableCallback> M_TransformableCallback;
   M_TransformableCallback transformable_callbacks_;
@@ -342,7 +358,7 @@ private:
 
   struct TransformableRequest
   {
-    ros::Time time;
+    mapit::time::Stamp time;
     TransformableRequestHandle request_handle;
     TransformableCallbackHandle cb_handle;
     CompactFrameID target_id;
@@ -393,21 +409,21 @@ private:
 
   /**@brief Return the latest rostime which is common across the spanning set
    * zero if fails to cross */
-  int getLatestCommonTime(CompactFrameID target_frame, CompactFrameID source_frame, ros::Time& time, std::string* error_string) const;
+  TF2Error getLatestCommonTime(CompactFrameID target_frame, CompactFrameID source_frame, mapit::time::Stamp& time, std::string* error_string) const;
 
   template<typename F>
-  int walkToTopParent(F& f, ros::Time time, CompactFrameID target_id, CompactFrameID source_id, std::string* error_string) const;
+  TF2Error walkToTopParent(F& f, mapit::time::Stamp time, CompactFrameID target_id, CompactFrameID source_id, std::string* error_string) const;
 
   /**@brief Traverse the transform tree. If frame_chain is not NULL, store the traversed frame tree in vector frame_chain.
    * */
   template<typename F>
-  int walkToTopParent(F& f, ros::Time time, CompactFrameID target_id, CompactFrameID source_id, std::string* error_string, std::vector<CompactFrameID> *frame_chain) const;
+  TF2Error walkToTopParent(F& f, mapit::time::Stamp time, CompactFrameID target_id, CompactFrameID source_id, std::string* error_string, std::vector<CompactFrameID> *frame_chain) const;
 
   void testTransformableRequests();
   bool canTransformInternal(CompactFrameID target_id, CompactFrameID source_id,
-                    const ros::Time& time, std::string* error_msg) const;
+                    const mapit::time::Stamp& time, std::string* error_msg) const;
   bool canTransformNoLock(CompactFrameID target_id, CompactFrameID source_id,
-                      const ros::Time& time, std::string* error_msg) const;
+                      const mapit::time::Stamp& time, std::string* error_msg) const;
 
 
   //Whether it is safe to use canTransform with a timeout. (If another thread is not provided it will always timeout.)
@@ -420,4 +436,5 @@ private:
 
 };
 
+}
 #endif //TF2_CORE_H

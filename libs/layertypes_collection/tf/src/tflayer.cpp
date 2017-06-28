@@ -11,20 +11,20 @@ public:
 void readTfFromStream(upnsIStream &in, tf::Transform &tfout )
 {
   mapit::msgs::Transform tf;
-  if(!stream_tf.ParseFromIstream(&in)) {
+  if(!tf.ParseFromIstream(&in)) {
     log_error("Could not read tranform from stream. Proceeding with identity");
     // TODO: throw exeption
   } else {
-    tfout.translation.x() = stream_tf.translation().x();
-    tfout.translation.y() = stream_tf.translation().y();
-    tfout.translation.z() = stream_tf.translation().z();
+    tfout.translation.x() = tf.translation().x();
+    tfout.translation.y() = tf.translation().y();
+    tfout.translation.z() = tf.translation().z();
 
-    tfout.rotation.w() = stream_tf.rotation().w();
-    tfout.rotation.x() = stream_tf.rotation().x();
-    tfout.rotation.y() = stream_tf.rotation().y();
-    tfout.rotation.z() = stream_tf.rotation().z();
+    tfout.rotation.w() = tf.rotation().w();
+    tfout.rotation.x() = tf.rotation().x();
+    tfout.rotation.y() = tf.rotation().y();
+    tfout.rotation.z() = tf.rotation().z();
 
-    tfout.child_frame_id = stream_tf.child_frame_id();
+    tfout.child_frame_id = tf.child_frame_id();
   }
 }
 void writeTfToStream(upnsOStream &out, tf::Transform &data )

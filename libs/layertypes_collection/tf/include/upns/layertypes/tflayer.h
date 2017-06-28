@@ -5,6 +5,7 @@
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 
 #include <Eigen/Geometry>
+#include <mapit/time/time.h>
 
 // Transform or Path (Array of transforms) in combination with a timestamp.
 // {
@@ -68,13 +69,31 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, st
 //MODULE_EXPORT void deleteEntitydata(std::shared_ptr<AbstractEntitydata> streamProvider);
 }
 
+namespace upns {
 namespace tf {
   struct Transform {
     std::string child_frame_id;
-    Eigen::Vector3f translation;
+    Eigen::Translation3f translation;
     Eigen::Quaternionf rotation;
+
+    static Transform Identity()
+    {
+      Transform t;
+      t.child_frame_id = "";
+      t.translation = t.translation.Identity();
+      t.rotation.setIdentity();
+      return t;
+    }
   };
   typedef std::shared_ptr<Transform> TransformPtr;
+
+  struct TransformStamped {
+    Transform transform;
+    std::string frame_id;
+    mapit::time::Stamp stamp;
+  };
+  typedef std::shared_ptr<TransformStamped> TransformStampedPtr;
+}
 }
 
 class TfEntitydata : public Entitydata<tf::Transform>

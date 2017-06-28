@@ -27,7 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Tully Foote */
+/** \author Tully Foote
+            2017 Tobias Neumann */
 
 #ifndef TF2_TRANSFORM_DATATYPES_H
 #define TF2_TRANSFORM_DATATYPES_H

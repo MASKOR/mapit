@@ -27,25 +27,59 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Tully Foote */
+/** \author Tully Foote
+            2017 Tobias Neumann */
 
 #ifndef TF2_TRANSFORM_STORAGE_H
 #define TF2_TRANSFORM_STORAGE_H
 
-#include <tf2/LinearMath/Vector3.h>
-#include <tf2/LinearMath/Quaternion.h>
+#include <upns/layertypes/tflayer.h>
+#include <mapit/time/time.h>
 
-#include <ros/message_forward.h>
-#include <ros/time.h>
-#include <ros/types.h>
-
-namespace geometry_msgs
-{
-ROS_DECLARE_MESSAGE(TransformStamped);
+namespace mapit {
+#if 0 // just to make autoindent happy
 }
-
+#endif
 namespace tf2
 {
+#if 0 // just to make autoindent happy
+}
+#endif
+
+typedef Eigen::Affine3f Transform;
+
+struct TransformStamped : Transform {
+
+  TransformStamped()
+  {
+    transform.setIdentity();
+    frame_id = "";
+    child_frame_id = "";
+    stamp = mapit::time::Stamp::min();
+  }
+
+  TransformStamped(const Eigen::Affine3f& tf)
+  {
+    transform = tf;
+    frame_id = "";
+    child_frame_id = "";
+    stamp = mapit::time::Stamp::min();
+  }
+
+  TransformStamped(const TransformStamped& tf)
+  {
+    transform = tf.transform;
+    frame_id = tf.frame_id;
+    child_frame_id = tf.child_frame_id;
+    stamp = tf.stamp;
+  }
+
+  Eigen::Affine3f transform;
+  std::string frame_id;
+  std::string child_frame_id;
+  mapit::time::Stamp stamp;
+};
+typedef std::shared_ptr<TransformStamped> TransformStampedPtr;
 
 typedef uint32_t CompactFrameID;
 
@@ -54,7 +88,7 @@ class TransformStorage
 {
 public:
   TransformStorage();
-  TransformStorage(const geometry_msgs::TransformStamped& data, CompactFrameID frame_id, CompactFrameID child_frame_id);
+  TransformStorage(const ::tf::TransformStamped& data, CompactFrameID frame_id, CompactFrameID child_frame_id);
 
   TransformStorage(const TransformStorage& rhs)
   {
@@ -73,13 +107,14 @@ public:
     return *this;
   }
 
-  tf2::Quaternion rotation_;
-  tf2::Vector3 translation_;
-  ros::Time stamp_;
+  Eigen::Quaternionf rotation_;
+  Eigen::Translation3f translation_;
+  mapit::time::Stamp stamp_;
   CompactFrameID frame_id_;
   CompactFrameID child_frame_id_;
 };
 
+}
 }
 
 #endif // TF2_TRANSFORM_STORAGE_H

@@ -29,71 +29,79 @@
 
 /** \author Tully Foote */
 
-#include "tf2/time_cache.h"
-#include "tf2/exceptions.h"
+#include <upns/layertypes/tflayer/tf2/time_cache.h>
+#include <upns/layertypes/tflayer/tf2/exceptions.h>
 
-#include <tf2/LinearMath/Vector3.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Transform.h>
-#include <geometry_msgs/TransformStamped.h>
+Eigen::Translation3f
+interpolate3(const Eigen::Translation3f& v0, const Eigen::Translation3f& v1, float rt);
+Eigen::Vector3f
+quatRotate(const Eigen::Quaternionf& rotation, const Eigen::Vector3f& v);
+
+//#include <tf2/LinearMath/Transform.h>
+//#include <geometry_msgs/TransformStamped.h>
 #include <assert.h>
 
-namespace tf2 {
+namespace mapit {
+#if 0 // just to make autoindent happy
+}
+#endif
+namespace tf2{
+#if 0 // just to make autoindent happy
+}
+#endif
 
 TransformStorage::TransformStorage()
 {
 }
 
-TransformStorage::TransformStorage(const geometry_msgs::TransformStamped& data, CompactFrameID frame_id,
+TransformStorage::TransformStorage(const ::tf::TransformStamped& data, CompactFrameID frame_id,
                                    CompactFrameID child_frame_id)
-: stamp_(data.header.stamp)
+: stamp_(data.stamp)
 , frame_id_(frame_id)
 , child_frame_id_(child_frame_id)
 {
-  const geometry_msgs::Quaternion& o = data.transform.rotation;
-  rotation_ = tf2::Quaternion(o.x, o.y, o.z, o.w);
-  const geometry_msgs::Vector3& v = data.transform.translation;
-  translation_ = tf2::Vector3(v.x, v.y, v.z);
+  rotation_ = data.transform.rotation;
+  translation_ = data.transform.translation;
 }
 
-TimeCache::TimeCache(ros::Duration max_storage_time)
+TimeCache::TimeCache(mapit::time::seconds max_storage_time)
 : max_storage_time_(max_storage_time)
 {}
 
 namespace cache { // Avoid ODR collisions https://github.com/ros/geometry2/issues/175 
 // hoisting these into separate functions causes an ~8% speedup.  Removing calling them altogether adds another ~10%
-void createExtrapolationException1(ros::Time t0, ros::Time t1, std::string* error_str)
+void createExtrapolationException1(mapit::time::Stamp t0, mapit::time::Stamp t1, std::string* error_str)
 {
   if (error_str)
   {
     std::stringstream ss;
-    ss << "Lookup would require extrapolation at time " << t0 << ", but only time " << t1 << " is in the buffer";
+    ss << "Lookup would require extrapolation at time " << t0.time_since_epoch().count() << ", but only time " << t1.time_since_epoch().count() << " is in the buffer";
     *error_str = ss.str();
   }
 }
 
-void createExtrapolationException2(ros::Time t0, ros::Time t1, std::string* error_str)
+void createExtrapolationException2(mapit::time::Stamp t0, mapit::time::Stamp t1, std::string* error_str)
 {
   if (error_str)
   {
     std::stringstream ss;
-    ss << "Lookup would require extrapolation into the future.  Requested time " << t0 << " but the latest data is at time " << t1;
+    ss << "Lookup would require extrapolation into the future.  Requested time " << t0.time_since_epoch().count() << " but the latest data is at time " << t1.time_since_epoch().count();
     *error_str = ss.str();
   }
 }
 
-void createExtrapolationException3(ros::Time t0, ros::Time t1, std::string* error_str)
+void createExtrapolationException3(mapit::time::Stamp t0, mapit::time::Stamp t1, std::string* error_str)
 {
   if (error_str)
   {
     std::stringstream ss;
-    ss << "Lookup would require extrapolation into the past.  Requested time " << t0 << " but the earliest data is at time " << t1;
+    ss << "Lookup would require extrapolation into the past.  Requested time " << t0.time_since_epoch().count() << " but the earliest data is at time " << t1.time_since_epoch().count();
     *error_str = ss.str();
   }
 }
 } // namespace cache
 
-uint8_t TimeCache::findClosest(TransformStorage*& one, TransformStorage*& two, ros::Time target_time, std::string* error_str)
+uint8_t TimeCache::findClosest(TransformStorage*& one, TransformStorage*& two, mapit::time::Stamp target_time, std::string* error_str)
 {
   //No values stored
   if (storage_.empty())
@@ -102,7 +110,7 @@ uint8_t TimeCache::findClosest(TransformStorage*& one, TransformStorage*& two, r
   }
 
   //If time == 0 return the latest
-  if (target_time.isZero())
+  if (target_time.time_since_epoch().count() == target_time.time_since_epoch().zero().count())
   {
     one = &storage_.front();
     return 1;
@@ -124,8 +132,8 @@ uint8_t TimeCache::findClosest(TransformStorage*& one, TransformStorage*& two, r
     }
   }
 
-  ros::Time latest_time = (*storage_.begin()).stamp_;
-  ros::Time earliest_time = (*(storage_.rbegin())).stamp_;
+  mapit::time::Stamp latest_time = (*storage_.begin()).stamp_;
+  mapit::time::Stamp earliest_time = (*(storage_.rbegin())).stamp_;
 
   if (target_time == latest_time)
   {
@@ -167,7 +175,7 @@ uint8_t TimeCache::findClosest(TransformStorage*& one, TransformStorage*& two, r
 
 }
 
-void TimeCache::interpolate(const TransformStorage& one, const TransformStorage& two, ros::Time time, TransformStorage& output)
+void TimeCache::interpolate(const TransformStorage& one, const TransformStorage& two, mapit::time::Stamp time, TransformStorage& output)
 {
   // Check for zero distance case
   if( two.stamp_ == one.stamp_ )
@@ -176,20 +184,21 @@ void TimeCache::interpolate(const TransformStorage& one, const TransformStorage&
     return;
   }
   //Calculate the ratio
-  tf2Scalar ratio = (time.toSec() - one.stamp_.toSec()) / (two.stamp_.toSec() - one.stamp_.toSec());
+  float ratio = (mapit::time::to_sec(time) - mapit::time::to_sec(one.stamp_)) / (mapit::time::to_sec(two.stamp_) - mapit::time::to_sec(one.stamp_));
 
   //Interpolate translation
-  output.translation_.setInterpolate3(one.translation_, two.translation_, ratio);
+  output.translation_ = interpolate3(one.translation_, two.translation_, ratio);
 
   //Interpolate rotation
-  output.rotation_ = slerp( one.rotation_, two.rotation_, ratio);
+  output.rotation_ = one.rotation_;
+  output.rotation_.slerp(ratio, two.rotation_);
 
   output.stamp_ = one.stamp_;
   output.frame_id_ = one.frame_id_;
   output.child_frame_id_ = one.child_frame_id_;
 }
 
-bool TimeCache::getData(ros::Time time, TransformStorage & data_out, std::string* error_str) //returns false if data not available
+bool TimeCache::getData(mapit::time::Stamp time, TransformStorage & data_out, std::string* error_str) //returns false if data not available
 {
   TransformStorage* p_temp_1;
   TransformStorage* p_temp_2;
@@ -222,7 +231,7 @@ bool TimeCache::getData(ros::Time time, TransformStorage & data_out, std::string
   return true;
 }
 
-CompactFrameID TimeCache::getParent(ros::Time time, std::string* error_str)
+CompactFrameID TimeCache::getParent(mapit::time::Stamp time, std::string* error_str)
 {
   TransformStorage* p_temp_1;
   TransformStorage* p_temp_2;
@@ -266,7 +275,7 @@ void TimeCache::clearList()
   storage_.clear();
 }
 
-unsigned int TimeCache::getListLength()
+unsigned long TimeCache::getListLength()
 {
   return storage_.size();
 }
@@ -275,28 +284,28 @@ P_TimeAndFrameID TimeCache::getLatestTimeAndParent()
 {
   if (storage_.empty())
   {
-    return std::make_pair(ros::Time(), 0);
+    return std::make_pair(mapit::time::Stamp(), 0);
   }
 
   const TransformStorage& ts = storage_.front();
   return std::make_pair(ts.stamp_, ts.frame_id_);
 }
 
-ros::Time TimeCache::getLatestTimestamp() 
+mapit::time::Stamp TimeCache::getLatestTimestamp()
 {   
-  if (storage_.empty()) return ros::Time(); //empty list case
+  if (storage_.empty()) return mapit::time::Stamp(); //empty list case
   return storage_.front().stamp_;
 }
 
-ros::Time TimeCache::getOldestTimestamp() 
+mapit::time::Stamp TimeCache::getOldestTimestamp()
 {   
-  if (storage_.empty()) return ros::Time(); //empty list case
+  if (storage_.empty()) return mapit::time::Stamp(); //empty list case
   return storage_.back().stamp_;
 }
 
 void TimeCache::pruneList()
 {
-  ros::Time latest_time = storage_.begin()->stamp_;
+  mapit::time::Stamp latest_time = storage_.begin()->stamp_;
   
   while(!storage_.empty() && storage_.back().stamp_ + max_storage_time_ < latest_time)
   {
@@ -304,4 +313,5 @@ void TimeCache::pruneList()
   }
   
 } // namespace tf2
+}
 }

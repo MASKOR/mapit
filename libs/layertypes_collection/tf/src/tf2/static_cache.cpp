@@ -29,16 +29,16 @@
 
 /** \author Tully Foote */
 
-#include "tf2/time_cache.h"
-#include "tf2/exceptions.h"
+#include <upns/layertypes/tflayer/tf2/time_cache.h>
+#include <upns/layertypes/tflayer/tf2/exceptions.h>
 
-#include "tf2/LinearMath/Transform.h"
-
-
-using namespace tf2;
+//#include "tf2/LinearMath/Transform.h"
 
 
-bool StaticCache::getData(ros::Time time, TransformStorage & data_out, std::string* error_str) //returns false if data not available
+using namespace mapit::tf2;
+
+
+bool StaticCache::getData(mapit::time::Stamp time, TransformStorage & data_out, std::string* error_str) //returns false if data not available
 {
   data_out = storage_;
   data_out.stamp_ = time;
@@ -56,25 +56,25 @@ bool StaticCache::insertData(const TransformStorage& new_data)
 
 void StaticCache::clearList() { return; };
 
-unsigned int StaticCache::getListLength() {   return 1; };
+unsigned long StaticCache::getListLength() {   return 1; };
 
-CompactFrameID StaticCache::getParent(ros::Time time, std::string* error_str)
+CompactFrameID StaticCache::getParent(mapit::time::Stamp time, std::string* error_str)
 {
   return storage_.frame_id_;
 }
 
 P_TimeAndFrameID StaticCache::getLatestTimeAndParent()
 {
-  return std::make_pair(ros::Time(), storage_.frame_id_);
+  return std::make_pair(mapit::time::Stamp(), storage_.frame_id_);
 }
 
-ros::Time StaticCache::getLatestTimestamp() 
+mapit::time::Stamp StaticCache::getLatestTimestamp()
 {   
-  return ros::Time();
+  return mapit::time::Stamp();
 };
 
-ros::Time StaticCache::getOldestTimestamp() 
+mapit::time::Stamp StaticCache::getOldestTimestamp()
 {   
-  return ros::Time();
+  return mapit::time::Stamp();
 };
 

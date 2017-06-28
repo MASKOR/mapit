@@ -27,14 +27,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Tully Foote */
+/** \author Tully Foote
+            2017 Tobias Neumann */
 
 #ifndef TF2_EXCEPTIONS_H
 #define TF2_EXCEPTIONS_H
 
 #include <stdexcept>
 
+namespace mapit {
+#if 0 // just to make autoindent happy
+}
+#endif
 namespace tf2{
+#if 0 // just to make autoindent happy
+}
+#endif
 
 /** \brief A base class for all tf2 exceptions 
  * This inherits from ros::exception 
@@ -104,6 +112,7 @@ public:
 };
 
 
+}
 }
 
 

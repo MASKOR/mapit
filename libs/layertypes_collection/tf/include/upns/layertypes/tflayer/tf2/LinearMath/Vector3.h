@@ -18,8 +18,9 @@ subject to the following restrictions:
 #define TF2_VECTOR3_H
 
 
-#include "Scalar.h"
-#include "MinMax.h"
+//#include "Scalar.h"
+#include <Eigen/Core>
+//#include "MinMax.h"
 
 namespace tf2
 {
