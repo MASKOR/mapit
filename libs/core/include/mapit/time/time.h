@@ -16,8 +16,7 @@ namespace mapit
 };
 #endif
 
-class time {
-public:
+namespace time {
   using Clock = std::chrono::high_resolution_clock;
 
   using Stamp = std::chrono::time_point<Clock>;
@@ -33,42 +32,16 @@ public:
   using microseconds = std::chrono::microseconds;
   using nanoseconds = std::chrono::nanoseconds;
 
-  static bool is_zero(Stamp stamp)
-  {
-    return stamp.time_since_epoch() == stamp.time_since_epoch().zero();
-  }
+  bool is_zero(Stamp stamp);
 
-  static Stamp from_sec_and_nsec(long sec, long nsec)
-  {
-    nanoseconds t_nsec(nsec);
-    seconds t_sec(sec);
+  Stamp from_sec_and_nsec(long sec, long nsec);
 
-    Stamp t(t_sec + t_nsec);
+  void to_sec_and_nsec(Stamp stamp, long &sec, long &nsec);
 
-    return t;
-  }
+  double to_sec(Stamp stamp);
 
-  static void to_sec_and_nsec(Stamp stamp, long &sec, long &nsec)
-  {
-    seconds d_sec = std::chrono::duration_cast<seconds>( stamp.time_since_epoch() );
-    sec = d_sec.count();
-
-    Stamp s_nsec = stamp - d_sec;
-    nsec = std::chrono::duration_cast<nanoseconds>( s_nsec.time_since_epoch() ).count();
-  }
-
-  static double to_sec(Stamp stamp)
-  {
-    Stamp full_seconds = std::chrono::date::floor<seconds>( stamp );
-    double ns = std::chrono::duration_cast<nanoseconds>(stamp - full_seconds).count() * 0.000000001; //10**(-9)
-    return std::chrono::duration_cast<seconds>( stamp.time_since_epoch() ).count() + ns;
-  }
-
-  static double to_sec(Duration dur)
-  {
-    return dur.count();
-  }
-};
+  double to_sec(Duration dur);
+}
 }
 
 #endif
