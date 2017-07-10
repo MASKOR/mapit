@@ -7,6 +7,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -15,8 +17,6 @@ include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
-
-include_directories(${UPNS_INTERFACE_INCLUDE})
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
@@ -31,7 +31,7 @@ set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} ${PCL_LIBRARIES} ${PCL_COMMON
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} )
-target_link_libraries(${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_core json11 layertype_pointcloud2)
+target_link_libraries(${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} json11 layertype_pointcloud2)
 #target_link_libraries(${PROJECT_NAME} ${PCL_IO_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_VISUALIZATION_LIBRARIES} ${PCL_SEGMENTATION_LIBRARIES} ${PCL_SAMPLE_CONSENSUS_LINRARIES} ${PCL_FILTERS_LIBRARIES})
 
 SET_TARGET_PROPERTIES(

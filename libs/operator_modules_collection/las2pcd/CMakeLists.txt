@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -12,7 +14,6 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-include_directories(${UPNS_INTERFACE_INCLUDE})
 find_package(PCL REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -21,7 +22,7 @@ add_definitions(${PCL_DEFINITIONS})
 file(GLOB_RECURSE UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_core layertype_las layertype_pointcloud2)
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_las layertype_pointcloud2)
 
 set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)

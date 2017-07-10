@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -15,8 +17,6 @@ add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
-
-include_directories(${UPNS_INTERFACE_INCLUDE})
 
 set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
@@ -47,7 +47,7 @@ message("PCL FILTER" ${PCL_FILTER_LIBRARIES})
 message("PCL FILTERS" ${PCL_FILTERS_LIBRARIES})
 message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} upns_interface upns_core layertype_pointcloud2 layertype_tf)
+target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2 layertype_tf)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

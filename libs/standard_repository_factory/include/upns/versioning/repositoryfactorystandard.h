@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 #include <upns/versioning/repository.h>
-#include "upns/repositoryserver.h"
+#include <upns/repositoryserver.h>
 #include <boost/program_options.hpp>
 
 namespace upns

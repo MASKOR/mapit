@@ -9,11 +9,13 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 find_package(OpenVDB REQUIRED)
 find_package(TBB REQUIRED)
 
+find_package(mapit)
+
 file(GLOB_RECURSE LAYERTYPE_OPENVDB_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_OPENVDB_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} upns_interface upns_interface_cpp)
+target_link_libraries(${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} ${mapit_interface_cpp})
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/

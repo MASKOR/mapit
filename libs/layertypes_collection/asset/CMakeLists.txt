@@ -7,13 +7,15 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 #find_package(assimp REQUIRED)
 
+find_package(mapit)
+
 file(GLOB_RECURSE TINYPLY_SOURCES ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.cpp ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.h)
 
 file(GLOB_RECURSE LAYERTYPE_ASSET_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${TINYPLY_SOURCES} ${LAYERTYPE_ASSET_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp)# ${assimp_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp})# ${assimp_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
                                                    ${PROJECT_SOURCE_DIR}/tinyply/source

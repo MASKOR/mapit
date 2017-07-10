@@ -98,9 +98,9 @@ endif(WIN32)
 #qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
 target_link_libraries(${PROJECT_NAME} upns_visualization
-    upns_core
-    upns_interface_cpp
-    standard_repository_factory
+    ${mapit_core}
+    ${mapit_interface_cpp}
+    ${mapit_standard_repository_factory}
     Qt3DPointcloudRenderer
     Qt53DInput
     Qt53DLogic

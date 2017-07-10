@@ -11,8 +11,9 @@ set(MAPIT_CORE_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR})
 include(CMakeFindDependencyMacro)
 #find_dependency can not do components yet
 #find_dependency(Boost REQUIRED COMPONENTS filesystem iostreams)
-find_dependency(Boost REQUIRED)
+find_dependency(PCL REQUIRED)
 find_dependency(mapit_interface_cpp REQUIRED)
+find_dependency(mapit_core REQUIRED)
 # conditional compiling for different variables set/unset (like WITH_LOG4CPLUS) not supported.
 #if($<WITH_LOG4CPLUS>)
 #  include(FindLog4cplus)
@@ -23,8 +24,8 @@ find_dependency(mapit_interface_cpp REQUIRED)
 
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET mapit::core AND NOT mapit::core_BINARY_DIR)
-  include("${MAPIT_CORE_CMAKE_DIR}/mapit_coreTargets.cmake")
+if(NOT TARGET mapit::layertype_pointcloud2 AND NOT mapit::layertype_pointcloud2_BINARY_DIR)
+  include("${MAPIT_CORE_CMAKE_DIR}/mapit_layertype_pointcloud2Targets.cmake")
   #include("${MAPIT_CORE_CMAKE_DIR}/mapitCoreMacros.cmake")
 endif()
  

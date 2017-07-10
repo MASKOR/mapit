@@ -11,6 +11,8 @@ if(WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
 
+find_package(mapit)
+
 include(FindLog4cplus)
 
 # Eigen3  Will just not be found on windows
@@ -26,7 +28,7 @@ file(GLOB_RECURSE LAYERTYPE_PRIMITIVE_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_PRIMITIVE_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${EIGEN3_LIBRARIES})
 
-target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${mapit_interface_cpp} ${LOG4CPLUS_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS}
                                                   ${PROJECT_SOURCE_DIR}/include)
 

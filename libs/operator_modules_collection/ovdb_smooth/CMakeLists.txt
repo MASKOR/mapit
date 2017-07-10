@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -13,14 +15,12 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-include_directories(${UPNS_INTERFACE_INCLUDE})
-
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 set(CMAKE_AUTOMOC ON)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_core layertype_openvdb json11)
+target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} ${mapit_core} layertype_openvdb json11)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

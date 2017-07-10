@@ -96,9 +96,11 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME}   upns_core
-                                        upns_interface
-                                        upns_interface_cpp
+find_package(mapit REQUIRED)
+
+target_link_libraries(${PROJECT_NAME}   ${mapit_core}
+                                        ${mapit_interface}
+                                        ${mapit_interface_cpp}
                                         standard_repository_factory
                                         Qt3DPointcloudRenderer
                                         layertype_tf

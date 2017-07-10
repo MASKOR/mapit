@@ -6,9 +6,6 @@ find_package(Boost COMPONENTS program_options)
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
-include_directories( ${UPNS_ROOT_DIR}/libs/mapmanager/include ) # TODO: introduce var.
-include_directories(${UPNS_INTERFACE_INCLUDE})
-
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 # make proto visible in qtcreator

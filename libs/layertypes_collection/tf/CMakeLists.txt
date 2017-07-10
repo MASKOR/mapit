@@ -17,6 +17,7 @@ include(FindLog4cplus)
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
+find_package(mapit)
 
 # Eigen3  Will just not be found on windows
 if(WIN32)
@@ -33,12 +34,12 @@ target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${EIGEN3_LIBRARIES})
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp})
+target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS}
                                                   ${PROJECT_SOURCE_DIR}/include)
 
 
-target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  TfEntitydata_TYPENAME="${PROJECT_NAME}")

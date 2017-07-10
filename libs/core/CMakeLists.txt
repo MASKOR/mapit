@@ -1,4 +1,4 @@
-project(upns_core)
+project(core)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
@@ -19,7 +19,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 # PCL was linked statically against boost. PCL is linked statically to layertype.
 # Layertype has nothing to do with core. (linked dynamic and at runtime)
 # Somehow boost dependency comes in here. I guess a static library wants it, thus the executable/dynamic-library must have it.
-target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${Boost_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
+target_link_libraries(${PROJECT_NAME} interface interface_cpp ${Boost_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
@@ -62,18 +62,20 @@ install(DIRECTORY include DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreConfigVersion.cmake"
   VERSION 1
   COMPATIBILITY AnyNewerVersion
 )
 
+# TODO: CMAKE_BINARY_DIR or CMAKE_CURRENT_BINARY_DIR?
 export(EXPORT upns_core_targets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreTargets.cmake"
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreTargets.cmake"
   NAMESPACE mapit::
 )
+
 configure_file(cmake/mapitCoreConfig.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreConfig.cmake"
-  COPYONLY
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreConfig.cmake"
+  @ONLY
 )
 
 set(ConfigPackageLocation lib/cmake/mapit)
@@ -88,7 +90,7 @@ install(EXPORT upns_core_targets
 install(
   FILES
     cmake/mapitCoreConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitCoreConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

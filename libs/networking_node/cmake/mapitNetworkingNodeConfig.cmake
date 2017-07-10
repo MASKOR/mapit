@@ -13,6 +13,7 @@ include(CMakeFindDependencyMacro)
 #find_dependency(Boost REQUIRED COMPONENTS filesystem iostreams)
 find_dependency(Boost REQUIRED)
 find_dependency(mapit_interface_cpp REQUIRED)
+find_dependency(mapit_core REQUIRED)
 # conditional compiling for different variables set/unset (like WITH_LOG4CPLUS) not supported.
 #if($<WITH_LOG4CPLUS>)
 #  include(FindLog4cplus)
@@ -23,8 +24,8 @@ find_dependency(mapit_interface_cpp REQUIRED)
 
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET mapit::core AND NOT mapit::core_BINARY_DIR)
-  include("${MAPIT_CORE_CMAKE_DIR}/mapit_coreTargets.cmake")
+if(NOT TARGET mapit::networking_node AND NOT mapit::networking_node_BINARY_DIR)
+  include("${MAPIT_CORE_CMAKE_DIR}/mapit_networking_nodeTargets.cmake")
   #include("${MAPIT_CORE_CMAKE_DIR}/mapitCoreMacros.cmake")
 endif()
  

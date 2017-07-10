@@ -1,4 +1,4 @@
-project(upns_interface_cpp)
+project(interface_cpp)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
@@ -6,7 +6,7 @@ aux_source_directory(. SRC_LIST)
 
 file(GLOB_RECURSE UPNS_INTERFACE_CPP_SOURCES include/*.h)
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE) # Header only
 target_include_directories(${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
                                                      $<INSTALL_INTERFACE:include>)
 
@@ -37,24 +37,24 @@ install(DIRECTORY include DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitInterfaceCppConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppConfigVersion.cmake"
   VERSION 1
   COMPATIBILITY AnyNewerVersion
 )
 
 export(EXPORT upns_interface_cpp_targets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitInterfaceCppTargets.cmake"
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppTargets.cmake"
   NAMESPACE mapit::
 )
 configure_file(cmake/mapitInterfaceCppConfig.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitInterfaceCppConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppConfig.cmake"
   COPYONLY
 )
 
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT upns_interface_cpp_targets
   FILE
-    mapitInterfaceCppTargets.cmake
+    interface_cppTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
@@ -63,7 +63,7 @@ install(EXPORT upns_interface_cpp_targets
 install(
   FILES
     cmake/mapitInterfaceCppConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/mapit/mapitInterfaceCppConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

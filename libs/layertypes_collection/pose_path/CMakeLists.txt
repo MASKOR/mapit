@@ -13,11 +13,13 @@ endif(WIN32)
 
 include(FindLog4cplus)
 
+find_package(mapit)
+
 # TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_POSE_PATH_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/**.h )
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POSE_PATH_SOURCES} )
 
-target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${mapit_interface_cpp} ${LOG4CPLUS_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"

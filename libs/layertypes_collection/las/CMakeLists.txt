@@ -5,9 +5,8 @@ aux_source_directory(. SRC_LIST)
 find_package(Protobuf)
 find_package(Boost COMPONENTS program_options thread system iostreams filesystem REQUIRED)
 
-if(WITH_LOG4CPLUS)
-  include_directories(${PROJECT_SOURCE_DIR}/../../../externals/log4cplus/include/)
-endif(WITH_LOG4CPLUS)
+find_package(mapit)
+
 if(WIN32)
   include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
 endif(WIN32)
@@ -43,7 +42,7 @@ if(HAVE_LASZIP)
 endif(HAVE_LASZIP)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES} ${LASZIP_SRC})
-target_link_libraries( ${PROJECT_NAME} upns_interface upns_interface_cpp ${BOOST_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries( ${PROJECT_NAME} ${mapit_interface_cpp} ${BOOST_LIBRARIES} ${Boost_LIBRARIES})
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
