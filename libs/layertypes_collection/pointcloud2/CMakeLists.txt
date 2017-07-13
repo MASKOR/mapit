@@ -34,19 +34,17 @@ endif(WIN32)
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES}  )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
 
 target_link_libraries(${PROJECT_NAME} )
-target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
-                                                   ${PROJECT_SOURCE_DIR}/include/
-                                                   ${EIGEN3_INCLUDE_DIRS}
-                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/
-                                                   ${PROTOBUF_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS}
+                                                  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                                  $<INSTALL_INTERFACE:include>)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  PointcloudEntitydata_TYPENAME="${PROJECT_NAME}"
-                                                   WITH_PCL)
+                                                   WITH_PCL=TRUE)
 
 if(UNIX)
   # tell CMake Prefix is "lib" otherwise it can not be queried

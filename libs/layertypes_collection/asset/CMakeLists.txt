@@ -17,11 +17,12 @@ add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${TINYPLY_SOURCES} ${LAYERTYPE_AS
 
 target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp})# ${assimp_LIBRARIES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_SOURCE_DIR}/include/
-                                                   ${PROJECT_SOURCE_DIR}/tinyply/source
-                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/
-                                                   ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
-                                                   ${PROTOBUF_INCLUDE_DIRS})
+
+target_include_directories(${PROJECT_NAME} PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                                   $<INSTALL_INTERFACE:include>
+                                                   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tinyply/source>
+                                                   $<INSTALL_INTERFACE:tinyply/source>
+                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  AssetEntitydata_TYPENAME="${PROJECT_NAME}")
@@ -33,5 +34,59 @@ endif(UNIX)
 get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_LAYERTYPES})
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+#install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+#install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+
+include(GenerateExportHeader)
+
+generate_export_header(${PROJECT_NAME})
+#set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${MAPIT_VERSION})
+#set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${MAPIT_VERSION})
+set_property(TARGET ${PROJECT_NAME} PROPERTY
+  INTERFACE_mapit_layertype_asset_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
+  COMPATIBLE_INTERFACE_STRING MAPIT_MAJOR_VERSION
+)
+
+install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_asset_targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(DIRECTORY include DESTINATION include )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_assetConfigVersion.cmake"
+  VERSION 1
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT mapit_layertype_asset_targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_assetTargets.cmake"
+  NAMESPACE mapit::
+)
+configure_file(cmake/mapit_layertype_assetConfig.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_assetConfig.cmake"
+  COPYONLY
+)
+
+set(ConfigPackageLocation lib/cmake/mapit)
+install(EXPORT mapit_layertype_asset_targets
+  FILE
+    layertype_assetTargets.cmake
+  NAMESPACE
+    mapit::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+install(
+  FILES
+    cmake/mapit_layertype_assetConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/layertype_assetConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
