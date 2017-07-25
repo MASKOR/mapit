@@ -22,9 +22,6 @@
 # 4) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames. Pcl seems to break findBoost.
 # 5) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
 
-# TODOS:
-# create Config.cmakes for all layertypes
-
 project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)

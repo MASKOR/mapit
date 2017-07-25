@@ -8,6 +8,9 @@ find_package(TBB REQUIRED)
 
 find_package(mapit)
 
+#copy findovdb script to build dir
+file(COPY ${PROJECT_SOURCE_DIR}/cmake DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 file(GLOB_RECURSE LAYERTYPE_OPENVDB_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_OPENVDB_SOURCES})

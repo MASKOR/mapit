@@ -1,14 +1,7 @@
 project(checkout2filesystem)
 cmake_minimum_required(VERSION 2.8)
 
-
-
-find_package(Protobuf)
-INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
-
-INCLUDE_DIRECTORIES( UPNS_ROOT_DIR )
-
-include_directories(${PROJECT_SOURCE_DIR}/src/)
+find_package(mapit)
 
 # make proto visible in qtcreator
 file(GLOB_RECURSE YAML_FILES ${PROJECT_SOURCE_DIR}/*.yaml)
@@ -28,7 +21,7 @@ endif(WIN32)
 find_package(Boost COMPONENTS iostreams REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} upns_core standard_repository_factory ${Boost_LIBRARIES} stdc++)
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES} stdc++)
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
