@@ -20,9 +20,9 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 
-#if(NOT TARGET json11)
-#    find_package(json11 REQUIRED)
-#endif(NOT TARGET json11)
+if(NOT TARGET json11)
+    find_package(json11 REQUIRED)
+endif(NOT TARGET json11)
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})

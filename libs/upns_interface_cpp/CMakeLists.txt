@@ -7,9 +7,11 @@ aux_source_directory(. SRC_LIST)
 file(GLOB_RECURSE UPNS_INTERFACE_CPP_SOURCES include/*.h)
 
 add_library(${PROJECT_NAME} INTERFACE) # Header only
-target_include_directories(${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
+target_include_directories(${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                                      $<INSTALL_INTERFACE:include>)
 
+target_link_libraries(${PROJECT_NAME} INTERFACE
+                      interface)
 #shows files in qtcreator
 add_custom_target(${PROJECT_NAME}_NOP ALL ${CMAKE_COMMAND} -E echo "show files in qtcreator" SOURCES ${UPNS_INTERFACE_CPP_SOURCES})
 

@@ -4,7 +4,6 @@
 #include <upns/layertypes/lasentitydatawriter.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <memory>
 #include <upns/errorcodes.h>
