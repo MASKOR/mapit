@@ -104,7 +104,6 @@ target_link_libraries(${PROJECT_NAME}   ${mapit_core}
                                         standard_repository_factory
                                         Qt3DPointcloudRenderer
                                         layertype_tf
-                                        layertype_las
                                         layertype_pose_path
                                         layertype_asset
                                         Qt5::Qml Qt5::Quick
@@ -116,6 +115,13 @@ if(WITH_PCL)
                                         layertype_pointcloud2
                                         ${PCL_LIBRARIES})
 endif(WITH_PCL)
+
+if(WITH_LAS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_LAS)
+    target_link_libraries(${PROJECT_NAME}
+                                        Qt3DPointcloudRenderer
+                                        layertype_las)
+endif(WITH_LAS)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 

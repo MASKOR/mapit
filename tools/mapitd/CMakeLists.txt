@@ -25,7 +25,7 @@ target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} 
 
 ######## FOR DEBUGGING PURPOSES ONLY (let gdb find libs with custom cmake output names) ########
 
-target_link_libraries(${PROJECT_NAME} layertype_las)
+#target_link_libraries(${PROJECT_NAME} layertype_las)
 
 ############################
 

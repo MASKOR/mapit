@@ -40,6 +40,10 @@ if(NOT WITH_TF)
   list(REMOVE_ITEM SUBDIRS "tf")
 endif(NOT WITH_TF)
 
+if(NOT WITH_LAS)
+  list(REMOVE_ITEM SUBDIRS "las")
+endif(NOT WITH_LAS)
+
 FOREACH(subdir ${SUBDIRS})
     ADD_SUBDIRECTORY(${subdir})
 ENDFOREACH()
