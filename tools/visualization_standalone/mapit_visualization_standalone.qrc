@@ -157,6 +157,7 @@
         <file>qml/operators/tf_add_random.png</file>
         <file>qml/operators/scale_pointcloud.qml</file>
         <file>qml/operators/surfrecon_openvdb.qml</file>
+        <file>qml/operators/surface_reconstruction.qml</file>
         <file>qml/operators/voxelgridfilter.qml</file>
         <file>qml/operators/load_las.qml</file>
         <file>qml/operators/levelset_to_mesh.png</file>
