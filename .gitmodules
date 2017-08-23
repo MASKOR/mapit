@@ -45,4 +45,4 @@
 	url = https://github.com/LASzip/LASzip
 [submodule "libs/core/include/mapit/time/date"]
 	path = libs/core/include/mapit/time/date
-	url = git@github.com:HowardHinnant/date.git
+	url = https://github.com/HowardHinnant/date.git
