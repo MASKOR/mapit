@@ -129,7 +129,7 @@ void AssetEntitydata::endWrite(upnsOStream *&strm)
 
 size_t AssetEntitydata::size() const
 {
-    m_streamProvider->getStreamSize();
+    return m_streamProvider->getStreamSize();
 }
 
 void deleteEntitydataAsset(AbstractEntitydata *ld)

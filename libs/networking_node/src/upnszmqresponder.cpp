@@ -4,7 +4,7 @@
 #include "upns/repositoryserver.h"
 #include <zmq.hpp>
 
-upns::ZmqResponder::ZmqResponder(int portIncomingRequests, Repository* repo, std::__cxx11::string urlOutgoingRequests)
+upns::ZmqResponder::ZmqResponder(int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests)
 {
     m_d = new upns::ZmqResponderPrivate(portIncomingRequests, repo, urlOutgoingRequests);
 }

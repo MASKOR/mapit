@@ -85,6 +85,10 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
+if(WIN32)
+    #globally solve issue with windows.h and <algorithm>. Also fixes this for protobuf.
+    add_definitions("-DNOMINMAX")
+endif(WIN32)
 # to make find_package(mapit) in build dir work
 set(CMAKE_PREFIX_PATH
     ${PROJECT_SOURCE_DIR}/cmake
@@ -114,36 +118,8 @@ if(WITH_LOG4CPLUS)
 endif(WITH_LOG4CPLUS)
 
 
-if(WIN32)
-    set(BOOST_ROOT ${BOOST_INCLUDE_DIR} CACHE PATH "Hint for boost libraries")
-    if(MSVC10)
-      SET ( BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-10.0" )
-    endif(MSVC10)
-    if(MSVC12)
-      SET ( BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-12.0" )
-    endif(MSVC12)
-    if(MSVC14)
-      SET ( BOOST_LIBRARYDIR "${BOOST_ROOT}/lib64-msvc-14.0" )
-    endif(MSVC14)
-    find_library (Boost_CHRONO_LIBRARY_DEBUG libboost_chrono-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_CHRONO_LIBRARY_RELEASE libboost_chrono-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_DATE_TIME_LIBRARY_DEBUG libboost_datetime-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_DATE_TIME_LIBRARY_RELEASE libboost_datetime-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_FILESYSTEM_LIBRARY_DEBUG libboost_filesystem-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_FILESYSTEM_LIBRARY_RELEASE libboost_filesystem-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_IOSTREAMS_LIBRARY_DEBUG libboost_iostreams-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_IOSTREAMS_LIBRARY_RELEASE libboost_iostreams-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_SERIALIZATION_LIBRARY_DEBUG libboost_serialization-vc120-mt-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_SERIALIZATION_LIBRARY_RELEASE libboost_serialization-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_SYSTEM_LIBRARY_DEBUG libboost_system-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_SYSTEM_LIBRARY_RELEASE libboost_system-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_THREAD_LIBRARY_DEBUG libboost_thread-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-    find_library (Boost_THREAD_LIBRARY_RELEASE libboost_thread-vc120-mt-gd-1_56.lib PATHS ${BOOST_LIBRARYDIR}/ CACHE FILEPATH "boostlib" FORCE)
-endif(WIN32)
+set(WITH_PCL TRUE CACHE BOOL "Enable pcl Layers")
 
-find_package(Boost COMPONENTS filesystem system date_time serialization)
-
-link_directories(${Boost_LIBRARY_DIRS})
 set(CMAKE_AUTOMOC ON)
 
 set(UPNS_QTVERSION)
@@ -213,7 +189,9 @@ set(UPNS_ENABLE_VISUALIZATION ON CACHE BOOL "Generate Visualization tools")
 if(UPNS_ENABLE_VISUALIZATION)
   add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_standalone)
-  add_subdirectory(tools/Qt3DPointcloudRenderer)
+  if(WITH_PCL)
+    add_subdirectory(tools/Qt3DPointcloudRenderer)
+  endif(WITH_PCL)
   add_subdirectory(tools/Qt3DOpenVDBRenderer)
   add_subdirectory(tools/graphblocks)
   if(WITH_VIRTUALREALITY)

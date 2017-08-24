@@ -1,6 +1,6 @@
 #ifndef LASENTITYREADER_H
 #define LASENTITYREADER_H
-
+#define NOMINMAX
 #include "liblas/liblas.hpp"
 #include "upns/layertypes/lastype.h"
 

@@ -1,6 +1,6 @@
 #ifndef LAZTYPE_H
 #define LAZTYPE_H
-
+#define NOMINMAX
 #include <memory>
 #include <upns/entitydata.h>
 #include <upns/operators/serialization/abstractentitydataprovider.h>

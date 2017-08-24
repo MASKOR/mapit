@@ -84,7 +84,7 @@ void LASEntitydata::endWrite(upnsOStream *&strm)
 
 size_t LASEntitydata::size() const
 {
-    m_pimpl->m_streamProvider->getStreamSize();
+    return m_pimpl->m_streamProvider->getStreamSize();
 }
 
 //liblas::Header &LASEntitydata::GetHeader() const

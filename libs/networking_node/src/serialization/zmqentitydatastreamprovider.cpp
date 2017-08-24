@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdio> // for tempfile
+#include <boost/iostreams/device/mapped_file.hpp>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -53,28 +54,6 @@ public:
     }
 };
 
-
-void *mapFile(const uint64_t &len, const uint64_t &start, const char *filename, int &handle, int flag, int privShared, int openflag)
-{
-    if ((handle = open(filename, openflag | O_CREAT, FILEMODE)) < 0)
-    {
-        log_error("Error in file opening");
-        return nullptr;
-    }
-//    result = lseek(handle, FILESIZE-1, SEEK_SET);
-//    if (result == -1) {
-//        close(handle);
-//        log_error("Error calling lseek() to 'stretch' the file");
-//        return nullptr;
-//    }
-    void *addr;
-    if ((addr = mmap(NULL, len, PROT_READ, MAP_SHARED, handle, start)) == MAP_FAILED)
-    {
-        log_error("Error in file mapping");
-        return nullptr;
-    }
-    return addr;
-}
 upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node)
     :m_checkoutName(checkoutName),
      m_pathOrOid(pathOrOid),
@@ -182,7 +161,7 @@ void upns::ZmqEntitydataStreamProvider::setStreamSize(upns::upnsuint64 entitylen
 
 upns::LockHandle upns::ZmqEntitydataStreamProvider::lock()
 {
-
+    return 0;
 }
 
 void upns::ZmqEntitydataStreamProvider::unlock(upns::LockHandle)
@@ -376,16 +355,20 @@ void upns::ZmqEntitydataStreamProvider::endWriteFile(upns::ReadWriteHandle &hand
     is.seekg(0, std::ios::beg);
     is.seekg(0, std::ios::end);
     std::stringstream::pos_type size = is.tellg();
-    void *addr_void = mapFile(size, 0, filename, filedescriptor, PROT_READ, MAP_SHARED, O_RDONLY);
+
+    boost::iostreams::mapped_file outfile;
+    outfile.open(filename, boost::iostreams::mapped_file::priv, size);
+    void *addr_void = outfile.data();
     char *addr = static_cast<char *>(addr_void);
 
     endWrite(addr, size, 0);
 
-    if (munmap(addr, size) == -1)
-    {
-        log_error("Error un-mmapping the file");
-        close(filedescriptor);
-    }
+    outfile.close();
+//    if (munmap(addr, size) == -1)
+//    {
+//        log_error("Error un-mmapping the file");
+//        close(filedescriptor);
+//    }
     std::remove(filename);
 }
 

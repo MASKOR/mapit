@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "zmqprotobufnode.h"
 #include <mapit/msgs/transport.pb.h>
 #include <algorithm>

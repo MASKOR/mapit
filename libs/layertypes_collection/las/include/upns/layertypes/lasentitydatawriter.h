@@ -1,6 +1,6 @@
 #ifndef LASENTITYWRITER_H
 #define LASENTITYWRITER_H
-
+#define NOMINMAX
 #include "liblas/liblas.hpp"
 #include "upns/layertypes/lastype.h"
 #include <upns/operators/serialization/abstractentitydataprovider.h>

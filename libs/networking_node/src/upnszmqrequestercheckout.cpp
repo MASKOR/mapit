@@ -8,6 +8,7 @@
 #include <upns/serialization/operatorlibrarymanager.h>
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <windows.h>
 #else
 #include <dlfcn.h>

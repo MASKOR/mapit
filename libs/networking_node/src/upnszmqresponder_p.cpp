@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "upnszmqresponder_p.h"
 #include <mapit/msgs/services.pb.h>
 #include <functional>
@@ -12,7 +13,7 @@ void upns::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)
     (this->*func)(static_cast<T*>(msg));
 }
 
-upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Repository *repo, std::__cxx11::string urlOutgoingRequests)
+upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Repository *repo, std::string urlOutgoingRequests)
     :ZmqProtobufNode( true ),
       m_repo( repo ),
       m_urlOutgoing( urlOutgoingRequests ),
