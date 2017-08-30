@@ -14,8 +14,8 @@
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include "tinyply.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 
 using namespace mapit::msgs;
 

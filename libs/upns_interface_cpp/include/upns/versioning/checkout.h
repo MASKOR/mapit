@@ -30,7 +30,8 @@ class Checkout : public CheckoutCommon
 public:
     virtual ~Checkout() {}
     /**
-     * @brief doOperation Executes the Operator given in the description
+     * @brief doOperation Executes the Operator given in the description.
+     * TODO:
      * @param desc
      * @return
      */

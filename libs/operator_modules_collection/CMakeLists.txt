@@ -46,6 +46,7 @@ if(WITH_OPERATORS)
     list(REMOVE_ITEM SUBDIRS "pcd2las")
     list(REMOVE_ITEM SUBDIRS "las2pcd")
   endif(NOT WITH_LAS)
+
   if(NOT Qt5Core_FOUND)
       list(REMOVE_ITEM SUBDIRS "centroid_to_origin")
   endif(NOT Qt5Core_FOUND)

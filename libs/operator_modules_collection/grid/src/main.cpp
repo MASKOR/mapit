@@ -13,8 +13,8 @@
 #include <iostream>
 #include <memory>
 #include <pcl/octree/octree.h>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 
 template <typename PointType>
 pcl::PCLPointCloud2::Ptr extractIndices(pcl::PointCloud<PointType> &cloudIn, std::vector<int> &indices)

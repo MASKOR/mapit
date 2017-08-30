@@ -2,7 +2,7 @@
 #define OperatorLoaderWorker_H
 
 #include <QThread>
-#include <QJsonObject>
+#include <QtCore/QJsonObject>
 #include <QVariant>
 
 class OperatorLoader : public QThread

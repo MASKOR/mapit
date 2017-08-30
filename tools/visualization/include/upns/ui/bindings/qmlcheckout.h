@@ -12,7 +12,7 @@
 #include "qmlrepository.h"
 #include <upns/versioning/checkout.h>
 #include <mapit/msgs/services.pb.h>
-#include <QJsonObject>
+#include <QtCore/QJsonObject>
 
 class QmlRepository;
 
