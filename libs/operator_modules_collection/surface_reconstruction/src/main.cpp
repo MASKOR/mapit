@@ -61,7 +61,7 @@ void voxelOffsetGridFilter(typename pcl::PointCloud<PointT>::Ptr &out,
     inverse_leaf_size_[2] = 1.0 / leafSize;
 
     Eigen::Vector4i min_b_, max_b_, div_b_, divb_mul_;
-    Eigen::Vector4f min_p, max_p;
+    Eigen::Vector4f min_p, max_p, offsetVector(offset, offset, offset, 0);
     // Get the minimum and maximum dimensions
     pcl::getMinMax3D<PointT>(*pointCloud, min_p, max_p);
 
@@ -77,9 +77,6 @@ void voxelOffsetGridFilter(typename pcl::PointCloud<PointT>::Ptr &out,
     div_b_ = max_b_ - min_b_ + Eigen::Vector4i::Ones ();
     div_b_[3] = 0;
 
-    // Clear the leaves
-    leaves.clear ();
-
     // Set up the division multiplier
     divb_mul_ = Eigen::Vector4i (1, div_b_[0], div_b_[0] * div_b_[1], 0);
 
@@ -94,9 +91,9 @@ void voxelOffsetGridFilter(typename pcl::PointCloud<PointT>::Ptr &out,
                 continue;
 
         Eigen::Vector4i ijk = Eigen::Vector4i::Zero ();
-        ijk[0] = static_cast<int> (floor (pointCloud->points[(*indices)[cp]].x * inverse_leaf_size_[0] + offset));
-        ijk[1] = static_cast<int> (floor (pointCloud->points[(*indices)[cp]].y * inverse_leaf_size_[1] + offset));
-        ijk[2] = static_cast<int> (floor (pointCloud->points[(*indices)[cp]].z * inverse_leaf_size_[2] + offset));
+        ijk[0] = static_cast<int> (floor ((pointCloud->points[(*indices)[cp]].x + offset) * inverse_leaf_size_[0]));
+        ijk[1] = static_cast<int> (floor ((pointCloud->points[(*indices)[cp]].y + offset) * inverse_leaf_size_[1]));
+        ijk[2] = static_cast<int> (floor ((pointCloud->points[(*indices)[cp]].z + offset) * inverse_leaf_size_[2]));
 
         // Compute the leaf index
         int idx = (ijk - min_b_).dot (divb_mul_);
@@ -110,7 +107,7 @@ void voxelOffsetGridFilter(typename pcl::PointCloud<PointT>::Ptr &out,
 
         // Check to see if this point is closer to the leaf center than the previous one we saved
         float diff_cur   = (pointCloud->points[(*indices)[cp]].getVector4fMap () - ijk.cast<float> ()).squaredNorm ();
-        float diff_prev  = (pointCloud->points[leaf.idx].getVector4fMap ()        - ijk.cast<float> ()).squaredNorm ();
+        float diff_prev  = (pointCloud->points[leaf.idx].getVector4fMap ()       - ijk.cast<float> ()).squaredNorm ();
 
         // If current point is closer, copy its index instead
         if (diff_cur < diff_prev)
@@ -138,18 +135,19 @@ void initialVoxelGrid(pcl::PointCloud<pcl::PointXYZ>::Ptr &out,
     if (leafSize <= 0.0) {
         throw std::runtime_error("initial voxel grid size is smaller than or equal to zero");
     }
-    // voxelize pointcloud to high density (1mm)
+    log_info("initial voxel grid filter to high density of " << (leafSize * 1000.0) << "mm");
     out = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
     approximateGrid.setInputCloud(pointCloud);
     approximateGrid.setLeafSize(leafSize, leafSize, leafSize);
     approximateGrid.filter(*out);
-    log_info("voxel grid filter complete (" << (std::int64_t)pointCloud->size()
-             - (std::int64_t)out->size() << " points)");
+    log_info("filter complete, " << (std::int64_t)pointCloud->size()
+             - (std::int64_t)out->size() << " points removed");
+    return;
 }
 
 void removeStatisticalOutliers(pcl::PointCloud<pcl::PointXYZ>::Ptr &out,
                                pcl::PointCloud<pcl::PointXYZ>::Ptr const pointCloud,
-                               std::double_t const deviation = 1.645)
+                               std::double_t const deviation = 1.645) // keep >95% by default
 {
     pcl::StatisticalOutlierRemoval<pcl::PointXYZ> statisticalOutliers;
     if (pointCloud->size() == 0) {
@@ -158,14 +156,15 @@ void removeStatisticalOutliers(pcl::PointCloud<pcl::PointXYZ>::Ptr &out,
     if (deviation < 0.0) {
         throw std::runtime_error("deviation is smaller than zero");
     }
-    // remove statistical outliers (keep >95% of points by default)
+    log_info("remove statistical outliers with standard deviation of " << deviation << " sigma");
     out = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
     statisticalOutliers.setInputCloud(pointCloud);
     statisticalOutliers.setMeanK(20);
     statisticalOutliers.setStddevMulThresh(deviation);
     statisticalOutliers.filter(*out);
-    log_info("statistical outliers removed (" << (std::int64_t)pointCloud->size()
-             - (std::int64_t)out->size() << " points)");
+    log_info("filter complete, " << (std::int64_t)pointCloud->size()
+             - (std::int64_t)out->size() << " points removed");
+    return;
 }
 
 void removeRadiusOutliers(pcl::PointCloud<pcl::PointXYZ>::Ptr &out,
@@ -180,14 +179,16 @@ void removeRadiusOutliers(pcl::PointCloud<pcl::PointXYZ>::Ptr &out,
     if (radius <= 0.0) {
         throw std::runtime_error("radius is smaller than or equal to zero");
     }
-    // remove points with less than specified neighbors in given radius
+    log_info("remove radius outliers with less than " << neighbors << " neighbors in "
+             << (radius * 1000.0) << "mm radius");
     out = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
     radiusOutliers.setInputCloud(pointCloud);
     radiusOutliers.setRadiusSearch(radius);
     radiusOutliers.setMinNeighborsInRadius(neighbors);
     radiusOutliers.filter(*out);
-    log_info("radius outliers removed (" << (std::int64_t)pointCloud->size()
-             - (std::int64_t)out->size() << " points)");
+    log_info("filter complete, " << (std::int64_t)pointCloud->size()
+             - (std::int64_t)out->size() << " points removed");
+    return;
 }
 
 void movingLeastSquares(pcl::PointCloud<pcl::PointNormal>::Ptr &out,
@@ -210,16 +211,16 @@ void movingLeastSquares(pcl::PointCloud<pcl::PointNormal>::Ptr &out,
     kdTree->setInputCloud(pointCloud);
     leastSquares.setInputCloud(pointCloud);
     leastSquares.setComputeNormals(false);
-    leastSquares.setPolynomialFit(false); // needed for upsampling!
+    leastSquares.setPolynomialFit(true); // needed for upsampling!
     leastSquares.setPolynomialOrder(polynom);
     leastSquares.setSearchRadius(radius);
     leastSquares.setSearchMethod(kdTree);
-    if (false) { // move decision to parameter
+    if (true) { // move decision to parameter
         log_info("upsampling");
         leastSquares.setUpsamplingMethod(
                     pcl::MovingLeastSquaresOMP<pcl::PointXYZ, pcl::PointNormal>::SAMPLE_LOCAL_PLANE);
-        leastSquares.setUpsamplingRadius(radius * .5);
-        leastSquares.setUpsamplingStepSize(radius * .2);
+        leastSquares.setUpsamplingRadius(radius * .3);
+        leastSquares.setUpsamplingStepSize(radius * .3);
     } else {
         leastSquares.setUpsamplingMethod(
                     pcl::MovingLeastSquaresOMP<pcl::PointXYZ, pcl::PointNormal>::NONE);
@@ -257,7 +258,7 @@ void filterCloud(std::double_t density,
     in->swap(*pointCloud);
     removeStatisticalOutliers(pointCloud, in);
     in->swap(*pointCloud);
-    removeRadiusOutliers(pointCloud, in, (density + noise) * 2.5, 19);
+    removeRadiusOutliers(pointCloud, in, (density + noise) * 1.5, 19);
     in->swap(*pointCloud);
     movingLeastSquares(pointCloudWithNormals, in, (density + noise) * 1.25);
     out->swap(*pointCloudWithNormals);
@@ -272,11 +273,11 @@ void filterCloud(std::double_t density,
         std::vector<std::int32_t> indices;
         std::vector<std::float_t> distances;
         tree.radiusSearch(point, density * 0.25, indices, distances);
-        count += indices.size();
+        count += indices.size() - 1;
     });
     log_warn("false neighbors" << count);
 
-    voxelOffsetGridFilter<pcl::PointNormal>(pointCloudWithNormals, out, density, density * 0.5);
+    voxelOffsetGridFilter<pcl::PointNormal>(pointCloudWithNormals, out, density * 0.5, density * 0.25);
     out->swap(*pointCloudWithNormals);
     log_info("uniform sampling complete (" << (std::int64_t)pointCloudWithNormals->size()
              - (std::int64_t)out->size() << " points)");
@@ -286,7 +287,7 @@ void filterCloud(std::double_t density,
         std::vector<std::int32_t> indices;
         std::vector<std::float_t> distances;
         tree.radiusSearch(point, density * 0.25, indices, distances);
-        count += indices.size();
+        count += indices.size() - 1;
     });
     log_warn("false neighbors" << count);
 
@@ -313,7 +314,7 @@ void segmentCloud(std::double_t density,
     return;
 }
 
-void reconstructMesh(pcl::PointCloud<pcl::PointNormal>::Ptr /*const*/ points,
+void reconstructMesh(pcl::PointCloud<pcl::PointNormal>::Ptr /*const*/ &points,
                      std::vector<pcl::PointIndices> const &indices,
                      std::vector<std::vector<pcl::Vertices>> &out,
                      std::double_t const triangleSize)
@@ -322,11 +323,13 @@ void reconstructMesh(pcl::PointCloud<pcl::PointNormal>::Ptr /*const*/ points,
     pcl::search::KdTree<pcl::PointNormal>::Ptr kdTree(new pcl::search::KdTree<pcl::PointNormal>);
     kdTree->setSortedResults(true);
     kdTree->setInputCloud(points);
+    pcl::PointCloud<pcl::PointNormal>::Ptr tempPointsVtk(new pcl::PointCloud<pcl::PointNormal>);
+    pcl::PointCloud<pcl::PointNormal>::Ptr tempPoints(new pcl::PointCloud<pcl::PointNormal>);
 
     out.clear();
     std::for_each(indices.begin(), indices.end(),
                   [&](pcl::PointIndices const &segment) -> void {
-        if (completed > 0) return; // only use the biggest mesh for now
+        if (completed > 50) return; // only use the biggest mesh for now
 
         log_info("begin segment" << std::to_string(completed));
         pcl::ConcaveHull<pcl::PointNormal> concaveHull;
@@ -358,34 +361,55 @@ void reconstructMesh(pcl::PointCloud<pcl::PointNormal>::Ptr /*const*/ points,
         tmpMeshIn.cloud;
         pcl::toPCLPointCloud2(*points, tmpMeshIn.cloud);
 
-        pcl::MeshQuadricDecimationVTK vtk;
-        pcl::MeshSmoothingLaplacianVTK vtkSmoothing;
 
-        vtkSmoothing.setInputMesh(pcl::PolygonMesh::ConstPtr(new pcl::PolygonMesh(tmpMeshIn)));
-        vtkSmoothing.setNumIter(5000);
-        vtkSmoothing.setConvergence(0.0001);
-        vtkSmoothing.setRelaxationFactor(0.0001);
-        vtkSmoothing.setFeatureEdgeSmoothing(true);
-        vtkSmoothing.setFeatureAngle(M_PI/5);
-        vtkSmoothing.setBoundarySmoothing(true);
-
-        vtkObject::GlobalWarningDisplayOff(); // pcl uses deprecated functions
-        vtkSmoothing.process(tmpMeshOut);
-        vtkObject::GlobalWarningDisplayOn();
-
-        tmpMeshIn = tmpMeshOut;
-
-        vtk.setInputMesh(pcl::PolygonMesh::ConstPtr(new pcl::PolygonMesh(tmpMeshIn)));
-        vtk.setTargetReductionFactor(0.5);
-
-        vtkObject::GlobalWarningDisplayOff(); // pcl uses deprecated functions
-        vtk.process(tmpMeshOut);
-        vtkObject::GlobalWarningDisplayOn();
-
-        pcl::fromPCLPointCloud2(tmpMeshOut.cloud, *points);
 
         // save polygon if not empty
         if(polygons.size()>0 || tmpMeshOut.polygons.size() > 0) {
+
+
+            pcl::MeshQuadricDecimationVTK vtk;
+            pcl::MeshSmoothingLaplacianVTK vtkSmoothing;
+
+            vtkSmoothing.setInputMesh(pcl::PolygonMesh::ConstPtr(new pcl::PolygonMesh(tmpMeshIn)));
+            vtkSmoothing.setNumIter(5000);
+            vtkSmoothing.setConvergence(0.0001);
+            vtkSmoothing.setRelaxationFactor(0.0001);
+            vtkSmoothing.setFeatureEdgeSmoothing(true);
+            vtkSmoothing.setFeatureAngle(M_PI/5);
+            vtkSmoothing.setBoundarySmoothing(true);
+
+            vtkObject::GlobalWarningDisplayOff(); // pcl uses deprecated functions
+            vtkSmoothing.process(tmpMeshOut);
+            vtkObject::GlobalWarningDisplayOn();
+
+            tmpMeshIn = tmpMeshOut;
+
+            vtk.setInputMesh(pcl::PolygonMesh::ConstPtr(new pcl::PolygonMesh(tmpMeshIn)));
+            vtk.setTargetReductionFactor(0.5);
+
+            vtkObject::GlobalWarningDisplayOff(); // pcl uses deprecated functions
+            vtk.process(tmpMeshOut);
+            vtkObject::GlobalWarningDisplayOn();
+
+            pcl::fromPCLPointCloud2(tmpMeshOut.cloud, *tempPointsVtk);
+
+
+
+            // merge points
+            std::uint32_t offset = tempPoints->size();
+//            for(auto i = 0; i < tempPointsVtk->size(); i++) {
+//                tempPoints->push_back(tempPointsVtk->at(i));
+//            }
+            (*tempPoints) += (*tempPointsVtk);
+//            std::for_each(tempPointsVtk->begin(), tempPointsVtk->end(), [&](pcl::PointNormal const &point) {
+//                tempPoints->push_back(point);
+//            });
+            std::for_each(tmpMeshOut.polygons.begin(), tmpMeshOut.polygons.end(), [&](pcl::Vertices &polygon){
+                std::for_each(polygon.vertices.begin(), polygon.vertices.end(), [&](std::uint32_t &vertex){
+                    vertex += offset;
+                });
+            });
+
             out.push_back(tmpMeshOut.polygons);
         } else {
             log_info("aborted" << std::to_string(completed));
@@ -396,6 +420,8 @@ void reconstructMesh(pcl::PointCloud<pcl::PointNormal>::Ptr /*const*/ points,
         log_info("completed" << std::to_string(completed));
         return;
     });
+
+    points = tempPoints;
 
     log_info("meshes reconstructed (" << out.size() << " meshes)");
     return;
@@ -408,7 +434,7 @@ void simplifyMesh()
 }
 
 void pcl2tinyply(pcl::PointCloud<pcl::PointNormal>::Ptr const points,
-                 std::vector<std::vector<pcl::Vertices>> const &meshes,
+                 std::vector<std::vector<pcl::Vertices>> const meshes,
                  tinyply::PlyFile &file)
 {
     std::vector<std::float_t> pointsSerialized;
@@ -468,13 +494,13 @@ upns::StatusCode operate_surface_reconstruction(upns::OperationEnvironment* envi
     filterCloud(density, noise, pointCloudIn, pointCloudWithNormals);
     log_info("filtering complete");
     std::vector<pcl::PointIndices> segments;
-    segmentCloud(density, noise, pointCloudWithNormals, segments);
+    segmentCloud(density * 1.5, noise, pointCloudWithNormals, segments);
     log_info("segmentation complete");
     std::vector<std::vector<pcl::Vertices>> meshes;
     reconstructMesh(pointCloudWithNormals, segments, meshes, density * 1.5);
     log_info("surface complete");
     tinyply::PlyFile file;
-    pcl2tinyply(pointCloudWithNormals, meshes, file);
+    // pcl2tinyply(pointCloudWithNormals, meshes, file);
 
     std::shared_ptr<pcl::PCLPointCloud2> pointCloud2Out(new pcl::PCLPointCloud2);
     pcl::toPCLPointCloud2(*pointCloudWithNormals, *pointCloud2Out);
