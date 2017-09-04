@@ -72,7 +72,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
     }
     log_info("│ ├─leaf size: " << leafSize);
 
-    std::double_t downsampleAllData = parameters["downsampleAllData"].toBool();
+    bool downsampleAllData = parameters["downsampleAllData"].toBool();
     log_info("│ └─downsample all data: " << (downsampleAllData ? "true" : "false"));
 
     log_info("├─┬load original point cloud...");
