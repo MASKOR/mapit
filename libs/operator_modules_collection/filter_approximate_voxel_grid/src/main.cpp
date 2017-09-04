@@ -3,27 +3,10 @@
 #include <upns/layertypes/pointcloudlayer.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
-#include <iostream>
-#include <pcl/filters/voxel_grid.h>
-#include <memory>
 #include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
-#include <iostream>
-#include <fstream>
-
 #include <pcl/filters/approximate_voxel_grid.h>
-#include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/filters/uniform_sampling.h>
-#include <pcl/filters/voxel_grid.h>
-//#include <pcl/segmentation/supervoxel_clustering.h>
-#include <pcl/segmentation/impl/supervoxel_clustering.hpp>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/surface/concave_hull.h>
-#include <pcl/surface/mls.h>
 
 std::map<std::string, std::uint16_t const> const FIELD = {
     {"x",         0x0001},
