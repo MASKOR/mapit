@@ -16,7 +16,7 @@ Item {
         sourceEntityChooser.currentEntityPath = params.source;
         targetEntityChooser.currentEntityPath = params.target;
         leafSizeInput.text = params.leafsize;
-        downsampleAllDataInput.on = params.downsampleAllData;
+        downsampleAllDataInput.checked = params.downsampleAllData;
     }
 
     //// out ////
