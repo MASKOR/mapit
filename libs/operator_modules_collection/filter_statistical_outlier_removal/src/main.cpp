@@ -72,7 +72,7 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
     }
     log_info("│ ├─deviation: " << deviation << "σ");
 
-    std::int32_t neighbors = parameters["neighbors"].toBool();
+    std::int32_t neighbors = parameters["neighbors"].toInt();
     if (neighbors <= 0) {
         log_error("└─┴─neighbors is smaller than or equal to zero");
         return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
@@ -160,7 +160,7 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
         log_info("  ├─created new entity '" << target << "'");
     }
     std::shared_ptr<PointcloudEntitydata> targetData =
-            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(source));
+            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(target));
     if (targetData == NULL) {
         log_error("  └─target entity is no point cloud");
         return UPNS_STATUS_ERR_UNKNOWN;
