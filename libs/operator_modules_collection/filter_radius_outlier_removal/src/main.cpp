@@ -27,10 +27,10 @@ std::map<std::string, std::uint16_t const> const FIELD = {
 };
 
 template<typename T>
-void radiusOutliers(pcl::PCLPointCloud2 const &original,
-                    pcl::PCLPointCloud2 &filtered,
-                    std::double_t const radius,
-                    std::int32_t const minimumNeighbors)
+void radiusOutlierRemoval(pcl::PCLPointCloud2 const &original,
+                          pcl::PCLPointCloud2 &filtered,
+                          std::double_t const radius,
+                          std::int32_t const minimumNeighbors)
 {
     pcl::RadiusOutlierRemoval<T> filter;
     pcl::PointCloud<T> originalT;
@@ -44,9 +44,9 @@ void radiusOutliers(pcl::PCLPointCloud2 const &original,
     return;
 }
 
-upns::StatusCode operateRadiusOutliers(upns::OperationEnvironment* environment)
+upns::StatusCode operateRadiusOutlierRemoval(upns::OperationEnvironment* environment)
 {
-    log_info("┌radius outlier filter");
+    log_info("┌filter: radius outlier removal");
     QByteArray parametersRaw(environment->getParameters().c_str(),
                              environment->getParameters().length());
     QJsonObject parameters(QJsonDocument::fromJson(parametersRaw).object());
@@ -112,28 +112,28 @@ upns::StatusCode operateRadiusOutliers(upns::OperationEnvironment* environment)
     std::uint16_t const normal = (FIELD.at("normal_x") | FIELD.at("normal_y") | FIELD.at("normal_z"));
     if (fields == xyz) {
         log_info("│ └─detected type: PointXYZ");
-        func = &radiusOutliers<pcl::PointXYZ>;
+        func = &radiusOutlierRemoval<pcl::PointXYZ>;
     } else if (fields == (xyz | FIELD.at("intensity"))) {
         log_info("│ └─detected type: PointXYZI");
-        func = &radiusOutliers<pcl::PointXYZI>;
+        func = &radiusOutlierRemoval<pcl::PointXYZI>;
     } else if (fields == (xyz | normal | FIELD.at("curvature"))) {
         log_info("│ └─detected type: PointNormal");
-        func = &radiusOutliers<pcl::PointNormal>;
+        func = &radiusOutlierRemoval<pcl::PointNormal>;
     } else if (fields == (xyz | FIELD.at("intensity") | normal | FIELD.at("curvature"))) {
         log_info("│ └─detected type: PointXYZINormal");
-        func = &radiusOutliers<pcl::PointXYZINormal>;
+        func = &radiusOutlierRemoval<pcl::PointXYZINormal>;
     } else if (fields == (xyz | rgb)) {
         log_info("│ └─detected type: PointXYZRGB");
-        func = &radiusOutliers<pcl::PointXYZRGB>;
+        func = &radiusOutlierRemoval<pcl::PointXYZRGB>;
     } else if (fields == (xyz | rgb | FIELD.at("a"))) {
         log_info("│ └─detected type: PointXYZRGBA");
-        func = &radiusOutliers<pcl::PointXYZRGBA>;
+        func = &radiusOutlierRemoval<pcl::PointXYZRGBA>;
     } else if (fields == (xyz | rgb | normal | FIELD.at("curvature"))) {
         log_info("│ └─detected type: PointXYZRGBNormal");
-        func = &radiusOutliers<pcl::PointXYZRGBNormal>;
+        func = &radiusOutlierRemoval<pcl::PointXYZRGBNormal>;
     } else if (fields == (xyz | FIELD.at("strength"))) {
         log_info("│ └─detected type: InterestPoint");
-        func = &radiusOutliers<pcl::InterestPoint>;
+        func = &radiusOutlierRemoval<pcl::InterestPoint>;
     } else {
         log_error("└─┴─unknown point cloud type");
         return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
@@ -173,8 +173,8 @@ upns::StatusCode operateRadiusOutliers(upns::OperationEnvironment* environment)
 }
 
 UPNS_MODULE(OPERATOR_NAME,
-            "radius outliers filter",
+            "filter: radius outlier removal",
             "Marcus Meeßen",
             OPERATOR_VERSION,
             PointcloudEntitydata_TYPENAME,
-            &operateRadiusOutliers)
+            &operateRadiusOutlierRemoval)

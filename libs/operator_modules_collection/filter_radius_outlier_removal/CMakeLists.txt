@@ -2,7 +2,7 @@ if(NOT DISABLE_PCL)
     cmake_minimum_required(VERSION 3.0)
 
     # describe operator
-    set(OPERATOR_NAME filter_radius_outliers)
+    set(OPERATOR_NAME filter_radius_outlier_removal)
     set(OPERATOR_VERSION 1.0)
     project(${OPERATOR_NAME})
     include_directories(${PROJECT_SOURCE_DIR}/src/)
