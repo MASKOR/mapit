@@ -156,7 +156,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
         log_info("  ├─created new entity '" << target << "'");
     }
     std::shared_ptr<PointcloudEntitydata> targetData =
-            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(source));
+            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(target));
     if (targetData == NULL) {
         log_error("  └─target entity is no point cloud");
         return UPNS_STATUS_ERR_UNKNOWN;
