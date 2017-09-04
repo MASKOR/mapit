@@ -66,7 +66,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
     log_info("│ ├─target: '" << target << "'");
 
     std::double_t leafSize = parameters["leafSize"].toDouble();
-    if (leafSize <= 0.0) {
+    if (!std::isfinite(leafSize) || leafSize <= 0.0) {
         log_error("└─┴─leaf size is smaller than or equal to zero");
         return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
