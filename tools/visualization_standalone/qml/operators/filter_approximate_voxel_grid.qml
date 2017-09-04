@@ -25,9 +25,9 @@ Item {
                          && leafSizeInput.text != ""
     property var parameters: {
         "source": sourceEntityChooser.currentEntityPath,
-                "target": targetEntityChooser.currentEntityPath,
-                "leafSize": parseFloat(leafSizeInput.text),
-                "downsampleAllData": downsampleAllDataInput.checked
+        "target": targetEntityChooser.currentEntityPath,
+        "leafSize": parseFloat(leafSizeInput.text),
+        "downsampleAllData": downsampleAllDataInput.checked
     }
 
     //// UI ////
@@ -59,7 +59,8 @@ Item {
                 id: targetEntityChooser
                 Layout.fillWidth: true
                 currentCheckout: root.currentCheckout
-                currentEntityPath: sourceEntityChooser.currentEntityPath + "_avxg_" + leafSizeInput.text
+                currentEntityPath: sourceEntityChooser.currentEntityPath + "_avxg"
+                                   + "_s" + leafSizeInput.text
             }
         }
 
