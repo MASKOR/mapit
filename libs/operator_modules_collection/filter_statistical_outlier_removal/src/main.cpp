@@ -66,6 +66,10 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
     log_info("│ ├─target: '" << target << "'");
 
     std::double_t deviation = parameters["deviation"].toDouble();
+    if (std::isnan(deviation) || std::isinf(deviation)) {
+        log_error("└─┴─deviation has no valid value");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
     log_info("│ ├─deviation: " << deviation << "σ");
 
     std::int32_t neighbors = parameters["neighbors"].toBool();
