@@ -45,7 +45,7 @@ void approximateVoxelGrid(pcl::PCLPointCloud2 const &original,
 
 upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environment)
 {
-    log_info("┌approximate voxel grid filter");
+    log_info("┌filter: approximate voxel grid");
     QByteArray parametersRaw(environment->getParameters().c_str(),
                              environment->getParameters().length());
     QJsonObject parameters(QJsonDocument::fromJson(parametersRaw).object());
@@ -168,7 +168,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
 }
 
 UPNS_MODULE(OPERATOR_NAME,
-            "approximate voxel grid filter",
+            "filter: approximate voxel grid",
             "Marcus Meeßen",
             OPERATOR_VERSION,
             PointcloudEntitydata_TYPENAME,
