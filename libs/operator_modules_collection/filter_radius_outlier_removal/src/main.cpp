@@ -9,38 +9,16 @@
 #include <QJsonObject>
 #include <pcl/filters/radius_outlier_removal.h>
 
-std::map<std::string, std::uint16_t const> const FIELD = {
-    {"x",         0x0001},
-    {"y",         0x0002},
-    {"z",         0x0004},
-    {"r",         0x0008},
-    {"g",         0x000F},
-    {"b",         0x0010},
-    {"a",         0x0020},
-    {"normal_x",  0x0040},
-    {"normal_y",  0x0080},
-    {"normal_z",  0x00F0},
-    {"curvature", 0x0100},
-    {"intensity", 0x0200},
-    {"strength",  0x0400},
-    {"", 0xFFFF},
-};
-
-template<typename T>
 void radiusOutlierRemoval(pcl::PCLPointCloud2 const &original,
                           pcl::PCLPointCloud2 &filtered,
                           std::double_t const radius,
                           std::int32_t const minimumNeighbors)
 {
-    pcl::RadiusOutlierRemoval<T> filter;
-    pcl::PointCloud<T> originalT;
-    pcl::PointCloud<T> filteredT;
-    pcl::fromPCLPointCloud2(original, originalT);
-    filter.setInputCloud(originalT.makeShared());
+    pcl::RadiusOutlierRemoval<pcl::PCLPointCloud2> filter;
+    filter.setInputCloud(pcl::PCLPointCloud2ConstPtr(new pcl::PCLPointCloud2(original)));
     filter.setMinNeighborsInRadius(minimumNeighbors);
     filter.setRadiusSearch(radius);
-    filter.filter(filteredT);
-    pcl::toPCLPointCloud2(filteredT, filtered);
+    filter.filter(filtered);
     return;
 }
 
@@ -89,60 +67,19 @@ upns::StatusCode operateRadiusOutlierRemoval(upns::OperationEnvironment* environ
     }
     std::shared_ptr<pcl::PCLPointCloud2> original = sourceData->getData();
     log_info("│ ├─fields:");
-    std::uint16_t fields = 0;
     std::for_each(original->fields.begin(),
                   original->fields.end(),
-                  [&fields](pcl::PCLPointField const &field) {
-        fields |= FIELD.find(field.name) != FIELD.end()
-                ? FIELD.at(field.name)
-                : FIELD.at("");
+                  [](pcl::PCLPointField const &field) {
         log_info("│ │        " << field.name);
         return;
     });
     log_info("│ ├─size: " << original->height * original->width);
     log_info("│ └─dense: " << (original->is_dense ? "true" : "false"));
 
-    log_info("├─┬detect point type...");
-    void (*func)(pcl::PCLPointCloud2 const &,
-                 pcl::PCLPointCloud2 &,
-                 std::double_t const,
-                 std::int32_t const);
-    std::uint16_t const xyz = (FIELD.at("x") | FIELD.at("y") | FIELD.at("z"));
-    std::uint16_t const rgb = (FIELD.at("r") | FIELD.at("g") | FIELD.at("b"));
-    std::uint16_t const normal = (FIELD.at("normal_x") | FIELD.at("normal_y") | FIELD.at("normal_z"));
-    if (fields == xyz) {
-        log_info("│ └─detected type: PointXYZ");
-        func = &radiusOutlierRemoval<pcl::PointXYZ>;
-    } else if (fields == (xyz | FIELD.at("intensity"))) {
-        log_info("│ └─detected type: PointXYZI");
-        func = &radiusOutlierRemoval<pcl::PointXYZI>;
-    } else if (fields == (xyz | normal | FIELD.at("curvature"))) {
-        log_info("│ └─detected type: PointNormal");
-        func = &radiusOutlierRemoval<pcl::PointNormal>;
-    } else if (fields == (xyz | FIELD.at("intensity") | normal | FIELD.at("curvature"))) {
-        log_info("│ └─detected type: PointXYZINormal");
-        func = &radiusOutlierRemoval<pcl::PointXYZINormal>;
-    } else if (fields == (xyz | rgb)) {
-        log_info("│ └─detected type: PointXYZRGB");
-        func = &radiusOutlierRemoval<pcl::PointXYZRGB>;
-    } else if (fields == (xyz | rgb | FIELD.at("a"))) {
-        log_info("│ └─detected type: PointXYZRGBA");
-        func = &radiusOutlierRemoval<pcl::PointXYZRGBA>;
-    } else if (fields == (xyz | rgb | normal | FIELD.at("curvature"))) {
-        log_info("│ └─detected type: PointXYZRGBNormal");
-        func = &radiusOutlierRemoval<pcl::PointXYZRGBNormal>;
-    } else if (fields == (xyz | FIELD.at("strength"))) {
-        log_info("│ └─detected type: InterestPoint");
-        func = &radiusOutlierRemoval<pcl::InterestPoint>;
-    } else {
-        log_error("└─┴─unknown point cloud type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
-    }
-
     log_info("├─┬start filtering point cloud...");
     std::shared_ptr<pcl::PCLPointCloud2> filtered(new pcl::PCLPointCloud2);
     try {
-        func(*original, *filtered, radius, minimumNeighbors);
+        radiusOutlierRemoval(*original, *filtered, radius, minimumNeighbors);
     } catch(...) {
         log_error("└─┴─filtering failed");
         return UPNS_STATUS_ERR_UNKNOWN;
