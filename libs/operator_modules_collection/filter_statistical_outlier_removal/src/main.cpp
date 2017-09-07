@@ -66,10 +66,9 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
     }
     std::shared_ptr<pcl::PCLPointCloud2> original = sourceData->getData();
     log_info("│ ├─fields:");
-    std::uint16_t fields = 0;
     std::for_each(original->fields.begin(),
                   original->fields.end(),
-                  [&fields](pcl::PCLPointField const &field) {
+                  [](pcl::PCLPointField const &field) {
         log_info("│ │        " << field.name);
         return;
     });
