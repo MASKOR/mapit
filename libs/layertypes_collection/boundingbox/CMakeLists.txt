@@ -82,7 +82,7 @@ install(EXPORT mapit_layertype_boundingbox_targets
 install(
   FILES
     cmake/mapit_layertype_boundingboxConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_boundingboxConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_boundingboxConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

@@ -118,7 +118,7 @@ install(EXPORT mapit_layertype_las_targets
 install(
   FILES
     cmake/mapit_layertype_lasConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_lasConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_lasConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

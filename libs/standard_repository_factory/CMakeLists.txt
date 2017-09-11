@@ -98,7 +98,7 @@ install(EXPORT mapit_standard_repository_factory_targets
 install(
   FILES
     cmake/mapitStandardRepositoryFactoryConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/standard_repository_factoryConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_standard_repository_factoryConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

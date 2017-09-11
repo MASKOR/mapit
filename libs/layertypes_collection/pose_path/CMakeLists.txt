@@ -83,7 +83,7 @@ install(EXPORT mapit_layertype_pose_path_targets
 install(
   FILES
     cmake/mapit_layertype_pose_pathConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_pose_pathConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pose_pathConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

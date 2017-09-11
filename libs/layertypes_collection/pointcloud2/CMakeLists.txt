@@ -104,7 +104,7 @@ install(EXPORT mapit_layertype_pointcloud2_targets
 install(
   FILES
     cmake/mapit_layertype_pointcloud2Config.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_pointcloud2ConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2ConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

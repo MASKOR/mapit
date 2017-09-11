@@ -84,7 +84,7 @@ install(EXPORT mapit_layertype_asset_targets
 install(
   FILES
     cmake/mapit_layertype_assetConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_assetConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_assetConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

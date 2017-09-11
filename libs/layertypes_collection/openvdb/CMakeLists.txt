@@ -81,7 +81,7 @@ install(EXPORT mapit_layertype_openvdb_targets
 install(
   FILES
     cmake/mapit_layertype_openvdbConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_openvdbConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_openvdbConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

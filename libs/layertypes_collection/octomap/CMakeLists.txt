@@ -70,7 +70,7 @@ install(EXPORT mapit_layertype_octomap_targets
 install(
   FILES
     cmake/mapit_layertype_octomapConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_octomapConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_octomapConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

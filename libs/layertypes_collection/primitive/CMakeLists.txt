@@ -93,7 +93,7 @@ install(EXPORT mapit_layertype_primitive_targets
 install(
   FILES
     cmake/mapit_layertype_primitiveConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_primitiveConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_primitiveConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

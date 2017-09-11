@@ -89,7 +89,7 @@ install(EXPORT mapit_networking_node_targets
 install(
   FILES
     cmake/mapitNetworkingNodeConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/networking_nodeConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_networking_nodeConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

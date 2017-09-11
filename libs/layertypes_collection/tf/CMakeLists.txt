@@ -100,7 +100,7 @@ install(EXPORT mapit_layertype_tf_targets
 install(
   FILES
     cmake/mapit_layertype_tfConfig.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/layertype_tfConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_tfConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT
