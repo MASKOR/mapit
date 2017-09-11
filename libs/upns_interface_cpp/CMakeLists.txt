@@ -56,7 +56,7 @@ configure_file(cmake/mapit_interface_cppConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT upns_interface_cpp_targets
   FILE
-    interface_cppTargets.cmake
+    mapit_interface_cppTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
