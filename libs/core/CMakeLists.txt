@@ -73,7 +73,7 @@ export(EXPORT upns_core_targets
   NAMESPACE mapit::
 )
 
-configure_file(cmake/mapitCoreConfig.cmake
+configure_file(cmake/mapit_coreConfig.cmake
   "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreConfig.cmake"
   @ONLY
 )
@@ -81,7 +81,7 @@ configure_file(cmake/mapitCoreConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT upns_core_targets
   FILE
-    mapitCoreTargets.cmake
+    mapit_coreTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
@@ -89,7 +89,7 @@ install(EXPORT upns_core_targets
 )
 install(
   FILES
-    cmake/mapitCoreConfig.cmake
+    cmake/mapit_coreConfig.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}

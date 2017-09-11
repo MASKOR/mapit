@@ -48,7 +48,7 @@ export(EXPORT upns_interface_cpp_targets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppTargets.cmake"
   NAMESPACE mapit::
 )
-configure_file(cmake/mapitInterfaceCppConfig.cmake
+configure_file(cmake/mapit_interface_cppConfig.cmake
   "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppConfig.cmake"
   COPYONLY
 )
@@ -64,7 +64,7 @@ install(EXPORT upns_interface_cpp_targets
 )
 install(
   FILES
-    cmake/mapitInterfaceCppConfig.cmake
+    cmake/mapit_interface_cppConfig.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/mapit_interface_cppConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}

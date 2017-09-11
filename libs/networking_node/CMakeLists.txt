@@ -72,7 +72,7 @@ export(EXPORT mapit_networking_node_targets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_networking_nodeTargets.cmake"
   NAMESPACE mapit::
 )
-configure_file(cmake/mapitNetworkingNodeConfig.cmake
+configure_file(cmake/mapit_networking_nodeConfig.cmake
   "${CMAKE_CURRENT_BINARY_DIR}/mapit_networking_nodeConfig.cmake"
   COPYONLY
 )
@@ -88,7 +88,7 @@ install(EXPORT mapit_networking_node_targets
 )
 install(
   FILES
-    cmake/mapitNetworkingNodeConfig.cmake
+    cmake/mapit_networking_nodeConfig.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/mapit_networking_nodeConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}

@@ -81,7 +81,7 @@ export(EXPORT mapit_standard_repository_factory_targets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_standard_repository_factoryTargets.cmake"
   NAMESPACE mapit::
 )
-configure_file(cmake/mapitStandardRepositoryFactoryConfig.cmake
+configure_file(cmake/mapit_standard_repository_factoryConfig.cmake
   "${CMAKE_CURRENT_BINARY_DIR}/mapit_standard_repository_factoryConfig.cmake"
   COPYONLY
 )
@@ -89,7 +89,7 @@ configure_file(cmake/mapitStandardRepositoryFactoryConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_standard_repository_factory_targets
   FILE
-    standard_repository_factoryTargets.cmake
+    mapit_standard_repository_factoryTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
@@ -97,7 +97,7 @@ install(EXPORT mapit_standard_repository_factory_targets
 )
 install(
   FILES
-    cmake/mapitStandardRepositoryFactoryConfig.cmake
+    cmake/mapit_standard_repository_factoryConfig.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/mapit_standard_repository_factoryConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}

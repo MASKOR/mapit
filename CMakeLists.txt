@@ -26,6 +26,9 @@ project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
+set(CPACK_PACKAGE_CONTACT "FH Aachen")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "d.bulla@fh-aachen.de")
+
 set (CMAKE_CXX_STANDARD 11)
 
 set(MAPIT_MAJOR_VERSION 0)
@@ -85,7 +88,7 @@ set(CMAKE_PREFIX_PATH
 # (layertypes_collection and operator_modules_collection)
 set(WITH_PCL TRUE CACHE BOOL "Enable pcl Layers")
 set(WITH_OPENVDB TRUE CACHE BOOL "Enable OpenVDB Layers")
-set(WITH_OCTOMAP TRUE CACHE BOOL "Enable Octomap Layers")
+set(WITH_OCTOMAP FALSE CACHE BOOL "Enable Octomap Layers")
 set(WITH_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
 
 set(WITH_LOG4CPLUS FALSE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
@@ -212,9 +215,20 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
+set(ConfigPackageLocation lib/cmake/mapit)
+install(
+  FILES
+    cmake/mapitConfig.cmake
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
+
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
+#cpack_deb_prepare_package_vars()
 
 #if(WIN32)
 #    set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp/build" CACHE PATH "yaml installation path with lib and include subdir")
