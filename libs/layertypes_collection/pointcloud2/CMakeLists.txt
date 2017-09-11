@@ -74,7 +74,8 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_pointcloud2_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include DESTINATION include )
+install(DIRECTORY include/upns DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
