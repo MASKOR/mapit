@@ -61,7 +61,7 @@ configure_file(cmake/mapit_layertype_octomapConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_octomap_targets
   FILE
-    layertype_octomapTargets.cmake
+    mapit_layertype_octomapTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION

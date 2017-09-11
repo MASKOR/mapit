@@ -75,7 +75,7 @@ configure_file(cmake/mapit_layertype_assetConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_asset_targets
   FILE
-    layertype_assetTargets.cmake
+    mapit_layertype_assetTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION

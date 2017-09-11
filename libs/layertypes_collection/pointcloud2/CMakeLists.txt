@@ -95,7 +95,7 @@ configure_file(cmake/mapit_layertype_pointcloud2Config.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_pointcloud2_targets
   FILE
-    layertype_pointcloud2Targets.cmake
+    mapit_layertype_pointcloud2Targets.cmake
   NAMESPACE
     mapit::
   DESTINATION

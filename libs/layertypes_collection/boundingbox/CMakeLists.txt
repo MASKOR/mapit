@@ -73,7 +73,7 @@ configure_file(cmake/mapit_layertype_boundingboxConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_boundingbox_targets
   FILE
-    layertype_boundingboxTargets.cmake
+    mapit_layertype_boundingboxTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION

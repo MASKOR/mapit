@@ -84,7 +84,7 @@ configure_file(cmake/mapit_layertype_primitiveConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_primitive_targets
   FILE
-    layertype_primitiveTargets.cmake
+    mapit_layertype_primitiveTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION

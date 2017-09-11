@@ -74,7 +74,7 @@ configure_file(cmake/mapit_layertype_pose_pathConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_pose_path_targets
   FILE
-    layertype_pose_pathTargets.cmake
+    mapit_layertype_pose_pathTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION

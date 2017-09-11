@@ -91,7 +91,7 @@ configure_file(cmake/mapit_layertype_tfConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_tf_targets
   FILE
-    layertype_tfTargets.cmake
+    mapit_layertype_tfTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION

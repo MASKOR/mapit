@@ -72,7 +72,7 @@ configure_file(cmake/mapit_layertype_openvdbConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_layertype_openvdb_targets
   FILE
-    layertype_openvdbTargets.cmake
+    mapit_layertype_openvdbTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
