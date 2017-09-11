@@ -80,7 +80,7 @@ configure_file(cmake/mapit_networking_nodeConfig.cmake
 set(ConfigPackageLocation lib/cmake/mapit)
 install(EXPORT mapit_networking_node_targets
   FILE
-    networking_nodeTargets.cmake
+    mapit_networking_nodeTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
