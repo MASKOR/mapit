@@ -14,8 +14,8 @@
 #include <QVector>
 #include <QFile>
 #include <QtMath>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 
 // Format:
 // x,y,z,<anything>,...,...
