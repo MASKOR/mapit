@@ -39,7 +39,7 @@ QmlCheckout *QmlEntitydata::checkout() const
 
 QVariant QmlEntitydata::getInfo(QString propertyName)
 {
-#ifdef WITH_PCL
+#if WITH_PCL
     if(strcmp(m_entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0)
     {
         if(   propertyName.compare("width") == 0

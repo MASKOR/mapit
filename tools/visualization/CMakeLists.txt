@@ -40,7 +40,7 @@ if(WITH_PCL)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
     #add_definitions(${PCL_DEFINITIONS})
-    add_definitions(-DWITH_POINTCLOUD)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_PCL=1)
 else(WITH_PCL)
 endif(WITH_PCL)
 

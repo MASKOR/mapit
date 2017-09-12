@@ -66,6 +66,9 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
+#hardcoded for ubuntu 16.04 + qt3d input/logic should not affect other installations
+link_directories("/opt/qt59/lib")
+
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${UPNS_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}
@@ -95,7 +98,7 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-#qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
+qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
 target_link_libraries(${PROJECT_NAME} upns_visualization
     ${mapit_core}
