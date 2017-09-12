@@ -138,7 +138,7 @@ public:
             minimum[i] = +std::numeric_limits<double>::infinity();
             maximum[i] = -std::numeric_limits<double>::infinity();
         }
-        qint64 pointsRead = readCsv<T>(path, [&](double *point, const int& idx)
+        qint64 pointsRead = readCsv<T>(path, [&minimum, &maximum, &fields, &doubles](double *point, const int& idx)
         {
             for(int i=0 ; i<fields ; ++i)
             {
