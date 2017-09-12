@@ -39,8 +39,6 @@ if(WITH_PCL)
     find_package(PCL REQUIRED COMPONENTS common io)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
-    #add_definitions(${PCL_DEFINITIONS})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_PCL=1)
 else(WITH_PCL)
 endif(WITH_PCL)
 
@@ -114,10 +112,11 @@ if(WITH_PCL)
                                         Qt3DPointcloudRenderer
                                         layertype_pointcloud2
                                         ${PCL_LIBRARIES})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_PCL=1)
 endif(WITH_PCL)
 
 if(WITH_LAS)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_LAS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_LAS=1)
     target_link_libraries(${PROJECT_NAME}
                                         Qt3DPointcloudRenderer
                                         layertype_las)

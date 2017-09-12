@@ -52,7 +52,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC  $<BUILD_INTERFACE:${CMAKE_CUR
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  LASEntitydata_TYPENAME="${PROJECT_NAME}"
-                                                   WITH_LAS)
+                                                   WITH_LAS=1)
 
 if(HAVE_LASZIP)
    target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/LASzip/src/
