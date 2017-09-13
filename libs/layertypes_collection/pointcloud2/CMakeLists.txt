@@ -49,11 +49,11 @@ target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapi
 #    This must be done in a config or targets script.
 #    The targts script is generated automatically using the new generator expressions.
 #    TODO: find a way the re-evaluate variables in generator expressions. Until then, projects using this layertype must include PCL on their own (only header).
-#    Note: just uncommenting the line below will not do the job (tested after installation on other system with upns_samples).
+#    Note: just putting the below "private" varibale to "public" will not do the job (tested after installation on other system with upns_samples).
 
-target_include_directories(${PROJECT_NAME} PUBLIC #${PCL_INCLUDE_DIRS}
-                                                  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                                                  $<INSTALL_INTERFACE:include>)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PCL_INCLUDE_DIRS}
+                                            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                                   $<INSTALL_INTERFACE:include>)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  PointcloudEntitydata_TYPENAME="${PROJECT_NAME}"
