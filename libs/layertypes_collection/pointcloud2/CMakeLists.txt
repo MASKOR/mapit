@@ -35,10 +35,23 @@ file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
+target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
 
-target_link_libraries(${PROJECT_NAME} )
-target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS}
+# About dependency to pcl
+# PCL is not known to have the newest and cleanes CMake files.
+# Thus there are variables like PCL_INCLUDE_DIRS
+# When using the layertype, we automatically introduce a dependency to pcl
+# CMake can add the dependency by a multitude of ways.
+# 1. If the project is in the cmake project hierarchy, everything is ok (no futher details here)
+# 2. When mapit is installed, the variables PCL_INCLUDE_DIRS can not be set automatically, because
+#    the path will differ from what the installation directory is.
+#    But it is possible to find_dependecy(PCL) and re-read the variable.
+#    This must be done in a config or targets script.
+#    The targts script is generated automatically using the new generator expressions.
+#    TODO: find a way the re-evaluate variables in generator expressions. Until then, projects using this layertype must include PCL on their own (only header).
+#    Note: just uncommenting the line below will not do the job (tested after installation on other system with upns_samples).
+
+target_include_directories(${PROJECT_NAME} PUBLIC #${PCL_INCLUDE_DIRS}
                                                   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                                   $<INSTALL_INTERFACE:include>)
 
