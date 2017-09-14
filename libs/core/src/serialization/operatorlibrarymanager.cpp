@@ -212,7 +212,7 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
     dirent *ent;
     if ((dir = opendir (dirname.c_str())) == nullptr)
     {
-        log_error("could not open directory");
+        log_warn("could not open directory" << dirname);
         return;
     }
     /* print all the files and directories within directory */
@@ -241,6 +241,18 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
                 log_warn("not a library: " + name);
                 continue;
             }
+
+            //TODO: different version may be listed!
+            bool duplicate=false;
+            std::string name(modInfo->moduleName);
+            for(std::vector<OperatorInfo>::const_iterator iter(vec.cbegin()) ; iter != vec.cend() ; iter++)
+            {
+                if(name.compare(std::string(iter->moduleName)) == 0)
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
             vec.push_back(OperatorInfo(*modInfo));
             StatusCode status = closeOperatorModule(handle);
             if(!upnsIsOk(status))
@@ -257,7 +269,7 @@ std::vector<OperatorInfo> OperatorLibraryManager::listOperators()
 {
     std::vector<OperatorInfo> moduleInfos;
     addOperatorsFromDirectory(moduleInfos, MAPIT_LOCAL_OPERATOR_DIR, true);
-    //addOperatorsFromDirectory(moduleInfos, "/usr/lib/"); //TODO
+    addOperatorsFromDirectory(moduleInfos, "/usr/lib/");
     return moduleInfos;
 }
 

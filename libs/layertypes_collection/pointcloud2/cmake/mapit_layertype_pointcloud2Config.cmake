@@ -14,6 +14,12 @@ include(CMakeFindDependencyMacro)
 find_dependency(PCL REQUIRED)
 find_dependency(mapit_interface_cpp REQUIRED)
 find_dependency(mapit_core REQUIRED)
+
+# TODO: is that best practice?
+# find a way to evaluate PCL_INCLUDE_DIRS at configure time of the DEPENDING project.
+# Reason: Variable evaluates to different values depending on where pcl is installed
+#target_include_directories(mapit::layertype_pointcloud2 ${PCL_INCLUDE_DIRS})
+
 # conditional compiling for different variables set/unset (like WITH_LOG4CPLUS) not supported.
 #if($<WITH_LOG4CPLUS>)
 #  include(FindLog4cplus)
