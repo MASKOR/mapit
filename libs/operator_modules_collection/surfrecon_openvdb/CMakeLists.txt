@@ -54,6 +54,8 @@ set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} ${PCL_LIBRARIES} ${PCL_COMMON
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
 
+qt5_use_modules(${PROJECT_NAME} Core Gui)
+
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2 layertype_openvdb ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES})
 
 #if(TARGET json11)
