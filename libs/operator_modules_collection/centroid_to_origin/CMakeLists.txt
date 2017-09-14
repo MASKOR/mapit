@@ -20,6 +20,7 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 
 # Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
 # can lead problems resulting from to incompatible ABIs

@@ -24,9 +24,11 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 
 #if(NOT TARGET json11)
-    find_package(json11 REQUIRED)
+#    find_package(json11 REQUIRED)
 #endif(NOT TARGET json11)
 
 # Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
