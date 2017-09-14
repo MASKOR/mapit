@@ -50,6 +50,8 @@ message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2 layertype_tf)
 
+qt5_use_modules(${PROJECT_NAME} Core Gui)
+
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}
   PROPERTIES
