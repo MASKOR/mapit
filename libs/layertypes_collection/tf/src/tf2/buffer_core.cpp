@@ -35,8 +35,8 @@
 #include <upns/layertypes/tflayer/tf2/linear_math.h>
 
 #include <assert.h>
-#include <console_bridge/console.h>
 //#include "tf2/LinearMath/Transform.h"
+#include <upns/logging.h>
 #include <upns/layertypes/tflayer.h>
 
 Eigen::Translation3f
@@ -120,7 +120,7 @@ bool BufferCore::warnFrameId(const char* function_name_arg, const std::string& f
   {
     std::stringstream ss;
     ss << "Invalid argument passed to "<< function_name_arg <<" in tf2 frame_ids cannot be empty";
-    logWarn("%s",ss.str().c_str());
+    log_warn( ss.str() );
     return true;
   }
 
@@ -128,7 +128,7 @@ bool BufferCore::warnFrameId(const char* function_name_arg, const std::string& f
   {
     std::stringstream ss;
     ss << "Invalid argument \"" << frame_id << "\" passed to "<< function_name_arg <<" in tf2 frame_ids cannot start with a '/' like: ";
-    logWarn("%s",ss.str().c_str());
+    log_warn( ss.str() );
     return true;
   }
 
@@ -215,43 +215,43 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
   bool error_exists = false;
   if (stripped.transform.child_frame_id == stripped.frame_id)
   {
-    logError("TF_SELF_TRANSFORM: Ignoring transform from authority \"%s\" with frame_id and child_frame_id  \"%s\" because they are the same",  authority.c_str(), stripped.transform.child_frame_id.c_str());
+    log_error("TF_SELF_TRANSFORM: Ignoring transform from authority \"" + authority + "\" with frame_id and child_frame_id  \"" + stripped.transform.child_frame_id + "\" because they are the same");
     error_exists = true;
   }
 
   if (stripped.transform.child_frame_id == "")
   {
-    logError("TF_NO_CHILD_FRAME_ID: Ignoring transform from authority \"%s\" because child_frame_id not set ", authority.c_str());
+    log_error("TF_NO_CHILD_FRAME_ID: Ignoring transform from authority \"" + authority + "\" because child_frame_id not set ");
     error_exists = true;
   }
 
   if (stripped.frame_id == "")
   {
-    logError("TF_NO_FRAME_ID: Ignoring transform with child_frame_id \"%s\"  from authority \"%s\" because frame_id not set", stripped.transform.child_frame_id.c_str(), authority.c_str());
+    log_error("TF_NO_FRAME_ID: Ignoring transform with child_frame_id \"" + stripped.transform.child_frame_id + "\"  from authority \"" + authority + "\" because frame_id not set");
     error_exists = true;
   }
 
   if (std::isnan(stripped.transform.translation.x()) || std::isnan(stripped.transform.translation.y()) || std::isnan(stripped.transform.translation.z()) ||
       std::isnan(stripped.transform.rotation.x()) ||       std::isnan(stripped.transform.rotation.y()) ||       std::isnan(stripped.transform.rotation.z()) ||       std::isnan(stripped.transform.rotation.w()))
   {
-    logError("TF_NAN_INPUT: Ignoring transform for child_frame_id \"%s\" from authority \"%s\" because of a nan value in the transform (%f %f %f) (%f %f %f %f)",
-              stripped.transform.child_frame_id.c_str(), authority.c_str(),
-              stripped.transform.translation.x(), stripped.transform.translation.y(), stripped.transform.translation.z(),
-              stripped.transform.rotation.x(), stripped.transform.rotation.y(), stripped.transform.rotation.z(), stripped.transform.rotation.w()
+    log_error("TF_NAN_INPUT: Ignoring transform for child_frame_id \"" + stripped.transform.child_frame_id + "\" from authority \"" + authority
+           + "\" because of a nan value in the transform ("
+           + std::to_string( stripped.transform.translation.x() ) + " " + std::to_string( stripped.transform.translation.y() ) + " " + std::to_string( stripped.transform.translation.z() ) + ") ("
+           + std::to_string( stripped.transform.rotation.x() ) + " " + std::to_string( stripped.transform.rotation.y() ) + " " + std::to_string( stripped.transform.rotation.z() ) + " " + std::to_string( stripped.transform.rotation.w() ) + ")"
               );
     error_exists = true;
   }
 
   bool valid = std::abs((stripped.transform.rotation.w() * stripped.transform.rotation.w()
-                        + stripped.transform.rotation.x() * stripped.transform.rotation.x()
-                        + stripped.transform.rotation.y() * stripped.transform.rotation.y()
-                        + stripped.transform.rotation.z() * stripped.transform.rotation.z()) - 1.0f) < 10e-6;
+                       + stripped.transform.rotation.x() * stripped.transform.rotation.x()
+                       + stripped.transform.rotation.y() * stripped.transform.rotation.y()
+                       + stripped.transform.rotation.z() * stripped.transform.rotation.z()) - 1.0f) < 10e-6;
 
   if (!valid) 
   {
-    logError("TF_DENORMALIZED_QUATERNION: Ignoring transform for child_frame_id \"%s\" from authority \"%s\" because of an invalid quaternion in the transform (%f %f %f %f)",
-             stripped.transform.child_frame_id.c_str(), authority.c_str(),
-             stripped.transform.rotation.x(), stripped.transform.rotation.y(), stripped.transform.rotation.z(), stripped.transform.rotation.w());
+    log_error("TF_DENORMALIZED_QUATERNION: Ignoring transform for child_frame_id \"" + stripped.transform.child_frame_id + "\" from authority \"" + authority
+           + "\" because of an invalid quaternion in the transform (" + std::to_string( stripped.transform.rotation.x() ) + " " + std::to_string( stripped.transform.rotation.y() ) + " " + std::to_string( stripped.transform.rotation.z() ) + " " + std::to_string( stripped.transform.rotation.w() ) + ")"
+             );
     error_exists = true;
   }
 
@@ -271,7 +271,7 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
     }
     else
     {
-      logWarn("TF_OLD_DATA ignoring data from the past for frame %s at time %g according to authority %s\nPossible reasons are listed at http://wiki.ros.org/tf/Errors%%20explained", stripped.transform.child_frame_id.c_str(), mapit::time::to_sec(stripped.stamp), authority.c_str());
+      log_warn( "TF_OLD_DATA ignoring data from the past for frame " + stripped.transform.child_frame_id + " at time " + std::to_string( mapit::time::to_sec(stripped.stamp) ) + " according to authority " + authority + "\nPossible reasons are listed at http://wiki.ros.org/tf/Errors%%20explained" );
       return false;
     }
   }
@@ -620,7 +620,7 @@ struct TransformAccum
     case LOOKUP_ERROR:
       throw LookupException(error_string);
     default:
-      logError("Unknown error code: %d", retval);
+      log_error("Unknown error code: " + std::to_string( retval ) );
       assert(0);
     }
   }
@@ -1511,7 +1511,7 @@ void BufferCore::_chainAsVector(const std::string & target_frame, mapit::time::S
     case LOOKUP_ERROR:
       throw LookupException(error_string);
     default:
-      logError("Unknown error code: %d", retval);
+      log_error("Unknown error code: " + std::to_string( retval ));
       assert(0);
     }
   }
@@ -1531,7 +1531,7 @@ void BufferCore::_chainAsVector(const std::string & target_frame, mapit::time::S
       case LOOKUP_ERROR:
         throw LookupException(error_string);
       default:
-        logError("Unknown error code: %d", retval);
+        log_error("Unknown error code: " +  std::to_string( retval ));
         assert(0);
       }
     }
