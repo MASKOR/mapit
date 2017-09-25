@@ -32,6 +32,7 @@
 #include <upns/layertypes/tflayer/tf2/buffer_core.h>
 #include <upns/layertypes/tflayer/tf2/time_cache.h>
 #include <upns/layertypes/tflayer/tf2/exceptions.h>
+#include <upns/layertypes/tflayer/tf2/linear_math.h>
 
 #include <assert.h>
 #include <console_bridge/console.h>
@@ -497,11 +498,11 @@ TF2Error BufferCore::walkToTopParent(F& f, mapit::time::Stamp time, CompactFrame
 struct TransformAccum
 {
   TransformAccum()
-  : source_to_top_quat(0.0, 0.0, 0.0, 1.0)
+  : source_to_top_quat(1.0, 0.0, 0.0, 0.0)
   , source_to_top_vec(0.0, 0.0, 0.0)
-  , target_to_top_quat(0.0, 0.0, 0.0, 1.0)
+  , target_to_top_quat(1.0, 0.0, 0.0, 0.0)
   , target_to_top_vec(0.0, 0.0, 0.0)
-  , result_quat(0.0, 0.0, 0.0, 1.0)
+  , result_quat(1.0, 0.0, 0.0, 0.0)
   , result_vec(0.0, 0.0, 0.0)
   {
   }
