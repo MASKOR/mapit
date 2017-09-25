@@ -16,8 +16,12 @@ interpolate3(const Eigen::Translation3f& v0, const Eigen::Translation3f& v1, flo
 Eigen::Vector3f
 quatRotate(const Eigen::Quaternionf& rotation, const Eigen::Vector3f& v)
 {
-  Eigen::Vector3f q_v = rotation * v;
-  Eigen::Quaternionf q(q_v.x(), q_v.y(), q_v.z(), 0);
-  q *= rotation.inverse();
-  return Eigen::Vector3f(q.x(),q.y(),q.z());
+    Eigen::Quaternionf q(
+          -rotation.x() * v.x() - rotation.y() * v.y() - rotation.z() * v.z()
+        , rotation.w() * v.x() + rotation.y() * v.z() - rotation.z() * v.y()
+        , rotation.w() * v.y() + rotation.z() * v.x() - rotation.x() * v.z()
+        , rotation.w() * v.z() + rotation.x() * v.y() - rotation.y() * v.x()
+        );
+    q *= rotation.inverse();
+    return Eigen::Vector3f(q.x(),q.y(),q.z());
 }
