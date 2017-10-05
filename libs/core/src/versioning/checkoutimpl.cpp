@@ -79,15 +79,15 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
-//    if(p.compare(0, m_name.size(), m_name) == 0) // TODO this does not work if checkoutname equals map name at the beginning, e.g. co=test map=testmap/, results in testmap/ being changed to map/
-//    {
-//        p = p.substr(m_name.size(), p.length()-m_name.size());
-//        if (p.compare("/") == 0) { // TODO is this the correct workaround???
-//            p = "";
-//        }
-//    }
+    if(p.compare(0, m_name.size(), m_name) == 0) // TODO this does not work if checkoutname equals map name at the beginning, e.g. co=test map=testmap/, results in testmap/ being changed to map/
+    {
+        p = p.substr(m_name.size(), p.length()-m_name.size());
+        if (p.compare("/") == 0) { // TODO is this the correct workaround???
+            p = "";
+        }
+    }
     // Try to get a transient tree
-    std::shared_ptr<Tree> tree = m_serializer->getTreeTransient(m_name + "/" + p);
+    std::shared_ptr<Tree> tree = m_serializer->getTreeTransient(m_name + p);
     if(tree) return tree;
 
     // if tree is not transient, get from repo
@@ -101,10 +101,10 @@ std::shared_ptr<Entity> CheckoutImpl::getEntity(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
-//    if(p.compare(0, m_name.size(), m_name) == 0)
-//    {
-//        p = p.substr(m_name.size(), p.length()-m_name.size());
-//    }
+    if(p.compare(0, m_name.size(), m_name) == 0)
+    {
+        p = p.substr(m_name.size(), p.length()-m_name.size());
+    }
     // Try to get a transient entity
     std::shared_ptr<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p);
     if(ent) return ent;
@@ -166,15 +166,23 @@ OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription 
 
 std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
-    Path p(m_name + "/" + preparePathFilename(path));
-    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( p );
+//    Path p(m_name + "/" + preparePathFilename(path));
+
+    Path p(preparePath(path));
+    if(p.empty()) return nullptr;
+    if(p.compare(0, m_name.size(), m_name) == 0)
+    {
+        p = p.substr(m_name.size(), p.length()-m_name.size());
+    }
+
+    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( m_name + "/" + p );
     if( ent == NULL )
     {
         log_warn("Entity not found." + path);
         return NULL;
     }
     assert( ent );
-    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, false), true);
 }
 
 std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
