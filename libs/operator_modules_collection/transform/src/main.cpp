@@ -11,76 +11,6 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-// Apply array of transforms.
-// {
-//    target: "path/to/target.tf"
-//    mode: "relative"|"absolute",
-//    tf: [
-//      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
-//      1: {mat: [0: m00_2, ...]},
-//      2: ...
-//    ]
-// }
-// relative:
-// parent may be a tf or a tree
-// if parent is a tree, timestamp is used to choose a appropiate coordinate system (lerp between two tfs).
-// if parent is empty, target is used.
-// absolute:
-// only one tf (index:0) may be given, parent/timestamp must not be used.
-
-upns::StatusCode getEntity(upns::OperationEnvironment* env, std::string entity_name, std::shared_ptr<mapit::msgs::Entity> &entity, std::shared_ptr<TfEntitydata> &entityData)
-{
-    // Get Target
-    entity = env->getCheckout()->getEntity(entity_name);
-    if(entity == NULL)
-    {
-        // If target could not be received, create new entity
-        entity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
-        entity->set_type(TfEntitydata::TYPENAME());
-        StatusCode s = env->getCheckout()->storeEntity(entity_name, entity);
-        if(!upnsIsOk(s))
-        {
-            log_error("Failed to create entity.");
-            return UPNS_STATUS_ERR_UNKNOWN;
-        }
-    }
-    else
-    {
-        log_warn("Overwrite existing tf " + entity_name);
-    }
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( entity_name );
-    if(abstractEntitydata == NULL)
-    {
-        return UPNS_STATUS_ERR_UNKNOWN;
-    }
-    entityData = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydata );
-    if(entityData == NULL)
-    {
-        log_error("Entity is not of type TfEntitydata.");
-        return UPNS_STATUS_ERR_UNKNOWN;
-    }
-
-    return UPNS_STATUS_OK;
-}
-
-void saveEntity(upns::OperationEnvironment* env, std::string entity_name, std::shared_ptr<mapit::msgs::Entity> entity, std::shared_ptr<TfEntitydata> entityData, tf::TransformStamped tf)
-{
-    // safe header to entity
-    long sec, nsec;
-    mapit::time::to_sec_and_nsec( tf.stamp, sec, nsec);
-    mapit::msgs::Time *entity_stamp = new mapit::msgs::Time(); //entity->mutable_stamp();
-    entity_stamp->set_sec( sec );
-    entity_stamp->set_nsec( nsec );
-    entity->set_allocated_stamp( entity_stamp );
-
-    entity->set_frame_id(tf.frame_id);
-    env->getCheckout()->storeEntity(entity_name, entity);
-
-    // safe data to entitydata
-    upns::tf::TransformPtr tf_transform( new upns::tf::Transform(tf.transform) );
-    entityData->setData( tf_transform );
-}
-
 upns::StatusCode operate(upns::OperationEnvironment* env)
 {
     /** structure:
@@ -126,7 +56,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 
     std::string layername_dynamic("tf_dynamic");
     std::string layername_static("tf_static");
-    std::string map = params["map"].toString().toStdString();
+    std::string map_name = params["map"].toString().toStdString();
 
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
@@ -163,22 +93,24 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                 ,   (float)json_rotation["z"].toDouble()
                     );
 
-        // generate entity name for TF
-        std::string entity_name = "";
+        // write data
+        CheckoutRaw* checkout = env->getCheckout();
+        std::shared_ptr<mapit::Map> map = checkout->getNewMap(map_name);
+        std::shared_ptr<mapit::Layer> layer;
         if (layer_is_static) {
-            entity_name = map + "/" + layername_static + "/" + tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id;
+            layer = checkout->getNewLayer(map, layername_static);
         } else {
-            entity_name = map + "/" + layername_dynamic + "/" + tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id;
+            layer = checkout->getNewLayer(map, layername_dynamic);
         }
+        std::shared_ptr<mapit::Entity> entity = checkout->getNewEntity(
+                      layer
+                    , tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id
+                    , TfEntitydata::TYPENAME());
 
-        std::shared_ptr<mapit::msgs::Entity> entity;
-        std::shared_ptr<TfEntitydata> entityData;
-        upns::StatusCode status = getEntity(env, entity_name, entity, entityData);
-        if ( status != UPNS_STATUS_OK ) {
-            return status;
-        }
-
-        saveEntity(env, entity_name, entity, entityData, tf_loaded);
+        std::shared_ptr<tf::Transform> entity_data = std::shared_ptr<tf::Transform>(new tf::Transform(tf_loaded.transform));
+        entity->set_frame_id( tf_loaded.frame_id );
+        entity->set_stamp( tf_loaded.stamp );
+        checkout->storeEntity<tf::Transform>(entity, entity_data);
     }
 
     return UPNS_STATUS_OK;
