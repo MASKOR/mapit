@@ -18,7 +18,7 @@ namespace upns
  * which will be marked as the new version.
  */
 
-class CheckoutRaw : public CheckoutCommon
+class CheckoutRaw : virtual public CheckoutCommon
 {
 protected:
     // Can not be deleted from outside (module)
