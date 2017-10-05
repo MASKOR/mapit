@@ -36,7 +36,7 @@ namespace time {
 
   Stamp from_sec_and_nsec(long sec, long nsec);
 
-  void to_sec_and_nsec(Stamp stamp, long &sec, long &nsec);
+  void to_sec_and_nsec(Stamp stamp, unsigned long &sec, unsigned long &nsec);
 
   double to_sec(Stamp stamp);
 

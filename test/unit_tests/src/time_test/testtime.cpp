@@ -38,8 +38,8 @@ void TestTime::testTime()
 
   // test import and export
   mapit::time::Stamp ros = mapit::time::from_sec_and_nsec(ros_sec, ros_nsec);
-  long sec_new;
-  long nsec_new;
+  unsigned long sec_new;
+  unsigned long nsec_new;
   mapit::time::to_sec_and_nsec(ros, sec_new, nsec_new);
 
   QVERIFY(sec_new == ros_sec);

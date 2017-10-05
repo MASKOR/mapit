@@ -23,7 +23,7 @@ namespace  time {
     return t;
   }
 
-  void to_sec_and_nsec(Stamp stamp, long &sec, long &nsec)
+  void to_sec_and_nsec(Stamp stamp, unsigned long &sec, unsigned long &nsec)
   {
     seconds d_sec = std::chrono::duration_cast<seconds>( stamp.time_since_epoch() );
     sec = d_sec.count();
