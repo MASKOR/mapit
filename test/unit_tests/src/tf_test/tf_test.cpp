@@ -1,6 +1,14 @@
 #include "tf_test.h"
 #include "../../src/autotest.h"
 
+#include <upns/errorcodes.h>
+#include <upns/versioning/checkout.h>
+#include <upns/versioning/repositoryfactory.h>
+
+#include <mapit/msgs/datastructs.pb.h>
+#include <upns/operators/versioning/checkoutraw.h>
+#include <upns/operators/operationenvironment.h>
+
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/tflayer/tf2/buffer_core.h>
 #include <mapit/time/time.h>
@@ -10,10 +18,20 @@
 
 void TFTest::init()
 {
+    fileSystemName_ = "tf_test.mapit";
+    cleanup();
+    repo_ = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName_));
+    checkout_ = std::shared_ptr<upns::Checkout>(repo_->createCheckout("master", "tftest"));
 }
 
 void TFTest::cleanup()
 {
+    QDir dir(fileSystemName_);
+    if(dir.exists())
+    {
+        bool result = dir.removeRecursively();
+        QVERIFY( result );
+    }
 }
 
 void TFTest::initTestCase()
@@ -167,11 +185,122 @@ void TFTest::test_interpolation()
     compareTfs(inter_together, buffer->lookupTransform("a", "b", inter_together.stamp));
 }
 
-void TFTest::test_tf()
+void TFTest::test_layertype_to_buffer()
 {
-    test_input_output();
-    test_chain_of_2_tfs();
-    test_interpolation();
+    // create layers and fill with tf data
+    mapit::msgs::OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("transform");
+    desc.set_params(
+                "{"
+                "   \"map\" : \"map_tftest\","
+                "   \"transforms\" : "
+                "   ["
+                "       {"
+                "           \"static\" : true,"
+                "           \"header\" : {"
+                "               \"frame_id\" : \"world\","
+                "               \"stamp\" : {"
+                "                   \"sec\" : 1000,"
+                "                   \"nsec\" : 500000000"
+                "               }"
+                "           },"
+                "           \"transform\" : {"
+                "               \"child_frame_id\" : \"frame_1\","
+                "               \"translation\" : {"
+                "                   \"x\" : 1.0,"
+                "                   \"y\" : 2.0,"
+                "                   \"z\" : 3.0"
+                "               },"
+                "               \"rotation\" : {"
+                "                   \"w\" : 1.0,"
+                "                   \"x\" : 0.0,"
+                "                   \"y\" : 0.0,"
+                "                   \"z\" : 0.0"
+                "               }"
+                "           }"
+                "       }"
+                "   ]"
+                "}"
+                );
+    OperationResult ret = checkout_->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    // read all tfs from the 2 default layers and store them in the buffer
+//    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
+    std::string layername_dynamic("tf_dynamic");
+    std::string layername_static("tf_static");
+
+//    std::cout << std::endl << std::endl << std::endl;
+//    // use function to transform tf layer to buffer static
+//    std::shared_ptr<mapit::msgs::Tree> root = checkout_->getRoot();
+//    for (std::pair<std::string, mapit::msgs::ObjectReference> layer_link : root->refs()) {
+//        if ( 0 == layername_static.compare( layer_link.first ) ) {
+//            std::shared_ptr<mapit::msgs::Tree> layer = checkout_->getTree( layer_link.second.path() );
+//            for (std::pair<std::string, mapit::msgs::ObjectReference> entity_link : layer->refs()) {
+//                std::cout << entity_link.first << std::endl;
+//                std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( entity_link.second.path() );
+
+//                upns::tf::TransformStamped tfs;
+//                tfs.frame_id = entity->frame_id();
+//                tfs.stamp = mapit::time::from_sec_and_nsec( entity->stamp().sec(), entity->stamp().nsec() );
+
+//                upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
+//                            checkout_->getEntitydataReadOnly( entity_link.second.path() )
+//                            )->getData();
+
+//                tfs.transform = *entity_data;
+
+//                buffer->setTransform(tfs, layer_link.first, true);
+//            }
+//        } else if ( 0 == layername_dynamic.compare( layer_link.first ) ) {
+//            std::cout << "Not yet implemented" << std::endl;
+//        }
+//    }
+
+//    upns::tf::TransformStamped tf = buffer->lookupTransform("world", "frame_1", mapit::time::from_sec_and_nsec(1000, 500000000));
+//    std::cout << "blablabla" << std::endl
+//              << tf.frame_id << " - " << tf.transform.child_frame_id << std::endl
+//              << mapit::time::to_sec( tf.stamp ) << std::endl
+//              << tf.transform.rotation.matrix()  << std::endl
+//              << tf.transform.translation.vector()
+//              << std::endl << std::endl;
+
+    // alternative version
+    {
+        std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
+        for (auto map : checkout_->getListOfMaps() ) {
+            std::shared_ptr<mapit::Layer> layer_static = checkout_->getLayer(map, layername_static);
+            for (auto entity : checkout_->getListOfEntities(layer_static)) {
+                upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
+                            checkout_->getEntityDataReadOnly( entity )
+                            )->getData();
+
+                upns::tf::TransformStamped tfs;
+                tfs.frame_id = entity->frame_id();
+                tfs.stamp = entity->stamp();
+
+                tfs.transform = *entity_data;
+
+                buffer->setTransform(tfs, layer_static->getName(), true);
+            }
+
+            std::shared_ptr<mapit::Layer> layer_dynamic = checkout_->getLayer(map, layername_dynamic);
+
+
+        }
+
+        upns::tf::TransformStamped tf = buffer->lookupTransform("world", "frame_1", mapit::time::from_sec_and_nsec(1000, 500000000));
+        std::cout << "blablabla" << std::endl
+                  << tf.frame_id << " - " << tf.transform.child_frame_id << std::endl
+                  << mapit::time::to_sec( tf.stamp ) << std::endl
+                  << tf.transform.rotation.matrix()  << std::endl
+                  << tf.transform.translation.vector()
+                  << std::endl << std::endl;
+    }
+
+    // use function to transform tf layer to buffer dynamic
+
+    // use buffer to see if data is correct
 }
 
 DECLARE_TEST(TFTest)
