@@ -58,6 +58,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     std::string layername_static("tf_static");
     std::string map_name = params["map"].toString().toStdString();
 
+    CheckoutRaw* checkout = env->getCheckout();
+    std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
+    std::shared_ptr<mapit::Layer> layer_static, layer_dynamic;
+    layer_static = checkout->getExistingOrNewLayer(map, layername_static);
+    layer_dynamic = checkout->getExistingOrNewLayer(map, layername_dynamic);
+
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
     for ( QJsonValue json_value_tf : json_transforms ) {
@@ -94,13 +100,11 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                     );
 
         // write data
-        CheckoutRaw* checkout = env->getCheckout();
-        std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
         std::shared_ptr<mapit::Layer> layer;
         if (layer_is_static) {
-            layer = checkout->getExistingOrNewLayer(map, layername_static);
+            layer = layer_static;
         } else {
-            layer = checkout->getExistingOrNewLayer(map, layername_dynamic);
+            layer = layer_dynamic;
         }
         std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
                       layer
