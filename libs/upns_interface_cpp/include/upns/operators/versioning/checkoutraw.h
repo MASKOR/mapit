@@ -58,11 +58,21 @@ public:
 
 
 
+    /**
+     * @brief getEntityDataReadWrite get read and writable data of an entety
+     * @param entity
+     * @return
+     */
     std::shared_ptr<AbstractEntitydata> getEntityDataReadWrite(std::shared_ptr<mapit::Entity> entity)
     {
         return getEntitydataForReadWrite(entity->getDataPath());
     }
 
+    /**
+     * @brief getNewMap returns a new map with the given name, returns nullptr when this map allready exists
+     * @param name
+     * @return
+     */
     std::shared_ptr<mapit::Map> getNewMap(const std::string name)
     {
         std::shared_ptr<mapit::Map> map = getMap(name);
@@ -78,6 +88,12 @@ public:
         }
     }
 
+    /**
+     * @brief getNewLayer returns a new layer in the given map with the given name, returns nullptr when this layer allready exists
+     * @param map
+     * @param name
+     * @return
+     */
     std::shared_ptr<mapit::Layer> getNewLayer(std::shared_ptr<mapit::Map> map, const std::string name)
     {
         std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
@@ -93,6 +109,13 @@ public:
         }
     }
 
+    /**
+     * @brief getNewEntity returns a new entity in the given layer with the given name, returns nullptr when this entity allready exists
+     * @param layer
+     * @param name
+     * @param type_name
+     * @return
+     */
     std::shared_ptr<mapit::Entity> getNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name, const std::string type_name)
     {
         std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
@@ -109,6 +132,12 @@ public:
         }
     }
 
+    /**
+     * @brief storeEntity stores the given entity and entity data to the mapit system
+     * @param entity
+     * @param entity_data_to_be_saved
+     * @return
+     */
     template<typename LayerDataType>
     StatusCode storeEntity(std::shared_ptr<mapit::Entity> entity, std::shared_ptr<LayerDataType> entity_data_to_be_saved)
     {
