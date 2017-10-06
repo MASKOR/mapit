@@ -95,14 +95,14 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 
         // write data
         CheckoutRaw* checkout = env->getCheckout();
-        std::shared_ptr<mapit::Map> map = checkout->getNewMap(map_name);
+        std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
         std::shared_ptr<mapit::Layer> layer;
         if (layer_is_static) {
-            layer = checkout->getNewLayer(map, layername_static);
+            layer = checkout->getExistingOrNewLayer(map, layername_static);
         } else {
-            layer = checkout->getNewLayer(map, layername_dynamic);
+            layer = checkout->getExistingOrNewLayer(map, layername_dynamic);
         }
-        std::shared_ptr<mapit::Entity> entity = checkout->getNewEntity(
+        std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
                       layer
                     , tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id
                     , TfEntitydata::TYPENAME());
