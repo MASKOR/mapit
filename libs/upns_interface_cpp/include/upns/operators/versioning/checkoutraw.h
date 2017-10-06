@@ -89,6 +89,21 @@ public:
     }
 
     /**
+     * @brief getExistingOrNewMap returns either the existing map from the mapit system or create a new map
+     * @param name
+     * @return
+     */
+    std::shared_ptr<mapit::Map> getExistingOrNewMap(const std::string name)
+    {
+        std::shared_ptr<mapit::Map> map = getMap(name);
+        if (map == nullptr) {
+            return getNewMap( name );
+        } else {
+            return map;
+        }
+    }
+
+    /**
      * @brief getNewLayer returns a new layer in the given map with the given name, returns nullptr when this layer allready exists
      * @param map
      * @param name
@@ -106,6 +121,22 @@ public:
         } else {
             // does exists => do nothing
             return nullptr;
+        }
+    }
+
+    /**
+     * @brief getExistingOrNewLayer returns either the existing layer from the mapit system or creates a new layer
+     * @param map
+     * @param name
+     * @return
+     */
+    std::shared_ptr<mapit::Layer> getExistingOrNewLayer(std::shared_ptr<mapit::Map> map, const std::string name)
+    {
+        std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
+        if (layer == nullptr) {
+            return getNewLayer(map, name);
+        } else {
+            return layer;
         }
     }
 
@@ -129,6 +160,23 @@ public:
         } else {
             // does exists => do nothing
             return nullptr;
+        }
+    }
+
+    /**
+     * @brief getExistingOrNewEntity returns either the existing entity from the mapit system or creates a new entity
+     * @param layer
+     * @param name
+     * @param type_name
+     * @return
+     */
+    std::shared_ptr<mapit::Entity> getExistingOrNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name, const std::string type_name)
+    {
+        std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
+        if (entity == nullptr) {
+            return getNewEntity(layer, name, type_name);
+        } else {
+            return entity;
         }
     }
 
