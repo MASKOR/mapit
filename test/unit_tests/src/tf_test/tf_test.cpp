@@ -263,12 +263,9 @@ void TFTest::test_layertype_to_buffer()
     QVERIFY( upnsIsOk(ret.first) );
 
     // read all tfs from the 2 default layers and store them in the buffer
-    std::string layername_dynamic("tf_dynamic");
-    std::string layername_static("tf_static");
-
     std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
     for (auto map : checkout_->getListOfMaps() ) {
-        std::shared_ptr<mapit::Layer> layer_static = checkout_->getLayer(map, layername_static);
+        std::shared_ptr<mapit::Layer> layer_static = checkout_->getLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_);
         for (auto entity : checkout_->getListOfEntities(layer_static)) {
             upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
                         checkout_->getEntityDataReadOnly( entity )
@@ -283,7 +280,7 @@ void TFTest::test_layertype_to_buffer()
             buffer->setTransform(tfs, layer_static->getName(), true);
         }
 
-        std::shared_ptr<mapit::Layer> layer_dynamic = checkout_->getLayer(map, layername_dynamic);
+        std::shared_ptr<mapit::Layer> layer_dynamic = checkout_->getLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_);
         for (auto entity : checkout_->getListOfEntities(layer_dynamic)) {
             upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
                         checkout_->getEntityDataReadOnly( entity )

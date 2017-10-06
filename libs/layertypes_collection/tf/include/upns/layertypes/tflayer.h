@@ -71,6 +71,8 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, st
 
 namespace upns {
 namespace tf {
+  const std::string _DEFAULT_LAYER_NAME_STATIC_ = "tf_static";
+  const std::string _DEFAULT_LAYER_NAME_DYNAMIC_ = "tf_dynamic";
   struct Transform {
     std::string child_frame_id;
     Eigen::Translation3f translation;

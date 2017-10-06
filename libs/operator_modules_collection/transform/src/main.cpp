@@ -54,15 +54,13 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    std::string layername_dynamic("tf_dynamic");
-    std::string layername_static("tf_static");
     std::string map_name = params["map"].toString().toStdString();
 
     CheckoutRaw* checkout = env->getCheckout();
     std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
     std::shared_ptr<mapit::Layer> layer_static, layer_dynamic;
-    layer_static = checkout->getExistingOrNewLayer(map, layername_static);
-    layer_dynamic = checkout->getExistingOrNewLayer(map, layername_dynamic);
+    layer_static = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_);
+    layer_dynamic = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_);
 
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
