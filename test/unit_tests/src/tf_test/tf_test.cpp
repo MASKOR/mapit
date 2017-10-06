@@ -60,7 +60,7 @@ void TFTest::compareTfs(upns::tf::TransformStamped a, upns::tf::TransformStamped
 void TFTest::test_input_output()
 {
     std::shared_ptr<mapit::tf2::BufferCore> buffer;
-    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
+    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
 
     upns::tf::TransformStamped in_out;
     in_out.frame_id  = "in";
@@ -74,7 +74,7 @@ void TFTest::test_input_output()
     compareTfs(in_out, buffer->lookupTransform("in", "out", mapit::time::from_sec_and_nsec(1001, 10002)));
 
     // test input = output rotation + translation
-    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
+    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
     upns::tf::TransformStamped in_out_rot;
     in_out_rot.frame_id  = "in";
     in_out_rot.transform.child_frame_id = "out";
@@ -93,7 +93,7 @@ void TFTest::test_input_output()
 void TFTest::test_chain_of_2_tfs()
 {
     std::shared_ptr<mapit::tf2::BufferCore> buffer;
-    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
+    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
 
     upns::tf::TransformStamped chain_1;
     chain_1.frame_id  = "cb";
@@ -135,7 +135,7 @@ void TFTest::test_chain_of_2_tfs()
 void TFTest::test_interpolation()
 {
     std::shared_ptr<mapit::tf2::BufferCore> buffer;
-    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
+    buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
 
     upns::tf::TransformStamped inter_1;
     inter_1.frame_id  = "a";

@@ -34,6 +34,9 @@
 #include <upns/layertypes/tflayer/tf2/exceptions.h>
 #include <upns/layertypes/tflayer/tf2/linear_math.h>
 
+#include <upns/versioning/checkout.h>
+#include <upns/operators/versioning/checkoutraw.h>
+
 #include <assert.h>
 //#include "tf2/LinearMath/Transform.h"
 #include <upns/logging.h>
@@ -162,8 +165,8 @@ CompactFrameID BufferCore::validateFrameId(const char* function_name_arg, const 
   return id;
 }
 
-BufferCore::BufferCore(mapit::time::seconds cache_time)
-: cache_time_(cache_time)
+BufferCore::BufferCore()
+: cache_time_(mapit::time::seconds(std::numeric_limits<int>::max()))
 , transformable_callbacks_counter_(0)
 , transformable_requests_counter_(0)
 , using_dedicated_thread_(false)
@@ -171,6 +174,51 @@ BufferCore::BufferCore(mapit::time::seconds cache_time)
   frameIDs_["NO_PARENT"] = 0;
   frames_.push_back(TimeCacheInterfacePtr());
   frameIDs_reverse.push_back("NO_PARENT");
+}
+
+BufferCore::BufferCore(
+          std::shared_ptr<upns::Checkout> checkout
+        , std::string map_name
+        , std::string layer_name_tf_static
+        , std::string layer_name_tf_dynamic
+        ) : BufferCore()
+{
+    std::shared_ptr<mapit::Map> map = checkout->getMap(map_name);
+    if (map == nullptr) {
+        //TODO error
+        assert(false);
+    }
+
+    std::shared_ptr<mapit::Layer> layer_static = checkout->getLayer(map, layer_name_tf_static);
+    if (layer_static == nullptr) {
+        // TODO warning
+    } else {
+        setTransforms(checkout, layer_static, true);
+    }
+    std::shared_ptr<mapit::Layer> layer_dynamic = checkout->getLayer(map, layer_name_tf_dynamic);
+    if (layer_dynamic == nullptr) {
+        // TODO warning
+    } else {
+        setTransforms(checkout, layer_dynamic, false);
+    }
+}
+
+void
+BufferCore::setTransforms(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<mapit::Layer> layer, bool is_static)
+{
+    for (auto entity : checkout->getListOfEntities(layer)) {
+        upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
+                    checkout->getEntityDataReadOnly( entity )
+                    )->getData();
+
+        upns::tf::TransformStamped tfs;
+        tfs.frame_id = entity->frame_id();
+        tfs.stamp = entity->stamp();
+
+        tfs.transform = *entity_data;
+
+        setTransform(tfs, layer->getName(), is_static);
+    }
 }
 
 BufferCore::~BufferCore()

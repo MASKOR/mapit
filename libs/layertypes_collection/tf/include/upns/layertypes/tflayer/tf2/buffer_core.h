@@ -50,10 +50,16 @@
 #include <boost/function.hpp>
 //#include <boost/shared_ptr.hpp>
 
+namespace upns {
+class Checkout;
+}
+
 namespace mapit {
 #if 0 // just to make autoindent happy
 }
 #endif
+class Layer;
+
 namespace tf2
 {
 #if 0 // just to make autoindent happy
@@ -105,15 +111,27 @@ class BufferCore
 {
 public:
   /************* Constants ***********************/
-  static const int DEFAULT_CACHE_TIME = 10;  //!< The default amount of time to cache data in seconds
   static const uint32_t MAX_GRAPH_DEPTH = 1000UL;  //!< Maximum graph search depth (deeper graphs will be assumed to have loops)
 
-  /** Constructor
-   * \param interpolating Whether to interpolate, if this is false the closest value will be returned
-   * \param cache_time How long to keep a history of transforms in nanoseconds
+  /** Default Constructor
    *
    */
-  BufferCore(mapit::time::seconds cache_time_ = mapit::time::seconds(DEFAULT_CACHE_TIME));
+  BufferCore();
+
+  /**
+   * @brief BufferCore returnes the buffer core filled with the transforms from the checkout
+   * @param checkout from where to load the transforms
+   * @param map_name
+   * @param layername_tf_static  [default]
+   * @param layername_tf_dynamic [default]
+   */
+  BufferCore(
+            std::shared_ptr<upns::Checkout> checkout
+          , std::string map_name
+          , std::string layer_name_tf_static = upns::tf::_DEFAULT_LAYER_NAME_STATIC_
+          , std::string layer_name_tf_dynamic = upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_
+          );
+
   virtual ~BufferCore(void);
 
   /** \brief Clear all data */
@@ -322,6 +340,8 @@ public:
   void _chainAsVector(const std::string & target_frame, mapit::time::Stamp target_time, const std::string & source_frame, mapit::time::Stamp source_time, const std::string & fixed_frame, std::vector<std::string>& output) const;
 
 private:
+
+  void setTransforms(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<mapit::Layer> layer, bool is_static);
 
   /** \brief A way to see what frames have been cached
    * Useful for debugging. Use this call internally. 
