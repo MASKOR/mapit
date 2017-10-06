@@ -263,40 +263,7 @@ void TFTest::test_layertype_to_buffer()
     QVERIFY( upnsIsOk(ret.first) );
 
     // read all tfs from the 2 default layers and store them in the buffer
-    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(mapit::time::seconds(10)));
-    for (auto map : checkout_->getListOfMaps() ) {
-        std::shared_ptr<mapit::Layer> layer_static = checkout_->getLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_);
-        for (auto entity : checkout_->getListOfEntities(layer_static)) {
-            upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
-                        checkout_->getEntityDataReadOnly( entity )
-                        )->getData();
-
-            upns::tf::TransformStamped tfs;
-            tfs.frame_id = entity->frame_id();
-            tfs.stamp = entity->stamp();
-
-            tfs.transform = *entity_data;
-
-            buffer->setTransform(tfs, layer_static->getName(), true);
-        }
-
-        std::shared_ptr<mapit::Layer> layer_dynamic = checkout_->getLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_);
-        for (auto entity : checkout_->getListOfEntities(layer_dynamic)) {
-            upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
-                        checkout_->getEntityDataReadOnly( entity )
-                        )->getData();
-
-            upns::tf::TransformStamped tfs;
-            tfs.frame_id = entity->frame_id();
-            tfs.stamp = entity->stamp();
-
-            tfs.transform = *entity_data;
-
-            buffer->setTransform(tfs, layer_dynamic->getName(), false);
-        }
-
-
-    }
+    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout_, "map_tftest"));
 
     compareTfs(tf_in_1, buffer->lookupTransform("world", "frame_1", mapit::time::from_sec_and_nsec(1000, 500000000)));
     compareTfs(tf_in_2, buffer->lookupTransform("world", "frame_2", mapit::time::from_sec_and_nsec(1001, 500000000)));
