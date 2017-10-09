@@ -82,7 +82,7 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
     }
     else
     {
-        std::string tfEntityName = target + ".tf";
+        std::string tfEntityName = params["tfTarget"].toString().toStdString();
         // Get Target
         std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(tfEntityName);
         if(tfEntity == NULL)
@@ -109,9 +109,8 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
             log_error("Tf Transform has wrong type.");
             return UPNS_STATUS_ERR_UNKNOWN;
         }
-        TfMatPtr tf = TfMatPtr(new TfMat);
-        Eigen::Affine3f transform(Eigen::Translation3f(-ctr[0], -ctr[1], -ctr[2]));
-        *tf = transform.matrix();
+        upns::tf::TransformPtr tf = upns::tf::TransformPtr(new upns::tf::Transform);
+        tf->translation = Eigen::Translation3f(-ctr[0], -ctr[1], -ctr[2]);
         entityDataTf->setData(tf);
     }
     return UPNS_STATUS_OK;
