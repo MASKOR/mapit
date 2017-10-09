@@ -51,7 +51,15 @@ FOREACH(subdir ${SUBDIRS})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
 
-  target_link_libraries(${subdir} ${Qt5Test_LIBRARIES} ${mapit_core} ${mapit_interface} ${mapit_interface_cpp} ${mapit_networking_node} ${mapit_standard_repository_factory} layertype_pointcloud2 load_pointcloud
+  target_link_libraries(${subdir} ${Qt5Test_LIBRARIES}
+                                  ${mapit_core}
+                                  ${mapit_interface}
+                                  ${mapit_interface_cpp}
+                                  ${mapit_networking_node}
+                                  ${mapit_standard_repository_factory}
+                                  layertype_pointcloud2
+                                  layertype_openvdb
+                                  load_pointcloud
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                                   ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
@@ -85,10 +93,18 @@ ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} )
 #custom_target_use_boost(${subdir})
-find_package(Boost COMPONENTS filesystem system date_time)
+find_package(Boost COMPONENTS filesystem system date_time REQUIRED)
 
-target_link_libraries(TestAll Qt5::Test ${mapit_core} ${mapit_interface} ${mapit_interface_cpp} ${mapit_networking_node} ${mapit_standard_repository_factory} layertype_pointcloud2 load_pointcloud
-                              ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
+target_link_libraries(TestAll Qt5::Test
+                              ${mapit_core}
+                              ${mapit_interface}
+                              ${mapit_interface_cpp}
+                              ${mapit_networking_node}
+                              ${mapit_standard_repository_factory}
+                              layertype_pointcloud2
+                              layertype_openvdb
+                              load_pointcloud
+                              ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                               ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
 if(WITH_OPENVDB)

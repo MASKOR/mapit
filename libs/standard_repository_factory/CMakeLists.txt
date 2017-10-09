@@ -1,7 +1,7 @@
 project(standard_repository_factory)
 cmake_minimum_required(VERSION 2.8)
 
-find_package(Boost COMPONENTS program_options)
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 #zeromq
 find_package(ZMQ REQUIRED)
