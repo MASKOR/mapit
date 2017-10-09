@@ -202,7 +202,7 @@ void TFTest::test_layertype_to_buffer()
     tf_in_2.transform.translation = Eigen::Translation3f(5, 7, 11);
 
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("transform");
+    desc.mutable_operator_()->set_operatorname("load_tfs");
     desc.set_params(
                 "{"
                 "   \"map\" : \"map_tftest\","
