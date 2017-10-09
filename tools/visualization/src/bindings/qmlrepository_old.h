@@ -2,7 +2,7 @@
 //#define QMLREPOSITORY_H
 
 //#include <QtCore>
-//#include <QJsonObject>
+//#include <QtCore/QJsonObject>
 //#include "libs/mapmanager/include/versioning/repository.h"
 //#include "qmltree.h"
 //#include "qmlentity.h"

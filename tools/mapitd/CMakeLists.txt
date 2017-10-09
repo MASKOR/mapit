@@ -1,8 +1,7 @@
 project(mapitd)
 cmake_minimum_required(VERSION 2.8)
 
-find_package(Protobuf)
-INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
+find_package(mapit)
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 
@@ -14,9 +13,6 @@ include_directories(${ZMQ_INCLUDE_DIR})
 find_package(CPPZMQ REQUIRED)
 include_directories(${CPPZMQ_INCLUDE_DIR})
 
-include_directories(${YAML_CPP_INCLUDE})
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-
 # make proto visible in qtcreator
 file(GLOB_RECURSE YAML_FILES ${PROJECT_SOURCE_DIR}/*.yaml)
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add yaml files to project" SOURCES ${YAML_FILES})
@@ -25,11 +21,11 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} upns_core standard_repository_factory upns_networking_node ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} stdc++)
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${mapit_networking_node} ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} stdc++)
 
 ######## FOR DEBUGGING PURPOSES ONLY (let gdb find libs with custom cmake output names) ########
 
-target_link_libraries(${PROJECT_NAME} layertype_las)
+#target_link_libraries(${PROJECT_NAME} layertype_las)
 
 ############################
 

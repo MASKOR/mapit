@@ -1,6 +1,8 @@
 #include "upns/ui/bindings/qmlentitydata.h"
 #include <upns/layertypes/pointcloudlayer.h>
+#if WITH_LAS
 #include <upns/layertypes/lastype.h>
+#endif // WITH_LAS
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <QVector3D>
@@ -37,7 +39,7 @@ QmlCheckout *QmlEntitydata::checkout() const
 
 QVariant QmlEntitydata::getInfo(QString propertyName)
 {
-#ifdef WITH_PCL
+#if WITH_PCL
     if(strcmp(m_entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0)
     {
         if(   propertyName.compare("width") == 0
@@ -54,7 +56,7 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
     }
     else
 #endif
-#ifdef WITH_LAS
+#if WITH_LAS
     if(strcmp(m_entitydata->type(), LASEntitydata::TYPENAME()) == 0)
     {
         if(   propertyName.compare("width") == 0
@@ -90,7 +92,7 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
         }
     }
     else
-#endif
+#endif // WITH_LAS
 //    if(strcmp(ed->type(), OctomapEntitydata::TYPENAME()) == 0)
 //    {
 //    }

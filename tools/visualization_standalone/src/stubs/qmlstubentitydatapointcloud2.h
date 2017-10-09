@@ -2,7 +2,7 @@
 //#define QMLSTUBENTITYDATAPOINTCLOUD2
 
 //#include <QtCore>
-//#include <QJsonObject>
+//#include <QtCore/QJsonObject>
 //#include <mapit/msgs/services.pb.h>
 //#include <upns/ui/bindings/qmlmapsrenderviewport.h"
 //#include "stubs/fileserializer.h"

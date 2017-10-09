@@ -14,8 +14,8 @@
 #include <QVector>
 #include <QFile>
 #include <QtMath>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 
 // Format:
 // x,y,z,<anything>,...,...
@@ -131,19 +131,19 @@ public:
                                    , T *scalex, T *scaley, T *scalez
                                    , int fields = 3)
     {
-        double max[fields];
-        double min[fields];
+        double maximum[fields];
+        double minimum[fields];
         for(int i=0 ; i<fields ; ++i)
         {
-            min[i] = +std::numeric_limits<double>::infinity();
-            max[i] = -std::numeric_limits<double>::infinity();
+            minimum[i] = +std::numeric_limits<double>::infinity();
+            maximum[i] = -std::numeric_limits<double>::infinity();
         }
-        qint64 pointsRead = readCsv<T>(path, [&](double *point, const int& idx)
+        qint64 pointsRead = readCsv<T>(path, [&minimum, &maximum, &fields, &doubles](double *point, const int& idx)
         {
             for(int i=0 ; i<fields ; ++i)
             {
-                if(min[i] > point[i]) min[i] = point[i];
-                if(max[i] < point[i]) max[i] = point[i];
+                if(minimum[i] > point[i]) minimum[i] = point[i];
+                if(maximum[i] < point[i]) maximum[i] = point[i];
                 doubles[idx*3 + i] = point[i];
             }
         }, [&](int estimatedPoints)
@@ -159,8 +159,8 @@ public:
         double maxDim = 0;
         for(int i=0 ; i<fields ; ++i)
         {
-            ctr[i] = min[i]*0.5+max[i]*0.5;
-            maxDim = std::max(maxDim, max[i]-min[i]);
+            ctr[i] = minimum[i]*0.5+maximum[i]*0.5;
+            maxDim = std::max(maxDim, maximum[i]-minimum[i]);
         }
         //double scale = maxDim/static_cast<double>(std::numeric_limits<uint32_t>::max());
 
@@ -168,13 +168,13 @@ public:
         if(scaley != nullptr) *scaley = 0.0001;//(max[1]-min[1])/10000.0;//static_cast<double>(std::numeric_limits<uint32_t>::max());
         if(scalez != nullptr) *scalez = 0.0001;//(max[2]-min[2])/10000.0;//static_cast<double>(std::numeric_limits<uint32_t>::max());
 
-        if(minx != nullptr) *minx = min[0];
-        if(miny != nullptr) *miny = min[1];
-        if(minz != nullptr) *minz = min[2];
+        if(minx != nullptr) *minx = minimum[0];
+        if(miny != nullptr) *miny = minimum[1];
+        if(minz != nullptr) *minz = minimum[2];
 
-        if(maxx != nullptr) *maxx = max[0];
-        if(maxy != nullptr) *maxy = max[1];
-        if(maxz != nullptr) *maxz = max[2];
+        if(maxx != nullptr) *maxx = maximum[0];
+        if(maxy != nullptr) *maxy = maximum[1];
+        if(maxz != nullptr) *maxz = maximum[2];
 
         if(offsetx != nullptr) *offsetx = ctr[0];
         if(offsety != nullptr) *offsety = ctr[1];

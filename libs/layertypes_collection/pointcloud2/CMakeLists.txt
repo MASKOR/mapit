@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 #find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
 
+find_package(mapit REQUIRED)
+
 set (CMAKE_CXX_STANDARD 11)
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
@@ -28,23 +30,40 @@ else(WIN32)
     find_package(Eigen3 REQUIRED)
 endif(WIN32)
 
-# TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
+# TODO: If language could not be determined: There are Additional cmake variable for boost that must be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES}  )
-target_link_libraries( ${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} upns_interface upns_interface_cpp)
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
+target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
 
-target_link_libraries(${PROJECT_NAME} )
+# About dependency to pcl
+# PCL is not known to have the newest and cleanes CMake files.
+# Thus there are variables like PCL_INCLUDE_DIRS
+# When using the layertype, we automatically introduce a dependency to pcl
+# CMake can add the dependency by a multitude of ways.
+# 1. If the project is in the cmake project hierarchy, everything is ok (no futher details here)
+# 2. When mapit is installed, the variables PCL_INCLUDE_DIRS can not be set automatically, because
+#    the path will differ from what the installation directory is.
+#    But it is possible to find_dependecy(PCL) and re-read the variable.
+#    This must be done in a config or targets script.
+#    The targts script is generated automatically using the new generator expressions.
+#    TODO: find a way the re-evaluate variables in generator expressions. Until then, option
+#      1) projects using this layertype must include PCL on their own (only header). Or
+#      2) installation env must be equal to dev env by executing e.g.:
+#      ln -s /usr/include /usr/local/include
+#      ln -s /usr/lib/libpcl_* /usr/local/
+#      (2) is current workaround)
+#    Note: just putting the below "private" varibale to "public" will not do the job (tested after installation on other system with upns_samples).
+
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
-                                                   ${PROJECT_SOURCE_DIR}/include/
-                                                   ${EIGEN3_INCLUDE_DIRS}
-                                           PRIVATE ${PROJECT_SOURCE_DIR}/src/
-                                                   ${PROTOBUF_INCLUDE_DIRS})
+                                                  #$<BUILD_INTERFACE:${PCL_INCLUDE_DIRS}>
+                                                   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                                   $<INSTALL_INTERFACE:include>)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  PointcloudEntitydata_TYPENAME="${PROJECT_NAME}"
-                                                   WITH_PCL)
+                                                   WITH_PCL=1)
 
 if(UNIX)
   # tell CMake Prefix is "lib" otherwise it can not be queried
@@ -53,5 +72,61 @@ endif(UNIX)
 get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_LAYERTYPES})
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+#install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+#install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+
+
+include(GenerateExportHeader)
+
+generate_export_header(${PROJECT_NAME})
+#set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${MAPIT_VERSION})
+#set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${MAPIT_VERSION})
+set_property(TARGET ${PROJECT_NAME} PROPERTY
+  INTERFACE_mapit_layertype_pointcloud2_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
+  COMPATIBLE_INTERFACE_STRING MAPIT_MAJOR_VERSION
+)
+
+install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_pointcloud2_targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(DIRECTORY include/upns DESTINATION include )
+#install(DIRECTORY include/mapit DESTINATION include )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2ConfigVersion.cmake"
+  VERSION 1
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT mapit_layertype_pointcloud2_targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2Targets.cmake"
+  NAMESPACE mapit::
+)
+configure_file(cmake/mapit_layertype_pointcloud2Config.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2Config.cmake"
+  COPYONLY
+)
+
+set(ConfigPackageLocation lib/cmake/mapit)
+install(EXPORT mapit_layertype_pointcloud2_targets
+  FILE
+    mapit_layertype_pointcloud2Targets.cmake
+  NAMESPACE
+    mapit::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+install(
+  FILES
+    cmake/mapit_layertype_pointcloud2Config.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2ConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)

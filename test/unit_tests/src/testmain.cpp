@@ -1,7 +1,7 @@
 #include "autotest.h"
 #include <upns/logging.h>
-#include <log4cplus/configurator.h>
-#include <log4cplus/consoleappender.h>
+//#include <log4cplus/configurator.h>
+//#include <log4cplus/consoleappender.h>
 #include <iostream>
 
 int main(int argc, char *argv[])
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     log4cplus::Logger mainLogger = log4cplus::Logger::getInstance("main");
     mainLogger.addAppender(consoleAppender);
 */
-    log4cplus::PropertyConfigurator::doConfigure("logging.properties");
+//    log4cplus::PropertyConfigurator::doConfigure("logging.properties");
 
     log_info("running test");
 

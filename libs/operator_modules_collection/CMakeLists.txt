@@ -18,6 +18,10 @@ MACRO(SUBDIRLIST result curdir)
   SET(${result} ${dirlist})
 ENDMACRO()
 
+# For libraries with current json implementation
+find_package(Qt5Core)
+
+
 set(WITH_OPERATORS TRUE CACHE BOOL "Enable operators")
 if(WITH_OPERATORS)
   SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
@@ -38,7 +42,14 @@ if(WITH_OPERATORS)
   endif(NOT WITH_PCL)
   if(NOT WITH_LAS)
     list(REMOVE_ITEM SUBDIRS "load_las_from_csv")
+    list(REMOVE_ITEM SUBDIRS "load_las")
+    list(REMOVE_ITEM SUBDIRS "pcd2las")
+    list(REMOVE_ITEM SUBDIRS "las2pcd")
   endif(NOT WITH_LAS)
+
+  if(NOT Qt5Core_FOUND)
+      list(REMOVE_ITEM SUBDIRS "centroid_to_origin")
+  endif(NOT Qt5Core_FOUND)
 
   FOREACH(subdir ${SUBDIRS})
     ADD_SUBDIRECTORY(${subdir})

@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.0.2)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -15,18 +17,17 @@ add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
-include_directories(${UPNS_INTERFACE_INCLUDE})
 
 set(CMAKE_AUTOMOC ON)
 
-#if(NOT TARGET json11)
-#    find_package(json11 REQUIRED)
-#endif(NOT TARGET json11)
+if(NOT TARGET json11)
+    find_package(json11 REQUIRED)
+endif(NOT TARGET json11)
 
 file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
 
-target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} upns_interface upns_core)
+target_link_libraries( ${PROJECT_NAME} ${PROTOBUF_LIBRARIES} ${mapit_interface} ${mapit_core})
 
 #if(TARGET json11)
     target_link_libraries( ${PROJECT_NAME} json11)

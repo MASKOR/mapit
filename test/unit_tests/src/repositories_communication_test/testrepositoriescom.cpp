@@ -5,8 +5,8 @@
 #include <QDir>
 #include <QVector>
 #include <QString>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactory.h>
 #include <upns/versioning/repositorynetworkingfactory.h>

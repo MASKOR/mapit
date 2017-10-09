@@ -14,7 +14,7 @@ using namespace upns;
 #define MODULE_EXPORT // empty
 #endif
 
-// Ply File is dump and does not know anything about our model except for the header
+// Ply File is empty (not in memory) and does not know anything about our model except for the header
 // Because of this, the stream has to be used
 // The stream is closed by a custom deleter for this shared pointer.
 typedef std::pair<tinyply::PlyFile, std::istream*> AssetDataPair;

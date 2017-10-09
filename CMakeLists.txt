@@ -1,7 +1,23 @@
+## New Cmake:
+# no upns_ prefix anymore
+# project can be used
+## 1) within one single CMake structure,
+## 2) installed
+## 3) build directory (this has to be added to CMAKE_PREFIX_PATH for importing project)
+# use ${mapit_*} for compatibility of project structure
+# use mapit:: namespace only for exported/imported targets
+# use no prefix internally only
+# find_package(mapit) should work and make available ${mapit_*}, pointing to internal target or imported targets
+# operators/layertypes must call find_package(mapit) and depend on mapit::* targets
+# layertypes must export their targets. E.g. mapit_layertype_pointcloud2
+# when depending on a layertype, find_package(layertype) must be called first
+# the single mapitConfig.cmake configures all modules. This is a bit monolithic at the moment, but works.
+# For the future, the configuration (loggin enabled, pcl enabled, ...) should be exported when installed/built too.
+# Preprocessor defines for included headers should not differ when building mapit and using mapit.
 
 # TODO: Cleanup Cmake
 # 1) compile some operators/layertypes only if these frameworks are found
-# 2) Make pcl cmake silent? Remove its clumsy output
+# 2) Make pcl cmake silent? Remove its clumsy output, also boost
 # 3) Output which frameworks were found and wich projects will/will not be built.
 # 4) Remove additional path to configure boost, ...! Maybe add one path and rely on librarynames. Pcl seems to break findBoost.
 # 5) Make compilation type independent (Remove Cmake_Build_Type == Debug queries)
@@ -10,7 +26,20 @@ project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
+set(CPACK_PACKAGE_CONTACT "FH Aachen")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "d.bulla@fh-aachen.de")
+
 set (CMAKE_CXX_STANDARD 11)
+
+set(MAPIT_MAJOR_VERSION 0)
+set(MAPIT_MINOR_VERSION 1)
+set(MAPIT_PATCH_VERSION 0)
+set(MAPIT_VERSION
+  ${MAPIT_MAJOR_VERSION}.${MAPIT_MINOR_VERSION}.${MAPIT_PATCH_VERSION})
+
+# This is used in the find script to determine, if targets non-imported projects can be used
+#set(GLOBAL MAPIT_CMAKE_TARGETS_AVAILABLE TRUE)
+set(MAPIT_CMAKE_TARGETS_AVAILABLE ON CACHE INTERNAL "Do not use, always true")
 
 set(UPNS_INSTALL_INCLUDE "upns")
 set(MAPIT_INSTALL_INCLUDE "mapit") # TODO: replace UPNS_* with MAPIT
@@ -23,6 +52,7 @@ add_definitions(-DUPNS_INSTALL_OPERATORS="${UPNS_INSTALL_OPERATORS}")
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         message(WARNING "WARNING: In-Place Build not recommended. If you accidently commit and push wrong files to the repository, you owe a cup of coffee to your teammembers.")
+        return(1) # stop messing up source directory if this happens accidently
 endif()
 
 if(NOT WIN32)
@@ -40,15 +70,34 @@ set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
 # add custom cmake scripts. i.e. FindProcessorCount...
 set(CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_MODULE_PATH}
 )
 
-set(WITH_LOG4CPLUS TRUE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
+# to make find_package(mapit) in build dir work
+set(CMAKE_PREFIX_PATH
+    ${PROJECT_SOURCE_DIR}/cmake
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_PREFIX_PATH}
+)
+
+##### let layertypes and operators know what libraries are available #####
+# Note: This could be part of the layertypes cmake because all operators will depend on the layertype
+# however at this point cmake already created the target for the operator and it might be hard to
+# remove it again. Which layertypes/operators are build is decided in a single space
+# (layertypes_collection and operator_modules_collection)
+set(WITH_PCL TRUE CACHE BOOL "Enable pcl Layers")
+set(WITH_OPENVDB TRUE CACHE BOOL "Enable OpenVDB Layers")
+set(WITH_OCTOMAP FALSE CACHE BOOL "Enable Octomap Layers")
+set(WITH_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
+
+set(WITH_LOG4CPLUS FALSE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
 
 if(WITH_LOG4CPLUS)
   include(FindLog4cplus)
   if(LOG4CPLUS_FOUND)
     add_definitions(-DLOG4CPLUS_FOUND)
+    add_definitions(-DWITH_LOG4CPLUS)
   endif(LOG4CPLUS_FOUND)
 endif(WITH_LOG4CPLUS)
 
@@ -104,14 +153,14 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 set(ResourceDir ${PROJECT_SOURCE_DIR}/resources)
 file(GLOB_RECURSE Resources_All ${ResourceDir}/*)
 
-include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
-include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
+#include_directories( ${CMAKE_BINARY_DIR} ) # for proto headers
+#include_directories( ${UPNS_ROOT_DIR} ) # for proto headers
 if(WITH_LOG4CPLUS)
   include_directories(${LOG4CPLUS_INCLUDE_DIR})
 endif(WITH_LOG4CPLUS)
 #include_directories(${UPNS_ROOT_DIR}/externals/include) # for sha initially
 
-set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
+#set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
 
 add_subdirectory(libs/core)
 add_subdirectory(libs/operator_modules_collection)
@@ -152,6 +201,34 @@ if(UPNS_ENABLE_VISUALIZATION)
   add_subdirectory(tools/visualization_standalone)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
 endif(UPNS_ENABLE_VISUALIZATION)
+
+
+# a config file which can be included with find_package(mapit) and published targets mapit::core, mapit::interface_cpp, ...
+configure_file(cmake/mapitConfig.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/mapitConfig.cmake"
+  @ONLY
+)
+
+# uninstall target
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+set(ConfigPackageLocation lib/cmake/mapit)
+install(
+  FILES
+    cmake/mapitConfig.cmake
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+#cpack_deb_prepare_package_vars()
 
 #if(WIN32)
 #    set(YAML_CPP_INSTALL_DIR "${PROJECT_SOURCE_DIR}/externals/yaml-cpp/build" CACHE PATH "yaml installation path with lib and include subdir")

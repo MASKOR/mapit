@@ -84,7 +84,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
     std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
-        log_error("input does not exist ore is not readable.");
+        log_error("input does not exist or is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<FloatGridEntitydata> entityDataInput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );

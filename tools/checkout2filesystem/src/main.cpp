@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
             fs::path path_new = rootPath / fs::path(path);
             if( ! path.empty() && ! fs::exists( path_new ) ) {
                 if ( ! fs::create_directories(path_new) ) {
-                    log_error("Path " + path + " could not be created");
+                    log_error("Path " + path_new.string() + " could not be created");
                     return false;
                 }
             }

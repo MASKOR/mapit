@@ -18,9 +18,9 @@
 #include <memory>
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonArray>
 
 using namespace mapit::msgs;
 
@@ -112,7 +112,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
-        log_error("input does not exist ore is not readable.");
+        log_error("input does not exist or is not readable.");
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<PointcloudEntitydata> entityDataInput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );

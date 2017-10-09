@@ -22,9 +22,6 @@ set(CMAKE_AUTOMOC ON)
 include(FindProcessorCount)
 message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-
 find_package(Qt5Qml REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Quick REQUIRED)
@@ -42,8 +39,6 @@ if(WITH_PCL)
     find_package(PCL REQUIRED COMPONENTS common io)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
-    add_definitions(${PCL_DEFINITIONS})
-    add_definitions(-DWITH_POINTCLOUD)
 else(WITH_PCL)
 endif(WITH_PCL)
 
@@ -99,13 +94,14 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-target_link_libraries(${PROJECT_NAME}   upns_core
-                                        upns_interface
-                                        upns_interface_cpp
+find_package(mapit REQUIRED)
+
+target_link_libraries(${PROJECT_NAME}   ${mapit_core}
+                                        ${mapit_interface}
+                                        ${mapit_interface_cpp}
                                         standard_repository_factory
                                         Qt3DPointcloudRenderer
                                         layertype_tf
-                                        layertype_las
                                         layertype_pose_path
                                         layertype_asset
                                         Qt5::Qml Qt5::Quick
@@ -116,7 +112,15 @@ if(WITH_PCL)
                                         Qt3DPointcloudRenderer
                                         layertype_pointcloud2
                                         ${PCL_LIBRARIES})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_PCL=1)
 endif(WITH_PCL)
+
+if(WITH_LAS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_LAS=1)
+    target_link_libraries(${PROJECT_NAME}
+                                        Qt3DPointcloudRenderer
+                                        layertype_las)
+endif(WITH_LAS)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
 

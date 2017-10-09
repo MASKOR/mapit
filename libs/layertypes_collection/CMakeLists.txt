@@ -22,11 +22,6 @@ ENDMACRO()
 
 SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(WITH_PCL TRUE CACHE BOOL "Enable pcl Layers")
-set(WITH_OPENVDB TRUE CACHE BOOL "Enable OpenVDB Layers")
-set(WITH_OCTOMAP TRUE CACHE BOOL "Enable Octomap Layers")
-set(WITH_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
-
 list(REMOVE_ITEM SUBDIRS "CMakeFiles") # this directory is created by cpack (TODO: validate)
 
 if(NOT WITH_PCL)
@@ -44,6 +39,10 @@ endif(NOT WITH_OCTOMAP)
 if(NOT WITH_TF)
   list(REMOVE_ITEM SUBDIRS "tf")
 endif(NOT WITH_TF)
+
+if(NOT WITH_LAS)
+  list(REMOVE_ITEM SUBDIRS "las")
+endif(NOT WITH_LAS)
 
 FOREACH(subdir ${SUBDIRS})
     ADD_SUBDIRECTORY(${subdir})

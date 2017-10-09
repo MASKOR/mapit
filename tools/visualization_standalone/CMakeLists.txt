@@ -17,9 +17,6 @@ set(CMAKE_MODULE_PATH
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
@@ -50,10 +47,6 @@ find_package(Qt53DQuickRender REQUIRED)
 #else(WITH_PCL)
 #endif(WITH_PCL)
 
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${UPNS_VISUALIZATION_INCLUDE})
-include_directories(${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include)
-
 QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC qml.qrc)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
@@ -73,6 +66,9 @@ file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
+#hardcoded for ubuntu 16.04 + qt3d input/logic should not affect other installations
+link_directories("/opt/qt59/lib")
+
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${UPNS_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}
@@ -90,6 +86,10 @@ add_custom_target(resourceFilesVizStandalone ALL ${CMAKE_COMMAND} -E echo "nop" 
 #custom_target_use_boost(${PROJECT_NAME})
 find_package(Boost COMPONENTS filesystem system date_time)
 
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src/
+                                                   ${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include)
+
 if(WIN32)
 #target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb)
 target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick Qt5::WinMain Xinput9_1_0)
@@ -98,12 +98,12 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-#qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
+qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
 
 target_link_libraries(${PROJECT_NAME} upns_visualization
-    upns_core
-    upns_interface_cpp
-    standard_repository_factory
+    ${mapit_core}
+    ${mapit_interface_cpp}
+    ${mapit_standard_repository_factory}
     Qt3DPointcloudRenderer
     Qt53DInput
     Qt53DLogic
@@ -114,12 +114,16 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
     stdc++)
 
 ######## FOR DEBUGGING PURPOSES ONLY ########
-target_link_libraries(${PROJECT_NAME} load_las_from_csv)
-target_link_libraries(${PROJECT_NAME} load_asset)
-target_link_libraries(${PROJECT_NAME} surfrecon_openvdb)
-target_link_libraries(${PROJECT_NAME} layertype_openvdb)
-target_link_libraries(${PROJECT_NAME} levelset_to_mesh)
-target_link_libraries(${PROJECT_NAME} las2pcd)
+
+#find_package(OpenVDB REQUIRED)
+#target_link_libraries(${PROJECT_NAME} load_las_from_csv)
+
+#target_link_libraries(${PROJECT_NAME} load_las_from_csv)
+#target_link_libraries(${PROJECT_NAME} load_asset)
+#target_link_libraries(${PROJECT_NAME} surfrecon_openvdb ${OPENVDB_LIBRARIES})
+#target_link_libraries(${PROJECT_NAME} layertype_openvdb)
+#target_link_libraries(${PROJECT_NAME} levelset_to_mesh)
+#target_link_libraries(${PROJECT_NAME} las2pcd)
 
 #############################################
 
@@ -127,11 +131,10 @@ add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} 
 
 if(WIN32)
     message("Please Create Symlinc MANUALLY (see visualization_standalone cmake:95")
-    # Steps, Windows takes to not let us create symlinks:
+    # Windows will not let us create symlinks:
     # 1) cmake does not have a platform agnostic way
     # 2) usermanagement: user has not the privileges to create a symlink
     # 3) backslashes have to be done manually
-    # The words windows and developer do just not fit together.
     # please execute following lines manually once after first build, with administrative privileges in the lovely win cmd:
     # (works if build folder is next to sources)
     # mklink /D data ..\..\..\upns_software\data

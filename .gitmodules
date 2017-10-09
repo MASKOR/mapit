@@ -36,7 +36,7 @@
 	url = https://github.com/RLovelett/eigen.git
 [submodule "libs/layertypes_collection/asset/tinyply"]
 	path = libs/layertypes_collection/asset/tinyply
-	url = https://github.com/ddiakopoulos/tinyply.git
+	url = https://github.com/bchretien/tinyply
 [submodule "libs/layertypes_collection/laz/libLAS"]
 	path = libs/layertypes_collection/las/libLAS
 	url = https://github.com/libLAS/libLAS.git

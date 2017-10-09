@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
@@ -13,7 +15,6 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-include_directories(${UPNS_INTERFACE_INCLUDE})
 find_package(PCL REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -59,8 +60,10 @@ endif (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
 
 set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
 
+find_package(mapit REQUIRED)
+
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} upns_interface upns_core json11 layertype_pointcloud2)
+target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${PROTOBUF_LIBRARIES} ${mapit_interface} ${mapit_core} json11 layertype_pointcloud2)
 
 #process_protobuf_post()
 

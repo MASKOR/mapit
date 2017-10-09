@@ -1,7 +1,9 @@
 #include "upns/ui/bindings/qmlentitydatarenderer.h"
 #include <upns/abstractentitydata.h>
 #include <upns/layertypes/pointcloudlayer.h>
+#if WITH_LAS
 #include <upns/layertypes/lastype.h>
+#endif // WITH_LAS
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <upns/layertypes/assettype.h>
@@ -83,6 +85,7 @@ void QmlEntitydataRenderer::updateGeometry()
         QMetaObject::invokeMethod(pointcloudGeometry, "setPointcloud", Qt::QueuedConnection, Q_ARG(QPointcloud *, pointcloud) );
         //pointcloudGeometry->setPointcloud(pointcloud);
     }
+#if WITH_LAS
     else if(strcmp(ed->type(), LASEntitydata::TYPENAME()) == 0)
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
@@ -119,6 +122,7 @@ void QmlEntitydataRenderer::updateGeometry()
             log_error("Pointcloud has no coordinate system! Can not be loaded.");
         }
     }
+#endif // WITH_LAS
 //    else if(strcmp(ed->type(), OctomapEntitydata::TYPENAME()) == 0)
 //    {
 //    }

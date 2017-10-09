@@ -3,7 +3,7 @@
 
 #include <upns/typedefs.h>
 
-#ifdef LOG4CPLUS_FOUND
+#if defined(LOG4CPLUS_FOUND) && defined(WITH_LOG4CPLUS) && WITH_LOG4CPLUS
   #include <log4cplus/logger.h>
   #include <log4cplus/loggingmacros.h>
 

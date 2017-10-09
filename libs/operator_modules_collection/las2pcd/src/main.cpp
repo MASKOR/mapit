@@ -14,8 +14,8 @@
 #include "liblas/liblas.hpp"
 #include <fstream>
 #include <iomanip>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 
 upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
 {

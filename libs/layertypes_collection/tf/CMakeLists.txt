@@ -17,6 +17,7 @@ include(FindLog4cplus)
 find_package(Protobuf)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIRS})
 
+find_package(mapit)
 
 # Eigen3  Will just not be found on windows
 if(WIN32)
@@ -33,12 +34,11 @@ target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES} ${EIGEN3_LIBRARIES})
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp})
+target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS}
-                                                  ${PROJECT_SOURCE_DIR}/include)
-
-
-target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} upns_interface upns_interface_cpp ${LOG4CPLUS_LIBRARIES})
+                                                  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                                  $<INSTALL_INTERFACE:include>)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  TfEntitydata_TYPENAME="${PROJECT_NAME}")
@@ -50,5 +50,60 @@ endif(UNIX)
 get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_LAYERTYPES})
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+#install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+#install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+
+include(GenerateExportHeader)
+
+generate_export_header(${PROJECT_NAME})
+#set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${MAPIT_VERSION})
+#set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${MAPIT_VERSION})
+set_property(TARGET ${PROJECT_NAME} PROPERTY
+  INTERFACE_mapit_layertype_tf_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
+  COMPATIBLE_INTERFACE_STRING MAPIT_MAJOR_VERSION
+)
+
+install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_tf_targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(DIRECTORY include/upns DESTINATION include )
+#install(DIRECTORY include/mapit DESTINATION include )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_tfConfigVersion.cmake"
+  VERSION 1
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT mapit_layertype_tf_targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_tfTargets.cmake"
+  NAMESPACE mapit::
+)
+configure_file(cmake/mapit_layertype_tfConfig.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_tfConfig.cmake"
+  COPYONLY
+)
+
+set(ConfigPackageLocation lib/cmake/mapit)
+install(EXPORT mapit_layertype_tf_targets
+  FILE
+    mapit_layertype_tfTargets.cmake
+  NAMESPACE
+    mapit::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+install(
+  FILES
+    cmake/mapit_layertype_tfConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_tfConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)

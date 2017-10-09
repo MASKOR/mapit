@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
 
+find_package(mapit REQUIRED)
+
 aux_source_directory(. SRC_LIST)
 
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
@@ -16,7 +18,7 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_PATH_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} upns_interface upns_core layertype_pose_path)
+target_link_libraries( ${PROJECT_NAME} ${mapit_interface} ${mapit_core} layertype_pose_path)
 
 qt5_use_modules(${PROJECT_NAME} Core Gui)
 

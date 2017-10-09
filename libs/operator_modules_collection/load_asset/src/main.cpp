@@ -7,9 +7,9 @@
 #include <iostream>
 #include <memory>
 #include <upns/errorcodes.h>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonArray>
 #include <fstream>
 
 using namespace mapit::msgs;
