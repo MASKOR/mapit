@@ -5,6 +5,7 @@
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 
 #include <Eigen/Geometry>
+#include <mapit/time/time.h>
 
 // Transform or Path (Array of transforms) in combination with a timestamp.
 // {
@@ -68,38 +69,64 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, st
 //MODULE_EXPORT void deleteEntitydata(std::shared_ptr<AbstractEntitydata> streamProvider);
 }
 
-// Warn: Code expects TfMat to have a member data() with 16 floats.
-typedef Eigen::Matrix4f TfMat;
-typedef std::shared_ptr<TfMat> TfMatPtr;
+namespace upns {
+namespace tf {
+  const std::string _DEFAULT_LAYER_NAME_STATIC_ = "tf_static";
+  const std::string _DEFAULT_LAYER_NAME_DYNAMIC_ = "tf_dynamic";
+  struct Transform {
+    std::string child_frame_id;
+    Eigen::Translation3f translation;
+    Eigen::Quaternionf rotation;
 
-class TfEntitydata : public Entitydata<TfMat>
+    static Transform Identity()
+    {
+      Transform t;
+      t.child_frame_id = "";
+      t.translation = t.translation.Identity();
+      t.rotation.setIdentity();
+      return t;
+    }
+  };
+  typedef std::shared_ptr<Transform> TransformPtr;
+
+  struct TransformStamped {
+    Transform transform;
+    std::string frame_id;
+    mapit::time::Stamp stamp;
+  };
+  typedef std::shared_ptr<TransformStamped> TransformStampedPtr;
+}
+}
+
+class TfEntitydata : public Entitydata<tf::Transform>
 {
 public:
-    static const char* TYPENAME();
+  static const char* TYPENAME();
 
-    TfEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
+  TfEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider);
 
-    const char*         type() const;
-    bool                hasFixedGrid() const;
-    bool                canSaveRegions() const;
-    TfMatPtr  getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                upnsReal x2, upnsReal y2, upnsReal z2,
-                                bool clipMode,
-                                int lod = 0);
-    int                 setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                upnsReal x2, upnsReal y2, upnsReal z2,
-                                TfMatPtr &data,
-                                int lod = 0);
+  const char*      type() const;
+  bool             hasFixedGrid() const;
+  bool             canSaveRegions() const;
 
-    TfMatPtr  getData(int lod = 0);
-    int                 setData(TfMatPtr &data, int lod = 0);
+  int              setData(upnsReal x1, upnsReal y1, upnsReal z1,
+                           upnsReal x2, upnsReal y2, upnsReal z2,
+                           tf::TransformPtr &data,
+                           int lod = 0);
+  int              setData(tf::TransformPtr &data, int lod = 0);
 
-    void gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                    upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                    upnsReal &x2, upnsReal &y2, upnsReal &z2) const;
+  tf::TransformPtr getData(upnsReal x1, upnsReal y1, upnsReal z1,
+                           upnsReal x2, upnsReal y2, upnsReal z2,
+                           bool clipMode,
+                           int lod = 0);
+  tf::TransformPtr getData(int lod = 0);
 
-    int getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                             upnsReal &x2, upnsReal &y2, upnsReal &z2);
+  void gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
+                  upnsReal &x1, upnsReal &y1, upnsReal &z1,
+                  upnsReal &x2, upnsReal &y2, upnsReal &z2) const;
+
+  int getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
+                           upnsReal &x2, upnsReal &y2, upnsReal &z2);
 
     upnsIStream *startReadBytes(upnsuint64 start, upnsuint64 len);
     void endRead(upnsIStream *&strm);
@@ -107,11 +134,11 @@ public:
     upnsOStream *startWriteBytes(upnsuint64 start, upnsuint64 len);
     void endWrite(upnsOStream *&strm);
 
-    size_t size() const;
+  size_t size() const;
 
 private:
-    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
-    TfMatPtr m_tf;
+  std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
+  tf::TransformPtr m_transform;
 
 };
 

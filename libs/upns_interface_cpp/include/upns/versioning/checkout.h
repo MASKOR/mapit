@@ -25,7 +25,7 @@ class OperationEnvironment;
  * inside the list can have parameters (objectIds) which are only temporary in the system. When replayed,
  * dependencymanagement tries to compute all Operations which have all their parameters ready.
  */
-class Checkout : public CheckoutCommon
+class Checkout : virtual public CheckoutCommon
 {
 public:
     virtual ~Checkout() {}

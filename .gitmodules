@@ -43,3 +43,6 @@
 [submodule "libs/layertypes_collection/las/LASzip"]
 	path = libs/layertypes_collection/las/LASzip
 	url = https://github.com/LASzip/LASzip
+[submodule "libs/core/include/mapit/time/date"]
+	path = libs/core/include/mapit/time/date
+	url = https://github.com/HowardHinnant/date.git

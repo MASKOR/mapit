@@ -18,7 +18,7 @@ namespace upns
  * which will be marked as the new version.
  */
 
-class CheckoutRaw : public CheckoutCommon
+class CheckoutRaw : virtual public CheckoutCommon
 {
 protected:
     // Can not be deleted from outside (module)
@@ -55,6 +55,150 @@ public:
      * @return
      */
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity) = 0;
+
+
+
+    /**
+     * @brief getEntityDataReadWrite get read and writable data of an entety
+     * @param entity
+     * @return
+     */
+    std::shared_ptr<AbstractEntitydata> getEntityDataReadWrite(std::shared_ptr<mapit::Entity> entity)
+    {
+        return getEntitydataForReadWrite(entity->getDataPath());
+    }
+
+    /**
+     * @brief getNewMap returns a new map with the given name, returns nullptr when this map allready exists
+     * @param name
+     * @return
+     */
+    std::shared_ptr<mapit::Map> getNewMap(const std::string name)
+    {
+        std::shared_ptr<mapit::Map> map = getMap(name);
+        if (map == nullptr) {
+            // does not exists => create
+            std::shared_ptr<mapit::msgs::Tree> tree = std::shared_ptr<mapit::msgs::Tree>(new mapit::msgs::Tree);
+            map = std::shared_ptr<mapit::Map>(new mapit::Map(tree, name));
+
+            return map;
+        } else {
+            // does exists => do nothing
+            return nullptr;
+        }
+    }
+
+    /**
+     * @brief getExistingOrNewMap returns either the existing map from the mapit system or create a new map
+     * @param name
+     * @return
+     */
+    std::shared_ptr<mapit::Map> getExistingOrNewMap(const std::string name)
+    {
+        std::shared_ptr<mapit::Map> map = getMap(name);
+        if (map == nullptr) {
+            return getNewMap( name );
+        } else {
+            return map;
+        }
+    }
+
+    /**
+     * @brief getNewLayer returns a new layer in the given map with the given name, returns nullptr when this layer allready exists
+     * @param map
+     * @param name
+     * @return
+     */
+    std::shared_ptr<mapit::Layer> getNewLayer(std::shared_ptr<mapit::Map> map, const std::string name)
+    {
+        std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
+        if (layer == nullptr) {
+            // does not exists => create
+            std::shared_ptr<mapit::msgs::Tree> tree = std::shared_ptr<mapit::msgs::Tree>(new mapit::msgs::Tree);
+            layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(tree, name, map));
+
+            return layer;
+        } else {
+            // does exists => do nothing
+            return nullptr;
+        }
+    }
+
+    /**
+     * @brief getExistingOrNewLayer returns either the existing layer from the mapit system or creates a new layer
+     * @param map
+     * @param name
+     * @return
+     */
+    std::shared_ptr<mapit::Layer> getExistingOrNewLayer(std::shared_ptr<mapit::Map> map, const std::string name)
+    {
+        std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
+        if (layer == nullptr) {
+            return getNewLayer(map, name);
+        } else {
+            return layer;
+        }
+    }
+
+    /**
+     * @brief getNewEntity returns a new entity in the given layer with the given name, returns nullptr when this entity allready exists
+     * @param layer
+     * @param name
+     * @param type_name
+     * @return
+     */
+    std::shared_ptr<mapit::Entity> getNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name, const std::string type_name)
+    {
+        std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
+        if (entity == nullptr) {
+            // does not exists => create
+            std::shared_ptr<mapit::msgs::Entity> entity_tree = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
+            entity_tree->set_type(type_name);
+            entity = std::shared_ptr<mapit::Entity>(new mapit::Entity(entity_tree, name, layer));
+
+            return entity;
+        } else {
+            // does exists => do nothing
+            return nullptr;
+        }
+    }
+
+    /**
+     * @brief getExistingOrNewEntity returns either the existing entity from the mapit system or creates a new entity
+     * @param layer
+     * @param name
+     * @param type_name
+     * @return
+     */
+    std::shared_ptr<mapit::Entity> getExistingOrNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name, const std::string type_name)
+    {
+        std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
+        if (entity == nullptr) {
+            return getNewEntity(layer, name, type_name);
+        } else {
+            return entity;
+        }
+    }
+
+    /**
+     * @brief storeEntity stores the given entity and entity data to the mapit system
+     * @param entity
+     * @param entity_data_to_be_saved
+     * @return
+     */
+    template<typename LayerDataType>
+    StatusCode storeEntity(std::shared_ptr<mapit::Entity> entity, std::shared_ptr<LayerDataType> entity_data_to_be_saved)
+    {
+        storeEntity(entity->getDataPath(), entity->getEntity());
+        // TODO data as well in one function
+        std::shared_ptr<upns::Entitydata<LayerDataType>> entity_data = std::dynamic_pointer_cast<upns::Entitydata<LayerDataType>>(getEntityDataReadWrite(entity));
+        if (entity_data == NULL) {
+            // this means that the data was wrongly saved, error is not here!
+            assert(false);
+        }
+        // TODO entety data stream manager oder so
+        entity_data->setData(entity_data_to_be_saved, 0);
+    }
 
     //TODO: deprecated, use stroreXXX
 //    /**

@@ -51,6 +51,7 @@ FOREACH(subdir ${SUBDIRS})
 
   add_executable(${subdir} ${TEST_MAIN} ${CurrentUnitTestH} ${CurrentUnitTestCPP} )
 
+  set_property(TARGET ${subdir} PROPERTY CXX_STANDARD 11)
   target_link_libraries(${subdir} ${Qt5Test_LIBRARIES}
                                   ${mapit_core}
                                   ${mapit_interface}
@@ -60,6 +61,7 @@ FOREACH(subdir ${SUBDIRS})
                                   layertype_pointcloud2
                                   layertype_openvdb
                                   load_pointcloud
+                                  layertype_tf
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                                   ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
@@ -104,6 +106,7 @@ target_link_libraries(TestAll Qt5::Test
                               layertype_pointcloud2
                               layertype_openvdb
                               load_pointcloud
+                              layertype_tf
                               ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                               ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
