@@ -105,8 +105,6 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
     ${mapit_interface_cpp}
     ${mapit_standard_repository_factory}
     Qt3DPointcloudRenderer
-    Qt53DInput
-    Qt53DLogic
     layertype_tf
     ${YAML_CPP_LIBRARIES}
     ${PCL_LIBRARIES}

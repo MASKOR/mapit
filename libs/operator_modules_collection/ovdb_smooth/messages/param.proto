@@ -1,7 +1,0 @@
-syntax = "proto3";
-package upns;
-
-message LoadPointcloudParams {
-    string target = 1;
-    string filename = 2;
-}

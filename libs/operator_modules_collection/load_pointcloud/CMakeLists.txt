@@ -26,40 +26,6 @@ set(CMAKE_AUTOMOC ON)
 
 #### Protobuf ####
 
-set(PROTOFILE "messages/param.proto")
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
-
-  ############# selfmade but working proto generator ###########
-  foreach(FIL ${ProtoFiles})
-    get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
-    get_filename_component(FIL_WE ${FIL} NAME_WE)
-
-    add_custom_command(
-        OUTPUT "${FIL_WE}.pb.cc"
-               "${FIL_WE}.pb.h"
-        COMMAND  ${PROTOBUF_PROTOC_EXECUTABLE}
-        ARGS --cpp_out ${PROTOBUF_OUTPUT_DIR} --proto_path ${CMAKE_CURRENT_SOURCE_DIR}/messages ${ABS_FIL}
-        DEPENDS ${ABS_FIL}
-        COMMENT "Running C++ protocol buffer compiler on ${FIL}"
-        VERBATIM )
-
-    list(APPEND PROTO_SRCS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.pb.cc")
-    list(APPEND PROTO_HDRS "${PROTOBUF_OUTPUT_DIR}/${FIL_WE}.pb.h")
-
-  endforeach()
-  ##############################################
-
-else (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
-  # can result in /bin/sh: --cpp_out: Kommando nicht gefunden. On some CMake versions/FindProto versions
-  protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/${PROTOFILE})
-endif (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.5)
-
-set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
-
 find_package(mapit REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_LOAD_POINTCLOUD_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} )
