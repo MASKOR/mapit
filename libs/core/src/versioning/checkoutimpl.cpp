@@ -87,7 +87,7 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
         }
     }
     // Try to get a transient tree
-    std::shared_ptr<Tree> tree = m_serializer->getTreeTransient(m_name + p);
+    std::shared_ptr<Tree> tree = m_serializer->getTreeTransient(m_name + "/" + p);
     if(tree) return tree;
 
     // if tree is not transient, get from repo
