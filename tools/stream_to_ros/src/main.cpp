@@ -2,21 +2,13 @@
 #include <upns/versioning/repository.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/logging.h>
-#include <boost/filesystem.hpp>
-//#include <boost/iostreams/device/mapped_file.hpp>
-#include <fstream>
-#include <sstream>
 #include <boost/program_options.hpp>
 
 #include <ros/ros.h>
-#include <rosgraph_msgs/Clock.h>
-
 #include <sensor_msgs/PointCloud2.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <pcl_conversions/pcl_conversions.h>
 
-namespace fs = boost::filesystem;
-//namespace iostr = boost::iostreams;
+#include "publishclock.h"
+#include "publishpointclouds.h"
 
 namespace po = boost::program_options;
 
@@ -26,6 +18,7 @@ int main(int argc, char *argv[])
 {
     upns_init_logging();
 
+    // get parameter
     po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name> <destination>");
     program_options_desc.add_options()
         ("help,h", "print usage")
@@ -34,7 +27,7 @@ int main(int argc, char *argv[])
         ("map,m", po::value<std::string>()->required(), "")
         ("layer,l", po::value<std::string>()->required(), "")
         ("entity,e", po::value<std::string>()->default_value(""), "")
-        ("type,t", po::value<std::string>()->required(), "the type of what to be published,\nsupported options are:\npointcloud,\n...");
+        ("type,t", po::value<std::string>()->required(), "the type of what to be published,\nsupported options are:\npointcloud\n...");
     po::positional_options_description pos_options;
     pos_options.add("checkout",  1);
 
@@ -50,6 +43,7 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
+    // evaluate parameter
     PublishType publish_type;
     if ( 0 == vars["type"].as<std::string>().compare("pointcloud") ) {
       publish_type = PublishType::pointcloud;
@@ -63,6 +57,7 @@ int main(int argc, char *argv[])
       single_entity = false;
     }
 
+    // get mapit data
     std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
     if(co == nullptr)
     {
@@ -96,29 +91,20 @@ int main(int argc, char *argv[])
       }
     }
 
-    // publish data
-    // loop till end
-
     // connect to ROS
-    ros::init (argc, argv, "mapit_stream_to_ros");
+    ros::init (argc, argv, "mapit_stream_to_ros__" + vars["map"].as<std::string>() + "_" + vars["layer"].as<std::string>() + "_" + vars["entity"].as<std::string>());
 
-    // disable sim time for startup (this is needed otherwise this node itself waits for clock
-    if ( vars["use_sim_time"].as<bool>() ) {
-      ros::NodeHandle n("~");
-      n.setParam("/use_sim_time", false);
-    }
+    std::shared_ptr<ros::NodeHandle> node_handle = std::shared_ptr<ros::NodeHandle>( new ros::NodeHandle("~") );
 
-    ros::NodeHandle n("~");
-
-    rosgraph_msgs::Clock clock;
-    ros::Publisher pub_clock;
+    // create clock when parameter is given
+    // TODO where to start/end (map time, layer time????)
+    std::shared_ptr<PublishClock> publish_clock = nullptr;
     if ( vars["use_sim_time"].as<bool>() ) {
       // set simulated time
-      n.setParam("/use_sim_time", true);
+      node_handle->setParam("/use_sim_time", true);
 
-      pub_clock = n.advertise<rosgraph_msgs::Clock>("/clock", 1);
-      rosgraph_msgs::Clock clock;
-      clock.clock.fromSec(1);
+      std::unique_ptr<ros::Publisher> pub = std::unique_ptr<ros::Publisher>(new ros::Publisher(node_handle->advertise<rosgraph_msgs::Clock>("/clock", 1)));
+      publish_clock = std::make_shared<PublishClock>( std::move(pub) );
     }
 
     // create pubblisher
@@ -126,42 +112,28 @@ int main(int argc, char *argv[])
     if ( single_entity ) {
       pub_name += "/" + vars["entity"].as<std::string>();
     }
-    ros::Publisher pub;
+
+    std::shared_ptr<PublishToROS> publish_manager;
     switch (publish_type) {
       case PublishType::pointcloud:
-        pub = n.advertise<sensor_msgs::PointCloud2>(pub_name, 10, true);
+        std::unique_ptr<ros::Publisher> pub = std::unique_ptr<ros::Publisher>(new ros::Publisher(node_handle->advertise<sensor_msgs::PointCloud2>(pub_name, 10, true)));
+        if ( single_entity ) {
+          publish_manager = std::make_shared<PublishPointClouds>(
+                              co, node_handle, std::move(pub)
+                              );
+          publish_manager->publish_entity(entity);
+        } else {
+          publish_manager = std::make_shared<PublishPointClouds>(
+                              co, node_handle, std::move(pub), layer
+                              );
+        }
         break;
-      default:
-        log_error("Type is not implemented compleatly???");
-    }
-    if ( single_entity ) {
-      // get Data
-      std::shared_ptr<upns::AbstractEntitydata> entity_data_abstract = co->getEntityDataReadOnly(entity);
-      std::shared_ptr<pcl::PCLPointCloud2> entity_data =
-          std::dynamic_pointer_cast<PointcloudEntitydata>(
-            entity_data_abstract
-            )->getData();
-      // publish data
-      sensor_msgs::PointCloud2 entity_data_publishable;
-      pcl_conversions::fromPCL(*entity_data, entity_data_publishable);
-      std::string ef = entity->frame_id();
-      if (0 == ef.compare("")) {
-        ef = "world";
-      }
-      entity_data_publishable.header.frame_id = ef;
-      ros::Time et;
-      et.fromSec( mapit::time::to_sec( entity->stamp() ) );
-      entity_data_publishable.header.stamp = et;
-      pub.publish( entity_data_publishable );
+//      default:
+//        log_error("Type is not implemented compleatly???");
     }
 
     ros::Rate r( 100 ); // publish the clock with 100 Hz
-    while (n.ok()) {
-      if ( vars["use_sim_time"].as<bool>() ) {
-        // publish clock
-        clock.clock.fromSec( clock.clock.toSec() + 0.01 );
-        pub_clock.publish( clock );
-      }
+    while (node_handle->ok()) {
 
       ros::spinOnce();
       r.sleep();
