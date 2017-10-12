@@ -65,6 +65,9 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 
     std::shared_ptr<Entity> pclEntity(new Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
+    pclEntity->set_frame_id( params["frame_id"].string_value() );
+    pclEntity->mutable_stamp()->set_sec( params["sec"].int_value() );
+    pclEntity->mutable_stamp()->set_nsec( params["nsec"].int_value() );
     StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {
