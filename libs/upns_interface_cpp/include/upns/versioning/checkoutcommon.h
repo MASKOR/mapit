@@ -95,7 +95,9 @@ public:
         std::list<std::shared_ptr<mapit::Layer>> layers;
         for (auto ref_layers : map->getRefs()) {
             std::shared_ptr<mapit::msgs::Tree> layer_tree = getTree( ref_layers.second.path() );
-            std::shared_ptr<mapit::Layer> layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(layer_tree, ref_layers.first, map));
+            std::string path_to_first_entity = layer_tree->refs().begin()->second.path();
+            std::string type = getEntity( path_to_first_entity )->type();
+            std::shared_ptr<mapit::Layer> layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(layer_tree, ref_layers.first, map, type));
             layers.push_back(layer);
         }
 

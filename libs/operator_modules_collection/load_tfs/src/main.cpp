@@ -59,8 +59,8 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     CheckoutRaw* checkout = env->getCheckout();
     std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
     std::shared_ptr<mapit::Layer> layer_static, layer_dynamic;
-    layer_static = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_);
-    layer_dynamic = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_);
+    layer_static = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_, TfEntitydata::TYPENAME());
+    layer_dynamic = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_, TfEntitydata::TYPENAME());
 
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
@@ -106,8 +106,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         }
         std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
                       layer
-                    , tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id
-                    , TfEntitydata::TYPENAME());
+                    , tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id);
 
         std::shared_ptr<tf::Transform> entity_data = std::shared_ptr<tf::Transform>(new tf::Transform(tf_loaded.transform));
         entity->set_frame_id( tf_loaded.frame_id );
