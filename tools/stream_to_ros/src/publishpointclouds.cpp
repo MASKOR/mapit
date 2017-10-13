@@ -20,6 +20,8 @@ PublishPointClouds::publish_entity(std::shared_ptr<mapit::Entity> entity)
   // don't forget the header
   entity_data_publishable.header = get_header(entity);
 
+  log_info("Publish entity \"" + entity->getName() + "\" to topic \"" + publisher_->getTopic() + "\" in ROS");
+
   // publish
   publisher_->publish( entity_data_publishable );
 }

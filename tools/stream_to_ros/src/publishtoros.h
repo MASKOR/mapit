@@ -2,6 +2,7 @@
 #define PUBLISHTOROS_H
 
 #include <upns/versioning/checkout.h>
+#include <upns/logging.h>
 
 #include <ros/ros.h>
 #include <std_msgs/Header.h>
@@ -45,7 +46,7 @@ protected:
   {
     // check for end
     if (entity_next_ == layer_.end()) {
-//      log_info("reached end of layer");
+      log_warn("reached end of layer \"" + layer_.begin()->second->getLayer()->getName() + "\"");
       timer_ = nullptr;
       return;
     }

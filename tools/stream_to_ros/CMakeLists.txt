@@ -42,7 +42,10 @@ endif(WIN32)
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES} stdc++ layertype_pointcloud2)
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES}
+  stdc++
+  layertype_pointcloud2
+  layertype_tf)
 
 if(WITH_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})

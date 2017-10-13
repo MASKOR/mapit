@@ -6,9 +6,13 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <tf2_msgs/TFMessage.h>
 
 #include "publishclock.h"
+#include <upns/layertypes/pointcloudlayer.h>
 #include "publishpointclouds.h"
+#include <upns/layertypes/tflayer.h>
+#include "publishtfs.h"
 
 namespace po = boost::program_options;
 
@@ -168,10 +172,22 @@ int main(int argc, char *argv[])
     if (use_layers) {
       for (auto layer : layers) {
         // get type of layer
-        if ( 0 == layer->getTypeString().compare("layertype_pointcloud2" ) ) {
-          std::string current_pub_name = pub_name + "/" + layer->getDataPath();
+        std::string current_pub_name = pub_name + "/" + layer->getDataPath();
+        if ( 0 == layer->getTypeString().compare( PointcloudEntitydata::TYPENAME() ) ) {
           std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
           publish_managers.push_back( std::make_shared<PublishPointClouds>(
+                                        co, node_handle, std::move(pub), layer
+                                        )
+                                      );
+        } else if ( 0 == layer->getTypeString().compare( TfEntitydata::TYPENAME() ) ) {
+          // when the default layername is used, use here the default topics for ROS
+          if ( 0 == layer->getName().compare( upns::tf::_DEFAULT_LAYER_NAME_STATIC_ ) ) {
+            current_pub_name = "/tf_static";
+          } else if ( 0 == layer->getName().compare( upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_ ) ) {
+            current_pub_name = "/tf";
+          }
+          std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<tf2_msgs::TFMessage>(current_pub_name, 10, true));
+          publish_managers.push_back( std::make_shared<PublishTFs>(
                                         co, node_handle, std::move(pub), layer
                                         )
                                       );
@@ -183,9 +199,16 @@ int main(int argc, char *argv[])
     } else {
       for (auto entity : entities) {
         std::string current_pub_name = pub_name + "/" + entity->getDataPath();
-        if ( 0 == entity->getTypeString().compare("layertype_pointcloud2" ) ) {
+        if ( 0 == entity->getTypeString().compare( PointcloudEntitydata::TYPENAME() ) ) {
           std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
           publish_managers.push_back( std::make_shared<PublishPointClouds>(
+                                        co, node_handle, std::move(pub)
+                                        )
+                                      );
+          publish_managers.back()->publish_entity(entity);
+        } else if ( 0 == entity->getTypeString().compare( TfEntitydata::TYPENAME() ) ) {
+          std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<tf2_msgs::TFMessage>(current_pub_name, 10, true));
+          publish_managers.push_back( std::make_shared<PublishTFs>(
                                         co, node_handle, std::move(pub)
                                         )
                                       );
