@@ -16,6 +16,12 @@ file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_
 
 add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
+set_target_properties(${PROJECT_NAME}  PROPERTIES
+    CXX_STANDARD 14
+#    CXX_STANDARD_REQUIRED YES
+#    CXX_EXTENSIONS NO
+)
+
 #target_include_directories(${PROJECT_NAME} PUBLIC roscpp_INCLUDE_DIRS)
 include_directories(${PROJECT_NAME}
   ${roscpp_INCLUDE_DIRS}

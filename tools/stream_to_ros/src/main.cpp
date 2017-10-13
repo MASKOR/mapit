@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
       // set simulated time
       node_handle->setParam("/use_sim_time", true);
 
-      std::unique_ptr<ros::Publisher> pub = std::unique_ptr<ros::Publisher>(new ros::Publisher(node_handle->advertise<rosgraph_msgs::Clock>("/clock", 1)));
+      std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<rosgraph_msgs::Clock>("/clock", 1));
       publish_clock = std::make_shared<PublishClock>( std::move(pub) );
     }
 
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     std::shared_ptr<PublishToROS> publish_manager;
     switch (publish_type) {
       case PublishType::pointcloud:
-        std::unique_ptr<ros::Publisher> pub = std::unique_ptr<ros::Publisher>(new ros::Publisher(node_handle->advertise<sensor_msgs::PointCloud2>(pub_name, 10, true)));
+        std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(pub_name, 10, true));
         if ( single_entity ) {
           publish_manager = std::make_shared<PublishPointClouds>(
                               co, node_handle, std::move(pub)
