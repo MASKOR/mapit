@@ -84,15 +84,6 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
-//    // evaluate parameter
-//    PublishType publish_type;
-//    if ( 0 == vars["type"].as<std::string>().compare("pointcloud") ) {
-//      publish_type = PublishType::pointcloud;
-//    } else {
-//      log_error("unknown type to publish is given");
-//      return 1;
-//    }
-
     // get mapit data
     std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
     if(co == nullptr)
@@ -177,23 +168,32 @@ int main(int argc, char *argv[])
     if (use_layers) {
       for (auto layer : layers) {
         // get type of layer
-        // switch over type
-        std::string current_pub_name = pub_name + "/" + layer->getDataPath();
-        std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
-        publish_managers.push_back( std::make_shared<PublishPointClouds>(
-                                     co, node_handle, std::move(pub), layer
-                                     )
-                                   );
+        if ( 0 == layer->getTypeString().compare("layertype_pointcloud2" ) ) {
+          std::string current_pub_name = pub_name + "/" + layer->getDataPath();
+          std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
+          publish_managers.push_back( std::make_shared<PublishPointClouds>(
+                                        co, node_handle, std::move(pub), layer
+                                        )
+                                      );
+        } else {
+          log_error("layertype \"" + layer->getTypeString() + "\" not implemented in this tool");
+          return 1;
+        }
       }
     } else {
       for (auto entity : entities) {
         std::string current_pub_name = pub_name + "/" + entity->getDataPath();
-        std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
-        publish_managers.push_back( std::make_shared<PublishPointClouds>(
-                                      co, node_handle, std::move(pub)
-                                      )
-                                    );
-        publish_managers.back()->publish_entity(entity);
+        if ( 0 == entity->getTypeString().compare("layertype_pointcloud2" ) ) {
+          std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
+          publish_managers.push_back( std::make_shared<PublishPointClouds>(
+                                        co, node_handle, std::move(pub)
+                                        )
+                                      );
+          publish_managers.back()->publish_entity(entity);
+        } else {
+          log_error("layertype \"" + entity->getTypeString() + "\" not implemented in this tool");
+          return 1;
+        }
       }
     }
 
