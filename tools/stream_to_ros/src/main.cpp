@@ -196,6 +196,25 @@ int main(int argc, char *argv[])
           return 1;
         }
       }
+      if (publish_managers.empty()) {
+        log_error("checked for layers but didn't get any layer. This input error should have been caught beforehand...");
+        return 1;
+      }
+      // get min offset of all
+      double time_stamp_first = (*publish_managers.begin())->get_stamp_of_first_data();
+      for (auto publish_manager : publish_managers) {
+        double time_stamp_first_current = publish_manager->get_stamp_of_first_data();
+        if (time_stamp_first > time_stamp_first_current) {
+          time_stamp_first = time_stamp_first_current;
+        }
+      }
+      // calculate the offset
+      double offset = ros::Time::now().toSec() - time_stamp_first - 1; // give it 1 sec to start
+      // share the time offset and start publishing
+      for (auto publish_manager : publish_managers) {
+        publish_manager->set_offset(offset);
+        publish_manager->start_publishing();
+      }
     } else {
       for (auto entity : entities) {
         std::string current_pub_name = pub_name + "/" + entity->getDataPath();

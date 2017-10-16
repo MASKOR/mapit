@@ -19,8 +19,6 @@ public:
   PublishToROS(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<ros::NodeHandle> node_handle, std::unique_ptr<ros::Publisher> publisher, std::shared_ptr<mapit::Layer> layer)
     : PublishToROS(checkout, node_handle, std::move(publisher))
   {
-    double now = ros::Time::now().toSec(); // ROS time is used, because the data is played back in ROS time
-
     // create a time sorted map of all entities
     for (auto entity : checkout_->getListOfEntities(layer)) {
       double time = mapit::time::to_sec( entity->stamp() );
@@ -29,17 +27,32 @@ public:
     if ( layer_.empty() ) {
       entity_next_ = layer_.end();
     } else {
-      entity_next_ = layer_.begin()++;
-
-      double first = mapit::time::to_sec( entity_next_->second->stamp() );
-      offset_ = now - first;
-
-      // create a timer for the 1. entity
-      timer_ = std::make_shared<ros::Timer>( node_handle_->createTimer(ros::Rate(100), &PublishToROS::timer_callback, this) );
+      entity_next_ = layer_.begin();
     }
+    offset_ = -1;
   }
 
   virtual void publish_entity(std::shared_ptr<mapit::Entity> entity) = 0;
+
+  double get_stamp_of_first_data()
+  {
+    if ( layer_.empty() ) {
+      return -1;
+    } else {
+      return layer_.begin()->first;
+    }
+  }
+
+  void set_offset(double offset)
+  {
+    offset_ = offset;
+  }
+
+  void start_publishing()
+  {
+    // create a timer for the 1. entity
+    timer_ = std::make_shared<ros::Timer>( node_handle_->createTimer(ros::Rate(100), &PublishToROS::timer_callback, this) );
+  }
 
 protected:
   void timer_callback(const ros::TimerEvent&)
