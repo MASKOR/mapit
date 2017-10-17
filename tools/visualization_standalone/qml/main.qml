@@ -28,7 +28,7 @@ MainMenubar {
     visible: true
     UPNS.Repository {
         id: globalRepository
-        url: "./demo_repository" // InitDemo
+        url: "." // default cfg is the current folder
     }
 
     AppStyle {
