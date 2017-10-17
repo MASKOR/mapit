@@ -270,6 +270,7 @@ std::vector<OperatorInfo> OperatorLibraryManager::listOperators()
     std::vector<OperatorInfo> moduleInfos;
     addOperatorsFromDirectory(moduleInfos, MAPIT_LOCAL_OPERATOR_DIR, true);
     addOperatorsFromDirectory(moduleInfos, "/usr/lib/");
+    addOperatorsFromDirectory(moduleInfos, "/usr/local/lib/");
     return moduleInfos;
 }
 
