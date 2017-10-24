@@ -182,6 +182,7 @@ add_subdirectory(tools/scripts)
 add_subdirectory(tools/mapitd)
 add_subdirectory(tools/commandlinetool)
 add_subdirectory(tools/stream_to_ros)
+add_subdirectory(tools/ls)
 
 set(UPNS_ENABLE_TESTS ON CACHE BOOL "Generate tests (need Qt)")
 if(UPNS_ENABLE_TESTS)
