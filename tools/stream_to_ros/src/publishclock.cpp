@@ -6,8 +6,15 @@ PublishClock::PublishClock(std::unique_ptr<ros::Publisher> publisher, double sta
   : publisher_( std::move(publisher) )
   , playback_rate_(playback_rate)
   , rate_(rate)
+  , io_service_()
 {
   ros_time_.clock = ros::Time( stamp_of_first_data );
+}
+
+PublishClock::~PublishClock()
+{
+  io_service_.stop();
+  runner_->join();
 }
 
 void

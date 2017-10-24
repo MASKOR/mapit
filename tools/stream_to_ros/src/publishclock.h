@@ -13,6 +13,7 @@ class PublishClock
 {
 public:
   PublishClock(std::unique_ptr<ros::Publisher> publisher, double stamp_of_first_data, float playback_rate  = 1., unsigned int rate = 100);
+  ~PublishClock();
 
   void start_publishing();
 
