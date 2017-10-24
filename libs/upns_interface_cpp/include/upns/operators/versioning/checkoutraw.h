@@ -109,13 +109,13 @@ public:
      * @param name
      * @return
      */
-    std::shared_ptr<mapit::Layer> getNewLayer(std::shared_ptr<mapit::Map> map, const std::string name)
+    std::shared_ptr<mapit::Layer> getNewLayer(std::shared_ptr<mapit::Map> map, const std::string name, const std::string type_name)
     {
         std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
         if (layer == nullptr) {
             // does not exists => create
             std::shared_ptr<mapit::msgs::Tree> tree = std::shared_ptr<mapit::msgs::Tree>(new mapit::msgs::Tree);
-            layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(tree, name, map));
+            layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(tree, name, map, type_name));
 
             return layer;
         } else {
@@ -130,11 +130,11 @@ public:
      * @param name
      * @return
      */
-    std::shared_ptr<mapit::Layer> getExistingOrNewLayer(std::shared_ptr<mapit::Map> map, const std::string name)
+    std::shared_ptr<mapit::Layer> getExistingOrNewLayer(std::shared_ptr<mapit::Map> map, const std::string name, const std::string type_name)
     {
         std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
         if (layer == nullptr) {
-            return getNewLayer(map, name);
+            return getNewLayer(map, name, type_name);
         } else {
             return layer;
         }
@@ -147,13 +147,13 @@ public:
      * @param type_name
      * @return
      */
-    std::shared_ptr<mapit::Entity> getNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name, const std::string type_name)
+    std::shared_ptr<mapit::Entity> getNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name)
     {
         std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
         if (entity == nullptr) {
             // does not exists => create
             std::shared_ptr<mapit::msgs::Entity> entity_tree = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
-            entity_tree->set_type(type_name);
+            entity_tree->set_type(layer->getTypeString());
             entity = std::shared_ptr<mapit::Entity>(new mapit::Entity(entity_tree, name, layer));
 
             return entity;
@@ -170,11 +170,11 @@ public:
      * @param type_name
      * @return
      */
-    std::shared_ptr<mapit::Entity> getExistingOrNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name, const std::string type_name)
+    std::shared_ptr<mapit::Entity> getExistingOrNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name)
     {
         std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
         if (entity == nullptr) {
-            return getNewEntity(layer, name, type_name);
+            return getNewEntity(layer, name);
         } else {
             return entity;
         }

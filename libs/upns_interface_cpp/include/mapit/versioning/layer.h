@@ -11,10 +11,11 @@ namespace mapit
 class Layer
 {
 public:
-    Layer(std::shared_ptr<mapit::msgs::Tree> layer_tree, std::string name, std::shared_ptr<mapit::Map> map)
-        : layer_(layer_tree),
-          name_(name),
-          map_(map)
+    Layer(std::shared_ptr<mapit::msgs::Tree> layer_tree, std::string name, std::shared_ptr<mapit::Map> map, std::string type)
+        : layer_(layer_tree)
+        , name_(name)
+        , map_(map)
+        , type_(type)
     { }
 
     inline std::string getName() { return name_; }
@@ -22,6 +23,12 @@ public:
     {
         return map_->getDataPath() + getName() + "/";
     }
+    inline const std::string& getTypeString()
+    {
+      return type_;
+    }
+
+    inline std::shared_ptr<mapit::Map> getMap() { return map_; }
 
     inline ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > getRefs() { return layer_->refs(); }
 
@@ -29,6 +36,7 @@ protected:
     std::shared_ptr<mapit::msgs::Tree> layer_;
     std::string name_;
     std::shared_ptr<mapit::Map> map_;
+    std::string type_;
 };
 }
 

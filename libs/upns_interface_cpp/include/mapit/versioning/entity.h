@@ -23,8 +23,14 @@ public:
     {
         return layer_->getDataPath() + getName() + "/";
     }
+    inline std::string getTypeString()
+    {
+      // TODO should we compare the value with entity_->type() ?
+      return layer_->getTypeString();
+    }
 
     inline std::shared_ptr<mapit::msgs::Entity> getEntity() { return entity_; }
+    inline std::shared_ptr<mapit::Layer> getLayer() { return layer_; }
     inline const std::string& frame_id() { return entity_->frame_id(); }
     inline mapit::time::Stamp stamp() { return mapit::time::from_sec_and_nsec( entity_->stamp().sec(), entity_->stamp().nsec() ); }
 
