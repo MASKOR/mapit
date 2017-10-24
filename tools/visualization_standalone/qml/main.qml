@@ -12,6 +12,7 @@ import QtQuick 2.0 as QQ2
 
 import "panes"
 
+//TODO: MenuBar and ApplicationWindow cannot be seperated,
 MainMenubar {
     id: window
     objectName: "mainWindow"
@@ -41,10 +42,12 @@ MainMenubar {
             orientation: Qt.Horizontal
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.margins: 0
             LeftPanels {
                 id: leftPanels
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
+                Layout.margins: 0
                 width: appStyle.splitViewLeftWidth
                 onWidthChanged: {
                     appStyle.splitViewLeftWidth = width
@@ -62,6 +65,7 @@ MainMenubar {
             BottomPanels {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
+                Layout.margins: 0
                 width: appStyle.splitViewRightWidth
                 currentOperator: leftPanels.currentOperator
                 currentCheckout: leftPanels.currentCheckout

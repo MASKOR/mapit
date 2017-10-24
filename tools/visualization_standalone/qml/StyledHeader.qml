@@ -7,7 +7,8 @@ Rectangle {
     property alias text: headerLabel.text
     property bool checked: true
     color: appStyle.headerColor
-    height: appStyle.controlHeight
+    height: appStyle.controlHeightContainer
+    implicitHeight: appStyle.controlHeightContainer
     StyledLabel {
         id: headerLabel
         anchors.left: parent.left
@@ -30,7 +31,7 @@ Rectangle {
                 color: "transparent"
             }
         }
-        height: root.height
+        height: appStyle.controlHeightOuter
         width: height
         tooltip: root.checked ? qsTr("Collapse") : qsTr("Expand")
 

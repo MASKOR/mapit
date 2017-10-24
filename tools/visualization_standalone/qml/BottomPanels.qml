@@ -37,6 +37,7 @@ Item {
         ColumnLayout {
             id: entityInfo
             Layout.fillWidth: true
+            Layout.margins: appStyle.controlMargin
             visible: entityHeader.checked && root.currentEntityPath !== undefined
             property var currentEntity: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath) : null
             property string currentEntityType: currentEntity ? currentEntity.type : ""

@@ -7,7 +7,7 @@ import "."
 
 Item {
     id:root
-    height: appStyle.controlHeight
+    height: appStyle.controlHeightOuter
     z: 1000
     property var currentCheckout
     property alias currentEntityPath: filter.currentText

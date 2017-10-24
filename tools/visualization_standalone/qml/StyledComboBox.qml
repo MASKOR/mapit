@@ -5,8 +5,8 @@ import QtQuick.Controls.Styles 1.4
 ComboBox {
     style: ComboBoxStyle {
         background: Rectangle {
-            implicitHeight: appStyle.controlHeight
-            implicitWidth: appStyle.controlHeight*4
+            implicitHeight: appStyle.controlHeightOuter
+            implicitWidth: appStyle.controlHeightOuter*4
             color: appStyle.itemBackgroundColor
         }
         textColor: appStyle.textColor

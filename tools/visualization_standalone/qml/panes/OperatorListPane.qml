@@ -55,16 +55,21 @@ Item {
                     model: globalRepository.operators
                     delegate: Component {
                         RowLayout {
-                            height: appStyle.controlHeight
-                            Image {
-                                sourceSize: Qt.size(appStyle.iconSize,appStyle.iconSize)
-                                width: appStyle.iconSize
-                                height: appStyle.iconSize
-                                source: "image://operator/"+gridRoot.model[index].moduleName
-                                fillMode: Image.PreserveAspectFit
-                                anchors.verticalCenter: parent.verticalCenter
-                                smooth: false
-                                mipmap: true
+                            height: appStyle.controlHeightOuter
+                            Item {
+                                id: iconMarginItem
+                                property real generatedWidth: appStyle.iconSize//*(16.0/9.0)
+                                width: generatedWidth
+                                Image {
+                                    sourceSize: Qt.size(iconMarginItem.generatedWidth,appStyle.iconSize)
+                                    width: iconMarginItem.generatedWidth
+                                    height: appStyle.iconSize
+                                    source: "image://operator/"+gridRoot.model[index].moduleName
+                                    fillMode: Image.PreserveAspectFit
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    smooth: false
+                                    mipmap: true
+                                }
                             }
                             StyledLabel {
                                 Layout.fillHeight: true
@@ -84,11 +89,15 @@ Item {
             }
             ScrollView {
                 visible: viewModuleButton.checked
+                horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+                verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
                 anchors.fill: parent
-                anchors.leftMargin: gridRoot.gridMargin
+                anchors.margins: gridRoot.gridMargin
                 GridView {
+                    property int maximumButtonSize: 85
                     property int gridMargin: 5
-                    property int buttonSize: 85
+                    property int columnCount: Math.ceil(gridRoot.width/(gridMargin+maximumButtonSize))
+                    property int buttonSize: (gridRoot.width/columnCount)-((columnCount-1)*gridMargin)
                     id: gridRoot
                     clip: true
                     topMargin: gridMargin
@@ -115,8 +124,9 @@ Item {
                             Image {
                                 anchors.topMargin: 8
                                 source: "image://operator/"+gridRoot.model[index].moduleName
-                                width: 64
-                                height: 64
+                                width: gridRoot.buttonSize*0.6
+                                height: gridRoot.buttonSize*0.6
+                                sourceSize: Qt.size(width, height)
                                 fillMode: Image.PreserveAspectFit
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 smooth: false

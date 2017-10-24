@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick 2.7
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
 import QtQuick.Scene3D 2.0
@@ -29,15 +29,14 @@ Item {
         anchors.fill: parent
         //QCtl.ToolBar {
             Flow {
+                topPadding: appStyle.controlMargin
                 spacing: appStyle.controlMargin
                 id: toolbar
                 anchors.left: parent.left
-                anchors.top: parent.top
                 anchors.right: parent.right
-//                Layout.fillWidth: true
-//                Layout.maximumHeight: 32
                 AxisGizmo {
-                    height: pointSizeSlider.height
+                    Layout.topMargin: -appStyle.controlMargin
+                    height: appStyle.controlHeightContainer
                     width: height
                     Layout.preferredHeight: toolbar.height
 //                    Layout.preferredWidth: toolbar.height
@@ -46,7 +45,6 @@ Item {
                 StyledLabel {
                     text: "PointSize: " + pointSizeSlider.value.toFixed(2)
                     verticalAlignment: Text.AlignVCenter
-                    height: appStyle.controlHeight
                 }
                 StyledCheckBox {
                     id: constantSizeCheckbox
@@ -61,7 +59,6 @@ Item {
                 StyledLabel {
                     text: "Renderstyle:"
                     verticalAlignment: Text.AlignVCenter
-                    height: appStyle.controlHeight
                 }
                 StyledComboBox {
                     id: renderstyleSelect
@@ -70,7 +67,6 @@ Item {
                 StyledLabel {
                     text: "Color:"
                     verticalAlignment: Text.AlignVCenter
-                    height: appStyle.controlHeight
                 }
                 StyledComboBox {
                     id: colorizeSelect
@@ -79,7 +75,6 @@ Item {
                 StyledLabel {
                     text: "Colorscale"
                     verticalAlignment: Text.AlignVCenter
-                    height: appStyle.controlHeight
                 }
                 StyledSlider {
                     id: colorscaleSlider

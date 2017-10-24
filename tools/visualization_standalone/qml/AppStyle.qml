@@ -45,12 +45,15 @@ Item {
     property color background3d: "#c0c0c0"
     property string labelFontFamily: "Open Sans"
     property int labelFontWeight: Font.Normal
-    property int labelFontPixelSize: controlHeight*(12.0/25.0)
+    //property int labelFontPixelSize: controlHeight*(12.0/25.0)
+    property int labelFontPixelSize: controlHeightInner*(20.0/25.0)
     property int headerFontWeight: Font.Bold
     property color headerColor: itemBackgroundColor
     property int maximumControlWidth: 200
     property int controlMargin: 4
-    property real controlHeight: 25
+    property real controlHeightInner: 25
+    property real controlHeightOuter: controlHeightInner + controlMargin*2
+    property real controlHeightContainer: controlHeightInner + controlMargin*2
     property real radius: 2
     property bool useRadians: false
     property bool coordinateSystemYPointsUp: false
@@ -64,15 +67,15 @@ Item {
     property matrix4x4 tmpPreviewMatrix
     property string tmpCurrentEditEntity
 
-    property real iconSize: controlHeight > 48
+    property real iconSize: controlHeightOuter >= 48
                              ? 48
-                             : controlHeight > 32
+                             : controlHeightOuter >= 32
                                ? 32
-                               : controlHeight > 24
+                               : controlHeightOuter >= 24
                                  ? 24
-                                 : controlHeight > 16
+                                 : controlHeightOuter >= 16
                                    ? 16
-                                   : controlHeight > 8
+                                   : controlHeightOuter >= 8
                                      ? 8
                                      : 4
 
@@ -103,7 +106,9 @@ Item {
         property alias headerColor: root.headerColor
         property alias maximumControlWidth: root.maximumControlWidth
         property alias controlMargin: root.controlMargin
-        property alias controlHeight: root.controlHeight
+        property alias controlHeightInner: root.controlHeightInner
+//        property alias controlHeightOuter: root.controlHeightOuter
+//        property alias controlHeightContainer: root.controlHeightContainer
         property alias useRadians: root.useRadians
         property alias coordinateSystemYPointsUp: root.coordinateSystemYPointsUp
         property alias gridLines: root.gridLines

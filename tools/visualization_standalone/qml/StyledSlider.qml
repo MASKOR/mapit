@@ -10,15 +10,15 @@ Slider {
             color: appStyle.itemBackgroundColor
         }
         handle: Item {
-            implicitHeight: appStyle.controlHeight
-            implicitWidth: appStyle.controlHeight*0.5
+            implicitHeight: appStyle.controlHeightInner
+            implicitWidth: appStyle.controlHeightInner*0.5
             Rectangle {
                 anchors.centerIn: parent
                 color: control.pressed ? appStyle.itemColor : appStyle.itemBackgroundColor
                 border.color: control.pressed ? appStyle.selectionBorderColor : appStyle.buttonBorderColor
                 border.width: 1
-                implicitWidth: appStyle.controlHeight*0.66
-                implicitHeight: appStyle.controlHeight*0.66
+                implicitWidth: appStyle.controlHeightInner*0.66
+                implicitHeight: appStyle.controlHeightInner*0.66
                 radius: implicitHeight*0.5
             }
         }

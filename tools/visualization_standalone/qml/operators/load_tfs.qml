@@ -28,9 +28,31 @@ Item {
     //// out ////
     property bool valid: currentEntitydataTransformId.path != ""
     property var parameters: {
-        "target": currentEntitydataTransformId.path,
-        "mode": "absolute",
-        "tf": {
+        "map": entityChooser.currentEntityPath,
+        "transforms": [
+            {   "static": true,
+                "header": {
+                    "frame_id": todo.frame_id_name,
+                    "stamp": { "sec": 0, "nsec": 0 }
+                },
+                "transform": {
+                    "child_frame_id" : todo.child_frame_id,
+                    "translation" : {
+                        "x" : translationMatrix.m00,
+                        "y" : translationMatrix.m01,
+                        "z" : translationMatrix.m02
+                    },
+                    "rotation" : {
+                        "w" : rangle,
+                        "x" : rx,
+                        "y" : ry,
+                        "z" : rz
+                    }
+                }
+            }
+            ],
+        "frame_id": frameIdChooser.currentFrameId,
+        "child_frame_id": {
             "mat": finalMatrixArray
         }
     }
@@ -97,14 +119,17 @@ Item {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
             dialogRoot: root
+            text: "Map: "
         }
         RowLayout {
             Layout.fillWidth: true
             StyledLabel {
+                enabled: false
                 Layout.alignment: Qt.AlignTop
                 text: "Scale:"
             }
             StyledTextField {
+                enabled: false
                 id: scaleInp
                 Layout.fillWidth: true
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -115,7 +140,7 @@ Item {
             Layout.fillWidth: true
             StyledLabel {
                 Layout.alignment: Qt.AlignTop
-                text: "Rot x " + root.angleUnitBracket
+                text: "Rot x " //+ root.angleUnitBracket
             }
             StyledTextField {
                 id: rxInp
@@ -128,7 +153,7 @@ Item {
             Layout.fillWidth: true
             StyledLabel {
                 Layout.alignment: Qt.AlignTop
-                text: "Rot y " + root.angleUnitBracket
+                text: "Rot y " //+ root.angleUnitBracket
             }
             StyledTextField {
                 id: ryInp
@@ -141,10 +166,24 @@ Item {
             Layout.fillWidth: true
             StyledLabel {
                 Layout.alignment: Qt.AlignTop
-                text: "Rot z " + root.angleUnitBracket
+                text: "Rot z " //+ root.angleUnitBracket
             }
             StyledTextField {
                 id: rzInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Angle " + root.angleUnitBracket
+            }
+            StyledTextField {
+                id: rangleInp
                 Layout.fillWidth: true
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                 text: "0"

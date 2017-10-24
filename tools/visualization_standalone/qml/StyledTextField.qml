@@ -3,15 +3,28 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 
 TextField {
+    font.pixelSize: appStyle.labelFontPixelSize
+    verticalAlignment: TextInput.AlignBottom
+    implicitHeight: appStyle.controlHeightOuter
+    height: appStyle.controlHeightOuter
     style: TextFieldStyle {
-        background: Rectangle {
-            radius: appStyle.radius
-            implicitWidth: appStyle.controlHeight*4
-            implicitHeight: appStyle.controlHeight
-            border.color: appStyle.buttonBorderColor
-            border.width: 1
-            color: appStyle.itemBackgroundColor
-        }
+        id: textFieldStyle
+        background: //Rectangle {
+//            color: "transparent"
+//            implicitHeight: appStyle.controlHeightOuter + appStyle.labelFontPixelSize*0.37 // hack for wrong vertical text alignment
+//            implicitWidth: appStyle.controlHeightOuter*4
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                radius: appStyle.radius
+                implicitHeight: appStyle.controlHeightOuter
+                height: appStyle.controlHeightOuter
+                border.color: appStyle.buttonBorderColor
+                border.width: 1
+                color: appStyle.itemBackgroundColor
+            }
+//        }
         placeholderTextColor: appStyle.unhighlight(appStyle.textColor)
         selectionColor: appStyle.selectionColor
         selectedTextColor: appStyle.textColor

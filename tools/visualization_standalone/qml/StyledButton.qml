@@ -8,6 +8,7 @@ Button {
     property string iconSource
     property color color: appStyle.itemBackgroundColor
     property bool useHoverHighlight: true
+    implicitHeight: appStyle.controlHeightOuter
     style: ButtonStyle {
         label: Label {
             visible: !control.isIcon
@@ -22,8 +23,8 @@ Button {
         }
 
         background: Rectangle {
-            implicitWidth: control.isIcon ? appStyle.controlHeight : appStyle.controlHeight*4.0
-            implicitHeight: appStyle.controlHeight
+            implicitWidth: control.isIcon ? appStyle.controlHeightOuter : appStyle.controlHeightOuter*4.0
+            implicitHeight: appStyle.controlHeightOuter
             color: control.checked
                    ? appStyle.backgroundHighlightColor
                    : control.hovered && control.useHoverHighlight
@@ -37,12 +38,18 @@ Button {
             radius: appStyle.radius
             Image {
                 id: img
+                mipmap: false
+                smooth: false
                 sourceSize: Qt.size(appStyle.iconSize, appStyle.iconSize)
+                width: appStyle.iconSize
+                height: appStyle.iconSize
+                x: 0
+                y: 0
                 anchors.centerIn: parent
                 visible: control.isIcon
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                source: control.iconSource && control.iconSource!="" ? control.iconSource : "image://icon/"
+                source: control.iconSource && control.iconSource !== "" ? control.iconSource : "image://icon/"
             }
         }
     }

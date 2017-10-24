@@ -12,6 +12,7 @@ QCtl.TreeView {
     property var visibleElems: ListModel {}
     alternatingRowColors: true
     headerVisible: false
+    backgroundVisible: false
     //selectionMode: SelectionMode.SingleSelection
     model: UPNS.RootTreeModel {
         id: rootModel
@@ -85,9 +86,9 @@ QCtl.TreeView {
         role: "displayRole"
         title: "Name"
         resizable: true
-        width: treeViewCheckout.width-appStyle.controlHeight-visibleColumn.width
+        width: treeViewCheckout.width-appStyle.controlHeightInner-visibleColumn.width
         delegate: StyledLabel {
-            height: appStyle.controlHeight
+            height: appStyle.controlHeightInner
             verticalAlignment:  Text.AlignVCenter
             text: styleData.value
         }
@@ -103,7 +104,7 @@ QCtl.TreeView {
         title: "Vis"
         movable: false
         resizable: false
-        width: appStyle.controlHeight
+        width: appStyle.controlHeightInner
         delegate: MouseArea {
             id: itemMA
             Image {
@@ -123,10 +124,10 @@ QCtl.TreeView {
                     for(var i=0 ; i < treeViewCheckout.visibleElems.count ; ++i) {
                         var obj = treeViewCheckout.visibleElems.get(i);
                         if(obj.idx === styleData.row) {
-                            return "#43adee"
+                            return Qt.rgba(0,0,0,1.0)
                         }
                     }
-                    return "#565656"
+                    return Qt.rgba(0.5,0.5,0.5,1.0) // TODO: style
                     //itemMA.showObj ? "#43adee" : "#565656"
                 }
                 visible: model ? model.type : false
@@ -164,7 +165,7 @@ QCtl.TreeView {
     }
     //onCurrentIndexChanged: console.log("SEL:"+treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole));//treeViewCheckout.currentIndex.data(Qt.ToolTipRole));//treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole))
     rowDelegate: Item {
-        height: appStyle.controlHeight
+        height: appStyle.controlHeightInner
         Rectangle {
             anchors {
                 left: parent.left

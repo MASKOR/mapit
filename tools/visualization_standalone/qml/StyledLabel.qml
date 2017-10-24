@@ -9,11 +9,16 @@ Label {
     font.family: appStyle.labelFontFamily
     font.weight: appStyle.labelFontWeight
     font.pixelSize: appStyle.labelFontPixelSize
-    //height: appStyle.controlHeight
+    height: appStyle.controlHeightOuter
+    verticalAlignment: Label.AlignVCenter
     Button {
         visible: tooltip && tooltip != ""
         id: button
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: appStyle.controlHeightOuter
+
         style: ButtonStyle {
             background: Rectangle {
                 border.width: 0

@@ -59,6 +59,8 @@ Item {
                     Layout.fillHeight: true
                     Layout.minimumHeight: 160
                     Layout.preferredHeight: 500
+                    Layout.leftMargin: appStyle.controlMargin
+                    Layout.rightMargin: appStyle.controlMargin
                     visible: headerOpPane.checked
                 }
                 QCtl.Action {
@@ -101,6 +103,8 @@ Item {
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.leftMargin: appStyle.controlMargin
+                    Layout.rightMargin: appStyle.controlMargin
                     spacing: appStyle.controlMargin
                     visible: headerCheckout.checked
                     RowLayout {
@@ -110,7 +114,6 @@ Item {
                             Layout.fillWidth: true
                         }
                         CheckoutChooser {
-                            Layout.rightMargin: appStyle.controlMargin
                             width: implicitWidth
                             id: checkoutChooser
                         }
@@ -123,6 +126,7 @@ Item {
                         visible: globalRepository.isLoaded
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+                        Layout.bottomMargin: appStyle.controlMargin
                         id: treeViewCheckout
                         currentCheckout: checkout
                         contextMenu: QCtl.Menu {

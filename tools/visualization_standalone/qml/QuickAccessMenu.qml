@@ -69,7 +69,8 @@ Item {
 //        z: 10
 //    }
     StyledTextField {
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
         id: ff
         placeholderText: "filter..."
         onActiveFocusChanged: dropDown.visible = activeFocus

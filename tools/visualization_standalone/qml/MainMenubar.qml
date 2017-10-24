@@ -104,13 +104,13 @@ ApplicationWindow {
         style: MenuBarStyle {
             id: menuBarStyle
             background: Rectangle {
-                height: appStyle.controlHeight; color: appStyle.backgroundColor
+                height: appStyle.controlHeightContainer; color: appStyle.backgroundColor
             }
             itemDelegate:  Component {
                 id: theItemDelegate
                 MouseArea {
                     id: itemMa
-                    implicitHeight: appStyle.controlHeight
+                    implicitHeight: appStyle.controlHeightContainer
                     implicitWidth: menuItemLabel.implicitWidth+appStyle.controlMargin*2
                     hoverEnabled: true
                     Item {

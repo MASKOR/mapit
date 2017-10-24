@@ -31,7 +31,7 @@ Window {
 
     onVisibleChanged: {
         if(visible) {
-            sizeSlider.value = appStyle.controlHeight
+            sizeSlider.value = appStyle.controlHeightInner
             radiansCheckbox.checked = appStyle.useRadians
             axisCheckbox.checked = appStyle.coordinateSystemYPointsUp
             gridLinesInput.text = appStyle.gridLines
@@ -59,11 +59,12 @@ Window {
                     Slider {
                         id: sizeSlider
                         width: 200
+                        stepSize: 1
                         maximumValue: 50
                         minimumValue: 10
                         Binding {
                             target: appStyle
-                            property: "controlHeight"
+                            property: "controlHeightInner"
                             value: sizeSlider.value
                             when: root.visible
                         }
@@ -83,6 +84,10 @@ Window {
                                 radius: 5
                             }
                         }
+                    }
+                    StyledLabel {
+                        width: 50
+                        text: appStyle.controlHeightInner + " px"
                     }
                 }
                 StyledHeader {

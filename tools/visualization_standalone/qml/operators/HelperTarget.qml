@@ -6,12 +6,14 @@ import QtQuick.Dialogs 1.2
 import ".."
 
 RowLayout {
+    property alias text: label.text
     property var dialogRoot
     property bool valid: entityChooser.currentEntityPath != ""
     property alias currentEntityPath: entityChooser.currentEntityPath
     Layout.fillWidth: true
     z: 100
     StyledLabel {
+        id: label
         text: "Target:"
     }
     EntityChooser {

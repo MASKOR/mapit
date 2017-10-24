@@ -77,11 +77,11 @@ QImage IconImageProvider::requestImage(const QString &id, QSize *size, const QSi
     {
         QImage img(resourceName);
         if (requestedSize.width() != -1 && requestedSize.height() != -1)
-            img = img.scaled(requestedSize, Qt::KeepAspectRatio);
+            img = img.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         else if (requestedSize.width() != -1 && requestedSize.height() == -1)
-            img = img.scaled(requestedSize.width(), img.height(), Qt::KeepAspectRatio);
+            img = img.scaled(requestedSize.width(), img.height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         else if (requestedSize.width() == -1 && requestedSize.height() != -1)
-            img = img.scaled(img.width(), requestedSize.height(), Qt::KeepAspectRatio);
+            img = img.scaled(img.width(), requestedSize.height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         *size = img.size();
         return img;
     }
