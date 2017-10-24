@@ -9,6 +9,8 @@
 #include <tf2_msgs/TFMessage.h>
 
 #include "publishclock.h"
+#include <rosgraph_msgs/Clock.h>
+
 #include <upns/layertypes/pointcloudlayer.h>
 #include "publishpointclouds.h"
 #include <upns/layertypes/tflayer.h>
@@ -162,13 +164,6 @@ int main(int argc, char *argv[])
     // create clock when parameter is given
     // TODO where to start/end (map time, layer time????)
     std::shared_ptr<PublishClock> publish_clock = nullptr;
-    if ( vars["use_sim_time"].as<bool>() ) {
-      // set simulated time
-      node_handle->setParam("/use_sim_time", true);
-
-      std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<rosgraph_msgs::Clock>("/clock", 1));
-      publish_clock = std::make_shared<PublishClock>( std::move(pub) );
-    }
 
     // create pubblisher
     std::list<std::shared_ptr<PublishToROS>> publish_managers;
@@ -213,7 +208,26 @@ int main(int argc, char *argv[])
         }
       }
       // calculate the offset
-      double offset = ros::Time::now().toSec() - time_stamp_first - 1; // give it 1 sec to start
+      double offset = ros::Time::now().toSec() - time_stamp_first;
+      if ( vars["use_sim_time"].as<bool>() ) {
+        offset = 0;
+      }
+      // start the clock
+      if ( vars["use_sim_time"].as<bool>() ) {
+        bool ros_sim_time;
+        node_handle->param("/use_sim_time", ros_sim_time, false);
+        if ( ! ros_sim_time ) {
+          log_error("publish data with simulated time, but for ROS \"/use_sim_time\" is not set or false.\n"
+                    "run \"rosparam set /use_sim_time true\" before executing this node again\n"
+                    "or start this tool with \"-s false\" to disable the sim time");
+          return 1;
+        }
+
+        std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<rosgraph_msgs::Clock>("/clock", 1));
+        publish_clock = std::make_shared<PublishClock>( std::move(pub), time_stamp_first );
+
+        publish_clock->start_publishing();
+      }
       // share the time offset and start publishing
       for (auto publish_manager : publish_managers) {
         publish_manager->set_offset(offset);
