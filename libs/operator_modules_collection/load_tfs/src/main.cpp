@@ -104,9 +104,11 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         } else {
             layer = layer_dynamic;
         }
+        unsigned long sec, nsec;
+        mapit::time::to_sec_and_nsec(tf_loaded.stamp, sec, nsec);
         std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
                       layer
-                    , tf_loaded.frame_id + std::to_string( mapit::time::to_sec(tf_loaded.stamp) ) + tf_loaded.transform.child_frame_id);
+                    , tf_loaded.frame_id + std::to_string( sec ) + std::to_string( nsec ) + tf_loaded.transform.child_frame_id);
 
         std::shared_ptr<tf::Transform> entity_data = std::shared_ptr<tf::Transform>(new tf::Transform(tf_loaded.transform));
         entity->set_frame_id( tf_loaded.frame_id );
