@@ -44,20 +44,24 @@ int main(int argc, char *argv[])
     upns_init_logging();
 
     // get parameter
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name> <destination>");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name>");
     program_options_desc.add_options()
         ("help,h", "print usage")
-        ("checkout,c", po::value<std::string>()->required(), "checkout to work with")
-        ("use_sim_time,s", po::value<bool>()->default_value(false), "whenever the clock should be published or not")
+        ("workspace,w", po::value<std::string>()->required(), "the workspace to work with")
+        ("use_sim_time,s", po::value<bool>()->default_value(false), "whenever the clock should be published or not.\n"
+                                                                    "When entities are shown, this param will be ignored.\n"
+                                                                    "(Only usefull in the \"playback mode\" which is only availible when layesr are displayed)")
         ("map,m", po::value<std::string>()->required(), "the map to work with")
         ("layers,l", po::value<std::vector<std::string>>()->multitoken(), "When specified, this will be used and the entities options will be ignored."
                                                                           "this can be (if set) one ore more layer.\n"
-                                                                          "E.g. \"layer_1\" \"layer_2\" ...")
+                                                                          "E.g. \"layer_1\" \"layer_2\" ...\n\n"
+                                                                          "Data will be displayed in a \"playback mode\" (published to there relativ timestamps)")
         ("entities,e", po::value<std::vector<std::string>>()->multitoken(), "When layers is used, this will be ignored."
                                                                             "this can be (if set) specific layer/entity pairs.\n"
                                                                             "E.g. \"layer_1 entity_1 entity_2 ...\"\n"
                                                                             "     \"layer_2 entity_8 entity_5 ...\"\n"
-                                                                            "      ...");
+                                                                            "      ...\n\n"
+                                                                            "Data will be displayed \"all at once\" (timestamps will be ignored)");
     po::positional_options_description pos_options;
     pos_options.add("checkout",  1);
 
@@ -89,10 +93,10 @@ int main(int argc, char *argv[])
     std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
 
     // get mapit data
-    std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["workspace"].as<std::string>() );
     if(co == nullptr)
     {
-        log_error("Checkout \"" + vars["checkout"].as<std::string>() + "\" not found");
+        log_error("Checkout \"" + vars["workspace"].as<std::string>() + "\" not found");
         std::vector<std::string> possibleCheckouts = repo->listCheckoutNames();
         if (possibleCheckouts.size() == 0) {
             log_info("No possible checkout");
