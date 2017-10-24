@@ -1,9 +1,13 @@
 ---
 layout: page
-title: List of Operators
+title: Operators
 permalink: /ops/
 order: 300
 ---
+
+## [load_pointcloud](../operator/load_pointcloud)
+
+## [load_tfs](../operator/load_tfs)
 
 #### centroid_to_origin
 - Requires: PCL
@@ -41,15 +45,6 @@ order: 300
 - Effect: Creates a Polygon model out of an OpenVDB Levelset
 - Algorithm: uses OpenVDB Algorithm
 
-#### load_pointcloud
-
-- Requires: PCL
-- Parameters: JSON
-    - target: output entity
-    - filename: filename from the machine, the operator is running on
-- Effect: loads a pointcloud
-- Algorithm: pcl::Pointcloud2 is used internally. This can represent all Pointtypes. However, operators will only work on specific point types (e.g. PointXYZNormal, PointXY). The type of Pointcloud that was read by the operator is not known by the system.
-
 #### normalestimation
 
 - Requires: PCL
@@ -80,14 +75,6 @@ order: 300
     - voxelsize:
 - Effect: Reconstructs a surface from a pointcloud
 - Algorithm: Creates level-set-spheres for each point
-
-#### transform (nyi)
-
-- Requires: tf (eigen3)
-- Parameters: JSON
-    - target: input and output
-- Effect: Creates a transform
-- Algorithm:
 
 #### voxelgridfilter
 
