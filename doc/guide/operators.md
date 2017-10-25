@@ -9,6 +9,8 @@ order: 300
 
 ## [load_tfs](../operator/load_tfs)
 
+## [load_rosbags](../operator/load_rosbags)
+
 #### centroid_to_origin
 - Requires: PCL
 - Parameters: JSON
