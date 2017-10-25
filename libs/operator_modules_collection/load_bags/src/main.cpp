@@ -79,11 +79,16 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         topics.push_back( topic_name );
         rosbag::View view(bag, rosbag::TopicQuery(topics));
 
+        // for tf
+        upns::tf::store::TransformStampedListGatherer tfs_map;
+
+        // for all msgs
         for (const rosbag::MessageInstance msg : view) {
           if (        0 == type_name.compare("pointcloud") ) {
             sensor_msgs::PointCloud2::ConstPtr pc2 = msg.instantiate<sensor_msgs::PointCloud2>();
             if (pc2 != NULL) {
               std::string entity_name = pc2->header.frame_id + std::to_string(pc2->header.stamp.sec) + "." + std::to_string(pc2->header.stamp.nsec);
+
               std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(layer, entity_name);
               entity->set_frame_id( pc2->header.frame_id );
               entity->set_stamp( mapit::time::from_sec_and_nsec( pc2->header.stamp.sec, pc2->header.stamp.nsec ));
@@ -100,24 +105,23 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
           } else if ( 0 == type_name.compare("tf") ) {
             tf2_msgs::TFMessage::ConstPtr tf2 = msg.instantiate<tf2_msgs::TFMessage>();
             if (tf2 != NULL) {
+
               for (geometry_msgs::TransformStamped ros_tf : tf2->transforms) {
-                std::string entity_name = ros_tf.header.frame_id + std::to_string(ros_tf.header.stamp.sec) + "." + std::to_string(ros_tf.header.stamp.nsec) + ros_tf.child_frame_id;
-                std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(layer, entity_name);
-                entity->set_frame_id( ros_tf.header.frame_id );
-                entity->set_stamp( mapit::time::from_sec_and_nsec( ros_tf.header.stamp.sec, ros_tf.header.stamp.nsec ) );
+                std::unique_ptr<tf::TransformStamped> tf_loaded = std::unique_ptr<tf::TransformStamped>(new tf::TransformStamped);
 
-                std::shared_ptr<tf::Transform> entity_data = std::make_shared<tf::Transform>();
+                tf_loaded->frame_id = ros_tf.header.frame_id;
+                tf_loaded->stamp = mapit::time::from_sec_and_nsec( ros_tf.header.stamp.sec, ros_tf.header.stamp.nsec );
+                tf_loaded->child_frame_id = ros_tf.child_frame_id;
 
-                entity_data->child_frame_id = ros_tf.child_frame_id;
-                entity_data->translation.x() = ros_tf.transform.translation.x;
-                entity_data->translation.y() = ros_tf.transform.translation.y;
-                entity_data->translation.z() = ros_tf.transform.translation.z;
-                entity_data->rotation.w() = ros_tf.transform.rotation.w;
-                entity_data->rotation.x() = ros_tf.transform.rotation.x;
-                entity_data->rotation.y() = ros_tf.transform.rotation.y;
-                entity_data->rotation.z() = ros_tf.transform.rotation.z;
+                tf_loaded->transform.translation.x() = ros_tf.transform.translation.x;
+                tf_loaded->transform.translation.y() = ros_tf.transform.translation.y;
+                tf_loaded->transform.translation.z() = ros_tf.transform.translation.z;
+                tf_loaded->transform.rotation.w() = ros_tf.transform.rotation.w;
+                tf_loaded->transform.rotation.x() = ros_tf.transform.rotation.x;
+                tf_loaded->transform.rotation.y() = ros_tf.transform.rotation.y;
+                tf_loaded->transform.rotation.z() = ros_tf.transform.rotation.z;
 
-                checkout->storeEntity(entity, entity_data);
+                tfs_map.add_transform( std::move( tf_loaded ) );
               }
             } else {
               log_error("Data [" + bag_name + "] : \"" + topic_name + "\" is not of type \"tf2_msgs::TFMessage\"");
@@ -125,6 +129,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
             }
           }
         }
+        tfs_map.store_entities( checkout, layer );
       }
     }
 
