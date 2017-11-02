@@ -31,7 +31,6 @@
 #include <upns/ui/bindings/qmltree.h>
 #include <upns/ui/bindings/qmlentity.h>
 #include <upns/ui/bindings/qmlentitydata.h>
-#include <upns/ui/bindings/qmlentitydatatransform.h> //TODO: Deprecated
 #include <upns/ui/bindings/qmltransform.h>
 #include <upns/ui/bindings/qmlbranch.h>
 #include "qpointcloud.h"
@@ -104,7 +103,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
 
-    qmlRegisterType<QmlEntitydataTransform>("fhac.upns", 1, 0, "EntitydataTransform");
     qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
 
     qmlRegisterType<QmlRootTreeModel>("fhac.upns", 1, 0, "RootTreeModel");
