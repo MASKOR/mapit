@@ -350,5 +350,6 @@
         <file>qml/operators/filter_statistical_outlier_removal.qml</file>
         <file>qml/operators/filter_radius_outlier_removal.qml</file>
         <file>qml/operators/filter_approximate_voxel_grid.qml</file>
+        <file>qml/operators/edit_entity.qml</file>
     </qresource>
 </RCC>

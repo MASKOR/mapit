@@ -18,6 +18,13 @@ import qt3deditorlib 1.0
 Item {
     id: root
     property var currentEntitydata
+    Connections {
+        target: currentEntitydata
+        onUpdated: {
+            colorizeSelect.model = currentEntitydata.getInfo("fields")
+        }
+    }
+
     property var currentEntitydataTransform
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
@@ -70,7 +77,12 @@ Item {
                 }
                 StyledComboBox {
                     id: colorizeSelect
-                    model: [ "x", "y", "z"]//, "intensity"]
+                    model: currentEntitydata.getInfo("fields")//[ "x", "y", "z"]//, "intensity"]
+                    textRole: "name"
+                }
+                StyledComboBox {
+                    id: colorModeSelect
+                    model: ["flashlight (double sided)", "Axis", "Axis (HSV)", "flashlight (single sided)", "flashlight2"]
                 }
                 StyledLabel {
                     text: "Colorscale"
@@ -181,12 +193,25 @@ Item {
                                                 }
                                                 TechniqueFilter {
                                                     id: techniqueFilter
+                                                    function fieldnameToShaderindex(text) {
+                                                        if(text === "x") return 0;
+                                                        if(text === "y") return 1;
+                                                        if(text === "z") return 2;
+                                                        if(text === "normal_x") return 3;
+                                                        if(text === "normal_y") return 4;
+                                                        if(text === "normal_z") return 5;
+                                                        if(text === "curvature") return 6;
+                                                        if(text === "rgb") return 7;
+                                                        if(text === "intensity") return 8;
+                                                    }
+
                                                     matchAll: [
                                                         FilterKey { name: "primitiveType"; value: "point" },
                                                         FilterKey { name: "renderstyle";   value: renderstyleSelect.currentText }
                                                     ]
                                                     parameters: [
-                                                        Parameter { name: "colorize"; value: colorizeSelect.currentIndex },
+                                                        Parameter { name: "colorize"; value: techniqueFilter.fieldnameToShaderindex(colorizeSelect.currentText) },
+                                                        Parameter { name: "colorMode"; value: colorModeSelect.currentIndex },
                                                         Parameter { name: "pointSize"; value: pointSizeSlider.value },
                                                         Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
                                                         Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
@@ -198,7 +223,6 @@ Item {
                                                         Parameter { name: "colorscale"; value: colorscaleSlider.value },
                                                         Parameter { name: "constantSize"; value: constantSizeCheckbox.checked },
                                                         Parameter { name: "yPointsUp"; value: appStyle.coordinateSystemYPointsUp }
-
                                                     ]
                                                     RenderStateSet {
                                                         renderStates: [

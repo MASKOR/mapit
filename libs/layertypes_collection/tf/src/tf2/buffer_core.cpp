@@ -246,7 +246,7 @@ void BufferCore::clear()
 bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const std::string& authority, bool is_static)
 {
 
-  /////BACKEARDS COMPATABILITY 
+  /////BACKWARDS COMPATABILITY
   /* tf::StampedTransform tf_transform;
   tf::transformStampedMsgToTF(transform_in, tf_transform);
   if  (!old_tf_.setTransform(tf_transform, authority))
@@ -259,6 +259,7 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
   stripped.frame_id = stripSlash(stripped.frame_id);
   stripped.transform.child_frame_id = stripSlash(stripped.transform.child_frame_id);
 
+  stripped.transform.rotation.normalize();
 
   bool error_exists = false;
   if (stripped.transform.child_frame_id == stripped.frame_id)

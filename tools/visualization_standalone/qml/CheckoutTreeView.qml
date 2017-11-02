@@ -91,6 +91,7 @@ QCtl.TreeView {
             height: appStyle.controlHeightInner
             verticalAlignment:  Text.AlignVCenter
             text: styleData.value
+            elide: StyledLabel.ElideRight
         }
     }
 //    QCtl.TableViewColumn {

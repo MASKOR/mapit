@@ -92,20 +92,22 @@ Item {
                 horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
                 verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
                 anchors.fill: parent
-                anchors.margins: gridRoot.gridMargin
+                //anchors.bottomMargin: gridRoot.gridMargin
                 GridView {
                     property int maximumButtonSize: 85
                     property int gridMargin: 5
-                    property int columnCount: Math.ceil(gridRoot.width/(gridMargin+maximumButtonSize))
-                    property int buttonSize: (gridRoot.width/columnCount)-((columnCount-1)*gridMargin)
+                    property int columnCount: Math.ceil(gridRoot.width/(gridMargin*2+maximumButtonSize))
+                    property int cellSize: gridRoot.width/columnCount
+                    property int buttonSize: cellSize-(gridMargin*2)
                     id: gridRoot
                     clip: true
                     topMargin: gridMargin
-                    cellHeight: buttonSize + gridMargin
-                    cellWidth: buttonSize + gridMargin
+                    cellHeight: cellSize
+                    cellWidth: cellSize
                     model: globalRepository.operators
                     delegate: Button {
                         id: entityButton
+                        x: gridRoot.gridMargin
                         width: gridRoot.buttonSize
                         height: gridRoot.buttonSize
                         style: ButtonStyle {

@@ -82,6 +82,7 @@ QmlTree *QmlCheckout::getTree(QString path)
 QmlEntity *QmlCheckout::getEntity(QString path)
 {
     if(!m_checkout) return new QmlEntity(this);
+    if(path.isEmpty()) return new QmlEntity(this);
     std::string p = path.toStdString();
     std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntity(p));
     return new QmlEntity(ent);

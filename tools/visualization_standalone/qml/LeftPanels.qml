@@ -31,10 +31,12 @@ Item {
             console.log("Path of current entity: " + path)
         }
     }
-    UPNS.EntitydataTransform {
+    UPNS.TfTransform {
         id: currentEntitydataTransformId
         checkout: checkout
         path: root.currentEntityPath
+        targetFrame: "testframeid"
+        sourceFrame:  checkout.getEntity(currentEntityPath).frameId
         mustExist: false
     }
     ColumnLayout {

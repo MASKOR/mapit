@@ -2,6 +2,7 @@ import QtQuick 2.4
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
+import Qt3D.Core 2.0
 
 import fhac.upns 1.0 as UPNS
 
@@ -32,37 +33,37 @@ Item {
         "transforms": [
             {   "static": true,
                 "header": {
-                    "frame_id": todo.frame_id_name,
+                    "frame_id": frameIdInput.text,
                     "stamp": { "sec": 0, "nsec": 0 }
                 },
                 "transform": {
-                    "child_frame_id" : todo.child_frame_id,
+                    "child_frame_id" : childFrameIdInput.text,
                     "translation" : {
-                        "x" : translationMatrix.m00,
-                        "y" : translationMatrix.m01,
-                        "z" : translationMatrix.m02
+                        //"x" : finalMatrixArray[3],
+                        //"y" : finalMatrixArray[7],
+                        //"z" : finalMatrixArray[11]
+                        "x" : parseFloat(xInp.text),
+                        "y" : parseFloat(yInp.text),
+                        "z" : parseFloat(zInp.text)
                     },
                     "rotation" : {
-                        "w" : rangle,
-                        "x" : rx,
-                        "y" : ry,
-                        "z" : rz
+                        "w" : dummyTransform3d.quaternionRot.scalar,
+                        "x" : dummyTransform3d.quaternionRot.x,
+                        "y" : dummyTransform3d.quaternionRot.y,
+                        "z" : dummyTransform3d.quaternionRot.z
                     }
                 }
             }
             ],
-        "frame_id": frameIdChooser.currentFrameId,
-        "child_frame_id": {
-            "mat": finalMatrixArray
-        }
+        "frame_id": frameIdInput.currentFrameId
     }
-    UPNS.EntitydataTransform {
+    UPNS.TfTransform {
         id: currentEntitydataTransformId
         checkout: currentCheckout
         mustExist: false
-        path: entityChooser.currentEntityPath + ((entityChooser.currentEntityPath.length > 3
+        path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
                                       && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)
-                                        ? ".tf" : "")
+                                        ? ".tf" : "")*/
     }
     Component.onCompleted: {
         appStyle.tmpPreviewMatrix = finalMatrix
@@ -84,14 +85,25 @@ Item {
     onFinalMatrixChanged: {
         appStyle.tmpPreviewMatrix = finalMatrix
     }
+    Transform {
+        id: dummyTransform3d
+        property vector3d rotationAxisInput: Qt.vector3d(rx,ry,rz)
+        property vector3d rotationAxis: rotationAxisInput.normalized()
+        property quaternion quaternionRot: fromAxisAndAngle(rotationAxis, rangle)
+        property matrix4x4 rotationMatrix: rotateAround(Qt.vector3d(0,0,0), rangle, Qt.vector3d(rx,ry,rz))
+        rotation: quaternionRot
+    }
 
-    property matrix4x4 finalMatrix: matRotX.times(matRotY.times(matRotZ)).times(scaleInp.text).times(translationMatrix);
+    //property matrix4x4 rotationMatrix: matRotX.times(matRotY.times(matRotZ))
+    property matrix4x4 rotationMatrix: dummyTransform3d.matrix//Qt.quaternion(rangle, rx,ry,rz).
+    property matrix4x4 finalMatrix: rotationMatrix.times(translationMatrix.times(scaleInp.text));
     property matrix4x4 translationMatrix
 
-    property real deg2rad: appStyle.useRadians ? 1 : Math.PI/180.0
-    property real rx: rxInp.text*deg2rad
-    property real ry: ryInp.text*deg2rad
-    property real rz: rzInp.text*deg2rad
+    property real deg2rad: appStyle.useRadians ? Math.PI/180.0 : 1
+    property real rx: rxInp.text//*deg2rad
+    property real ry: ryInp.text//*deg2rad
+    property real rz: rzInp.text//*deg2rad
+    property real rangle: rangleInp.text*deg2rad
     //TODO: replace with rotate/...
     property matrix4x4 matRotX: Qt.matrix4x4(1, 0, 0, 0,
                                              0,  Math.cos(rx), -Math.sin(rx), 0,
@@ -120,6 +132,33 @@ Item {
             currentEntityPath: root.currentEntityPath
             dialogRoot: root
             text: "Map: "
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "frame_id:"
+            }
+            StyledTextField {
+                id: frameIdInput
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "testframeid"
+                onTextChanged: console.log(JSON.stringify(root.parameters))
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "child_frame_id:"
+            }
+            StyledTextField {
+                id: childFrameIdInput
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "entity_frame_id"
+            }
         }
         RowLayout {
             Layout.fillWidth: true

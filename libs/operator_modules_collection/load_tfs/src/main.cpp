@@ -11,7 +11,7 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-upns::StatusCode operate(upns::OperationEnvironment* env)
+upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
 {
     /** structure:
      * {
@@ -55,6 +55,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     QJsonObject params(paramsDoc.object());
 
     std::string map_name = params["map"].toString().toStdString();
+    map_name = CheckoutCommon::getMapPathOfEntry(map_name);
 
     CheckoutRaw* checkout = env->getCheckout();
     std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
@@ -84,11 +85,6 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         tf_loaded.transform.child_frame_id = json_transform["child_frame_id"].toString().toStdString();
         QJsonObject json_translation( json_transform["translation"].toObject() );
         QJsonObject json_rotation( json_transform["rotation"].toObject() );
-        tf_loaded.transform.translation = Eigen::Translation3f(
-                    (float)json_translation["x"].toDouble()
-                ,   (float)json_translation["y"].toDouble()
-                ,   (float)json_translation["z"].toDouble()
-                    );
 
         tf_loaded.transform.rotation = Eigen::Quaternionf(
                     (float)json_rotation["w"].toDouble()
@@ -96,6 +92,23 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                 ,   (float)json_rotation["y"].toDouble()
                 ,   (float)json_rotation["z"].toDouble()
                     );
+
+        tf_loaded.transform.translation = Eigen::Translation3f(
+                    (float)json_translation["x"].toDouble()
+                ,   (float)json_translation["y"].toDouble()
+                ,   (float)json_translation["z"].toDouble()
+                    );
+        tf_loaded.transform.rotation.normalize();
+
+        bool valid = std::abs((tf_loaded.transform.rotation.w() * tf_loaded.transform.rotation.w()
+                             + tf_loaded.transform.rotation.x() * tf_loaded.transform.rotation.x()
+                             + tf_loaded.transform.rotation.y() * tf_loaded.transform.rotation.y()
+                             + tf_loaded.transform.rotation.z() * tf_loaded.transform.rotation.z()) - 1.0f) < 10e-6;
+        if(!valid)
+        {
+            log_warn("Invalid Quaternion 0.");
+            return UPNS_STATUS_ERROR;
+        }
 
         // write data
         std::shared_ptr<mapit::Layer> layer;
@@ -119,4 +132,4 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     return UPNS_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", &operate)
+UPNS_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_tfs)

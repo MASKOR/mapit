@@ -1,3 +1,4 @@
+//TODO: Rename this file
 import QtQuick 2.4
 import QtQml 2.2
 import QtQuick.Controls 1.3
@@ -8,7 +9,7 @@ import QtQuick.Layouts 1.1
 import "panes"
 
 ApplicationWindow {
-    id: root
+    id: mainWindow
     color: appStyle.backgroundColor
     onClosing: Qt.quit()
     Window {
@@ -281,8 +282,8 @@ ApplicationWindow {
             MenuItem {
                 id: vrModeEnabled
                 text: qsTr("Enable VR")
-                enabled: root.vrAvailable
-                checkable: root.vrAvailable
+                enabled: mainWindow.vrAvailable
+                checkable: mainWindow.vrAvailable
                 checked: true
             }
             Menu {
@@ -296,14 +297,14 @@ ApplicationWindow {
                     property bool vrMirrorEnabled: !vrMirrorOff.checked
                     id: vrMirrorOff
                     text: qsTr("None")
-                    checkable: root.uiEnabled
+                    checkable: mainWindow.uiEnabled
                     checked: false
                     exclusiveGroup: mirrorGroup
                 }
                 MenuItem {
                     id: vrMirrorDistorsion
                     text: qsTr("Distorsion")
-                    checkable: root.uiEnabled
+                    checkable: mainWindow.uiEnabled
                     checked: true
                     exclusiveGroup: mirrorGroup
                 }
@@ -311,7 +312,7 @@ ApplicationWindow {
                     id: vrMirrorRight
                     text: qsTr("Right Eye")
                    // enabled: false
-                    checkable: root.uiEnabled // not yet available
+                    checkable: mainWindow.uiEnabled // not yet available
                     checked: false
                     exclusiveGroup: mirrorGroup
                 }
@@ -319,7 +320,7 @@ ApplicationWindow {
                     id: vrMirrorLeft
                     text: qsTr("Left Eye")
                     //enabled: false
-                    checkable: root.uiEnabled // not yet available
+                    checkable: mainWindow.uiEnabled // not yet available
                     checked: false
                     exclusiveGroup: mirrorGroup
                 }

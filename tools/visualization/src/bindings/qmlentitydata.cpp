@@ -6,6 +6,7 @@
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <QVector3D>
+#include <qpointfield.h>
 
 QmlEntitydata::QmlEntitydata(QObject *parent)
     :QObject(parent),
@@ -39,6 +40,7 @@ QmlCheckout *QmlEntitydata::checkout() const
 
 QVariant QmlEntitydata::getInfo(QString propertyName)
 {
+    if(m_entitydata == nullptr) return QVariant(0);
 #if WITH_PCL
     if(strcmp(m_entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0)
     {
@@ -52,6 +54,25 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
             }
             upnsPointcloud2Ptr pc2 = entityData->getData();
             return QVariant(pc2->width);
+        }
+        if(   propertyName.compare("fields") == 0)
+        {
+            std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( m_entitydata );
+            if(entityData == nullptr)
+            {
+                return QVariant(0);
+            }
+            upnsPointcloud2Ptr pc2 = entityData->getData();
+            QVariantList returnPointfieldList;
+            for(std::vector<::pcl::PCLPointField>::iterator iter(pc2->fields.begin());
+                iter != pc2->fields.end();
+                iter++)
+            {
+                //TODO: this is only deleted, when entitydata is deleted via QObject parents.
+                // Lifecycle is the same as m_entity! After m_entity changed, these pointfields must not be accessed anymore.
+                returnPointfieldList.append(QVariant::fromValue(new QPointfield(this, &(*iter))));
+            }
+            return returnPointfieldList;
         }
     }
     else
@@ -89,6 +110,10 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
             }
             std::unique_ptr<LASEntitydataReader> rdr = entityData->getReader();
             return QVariant(QVector3D(rdr->GetHeader().GetMaxX(),rdr->GetHeader().GetMaxY(),rdr->GetHeader().GetMaxZ()));
+        }
+        else if(   propertyName.compare("fields") == 0)
+        {
+            //TODO: LAS has no "fields" nevertheless it has x, y, c and data properties. See Qt3DPontcloudRenderer.
         }
     }
     else

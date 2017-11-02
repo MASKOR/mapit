@@ -1,4 +1,5 @@
-import QtQuick 2.4
+//TODO: Rename this file
+import QtQuick 2.7
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2 as Wnd
@@ -41,6 +42,8 @@ Item {
             visible: entityHeader.checked && root.currentEntityPath !== undefined
             property var currentEntity: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath) : null
             property string currentEntityType: currentEntity ? currentEntity.type : ""
+            property string currentEntityFrameId: currentEntity ? currentEntity.frameId : ""
+            property string currentEntityStamp: currentEntity ? currentEntity.stamp : ""
             property var currentEntitydata: root.currentEntityPath ? currentCheckout.getEntitydataReadOnly(root.currentEntityPath) : null
             property bool isPointcloud: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
             GridLayout {
@@ -52,6 +55,37 @@ Item {
                 }
                 StyledLabel {
                     text: entityInfo.currentEntityType
+                }
+                StyledLabel {
+                    text: "frame_id:"
+                    font.weight: Font.Bold
+                }
+                StyledLabel {
+                    text: entityInfo.currentEntityFrameId
+                }
+                StyledLabel {
+                    text: "Timestamp:"
+                    font.weight: Font.Bold
+                }
+                StyledLabel {
+                    text: entityInfo.currentEntityStamp
+                }
+                StyledLabel {
+                    text: "Fields:"
+                    font.weight: Font.Bold
+                }
+                Flow {
+                    id: infoFlow
+                    visible: entityInfo.isPointcloud
+                    Layout.fillWidth: true
+                    Repeater {
+                        id: repeater
+                        onItemAdded: infoFlow.forceLayout()
+                        model: entityInfo.currentEntitydata.getInfo("fields")
+                        StyledLabel {
+                            text: modelData.name + ((index != (repeater.count-1))?", ":"")
+                        }
+                    }
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
@@ -81,10 +115,12 @@ Item {
                     text: formatVec3(entityInfo.currentEntitydata.getInfo("max"))
                 }
             }
-            UPNS.EntitydataTransform {
+            UPNS.TfTransform {
                 id: currentEntitydataTransform
-                path: root.currentEntityPath + ".tf"
+                path: root.currentEntityPath
                 checkout: root.currentCheckout
+                targetFrame: "testframeid"
+                sourceFrame:  root.currentCheckout.getEntity(currentEntityPath).frameId
                 mustExist: false
                 onMatrixChanged: {
                     var m = matrix
@@ -92,10 +128,10 @@ Item {
                     var m1 = m.row(1)
                     var m2 = m.row(2)
                     var m3 = m.row(3)
-                    m00.text = m0.x; m01.text = m0.y; m02.text = m0.z; m03.text = m0.w
-                    m10.text = m1.x; m11.text = m1.y; m12.text = m1.z; m13.text = m1.w
-                    m20.text = m2.x; m21.text = m2.y; m22.text = m2.z; m23.text = m2.w
-                    m30.text = m3.x; m31.text = m3.y; m32.text = m3.z; m33.text = m3.w
+                    m00.text = m0.x.toFixed(2); m01.text = m0.y.toFixed(2); m02.text = m0.z.toFixed(2); m03.text = m0.w.toFixed(2)
+                    m10.text = m1.x.toFixed(2); m11.text = m1.y.toFixed(2); m12.text = m1.z.toFixed(2); m13.text = m1.w.toFixed(2)
+                    m20.text = m2.x.toFixed(2); m21.text = m2.y.toFixed(2); m22.text = m2.z.toFixed(2); m23.text = m2.w.toFixed(2)
+                    m30.text = m3.x.toFixed(2); m31.text = m3.y.toFixed(2); m32.text = m3.z.toFixed(2); m33.text = m3.w.toFixed(2)
                     console.log("Executed: Pos:" + m30.text + " " + m31.text + " " + m33.text )
                 }
             }

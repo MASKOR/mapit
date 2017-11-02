@@ -15,7 +15,8 @@ uniform mat4 mvp;
 uniform mat4 projectionMatrix;
 uniform mat4 viewportMatrix;
 
-uniform int colorize;
+uniform int colorize; // choose parameter to use for color
+uniform int colorMode; // choose style for coloring
 
 uniform float lod;
 
@@ -97,6 +98,7 @@ void main()
     //color = vertexPosition * 0.1;//vertexColor;
     float axis;
     vec4 worldPos = modelMatrix * vec4(vertexPosition, 1.0);
+    vec3 worldNormal = normalize(vec4(modelMatrix * vec4(vertexNormal, 0.0)).xyz); // Note: this is not correct due to scaling!
     if(colorize == 0)
         axis = worldPos.x;
     else if(   colorize == 1 && yPointsUp == true
@@ -105,5 +107,26 @@ void main()
     else if(   colorize == 1 && yPointsUp == false
             || colorize == 2 && yPointsUp == true)
         axis = worldPos.z;
-    color = hsv_to_rgb(axis*-colorscale, 0.7, 1.0, 0.0).rgb;
+    else if(colorize == 3)
+        axis = worldNormal.x;
+    else if(   colorize == 4 && yPointsUp == true
+            || colorize == 5 && yPointsUp == false)
+        axis = worldNormal.y;
+    else if(   colorize == 4 && yPointsUp == false
+            || colorize == 5 && yPointsUp == true)
+        axis = worldNormal.z;
+//    else if(colorize == 7) // TODO: intensity
+//        axis = intensity;
+    if(colorMode == 0) // flashlight (double sided)
+        color = vec3(abs(dot(modelViewNormal * vertexNormal, normalize(position))));
+    else if(colorMode == 1) // gray axis
+        color = vec3(axis*colorscale);
+    else if(colorMode == 2) // HSV
+        color = hsv_to_rgb(axis*-colorscale, 0.7, 1.0, 0.0).rgb;
+    else if(colorMode == 3) // flashlight2
+    color = vec3(-dot(modelViewNormal * vertexNormal, normalize(position)));
+    else if(colorMode == 4) // flashlight (single sided)
+        color = vec3(dot(modelViewNormal * vertexNormal, vec3(0.0,0.0,1.0)));
+    if(colorize == 6)
+        color = vertexColor;
 }

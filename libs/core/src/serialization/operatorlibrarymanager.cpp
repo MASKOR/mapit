@@ -63,9 +63,9 @@ HandleOpModule loadOperatorModule(const std::string filename, bool printerror = 
 #endif
     if (!handle && printerror) {
     #ifdef _WIN32
-        log_error("Cannot open library: " + filename);
+        log_warn("Cannot open library: " + filename);
     #else
-        log_error("Cannot open library: " + dlerror());
+        log_warn("Cannot open library: " + dlerror());
     #endif
     }
     return handle;
@@ -86,7 +86,7 @@ HandleOpModule loadOperatorModule(const mapit::msgs::OperatorDescription &desc)
         log_info("loading operator module \"" + systemfilenamestr + "\"");
         handle = loadOperatorModule(systemfilenamestr, false);
         if (!handle) {
-            log_error("Cannot open library: " + prevdlerror + " or " + dlerror());
+            log_warn("Cannot open library: " + prevdlerror + " or " + dlerror());
         }
     }
     return handle;

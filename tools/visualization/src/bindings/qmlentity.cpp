@@ -22,5 +22,17 @@ bool QmlEntity::isValid() const
 
 QString QmlEntity::type() const
 {
+    if(!m_entity) return "";
     return QString::fromStdString(m_entity->type());
+}
+
+QString QmlEntity::frameId() const
+{
+    if(!m_entity) return "";
+    return QString::fromStdString(m_entity->frame_id());
+}
+
+QString QmlEntity::stamp() const
+{
+    return QString::number(m_entity->stamp().sec()) + "s, " + QString::number(m_entity->stamp().nsec()) + "ns";
 }

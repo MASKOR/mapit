@@ -4,6 +4,13 @@ in vec3 vertexPosition;
 in vec3 vertexNormal;
 in vec3 vertexColor;
 
+out vec3 viewspacePosition;
+out vec3 viewspaceNormal;
+out vec3 viewspaceTang;
+out vec3 viewspaceBitang;
+out vec3 color;
+
+uniform mat4 modelMatrix;
 uniform mat4 modelView;
 uniform mat3 modelViewNormal;
 uniform mat4 mvp;
@@ -12,11 +19,14 @@ uniform mat4 viewportMatrix;
 uniform float fieldOfView;
 uniform float fieldOfViewVertical;
 
-out vec3 viewspacePosition;
-out vec3 viewspaceNormal;
-out vec3 viewspaceTang;
-out vec3 viewspaceBitang;
-out vec3 color;
+
+uniform int colorize; // choose parameter to use for color
+uniform int colorMode; // choose style for coloring
+
+uniform float colorscale;
+
+uniform bool constantSize;
+uniform bool yPointsUp;
 
 uniform float pointSize;
 
@@ -66,5 +76,38 @@ void main(void)
 
     // x2 would be perfect. But the smaller the points are, the better performance is.
     gl_PointSize = 1.9 * viewportMatrix[1][1] * projectionMatrix[1][1] * pointSize / gl_Position.w;
-    color = hsv_to_rgb(vertexPosition.z*0.1, 1.0, 1.0, 0.0).rgb;// * 0.1;
+
+    float axis;
+    vec4 worldPos = modelMatrix * vec4(vertexPosition, 1.0);
+    vec3 worldNormal = normalize(vec4(modelMatrix * vec4(vertexNormal, 0.0)).xyz); // Note: this is not correct due to scaling!
+    if(colorize == 0)
+        axis = worldPos.x;
+    else if(   colorize == 1 && yPointsUp == true
+            || colorize == 2 && yPointsUp == false)
+        axis = worldPos.y;
+    else if(   colorize == 1 && yPointsUp == false
+            || colorize == 2 && yPointsUp == true)
+        axis = worldPos.z;
+    else if(colorize == 3)
+        axis = worldNormal.x;
+    else if(   colorize == 4 && yPointsUp == true
+            || colorize == 5 && yPointsUp == false)
+        axis = worldNormal.y;
+    else if(   colorize == 4 && yPointsUp == false
+            || colorize == 5 && yPointsUp == true)
+        axis = worldNormal.z;
+//    else if(colorize == 7) // TODO: intensity
+//        axis = intensity;
+    if(colorMode == 0) // flashlight (double sided)
+        color = vec3(abs(dot(modelViewNormal * vertexNormal, normalize(viewspacePosition))));
+    else if(colorMode == 1) // gray axis
+        color = vec3(axis*colorscale);
+    else if(colorMode == 2) // HSV
+        color = hsv_to_rgb(axis*-colorscale, 0.7, 1.0, 0.0).rgb;
+    else if(colorMode == 3) // flashlight2
+    color = vec3(-dot(modelViewNormal * vertexNormal, normalize(viewspacePosition)));
+    else if(colorMode == 4) // flashlight (single sided)
+        color = vec3(dot(modelViewNormal * vertexNormal, vec3(0.0,0.0,1.0)));
+    if(colorize == 6)
+        color = vertexColor;
 }

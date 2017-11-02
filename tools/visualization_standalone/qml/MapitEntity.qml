@@ -19,9 +19,11 @@ Q3D.Entity {
     property alias coordinateSystem: edrender.coordinateSystem
     id: pointcloud
 
-    UPNS.EntitydataTransform {
+    UPNS.TfTransform {
         id: currentEntitydataTransform
-        path: currentEntitydata.path + ".tf"
+        path: currentEntitydata.path
+        targetFrame: "testframeid"
+        sourceFrame:  pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).frameId
         mustExist: false
     }
     property ObjectPicker picker: ObjectPicker {
@@ -34,6 +36,12 @@ Q3D.Entity {
     property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
         id: edrender
     }
+    property list<RenderState> pointRenderStates: [
+        //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+        PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+        DepthTest { depthFunction: DepthTest.Less }
+        //DepthMask { mask: true }
+    ]
     property Material materialPoint: Material {
         effect: Effect {
             techniques: [
@@ -46,16 +54,10 @@ Q3D.Entity {
                             vertexShaderCode: loadSource("qrc:/shader/surfel.vert")
                             fragmentShaderCode: loadSource("qrc:/shader/surfel.frag")
                         }
-                        renderStates: [
-                            //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
-                            PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
-                            DepthTest { depthFunction: DepthTest.Less }
-                            //DepthMask { mask: true }
-                        ]
+                        renderStates: pointcloud.pointRenderStates
                     }
                 },
                 Technique {
-                    id: pointsTechnique
                     parameters: surfelTechnique.parameters
                     filterKeys: [ FilterKey { name: "primitiveType"; value: "point" },
                                   FilterKey { name: "renderstyle";   value:"points" } ]
@@ -64,12 +66,7 @@ Q3D.Entity {
                             vertexShaderCode: loadSource("qrc:/shader/pointcloud.vert")
                             fragmentShaderCode: loadSource("qrc:/shader/pointcloud.frag")
                         }
-                        renderStates: [
-                            //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
-                            PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
-                            DepthTest { depthFunction: DepthTest.Less }
-                            //DepthMask { mask: true }
-                        ]
+                        renderStates: pointcloud.pointRenderStates
                     }
                 }
             ]
