@@ -39,6 +39,7 @@ public:
     if ( layer_.empty() ) {
       return -1;
     } else {
+      log_info("time is: " + std::to_string(layer_.begin()->first));
       return layer_.begin()->first;
     }
   }
@@ -46,11 +47,11 @@ public:
   void set_offset(double offset)
   {
     offset_ = offset;
+    log_info("use time: " + std::to_string( offset_ ));
   }
 
   void start_publishing()
   {
-    // create a timer for the 1. entity
     timer_ = std::make_shared<ros::Timer>( node_handle_->createTimer(ros::Rate(100), &PublishToROS::timer_callback, this) );
   }
 
@@ -96,13 +97,12 @@ protected:
   std::shared_ptr<upns::Checkout> checkout_;
   std::unique_ptr<ros::Publisher> publisher_;
 
-private:
+  std::shared_ptr<ros::NodeHandle> node_handle_;
   double offset_;
+private:
   std::shared_ptr<ros::Timer> timer_;
   std::map<double, std::shared_ptr<mapit::Entity>> layer_;
   std::map<double, std::shared_ptr<mapit::Entity>>::iterator entity_next_;
-
-  std::shared_ptr<ros::NodeHandle> node_handle_;
 };
 
 #endif // PUBLISHTOROS_H
