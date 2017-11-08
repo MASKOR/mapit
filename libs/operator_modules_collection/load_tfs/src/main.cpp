@@ -11,40 +11,6 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-upns::StatusCode
-save_data(  CheckoutRaw* checkout
-          , std::shared_ptr<mapit::Layer> layer
-          , std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>& tfs_map
-         )
-{
-  for (auto tf_list : tfs_map) {
-    std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
-                                              layer
-                                              , tf_list.first
-                                              );
-    std::shared_ptr<AbstractEntitydata> ed_a = checkout->getEntityDataReadWrite(entity);
-    std::shared_ptr<upns::tf::store::TransformStampedList> ed;
-    if (ed_a == nullptr) {
-      // create new
-      ed = tf_list.second;
-    } else {
-      // appand
-      ed = std::dynamic_pointer_cast<upns::tf::store::TransformStampedList>( ed_a );
-      if (ed == nullptr) {
-        log_error("load_tf: internal error, entity for tf with name " + entity->getName() + " has entity date of other type then tf");
-        return UPNS_STATUS_ERROR;
-      }
-
-      for (auto &tf : *tf_list.second->dispose()) {
-        ed->add_TransformStamped(std::move( tf ));
-      }
-    }
-    checkout->storeEntity<upns::tf::store::TransformStampedList>(entity, ed);
-  }
-
-  return UPNS_STATUS_OK;
-}
-
 upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
 {
     /** structure:
@@ -97,10 +63,10 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
     layer_static = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_, TfEntitydata::TYPENAME());
     layer_dynamic = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_, TfEntitydata::TYPENAME());
 
-    std::shared_ptr<std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>> tfs_map_static
-        = std::make_shared<std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>>();
-    std::shared_ptr<std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>> tfs_map_dynamic
-        = std::make_shared<std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>>();
+    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map_static
+        = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
+    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map_dynamic
+        = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
 
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
@@ -155,30 +121,20 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
         }
 
         // add data to map
-        std::shared_ptr<std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>> tfs_map;
+        std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map;
         if (layer_is_static) {
             tfs_map = tfs_map_static;
         } else {
             tfs_map = tfs_map_dynamic;
         }
-
-        std::string entity_name = upns::tf::store::TransformStampedList::get_entity_name(tf_loaded->frame_id, tf_loaded->child_frame_id);
-        // if not yet in list
-        if (tfs_map->find(entity_name) == tfs_map->end()) {
-          // create empty and add to map
-          std::shared_ptr<upns::tf::store::TransformStampedList> tfs_store = std::make_shared<upns::tf::store::TransformStampedList>(tf_loaded->frame_id, tf_loaded->child_frame_id);
-          (*tfs_map)[ entity_name ] = tfs_store;
-        }
-
-        std::map<std::string, std::shared_ptr<upns::tf::store::TransformStampedList>>::iterator tfs_store_it = tfs_map->find(entity_name);
-        tfs_store_it->second->add_TransformStamped(std::move(tf_loaded));
+        tfs_map->add_transform( std::move( tf_loaded ) );
     }
 
-    upns::StatusCode usc_static = save_data(checkout, layer_static, *tfs_map_static);
-    upns::StatusCode usc_dynamic = save_data(checkout, layer_dynamic, *tfs_map_dynamic);
+    upns::StatusCode usc_static = tfs_map_static->store_entities(checkout, layer_static);
+    upns::StatusCode usc_dynamic = tfs_map_dynamic->store_entities(checkout, layer_dynamic);
 
     if (   usc_static == UPNS_STATUS_OK
-           && usc_dynamic == UPNS_STATUS_OK) {
+        && usc_dynamic == UPNS_STATUS_OK) {
       return UPNS_STATUS_OK;
     } else {
       return UPNS_STATUS_ERROR;
