@@ -73,6 +73,27 @@ namespace tf {
       get_entity_name();
 
       /**
+       * @brief get_frame_id returns the frame id of the transforms contained in the list
+       * @return
+       */
+      std::string
+      get_frame_id();
+
+      /**
+       * @brief get_child_frame_id returns the child frame id of the transforms contained in the list
+       * @return
+       */
+      std::string
+      get_child_frame_id();
+
+      /**
+       * @brief get_stamp_earliest returnes the stamp of the earliest data in the list
+       * @return
+       */
+      mapit::time::Stamp
+      get_stamp_earliest();
+
+      /**
        * @brief add_TransformStamped adds a new transform to this container
        *                             frame_id and child_frame_id need to match the values of this container
        * @param in
@@ -89,6 +110,7 @@ namespace tf {
       dispose();
 
     private:
+      mapit::time::Stamp stamp_earliest_;
       std::string frame_id_;
       std::string child_frame_id_;
       std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> transforms_;

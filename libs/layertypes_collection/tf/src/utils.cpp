@@ -21,9 +21,28 @@ TransformStampedList::get_entity_name()
   return get_entity_name(frame_id_, child_frame_id_);
 }
 
+std::string
+TransformStampedList::get_frame_id()
+{
+  return frame_id_;
+}
+
+std::string
+TransformStampedList::get_child_frame_id()
+{
+  return child_frame_id_;
+}
+
+mapit::time::Stamp
+TransformStampedList::get_stamp_earliest()
+{
+  return stamp_earliest_;
+}
+
 int
 TransformStampedList::add_TransformStamped(std::unique_ptr<upns::tf::TransformStamped> in)
 {
+  // check pre conditions
   if (transforms_ == nullptr) { return 1; }
   if ( 0 != frame_id_.compare(in->frame_id) ) {
     log_error("tflayer: can't add transform, frame_id is not equal as of container");
@@ -34,6 +53,13 @@ TransformStampedList::add_TransformStamped(std::unique_ptr<upns::tf::TransformSt
     return 1;
   }
 
+  // update stamp
+  if (    stamp_earliest_ > in->stamp
+       || transforms_->empty() ) {
+    stamp_earliest_ = in->stamp;
+  }
+
+  // add transform
   transforms_->push_back( std::move( in ) );
 
   return 0;
@@ -75,11 +101,14 @@ TransformStampedListGatherer::add_transform( std::unique_ptr<TransformStamped> t
 upns::StatusCode
 TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, std::shared_ptr<mapit::Layer> layer)
 {
-  for (auto tf_list : *tfs_map_) {
+  for (std::pair<std::string, std::shared_ptr<TransformStampedList>> tf_list : *tfs_map_) {
     std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
                                               layer
                                               , tf_list.first
                                               );
+    entity->set_frame_id( tf_list.second->get_frame_id() );
+    entity->set_stamp( tf_list.second->get_stamp_earliest() );
+
     std::shared_ptr<upns::tf::store::TransformStampedList> ed;
     if ( ! checkout->checkEntityData(entity) ) {
       // create new
