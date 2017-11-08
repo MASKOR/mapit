@@ -38,6 +38,7 @@ Window {
             gridSpacingInput.text = appStyle.gridSpacing
             lodSlider.value = appStyle.pointcloudLod
             camScaleSlider.value = appStyle.cameraScale
+            selectionAnimationCheckbox.checked = appStyle.selectionAnimation
         }
     }
 
@@ -229,11 +230,28 @@ Window {
                     visible: headerSettingsUi.checked
                     Layout.fillWidth: true
                     columns: 2
+                    StyledLabel {
+                        Layout.column: 0
+                        Layout.row: 0
+                        Layout.fillWidth: true
+                        text: "Selection Animation for Highlight"
+                    }
+                    StyledCheckBox {
+                        id: selectionAnimation
+                        Layout.column: 1
+                        Layout.row: 0
+                        Binding {
+                            target: appStyle
+                            property: "selectionAnimation"
+                            value: selectionAnimation.checked
+                            when: root.visible
+                        }
+                    }
                     Repeater {
                         model: root.model
                         StyledLabel {
                             Layout.column: 0
-                            Layout.row: index
+                            Layout.row: index+1
                             Layout.fillWidth: true
                             text: label
                         }
@@ -243,7 +261,7 @@ Window {
                         StyleColorChooser {
                             id: colorChooser
                             Layout.column: 1
-                            Layout.row: index
+                            Layout.row: index+1
                             stylePropertyName: propName
                             isShowing: root.visible
                             Connections {

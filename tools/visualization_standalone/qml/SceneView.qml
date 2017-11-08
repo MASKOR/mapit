@@ -17,6 +17,7 @@ import qt3deditorlib 1.0
 
 Item {
     id: root
+    property var applicationState
     property var currentEntitydata
     Connections {
         target: currentEntitydata
@@ -28,27 +29,20 @@ Item {
     property var currentEntitydataTransform
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
+    property alias currentFrameId: frameIdChooser.currentText
     onVisibleEntityItemsChanged: {
         console.log("DBG: Visible Entities len: " + root.visibleEntityItems.length)
     }
 
     ColumnLayout {
         anchors.fill: parent
-        //QCtl.ToolBar {
-            Flow {
-                topPadding: appStyle.controlMargin
-                spacing: appStyle.controlMargin
-                id: toolbar
-                anchors.left: parent.left
-                anchors.right: parent.right
-                AxisGizmo {
-                    Layout.topMargin: -appStyle.controlMargin
-                    height: appStyle.controlHeightContainer
-                    width: height
-                    Layout.preferredHeight: toolbar.height
-//                    Layout.preferredWidth: toolbar.height
-                    finalTransform: mainCamera.viewMatrix
-                }
+        Flow {
+            topPadding: appStyle.controlMargin
+            spacing: appStyle.controlMargin
+            id: toolbar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            RowLayout {
                 StyledLabel {
                     text: "PointSize: " + pointSizeSlider.value.toFixed(2)
                     verticalAlignment: Text.AlignVCenter
@@ -63,6 +57,8 @@ Item {
                     minimumValue: 0.01
                     maximumValue:  1.0
                 }
+            }
+            RowLayout {
                 StyledLabel {
                     text: "Renderstyle:"
                     verticalAlignment: Text.AlignVCenter
@@ -71,6 +67,8 @@ Item {
                     id: renderstyleSelect
                     model: [ "points", "discs", "surfel"]
                 }
+            }
+            RowLayout {
                 StyledLabel {
                     text: "Color:"
                     verticalAlignment: Text.AlignVCenter
@@ -95,6 +93,65 @@ Item {
                     minimumValue: 0.1
                     maximumValue:  10.0
                 }
+            }
+
+            RowLayout {
+                StyledLabel {
+                    text: "Ref. Frame:"
+                    verticalAlignment: Text.AlignVCenter
+                }
+                StyledComboBox {
+                    id: frameIdChooser
+                    model: []
+                    function addUniqueFrameIds(frameIds) {
+                        var modelArray = frameIdChooser.model
+                        frameIds.forEach(function(frameId) {
+                            var found = false
+                            for(var i=0; i<model.length; ++i) {
+                                var name = model[i]
+                                if(name === frameId) {
+                                    found = true
+                                }
+                            }
+                            if(!found) modelArray.push(frameId)
+                        })
+                        frameIdChooser.model = modelArray
+                    }
+                }
+            }
+            RowLayout {
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://primitive/sphere-skinny"
+                    onClicked: applicationState.selectOperator("place_primitive", {type:"sphere"})
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://primitive/plane-skinny"
+                    onClicked: applicationState.selectOperator("place_primitive", {type:"plane"})
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://primitive/cylinder-skinny"
+                    onClicked: applicationState.selectOperator("place_primitive", {type:"cylinder"})
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://primitive/cone-skinny"
+                    onClicked: applicationState.selectOperator("place_primitive", {type:"cone"})
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://primitive/torus-skinny"
+                    onClicked: applicationState.selectOperator("place_primitive", {type:"torus"})
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://primitive/cube-skinny"
+                    onClicked: applicationState.selectOperator("place_primitive", {type:"cube"})
+                }
+            }
+            RowLayout {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_settings"
@@ -108,19 +165,19 @@ Item {
                     iconSource: "image://material/ic_info"
                     onClicked: about.open()
                 }
-                About {
-                    id: about
-                }
             }
-        //}
+            About {
+                id: about
+            }
+        }
 
         MouseArea {
             Layout.fillWidth: true
             Layout.fillHeight: true
             id: sceneMouseArea
 
-
             hoverEnabled: true
+
             onEntered: priv.mouseOver = true
             onExited: {
                 priv.mouseOver = false
@@ -134,11 +191,28 @@ Item {
                 property bool mouseOver: true
             }
 
+            StyledButton {
+                z: 10
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                width: height
+                checkable: true
+                checked: appStyle.showGizmoAlways
+                clip: true
+                onCheckedChanged: appStyle.showGizmoAlways = checked
+                AxisGizmo {
+                    anchors.fill: parent
+                    finalTransform: mainCamera.viewMatrix.times(coordianteSystemTransform.matrix)
+                }
+            }
+
             Scene3D {
+                hoverEnabled: true
                 anchors.fill: parent
                 id: scene3d
                 aspects: ["render", "logic", "input"]
-                //focus: priv.mouseOver
+                focus: priv.mouseOver
+                z: 9
                 Q3D.Entity {
                     id: sceneRoot
                     Camera {
@@ -151,7 +225,12 @@ Item {
                         position: Qt.vector3d( 0.0, 20.0, -40.0 )
                         upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
                         viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
-
+                        onViewCenterChanged: gizmoHideTimer.start()
+                        Timer {
+                            id: gizmoHideTimer
+                            interval: 2000
+                            onRunningChanged: gizmoEntity.isVisible = running
+                        }
                     }
                     EditorCameraController {
                         id: cameraController
@@ -181,6 +260,12 @@ Item {
                                                     id: gridLayer
                                                 }
                                                 layers: appStyle.showGrid ? gridLayer : noGridLayer
+                                            }
+                                            LayerFilter {
+                                                layers: Layer {
+                                                    id: invisibleLayer
+                                                }
+                                                NoDraw {}
                                             }
                                             LayerFilter {
                                                 layers: Layer {
@@ -244,6 +329,7 @@ Item {
                             objectName: "inputSettings"
                             eventSource: scene3d
                             enabled: true
+
                         },
                         Q3D.Transform {
                             id: worldTransform
@@ -270,8 +356,84 @@ Item {
                     }
 
                     Q3D.Entity {
-                        id: objectsRoot
+                        id: gizmoEntity
 
+                        property var meshTransform: Q3D.Transform {
+                            id: viewCenterTransform
+                            translation: mainCamera.viewCenter
+                            rotation: coordianteSystemTransform.rotation
+                        }
+                        PerVertexColorMaterial {
+                            id: perVertexColorMaterial
+                        }
+                        GeometryRenderer {
+                            id: gizmoRenderer
+
+                            function rebuild() {
+                                buffer.data = buffer.buildGrid()
+                            }
+                            instanceCount: 1
+                            indexOffset: 0
+                            firstInstance: 0
+                            vertexCount: 6
+                            primitiveType: GeometryRenderer.Lines
+                            geometry: Geometry {
+                                Attribute {
+                                    id: positionAttribute
+                                    attributeType: Attribute.VertexAttribute
+                                    vertexBaseType: Attribute.Float
+                                    vertexSize: 3
+                                    byteOffset: 0
+                                    byteStride: 6 * 4
+                                    count: 6
+                                    name: "vertexPosition"//defaultPositionAttributeName()
+                                    buffer: Buffer {
+                                        id: bufferPosColor
+                                        type: Buffer.VertexBuffer
+                                        function buildGrid() {
+                                            var vertices = 6;
+                                            var vertexFloats = 6;
+                                            var vertexArray = new Float32Array(vertexFloats * vertices);
+                                            vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
+                                            vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
+                                            vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
+                                            vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
+
+                                            vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
+                                            vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
+                                            vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
+                                            vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
+
+                                            vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
+                                            vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
+                                            vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
+                                            vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
+                                            return vertexArray
+                                        }
+                                        data: buildGrid()
+                                    }
+                                }
+                                Attribute {
+                                    id: colorAttribute
+                                    attributeType: Attribute.VertexAttribute
+                                    vertexBaseType: Attribute.Float
+                                    vertexSize: 3
+                                    byteOffset: 3 * 4
+                                    byteStride: 6 * 4
+                                    count: 6
+                                    name: "vertexColor"//defaultColorAttributeName()
+                                    buffer: bufferPosColor
+                                }
+                            }
+                        }
+                        property bool isVisible
+                        property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
+                        components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
+                    }
+
+                    Q3D.Entity {
+                        id: objectsRoot
+                        property alias objectsRootTransform: coordianteSystemTransform
                         components: [
                             Q3D.Transform {
                                 id: coordianteSystemTransform
@@ -287,6 +449,7 @@ Item {
                                 mainCameratmp: mainCamera
                                 scene3dtmp: scene3d
                                 coordinateSystem: coordSys
+                                currentFrameId: root.currentFrameId
                                 //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
                                 //                                                                                                      0, 1, 0, 0,
                                 //                                                                                                      0, 0, 1, 0,
@@ -297,6 +460,7 @@ Item {
                                     id: co
                                     repository: globalRepository
                                     name: model.checkoutName
+                                    Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
                                 }
                                 currentEntitydata: UPNS.Entitydata {
                                     checkout: co
@@ -304,35 +468,35 @@ Item {
                                 }
                             }
                         }
+                        Q3D.Entity {
+                            id: annotationPreviewEntity
+                            property ObjectPicker picker: ObjectPicker {
+                                onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
+                            }
 
-//                        Q3D.Entity {
-//                            id: sphereEntity
-//                            property ObjectPicker picker: ObjectPicker {
-//                                onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
-//                            }
+                            property var meshTransform: Q3D.Transform {
+                                id: sphereTransform
+                                translation: appStyle.tmpMouseIntersect3D
+                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), 0)
+                            }
+                            property var sphereMesh: SphereMesh { }
+                            property var planeMesh: PlaneMesh { }
+                            property var cylinderMesh: CylinderMesh { }
+                            property var coneMesh: ConeMesh { }
+                            property var torusMesh: TorusMesh { minorRadius: 0.3 }
+                            property var cubeMesh: CuboidMesh { }
+                            property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
+                                                     : appStyle.tmpPrimitiveType === "plane" ? planeMesh
+                                                     : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
+                                                     : appStyle.tmpPrimitiveType === "cone" ? coneMesh
+                                                     : appStyle.tmpPrimitiveType === "torus" ? torusMesh
+                                                     : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
+                                                     : sphereMesh
 
-//                            property var meshTransform: Q3D.Transform {
-//                                id: sphereTransform
-//                                property real userAngle: 0.0
-//                                translation: Qt.vector3d(20, 0, 0)
-//                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), userAngle)
-//                            }
-//                            property var sphereMesh: SphereMesh {
-//                                radius: 4
-//                            }
-//                            property Material materialPhong: PhongMaterial { }
-//                            components: [ sphereMesh, materialPhong, meshTransform, layerSolid, picker ]
-//                            NumberAnimation {
-//                                target: sphereTransform
-//                                property: "userAngle"
-//                                duration: 10000
-//                                from: 0
-//                                to: 360
-
-//                                loops: Animation.Infinite
-//                                running: true
-//                            }
-//                        }
+                            property var materialPhong: PhongMaterial { }
+                            property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
+                            components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
+                        }
                     }
                 }
             }

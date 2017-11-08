@@ -123,9 +123,11 @@ int main(int argc, char *argv[])
     IconImageProvider *imgProviderIcon = new IconImageProvider(":/icon/");
     IconImageProvider *imgProviderMaterialDesign = new IconImageProvider(":/icon/material");
     IconImageProvider *imgProviderOperator = new IconImageProvider(":/qml/operators", false, true);
+    IconImageProvider *imgProviderPrimitive = new IconImageProvider(":/icon/", false, false);
     engine.addImageProvider("icon", imgProviderIcon);
     engine.addImageProvider("material", imgProviderMaterialDesign);
     engine.addImageProvider("operator", imgProviderOperator);
+    engine.addImageProvider("primitive", imgProviderPrimitive);
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     if(!engine.rootObjects().empty())

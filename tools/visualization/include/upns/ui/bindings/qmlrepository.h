@@ -22,6 +22,7 @@ class QmlRepository : public QObject
     Q_PROPERTY(QVariantList operators READ operators NOTIFY operatorsChanged)
     Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY urlChanged)
     Q_PROPERTY(bool isLoaded READ isLoaded NOTIFY isLoadedChanged)
+    Q_PROPERTY(bool isLoadingOperators READ isLoadingOperators NOTIFY isLoadingOperatorsChanged)
 public:
     QmlRepository(QObject *parent = nullptr);
     QmlRepository(std::shared_ptr<upns::Repository> repo);
@@ -115,6 +116,8 @@ public:
 
     bool isLoaded() const;
 
+    bool isLoadingOperators() const;
+
 public Q_SLOTS:
     std::shared_ptr<upns::Repository> getRepository();
 
@@ -130,6 +133,8 @@ Q_SIGNALS:
 
     void isLoadedChanged(bool isLoaded);
 
+    void isLoadingOperatorsChanged(bool isLoadingOperators);
+
 protected:
     std::shared_ptr<upns::Repository> m_repository;
 
@@ -139,6 +144,7 @@ private:
     QString m_url;
     bool m_isLoaded;
     QMetaObject::Connection m_operatorWorkerConnection;
+    bool m_isLoadingOperators;
 };
 
 

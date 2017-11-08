@@ -58,7 +58,8 @@ QVariantList QmlRepository::operators()
 
 void QmlRepository::reload()
 {
-
+    m_isLoadingOperators = true;
+    Q_EMIT isLoadingOperatorsChanged(true);
     m_checkoutNames.clear();
     if(m_repository == nullptr) return;
     std::vector<std::string> coNames(m_repository->listCheckoutNames());
@@ -80,7 +81,9 @@ void QmlRepository::reload()
         {
             m_operators.append(*iter);
         }
-        operatorsChanged();
+        Q_EMIT operatorsChanged();
+        m_isLoadingOperators = false;
+        Q_EMIT isLoadingOperatorsChanged(false);
     }, Qt::QueuedConnection);
 
     reloadOperators();
@@ -295,4 +298,9 @@ void QmlRepository::setUrl(QString url)
 bool QmlRepository::isLoaded() const
 {
     return m_repository != nullptr;
+}
+
+bool QmlRepository::isLoadingOperators() const
+{
+    return m_isLoadingOperators;
 }

@@ -107,23 +107,32 @@ QImage IconImageProvider::requestImage(const QString &id, QSize *size, const QSi
             backgroundColor = QColor(backgroundColor.red(), backgroundColor.green(), backgroundColor.blue());
             painter.fillRect(image.rect(), backgroundColor);
 
-            if(requestedSize.width() == -1 || requestedSize.width() >= 30 )
+            if(requestedSize.width() == -1 || requestedSize.width() >= 10 )
             {
                 QString name(id.mid(id.lastIndexOf("/")));
-                name = name.toUpper().remove(QRegExp("[AEIOU_.\\s]"));
-                while(name.length() > 6)
+                float sizeFactor = 1.0;
+                if(requestedSize.width() >= 30)
                 {
-                    for (int i = 2; i < name.length()-1; i++)
+                    name = name.toUpper().remove(QRegExp("[AEIOU_.\\s]"));
+                    while(name.length() > 6)
                     {
-                        name.remove(i, 1);
+                        for (int i = 2; i < name.length()-1; i++)
+                        {
+                            name.remove(i, 1);
+                        }
                     }
+                }
+                else
+                {
+                    name = name.toUpper().remove(QRegExp("\\B[\\w]|[._\\s\\W]"));
+                    sizeFactor = 0.8;
                 }
 
                 QFont font("Helvetica");
                 font.setBold(true);
                 QFontMetrics fm(font);
                 int textWidth = fm.width(name);
-                float scaleFactor = static_cast<float>(image.width())/static_cast<float>(textWidth);
+                float scaleFactor = static_cast<float>(image.width()*sizeFactor)/static_cast<float>(textWidth);
                 QTransform trScale;
                 trScale.translate(image.width()/2, image.height()/2);
                 trScale.scale(scaleFactor, scaleFactor);

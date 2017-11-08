@@ -8,12 +8,12 @@ import pcl 1.0
 
 import fhac.upns 1.0 as UPNS
 
-import QtQuick 2.0 as QQ2
-
 import "panes"
 
-//TODO: MenuBar and ApplicationWindow cannot be seperated,
-MainMenubar {
+//Note: MenuBar and ApplicationWindow cannot be
+//      seperated, "MainWindow" contains basically
+//      the menubar, rest is done here.
+MainWindow {
     id: window
     objectName: "mainWindow"
     title: qsTr("Mapit Visualization")
@@ -32,6 +32,18 @@ MainMenubar {
         url: "." // default cfg is the current folder
     }
 
+    Item {
+        id: applicationStateItem
+        function selectOperator(name, props) {
+            appStyle.tmpPrimitiveType = props.type
+            leftPanels.selectOperator( name )
+        }
+
+        function selectEntity(path) {
+
+        }
+    }
+
     AppStyle {
         id: appStyle
         visible: false
@@ -48,6 +60,7 @@ MainMenubar {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
                 Layout.margins: 0
+                currentFrameId: sceneView.currentFrameId
                 width: appStyle.splitViewLeftWidth
                 onWidthChanged: {
                     appStyle.splitViewLeftWidth = width
@@ -61,15 +74,18 @@ MainMenubar {
                 currentEntitydata: leftPanels.currentEntitydata
                 currentEntitydataTransform: leftPanels.currentEntitydataTransform
                 visibleEntityItems: leftPanels.visibleElems
+                applicationState: applicationStateItem
             }
-            BottomPanels {
+            DetailPanels {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
                 Layout.margins: 0
                 width: appStyle.splitViewRightWidth
                 currentOperator: leftPanels.currentOperator
+                currentPipeline: leftPanels.currentPipeline
                 currentCheckout: leftPanels.currentCheckout
                 currentEntityPath: leftPanels.currentEntityPath
+                currentFrameId: sceneView.currentFrameId
                 onWidthChanged: {
                     appStyle.splitViewRightWidth = width
                 }

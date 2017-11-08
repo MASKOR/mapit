@@ -4,6 +4,10 @@
 #if WITH_LAS
 #include <upns/layertypes/lastype.h>
 #endif // WITH_LAS
+//#if WITH_OPENVDB
+#include <upns/layertypes/openvdblayer.h>
+#include <qopenvdbgridpointsurfacegeometry.h>
+//#endif // WITH_OPENVDB
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <upns/layertypes/assettype.h>
@@ -172,6 +176,25 @@ void QmlEntitydataRenderer::updateGeometry()
         // TODO: does shared pointer survive here? Will the pointer be cleaned?
         QMetaObject::invokeMethod(pointcloudGeometry, "setPath", Qt::QueuedConnection, Q_ARG(PosePathPtr, path) );
     }
+//#ifdef WITH_OPENVDB
+    else if(strcmp(ed->type(), FloatGridEntitydata::TYPENAME()) == 0)
+    {
+        QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);
+        QGeometryRenderer::setGeometry(new QOpenVDBGridPointSurfaceGeometry(this));
+        std::shared_ptr<openvdb::FloatGrid> grid = std::dynamic_pointer_cast< FloatGridEntitydata >(ed)->getData();
+        if(grid == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a path)";
+            return;
+        }
+        QOpenVDBGridPointSurfaceGeometry *gridGeometry = static_cast<QOpenVDBGridPointSurfaceGeometry *>(geometry());
+        //gridGeometry->setGenerationMethod(QOpenVDBGridPointSurfaceGeometry::PointGenerationMethod::MarchingCubesCenter);
+        QOpenVDBGrid *qgrid = new QOpenVDBGrid(gridGeometry);
+        // Ensure that grid (shared pointer) lives as long as gridGeometry and qgrid!
+        qgrid->setGrid(grid);
+        gridGeometry->setGrid(qgrid);
+    }
+//#endif
     else
     {
         qDebug() << "unknown entitytype for visualization";

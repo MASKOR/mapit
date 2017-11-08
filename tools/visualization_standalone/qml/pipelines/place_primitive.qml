@@ -3,6 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 import ".."
+import "../operators"
 
 Item {
     id: root
@@ -34,10 +35,14 @@ Item {
             primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
         }
     }
+
+    //Component.onDestruction: appStyle.tmpUsePreviewMatrix = false
+    //onVisibleChanged: appStyle.tmpUsePreviewMatrix = visible
     onShownChanged: {
         appStyle.tmpPlacePrimitive = shown
         if(shown) primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
     }
+
     //// UI ////
     ColumnLayout {
         anchors.fill: parent
@@ -62,6 +67,7 @@ Item {
                 if(btn4.checked) return "cone"
                 if(btn5.checked) return "torus"
                 if(btn6.checked) return "cube"
+                return ""
             }
             function checkCurrentType( name ) {
                 if(name === "sphere") btn1.checked = true
@@ -119,6 +125,17 @@ Item {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
             dialogRoot: root
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledButton {
+                Layout.leftMargin: appStyle.controlMargin
+                text: "Execute"
+                enabled: primitiveOption.getCurrentType() !== "" && entityChooser.valid
+                onClicked: {
+                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters)
+                }
+            }
         }
         Item {
             Layout.fillHeight: true

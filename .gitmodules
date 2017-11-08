@@ -46,3 +46,6 @@
 [submodule "libs/core/include/mapit/time/date"]
 	path = libs/core/include/mapit/time/date
 	url = https://github.com/HowardHinnant/date.git
+[submodule "tools/Qt3DOpenVDBRenderer"]
+	path = tools/Qt3DOpenVDBRenderer
+	url = https://github.com/MASKOR/Qt3DOpenVDBRenderer

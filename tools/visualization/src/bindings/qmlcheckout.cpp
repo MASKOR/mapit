@@ -1,6 +1,11 @@
 #include "upns/ui/bindings/qmlcheckout.h"
 #include <upns/errorcodes.h>
 #include "upns/depthfirstsearch.h"
+#include <upns/layertypes/tflayer.h> //< TODO: remove this dependecy and put dependet code to it to new "QmlTransformLayer"
+#include <upns/layertypes/tflayer/tf2/buffer_core.h>
+#include <upns/layertypes/tflayer/tf2/exceptions.h>
+#include <QStringList>
+#include <QSet>
 
 QmlCheckout::QmlCheckout()
     :m_checkout( NULL ),
@@ -142,6 +147,40 @@ QString QmlCheckout::name() const
 QStringList QmlCheckout::entities() const
 {
     return m_entities;
+}
+
+QStringList QmlCheckout::getFrameIds()
+{
+    if(this->m_checkout == nullptr) return QStringList();
+    QSet<QString> frameIdSet;
+
+    upns::StatusCode s = this->m_checkout->depthFirstSearch(
+        depthFirstSearchAll(Commit), depthFirstSearchAll(Commit),
+        depthFirstSearchAll(Tree), depthFirstSearchAll(Tree),
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+        {
+            // get the stream to write into a file
+            std::shared_ptr<upns::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly(path);
+            if(ed && strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
+            {
+                std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
+                assert(ent);
+                frameIdSet.insert(QString::fromStdString(ent->frame_id()));
+                std::shared_ptr<upns::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly( path );
+                if( ed == nullptr ) return true;
+                std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
+                if( tfEd == nullptr ) return true;
+                upns::tf::TransformPtr tf = tfEd->getData();
+                if(tf == nullptr ) return true;
+                frameIdSet.insert(QString::fromStdString(tf->child_frame_id));
+            }
+            return true;
+        },
+        depthFirstSearchAll(Entity));
+    if( !upnsIsOk(s) ) {
+        log_warn("getFrameIds did not succeed for UI");
+    }
+    return frameIdSet.toList();
 }
 
 void QmlCheckout::setRepository(QmlRepository *repository)

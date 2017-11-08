@@ -6,7 +6,53 @@ import ".."
 
 Item {
     id: root
+    property string currentPipeline
+    property ListModel pipelines
     property var currentOperator
+    onPipelinesChanged: priv.reinit()
+    Component.onCompleted: priv.reinit()
+
+    function selectOperator(name) {
+        for(var i=0; i<listview.model.count; ++i) {
+            var operatorItem = listview.model.get(i)
+            if(operatorItem.displayName === name) {
+                listview.currentIndex = i
+                //priv.selectOpOrPipeline(operatorItem)
+                break
+            }
+        }
+    }
+    Item {
+        id: priv
+        property ListModel finalModel: ListModel {}
+        property var operatorModel: globalRepository.operators
+        function selectOpOrPipeline(objModelItem) {
+            if(typeof objModelItem.operator === "undefined" || objModelItem.operator === null) {
+                root.currentOperator = null
+                root.currentPipeline = objModelItem.displayName
+            } else {
+                root.currentPipeline = ""
+                root.currentOperator = objModelItem.operator
+            }
+        }
+
+        onOperatorModelChanged: priv.reinit()
+        function reinit() {
+            priv.finalModel.clear();
+            for(var i=0; i<root.pipelines.count ; ++i) {
+                var pl = root.pipelines.get(i);
+                priv.finalModel.append({"displayName": pl.displayName, "operator": null})
+            }
+            if(!appStyle.showOnlyPipelines) {
+                for(var i2=0; i2<priv.operatorModel.length ; ++i2) {
+                    var op = priv.operatorModel[i2];
+                    priv.finalModel.append({"displayName": op.moduleName, "operator": op})
+                }
+            }
+        }
+    }
+
+
     ColumnLayout {
         anchors.fill: parent
         RowLayout {
@@ -38,6 +84,18 @@ Item {
                     if(checked) viewListButton.checked = false
                 }
             }
+            StyledButton {
+                id: viewOnlyPipelinesButton
+                isIcon: true
+                iconSource: "image://icon/lightening"
+                tooltip: "Show only Workflows"
+                checkable: true
+                checked: appStyle.showOnlyPipelines
+                onCheckedChanged: {
+                    appStyle.showOnlyPipelines = checked
+                    priv.reinit()
+                }
+            }
         }
         Item {
             Layout.fillWidth: true
@@ -47,12 +105,16 @@ Item {
                 visible: !globalRepository.isLoaded
                 text: "No Repository loaded"
             }
+            BusyIndicator {
+                anchors.centerIn: parent
+                running: globalRepository.isLoadingOperators
+            }
             ScrollView {
                 visible: viewListButton.checked && globalRepository.isLoaded
                 anchors.fill: parent
                 ListView {
                     id: listview
-                    model: globalRepository.operators
+                    model: priv.finalModel
                     delegate: Component {
                         RowLayout {
                             height: appStyle.controlHeightOuter
@@ -64,7 +126,7 @@ Item {
                                     sourceSize: Qt.size(iconMarginItem.generatedWidth,appStyle.iconSize)
                                     width: iconMarginItem.generatedWidth
                                     height: appStyle.iconSize
-                                    source: "image://operator/"+gridRoot.model[index].moduleName
+                                    source: "image://operator/"+gridRoot.model.get(index).displayName
                                     fillMode: Image.PreserveAspectFit
                                     anchors.verticalCenter: parent.verticalCenter
                                     smooth: false
@@ -74,7 +136,7 @@ Item {
                             StyledLabel {
                                 Layout.fillHeight: true
                                 renderType: Text.NativeRendering
-                                text: listview.model[index].moduleName
+                                text: listview.model.get(index).displayName
                                 verticalAlignment: Text.AlignVCenter
                                 MouseArea {
                                     anchors.fill: parent
@@ -83,7 +145,9 @@ Item {
                             }
                         }
                     }
-                    onCurrentIndexChanged: root.currentOperator = model[currentIndex]
+                    onCurrentIndexChanged: priv.selectOpOrPipeline(model.get(currentIndex))
+                    highlightMoveDuration: appStyle.selectionAnimation ? 1000 : 0
+                    highlightResizeDuration: appStyle.selectionAnimation ? 1000 : 0
                     highlight: Rectangle { color: appStyle.itemBackgroundColor }
                 }
             }
@@ -104,7 +168,7 @@ Item {
                     topMargin: gridMargin
                     cellHeight: cellSize
                     cellWidth: cellSize
-                    model: globalRepository.operators
+                    model: priv.finalModel
                     delegate: Button {
                         id: entityButton
                         x: gridRoot.gridMargin
@@ -112,20 +176,20 @@ Item {
                         height: gridRoot.buttonSize
                         style: ButtonStyle {
                             background: Rectangle {
-                                property bool selected: root.currentOperator ? root.currentOperator.moduleName === gridRoot.model[index].moduleName : false
+                                property bool selected: root.currentOperator ? root.currentOperator.moduleName === gridRoot.model.get(index).displayName : false
                                 border.width: selected ? 1 : 0
                                 border.color: appStyle.selectionBorderColor
                                 color: appStyle.itemBackgroundColor
                             }
                         }
                         tooltip: qsTr("Show details of <i>%1</i>.").arg(
-                                     gridRoot.model[index].moduleName)
+                                     gridRoot.model.get(index).displayName)
                         Column {
                             y: 8
                             anchors.horizontalCenter: parent.horizontalCenter
                             Image {
                                 anchors.topMargin: 8
-                                source: "image://operator/"+gridRoot.model[index].moduleName
+                                source: "image://operator/"+gridRoot.model.get(index).displayName
                                 width: gridRoot.buttonSize*0.6
                                 height: gridRoot.buttonSize*0.6
                                 sourceSize: Qt.size(width, height)
@@ -137,7 +201,7 @@ Item {
                             Text {
                                 width: gridRoot.buttonSize
                                 height: 8
-                                text: gridRoot.model[index].moduleName
+                                text: gridRoot.model.get(index).displayName
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 //anchors.bottom: parent.bottom
                                 wrapMode: Text.WrapAnywhere
@@ -151,7 +215,7 @@ Item {
                         MouseArea {
                             width: gridRoot.buttonSize
                             height: gridRoot.buttonSize
-                            onClicked: root.currentOperator = gridRoot.model[index]
+                            onClicked: priv.selectOpOrPipeline(gridRoot.model.get(index))
                         }
                     }
                 }

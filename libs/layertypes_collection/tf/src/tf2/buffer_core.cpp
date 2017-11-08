@@ -189,6 +189,14 @@ BufferCore::BufferCore(
         assert(false);
     }
 
+    //TODO: Name decides on wether tfs are static or dynamic. This introduces several restrictions.
+    // - if static/dynamic is a property of a tf, implementation must reside inside entitydata
+    // - if it is a property of the current use-case, implementation must reside as part of "Entity"-Protobuf (next to stamp, frame_id).
+    // restrictions:
+    // - introduces fixed names for layertypes. These must be known to interpret the repository.
+    // - making static layertypes dynamic/vice versa involves moving the entity (future: merging problems)
+    // - the entity itself is not atomically defined, it always needs it's context to load it
+
     std::shared_ptr<mapit::Layer> layer_static = checkout->getLayer(map, layer_name_tf_static);
     if (layer_static == nullptr) {
         // TODO warning
@@ -207,6 +215,7 @@ void
 BufferCore::setTransforms(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<mapit::Layer> layer, bool is_static)
 {
     for (auto entity : checkout->getListOfEntities(layer)) {
+        //TODO: nullpointer checks.
         upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
                     checkout->getEntityDataReadOnly( entity )
                     )->getData();

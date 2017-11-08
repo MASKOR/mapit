@@ -68,9 +68,6 @@ set(DataDir ${PROJECT_SOURCE_DIR}/data)
 file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
-include_directories(${PROJECT_SOURCE_DIR}/include/bindings)
-include_directories(${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include)
-
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST}
                                 ${UPNS_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}
@@ -80,7 +77,6 @@ add_library(${PROJECT_NAME} SHARED ${SRC_LIST}
                                 ${TesEvalShader}
                                 ${GeometryShader}
                                 ${GlslIncludeShader}
-
                                 ${UPNS_VIZ_PUBLIC_HEADER})
 
 add_custom_target(resourceFilesVizRenderview ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
@@ -101,9 +97,11 @@ target_link_libraries(${PROJECT_NAME}   ${mapit_core}
                                         ${mapit_interface_cpp}
                                         standard_repository_factory
                                         Qt3DPointcloudRenderer
+                                        Qt3DOpenVDBRenderer
                                         layertype_tf
                                         layertype_pose_path
                                         layertype_asset
+                                        layertype_openvdb
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)
@@ -122,7 +120,10 @@ if(WITH_LAS)
                                         layertype_las)
 endif(WITH_LAS)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${UPNS_VISUALIZATION_INCLUDE})
+target_include_directories(${PROJECT_NAME} PUBLIC  ${UPNS_VISUALIZATION_INCLUDE}
+                                           PRIVATE ${PROJECT_SOURCE_DIR}/include/bindings
+                                                   ${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include
+                                                   ${PROJECT_SOURCE_DIR}/../Qt3DOpenVDBRenderer/include)
 
 
 file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)

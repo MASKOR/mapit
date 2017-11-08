@@ -17,17 +17,28 @@ Q3D.Entity {
     property Layer layer
     property alias parametersTmp: surfelTechnique.parameters
     property alias coordinateSystem: edrender.coordinateSystem
+    property string currentFrameId
     id: pointcloud
 
     UPNS.TfTransform {
         id: currentEntitydataTransform
         path: currentEntitydata.path
-        targetFrame: "testframeid"
+        targetFrame: pointcloud.currentFrameId
         sourceFrame:  pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).frameId
         mustExist: false
     }
     property ObjectPicker picker: ObjectPicker {
-        onClicked: console.log("Clicked pcd", pick.distance, pick.triangleIndex)
+        hoverEnabled: true
+        onClicked: {
+            if(pick.button == Qt.LeftButton)
+                var transfVec4 = objectsRoot.objectsRootTransform.matrix.inverted().times(Qt.vector4d(pick.worldIntersection.x,pick.worldIntersection.y,pick.worldIntersection.z, 1.0))
+                appStyle.tmpMouseIntersect3D = Qt.vector3d(transfVec4.x, transfVec4.y, transfVec4.z)
+        }
+        onMoved: {
+            appStyle.tmpMouseIntersect3D = pick.worldIntersection
+            // Currently Scene3D does not work for hover
+            console.log("DBG: Moving mouse (hover) works now " + pick.worldIntersection)
+        }
     }
     property var meshTransform: Q3D.Transform {
             id: theMeshTransform

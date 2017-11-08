@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>qml/main.qml</file>
         <file>qml/Camera.qml</file>
-        <file>qml/MainMenubar.qml</file>
         <file>qml/VisualizationSettings.qml</file>
         <file>qml/AxisGizmo.qml</file>
         <file>shader/pointcloud.frag</file>
@@ -13,7 +12,6 @@
         <file>qml/panes/OperatorPane.qml</file>
         <file>qml/operators/load_pointcloud.qml</file>
         <file>qml/LeftPanels.qml</file>
-        <file>qml/BottomPanels.qml</file>
         <file>qml/SceneView.qml</file>
         <file>icon/arrow-branch-bgr-16-ns.png</file>
         <file>icon/arrow-branch-bgr-24-ns.png</file>
@@ -351,5 +349,10 @@
         <file>qml/operators/filter_radius_outlier_removal.qml</file>
         <file>qml/operators/filter_approximate_voxel_grid.qml</file>
         <file>qml/operators/edit_entity.qml</file>
+        <file>qml/MainWindow.qml</file>
+        <file>qml/DetailPanels.qml</file>
+        <file>qml/operators/load_primitive.png</file>
+        <file>qml/operators/load_primitive.qml</file>
+        <file>qml/pipelines/place_primitive.qml</file>
     </qresource>
 </RCC>

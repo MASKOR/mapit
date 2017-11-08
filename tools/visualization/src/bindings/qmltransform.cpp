@@ -103,6 +103,7 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
 
     if(p.empty() || !checkout()->getCheckoutObj()->getTree(p))
     {
+        log_warn("No transform found in map: \""+p+"\"");
         if(found) *found = false;
         return tfs;
     }

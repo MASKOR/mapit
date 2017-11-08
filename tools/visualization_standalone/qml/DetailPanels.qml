@@ -11,9 +11,13 @@ import "panes"
 
 Item {
     id: root
-    property alias currentOperator: opPane.currentOperator
+    property var currentOperator
+    onCurrentOperatorChanged: opPane.loadOperatorDialog(currentOperator)
+    property var currentPipeline
+    onCurrentPipelineChanged: opPane.loadPipelineDialog(currentPipeline)
     property alias currentCheckout: opPane.currentCheckout
     property alias currentEntityPath: opPane.currentEntityPath
+    property string currentFrameId
     function formatVec3(vec) {
         return "(" + vec.x.toFixed(2) + ", " + vec.y.toFixed(2) + ", " + vec.z.toFixed(2) + ")"
     }
@@ -119,7 +123,7 @@ Item {
                 id: currentEntitydataTransform
                 path: root.currentEntityPath
                 checkout: root.currentCheckout
-                targetFrame: "testframeid"
+                targetFrame: root.currentFrameId
                 sourceFrame:  root.currentCheckout.getEntity(currentEntityPath).frameId
                 mustExist: false
                 onMatrixChanged: {

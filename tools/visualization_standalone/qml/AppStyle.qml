@@ -62,10 +62,19 @@ Item {
     property real pointcloudLod: 1
     property real cameraScale: 1
     property bool showGrid: true
+    property bool selectionAnimation: true
+    property bool showGizmoAlways: false
 
+    // These are currently used to communicate between operators an rest of the ui
     property bool tmpUsePreviewMatrix: false
     property matrix4x4 tmpPreviewMatrix
     property string tmpCurrentEditEntity
+
+    property bool tmpPlacePrimitive: false
+    property string tmpPrimitiveType
+    property string tmpPrimitivePayload
+    property vector3d tmpMouseIntersect3D: Qt.vector3d(0.0,0.0,0.0)
+
 
     property real iconSize: controlHeightOuter >= 48
                              ? 48
@@ -82,6 +91,7 @@ Item {
     property real windowWidth: 1200
     property real windowHeight: 800
     property int currentOperatorListView: 0
+    property bool showOnlyPipelines: true
     property real splitViewLeftWidth: 210
     property real splitViewRightWidth: 220
 
@@ -115,10 +125,14 @@ Item {
         property alias gridSpacing: root.gridSpacing
         property alias pointcloudLod: root.pointcloudLod
         property alias cameraScale: root.cameraScale
+        property alias showGrid: root.showGrid
+        property alias selectionAnimation: root.selectionAnimation
+        property alias showGizmoAlways: root.showGizmoAlways
 
 
         property alias windowWidth: root.windowWidth
         property alias windowHeight: root.windowHeight
+        property alias showOnlyPipelines: root.showOnlyPipelines
         property alias currentOperatorListView: root.currentOperatorListView
         property alias splitViewLeftWidth: root.splitViewLeftWidth
         property alias splitViewRightWidth: root.splitViewRightWidth
@@ -186,6 +200,10 @@ Item {
         appStyle.itemColor = theme.itemColor
         appStyle.iconHighlightColor = theme.iconHighlightColor
         appStyle.background3d = theme.background3d
+        if(appStyle.backgroundColor === appStyle.selectionColor) {
+            appStyle.selectionColor = root.unhighlight(appStyle.selectionColor)
+        }
+
         root.emitThemeChanged();
     }
     function resetDefaultColorsDark() {

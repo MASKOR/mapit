@@ -3,6 +3,7 @@
 #if WITH_LAS
 #include <upns/layertypes/lastype.h>
 #endif // WITH_LAS
+#include <upns/layertypes/openvdblayer.h>
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <QVector3D>
@@ -41,8 +42,8 @@ QmlCheckout *QmlEntitydata::checkout() const
 QVariant QmlEntitydata::getInfo(QString propertyName)
 {
     if(m_entitydata == nullptr) return QVariant(0);
-#if WITH_PCL
-    if(strcmp(m_entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0)
+//#if WITH_PCL OR/AND OPENVDB
+    if(strcmp(m_entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0 || strcmp(m_entitydata->type(), FloatGridEntitydata::TYPENAME()) == 0)
     {
         if(   propertyName.compare("width") == 0
            || propertyName.compare("length") == 0 )
@@ -57,26 +58,46 @@ QVariant QmlEntitydata::getInfo(QString propertyName)
         }
         if(   propertyName.compare("fields") == 0)
         {
-            std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( m_entitydata );
-            if(entityData == nullptr)
+            std::shared_ptr<PointcloudEntitydata> entitydataPointcloud;
+            std::shared_ptr<FloatGridEntitydata> entitydataOpenVDB;
+            if(entitydataPointcloud = std::dynamic_pointer_cast<PointcloudEntitydata>( m_entitydata ))
             {
-                return QVariant(0);
+                upnsPointcloud2Ptr pc2 = entitydataPointcloud->getData();
+                QVariantList returnPointfieldList;
+                for(std::vector<::pcl::PCLPointField>::iterator iter(pc2->fields.begin());
+                    iter != pc2->fields.end();
+                    iter++)
+                {
+                    //TODO: this is only deleted, when entitydata is deleted via QObject parents.
+                    // Lifecycle is the same as m_entity! After m_entity changed, these pointfields must not be accessed anymore.
+                    returnPointfieldList.append(QVariant::fromValue(new QPointfield(this, &(*iter))));
+                }
+                return returnPointfieldList;
             }
-            upnsPointcloud2Ptr pc2 = entityData->getData();
-            QVariantList returnPointfieldList;
-            for(std::vector<::pcl::PCLPointField>::iterator iter(pc2->fields.begin());
-                iter != pc2->fields.end();
-                iter++)
+            else if(entitydataOpenVDB = std::dynamic_pointer_cast<FloatGridEntitydata>( m_entitydata ))
             {
-                //TODO: this is only deleted, when entitydata is deleted via QObject parents.
-                // Lifecycle is the same as m_entity! After m_entity changed, these pointfields must not be accessed anymore.
-                returnPointfieldList.append(QVariant::fromValue(new QPointfield(this, &(*iter))));
+                //For now ovdb is visualized as a pointcloud, so
+                // this emulates pointcloud visualization for float grids
+                QVariantList returnPointfieldList;
+                QJsonObject jsX; jsX["name"] = "x";
+                QJsonObject jsY; jsY["name"] = "y";
+                QJsonObject jsZ; jsZ["name"] = "z";
+                QJsonObject jsNX; jsNX["name"] = "normal_x";
+                QJsonObject jsNY; jsNY["name"] = "normal_y";
+                QJsonObject jsNZ; jsNZ["name"] = "normal_z";
+                returnPointfieldList.append(QVariant::fromValue(jsX));
+                returnPointfieldList.append(QVariant::fromValue(jsY));
+                returnPointfieldList.append(QVariant::fromValue(jsZ));
+                returnPointfieldList.append(QVariant::fromValue(jsNX));
+                returnPointfieldList.append(QVariant::fromValue(jsNY));
+                returnPointfieldList.append(QVariant::fromValue(jsNZ));
+                return returnPointfieldList;
             }
-            return returnPointfieldList;
+            return QVariant(0);
         }
     }
     else
-#endif
+//#endif
 #if WITH_LAS
     if(strcmp(m_entitydata->type(), LASEntitydata::TYPENAME()) == 0)
     {

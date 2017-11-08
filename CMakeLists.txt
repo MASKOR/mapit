@@ -202,6 +202,7 @@ if(UPNS_ENABLE_VISUALIZATION)
   add_subdirectory(tools/visualization)
   add_subdirectory(tools/visualization_standalone)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
+  add_subdirectory(tools/Qt3DOpenVDBRenderer)
 endif(UPNS_ENABLE_VISUALIZATION)
 
 

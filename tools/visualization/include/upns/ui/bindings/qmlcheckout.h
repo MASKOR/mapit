@@ -61,6 +61,10 @@ public:
 
     QStringList entities() const;
 
+    //TODO: Put this to a another class. This introduces dependecy
+    //      to tfs from checkout (core->entitytype).
+
+    Q_INVOKABLE QStringList getFrameIds();
 public Q_SLOTS:
     void setRepository(QmlRepository* repository);
     void setName(QString name);

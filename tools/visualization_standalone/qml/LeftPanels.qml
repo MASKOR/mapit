@@ -12,11 +12,14 @@ import "panes"
 Item {
     id: root
     property alias currentOperator: operatorListPane.currentOperator
+    property alias currentPipeline: operatorListPane.currentPipeline
     property alias currentEntitydata: currentEntitydataId
     property alias currentEntitydataTransform: currentEntitydataTransformId
     property alias currentCheckout: checkout
     property alias visibleElems: treeViewCheckout.visibleElems
     property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
+    property string currentFrameId
+    function selectOperator(name) { operatorListPane.selectOperator(name) }
     onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath
     UPNS.Checkout {
         id: checkout
@@ -35,7 +38,7 @@ Item {
         id: currentEntitydataTransformId
         checkout: checkout
         path: root.currentEntityPath
-        targetFrame: "testframeid"
+        targetFrame: root.currentFrameId
         sourceFrame:  checkout.getEntity(currentEntityPath).frameId
         mustExist: false
     }
@@ -64,6 +67,9 @@ Item {
                     Layout.leftMargin: appStyle.controlMargin
                     Layout.rightMargin: appStyle.controlMargin
                     visible: headerOpPane.checked
+                    pipelines: ListModel {
+                        ListElement { displayName: "place_primitive" }
+                    }
                 }
                 QCtl.Action {
                     id: transformAction
