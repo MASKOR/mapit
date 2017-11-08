@@ -80,12 +80,12 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, std::shared_
                                               layer
                                               , tf_list.first
                                               );
-    std::shared_ptr<AbstractEntitydata> ed_a = checkout->getEntityDataReadWrite(entity);
     std::shared_ptr<upns::tf::store::TransformStampedList> ed;
-    if (ed_a == nullptr) {
+    if ( ! checkout->checkEntityData(entity) ) {
       // create new
       ed = tf_list.second;
     } else {
+      std::shared_ptr<AbstractEntitydata> ed_a = checkout->getEntityDataReadWrite(entity);
       // appand
       if ( 0 != strcmp(TfEntitydata::TYPENAME(), ed_a->type()) ) {
         log_error("tflayer: internal error, entity for tf with name " + entity->getName() + " has entity date of other type then tf is: " + ed_a->type());
