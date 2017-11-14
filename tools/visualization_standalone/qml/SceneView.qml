@@ -213,9 +213,10 @@ Item {
                 planeNormal: camera.viewVector
                 screenPosition: Qt.vector2d(sceneMouseArea.mouseX, sceneMouseArea.mouseY)
             }
+
             Q3D.Transform {
                 id: previewTransform
-                translation: mouseRaycast.worldPosition
+                translation: coordianteSystemTransform.matrix.inverted().times(mouseRaycast.worldPosition)
                 onMatrixChanged: {
                     appStyle.tmpPreviewMatrix = matrix
                 }
@@ -502,34 +503,33 @@ Item {
                                     }
                                 }
                             }
-                        }
-                        Q3D.Entity {
-                            id: annotationPreviewEntity
-                            property ObjectPicker picker: ObjectPicker {
-                                onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
-                            }
+                            Q3D.Entity {
+                                id: annotationPreviewEntity
+                                property ObjectPicker picker: ObjectPicker {
+                                    onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
+                                }
 
-                            property var meshTransform: Q3D.Transform {
-                                id: sphereTransform
-                                matrix: appStyle.tmpPreviewMatrix
-                            }
-                            property var sphereMesh: SphereMesh { }
-                            property var planeMesh: PlaneMesh { }
-                            property var cylinderMesh: CylinderMesh { }
-                            property var coneMesh: ConeMesh { }
-                            property var torusMesh: TorusMesh { minorRadius: 0.3 }
-                            property var cubeMesh: CuboidMesh { }
-                            property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
-                                                     : appStyle.tmpPrimitiveType === "plane" ? planeMesh
-                                                     : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
-                                                     : appStyle.tmpPrimitiveType === "cone" ? coneMesh
-                                                     : appStyle.tmpPrimitiveType === "torus" ? torusMesh
-                                                     : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
-                                                     : sphereMesh
+                                property var meshTransform: Q3D.Transform {
+                                    matrix: appStyle.tmpPreviewMatrix
+                                }
+                                property var sphereMesh: SphereMesh { }
+                                property var planeMesh: PlaneMesh { }
+                                property var cylinderMesh: CylinderMesh { }
+                                property var coneMesh: ConeMesh { }
+                                property var torusMesh: TorusMesh { minorRadius: 0.3 }
+                                property var cubeMesh: CuboidMesh { }
+                                property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
+                                                         : appStyle.tmpPrimitiveType === "plane" ? planeMesh
+                                                         : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
+                                                         : appStyle.tmpPrimitiveType === "cone" ? coneMesh
+                                                         : appStyle.tmpPrimitiveType === "torus" ? torusMesh
+                                                         : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
+                                                         : sphereMesh
 
-                            property var materialPhong: PhongMaterial { }
-                            property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
-                            components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
+                                property var materialPhong: PhongMaterial { }
+                                property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
+                                components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
+                            }
                         }
                     }
                 }
