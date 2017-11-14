@@ -27,6 +27,9 @@ Item {
         }
     }
 
+    property string repositoryUrl: "." // default cfg is the current folder
+    property string checkoutName: "testcheckout"
+
     property bool isDark: backgroundLightness < 0.5
     onIsDarkChanged: darkLightChanged()
     property color textColor: "#ffffff"
@@ -96,6 +99,8 @@ Item {
     property real splitViewRightWidth: 220
 
     Settings {
+        property alias repositoryUrl: root.repositoryUrl
+        property alias checkoutName: root.checkoutName
         property alias textColor: root.textColor
         property alias textColorDisabled: root.textColorDisabled
         property alias selectionColor: root.selectionColor

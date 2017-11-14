@@ -56,7 +56,7 @@ public:
     // Keep map/layer/entity assumtions away from core, to not sacrifice ability to stream octrees and other structures.
 
     /**
-     * @brief getMapPathOfEntry get top level tree of tree, map/layer/entity, path
+     * @brief getMapPathOfEntry get top level tree of tree, map/layer/entity, path.
      * @return
      */
     static Path getMapPathOfEntry(const Path &path)
@@ -67,7 +67,9 @@ public:
             if(p.length() == 1) break;
             p = p.substr(1);
         }
-        return p.substr(0, p.find_first_of('/'));
+        p = p.substr(0, p.find_first_of('/'));
+        if(p.empty()) p = ".global";
+        return p;
     }
 
     /**

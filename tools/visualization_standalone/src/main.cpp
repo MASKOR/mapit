@@ -40,6 +40,7 @@
 #include <upns/ui/models/qmlroottreemodel.h>
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/ui/bindings/qmlpointcloudcoordinatesystem.h>
+#include <qmlraycast.h>
 
 #include <mapit/msgs/services.pb.h>
 #include <upns/errorcodes.h>
@@ -87,6 +88,7 @@ int main(int argc, char *argv[])
         log_error("Could not load Repository.");
         return 1;
     }
+    qmlRegisterType<QmlRayCast>("fhac.upns", 1, 0, "RayCast");
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
     qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
@@ -120,10 +122,12 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
+    //IconImageProvider *imgProviderDummy = new IconImageProvider("");
     IconImageProvider *imgProviderIcon = new IconImageProvider(":/icon/");
     IconImageProvider *imgProviderMaterialDesign = new IconImageProvider(":/icon/material");
     IconImageProvider *imgProviderOperator = new IconImageProvider(":/qml/operators", false, true);
     IconImageProvider *imgProviderPrimitive = new IconImageProvider(":/icon/", false, false);
+    //engine.addImageProvider("", imgProviderDummy);
     engine.addImageProvider("icon", imgProviderIcon);
     engine.addImageProvider("material", imgProviderMaterialDesign);
     engine.addImageProvider("operator", imgProviderOperator);

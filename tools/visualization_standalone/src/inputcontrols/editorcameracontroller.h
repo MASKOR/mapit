@@ -61,6 +61,7 @@ class EditorCameraController : public Qt3DCore::QEntity
 
     Q_PROPERTY(Qt3DRender::QCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(QSize viewportSize READ viewportSize WRITE setViewportSize NOTIFY viewportSizeChanged)
+    //Q_PROPERTY(bool preventMouseInteraction READ preventMouseInteraction WRITE setpreventMouseInteraction NOTIFY preventMouseInteractionChanged)
 
 public:
     explicit EditorCameraController(Qt3DCore::QNode *parent = nullptr);

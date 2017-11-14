@@ -85,7 +85,7 @@ Item {
                     Repeater {
                         id: repeater
                         onItemAdded: infoFlow.forceLayout()
-                        model: entityInfo.currentEntitydata.getInfo("fields")
+                        model: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("fields") : 0
                         StyledLabel {
                             text: modelData.name + ((index != (repeater.count-1))?", ":"")
                         }
@@ -98,7 +98,7 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
-                    text: entityInfo.currentEntitydata.getInfo("width")
+                    text: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("width") : ""
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
@@ -107,7 +107,7 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
-                    text: formatVec3(entityInfo.currentEntitydata.getInfo("min"))
+                    text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("min") : Qt.vector3d(0,0,0))
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
@@ -116,7 +116,7 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
-                    text: formatVec3(entityInfo.currentEntitydata.getInfo("max"))
+                    text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("max") : Qt.vector3d(0,0,0))
                 }
             }
             UPNS.TfTransform {

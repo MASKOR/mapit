@@ -8,6 +8,7 @@ import "../operators"
 Item {
     id: root
     height: implicitHeight
+
     //// in ////
     property bool shown
     property bool editable
@@ -18,14 +19,45 @@ Item {
         entityChooser.currentEntityPath = params.target
         primitiveOption.checkCurrentType(params.type)
     }
+    function updateTranslationMatrix() {
+        var translateMatrix = Qt.matrix4x4()
+        translateMatrix.translate(xInp.text, yInp.text, zInp.text)
+        appStyle.tmpPreviewMatrix = translateMatrix
+    }
 
     //// out ////
     property bool valid: primitiveOption.getCurrentType() !== "" && entityChooser.valid
     property var parameters: {
         "type": primitiveOption.getCurrentType(),
-        "target":entityChooser.currentEntityPath
+        "target": entityChooser.currentEntityPath
     }
-
+    property var parametersLoadTfs: {
+        "map": entityChooser.currentEntityPath,
+        "transforms": [
+            {
+                "static": true,
+                "header": {
+                    "frame_id": frameIdInput.currentText + "_annotation_" + entityChooser.currentEntityPath,
+                    "stamp": { "sec": 0, "nsec": 0 }
+                },
+                "transform": {
+                    "child_frame_id" : childFrameIdInput.text,
+                    "translation" : {
+                        "x" : parseFloat(xInp.text),
+                        "y" : parseFloat(yInp.text),
+                        "z" : parseFloat(zInp.text)
+                    },
+                    "rotation" : {
+                        "w" : 1.0,
+                        "x" : 0.0,
+                        "y" : 0.0,
+                        "z" : 0.0
+                    }
+                }
+            }
+        ],
+        "frame_id": frameIdInput.currentText
+    }
     Component.onCompleted: {
         primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
     }
@@ -36,9 +68,8 @@ Item {
         }
     }
 
-    //Component.onDestruction: appStyle.tmpUsePreviewMatrix = false
-    //onVisibleChanged: appStyle.tmpUsePreviewMatrix = visible
     onShownChanged: {
+        appStyle.tmpUsePreviewMatrix = shown
         appStyle.tmpPlacePrimitive = shown
         if(shown) primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
     }
@@ -125,6 +156,85 @@ Item {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
             dialogRoot: root
+            z: 200
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Tr x "
+            }
+            StyledTextField {
+                id: xInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+                onTextChanged: root.updateTranslationMatrix()
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Tr y "
+            }
+            StyledTextField {
+                id: yInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+                onTextChanged: root.updateTranslationMatrix()
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "Tr z "
+            }
+            StyledTextField {
+                id: zInp
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "0"
+                onTextChanged: root.updateTranslationMatrix()
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            z:100
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "frame_id:"
+            }
+            QuickAccessMenu {
+                z:100
+                id: frameIdInput
+                Layout.fillWidth: true
+                height: appStyle.controlHeightInner
+                allowNew: true
+                model: currentCheckout.getFrameIds()
+                blurMouseArea: MouseArea {
+                    parent: root.parent.parent
+                    anchors.fill: parent
+                    preventStealing: true
+                    propagateComposedEvents: true
+                    z:-1000
+                }
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                Layout.alignment: Qt.AlignTop
+                text: "child_frame_id:"
+            }
+            StyledTextField {
+                id: childFrameIdInput
+                Layout.fillWidth: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                text: "entity_frame_id"
+            }
         }
         RowLayout {
             Layout.fillWidth: true

@@ -24,7 +24,7 @@ Item {
     UPNS.Checkout {
         id: checkout
         repository: globalRepository
-        name: checkoutChooser.currentCheckoutName?checkoutChooser.currentCheckoutName : "testcheckout" // InitDemo
+        name: checkoutChooser.currentCheckoutName
     }
     UPNS.Entitydata {
         id: currentEntitydataId

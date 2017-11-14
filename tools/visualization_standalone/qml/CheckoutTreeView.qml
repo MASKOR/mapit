@@ -165,25 +165,23 @@ QCtl.TreeView {
 //        }
     }
     //onCurrentIndexChanged: console.log("SEL:"+treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole));//treeViewCheckout.currentIndex.data(Qt.ToolTipRole));//treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole))
-    rowDelegate: Item {
-        height: appStyle.controlHeightInner
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                verticalCenter: parent.verticalCenter
-            }
-            height: parent.height
-            color: styleData.selected ? appStyle.highlightColor : appStyle.itemBackgroundColor
-            MouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.RightButton
-                onClicked: {
-                    if (mouse.button === Qt.RightButton) {
-                        treeViewCheckout.contextMenu.popup()
+    rowDelegate: Component {
+            Rectangle {
+                height: appStyle.controlHeightInner
+//                anchors.left: parent !== null ? parent.left : warningSuppressor.left
+//                anchors.right: parent !== null ? parent.right : warningSuppressor.right
+//                anchors.verticalCenter: parent !== null ? parent.verticalCenter : warningSuppressor.verticalCenter
+//                height: parent !== null ? parent.height : warningSuppressor.height
+                color: styleData.selected ? appStyle.highlightColor : appStyle.itemBackgroundColor
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: {
+                        if (mouse.button === Qt.RightButton) {
+                            treeViewCheckout.contextMenu.popup()
+                        }
                     }
                 }
             }
-        }
     }
 }

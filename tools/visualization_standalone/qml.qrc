@@ -354,5 +354,8 @@
         <file>qml/operators/load_primitive.png</file>
         <file>qml/operators/load_primitive.qml</file>
         <file>qml/pipelines/place_primitive.qml</file>
+        <file>qml/HandleRotate.qml</file>
+        <file>qml/HandleScale.qml</file>
+        <file>qml/HandleTranslate.qml</file>
     </qresource>
 </RCC>

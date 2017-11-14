@@ -149,10 +149,8 @@ std::shared_ptr<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId
     return NULL;
 }
 
-//TODO: Streamline with layertype loading code
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
 {
-    //TODO: This code my belong to a class which handles operation-modules. A "listOperations" might be needed outside of "checkout".
     return OperatorLibraryManager::doOperation(desc, this);
 }
 

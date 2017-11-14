@@ -126,7 +126,7 @@ Item {
                                     sourceSize: Qt.size(iconMarginItem.generatedWidth,appStyle.iconSize)
                                     width: iconMarginItem.generatedWidth
                                     height: appStyle.iconSize
-                                    source: "image://operator/"+gridRoot.model.get(index).displayName
+                                    source: gridRoot.model.get(index) ? "image://operator/"+gridRoot.model.get(index).displayName: "image://operator"
                                     fillMode: Image.PreserveAspectFit
                                     anchors.verticalCenter: parent.verticalCenter
                                     smooth: false
@@ -136,7 +136,7 @@ Item {
                             StyledLabel {
                                 Layout.fillHeight: true
                                 renderType: Text.NativeRendering
-                                text: listview.model.get(index).displayName
+                                text: listview.model.get(index) ? listview.model.get(index).displayName : ""
                                 verticalAlignment: Text.AlignVCenter
                                 MouseArea {
                                     anchors.fill: parent
@@ -183,13 +183,13 @@ Item {
                             }
                         }
                         tooltip: qsTr("Show details of <i>%1</i>.").arg(
-                                     gridRoot.model.get(index).displayName)
+                                     gridRoot.model.get(index) ? gridRoot.model.get(index).displayName : "")
                         Column {
                             y: 8
                             anchors.horizontalCenter: parent.horizontalCenter
                             Image {
                                 anchors.topMargin: 8
-                                source: "image://operator/"+gridRoot.model.get(index).displayName
+                                source: gridRoot.model.get(index) ? "image://operator/"+gridRoot.model.get(index).displayName : "image://operator"
                                 width: gridRoot.buttonSize*0.6
                                 height: gridRoot.buttonSize*0.6
                                 sourceSize: Qt.size(width, height)
@@ -201,7 +201,7 @@ Item {
                             Text {
                                 width: gridRoot.buttonSize
                                 height: 8
-                                text: gridRoot.model.get(index).displayName
+                                text: gridRoot.model.get(index) ? gridRoot.model.get(index).displayName : ""
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 //anchors.bottom: parent.bottom
                                 wrapMode: Text.WrapAnywhere

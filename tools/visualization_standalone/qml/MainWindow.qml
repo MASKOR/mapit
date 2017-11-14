@@ -76,7 +76,8 @@ ApplicationWindow {
                 enabled: repoUrl.text.trim().length !== 0
                          && repoUrl.text.trim().length !== 0
                 onClicked: {
-                    onClicked: globalRepository.url = repoUrl.text
+                    globalRepository.url = repoUrl.text
+                    appStyle.repositoryUrl = repoUrl.text
                     openRepoDialog.visible = false
                 }
                 Layout.column: 1

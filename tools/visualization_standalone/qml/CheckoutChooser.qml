@@ -9,7 +9,7 @@ StyledButton {
     id: root
     text: qsTr("Checkout")
     tooltip: qsTr("Open Dialog to choose checkout to work on")
-    property var currentCheckoutName
+    property string currentCheckoutName: appStyle.checkoutName
     onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
     Wnd.Window {
         id: chooseCheckoutDialog
@@ -96,6 +96,7 @@ StyledButton {
                                      && checkoutnameTextedit.text.trim().length !== 0
                             onClicked: {
                                 globalRepository.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
+                                appStyle.checkoutName = checkoutnameTextedit.text
                                 newCheckoutDialog.visible = false
                             }
                             Layout.column: 1
@@ -114,6 +115,7 @@ StyledButton {
                     text: "Ok"
                     onClicked: {
                         root.currentCheckoutName = globalRepository.checkoutNames[checkoutList.currentIndex];
+                        appStyle.checkoutName = root.currentCheckoutName
                         chooseCheckoutDialog.visible = false;
                     }
                 }

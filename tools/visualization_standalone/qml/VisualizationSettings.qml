@@ -6,14 +6,14 @@ import QtQuick.Window 2.0
 
 Window {
     id: root
-    width: controlsContainer.width
+    width: controlsContainer.width + 25 /* width of scrollbar (TODO: remove hack) */
     height: 400
     color: appStyle.backgroundColor
-    flags: Qt.Tool
+    flags: Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint
     modality: Qt.NonModal
     visible: false
-    maximumWidth: controlsContainer.width
-    minimumWidth: controlsContainer.width
+    maximumWidth: dialogContent.width
+    minimumWidth: dialogContent.width
     property var model: ListModel {
         ListElement { label: "Background Color"; propName: "backgroundColor" }
         ListElement { label: "Text Color"; propName: "textColor" }
@@ -47,6 +47,9 @@ Window {
         anchors.fill: parent
         color: appStyle.backgroundColor
         ScrollView {
+            id: dialogContent
+            horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+            //verticalScrollBarPolicy: Qt.ScrollBarAlwaysOn
             anchors.fill: parent
             ColumnLayout {
                 id: controlsContainer

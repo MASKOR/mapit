@@ -179,9 +179,7 @@ Item {
             hoverEnabled: true
 
             onEntered: priv.mouseOver = true
-            onExited: {
-                priv.mouseOver = false
-            }
+            onExited: priv.mouseOver = false
             onWheel: {
                 cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
             }
@@ -206,8 +204,25 @@ Item {
                 }
             }
 
+            UPNS.RayCast {
+                id: mouseRaycast
+                viewMatrix: camera.viewMatrix
+                projectionMatrix: camera.projectionMatrix
+                viewportSize: Qt.size(scene3d.width, scene3d.height)
+                pointOnPlane: camera.viewCenter
+                planeNormal: camera.viewVector
+                screenPosition: Qt.vector2d(sceneMouseArea.mouseX, sceneMouseArea.mouseY)
+            }
+            Q3D.Transform {
+                id: previewTransform
+                translation: mouseRaycast.worldPosition
+                onMatrixChanged: {
+                    appStyle.tmpPreviewMatrix = matrix
+                }
+            }
+
             Scene3D {
-                hoverEnabled: true
+                //hoverEnabled: true
                 anchors.fill: parent
                 id: scene3d
                 aspects: ["render", "logic", "input"]
@@ -319,6 +334,12 @@ Item {
                                                     }
                                                 }
                                             }
+                                            LayerFilter {
+                                                Layer {
+                                                    id: gizmoLayer
+                                                }
+                                                layers: gizmoLayer
+                                            }
                                         }
                                     }
                                 }
@@ -330,141 +351,155 @@ Item {
                             eventSource: scene3d
                             enabled: true
 
-                        },
-                        Q3D.Transform {
-                            id: worldTransform
-                            scale: appStyle.cameraScale
                         }
                     ]
 
                     Q3D.Entity {
-                        id: gridEntity
-                        Q3D.Transform {
-                            id: gridTransform
-                            translation: Qt.vector3d(0, 0, 0)
-                        }
-                        HelperGridMesh {
-                            id: gridMesh
-                            gridSpacing: appStyle.gridSpacing
-                            lines: appStyle.gridLines
-                        }
-
-                        property Material materialPhong: PhongMaterial {
-                            ambient: Qt.rgba(0.0,0.0,0.0,1.0)
-                        }
-                        components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
-                    }
-
-                    Q3D.Entity {
-                        id: gizmoEntity
-
-                        property var meshTransform: Q3D.Transform {
-                            id: viewCenterTransform
-                            translation: mainCamera.viewCenter
-                            rotation: coordianteSystemTransform.rotation
-                        }
-                        PerVertexColorMaterial {
-                            id: perVertexColorMaterial
-                        }
-                        GeometryRenderer {
-                            id: gizmoRenderer
-
-                            function rebuild() {
-                                buffer.data = buffer.buildGrid()
-                            }
-                            instanceCount: 1
-                            indexOffset: 0
-                            firstInstance: 0
-                            vertexCount: 6
-                            primitiveType: GeometryRenderer.Lines
-                            geometry: Geometry {
-                                Attribute {
-                                    id: positionAttribute
-                                    attributeType: Attribute.VertexAttribute
-                                    vertexBaseType: Attribute.Float
-                                    vertexSize: 3
-                                    byteOffset: 0
-                                    byteStride: 6 * 4
-                                    count: 6
-                                    name: "vertexPosition"//defaultPositionAttributeName()
-                                    buffer: Buffer {
-                                        id: bufferPosColor
-                                        type: Buffer.VertexBuffer
-                                        function buildGrid() {
-                                            var vertices = 6;
-                                            var vertexFloats = 6;
-                                            var vertexArray = new Float32Array(vertexFloats * vertices);
-                                            vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
-                                            vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
-                                            vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
-                                            vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
-
-                                            vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
-                                            vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
-                                            vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
-                                            vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
-
-                                            vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
-                                            vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
-                                            vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
-                                            vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
-                                            return vertexArray
-                                        }
-                                        data: buildGrid()
-                                    }
-                                }
-                                Attribute {
-                                    id: colorAttribute
-                                    attributeType: Attribute.VertexAttribute
-                                    vertexBaseType: Attribute.Float
-                                    vertexSize: 3
-                                    byteOffset: 3 * 4
-                                    byteStride: 6 * 4
-                                    count: 6
-                                    name: "vertexColor"//defaultColorAttributeName()
-                                    buffer: bufferPosColor
-                                }
-                            }
-                        }
-                        property bool isVisible
-                        property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
-                        components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
-                    }
-
-                    Q3D.Entity {
-                        id: objectsRoot
-                        property alias objectsRootTransform: coordianteSystemTransform
+                        id: worldEntity
                         components: [
                             Q3D.Transform {
-                                id: coordianteSystemTransform
-                                rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
+                                id: worldTransform
+                                scale: appStyle.cameraScale
                             }]
-                        UPNS.PointcloudCoordinatesystem {
-                            id: coordSys
+                        Q3D.Entity {
+                            id: gridEntity
+                            Q3D.Transform {
+                                id: gridTransform
+                                translation: Qt.vector3d(0, 0, 0)
+                            }
+                            HelperGridMesh {
+                                id: gridMesh
+                                gridSpacing: appStyle.gridSpacing
+                                lines: appStyle.gridLines
+                            }
+
+                            property Material materialPhong: PhongMaterial {
+                                ambient: Qt.rgba(0.0,0.0,0.0,1.0)
+                            }
+                            components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
                         }
-                        Q3D.NodeInstantiator {
-                            id: entityInstantiator
-                            model: root.visibleEntityItems
-                            delegate: MapitEntity {
-                                mainCameratmp: mainCamera
-                                scene3dtmp: scene3d
-                                coordinateSystem: coordSys
-                                currentFrameId: root.currentFrameId
-                                //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
-                                //                                                                                                      0, 1, 0, 0,
-                                //                                                                                                      0, 0, 1, 0,
-                                //                                                                                                      0, 0, 0, 1)
-                                layer: pointLayer
-                                parametersTmp: techniqueFilter.parameters
-                                currentCheckout: UPNS.Checkout {
-                                    id: co
-                                    repository: globalRepository
-                                    name: model.checkoutName
-                                    Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
+
+                        Q3D.Entity {
+                            id: gizmoEntity
+
+                            property var meshTransform: Q3D.Transform {
+                                id: viewCenterTransform
+                                translation: mainCamera.viewCenter
+                                rotation: coordianteSystemTransform.rotation
+                            }
+                            PerVertexColorMaterial {
+                                id: perVertexColorMaterial
+                            }
+                            GeometryRenderer {
+                                id: gizmoRenderer
+
+                                function rebuild() {
+                                    buffer.data = buffer.buildGrid()
                                 }
-                                currentEntitydata: UPNS.Entitydata {
-                                    checkout: co
-                                    path: model.path
+                                instanceCount: 1
+                                indexOffset: 0
+                                firstInstance: 0
+                                vertexCount: 6
+                                primitiveType: GeometryRenderer.Lines
+                                geometry: Geometry {
+                                    Attribute {
+                                        id: positionAttribute
+                                        attributeType: Attribute.VertexAttribute
+                                        vertexBaseType: Attribute.Float
+                                        vertexSize: 3
+                                        byteOffset: 0
+                                        byteStride: 6 * 4
+                                        count: 6
+                                        name: "vertexPosition"//defaultPositionAttributeName()
+                                        buffer: Buffer {
+                                            id: bufferPosColor
+                                            type: Buffer.VertexBuffer
+                                            function buildGrid() {
+                                                var vertices = 6;
+                                                var vertexFloats = 6;
+                                                var vertexArray = new Float32Array(vertexFloats * vertices);
+                                                vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
+                                                vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
+                                                vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
+                                                vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
+
+                                                vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
+                                                vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
+                                                vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
+                                                vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
+
+                                                vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
+                                                vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
+                                                vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
+                                                vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
+                                                return vertexArray
+                                            }
+                                            data: buildGrid()
+                                        }
+                                    }
+                                    Attribute {
+                                        id: colorAttribute
+                                        attributeType: Attribute.VertexAttribute
+                                        vertexBaseType: Attribute.Float
+                                        vertexSize: 3
+                                        byteOffset: 3 * 4
+                                        byteStride: 6 * 4
+                                        count: 6
+                                        name: "vertexColor"//defaultColorAttributeName()
+                                        buffer: bufferPosColor
+                                    }
+                                }
+                            }
+                            property bool isVisible
+                            property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
+                            components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
+                        }
+
+                        Q3D.Entity {
+                            id: objectsRoot
+                            property alias objectsRootTransform: coordianteSystemTransform
+                            components: [
+                                Q3D.Transform {
+                                    id: coordianteSystemTransform
+                                    rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
+                                }]
+
+                            HandleTranslate {
+                                id: manipulationGizmo
+                                layer: gizmoLayer
+                                property var gizmoTransform: Q3D.Transform {
+                                    translation: Qt.vector3d(2.0,2.0,2.0)
+                                }
+                                components: [ gizmoTransform, gizmoLayer ]
+                            }
+
+                            UPNS.PointcloudCoordinatesystem {
+                                id: coordSys
+                            }
+                            Q3D.NodeInstantiator {
+                                id: entityInstantiator
+                                model: root.visibleEntityItems
+                                delegate: MapitEntity {
+                                    mainCameratmp: mainCamera
+                                    scene3dtmp: scene3d
+                                    coordinateSystem: coordSys
+                                    currentFrameId: root.currentFrameId
+                                    //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
+                                    //                                                                                                      0, 1, 0, 0,
+                                    //                                                                                                      0, 0, 1, 0,
+                                    //                                                                                                      0, 0, 0, 1)
+                                    layer: pointLayer
+                                    parametersTmp: techniqueFilter.parameters
+                                    currentCheckout: UPNS.Checkout {
+                                        id: co
+                                        repository: globalRepository
+                                        name: model.checkoutName
+                                        Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
+                                    }
+                                    currentEntitydata: UPNS.Entitydata {
+                                        checkout: co
+                                        path: model.path
+                                    }
                                 }
                             }
                         }
@@ -476,8 +511,7 @@ Item {
 
                             property var meshTransform: Q3D.Transform {
                                 id: sphereTransform
-                                translation: appStyle.tmpMouseIntersect3D
-                                rotation: fromAxisAndAngle(Qt.vector3d(0, 1, 0), 0)
+                                matrix: appStyle.tmpPreviewMatrix
                             }
                             property var sphereMesh: SphereMesh { }
                             property var planeMesh: PlaneMesh { }

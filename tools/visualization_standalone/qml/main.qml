@@ -29,7 +29,7 @@ MainWindow {
     visible: true
     UPNS.Repository {
         id: globalRepository
-        url: "." // default cfg is the current folder
+        url: appStyle.repositoryUrl
     }
 
     Item {

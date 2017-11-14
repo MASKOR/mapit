@@ -30,15 +30,21 @@ Q3D.Entity {
     property ObjectPicker picker: ObjectPicker {
         hoverEnabled: true
         onClicked: {
-            if(pick.button == Qt.LeftButton)
+            if(pick.button == Qt.LeftButton) {
                 var transfVec4 = objectsRoot.objectsRootTransform.matrix.inverted().times(Qt.vector4d(pick.worldIntersection.x,pick.worldIntersection.y,pick.worldIntersection.z, 1.0))
-                appStyle.tmpMouseIntersect3D = Qt.vector3d(transfVec4.x, transfVec4.y, transfVec4.z)
+                var translateMatrix = Qt.matrix4x4()
+                translateMatrix.translate(transfVec4.x, transfVec4.y, transfVec4.z)
+                appStyle.tmpPreviewMatrix = translateMatrix
+            }
         }
-        onMoved: {
-            appStyle.tmpMouseIntersect3D = pick.worldIntersection
-            // Currently Scene3D does not work for hover
-            console.log("DBG: Moving mouse (hover) works now " + pick.worldIntersection)
-        }
+//        onMoved: {
+//            var transfVec4 = objectsRoot.objectsRootTransform.matrix.inverted().times(Qt.vector4d(pick.worldIntersection.x,pick.worldIntersection.y,pick.worldIntersection.z, 1.0))
+//            var translateMatrix = Qt.matrix4x4()
+//            translateMatrix.translate(transfVec4.x, transfVec4.y, transfVec4.z)
+//            appStyle.tmpPreviewMatrix = translateMatrix
+//            // Currently Scene3D does not work for hover
+//            console.log("DBG: Moving mouse (hover) works now " + pick.worldIntersection)
+//        }
     }
     property var meshTransform: Q3D.Transform {
             id: theMeshTransform
