@@ -36,7 +36,7 @@ find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${mapit_core} ${mapit_interface} ${mapit_interface_cpp})
 target_link_libraries(${PROJECT_NAME} ${mapit_core} ${LOG4CPLUS_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS}
+target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR}
                                                   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                                   $<INSTALL_INTERFACE:include>)
 
