@@ -18,7 +18,7 @@
 
 void TFTest::init()
 {
-    fileSystemName_ = "tf_test.mapit";
+    fileSystemName_ = std::string("tf_test.mapit");
     cleanup();
     repo_ = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName_));
     checkout_ = std::shared_ptr<upns::Checkout>(repo_->createCheckout("master", "tftest"));
@@ -26,7 +26,7 @@ void TFTest::init()
 
 void TFTest::cleanup()
 {
-    QDir dir(fileSystemName_);
+    QDir dir(fileSystemName_.c_str());
     if(dir.exists())
     {
         bool result = dir.removeRecursively();
