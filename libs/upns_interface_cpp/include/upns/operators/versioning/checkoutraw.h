@@ -62,17 +62,17 @@ public:
 
 
     /**
-     * @brief getEntityDataReadWrite get read and writable data of an entety
+     * @brief getEntitydataReadWrite get read and writable data of an entety
      * @param entity
      * @return
      */
-    std::shared_ptr<AbstractEntitydata> getEntityDataReadWrite(std::shared_ptr<mapit::Entity> entity)
+    std::shared_ptr<AbstractEntitydata> getEntitydataReadWrite(std::shared_ptr<mapit::Entity> entity)
     {
         return getEntitydataForReadWrite(entity->getDataPath());
     }
 
     /**
-     * @brief getEntityDataReadWrite get read and writable data of an entety
+     * @brief getEntitydataReadWrite get read and writable data of an entety
      * @param entity
      * @return
      */
@@ -216,7 +216,7 @@ public:
     {
         storeEntity(entity->getDataPath(), entity->getEntity());
         // TODO data as well in one function
-        std::shared_ptr<upns::Entitydata<LayerDataType>> entity_data = std::dynamic_pointer_cast<upns::Entitydata<LayerDataType>>(getEntityDataReadWrite(entity));
+        std::shared_ptr<upns::Entitydata<LayerDataType>> entity_data = std::dynamic_pointer_cast<upns::Entitydata<LayerDataType>>(getEntitydataReadWrite(entity));
         if (entity_data == NULL) {
             // this means that the data was wrongly saved, error is not here!
             assert(false);

@@ -7,7 +7,7 @@ void
 PublishTFs::publish_entity(std::shared_ptr<mapit::Entity> entity)
 {
   // get data
-  std::shared_ptr<upns::AbstractEntitydata> entity_data_abstract = checkout_->getEntityDataReadOnly(entity);
+  std::shared_ptr<upns::AbstractEntitydata> entity_data_abstract = checkout_->getEntitydataReadOnly(entity);
   std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfs =
       std::static_pointer_cast<TfEntitydata>(
         entity_data_abstract
