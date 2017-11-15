@@ -10,7 +10,7 @@ if(NOT DISABLE_PCL)
     add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
     # pcl
-    find_package(PCL 1.8 REQUIRED
+    find_package(PCL QUIET 1.8 REQUIRED
         COMPONENTS filters)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})

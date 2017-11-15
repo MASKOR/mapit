@@ -15,7 +15,7 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-find_package(PCL REQUIRED COMPONENTS common io)
+find_package(PCL QUIET REQUIRED COMPONENTS common io)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})

@@ -37,10 +37,10 @@ find_package(Qt53DQuickInput REQUIRED)
 find_package(Qt53DQuickRender REQUIRED)
 
 #if(WITH_PCL)
-#    #find_package(PCL REQUIRED COMPONENTS common io filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
-#    find_package(PCL REQUIRED COMPONENTS common io) # apps visualization)
+#    #find_package(PCL QUIET REQUIRED COMPONENTS common io filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
+#    find_package(PCL QUIET REQUIRED COMPONENTS common io) # apps visualization)
 
-#    #find_package(PCL REQUIRED COMPONENTS common io search kdtree features filters)
+#    #find_package(PCL QUIET REQUIRED COMPONENTS common io search kdtree features filters)
 #    include_directories(${PCL_INCLUDE_DIRS})
 #    link_directories(${PCL_LIBRARY_DIRS})
 #    add_definitions(${PCL_DEFINITIONS})

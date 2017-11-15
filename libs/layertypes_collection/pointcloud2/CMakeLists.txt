@@ -2,7 +2,7 @@ project(layertype_pointcloud2)
 
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
-#find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
+#find_package(PCL QUIET REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
 
 find_package(mapit REQUIRED)
 
@@ -13,7 +13,7 @@ find_package(Boost COMPONENTS serialization system filesystem date_time)
 find_package(Protobuf)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-find_package(PCL REQUIRED COMPONENTS common io)
+find_package(PCL QUIET REQUIRED COMPONENTS common io)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
