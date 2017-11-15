@@ -5,7 +5,7 @@
 #include <upns/operators/serialization/abstractentitydataprovider.h>
 
 #include <upns/layertypes/tflayer/utils.h>
-
+//TODO: Rename file to tfentitydata.h/cpp
 using namespace upns;
 
 namespace upns {

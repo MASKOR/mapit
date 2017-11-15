@@ -79,11 +79,19 @@ void FileSystemEntitydataStreamProvider::endRead(upnsIStream *&strm)
 upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
 {
     //TODO: seek, overwrite
-    return new std::ofstream(m_filenameWrite, std::ios::out | std::ios::binary);
+    if( m_filenameWrite.empty() )
+    {
+        log_error("writing not allowed");
+        return nullptr;
+    }
+    std::ofstream *ofstr(new std::ofstream(m_filenameWrite, std::ios::out | std::ios::binary));
+    assert(ofstr->is_open());
+    return ofstr;
 }
 
 void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *&strm)
 {
+    assert(strm);
     assert(static_cast<std::ofstream*>(strm)->is_open());
     strm->flush();
     static_cast<std::ofstream*>(strm)->close();
@@ -101,6 +109,11 @@ upnsuint64 FileSystemEntitydataStreamProvider::getStreamSize() const
 
 void FileSystemEntitydataStreamProvider::setStreamSize(upnsuint64 streamSize)
 {
+    if( m_filenameWrite.empty() )
+    {
+        log_error("writing not allowed");
+        return;
+    }
     std::ofstream os(m_filenameWrite);
     // TODO
 }
@@ -151,6 +164,10 @@ void FileSystemEntitydataStreamProvider::endReadPointer(const void *ptr, ReadWri
 
 void *FileSystemEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
 {
+    if( m_filenameWrite.empty() ) {
+        log_error("writing not allowed");
+        return nullptr;
+    }
     FileSystemReadWritePointerHandle *fsHandle = new FileSystemReadWritePointerHandle;
     handle = static_cast<ReadWriteHandle>(fsHandle);
     fsHandle->file.open(m_filenameWrite, boost::iostreams::mapped_file::priv, len?len:getStreamSize(), start);
@@ -165,6 +182,7 @@ void *FileSystemEntitydataStreamProvider::startWritePointer(ReadWriteHandle &han
 
 void FileSystemEntitydataStreamProvider::endWritePointer(void* ptr, ReadWriteHandle &handle)
 {
+    assert(ptr);
     FileSystemReadWritePointerHandle *fsHandle(static_cast<FileSystemReadWritePointerHandle*>(handle));
     fsHandle->file.close();
     if (fsHandle->file.is_open())
@@ -176,6 +194,11 @@ void FileSystemEntitydataStreamProvider::endWritePointer(void* ptr, ReadWriteHan
 
 std::string FileSystemEntitydataStreamProvider::startReadFile(ReadWriteHandle &handle)
 {
+    if( m_filenameRead.empty() )
+    {
+        log_error("reading not allowed");
+        return "";
+    }
     return m_filenameRead;
 }
 
@@ -186,6 +209,11 @@ void FileSystemEntitydataStreamProvider::endReadFile(ReadWriteHandle &handle)
 
 std::string FileSystemEntitydataStreamProvider::startWriteFile(ReadWriteHandle &handle)
 {
+    if( m_filenameWrite.empty() )
+    {
+        log_error("writing not allowed");
+        return "";
+    }
     return m_filenameWrite;
 }
 

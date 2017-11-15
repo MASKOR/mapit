@@ -206,7 +206,12 @@ public:
     }
 
     /**
-     * @brief storeEntity stores the given entity and entity data to the mapit system
+     * @brief storeEntity stores the given entity and entitydata to the mapit system.
+     * Storing entitydata is a task which may not be abstracted for certain (big) data.
+     * For this task AbstractEntitydata can provide a multitude of methods to store data (e.g. spatial).
+     * This method is meant for objects implementing the convenience class "EntityData<T>" with its setData()
+     * method.
+     * TODO: Move this method to another wrapper.
      * @param entity
      * @param entity_data_to_be_saved
      * @return
@@ -221,7 +226,7 @@ public:
             // this means that the data was wrongly saved, error is not here!
             assert(false);
         }
-        // TODO entety data stream manager oder so
+        // TODO entity data stream manager oder so
         entity_data->setData(entity_data_to_be_saved, 0);
     }
 

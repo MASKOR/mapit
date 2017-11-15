@@ -2,10 +2,11 @@
 #include <upns/logging.h>
 #include <upns/layertypes/tflayer/tf2/buffer_core.h>
 
+#include <fstream>
 template <typename T>
 class not_deleter {
 public:
-  void operator()(T* ptr){}
+    void operator()(T* ptr){}
 };
 
 void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStampedList> &tfsout )
@@ -39,7 +40,6 @@ void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStamp
 
       tfsout->add_TransformStamped( std::move(tfout), tfs.is_static() );
     }
-  }
 }
 void writeTfToStream(upnsOStream &out, tf::store::TransformStampedList &data )
 {
@@ -127,78 +127,78 @@ int TfEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
                           std::shared_ptr<tf::store::TransformStampedList> &data,
                           int lod)
 {
-  upnsOStream *out = m_streamProvider->startWrite();
-  {
-    writeTfToStream( *out, *data );
-  }
-  m_streamProvider->endWrite(out);
-	return 0; //TODO: MSVC: What to return here?
+    upnsOStream *out = m_streamProvider->startWrite();
+    {
+        writeTfToStream( *out, *data );
+    }
+    m_streamProvider->endWrite(out);
+    return 0; //TODO: MSVC: What to return here?
 }
 
 std::shared_ptr<tf::store::TransformStampedList> TfEntitydata::getData(int lod)
 {
-  return getData(-std::numeric_limits<upnsReal>::infinity(),
-                 -std::numeric_limits<upnsReal>::infinity(),
-                 -std::numeric_limits<upnsReal>::infinity(),
-                  std::numeric_limits<upnsReal>::infinity(),
-                  std::numeric_limits<upnsReal>::infinity(),
-                  std::numeric_limits<upnsReal>::infinity(),
-                 false, lod);
+    return getData(-std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                   std::numeric_limits<upnsReal>::infinity(),
+                   std::numeric_limits<upnsReal>::infinity(),
+                   std::numeric_limits<upnsReal>::infinity(),
+                   false, lod);
 }
 
 int TfEntitydata::setData(std::shared_ptr<tf::store::TransformStampedList> &data, int lod)
 {
-  return setData(-std::numeric_limits<upnsReal>::infinity(),
-                 -std::numeric_limits<upnsReal>::infinity(),
-                 -std::numeric_limits<upnsReal>::infinity(),
-                  std::numeric_limits<upnsReal>::infinity(),
-                  std::numeric_limits<upnsReal>::infinity(),
-                  std::numeric_limits<upnsReal>::infinity(),
-                 data, lod);
+    return setData(-std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                   -std::numeric_limits<upnsReal>::infinity(),
+                   std::numeric_limits<upnsReal>::infinity(),
+                   std::numeric_limits<upnsReal>::infinity(),
+                   std::numeric_limits<upnsReal>::infinity(),
+                   data, lod);
 }
 
 void TfEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
                               upnsReal &x1, upnsReal &y1, upnsReal &z1,
                               upnsReal &x2, upnsReal &y2, upnsReal &z2) const
 {
-  x1 = -std::numeric_limits<upnsReal>::infinity();
-  y1 = -std::numeric_limits<upnsReal>::infinity();
-  z1 = -std::numeric_limits<upnsReal>::infinity();
-  x2 = +std::numeric_limits<upnsReal>::infinity();
-  y2 = +std::numeric_limits<upnsReal>::infinity();
-  z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<upnsReal>::infinity();
+    y1 = -std::numeric_limits<upnsReal>::infinity();
+    z1 = -std::numeric_limits<upnsReal>::infinity();
+    x2 = +std::numeric_limits<upnsReal>::infinity();
+    y2 = +std::numeric_limits<upnsReal>::infinity();
+    z2 = +std::numeric_limits<upnsReal>::infinity();
 }
 
 int TfEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                        upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-  //TODO
-  return 0;
+    //TODO
+    return 0;
 }
 
 upnsIStream *TfEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
 {
-  return m_streamProvider->startRead(start, len);
+    return m_streamProvider->startRead(start, len);
 }
 
 void TfEntitydata::endRead(upnsIStream *&strm)
 {
-  m_streamProvider->endRead(strm);
+    m_streamProvider->endRead(strm);
 }
 
 upnsOStream *TfEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
 {
-  return m_streamProvider->startWrite(start, len);
+    return m_streamProvider->startWrite(start, len);
 }
 
 void TfEntitydata::endWrite(upnsOStream *&strm)
 {
-  m_streamProvider->endWrite(strm);
+    m_streamProvider->endWrite(strm);
 }
 
 size_t TfEntitydata::size() const
 {
-  return m_streamProvider->getStreamSize();
+    return m_streamProvider->getStreamSize();
 }
 
 // Win32 does not like anything but void pointers handled between libraries

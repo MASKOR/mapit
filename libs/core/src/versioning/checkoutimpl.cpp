@@ -79,13 +79,7 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
-//    if(p.compare(0, m_name.size(), m_name) == 0) // TODO this does not work if checkoutname equals map name at the beginning, e.g. co=test map=testmap/, results in testmap/ being changed to map/
-//    {
-//        p = p.substr(m_name.size(), p.length()-m_name.size());
-//        if (p.compare("/") == 0) { // TODO is this the correct workaround???
-//            p = "";
-//        }
-//    }
+
     // Try to get a transient tree
     std::shared_ptr<Tree> tree = m_serializer->getTreeTransient(m_name + "/" + p);
     if(tree) return tree;
@@ -101,10 +95,7 @@ std::shared_ptr<Entity> CheckoutImpl::getEntity(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
-//    if(p.compare(0, m_name.size(), m_name) == 0)
-//    {
-//        p = p.substr(m_name.size(), p.length()-m_name.size());
-//    }
+
     // Try to get a transient entity
     std::shared_ptr<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p);
     if(ent) return ent;
@@ -121,13 +112,7 @@ CheckoutImpl::typeOfObject(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return MessageEmpty;
-//    if(p.compare(0, m_name.size(), m_name) == 0) // TODO should I fix it
-//    {
-//        p = p.substr(m_name.size(), p.length()-m_name.size());
-//        if (p.compare("/") == 0) { // TODO is this the correct workaround???
-//            p = "";
-//        }
-//    }
+
     // Try to get a transient object
     MessageType type = m_serializer->typeOfObjectTransient(m_name + "/" + p);
     if(type != MessageEmpty) return type;
@@ -141,12 +126,12 @@ CheckoutImpl::typeOfObject(const Path &path)
 
 std::shared_ptr<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
 {
-    return NULL;
+    return nullptr;
 }
 
 std::shared_ptr<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId)
 {
-    return NULL;
+    return nullptr;
 }
 
 OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
@@ -164,24 +149,37 @@ OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription 
 
 std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Path &path)
 {
-    Path p(m_name + "/" + preparePathFilename(path));
-    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( p );
-    if( ent == NULL )
+    Path p(preparePathFilename(path));
+    if(p.empty()) return nullptr;
+
+    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p );
+    if( ent != nullptr )
     {
-        log_warn("Entity not found." + path);
-        return NULL;
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, false), true);
     }
-    assert( ent );
-    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(p, true, false), true);
+    else
+    {
+        // if object is not transient, get from repo
+        ObjectReference ref = objectReferenceForPath(p);
+        if(ref.id().empty()) return nullptr;
+
+        std::shared_ptr<Entity> ent = m_serializer->getEntity( ref.id() );
+        if( ent == nullptr )
+        {
+            log_warn("Entity not found." + path);
+            return nullptr;
+        }
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ref.id(), true), true);
+    }
 }
 
 std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
 {
     std::shared_ptr<Entity> ent = m_serializer->getEntity( entityId );
-    if( ent == NULL )
+    if( ent == nullptr )
     {
         log_warn("Entity not found." + entityId);
-        return NULL;
+        return nullptr;
     }
     assert( ent );
     return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
@@ -189,15 +187,18 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(
 
 std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(const Path &path)
 {
-    Path p(m_name + "/" + preparePathFilename(path));
-    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( p );
-    if( ent == NULL )
+    // Only check transient, because writing is not allowed for already commited objects.
+    Path p(preparePathFilename(path));
+    if(p.empty()) return nullptr;
+
+    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p );
+    if( ent == nullptr )
     {
         log_error("Entity not found." + path);
-        return NULL;
+        return nullptr;
     }
     assert( ent );
-    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(p, true, true), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
 }
 
 bool CheckoutImpl::checkEntitydata(const Path &path)

@@ -559,7 +559,7 @@ FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
     //TODO: Get entity data by oid. Might be a file with name "entityId" in folder "_PREFIX_ENTITYDATA"?
     fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(entityId);
     std::string fn(path.string());
-    return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
+    return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(canRead?fn:"", ""));
 }
 
 std::shared_ptr<AbstractEntitydataProvider>
@@ -568,7 +568,7 @@ FSSerializer::getStreamProviderTransient(const Path &oid, bool canRead, bool can
     //TODO: Get entity data by path. Might be a file at path "_PREFIX_CHECKOUT" / "path"?
     fs::path path = objectid_to_checkout_fs_path(oid) / _CHECKOUT_ENTITY_DATA_;
     std::string fn( path.string() );
-    return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(fn, fn));
+    return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(canRead?fn:"", canWrite?fn:""));
 }
 
 StatusCode

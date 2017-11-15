@@ -69,7 +69,7 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
         }
         iter++;
     }
-    if(!afterTree(obj, ref, path)) return UPNS_STATUS_OK; //TODO: what is happening here?
+    if(!afterTree(obj, ref, path)) return UPNS_STATUS_OK; //TODO: return error code.
     return UPNS_STATUS_OK;
 }
 
