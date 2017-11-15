@@ -1,6 +1,5 @@
 #include <upns/operators/module.h>
 #include <upns/logging.h>
-#include <upns/layertypes/pose_path.h>
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
 #include <upns/operators/versioning/checkoutraw.h>
