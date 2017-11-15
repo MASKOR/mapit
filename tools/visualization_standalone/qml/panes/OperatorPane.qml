@@ -17,6 +17,12 @@ Item {
     property var currentOperator
     property var currentCheckout
     property var currentOperatorUiItem
+    onCurrentOperatorUiItemChanged: {
+        controlHolder.height = currentOperatorUiItem.implicitHeight + appStyle.controlMargin * 2
+        currentOperatorUiItem.width = controlHolder.width
+        controlColumn.update()
+    }
+
     function loadOperatorDialog(operator, prefillHintParameters) {
         prefillHint = prefillHintParameters
         pipelineName = ""
@@ -40,7 +46,7 @@ Item {
 
     function finish( controlComponent ) {
         if (controlComponent.status === Component.Ready) {
-            if( typeof root.currentOperator == "undefined" ) return
+            //if( typeof root.currentOperator == "undefined" ) return
             root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentOperator: root.currentOperator,
                                                                                        pipelineName: root.pipelineName,
                                                                                        currentCheckout: root.currentCheckout,
@@ -51,13 +57,6 @@ Item {
                 // Error Handling
                 console.log("Error creating detailsView")
             }
-            root.currentOperatorUiItem.height = controlHolder.height
-            root.currentOperatorUiItem.width = controlHolder.width
-
-//            console.log("IH: " + root.currentOperatorUiItem.implicitHeight + ", H: " + root.currentOperatorUiItem.height)
-//            controlColumn.height = root.currentOperatorUiItem.implicitHeight
-            //root.currentOperatorUiItem.height = controlHolder.height
-            //root.height = controlHolder.height
 
         } else if (controlComponent.status === Component.Error) {
             // Error Handling
@@ -65,6 +64,15 @@ Item {
         }
         else {
             console.log("Error loading detailsView (Pending?):", controlComponent.errorString())
+        }
+    }
+
+    Connections {
+        target: root.currentOperatorUiItem
+        onImplicitHeightChanged: {
+            controlHolder.height = currentOperatorUiItem.implicitHeight + appStyle.controlMargin * 2
+            currentOperatorUiItem.width = controlHolder.width
+            controlColumn.update()
         }
     }
 
@@ -119,46 +127,47 @@ Item {
         pipelineName = ""
         loadDialog("../operators/", currentOperator.moduleName)
     }
-    ColumnLayout {
+    Item {
         enabled: !globalRepository.isLoadingOperators
         id: controlColumn
         anchors.left: parent.left
         anchors.right: parent.right
         onWidthChanged: controlHolder.width = width
-        //maximumHeight: 300
-        height: Math.min(root.height, 400)
         z: 100
         StyledLabel {
-            Layout.fillWidth: true
-            Layout.leftMargin: appStyle.controlMargin
-            text: currentOperator?currentOperator.moduleName:pipelineName
+            id: topLabel
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: appStyle.controlMargin
+            text: currentOperator ? currentOperator.moduleName : pipelineName
         }
         Item {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.margins: appStyle.controlMargin
+            anchors.top: topLabel.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: appStyle.controlMargin
             id: controlHolder
             z: 100
-//            onChildrenChanged: {
-//                if(children.length > 0) {
-//                    console.log("height: " + childrenRect.height)
-//                } else {
-
-//                }
-//            }
+            onWidthChanged: { currentOperatorUiItem.width = width }
         }
         RowLayout {
-            Layout.fillWidth: true
+            anchors.top: controlHolder.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: appStyle.controlMargin
             visible: root.currentOperator !== null && typeof root.currentOperator !== "undefined"
             StyledButton {
                 Layout.leftMargin: appStyle.controlMargin
                 text: "Execute"
                 enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
                 onClicked: {
-                    console.log("DBG: test exec")
                     currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters)
                 }
             }
+        }
+        Item {
+            Layout.fillHeight: true
         }
     }
 }

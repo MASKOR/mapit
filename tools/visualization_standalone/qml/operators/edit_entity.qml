@@ -5,9 +5,8 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
-    height: childrenRect.height
     //// in ////
     property bool editable
     property var currentCheckout
@@ -32,49 +31,44 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
+    HelperTarget {
+        Layout.fillWidth: true
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "frame_id"
         }
-        RowLayout {
+        StyledTextField {
+            id: frameIdInput
             Layout.fillWidth: true
-            StyledLabel {
-                text: "frame_id"
-            }
-            StyledTextField {
-                id: frameIdInput
-                Layout.fillWidth: true
-            }
         }
-        RowLayout {
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Seconds: "
+        }
+        StyledTextField {
+            id: secInput
             Layout.fillWidth: true
-            StyledLabel {
-                text: "Seconds: "
-            }
-            StyledTextField {
-                id: secInput
-                Layout.fillWidth: true
-                validator: IntValidator {}
-                text: "0"
-            }
+            validator: IntValidator {}
+            text: "0"
         }
-        RowLayout {
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Nanoseconds: "
+        }
+        StyledTextField {
+            id: nsecInput
             Layout.fillWidth: true
-            StyledLabel {
-                text: "Nanoseconds: "
-            }
-            StyledTextField {
-                id: nsecInput
-                Layout.fillWidth: true
-                validator: IntValidator {}
-                text: "0"
-            }
-        }
-        Item {
-            Layout.fillHeight: true
+            validator: IntValidator {}
+            text: "0"
         }
     }
 }

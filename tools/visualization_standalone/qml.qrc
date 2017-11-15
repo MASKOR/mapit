@@ -357,5 +357,9 @@
         <file>qml/HandleRotate.qml</file>
         <file>qml/HandleScale.qml</file>
         <file>qml/HandleTranslate.qml</file>
+        <file>icon/material/ic_location_searching_black_24dp_1x.png</file>
+        <file>icon/material/ic_location_searching_black_24dp_2x.png</file>
+        <file>icon/material/ic_location_searching_white_24dp_1x.png</file>
+        <file>icon/material/ic_location_searching_white_24dp_2x.png</file>
     </qresource>
 </RCC>

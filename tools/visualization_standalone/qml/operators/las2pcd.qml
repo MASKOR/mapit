@@ -5,8 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
-    anchors.fill: parent
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -29,38 +28,33 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
+    HelperTarget {
+        Layout.fillWidth: true
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Demean:"
         }
-        RowLayout {
+        CheckBox {
+            id: demeanCheckbox
             Layout.fillWidth: true
-            StyledLabel {
-                text: "Demean:"
-            }
-            CheckBox {
-                id: demeanCheckbox
-                Layout.fillWidth: true
-            }
         }
-        RowLayout {
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Normalize"
+        }
+        CheckBox {
+            id: normalizeCheckbox
             Layout.fillWidth: true
-            StyledLabel {
-                text: "Normalize"
-            }
-            CheckBox {
-                id: normalizeCheckbox
-                Layout.fillWidth: true
-            }
         }
-        Item {
-            Layout.fillHeight: true
-        }
-        SystemPalette {
-            id: palette
-        }
+    }
+    SystemPalette {
+        id: palette
     }
 }

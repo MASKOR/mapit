@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -25,29 +25,22 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        height: root.height
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
+    HelperTarget {
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Leafsize"
         }
-        RowLayout {
+        StyledTextField {
+            id: leafsizeInput
             Layout.fillWidth: true
-            StyledLabel {
-                text: "Leafsize"
-            }
-            StyledTextField {
-                id: leafsizeInput
-                Layout.fillWidth: true
-                validator: DoubleValidator {}
-                text: "0.01"
-                onTextChanged: console.log(parameters.leafsize)
-            }
-        }
-        Item {
-            Layout.fillHeight: true
+            validator: DoubleValidator {}
+            text: "0.01"
+            onTextChanged: console.log(parameters.leafsize)
         }
     }
 }

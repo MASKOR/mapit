@@ -8,7 +8,7 @@ import fhac.upns 1.0 as UPNS
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool shown
@@ -57,17 +57,30 @@ Item {
             ],
         "frame_id": frameIdInput.currentFrameId
     }
-    UPNS.TfTransform {
-        id: currentEntitydataTransformId
-        checkout: currentCheckout
-        mustExist: false
-        path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
-                                      && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)
-                                        ? ".tf" : "")*/
+    Item {
+        id: priv
+        UPNS.TfTransform {
+            id: currentEntitydataTransformId
+            checkout: currentCheckout
+            mustExist: false
+            path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
+                                          && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)
+                                            ? ".tf" : "")*/
+        }
+        Transform {
+            id: dummyTransform3d
+            property vector3d rotationAxisInput: Qt.vector3d(rx,ry,rz)
+            property vector3d rotationAxis: rotationAxisInput.normalized()
+            property quaternion quaternionRot: fromAxisAndAngle(rotationAxis, rangle)
+            property matrix4x4 rotationMatrix: rotateAround(Qt.vector3d(0,0,0), rangle, Qt.vector3d(rx,ry,rz))
+            rotation: quaternionRot
+        }
     }
+
     Component.onCompleted: {
         appStyle.tmpPreviewMatrix = finalMatrix
         appStyle.tmpUsePreviewMatrix = true
+        appStyle.tmpPlacePrimitive = false
     }
     Component.onDestruction: appStyle.tmpUsePreviewMatrix = false
     onVisibleChanged: appStyle.tmpUsePreviewMatrix = visible
@@ -84,14 +97,6 @@ Item {
 
     onFinalMatrixChanged: {
         appStyle.tmpPreviewMatrix = finalMatrix
-    }
-    Transform {
-        id: dummyTransform3d
-        property vector3d rotationAxisInput: Qt.vector3d(rx,ry,rz)
-        property vector3d rotationAxis: rotationAxisInput.normalized()
-        property quaternion quaternionRot: fromAxisAndAngle(rotationAxis, rangle)
-        property matrix4x4 rotationMatrix: rotateAround(Qt.vector3d(0,0,0), rangle, Qt.vector3d(rx,ry,rz))
-        rotation: quaternionRot
     }
 
     //property matrix4x4 rotationMatrix: matRotX.times(matRotY.times(matRotZ))
@@ -126,7 +131,7 @@ Item {
 
     //// UI ////
     ColumnLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         HelperTarget {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
@@ -270,9 +275,6 @@ Item {
                 text: "0"
                 onTextChanged: root.updateTranslationMatrix()
             }
-        }
-        Item {
-            Layout.fillHeight: true
         }
         SystemPalette {
             id: palette

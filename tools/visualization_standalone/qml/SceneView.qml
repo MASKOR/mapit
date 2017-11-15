@@ -150,6 +150,20 @@ Item {
                     iconSource: "image://primitive/cube-skinny"
                     onClicked: applicationState.selectOperator("place_primitive", {type:"cube"})
                 }
+                StyledButton {
+                    id: btnClick
+                    isIcon: true
+                    checkable: true
+                    iconSource: "image://material/ic_location_searching"
+                    onCheckedChanged: {
+                        appStyle.tmpFollowMouse = checked
+                    }
+                    Connections {
+                        target: appStyle
+                        onTmpFollowMouseChanged:
+                            btnClick.checked = appStyle.tmpFollowMouse
+                    }
+                }
             }
             RowLayout {
                 StyledButton {
@@ -171,22 +185,32 @@ Item {
             }
         }
 
-        MouseArea {
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            id: sceneMouseArea
+            MouseArea {
+                anchors.fill: parent
+                id: sceneMouseArea
+                z: 100
 
-            hoverEnabled: true
+                hoverEnabled: true
+                preventStealing: true
 
-            onEntered: priv.mouseOver = true
-            onExited: priv.mouseOver = false
-            onWheel: {
-                cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
-            }
+                onEntered: priv.mouseOver = true
+                onExited: priv.mouseOver = false
+                onWheel: {
+                    cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
+                }
+                acceptedButtons: Qt.LeftButton
+                onClicked: {
+                    appStyle.emitClickedAction()
+                    appStyle.tmpFollowMouse = false
+                }
 
-            Item {
-                id: priv
-                property bool mouseOver: true
+                Item {
+                    id: priv
+                    property bool mouseOver: true
+                }
             }
 
             StyledButton {
@@ -218,7 +242,9 @@ Item {
                 id: previewTransform
                 translation: coordianteSystemTransform.matrix.inverted().times(mouseRaycast.worldPosition)
                 onMatrixChanged: {
-                    appStyle.tmpPreviewMatrix = matrix
+                    if(appStyle.tmpFollowMouse) {
+                        appStyle.tmpPreviewMatrix = matrix
+                    }
                 }
             }
 

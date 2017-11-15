@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -29,20 +29,15 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        height: root.height
-        HelperOpenFile {
-            id: fileChooser
-            fileExtension: "pcd"
-        }
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
-        }
-        Item {
-            Layout.fillHeight: true
-        }
+    HelperOpenFile {
+        Layout.fillWidth: true
+        id: fileChooser
+        fileExtension: "pcd"
+    }
+    HelperTarget {
+        Layout.fillWidth: true
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
     }
 }

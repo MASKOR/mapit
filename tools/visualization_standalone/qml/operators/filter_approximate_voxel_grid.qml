@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -31,66 +31,57 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        height: root.height
-
-        RowLayout {
-            Layout.fillWidth: true
-            z: 20
-            StyledLabel {
-                text: "Source:"
-            }
-            EntityChooser {
-                id: sourceEntityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+    RowLayout {
+        Layout.fillWidth: true
+        z: 20
+        StyledLabel {
+            text: "Source:"
         }
-
-        RowLayout {
+        EntityChooser {
+            id: sourceEntityChooser
             Layout.fillWidth: true
-            z: 10
-            StyledLabel {
-                text: "Target:"
-            }
-            EntityChooser {
-                id: targetEntityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: sourceEntityChooser.currentEntityPath + "_avxg"
-                                   + "_s" + leafSizeInput.text
-            }
+            currentCheckout: root.currentCheckout
+            currentEntityPath: root.currentEntityPath
         }
+    }
 
-        RowLayout {
+    RowLayout {
+        Layout.fillWidth: true
+        z: 10
+        StyledLabel {
+            text: "Target:"
+        }
+        EntityChooser {
+            id: targetEntityChooser
             Layout.fillWidth: true
-            StyledLabel {
-                text: "leaf size"
-            }
-            StyledTextField {
-                id: leafSizeInput
-                Layout.fillWidth: true
-                validator: DoubleValidator {}
-                text: "0.01"
-            }
+            currentCheckout: root.currentCheckout
+            currentEntityPath: sourceEntityChooser.currentEntityPath + "_avxg"
+                               + "_s" + leafSizeInput.text
         }
+    }
 
-        RowLayout {
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "leaf size"
+        }
+        StyledTextField {
+            id: leafSizeInput
             Layout.fillWidth: true
-            StyledLabel {
-                text: "downsample all data"
-            }
-            Switch {
-                Layout.fillWidth: true
-                id: downsampleAllDataInput
-                checked: true
-            }
+            validator: DoubleValidator {}
+            text: "0.01"
         }
+    }
 
-        Item {
-            Layout.fillHeight: true
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "downsample all data"
+        }
+        Switch {
+            Layout.fillWidth: true
+            id: downsampleAllDataInput
+            checked: true
         }
     }
 }

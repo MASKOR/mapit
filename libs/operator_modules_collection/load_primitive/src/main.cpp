@@ -59,8 +59,11 @@ upns::StatusCode operate_load_primitive(upns::OperationEnvironment* env)
 
     std::string type = primitive["type"].toString().toUpper().toStdString();
 
+    std::string frameId = primitive["frame_id"].toString().toStdString();
+
     std::shared_ptr<Entity> entity(new Entity);
     entity->set_type(PrimitiveEntitydata::TYPENAME());
+    entity->set_frame_id(frameId);
     StatusCode s = env->getCheckout()->storeEntity(target, entity);
     if(!upnsIsOk(s))
     {

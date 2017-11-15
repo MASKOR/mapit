@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -29,53 +29,44 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        height: root.height
-
-        RowLayout {
-            Layout.fillWidth: true
-            z: 20
-            StyledLabel {
-                text: "Source:"
-            }
-            EntityChooser {
-                id: sourceEntityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: root.currentEntityPath
-            }
+    RowLayout {
+        Layout.fillWidth: true
+        z: 20
+        StyledLabel {
+            text: "Source:"
         }
-
-        RowLayout {
+        EntityChooser {
+            id: sourceEntityChooser
             Layout.fillWidth: true
-            z: 10
-            StyledLabel {
-                text: "Target:"
-            }
-            EntityChooser {
-                id: targetEntityChooser
-                Layout.fillWidth: true
-                currentCheckout: root.currentCheckout
-                currentEntityPath: sourceEntityChooser.currentEntityPath + "_unismp_r" + radiusInput.text
-            }
+            currentCheckout: root.currentCheckout
+            currentEntityPath: root.currentEntityPath
         }
+    }
 
-        RowLayout {
+    RowLayout {
+        Layout.fillWidth: true
+        z: 10
+        StyledLabel {
+            text: "Target:"
+        }
+        EntityChooser {
+            id: targetEntityChooser
             Layout.fillWidth: true
-            StyledLabel {
-                text: "radius"
-            }
-            StyledTextField {
-                id: radiusInput
-                Layout.fillWidth: true
-                validator: DoubleValidator {}
-                text: "0.01"
-            }
+            currentCheckout: root.currentCheckout
+            currentEntityPath: sourceEntityChooser.currentEntityPath + "_unismp_r" + radiusInput.text
         }
+    }
 
-        Item {
-            Layout.fillHeight: true
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "radius"
+        }
+        StyledTextField {
+            id: radiusInput
+            Layout.fillWidth: true
+            validator: DoubleValidator {}
+            text: "0.01"
         }
     }
 }

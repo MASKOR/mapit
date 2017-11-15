@@ -205,7 +205,7 @@ void QmlCheckout::setRepository(QmlRepository *repository)
         Q_EMIT internalCheckoutChanged( this );
     }
     //TODO: there might be some rare cases, where this is set intentionally to "".
-    //Important: on merge it is "" and should not be overwritten.
+    //Important: on merge checkout name might be "" and should not be overwritten.
 //    else
 //    {
 //        m_checkout = NULL;

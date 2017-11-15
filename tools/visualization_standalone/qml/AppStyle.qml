@@ -5,8 +5,12 @@ Item {
     id: root
     objectName: "appStyle"
     signal themeChanged
+    signal clickedAction
     function emitThemeChanged() {
         themeChanged()
+    }
+    function emitClickedAction() {
+        clickedAction()
     }
 
     property real backgroundLightness: lighness(backgroundColor)
@@ -73,6 +77,7 @@ Item {
     property matrix4x4 tmpPreviewMatrix
     property string tmpCurrentEditEntity
 
+    property bool tmpFollowMouse: false
     property bool tmpPlacePrimitive: false
     property string tmpPrimitiveType
     property string tmpPrimitivePayload

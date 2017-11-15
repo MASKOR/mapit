@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -30,45 +30,43 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        height: root.height
-        RowLayout {
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Radius:"
+        }
+        StyledTextField {
             Layout.fillWidth: true
-            StyledLabel {
-                text: "Radius:"
-            }
-            StyledTextField {
-                id: radiusTextfiled
-                text:"0.1"
-                //property real num: text.toFixed(8)
-                property bool valid: text < validator.top && text > validator.bottom
-                validator: DoubleValidator {
-                    bottom: 0.0001
-                    top: 1.0
-                }
-            }
-            StyledLabel {
-                text: "Voxelsize:"
-            }
-            StyledTextField {
-                id: voxelsizeTextfiled
-                text:"0.04"
-                //property real num: text.toFixed(8)
-                property bool valid: text < validator.top && text > validator.bottom
-                validator: DoubleValidator {
-                    bottom: 0.0001
-                    top: 1.0
-                }
+            id: radiusTextfiled
+            text:"0.1"
+            //property real num: text.toFixed(8)
+            property bool valid: text < validator.top && text > validator.bottom
+            validator: DoubleValidator {
+                bottom: 0.0001
+                top: 1.0
             }
         }
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Voxelsize:"
         }
-        Item {
-            Layout.fillHeight: true
+        StyledTextField {
+            Layout.fillWidth: true
+            id: voxelsizeTextfiled
+            text:"0.04"
+            //property real num: text.toFixed(8)
+            property bool valid: text < validator.top && text > validator.bottom
+            validator: DoubleValidator {
+                bottom: 0.0001
+                top: 1.0
+            }
         }
+    }
+    HelperTarget {
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
     }
 }

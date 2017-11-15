@@ -5,9 +5,9 @@ import QtQuick.Layouts 1.1
 import ".."
 import "../operators"
 
-Item {
+ColumnLayout {
     id: root
-    height: implicitHeight
+    //height: implicitHeight
 
     //// in ////
     property bool shown
@@ -24,12 +24,17 @@ Item {
         translateMatrix.translate(xInp.text, yInp.text, zInp.text)
         appStyle.tmpPreviewMatrix = translateMatrix
     }
+    function execute() {
+        currentCheckout.doOperation("load_primitive", parameters)
+        currentCheckout.doOperation("load_tfs", parametersLoadTfs)
+    }
 
     //// out ////
     property bool valid: primitiveOption.getCurrentType() !== "" && entityChooser.valid
     property var parameters: {
         "type": primitiveOption.getCurrentType(),
-        "target": entityChooser.currentEntityPath
+        "target": entityChooser.currentEntityPath,
+        "frame_id": frameIdInput.currentText
     }
     property var parametersLoadTfs: {
         "map": entityChooser.currentEntityPath,
@@ -66,17 +71,20 @@ Item {
         onTmpPrimitiveTypeChanged: {
             primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
         }
+        onClickedAction: {
+            root.execute()
+        }
     }
 
     onShownChanged: {
-        appStyle.tmpUsePreviewMatrix = shown
+        appStyle.tmpUsePreviewMatrix = false
         appStyle.tmpPlacePrimitive = shown
         if(shown) primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
     }
 
     //// UI ////
     ColumnLayout {
-        anchors.fill: parent
+        //anchors.fill: parent
         RowLayout {
             id: primitiveOption
             property string currentPrimitiveType
@@ -110,51 +118,68 @@ Item {
             }
 
             StyledButton {
-                id:btn1
+                id: btn1
                 isIcon: true
                 checkable: true
                 iconSource: "image://primitive/sphere-skinny"
                 onCheckedChanged: if(checked) primitiveOption.singleSelect(btn1)
             }
             StyledButton {
-                id:btn2
+                id: btn2
                 isIcon: true
                 checkable: true
                 iconSource: "image://primitive/plane-skinny"
                 onCheckedChanged: if(checked) primitiveOption.singleSelect(btn2)
             }
             StyledButton {
-                id:btn3
+                id: btn3
                 isIcon: true
                 checkable: true
                 iconSource: "image://primitive/cylinder-skinny"
                 onCheckedChanged: if(checked) primitiveOption.singleSelect(btn3)
             }
             StyledButton {
-                id:btn4
+                id: btn4
                 isIcon: true
                 checkable: true
                 iconSource: "image://primitive/cone-skinny"
                 onCheckedChanged: if(checked) primitiveOption.singleSelect(btn4)
             }
             StyledButton {
-                id:btn5
+                id: btn5
                 isIcon: true
                 checkable: true
                 iconSource: "image://primitive/torus-skinny"
                 onCheckedChanged: if(checked) primitiveOption.singleSelect(btn5)
             }
             StyledButton {
-                id:btn6
+                id: btn6
                 isIcon: true
                 checkable: true
                 iconSource: "image://primitive/cube-skinny"
                 onCheckedChanged: if(checked) primitiveOption.singleSelect(btn6)
             }
+            Item {
+                Layout.fillWidth: true
+            }
+            StyledButton {
+                id: btnClick
+                isIcon: true
+                checkable: true
+                iconSource: "image://material/ic_location_searching"
+                onCheckedChanged: {
+                    appStyle.tmpFollowMouse = checked
+                }
+                Connections {
+                    target: appStyle
+                    onTmpFollowMouseChanged:
+                        btnClick.checked = appStyle.tmpFollowMouse
+                }
+            }
         }
         HelperTarget {
             id: entityChooser
-            currentEntityPath: root.currentEntityPath
+            currentEntityPath: root.currentEntityPath ? root.currentEntityPath : "/testmap/annotation/annotation_" + (new Date())
             dialogRoot: root
             z: 200
         }
@@ -247,8 +272,8 @@ Item {
                 }
             }
         }
-        Item {
-            Layout.fillHeight: true
-        }
+//        Item {
+//            Layout.fillHeight: true
+//        }
     }
 }

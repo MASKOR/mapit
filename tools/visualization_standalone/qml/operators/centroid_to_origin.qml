@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
     //// in ////
     property bool editable
@@ -27,30 +27,28 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
+    HelperTarget {
+        Layout.fillWidth: true
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Bounding Box:"
         }
-        RowLayout {
-            Layout.fillWidth: true
-            StyledLabel {
-                text: "Bounding Box:"
-            }
-            StyledCheckBox {
-                id: checkboxAABB
-            }
+        StyledCheckBox {
+            id: checkboxAABB
         }
-        RowLayout {
-            Layout.fillWidth: true
-            StyledLabel {
-                text: "Gen Transform:"
-            }
-            StyledCheckBox {
-                id: genTfCheckbox
-            }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Gen Transform:"
+        }
+        StyledCheckBox {
+            id: genTfCheckbox
         }
     }
 }

@@ -4,9 +4,8 @@ import QtQuick.Layouts 1.1
 
 import ".."
 
-Item {
+ColumnLayout {
     id: root
-    height: implicitHeight
     //// in ////
     property bool editable
     property var currentCheckout
@@ -25,19 +24,15 @@ Item {
     }
 
     //// UI ////
-    ColumnLayout {
-        anchors.fill: parent
-        HelperOpenFile {
-            id: fileChooser
-            fileExtension: "json"
-        }
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath
-            dialogRoot: root
-        }
-        Item {
-            Layout.fillHeight: true
-        }
+    HelperOpenFile {
+        Layout.fillWidth: true
+        id: fileChooser
+        fileExtension: "json"
+    }
+    HelperTarget {
+        Layout.fillWidth: true
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath
+        dialogRoot: root
     }
 }
