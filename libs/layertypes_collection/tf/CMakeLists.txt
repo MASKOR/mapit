@@ -43,6 +43,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${EIGEN
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
                                            PUBLIC  TfEntitydata_TYPENAME="${PROJECT_NAME}")
 
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 14)
+
 if(UNIX)
   # tell CMake Prefix is "lib" otherwise it can not be queried
   set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
