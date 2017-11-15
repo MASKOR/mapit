@@ -1,79 +1,97 @@
 if(NOT DISABLE_PCL)
-project(load_bags)
-cmake_minimum_required(VERSION 2.8)
+  cmake_minimum_required(VERSION 2.8)
+  project(load_bags)
 
-find_package(rosbag REQUIRED)
-find_package(sensor_msgs REQUIRED)
+  # message colors
+  if(NOT WIN32)
+    string(ASCII 27 Esc)
+    set(ColourReset "${Esc}[m")
+    set(Red         "${Esc}[31m")
+    set(Green       "${Esc}[32m")
+  endif()
 
-set(OPERATOR_VERSION 1)
+  # required, but disables this project without an error
+  find_package(rosbag)
+  find_package(sensor_msgs)
 
-find_package(mapit REQUIRED)
+  if(NOT (rosbag_FOUND AND sensor_msgs_FOUND))
+    message(AUTHOR_WARNING "${Red}"
+      "Operator \"${PROJECT_NAME}\" will not be build, dependencies are not satisfied"
+      "\n - rosbag: ${rosbag_FOUND}"
+      "\n - sensor_msgs: ${sensor_msgs_FOUND}"
+      "${ColourReset}")
+  else()
+    message(AUTHOR_WARNING "${Green}"
+      "Operator \"${PROJECT_NAME}\" will be build"
+      "${ColourReset}")
 
-aux_source_directory(. SRC_LIST)
+    set(OPERATOR_VERSION 1)
+    add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
+    add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
+    # describe target
+    file(GLOB_RECURSE UPNS_OPERATOR_SOURCES
+      ${PROJECT_SOURCE_DIR}/src/*.cpp
+      ${PROJECT_SOURCE_DIR}/src/*.h
+      )
+    add_library(${PROJECT_NAME} SHARED
+      ${SRC_LIST}
+      ${UPNS_OPERATOR_SOURCES}
+      )
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+      VERSION ${OPERATOR_VERSION}
+      SOVERSION ${OPERATOR_VERSION}
+      )
+    target_include_directories(${PROJECT_NAME}
+      PRIVATE
+        ${PROJECT_SOURCE_DIR}/src/
+      PUBLIC
+        ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
+      )
 
-add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
+    # mapit
+    find_package(mapit REQUIRED)
+    target_link_libraries(${PROJECT_NAME}
+      ${mapit_core}
+      ${mapit_interface}
+      layertype_pointcloud2
+      layertype_tf
+      )
 
-add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
+    # Qt
+    set(CMAKE_AUTOMOC ON)
+    find_package(Qt5Core REQUIRED)
+    qt5_use_modules(${PROJECT_NAME} Core)
 
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
+    # ROS
+    #find_package(rosbag REQUIRED)
+    #find_package(sensor_msgs REQUIRED)
+    target_include_directories(${PROJECT_NAME} PRIVATE
+      ${rosbag_INCLUDE_DIRS}
+      ${sensor_msgs_INCLUDE_DIRS}
+      )
+    target_link_libraries(${PROJECT_NAME}
+      ${rosbag_LIBRARIES}
+      ${sensor_msgs_LIBRARIES}
+      )
 
-set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
+    # naming and installing
+    if (CMAKE_HOST_UNIX)
+        set(FILENAME_PREFIX "lib")
+        set(FILENAME_POSTFIX ".so")
+    else (CMAKE_HOST_UNIX)
+        set(FILENAME_PREFIX "")
+        set(FILENAME_POSTFIX ".dll")
+    endif (CMAKE_HOST_UNIX)
 
-file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} )
-include_directories(${PROJECT_NAME}
-  ${rosbag_INCLUDE_DIRS}
-  ${sensor_msgs_INCLUDE_DIRS}
-  )
-target_link_libraries(${PROJECT_NAME}
-  ${rosbag_LIBRARIES}
-  ${sensor_msgs_LIBRARIES}
-  )
-target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_core} json11
-  layertype_pointcloud2
-  layertype_tf)
+    if(UNIX)
+        # tell CMake Prefix is "lib" otherwise it can not be queried
+        set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
+    endif(UNIX)
+    get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_OPERATORS})
 
-qt5_use_modules(${PROJECT_NAME} Core Gui)
+    install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 
-SET_TARGET_PROPERTIES(
-    ${PROJECT_NAME}
-  PROPERTIES
-    VERSION ${OPERATOR_VERSION}
-    SOVERSION ${OPERATOR_VERSION}
-)
-
-#get_property(lib_location TARGET ${PROJECT_NAME} PROPERTY LOCATION)
-
-if (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "lib")
-    set(FILENAME_POSTFIX ".so")
-else (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "")
-    set(FILENAME_POSTFIX ".dll")
-endif (CMAKE_HOST_UNIX)
-
-
-#set(LIB_FILENAME ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX})
-#set(LIB_FILENAME_VERSION ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX}.${OPERATOR_VERSION})
-
-#add_custom_command(
-#    TARGET ${PROJECT_NAME} POST_BUILD
-#    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
-#    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
-#)
-if(UNIX)
-    # tell CMake Prefix is "lib" otherwise it can not be queried
-    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
-endif(UNIX)
-get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_OPERATORS})
-
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-
+  endif()
 endif(NOT DISABLE_PCL)
