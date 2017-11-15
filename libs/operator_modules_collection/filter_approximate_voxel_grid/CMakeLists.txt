@@ -19,6 +19,9 @@ if(NOT DISABLE_PCL)
     # mapit
     find_package(mapit REQUIRED)
 
+    # Qt
+    find_package(Qt5Core REQUIRED)
+
     # describe target
     file(GLOB_RECURSE SOURCES
         ${PROJECT_SOURCE_DIR}/src/*.cpp)
@@ -38,6 +41,8 @@ if(NOT DISABLE_PCL)
         ${mapit_interface}
         ${mapit_core}
         layertype_pointcloud2)
+
+    qt5_use_modules(${PROJECT_NAME} Core)
 
     install(TARGETS ${PROJECT_NAME}
         DESTINATION lib)

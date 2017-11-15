@@ -29,6 +29,7 @@ ENDIF()
 
 SET(_openvdb_SEARCH_DIRS
   ${OPENVDB_ROOT_DIR}
+  /usr
   /usr/local
   /sw # Fink
   /opt/local # DarwinPorts
