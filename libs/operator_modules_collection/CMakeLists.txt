@@ -19,7 +19,7 @@ MACRO(SUBDIRLIST result curdir)
 ENDMACRO()
 
 # For libraries with current json implementation
-find_package(Qt5Core)
+find_package(Qt5Core REQUIRED)
 
 
 set(WITH_OPERATORS TRUE CACHE BOOL "Enable operators")
@@ -49,6 +49,7 @@ if(WITH_OPERATORS)
 
   if(NOT Qt5Core_FOUND)
       list(REMOVE_ITEM SUBDIRS "centroid_to_origin")
+      list(REMOVE_ITEM SUBDIRS "filter_approximate_voxel_grid")
   endif(NOT Qt5Core_FOUND)
 
   FOREACH(subdir ${SUBDIRS})
