@@ -19,7 +19,9 @@ ColumnLayout {
     //// out ////
     property bool valid: entityChooser.valid
     property var parameters: {
-        "target":entityChooser.currentEntityPath
+        "target":entityChooser.currentEntityPath,
+        "radius": radiusCb.checked ? parseFloat(radiusInput.text): "",
+        "k": kInput.checked ? parseInt(kInput.text) : ""
     }
 
     //// UI ////
@@ -28,5 +30,40 @@ ColumnLayout {
         id: entityChooser
         currentEntityPath: root.currentEntityPath
         dialogRoot: root
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Radius"
+        }
+        StyledTextField {
+            id: radiusInput
+            Layout.fillWidth: true
+            validator: DoubleValidator {}
+            text: "0.1"
+            onFocusChanged: if(focus) radiusCb.checked = true
+        }
+        StyledCheckBox {
+            id: radiusCb
+            onCheckedChanged: if(checked) kCb.checked = false
+        }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "k"
+        }
+        StyledTextField {
+            id: kInput
+            Layout.fillWidth: true
+            validator: IntValidator {}
+            text: "5"
+            onFocusChanged: if(focus) kCb.checked = true
+        }
+        StyledCheckBox {
+            id: kCb
+            checked: true
+            onCheckedChanged: if(checked) radiusCb.checked = false
+        }
     }
 }

@@ -80,10 +80,13 @@ public:
     {
         std::list<std::shared_ptr<mapit::Map>> maps;
         std::shared_ptr<mapit::msgs::Tree> root = getRoot();
-        if (root) {
-            for (const std::pair<std::string, mapit::msgs::ObjectReference> &ref_maps : root->refs()) {
+        if (root)
+        {
+            for (const std::pair<std::string, mapit::msgs::ObjectReference> &ref_maps : root->refs())
+            {
 //            for (auto ref_maps : getRoot()->refs()) {
                 std::shared_ptr<mapit::msgs::Tree> map_tree = getTree( ref_maps.first );
+                if(map_tree == nullptr) continue;
                 std::shared_ptr<mapit::Map> map = std::shared_ptr<mapit::Map>(new mapit::Map(map_tree, ref_maps.first));
                 maps.push_back(map);
             }
@@ -114,11 +117,22 @@ public:
     std::list<std::shared_ptr<mapit::Layer>> getListOfLayers(std::shared_ptr<mapit::Map> map)
     {
         std::list<std::shared_ptr<mapit::Layer>> layers;
-        for (auto ref_layers : map->getRefs()) {
+        for (auto ref_layers : map->getRefs())
+        {
             Path layerpath( map->getName() + "/" + ref_layers.first );
             std::shared_ptr<mapit::msgs::Tree> layer_tree = getTree( layerpath );
-            std::string path_to_first_entity = layerpath + "/" + layer_tree->refs().begin()->first;
-            std::string type = getEntity( path_to_first_entity )->type();
+            std::string type;
+            if(layer_tree->refs_size() > 0)
+            {
+                std::string path_to_first_entity = layerpath + "/" + layer_tree->refs().begin()->first;
+                mapit::msgs::MessageType typeOfFirstChild = typeOfObject( path_to_first_entity );
+                if(typeOfFirstChild != mapit::msgs::MessageEntity) continue;
+                std::shared_ptr<mapit::msgs::Entity> entity = getEntity( path_to_first_entity );
+                if(entity != nullptr)
+                {
+                    type = entity->type();
+                }
+            }
             std::shared_ptr<mapit::Layer> layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(layer_tree, ref_layers.first, map, type));
             layers.push_back(layer);
         }
@@ -151,6 +165,7 @@ public:
         std::list<std::shared_ptr<mapit::Entity>> entities;
         for (auto ref_entities : layer->getRefs()) {
             std::shared_ptr<mapit::msgs::Entity> entity_tree = getEntity( layer->getDataPath() + ref_entities.first );
+            if(entity_tree == nullptr) continue;
             std::shared_ptr<mapit::Entity> entity = std::shared_ptr<mapit::Entity>(new mapit::Entity(entity_tree, ref_entities.first, layer));
             entities.push_back(entity);
         }

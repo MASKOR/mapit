@@ -11,6 +11,13 @@
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <upns/layertypes/assettype.h>
+#include <upns/layertypes/primitive.h>
+#include <Qt3DExtras/QSphereGeometry>
+#include <Qt3DExtras/QPlaneGeometry>
+#include <Qt3DExtras/QCylinderGeometry>
+#include <Qt3DExtras/QConeGeometry>
+#include <Qt3DExtras/QTorusGeometry>
+#include <Qt3DExtras/QCuboidGeometry>
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
 #include "upns/ui/bindings/qmlpathgeometry.h"
@@ -196,6 +203,38 @@ void QmlEntitydataRenderer::updateGeometry()
         // Ensure that grid (shared pointer) lives as long as gridGeometry and qgrid!
         qgrid->setGrid(grid);
         gridGeometry->setGrid(qgrid);
+    }
+    else if(strcmp(ed->type(), PrimitiveEntitydata::TYPENAME()) == 0)
+    {
+        QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Triangles);
+
+        std::shared_ptr<mapit::msgs::Primitive> prim = std::dynamic_pointer_cast< PrimitiveEntitydata >(ed)->getData();
+        if(prim == nullptr)
+        {
+            qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a path)";
+            return;
+        }
+        switch(prim->type())
+        {
+        case mapit::msgs::Primitive::SPHERE:
+            QGeometryRenderer::setGeometry(new Qt3DExtras::QSphereGeometry(this));
+            break;
+        case mapit::msgs::Primitive::PLANE:
+            QGeometryRenderer::setGeometry(new Qt3DExtras::QPlaneGeometry(this));
+            break;
+        case mapit::msgs::Primitive::CYLINDER:
+            QGeometryRenderer::setGeometry(new Qt3DExtras::QCylinderGeometry(this));
+            break;
+        case mapit::msgs::Primitive::CONE:
+            QGeometryRenderer::setGeometry(new Qt3DExtras::QConeGeometry(this));
+            break;
+        case mapit::msgs::Primitive::TORUS:
+            QGeometryRenderer::setGeometry(new Qt3DExtras::QTorusGeometry(this));
+            break;
+        case mapit::msgs::Primitive::CUBE:
+            QGeometryRenderer::setGeometry(new Qt3DExtras::QCuboidGeometry(this));
+            break;
+        }
     }
 //#endif
     else

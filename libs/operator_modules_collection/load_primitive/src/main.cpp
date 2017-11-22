@@ -28,8 +28,8 @@ mapit::msgs::Primitive::PrimitiveType stringToType(std::string &type)
         return mapit::msgs::Primitive::CONE;
     } else if(type.compare("CAPSULE") == 0) {
         return mapit::msgs::Primitive::CAPSULE;
-    } else if(type.compare("DONUT") == 0) {
-        return mapit::msgs::Primitive::DONUT;
+    } else if(type.compare("TORUS") == 0) {
+        return mapit::msgs::Primitive::TORUS;
     } else if(type.compare("DISC") == 0) {
         return mapit::msgs::Primitive::DISC;
     } else if(type.compare("POINT") == 0) {
@@ -55,11 +55,22 @@ upns::StatusCode operate_load_primitive(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    QJsonObject primitive = params["primitive"].toObject();
+    //QJsonObject primitive = params["primitive"].toObject();
 
-    std::string type = primitive["type"].toString().toUpper().toStdString();
+    std::string type = params["type"].toString().toUpper().toStdString();
 
-    std::string frameId = primitive["frame_id"].toString().toStdString();
+    std::string frameId = params["frame_id"].toString().toStdString();
+
+    if(target.empty())
+    {
+        log_warn("no target given");
+        return UPNS_STATUS_ERR_UNKNOWN;
+    }
+    if(type.empty())
+    {
+        log_warn("no type given");
+        return UPNS_STATUS_ERR_UNKNOWN;
+    }
 
     std::shared_ptr<Entity> entity(new Entity);
     entity->set_type(PrimitiveEntitydata::TYPENAME());

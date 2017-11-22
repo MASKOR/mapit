@@ -284,7 +284,7 @@ FSSerializer::getEntityTransient(const PathInternal oid)
     fs_read(path, ge);
 
     if ( ge->type() != MessageEntity ) {
-        log_warn("Entity at: " + path.string() + " has variable type not set correctly");
+        log_error("Entity at: " + path.string() + " has variable type not set correctly");
         return nullptr;
     }
     if ( ! ge->has_entity() ) {

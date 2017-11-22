@@ -126,7 +126,7 @@ Item {
                                     sourceSize: Qt.size(iconMarginItem.generatedWidth,appStyle.iconSize)
                                     width: iconMarginItem.generatedWidth
                                     height: appStyle.iconSize
-                                    source: gridRoot.model.get(index) ? "image://operator/"+gridRoot.model.get(index).displayName: "image://operator"
+                                    source: gridRoot.model.get(index) ? "image://operator/" + gridRoot.model.get(index).displayName : "image://operator"
                                     fillMode: Image.PreserveAspectFit
                                     anchors.verticalCenter: parent.verticalCenter
                                     smooth: false

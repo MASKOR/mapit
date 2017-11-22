@@ -16,6 +16,10 @@ if(NOT DISABLE_PCL)
     link_directories(${PCL_LIBRARY_DIRS})
     add_definitions(${PCL_DEFINITIONS})
 
+    # Qt
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Gui REQUIRED)
+
     # mapit
     find_package(mapit REQUIRED)
 
@@ -42,7 +46,7 @@ if(NOT DISABLE_PCL)
         ${mapit_core}
         layertype_pointcloud2)
 
-    qt5_use_modules(${PROJECT_NAME} Core)
+    qt5_use_modules(${PROJECT_NAME} Core Gui)
 
     install(TARGETS ${PROJECT_NAME}
         DESTINATION lib)

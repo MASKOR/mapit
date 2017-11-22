@@ -9,6 +9,10 @@ if(NOT DISABLE_PCL)
     add_definitions(-DOPERATOR_NAME="${OPERATOR_NAME}")
     add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
+    # Qt
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Gui REQUIRED)
+
     # pcl
     find_package(PCL QUIET 1.8 REQUIRED
         COMPONENTS filters)
@@ -42,7 +46,7 @@ if(NOT DISABLE_PCL)
         ${mapit_core}
         layertype_pointcloud2)
 
-    qt5_use_modules(${PROJECT_NAME} Core)
+    qt5_use_modules(${PROJECT_NAME} Core Gui)
 
     install(TARGETS ${PROJECT_NAME}
         DESTINATION lib)

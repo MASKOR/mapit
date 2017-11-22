@@ -121,7 +121,7 @@ upns::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs::
     {
         std::stringstream strm;
         strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result << ")";
-        log_error(strm.str());
+        log_warn(strm.str());
     }
 //    opdesc.release_operator_();
     return OperationResult(result, env.outputDescription());
@@ -169,7 +169,7 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
     {
         std::stringstream strm;
         strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result.first << ")";
-        log_error(strm.str());
+        log_warn(strm.str());
     }
     StatusCode status = closeOperatorModule(handle);
     if(!upnsIsOk(status))

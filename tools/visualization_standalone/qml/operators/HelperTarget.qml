@@ -8,7 +8,8 @@ import ".."
 RowLayout {
     property alias text: label.text
     property var dialogRoot
-    property bool valid: entityChooser.currentEntityPath != ""
+    // second part ensures, that no top level entities can be created. This ensures compatibility to tfs.
+    property bool valid: entityChooser.currentEntityPath != "" && entityChooser.currentEntityPath.substring(1).indexOf('/') != -1
     property alias currentEntityPath: entityChooser.currentEntityPath
     Layout.fillWidth: true
     z: 100

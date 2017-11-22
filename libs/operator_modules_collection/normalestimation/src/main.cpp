@@ -20,10 +20,24 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         return UPNS_STATUS_INVALID_ARGUMENT;
     }
 
+    bool useK = true;
     double radius = params["radius"].number_value();
     if(radius == 0.0)
     {
         radius = 0.5f;
+    }
+    else
+    {
+        useK = false;
+    }
+    int k = params["k"].number_value();
+    if(k == 0)
+    {
+        k = 5;
+    }
+    else
+    {
+        useK = true;
     }
 
     std::string target = params["target"].string_value();
@@ -50,7 +64,16 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     // Output datasets
     pcl::PointCloud<pcl::Normal> cloud_normals;
 
-    ne.setRadiusSearch(radius);
+    if(useK)
+    {
+        log_info("Using k=" + std::to_string(k) + " neighbors.");
+        ne.setKSearch(k);
+    }
+    else
+    {
+        log_info("Using neighbors in sphere of radius=" + std::to_string(radius) + ".");
+        ne.setRadiusSearch(radius);
+    }
 
     // Compute the features
     ne.compute (cloud_normals);

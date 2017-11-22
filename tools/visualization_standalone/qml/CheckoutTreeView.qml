@@ -86,7 +86,7 @@ QCtl.TreeView {
         role: "displayRole"
         title: "Name"
         resizable: true
-        width: treeViewCheckout.width-appStyle.controlHeightInner-visibleColumn.width
+        width: treeViewCheckout.width-appStyle.controlHeightInner-visibleColumn.width-12 /*12=scrollbarwidth*/
         delegate: StyledLabel {
             height: appStyle.controlHeightInner
             verticalAlignment:  Text.AlignVCenter

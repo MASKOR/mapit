@@ -160,7 +160,7 @@ Item {
             StyledButton {
                 Layout.leftMargin: appStyle.controlMargin
                 text: "Execute"
-                enabled: currentOperatorUiItem?currentOperatorUiItem.valid : false
+                enabled: currentCheckout?currentOperatorUiItem?currentOperatorUiItem.valid : false : false
                 onClicked: {
                     currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters)
                 }

@@ -51,8 +51,10 @@ add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_S
 
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2)
 
+qt5_use_modules(${PROJECT_NAME} Core Gui)
+
 #if(TARGET json11)
-    target_link_libraries( ${PROJECT_NAME} json11)
+#    target_link_libraries( ${PROJECT_NAME} json11)
 #else(TARGET json11)
 #    target_include_directories(${PROJECT_NAME} PUBLIC ${JSON11_INCLUDE_DIR})
 #    target_link_libraries( ${PROJECT_NAME} ${JSON11_LIBRARY})

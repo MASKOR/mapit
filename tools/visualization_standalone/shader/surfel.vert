@@ -96,6 +96,8 @@ void main(void)
     else if(   colorize == 4 && yPointsUp == false
             || colorize == 5 && yPointsUp == true)
         axis = worldNormal.z;
+    else if(   colorize == 7)
+        axis = vertexColor.r;
 //    else if(colorize == 7) // TODO: intensity
 //        axis = intensity;
     if(colorMode == 0) // flashlight (double sided)
@@ -108,6 +110,7 @@ void main(void)
     color = vec3(-dot(modelViewNormal * vertexNormal, normalize(viewspacePosition)));
     else if(colorMode == 4) // flashlight (single sided)
         color = vec3(dot(modelViewNormal * vertexNormal, vec3(0.0,0.0,1.0)));
-    if(colorize == 6)
-        color = vertexColor;
+    if(colorize == 7) {
+        color = vertexColor;//unpackColor(vertexColor);
+    }
 }

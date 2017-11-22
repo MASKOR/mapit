@@ -25,8 +25,10 @@ ColumnLayout {
         appStyle.tmpPreviewMatrix = translateMatrix
     }
     function execute() {
-        currentCheckout.doOperation("load_primitive", parameters)
-        currentCheckout.doOperation("load_tfs", parametersLoadTfs)
+        if(executeButton.enabled) {
+            currentCheckout.doOperation("load_primitive", parameters)
+            currentCheckout.doOperation("load_tfs", parametersLoadTfs)
+        }
     }
 
     //// out ////
@@ -34,7 +36,7 @@ ColumnLayout {
     property var parameters: {
         "type": primitiveOption.getCurrentType(),
         "target": entityChooser.currentEntityPath,
-        "frame_id": frameIdInput.currentText
+        "frame_id": childFrameIdInput.currentText
     }
     property var parametersLoadTfs: {
         "map": entityChooser.currentEntityPath,
@@ -42,7 +44,7 @@ ColumnLayout {
             {
                 "static": true,
                 "header": {
-                    "frame_id": frameIdInput.currentText + "_annotation_" + entityChooser.currentEntityPath,
+                    "frame_id": frameIdInput.currentText,
                     "stamp": { "sec": 0, "nsec": 0 }
                 },
                 "transform": {
@@ -83,197 +85,202 @@ ColumnLayout {
     }
 
     //// UI ////
-    ColumnLayout {
-        //anchors.fill: parent
-        RowLayout {
-            id: primitiveOption
-            property string currentPrimitiveType
-            onCurrentPrimitiveTypeChanged: appStyle.tmpPrimitiveType = currentPrimitiveType
-            function singleSelect(btn) {
-                btn.checked = true
-                if(btn !== btn1) btn1.checked = false
-                if(btn !== btn2) btn2.checked = false
-                if(btn !== btn3) btn3.checked = false
-                if(btn !== btn4) btn4.checked = false
-                if(btn !== btn5) btn5.checked = false
-                if(btn !== btn6) btn6.checked = false
-                currentPrimitiveType = getCurrentType()
-            }
-            function getCurrentType() {
-                if(btn1.checked) return "sphere"
-                if(btn2.checked) return "plane"
-                if(btn3.checked) return "cylinder"
-                if(btn4.checked) return "cone"
-                if(btn5.checked) return "torus"
-                if(btn6.checked) return "cube"
-                return ""
-            }
-            function checkCurrentType( name ) {
-                if(name === "sphere") btn1.checked = true
-                if(name === "plane") btn2.checked = true
-                if(name === "cylinder") btn3.checked = true
-                if(name === "cone") btn4.checked = true
-                if(name === "torus") btn5.checked = true
-                if(name === "cube") btn6.checked = true
-            }
+    RowLayout {
+        id: primitiveOption
+        property string currentPrimitiveType
+        onCurrentPrimitiveTypeChanged: appStyle.tmpPrimitiveType = currentPrimitiveType
+        function singleSelect(btn) {
+            btn.checked = true
+            if(btn !== btn1) btn1.checked = false
+            if(btn !== btn2) btn2.checked = false
+            if(btn !== btn3) btn3.checked = false
+            if(btn !== btn4) btn4.checked = false
+            if(btn !== btn5) btn5.checked = false
+            if(btn !== btn6) btn6.checked = false
+            currentPrimitiveType = getCurrentType()
+        }
+        function getCurrentType() {
+            if(btn1.checked) return "sphere"
+            if(btn2.checked) return "plane"
+            if(btn3.checked) return "cylinder"
+            if(btn4.checked) return "cone"
+            if(btn5.checked) return "torus"
+            if(btn6.checked) return "cube"
+            return ""
+        }
+        function checkCurrentType( name ) {
+            if(name === "sphere") btn1.checked = true
+            if(name === "plane") btn2.checked = true
+            if(name === "cylinder") btn3.checked = true
+            if(name === "cone") btn4.checked = true
+            if(name === "torus") btn5.checked = true
+            if(name === "cube") btn6.checked = true
+        }
 
-            StyledButton {
-                id: btn1
-                isIcon: true
-                checkable: true
-                iconSource: "image://primitive/sphere-skinny"
-                onCheckedChanged: if(checked) primitiveOption.singleSelect(btn1)
-            }
-            StyledButton {
-                id: btn2
-                isIcon: true
-                checkable: true
-                iconSource: "image://primitive/plane-skinny"
-                onCheckedChanged: if(checked) primitiveOption.singleSelect(btn2)
-            }
-            StyledButton {
-                id: btn3
-                isIcon: true
-                checkable: true
-                iconSource: "image://primitive/cylinder-skinny"
-                onCheckedChanged: if(checked) primitiveOption.singleSelect(btn3)
-            }
-            StyledButton {
-                id: btn4
-                isIcon: true
-                checkable: true
-                iconSource: "image://primitive/cone-skinny"
-                onCheckedChanged: if(checked) primitiveOption.singleSelect(btn4)
-            }
-            StyledButton {
-                id: btn5
-                isIcon: true
-                checkable: true
-                iconSource: "image://primitive/torus-skinny"
-                onCheckedChanged: if(checked) primitiveOption.singleSelect(btn5)
-            }
-            StyledButton {
-                id: btn6
-                isIcon: true
-                checkable: true
-                iconSource: "image://primitive/cube-skinny"
-                onCheckedChanged: if(checked) primitiveOption.singleSelect(btn6)
-            }
-            Item {
-                Layout.fillWidth: true
-            }
-            StyledButton {
-                id: btnClick
-                isIcon: true
-                checkable: true
-                iconSource: "image://material/ic_location_searching"
-                onCheckedChanged: {
-                    appStyle.tmpFollowMouse = checked
-                }
-                Connections {
-                    target: appStyle
-                    onTmpFollowMouseChanged:
-                        btnClick.checked = appStyle.tmpFollowMouse
-                }
-            }
+        StyledButton {
+            id: btn1
+            isIcon: true
+            checkable: true
+            iconSource: "image://primitive/sphere-skinny"
+            onCheckedChanged: if(checked) primitiveOption.singleSelect(btn1)
         }
-        HelperTarget {
-            id: entityChooser
-            currentEntityPath: root.currentEntityPath ? root.currentEntityPath : "/testmap/annotation/annotation_" + (new Date())
-            dialogRoot: root
-            z: 200
+        StyledButton {
+            id: btn2
+            isIcon: true
+            checkable: true
+            iconSource: "image://primitive/plane-skinny"
+            onCheckedChanged: if(checked) primitiveOption.singleSelect(btn2)
         }
-        RowLayout {
+        StyledButton {
+            id: btn3
+            isIcon: true
+            checkable: true
+            iconSource: "image://primitive/cylinder-skinny"
+            onCheckedChanged: if(checked) primitiveOption.singleSelect(btn3)
+        }
+        StyledButton {
+            id: btn4
+            isIcon: true
+            checkable: true
+            iconSource: "image://primitive/cone-skinny"
+            onCheckedChanged: if(checked) primitiveOption.singleSelect(btn4)
+        }
+        StyledButton {
+            id: btn5
+            isIcon: true
+            checkable: true
+            iconSource: "image://primitive/torus-skinny"
+            onCheckedChanged: if(checked) primitiveOption.singleSelect(btn5)
+        }
+        StyledButton {
+            id: btn6
+            isIcon: true
+            checkable: true
+            iconSource: "image://primitive/cube-skinny"
+            onCheckedChanged: if(checked) primitiveOption.singleSelect(btn6)
+        }
+        Item {
             Layout.fillWidth: true
-            StyledLabel {
-                Layout.alignment: Qt.AlignTop
-                text: "Tr x "
+        }
+        StyledButton {
+            id: btnClick
+            isIcon: true
+            checkable: true
+            iconSource: "image://material/ic_location_searching"
+            onCheckedChanged: {
+                appStyle.tmpFollowMouse = checked
             }
-            StyledTextField {
-                id: xInp
-                Layout.fillWidth: true
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                text: "0"
-                onTextChanged: root.updateTranslationMatrix()
+            Connections {
+                target: appStyle
+                onTmpFollowMouseChanged:
+                    btnClick.checked = appStyle.tmpFollowMouse
             }
         }
-        RowLayout {
-            Layout.fillWidth: true
-            StyledLabel {
-                Layout.alignment: Qt.AlignTop
-                text: "Tr y "
-            }
-            StyledTextField {
-                id: yInp
-                Layout.fillWidth: true
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                text: "0"
-                onTextChanged: root.updateTranslationMatrix()
-            }
+    }
+    HelperTarget {
+        Layout.fillWidth: true
+        id: entityChooser
+        currentEntityPath: root.currentEntityPath ? root.currentEntityPath : "/testmap/annotation/annotation_" + (new Date())
+        dialogRoot: root
+        z: 200
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            Layout.alignment: Qt.AlignTop
+            text: "Tr x "
         }
-        RowLayout {
+        StyledTextField {
+            id: xInp
             Layout.fillWidth: true
-            StyledLabel {
-                Layout.alignment: Qt.AlignTop
-                text: "Tr z "
-            }
-            StyledTextField {
-                id: zInp
-                Layout.fillWidth: true
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                text: "0"
-                onTextChanged: root.updateTranslationMatrix()
-            }
+            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            text: "0"
+            onTextChanged: root.updateTranslationMatrix()
         }
-        RowLayout {
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            Layout.alignment: Qt.AlignTop
+            text: "Tr y "
+        }
+        StyledTextField {
+            id: yInp
             Layout.fillWidth: true
+            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            text: "0"
+            onTextChanged: root.updateTranslationMatrix()
+        }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            Layout.alignment: Qt.AlignTop
+            text: "Tr z "
+        }
+        StyledTextField {
+            id: zInp
+            Layout.fillWidth: true
+            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            text: "0"
+            onTextChanged: root.updateTranslationMatrix()
+        }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        z:100
+        StyledLabel {
+            Layout.alignment: Qt.AlignTop
+            text: "frame_id:"
+        }
+        QuickAccessMenu {
             z:100
-            StyledLabel {
-                Layout.alignment: Qt.AlignTop
-                text: "frame_id:"
-            }
-            QuickAccessMenu {
-                z:100
-                id: frameIdInput
-                Layout.fillWidth: true
-                height: appStyle.controlHeightInner
-                allowNew: true
-                model: currentCheckout.getFrameIds()
-                blurMouseArea: MouseArea {
-                    parent: root.parent.parent
-                    anchors.fill: parent
-                    preventStealing: true
-                    propagateComposedEvents: true
-                    z:-1000
-                }
-            }
-        }
-        RowLayout {
+            id: frameIdInput
             Layout.fillWidth: true
-            StyledLabel {
-                Layout.alignment: Qt.AlignTop
-                text: "child_frame_id:"
-            }
-            StyledTextField {
-                id: childFrameIdInput
-                Layout.fillWidth: true
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                text: "entity_frame_id"
+            height: appStyle.controlHeightInner
+            allowNew: true
+            model: currentCheckout.getFrameIds()
+            blurMouseArea: MouseArea {
+                parent: root.parent.parent
+                anchors.fill: parent
+                preventStealing: true
+                propagateComposedEvents: true
+                z:-1000
             }
         }
-        RowLayout {
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            Layout.alignment: Qt.AlignTop
+            text: "child_frame_id:"
+        }
+        QuickAccessMenu {
+            z:100
+            id: childFrameIdInput
             Layout.fillWidth: true
-            StyledButton {
-                Layout.leftMargin: appStyle.controlMargin
-                text: "Execute"
-                enabled: primitiveOption.getCurrentType() !== "" && entityChooser.valid
-                onClicked: {
-                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters)
-                }
+            height: appStyle.controlHeightInner
+            allowNew: true
+            model: currentCheckout.getFrameIds()
+            blurMouseArea: MouseArea {
+                parent: root.parent.parent
+                anchors.fill: parent
+                preventStealing: true
+                propagateComposedEvents: true
+                z:-1000
             }
         }
-//        Item {
-//            Layout.fillHeight: true
-//        }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledButton {
+            id: executeButton
+            Layout.leftMargin: appStyle.controlMargin
+            text: "Execute"
+            enabled: primitiveOption.getCurrentType() !== "" && entityChooser.valid
+            onClicked: {
+                root.execute()
+            }
+        }
     }
 }

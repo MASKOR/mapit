@@ -16,6 +16,10 @@ if(NOT DISABLE_PCL)
     link_directories(${PCL_LIBRARY_DIRS})
     add_definitions(${PCL_DEFINITIONS})
 
+    # Qt
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Gui REQUIRED)
+
     # mapit
     find_package(mapit REQUIRED)
 
@@ -34,6 +38,8 @@ if(NOT DISABLE_PCL)
         VERSION ${OPERATOR_VERSION}
         SOVERSION ${OPERATOR_VERSION}
         PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX}${UPNS_INSTALL_OPERATORS})
+
+    qt5_use_modules(${PROJECT_NAME} Core Gui)
 
     # linker
     target_link_libraries(${PROJECT_NAME}

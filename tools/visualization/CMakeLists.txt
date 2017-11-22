@@ -25,6 +25,7 @@ message(STATUS "used number of processor cores: " ${PROCESSOR_COUNT})
 find_package(Qt5Qml REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Quick REQUIRED)
+find_package(Qt5Quick REQUIRED)
 
 string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
 if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
@@ -133,6 +134,8 @@ add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
 
+
+qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DExtras 3DQuickInput 3DQuickRender)
 
 #TODO: some are not needed anymore
 if(WIN32)

@@ -19,7 +19,8 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
-find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 
 # Note: Using c++11 in combination with pcl voxelgrid (1.7) filter
 # can lead problems resulting from to incompatible ABIs
@@ -45,6 +46,8 @@ file(GLOB_RECURSE UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/sr
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${PROTOBUF_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2)
 target_include_directories( ${PROJECT_NAME} PRIVATE ${PROTOBUF_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
+
+qt5_use_modules(${PROJECT_NAME} Core Gui)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}

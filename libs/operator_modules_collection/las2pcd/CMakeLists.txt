@@ -28,6 +28,8 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
+qt5_use_modules(${PROJECT_NAME} Core Gui)
+
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}
   PROPERTIES

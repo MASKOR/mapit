@@ -38,7 +38,7 @@
   #include <iomanip>
   #ifdef UPNS_DEBUG
     #define log_fatal(msg) do{ std::cout << std::string() + msg << std::endl; assert(false); break;}while(true)
-    #define log_error(msg) do{ std::cout << std::string() + msg << std::endl; assert(false); break;}while(true)
+    #define log_error(msg) do{ std::cout << std::string() + msg << std::endl; assert(true); break;}while(true)
     #if defined(_MSC_VER) // Microsoft compiler
       #define log_warn(msg) (std::cout << std::string() + msg << std::endl)
       #define log_info(msg) (std::cout << std::string() + msg << std::endl)

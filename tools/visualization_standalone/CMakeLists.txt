@@ -98,7 +98,7 @@ else(WIN32)
   target_link_libraries(${PROJECT_NAME} ${libzip})
 endif(WIN32)
 
-qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DQuickInput 3DQuickRender)
+qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DExtras 3DQuickInput 3DQuickRender)
 
 target_link_libraries(${PROJECT_NAME} upns_visualization
     ${mapit_core}
@@ -115,7 +115,8 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
 ######## FOR DEBUGGING PURPOSES ONLY ########
 
 #find_package(OpenVDB REQUIRED)
-#target_link_libraries(${PROJECT_NAME} load_las_from_csv)
+target_link_libraries(${PROJECT_NAME} load_primitive)
+target_link_libraries(${PROJECT_NAME} load_tfs)
 
 #target_link_libraries(${PROJECT_NAME} load_las_from_csv)
 #target_link_libraries(${PROJECT_NAME} load_asset)

@@ -68,6 +68,18 @@ vec4 hsv_to_rgb(float h, float s, float v, float a)
         return color;
 }
 
+vec3 unpackColor(float f)
+{
+    vec3 color;
+
+    color.r = floor(f / 256.0 / 256.0);
+    color.g = floor((f - color.r * 256.0 * 256.0) / 256.0);
+    color.b = floor(f - color.r * 256.0 * 256.0 - color.g * 256.0);
+
+    // now we have a vec3 with the 3 components in range [0..256]. Let's normalize it!
+    return color / 256.0;
+}
+
 void main()
 {
     gl_Position = mvp * vec4(vertexPosition, 1.0);
@@ -115,6 +127,8 @@ void main()
     else if(   colorize == 4 && yPointsUp == false
             || colorize == 5 && yPointsUp == true)
         axis = worldNormal.z;
+    else if(   colorize == 7)
+        axis = vertexColor.r;
 //    else if(colorize == 7) // TODO: intensity
 //        axis = intensity;
     if(colorMode == 0) // flashlight (double sided)
@@ -127,6 +141,7 @@ void main()
     color = vec3(-dot(modelViewNormal * vertexNormal, normalize(position)));
     else if(colorMode == 4) // flashlight (single sided)
         color = vec3(dot(modelViewNormal * vertexNormal, vec3(0.0,0.0,1.0)));
-    if(colorize == 6)
-        color = vertexColor;
+    if(colorize == 7) {
+        color = vertexColor;//unpackColor(vertexColor);
+    }
 }

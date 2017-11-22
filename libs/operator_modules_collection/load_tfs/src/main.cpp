@@ -55,6 +55,11 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
     QJsonObject params(paramsDoc.object());
 
     std::string map_name = params["map"].toString().toStdString();
+    if(map_name.empty())
+    {
+        log_error("parameter map is missing");
+        return UPNS_STATUS_ERROR;
+    }
     map_name = CheckoutCommon::getMapPathOfEntry(map_name);
 
     CheckoutRaw* checkout = env->getCheckout();
