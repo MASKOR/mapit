@@ -6,7 +6,7 @@ namespace upns
 
 using namespace mapit::msgs;
 
-StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path& path,
+StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path& path,
                             std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
                             std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                             std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
@@ -22,7 +22,7 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Entity> obj, con
     return UPNS_STATUS_OK;
 }
 
-StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path& path,
+StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path& path,
                                                 std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
                                                 std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                                                 std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
@@ -73,7 +73,7 @@ StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Tree> obj, const
     return UPNS_STATUS_OK;
 }
 
-StatusCode depthFirstSearch(Checkout *checkout, std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path& path,
+StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path& path,
                             std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
                             std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                             std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
