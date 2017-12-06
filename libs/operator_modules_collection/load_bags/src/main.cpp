@@ -121,7 +121,12 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                 tf_loaded->transform.rotation.y() = ros_tf.transform.rotation.y;
                 tf_loaded->transform.rotation.z() = ros_tf.transform.rotation.z;
 
-                tfs_map.add_transform( std::move( tf_loaded ) );
+                bool is_static = false;
+                if (0 == msg.getTopic().compare("/tf_static")) {
+                    is_static = true;
+                }
+
+                tfs_map.add_transform( std::move( tf_loaded ), is_static );
               }
             } else {
               log_error("Data [" + bag_name + "] : \"" + topic_name + "\" is not of type \"tf2_msgs::TFMessage\"");

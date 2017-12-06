@@ -36,6 +36,7 @@
 
 #include <upns/versioning/checkout.h>
 #include <upns/operators/versioning/checkoutraw.h>
+#include <upns/depthfirstsearch.h>
 
 #include <assert.h>
 //#include "tf2/LinearMath/Transform.h"
@@ -176,55 +177,38 @@ BufferCore::BufferCore()
   frameIDs_reverse.push_back("NO_PARENT");
 }
 
-BufferCore::BufferCore(
-          std::shared_ptr<upns::Checkout> checkout
-        , std::string map_name
-        , std::string layer_name_tf_static
-        , std::string layer_name_tf_dynamic
+BufferCore::BufferCore(CheckoutCommon* checkout
+        , std::string tf_prefix
         ) : BufferCore()
 {
-    std::shared_ptr<mapit::Map> map = checkout->getMap(map_name);
-    if (map == nullptr) {
-        //TODO error
-        assert(false);
-    }
-
-    //TODO: Name decides on wether tfs are static or dynamic. This introduces several restrictions.
-    // - if static/dynamic is a property of a tf, implementation must reside inside entitydata
-    // - if it is a property of the current use-case, implementation must reside as part of "Entity"-Protobuf (next to stamp, frame_id).
-    // restrictions:
-    // - introduces fixed names for layertypes. These must be known to interpret the repository.
-    // - making static layertypes dynamic/vice versa involves moving the entity (future: merging problems)
-    // - the entity itself is not atomically defined, it always needs it's context to load it
-
-    std::shared_ptr<mapit::Layer> layer_static = checkout->getLayer(map, layer_name_tf_static);
-    if (layer_static == nullptr) {
-        // TODO warning
-    } else {
-        setTransforms(checkout, layer_static, true);
-    }
-    std::shared_ptr<mapit::Layer> layer_dynamic = checkout->getLayer(map, layer_name_tf_dynamic);
-    if (layer_dynamic == nullptr) {
-        // TODO warning
-    } else {
-        setTransforms(checkout, layer_dynamic, false);
-    }
-}
-
-void
-BufferCore::setTransforms(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<mapit::Layer> layer, bool is_static)
-{
-    for (auto entity : checkout->getListOfEntities(layer)) {
-        //TODO: nullpointer checks.
-        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> entity_data
-            = std::dynamic_pointer_cast<TfEntitydata>(
-                checkout->getEntityDataReadOnly( entity )
-                )->getData()->dispose();
-
-        for (const std::unique_ptr<upns::tf::TransformStamped>& tfs : *entity_data) {
-          setTransform(*tfs, layer->getName(), is_static);
-        }
-    }
+    ObjectReference nullRef;
+    StatusCode s = upns::depthFirstSearch(
+                checkout,
+                tf_prefix.empty() ? checkout->getRoot(): checkout->getTree(tf_prefix),
+                nullRef,
+                tf_prefix,
+                depthFirstSearchAll(Commit),
+                depthFirstSearchAll(Commit),
+                depthFirstSearchAll(Tree),
+                depthFirstSearchAll(Tree),
+                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                {
+                    std::shared_ptr<upns::AbstractEntitydata> ed = checkout->getEntitydataReadOnly(path);
+                    if( ed && 0 == strcmp(ed->type(), TfEntitydata::TYPENAME()) ) {
+        //                std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
+        //                assert(ent);
+                        assert(obj);
+                        std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>( ed );
+                        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list = ed_tf->getData()->dispose();
+                        //TODO: differe between static and dynamic
+                        for (const std::unique_ptr<upns::tf::TransformStamped>& tfs : *tf_list) {
+                          setTransform(*tfs, path, true);
+                        }
+                    }
+                    return true;
+                },
+                depthFirstSearchAll(mapit::msgs::Entity)
+            );
 }
 
 BufferCore::~BufferCore()

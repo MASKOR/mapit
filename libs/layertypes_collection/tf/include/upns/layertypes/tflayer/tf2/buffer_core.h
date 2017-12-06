@@ -51,14 +51,13 @@
 //#include <boost/shared_ptr.hpp>
 
 namespace upns {
-class Checkout;
+class CheckoutCommon;
 }
 
 namespace mapit {
 #if 0 // just to make autoindent happy
 }
 #endif
-class Layer;
 
 namespace tf2
 {
@@ -125,11 +124,8 @@ public:
    * @param layername_tf_static  [default]
    * @param layername_tf_dynamic [default]
    */
-  BufferCore(
-            std::shared_ptr<upns::Checkout> checkout
-          , std::string map_name
-          , std::string layer_name_tf_static = upns::tf::_DEFAULT_LAYER_NAME_STATIC_
-          , std::string layer_name_tf_dynamic = upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_
+  BufferCore(upns::CheckoutCommon *checkout
+          , std::string tf_prefix
           );
 
   virtual ~BufferCore(void);
@@ -340,8 +336,6 @@ public:
   void _chainAsVector(const std::string & target_frame, mapit::time::Stamp target_time, const std::string & source_frame, mapit::time::Stamp source_time, const std::string & fixed_frame, std::vector<std::string>& output) const;
 
 private:
-
-  void setTransforms(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<mapit::Layer> layer, bool is_static);
 
   /** \brief A way to see what frames have been cached
    * Useful for debugging. Use this call internally. 

@@ -263,7 +263,7 @@ void TFTest::test_layertype_to_buffer()
     QVERIFY( upnsIsOk(ret.first) );
 
     // read all tfs from the 2 default layers and store them in the buffer
-    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout_, "map_tftest"));
+    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout_.get(), "map_tftest"));
 
     compareTfs(tf_in_1, buffer->lookupTransform("world", "frame_1", mapit::time::from_sec_and_nsec(1000, 500000000)));
     compareTfs(tf_in_2, buffer->lookupTransform("world", "frame_2", mapit::time::from_sec_and_nsec(1001, 500000000)));
