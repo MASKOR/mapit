@@ -110,7 +110,7 @@ void OPRegLocalICPTest::test_icp_tf_add()
                 "   \"input\"             : \"bunny\","
                 "   \"target\"            : \"bunny_tf\","
                 "   \"handle-result\"     : \"tf-add\","
-                "   \"store-prefix\"      : \"/tfs/\","
+                "   \"tf-prefix\"         : \"/tfs/\","
                 "   \"tf-frame_id\"       : \"world\","
                 "   \"tf-child_frame_id\" : \"bunny\""
                 "}"
