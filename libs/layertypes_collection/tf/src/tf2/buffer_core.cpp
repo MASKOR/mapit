@@ -199,10 +199,11 @@ BufferCore::BufferCore(CheckoutCommon* checkout
         //                assert(ent);
                         assert(obj);
                         std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>( ed );
-                        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list = ed_tf->getData()->dispose();
-                        //TODO: differe between static and dynamic
+                        std::shared_ptr<tf::store::TransformStampedList> ed_tf_data = ed_tf->getData();
+                        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list = ed_tf_data->dispose();
+
                         for (const std::unique_ptr<upns::tf::TransformStamped>& tfs : *tf_list) {
-                          setTransform(*tfs, path, true);
+                          setTransform(*tfs, path, ed_tf_data->get_is_static());
                         }
                     }
                     return true;
