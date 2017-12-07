@@ -22,6 +22,7 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      *  <enum-as-string>"handle-result" : ["tf-add", "tf-change", "data-change"],
      *  optional <string>"tf-frame_id" : ..., // in case of tf change or add
      *  optional <string>"tf-child_frame_id" : ..., // in case of tf change or add
+     *  optional <bool>"tf-is_static" : ..., // in case of tf change or add (true only works with one input specified) (default false)
      * }
      */
 

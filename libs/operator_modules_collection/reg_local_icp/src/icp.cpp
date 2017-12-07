@@ -37,6 +37,8 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
         return;
     }
     cfg_target_ = params["target"].toString().toStdString();
+    cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
+
     cfg_use_frame_id_ = ! params["frame_id"].isNull();
     if (cfg_use_frame_id_) {
       cfg_frame_id_ = params["frame_id"].toString().toStdString();
@@ -58,10 +60,18 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
      || cfg_handle_result_ == HandleResult::tf_change) {
         cfg_tf_frame_id_ = params["tf-frame_id"].toString().toStdString();
         cfg_tf_child_frame_id_ = params["tf-child_frame_id"].toString().toStdString();
+        cfg_tf_is_static_ = params.contains("tf-is_static") ? params["tf-is_static"].toBool() : false;
     } else {
         cfg_tf_frame_id_ = "not-set";
         cfg_tf_child_frame_id_ = "not-set";
+        cfg_tf_is_static_ = false;
     }
+    if ( cfg_tf_is_static_ && cfg_input_.size() != 1) {
+        log_error("reg_local_icp: \"tf-is_static\" := true is only allowed for one \"input\" cloud specified");
+        status = UPNS_STATUS_INVALID_ARGUMENT;
+        return;
+    }
+
     checkout_ = env->getCheckout();
     cfg_tf_prefix_ = params.contains("tf-prefix") ? params["tf-prefix"].toString().toStdString() : "";
 

@@ -55,6 +55,7 @@ private:
     std::string cfg_tf_frame_id_;
     std::string cfg_tf_child_frame_id_;
     std::string cfg_tf_prefix_;
+    bool cfg_tf_is_static_;
 };
 
 }
