@@ -68,53 +68,58 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     tf_buffer_ = std::make_shared<mapit::tf2::BufferCore>(checkout_, cfg_tf_prefix_);
 }
 
+boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
+mapit::ICP::get_pointcloud(std::string path, upns::StatusCode &status, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
+{
+    status = UPNS_STATUS_OK;
+    std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( path );
+    if (entity == nullptr) {
+      status = UPNS_STATUS_INVALID_ARGUMENT;
+      return nullptr;
+    }
+    std::string frame_id = entity->frame_id();
+    stamp = mapit::time::from_sec_and_nsec( entity->stamp().sec(), entity->stamp().nsec() );
+    std::shared_ptr<AbstractEntitydata> abstract_entitydata = checkout_->getEntitydataForReadWrite( path );
+    if ( 0 != std::strcmp( abstract_entitydata->type(), PointcloudEntitydata::TYPENAME() )) {
+      status = UPNS_STATUS_INVALID_ARGUMENT;
+      return nullptr;
+    }
+    entitydata = std::static_pointer_cast<PointcloudEntitydata>( abstract_entitydata );
+    std::shared_ptr<pcl::PCLPointCloud2> pc2 = entitydata->getData();
+    header = pc2->header;
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+    pcl::fromPCLPointCloud2(*pc2, *pc);
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+    if (cfg_use_frame_id_) {
+      upns::tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_frame_id_, frame_id, stamp);
+      pcl::transformPointCloud(*pc, *pc_transformed, tf.transform.translation.vector(), tf.transform.rotation);
+    } else {
+      *pc_transformed = *pc;
+    }
+
+    return pc_transformed;
+}
+
 upns::StatusCode
 mapit::ICP::operate()
 {
     // get input clouds
-    std::shared_ptr<mapit::msgs::Entity> entity_input = checkout_->getEntity( cfg_input_.front() );
-    if (entity_input == nullptr) {
-      return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    std::string input_frame_id = entity_input->frame_id();
-    mapit::time::Stamp input_stamp = mapit::time::from_sec_and_nsec( entity_input->stamp().sec(), entity_input->stamp().nsec() );
-    std::shared_ptr<AbstractEntitydata> abstract_entitydata_input = checkout_->getEntitydataForReadWrite( cfg_input_.front() );
-    if ( 0 != std::strcmp( abstract_entitydata_input->type(), PointcloudEntitydata::TYPENAME() )) {
-      return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    std::shared_ptr<PointcloudEntitydata> entitydata_input = std::static_pointer_cast<PointcloudEntitydata>( abstract_entitydata_input );
-    std::shared_ptr<pcl::PCLPointCloud2> input_pc2 = entitydata_input->getData();
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-    pcl::fromPCLPointCloud2(*input_pc2, *input_pc);
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-    if (cfg_use_frame_id_) {
-      upns::tf::TransformStamped input_tf = tf_buffer_->lookupTransform(cfg_frame_id_, input_frame_id, input_stamp);
-      pcl::transformPointCloud(*input_pc, *input_pc_transformed, input_tf.transform.translation.vector(), input_tf.transform.rotation);
-    } else {
-      *input_pc_transformed = *input_pc;
+    upns::StatusCode status;
+    mapit::time::Stamp input_stamp;
+    pcl::PCLHeader input_header;
+    std::shared_ptr<PointcloudEntitydata> entitydata_input;
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc_transformed = get_pointcloud( cfg_input_.front(), status, input_stamp, input_header, entitydata_input );
+    if ( ! upnsIsOk(status) ) {
+        return status;
     }
 
     // get target cloud
-    std::shared_ptr<mapit::msgs::Entity> entity_target = checkout_->getEntity( cfg_input_.front() );
-    if (entity_target == nullptr) {
-      return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    std::string target_frame_id = entity_target->frame_id();
-    mapit::time::Stamp target_stamp = mapit::time::from_sec_and_nsec( entity_target->stamp().sec(), entity_target->stamp().nsec() );
-    std::shared_ptr<AbstractEntitydata> abstract_entitydata_target = checkout_->getEntitydataForReadWrite( cfg_target_ );
-    if ( 0 != std::strcmp( abstract_entitydata_target->type(), PointcloudEntitydata::TYPENAME() )) {
-      return UPNS_STATUS_INVALID_ARGUMENT;
-    }
-    std::shared_ptr<PointcloudEntitydata> entitydata_target = std::static_pointer_cast<PointcloudEntitydata>( abstract_entitydata_target );
-    std::shared_ptr<pcl::PCLPointCloud2> target_pc2 = entitydata_target->getData();
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-    pcl::fromPCLPointCloud2(*target_pc2, *target_pc);
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-    if (cfg_use_frame_id_) {
-      upns::tf::TransformStamped target_tf = tf_buffer_->lookupTransform(cfg_frame_id_, target_frame_id, target_stamp);
-      pcl::transformPointCloud(*target_pc, *target_pc_transformed, target_tf.transform.translation.vector(), target_tf.transform.rotation);
-    } else {
-      *target_pc_transformed = *target_pc;
+    mapit::time::Stamp target_stamp;
+    pcl::PCLHeader target_header;
+    std::shared_ptr<PointcloudEntitydata> entitydata_target;
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc_transformed = get_pointcloud( cfg_target_, status, target_stamp, target_header, entitydata_target );
+    if ( ! upnsIsOk(status) ) {
+        return status;
     }
 
     // do ICP
@@ -140,9 +145,8 @@ mapit::ICP::operate()
         log_warn("reg_local_icp: only XYZ will survive, intensity and color will be lost");
         // TODO find way to transform pointcloud2 so that all data survive
         std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
-        pcl::fromPCLPointCloud2(*target_pc2, *target_pc);
         pcl::toPCLPointCloud2(icp_out, *icp_out2);
-        icp_out2->header = input_pc2->header;
+        icp_out2->header = input_header;
         entitydata_input->setData(icp_out2);
         break;
       }

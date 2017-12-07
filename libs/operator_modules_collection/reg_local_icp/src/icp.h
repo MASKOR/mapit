@@ -2,11 +2,23 @@
 #define ICP_H
 
 #include <memory>
+#include <boost/shared_ptr.hpp>
 #include <list>
 #include <string>
+
 #include <upns/typedefs.h>
+#include <mapit/time/time.h>
 
 class QJsonDocument;
+
+class PointcloudEntitydata;
+namespace pcl {
+template <typename PointT>
+class PointCloud;
+struct PointXYZ;
+struct PCLHeader;
+}
+
 namespace upns {
 class OperationEnvironment;
 class CheckoutRaw;
@@ -24,6 +36,13 @@ public:
 
     upns::StatusCode operate();
 private:
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> get_pointcloud(  std::string path
+                                                                     , upns::StatusCode& status
+                                                                     , mapit::time::Stamp &stamp
+                                                                     , pcl::PCLHeader& header
+                                                                     , std::shared_ptr<PointcloudEntitydata> entitydata
+                                                                    );
+
     upns::CheckoutRaw* checkout_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
 
