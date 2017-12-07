@@ -18,6 +18,8 @@
 mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
 {
     status = UPNS_STATUS_OK;
+
+    // pointcloud parameter
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
     if        ( params["input"].isString() ) {
@@ -38,11 +40,30 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     }
     cfg_target_ = params["target"].toString().toStdString();
     cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
+    std::string output_pointcloud = "reg_local_icp: executing ICP on pointclouds [ ";
+    for (std::string cfg_input_one : cfg_input_) {
+        output_pointcloud += "\"" + cfg_input_one + "\", ";
+    }
+    output_pointcloud += "] to pointcloud \"" + cfg_target_ + "\"";
+    log_info(output_pointcloud);
 
+    // config parameter
     cfg_use_frame_id_ = ! params["frame_id"].isNull();
     if (cfg_use_frame_id_) {
-      cfg_frame_id_ = params["frame_id"].toString().toStdString();
+        cfg_frame_id_ = params["frame_id"].toString().toStdString();
+        log_info("reg_local_icp: transform to \"" + cfg_frame_id_ + "\" before executing ICP");
+    } else {
+        log_info("reg_local_icp: do not transform in any frame before executing ICP");
     }
+
+    cfg_use_metascan_ = params.contains("use-metascan") ? params["use-metascan"].toBool() : false;
+    if (cfg_use_metascan_) {
+        log_info("reg_local_icp: use metascan on target (with voxelgrid TODO, not yet implemented)");
+    } else {
+        log_info("reg_local_icp: do not use metascan");
+    }
+
+    // handle parameter
     std::string cfg_handle_result_str = params["handle-result"].toString().toStdString();
     if        ( 0 == cfg_handle_result_str.compare("tf-add") ) {
       cfg_handle_result_ = HandleResult::tf_add;
@@ -66,12 +87,15 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
         cfg_tf_child_frame_id_ = "not-set";
         cfg_tf_is_static_ = false;
     }
+
+    // sanity check
     if ( cfg_tf_is_static_ && cfg_input_.size() != 1) {
         log_error("reg_local_icp: \"tf-is_static\" := true is only allowed for one \"input\" cloud specified");
         status = UPNS_STATUS_INVALID_ARGUMENT;
         return;
     }
 
+    // get env
     checkout_ = env->getCheckout();
     cfg_tf_prefix_ = params.contains("tf-prefix") ? params["tf-prefix"].toString().toStdString() : "";
 
@@ -115,30 +139,30 @@ mapit::ICP::get_pointcloud(std::string path, upns::StatusCode &status, mapit::ti
 upns::StatusCode
 mapit::ICP::operate()
 {
+    // get target cloud
+    upns::StatusCode status;
+    mapit::time::Stamp target_stamp;
+    pcl::PCLHeader target_header;
+    std::shared_ptr<PointcloudEntitydata> entitydata_target;
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc = get_pointcloud( cfg_target_, status, target_stamp, target_header, entitydata_target );
+    if ( ! upnsIsOk(status) ) {
+        return status;
+    }
+
     for (std::string cfg_input_one : cfg_input_) {
         // get input clouds
-        upns::StatusCode status;
         mapit::time::Stamp input_stamp;
         pcl::PCLHeader input_header;
         std::shared_ptr<PointcloudEntitydata> entitydata_input;
-        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc_transformed = get_pointcloud( cfg_input_one, status, input_stamp, input_header, entitydata_input );
-        if ( ! upnsIsOk(status) ) {
-            return status;
-        }
-
-        // get target cloud
-        mapit::time::Stamp target_stamp;
-        pcl::PCLHeader target_header;
-        std::shared_ptr<PointcloudEntitydata> entitydata_target;
-        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc_transformed = get_pointcloud( cfg_target_, status, target_stamp, target_header, entitydata_target );
+        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc = get_pointcloud( cfg_input_one, status, input_stamp, input_header, entitydata_input );
         if ( ! upnsIsOk(status) ) {
             return status;
         }
 
         // do ICP
         pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-        icp.setInputSource(input_pc_transformed);
-        icp.setInputTarget(target_pc_transformed);
+        icp.setInputSource(input_pc);
+        icp.setInputTarget(target_pc);
         pcl::PointCloud<pcl::PointXYZ> icp_out;
         icp.align(icp_out);
 
@@ -148,6 +172,10 @@ mapit::ICP::operate()
         } else {
             log_info("reg_local_icp: ICP for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
                    + "\" finished with fitness score " + std::to_string(icp.getFitnessScore()));
+
+            if (cfg_use_metascan_) {
+                *target_pc += icp_out;
+            }
         }
 
         Eigen::Affine3f transform( icp.getFinalTransformation() );

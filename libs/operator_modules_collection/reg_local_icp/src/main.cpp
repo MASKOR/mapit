@@ -18,7 +18,10 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      *  <string>"tf-prefix" : ..., // the prefix where to look for transforms (default "")
      *  <string>"input"[] : ..., // can either be, a list of entities or a tree containing enteties
      *  <string>"target" : ...,
+     *
      *  optional <string>"frame_id" : ..., // all data given to ICP will be in this frame
+     *  optional <bool>"use-metascan" : ..., //
+     *
      *  <enum-as-string>"handle-result" : ["tf-add", "tf-change", "data-change"],
      *  optional <string>"tf-frame_id" : ..., // in case of tf change or add
      *  optional <string>"tf-child_frame_id" : ..., // in case of tf change or add
