@@ -44,10 +44,40 @@ void OPRegLocalICPTest::init()
     desc_bunny.set_params(
                 "{"
                 "  \"filename\" : \"data/bunny.pcd\","
-                "  \"target\"   : \"bunny\""
+                "  \"target\"   : \"bunny\","
+                "  \"sec\"      : 1, "
+                "  \"nsec\"     : 0 "
                 "}"
                 );
     upns::OperationResult ret = checkout_->doOperation( desc_bunny );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    //add 2. bunny
+    OperationDescription desc_bunny2;
+    desc_bunny2.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny2.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"bunny2\","
+                "  \"sec\"      : 2, "
+                "  \"nsec\"     : 0 "
+                "}"
+                );
+    ret = checkout_->doOperation( desc_bunny2 );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    //add 3. bunny
+    OperationDescription desc_bunny3;
+    desc_bunny3.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny3.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"bunny3\","
+                "  \"sec\"      : 3, "
+                "  \"nsec\"     : 0 "
+                "}"
+                );
+    ret = checkout_->doOperation( desc_bunny3 );
     QVERIFY( upnsIsOk(ret.first) );
 
     // get bunny, transform and save as bunny_tf
@@ -75,7 +105,9 @@ void OPRegLocalICPTest::init()
     desc_bunny_tf.set_params(
                 "{"
                 "  \"filename\" : \"data/bunny_tf.pcd\","
-                "  \"target\"   : \"bunny_tf\""
+                "  \"target\"   : \"bunny_tf\","
+                "  \"sec\"      : 1, "
+                "  \"nsec\"     : 0 "
                 "}"
                 );
     upns::OperationResult ret_tf = checkout_->doOperation( desc_bunny_tf );
@@ -112,7 +144,8 @@ void OPRegLocalICPTest::test_icp_tf_add()
                 "   \"handle-result\"     : \"tf-add\","
                 "   \"tf-prefix\"         : \"/tfs/\","
                 "   \"tf-frame_id\"       : \"world\","
-                "   \"tf-child_frame_id\" : \"bunny\""
+                "   \"tf-child_frame_id\" : \"bunny\","
+                "   \"tf-is_static\"      : true"
                 "}"
                 );
     upns::OperationResult ret = checkout_->doOperation( desc );
@@ -127,6 +160,26 @@ void OPRegLocalICPTest::test_icp_tf_add()
     // compare result
     Eigen::Affine3f tf_origin = getTfMatrix();
     QVERIFY( tf_from_icp.isApprox(tf_origin, 0.06) ); // what does the epsilon mean (unit???)? 0.06 works, 0.055 does not
+}
+
+void OPRegLocalICPTest::test_icp_for_more_than_one_input()
+{
+    // execute operator ICP
+    mapit::msgs::OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("reg_local_icp");
+    desc.set_params(
+                "{"
+                "   \"input\"             : [ \"bunny\", \"bunny2\", \"bunny3\" ],"
+                "   \"target\"            : \"bunny_tf\","
+                "   \"handle-result\"     : \"tf-add\","
+                "   \"tf-prefix\"         : \"/tfs/\","
+                "   \"tf-frame_id\"       : \"world\","
+                "   \"tf-child_frame_id\" : \"bunny\","
+                "   \"tf-is_static\"      : false"
+                "}"
+                );
+    upns::OperationResult ret = checkout_->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
 }
 
 DECLARE_TEST(OPRegLocalICPTest)
