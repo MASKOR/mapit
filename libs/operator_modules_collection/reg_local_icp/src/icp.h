@@ -6,6 +6,8 @@
 #include <list>
 #include <string>
 
+#include <Eigen/Geometry>
+
 #include <upns/typedefs.h>
 #include <mapit/time/time.h>
 
@@ -42,6 +44,10 @@ private:
                                                                      , pcl::PCLHeader& header
                                                                      , std::shared_ptr<PointcloudEntitydata> entitydata
                                                                     );
+
+    upns::StatusCode handle_result_tf_add(  const time::Stamp &input_stamp
+                                          , const Eigen::Affine3f &transform
+                                         );
 
     upns::CheckoutRaw* checkout_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
