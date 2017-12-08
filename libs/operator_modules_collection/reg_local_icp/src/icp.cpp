@@ -137,7 +137,7 @@ mapit::ICP::get_pointcloud(std::string path, upns::StatusCode &status, mapit::ti
 }
 
 upns::StatusCode
-mapit::ICP::handle_result_tf_add(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
+mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
 {
     unsigned long sec_log, nsec_log;
     mapit::time::to_sec_and_nsec(input_stamp, sec_log, nsec_log);
@@ -192,6 +192,40 @@ mapit::ICP::handle_result_tf_add(const mapit::time::Stamp& input_stamp, const Ei
     // write data
     checkout_->storeEntity(entity_name, entity);
     ed_tf->setData(ed_d);
+
+    return UPNS_STATUS_OK;
+}
+
+upns::StatusCode
+mapit::ICP::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &stamp_end)
+{
+    // get entity and entitydata
+    std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
+    // get entity and data
+    std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( entity_name );
+    if (entity == nullptr) {
+        log_warn("reg_local_icp: transform entity \"" + entity_name + "\" does not exists, do not remove anything");
+        return UPNS_STATUS_OK;
+    }
+    std::shared_ptr<upns::AbstractEntitydata> ed_a = checkout_->getEntitydataForReadWrite(entity_name);
+    if ( 0 != std::strcmp(ed_a->type(), TfEntitydata::TYPENAME()) ) {
+      log_error("reg_local_icp: can't add tf, retrieved entity is not of type TfEntitydata");
+      return UPNS_STATUS_ERROR;
+    }
+    std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>(ed_a);
+    std::shared_ptr<tf::store::TransformStampedList> ed_d = ed_tf->getData();
+    if (ed_d == nullptr) {
+        log_warn("reg_local_icp: transforms in entity are empty, do not remove anything");
+        return UPNS_STATUS_OK;
+    }
+
+    // delete transforms
+    ed_d->delete_TransformStamped(stamp_start, stamp_end);
+
+    // store to mapit
+    ed_tf->setData(ed_d);
+
+    return UPNS_STATUS_OK;
 }
 
 upns::StatusCode
@@ -207,6 +241,9 @@ mapit::ICP::operate()
         return status;
     }
 
+    // in case of tf-combine, a list is needed
+    std::list<std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>>> tf_combine_list;
+
     for (std::string cfg_input_one : cfg_input_) {
         // get input clouds
         mapit::time::Stamp input_stamp;
@@ -221,6 +258,7 @@ mapit::ICP::operate()
         pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
         icp.setInputSource(input_pc);
         icp.setInputTarget(target_pc);
+        // TODO: add cfgs for icp here
         pcl::PointCloud<pcl::PointXYZ> icp_out;
         icp.align(icp_out);
 
@@ -252,7 +290,7 @@ mapit::ICP::operate()
                 break;
             }
             case HandleResult::tf_add: {
-                upns::StatusCode status = handle_result_tf_add(input_stamp, transform);
+                upns::StatusCode status = mapit_add_tf(input_stamp, transform);
                 if ( ! upnsIsOk(status)) {
                     return status;
                 }
@@ -260,15 +298,56 @@ mapit::ICP::operate()
             }
             case HandleResult::tf_combine: {
                 log_info("reg_local_icp: combine tf");
-                log_error("reg_local_icp: do not handle result of ICP (no effect), its not yet implemented.");
-                // remember all tfs as a combination of the previous transform and the new result of ICP
-                // after for each, delete the tfs
-                // add the new tfs
+                // get old tf from buffer
+                Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
+                mapit::time::Stamp stamp = input_stamp;
+                unsigned long sec, nsec;
+                mapit::time::to_sec_and_nsec(stamp, sec, nsec);
+                try {
+                    tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, stamp);
+                    tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
+                    tf_in_buffer.rotate( tf.transform.rotation );
+                } catch (...) {
+                    log_warn("reg_local_icp: tf \""
+                           + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
+                           + "\" at time " + std::to_string(sec) + "." + std::to_string(nsec) + " does not exists. Identity will be used");
+                    tf_in_buffer = Eigen::Affine3f::Identity();
+                }
+                // combine tf with tf currently in buffer
+                std::shared_ptr<Eigen::Affine3f> tf_combined = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer * transform)); // std::make_shared is not possible because its call by value and that does not work with eigen
+
+                // store tf to list
+                std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(stamp, tf_combined);
+                tf_combine_list.push_back(tf_pair);
                 break;
             }
             default: {
                 log_error("reg_local_icp: do not handle result of ICP (no effect), its not yet implemented.");
             }
+        }
+    }
+
+    // change tfs in mapit
+    if ( cfg_handle_result_ == HandleResult::tf_combine) {
+        // get time of input clouds
+        mapit::time::Stamp earliest = tf_combine_list.front().first;
+        mapit::time::Stamp latest = tf_combine_list.front().first;
+        for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_time : tf_combine_list) {
+            if (earliest > tf_time.first) {
+                earliest = tf_time.first;
+            }
+            if (latest < tf_time.first) {
+                latest = tf_time.first;
+            }
+        }
+        // delete tfs between time of clouds
+        upns::StatusCode status = mapit_remove_tfs(earliest, latest);
+        if ( ! upnsIsOk(status)) {
+            return status;
+        }
+        // add new tfs
+        for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_to_add : tf_combine_list) {
+            mapit_add_tf(tf_to_add.first, *tf_to_add.second);
         }
     }
 

@@ -45,9 +45,12 @@ private:
                                                                      , std::shared_ptr<PointcloudEntitydata> entitydata
                                                                     );
 
-    upns::StatusCode handle_result_tf_add(  const time::Stamp &input_stamp
-                                          , const Eigen::Affine3f &transform
-                                         );
+    upns::StatusCode mapit_add_tf(  const time::Stamp &input_stamp
+                                  , const Eigen::Affine3f &transform
+                                 );
+    upns::StatusCode mapit_remove_tfs(  const time::Stamp &stamp_start
+                                      , const time::Stamp &stamp_end
+                                     );
 
     upns::CheckoutRaw* checkout_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
