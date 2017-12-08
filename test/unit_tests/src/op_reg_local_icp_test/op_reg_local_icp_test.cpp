@@ -38,6 +38,12 @@ void OPRegLocalICPTest::init()
     repo_ = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName_));
     checkout_ = std::shared_ptr<upns::Checkout>(repo_->createCheckout("master", "op_reg_local_icp_test"));
 
+    log_warn("\n\nop_reg_local_icp_test: this test is based on the performance of ICP on 1 example pointcloud\n"
+                 "                       When this failes, it might just mean that the ICP does not work as\n"
+                 "                       good as before for only the example pointcloud while it might would\n"
+                 "                       work better overall"
+             " \n\n");
+
     //add bunny
     OperationDescription desc_bunny;
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
