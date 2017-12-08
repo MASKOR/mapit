@@ -77,6 +77,23 @@ TransformStampedList::add_TransformStamped(std::unique_ptr<upns::tf::TransformSt
   return 0;
 }
 
+int
+TransformStampedList::delete_TransformStamped(const mapit::time::Stamp& start, const mapit::time::Stamp& end)
+{
+    std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> transforms_clean = std::make_unique<std::list<std::unique_ptr<upns::tf::TransformStamped>>>();
+    for (std::unique_ptr<upns::tf::TransformStamped>& element : *transforms_) {
+        if ( ! (   element->stamp >= start
+                && element->stamp <= end
+               )
+           ) {
+            transforms_clean->push_back( std::move(element) );
+        }
+    }
+    transforms_ = std::move( transforms_clean );
+
+    return 0;
+}
+
 std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>>
 TransformStampedList::dispose()
 {
