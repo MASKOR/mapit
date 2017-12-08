@@ -16,6 +16,7 @@ private slots:
 
     void test_icp_tf_add();
     void test_icp_for_more_than_one_input();
+    void test_icp_tf_combine();
 private:
     std::string fileSystemName_;
     std::shared_ptr<upns::Repository> repo_;

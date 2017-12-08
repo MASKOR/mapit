@@ -112,6 +112,116 @@ void OPRegLocalICPTest::init()
                 );
     upns::OperationResult ret_tf = checkout_->doOperation( desc_bunny_tf );
     QVERIFY( upnsIsOk(ret_tf.first) );
+
+    // add tfs for tf-combine test
+    OperationDescription desc_add_tfs;
+    desc_add_tfs.mutable_operator_()->set_operatorname("load_tfs");
+    desc_add_tfs.set_params(
+                "{"
+                "   \"map\" : \"tf-combine\","
+                "   \"transforms\" : "
+                "   ["
+                "       {"
+                "           \"static\" : false,"
+                "           \"header\" : {"
+                "               \"frame_id\" : \"world\","
+                "               \"stamp\" : {"
+                "                   \"sec\" : 0,"
+                "                   \"nsec\" : 0"
+                "               }"
+                "           },"
+                "           \"transform\" : {"
+                "               \"child_frame_id\" : \"bunny\","
+                "               \"translation\" : {"
+                "                   \"x\" : 1.0,"
+                "                   \"y\" : 0.0,"
+                "                   \"z\" : 0.5"
+                "               },"
+                "               \"rotation\" : {"
+                "                   \"w\" : 1.0,"
+                "                   \"x\" : 0.0,"
+                "                   \"y\" : 0.0,"
+                "                   \"z\" : 0.0"
+                "               }"
+                "           }"
+                "       },"
+                "       {"
+                "           \"static\" : false,"
+                "           \"header\" : {"
+                "               \"frame_id\" : \"world\","
+                "               \"stamp\" : {"
+                "                   \"sec\" : 1,"
+                "                   \"nsec\" : 0"
+                "               }"
+                "           },"
+                "           \"transform\" : {"
+                "               \"child_frame_id\" : \"bunny\","
+                "               \"translation\" : {"
+                "                   \"x\" : 1.0,"
+                "                   \"y\" : 1.0,"
+                "                   \"z\" : 0.5"
+                "               },"
+                "               \"rotation\" : {"
+                "                   \"w\" : 1.0,"
+                "                   \"x\" : 0.0,"
+                "                   \"y\" : 0.0,"
+                "                   \"z\" : 0.0"
+                "               }"
+                "           }"
+                "       },"
+                "       {"
+                "           \"static\" : false,"
+                "           \"header\" : {"
+                "               \"frame_id\" : \"world\","
+                "               \"stamp\" : {"
+                "                   \"sec\" : 2,"
+                "                   \"nsec\" : 0"
+                "               }"
+                "           },"
+                "           \"transform\" : {"
+                "               \"child_frame_id\" : \"bunny\","
+                "               \"translation\" : {"
+                "                   \"x\" : 1.0,"
+                "                   \"y\" : 1.0,"
+                "                   \"z\" : 1.0"
+                "               },"
+                "               \"rotation\" : {"
+                "                   \"w\" : 1.0,"
+                "                   \"x\" : 0.0,"
+                "                   \"y\" : 0.0,"
+                "                   \"z\" : 0.0"
+                "               }"
+                "           }"
+                "       },"
+                "       {"
+                "           \"static\" : false,"
+                "           \"header\" : {"
+                "               \"frame_id\" : \"world\","
+                "               \"stamp\" : {"
+                "                   \"sec\" : 3,"
+                "                   \"nsec\" : 0"
+                "               }"
+                "           },"
+                "           \"transform\" : {"
+                "               \"child_frame_id\" : \"bunny\","
+                "               \"translation\" : {"
+                "                   \"x\" : 2.0,"
+                "                   \"y\" : 1.0,"
+                "                   \"z\" : 1.0"
+                "               },"
+                "               \"rotation\" : {"
+                "                   \"w\" : 1.0,"
+                "                   \"x\" : 0.0,"
+                "                   \"y\" : 0.0,"
+                "                   \"z\" : 0.0"
+                "               }"
+                "           }"
+                "       }"
+                "   ]"
+                "}"
+                );
+    upns::OperationResult ret_tfs = checkout_->doOperation( desc_add_tfs );
+    QVERIFY( upnsIsOk(ret_tfs.first) );
 }
 
 void OPRegLocalICPTest::cleanup()
@@ -180,6 +290,58 @@ void OPRegLocalICPTest::test_icp_for_more_than_one_input()
                 );
     upns::OperationResult ret = checkout_->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
+}
+
+void OPRegLocalICPTest::test_icp_tf_combine()
+{
+    // execute operator ICP
+    mapit::msgs::OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("reg_local_icp");
+    desc.set_params(
+                "{"
+                "   \"input\"             : [ \"bunny\", \"bunny2\" ],"
+                "   \"target\"            : \"bunny_tf\","
+                "   \"handle-result\"     : \"tf-combine\","
+                "   \"tf-prefix\"         : \"/tf-combine/tf_dynamic/\","
+                "   \"tf-frame_id\"       : \"world\","
+                "   \"tf-child_frame_id\" : \"bunny\","
+                "   \"tf-is_static\"      : false"
+                "}"
+                );
+    upns::OperationResult ret = checkout_->doOperation( desc );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    // get result from tf buffer
+    mapit::tf2::BufferCore buffer(checkout_.get(), "/tf-combine");
+    tf::TransformStamped tf_b0 = buffer.lookupTransform("world", "bunny", mapit::time::from_sec_and_nsec(0, 1)); // 0.0 would get the "newest" tf but at 1ns it works and is close enough
+    Eigen::Affine3f tf_b0_m(tf_b0.transform.translation);
+    tf_b0_m.rotate(tf_b0.transform.rotation);
+    tf::TransformStamped tf_b1 = buffer.lookupTransform("world", "bunny", mapit::time::from_sec_and_nsec(1, 0));
+    Eigen::Affine3f tf_b1_m(tf_b1.transform.translation);
+    tf_b1_m.rotate(tf_b1.transform.rotation);
+    tf::TransformStamped tf_b2 = buffer.lookupTransform("world", "bunny", mapit::time::from_sec_and_nsec(2, 0));
+    Eigen::Affine3f tf_b2_m(tf_b2.transform.translation);
+    tf_b2_m.rotate(tf_b2.transform.rotation);
+    tf::TransformStamped tf_b3 = buffer.lookupTransform("world", "bunny", mapit::time::from_sec_and_nsec(3, 0));
+    Eigen::Affine3f tf_b3_m(tf_b3.transform.translation);
+    tf_b3_m.rotate(tf_b3.transform.rotation);
+
+    // get transforms to compare with
+    Eigen::Affine3f tf_origin = getTfMatrix();
+    Eigen::Affine3f tf_old_buffer_0 = Eigen::Affine3f::Identity();
+    tf_old_buffer_0.translation() << 1., 0., 0.5;
+    Eigen::Affine3f tf_old_buffer_1 = Eigen::Affine3f::Identity();
+    tf_old_buffer_1.translation() << 1., 1., 0.5;
+    Eigen::Affine3f tf_old_buffer_2 = Eigen::Affine3f::Identity();
+    tf_old_buffer_2.translation() << 1., 1., 1.;
+    Eigen::Affine3f tf_old_buffer_3 = Eigen::Affine3f::Identity();
+    tf_old_buffer_3.translation() << 2., 1., 1.;
+
+    // compare result
+    QVERIFY( tf_b0_m.isApprox(tf_old_buffer_0, 0.06) ); // what does the epsilon mean (unit???)? 0.06 works, 0.055 does not
+    QVERIFY( tf_b1_m.isApprox(tf_old_buffer_1 * tf_origin, 0.06) ); // what does the epsilon mean (unit???)? 0.06 works, 0.055 does not
+    QVERIFY( tf_b2_m.isApprox(tf_old_buffer_2 * tf_origin, 0.06) ); // what does the epsilon mean (unit???)? 0.06 works, 0.055 does not
+    QVERIFY( tf_b3_m.isApprox(tf_old_buffer_3, 0.06) ); // what does the epsilon mean (unit???)? 0.06 works, 0.055 does not
 }
 
 DECLARE_TEST(OPRegLocalICPTest)
