@@ -55,7 +55,7 @@ private:
     std::string cfg_frame_id_;
     bool cfg_use_metascan_;
 
-    enum class HandleResult {tf_add, tf_change, data_change};
+    enum class HandleResult {tf_add, tf_combine, data_change};
     HandleResult cfg_handle_result_;
     std::string cfg_tf_frame_id_;
     std::string cfg_tf_child_frame_id_;

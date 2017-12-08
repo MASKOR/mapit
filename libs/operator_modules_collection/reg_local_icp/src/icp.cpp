@@ -67,8 +67,8 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     std::string cfg_handle_result_str = params["handle-result"].toString().toStdString();
     if        ( 0 == cfg_handle_result_str.compare("tf-add") ) {
         cfg_handle_result_ = HandleResult::tf_add;
-    } else if ( 0 == cfg_handle_result_str.compare("tf-change") ) {
-        cfg_handle_result_ = HandleResult::tf_change;
+    } else if ( 0 == cfg_handle_result_str.compare("tf-combine") ) {
+        cfg_handle_result_ = HandleResult::tf_combine;
     } else if ( 0 == cfg_handle_result_str.compare("data-change") ) {
         cfg_handle_result_ = HandleResult::data_change;
     } else {
@@ -78,7 +78,7 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     }
 
     if (cfg_handle_result_ == HandleResult::tf_add
-     || cfg_handle_result_ == HandleResult::tf_change) {
+     || cfg_handle_result_ == HandleResult::tf_combine) {
         cfg_tf_frame_id_ = params["tf-frame_id"].toString().toStdString();
         cfg_tf_child_frame_id_ = params["tf-child_frame_id"].toString().toStdString();
         cfg_tf_is_static_ = params.contains("tf-is_static") ? params["tf-is_static"].toBool() : false;
@@ -249,9 +249,12 @@ mapit::ICP::operate()
                 ed_tf->setData(ed_d);
                 break;
             }
-            case HandleResult::tf_change: {
-                log_info("reg_local_icp: change tf");
+            case HandleResult::tf_combine: {
+                log_info("reg_local_icp: combine tf");
                 log_error("reg_local_icp: do not handle result of ICP (no effect), its not yet implemented.");
+                // remember all tfs as a combination of the previous transform and the new result of ICP
+                // after for each, delete the tfs
+                // add the new tfs
                 break;
             }
             default: {
