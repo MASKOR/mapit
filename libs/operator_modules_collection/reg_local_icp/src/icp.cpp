@@ -145,7 +145,7 @@ mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Aff
            + (cfg_tf_is_static_ ? "static" : "dynamic")
            + " transform from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
            + "\" at time " + std::to_string(sec_log) + "." + std::to_string(nsec_log) );
-    std::cout << transform.matrix() << std::endl;
+//    std::cout << transform.matrix() << std::endl;
     // get infos
     mapit::time::Stamp stamp = input_stamp;
     std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
@@ -279,8 +279,8 @@ mapit::ICP::operate()
         // handle the result
         switch (cfg_handle_result_) {
             case HandleResult::data_change: {
-                log_info("reg_local_icp: change pointcloud " + cfg_input_one + " with tf:");
-                std::cout << transform.matrix() << std::endl;
+                log_info("reg_local_icp: change pointcloud " + cfg_input_one/* + " with tf:"*/);
+//                std::cout << transform.matrix() << std::endl;
                 log_warn("reg_local_icp: only XYZ will survive, intensity and color will be lost");
                 // TODO find way to transform pointcloud2 so that all data survive
                 std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
@@ -297,7 +297,6 @@ mapit::ICP::operate()
                 break;
             }
             case HandleResult::tf_combine: {
-                log_info("reg_local_icp: combine tf");
                 // get old tf from buffer
                 Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
                 mapit::time::Stamp stamp = input_stamp;
