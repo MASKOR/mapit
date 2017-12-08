@@ -42,23 +42,16 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      *                combination of the result of ICP and the previous transform
      *                at this time. Before and after the time of the pointclouds
      *                from "input" there will be no change.
-     *                TODO: what whill happen at the gap at the start or end of
-     *                      the time of the pointclouds from "input"?
-     *                      E.g. there is a transform at the times [0, 10, 20, 30,
-     *                      40, 50], the stampes of the pointclouds in "input" are
-     *                      [19, 20, 31]. The easy way (currently implemented)
-     *                      would be to have tfs at the time [0, 10, 19, 20, 31,
-     *                      40, 50] afterwards, where [0, 10, 40, 50] are not
-     *                      changed at all and [19, 20, 31] are the combination
-     *                      of the previous transform and ICP result.
-     *                      However that would mean that in the time from 10-19
-     *                      and 31-40 the transform would slowly change from the
-     *                      adapted ICP result to the transforms that where in
-     *                      the system beforehand.
-     *                      Or we could try to get a hard gap, by creating two
-     *                      other transform at 19- and 31+ of the previous
-     *                      transform? Then we would have the old transforms from
-     *                      0-19- and 31+-50 and the new transform from 19-31.
+     *                E.g. there are transforms at the times [0, 10, 20, 30, 40, 50],
+     *                the stampes of the pointclouds in "input" are [19, 20, 31].
+     *                This means the new transforms are [0, 10, 19-1ns, 19, 20, 31,
+     *                31+1ns, 40, 50]. The transforms at 0, 10, 40 and 50 are the
+     *                old transforms. The transforms at 19, 20, 31 are the new
+     *                transforms * old transforms. And the transforms at 19-1ns
+     *                and 31+1ns are the interpolated transforms based on the
+     *                old transforms.
+     *                This way, the old transformes are used from 0 - 19-1ns and
+     *                31+1ns - 50. And the new transforms from 19 - 31.
      * - data-change: will change the data of the "input" clouds, tfs are not changed.
      */
 

@@ -15,6 +15,18 @@
 
 #include <pcl/registration/icp.h>
 
+std::string to_string_with_precision(const unsigned long a_value, const size_t n = 9)
+{
+    std::string out = std::to_string(a_value);
+    int zeros_to_add = n - out.size();
+    std::string zeroes = "";
+    for (int i = 0; i < zeros_to_add; ++i) {
+        zeroes += "0";
+    }
+
+    return zeroes + out;
+}
+
 mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
 {
     status = UPNS_STATUS_OK;
@@ -144,7 +156,7 @@ mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Aff
     log_info("reg_local_icp: add "
            + (cfg_tf_is_static_ ? "static" : "dynamic")
            + " transform from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
-           + "\" at time " + std::to_string(sec_log) + "." + std::to_string(nsec_log) );
+           + "\" at time " + std::to_string(sec_log) + "." + to_string_with_precision(nsec_log, 9) );
 //    std::cout << transform.matrix() << std::endl;
     // get infos
     mapit::time::Stamp stamp = input_stamp;
@@ -331,6 +343,7 @@ mapit::ICP::operate()
         // get time of input clouds
         mapit::time::Stamp earliest = tf_combine_list.front().first;
         mapit::time::Stamp latest = tf_combine_list.front().first;
+        mapit::time::nanoseconds small_time = mapit::time::nanoseconds(1); // smallest time we can have
         for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_time : tf_combine_list) {
             if (earliest > tf_time.first) {
                 earliest = tf_time.first;
@@ -339,6 +352,34 @@ mapit::ICP::operate()
                 latest = tf_time.first;
             }
         }
+        // get tf just before we change anything, and add that to the list to store, therefore we do not interpolate between old and new tfs
+        try {
+            tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, earliest - small_time);
+            Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
+            tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
+            tf_in_buffer.rotate( tf.transform.rotation );
+            // store tf to list
+            std::shared_ptr<Eigen::Affine3f> tf_in_buffer_ptr = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer)); // std::make_shared is not possible because its call by value and that does not work with eigen
+            std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(earliest - small_time, tf_in_buffer_ptr);
+            tf_combine_list.push_back(tf_pair);
+        } catch(...) {
+            // when it doesn't work, there is also nothing todo here, so no worries
+        }
+
+        // get tf just after we change anything, and add that to the list to store, therefore we do not interpolate between old and new tfs
+        try {
+            tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, latest + small_time);
+            Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
+            tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
+            tf_in_buffer.rotate( tf.transform.rotation );
+            // store tf to list
+            std::shared_ptr<Eigen::Affine3f> tf_in_buffer_ptr = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer)); // std::make_shared is not possible because its call by value and that does not work with eigen
+            std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(latest + small_time, tf_in_buffer_ptr);
+            tf_combine_list.push_back(tf_pair);
+        } catch(...) {
+            // when it doesn't work, there is also nothing todo here, so no worries
+        }
+
         // delete tfs between time of clouds
         upns::StatusCode status = mapit_remove_tfs(earliest, latest);
         if ( ! upnsIsOk(status)) {
