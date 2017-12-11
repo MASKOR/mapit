@@ -10,34 +10,34 @@ namespace po = boost::program_options;
 int
 get_program_options(int argc, char *argv[], po::variables_map& vars)
 {
-  po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
-  program_options_desc.add_options()
-      ("help,h", "print usage")
-      ("workspace,w", po::value<std::string>(), "the workspace (formerly checkout) to work with")
-      ("recursive,r", po::bool_switch()->default_value(false), "the structure should be displayed recursivly")
-      ("path,p", po::value<std::string>(), "the path to start the search with");
-  po::positional_options_description pos_options;
-  pos_options.add("workspace",  1);
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
+    program_options_desc.add_options()
+            ("help,h", "print usage")
+            ("workspace,w", po::value<std::string>(), "the workspace (formerly checkout) to work with")
+            ("recursive,r", po::bool_switch()->default_value(false), "the structure should be displayed recursivly")
+            ("path,p", po::value<std::string>(), "the path to start the search with");
+    po::positional_options_description pos_options;
+    pos_options.add("workspace",  1);
 
-  upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
-  try {
-    po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
-  } catch(...) {
-    std::cout << program_options_desc << std::endl;
-    return 1;
-  }
-  if(vars.count("help")) {
-    std::cout << program_options_desc << std::endl;
-    return 1;
-  }
-  try {
-    po::notify(vars);
-  } catch(...) {
-    std::cout << program_options_desc << std::endl;
-    return 1;
-  }
+    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    try {
+        po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
+    } catch(...) {
+        std::cout << program_options_desc << std::endl;
+        return 1;
+    }
+    if(vars.count("help")) {
+        std::cout << program_options_desc << std::endl;
+        return 1;
+    }
+    try {
+        po::notify(vars);
+    } catch(...) {
+        std::cout << program_options_desc << std::endl;
+        return 1;
+    }
 
-  return 0;
+    return 0;
 }
 
 void display_checkout(std::shared_ptr<upns::Checkout> co, bool use_recursive = false, std::string search_prefix = "")
