@@ -66,9 +66,7 @@ void display_checkout(std::shared_ptr<upns::Checkout> co, bool use_recursive = f
                         ++depth;
                     }
 
-                    if (path.empty()) {
-                        return true;
-                    } else if (use_recursive) {
+                    if (path.empty() || use_recursive) {
                         return true;
                     } else {
                         return false;
