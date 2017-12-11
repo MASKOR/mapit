@@ -101,6 +101,32 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     cfg_tf_prefix_ = params.contains("tf-prefix") ? params["tf-prefix"].toString().toStdString() : "";
 
     tf_buffer_ = std::make_shared<mapit::tf2::BufferCore>(checkout_, cfg_tf_prefix_);
+
+    // get algorithm
+    std::string cfg_matching_algorithm_str = params.contains("matching-algorithm") ? params["matching-algorithm"].toString().toStdString() : "";
+    if ( 0 == cfg_matching_algorithm_str.compare("icp")) {
+        cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
+        log_info("reg_local_icp: \"matching-algorithm\" is ICP");
+        upns::StatusCode status_icp = get_cfg_icp(env);
+        if ( ! upnsIsOk(status_icp) ) {
+            status = status_icp;
+            return;
+        }
+    } else {
+        log_error("reg_local_icp: \"matching-algorithm\" not specified, going to use ICP");
+        cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
+        upns::StatusCode status_icp = get_cfg_icp(env);
+        if ( ! upnsIsOk(status_icp) ) {
+            status = status_icp;
+            return;
+        }
+    }
+}
+
+upns::StatusCode
+mapit::ICP::get_cfg_icp(upns::OperationEnvironment* env)
+{
+    return UPNS_STATUS_OK;
 }
 
 boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
@@ -258,27 +284,33 @@ mapit::ICP::operate()
             return status;
         }
 
-        // do ICP
-        pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-        icp.setInputSource(input_pc);
-        icp.setInputTarget(target_pc);
-        // TODO: add cfgs for icp here
-        pcl::PointCloud<pcl::PointXYZ> icp_out;
-        icp.align(icp_out);
+        // execute algorithm
+        double fitness_score = std::numeric_limits<double>::max();
+        bool has_converged = false;
+        Eigen::Affine3f result_transform;
+        pcl::PointCloud<pcl::PointXYZ> result_pc;
+        switch (cfg_matching_algorithm_) {
+            case MatchingAlgorithm::ICP: {
+                icp_execute(input_pc, target_pc, result_pc, result_transform, has_converged, fitness_score);
+                break;
+            }
+            default: {
+                log_error("reg_local_icp: can't select algorithm for matching");
+                return UPNS_STATUS_ERROR;
+            }
+        }
 
-        if ( ! icp.hasConverged() ) {
+        if ( ! has_converged ) {
           log_error("reg_local_icp: algorithm didn't converged");
           return UPNS_STATUS_ERROR;
         } else {
             log_info("reg_local_icp: ICP for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
-                   + "\" finished with fitness score " + std::to_string(icp.getFitnessScore()));
+                   + "\" finished with fitness score " + std::to_string( fitness_score ));
 
             if (cfg_use_metascan_) {
-                *target_pc += icp_out;
+                *target_pc += result_pc;
             }
         }
-
-        Eigen::Affine3f transform( icp.getFinalTransformation() );
 
         // handle the result
         switch (cfg_handle_result_) {
@@ -288,13 +320,13 @@ mapit::ICP::operate()
                 log_warn("reg_local_icp: only XYZ will survive, intensity and color will be lost");
                 // TODO find way to transform pointcloud2 so that all data survive
                 std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
-                pcl::toPCLPointCloud2(icp_out, *icp_out2);
+                pcl::toPCLPointCloud2(result_pc, *icp_out2);
                 icp_out2->header = input_header;
                 entitydata_input->setData(icp_out2);
                 break;
             }
             case HandleResult::tf_add: {
-                upns::StatusCode status = mapit_add_tf(input_stamp, transform);
+                upns::StatusCode status = mapit_add_tf(input_stamp, result_transform);
                 if ( ! upnsIsOk(status)) {
                     return status;
                 }
@@ -317,7 +349,7 @@ mapit::ICP::operate()
                     tf_in_buffer = Eigen::Affine3f::Identity();
                 }
                 // combine tf with tf currently in buffer
-                std::shared_ptr<Eigen::Affine3f> tf_combined = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer * transform)); // std::make_shared is not possible because its call by value and that does not work with eigen
+                std::shared_ptr<Eigen::Affine3f> tf_combined = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer * result_transform)); // std::make_shared is not possible because its call by value and that does not work with eigen
 
                 // store tf to list
                 std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(stamp, tf_combined);
@@ -384,4 +416,25 @@ mapit::ICP::operate()
     }
 
     return UPNS_STATUS_OK;
+}
+
+void
+mapit::ICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                        , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
+                        , pcl::PointCloud<pcl::PointXYZ>& result_pc
+                        , Eigen::Affine3f& result_transform
+                        , bool& has_converged
+                        , double& fitness_score)
+{
+    pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+    icp.setInputSource(input);
+    icp.setInputTarget(target);
+
+    // TODO: add cfgs for icp here
+
+    icp.align(result_pc);
+
+    has_converged = icp.hasConverged();
+    result_transform = Eigen::Affine3f( icp.getFinalTransformation() );
+    fitness_score = icp.getFitnessScore();
 }

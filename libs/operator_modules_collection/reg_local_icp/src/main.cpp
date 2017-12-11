@@ -26,6 +26,8 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      *  optional <string>"tf-frame_id" : ..., // in case of tf change or add
      *  optional <string>"tf-child_frame_id" : ..., // in case of tf change or add
      *  optional <bool>"tf-is_static" : ..., // in case of tf change or add (true only works with one input specified) (default false)
+     *
+     *  <enum-as-string>"matching-algorithm" : ["icp"], // what kind of local matching algorithm should be used
      * }
      *
      * comments:
