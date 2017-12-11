@@ -9,7 +9,7 @@
 #include <upns/layertypes/tflayer/utils.h>
 #include <upns/layertypes/tflayer/tf2/buffer_core.h>
 
-#include "icp.h"
+#include "reg_local.h"
 
 upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
 {

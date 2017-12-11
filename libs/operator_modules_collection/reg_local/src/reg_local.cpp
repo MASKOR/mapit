@@ -1,4 +1,4 @@
-#include "icp.h"
+#include "reg_local.h"
 
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>

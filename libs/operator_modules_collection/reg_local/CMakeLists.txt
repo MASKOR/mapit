@@ -1,6 +1,6 @@
 if(NOT DISABLE_PCL)
   cmake_minimum_required(VERSION 2.8)
-  project(reg_local_icp)
+  project(reg_local)
 
   # message colors
   if(NOT WIN32)
