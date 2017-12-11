@@ -15,18 +15,6 @@
 
 #include <pcl/registration/icp.h>
 
-std::string to_string_with_precision(const unsigned long a_value, const size_t n = 9)
-{
-    std::string out = std::to_string(a_value);
-    int zeros_to_add = n - out.size();
-    std::string zeroes = "";
-    for (int i = 0; i < zeros_to_add; ++i) {
-        zeroes += "0";
-    }
-
-    return zeroes + out;
-}
-
 mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
 {
     status = UPNS_STATUS_OK;
@@ -52,6 +40,7 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     }
     cfg_target_ = params["target"].toString().toStdString();
     cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
+
     std::string output_pointcloud = "reg_local_icp: executing ICP on pointclouds [ ";
     for (std::string cfg_input_one : cfg_input_) {
         output_pointcloud += "\"" + cfg_input_one + "\", ";
@@ -151,12 +140,10 @@ mapit::ICP::get_pointcloud(std::string path, upns::StatusCode &status, mapit::ti
 upns::StatusCode
 mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
 {
-    unsigned long sec_log, nsec_log;
-    mapit::time::to_sec_and_nsec(input_stamp, sec_log, nsec_log);
     log_info("reg_local_icp: add "
            + (cfg_tf_is_static_ ? "static" : "dynamic")
            + " transform from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
-           + "\" at time " + std::to_string(sec_log) + "." + to_string_with_precision(nsec_log, 9) );
+           + "\" at time " + mapit::time::to_string(input_stamp) );
 //    std::cout << transform.matrix() << std::endl;
     // get infos
     mapit::time::Stamp stamp = input_stamp;
@@ -211,6 +198,11 @@ mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Aff
 upns::StatusCode
 mapit::ICP::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &stamp_end)
 {
+    log_info("reg_local_icp: remove "
+           + " transforms from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
+           + "\" between time " + mapit::time::to_string(stamp_start)
+           + "\" and " + mapit::time::to_string(stamp_end)
+            );
     // get entity and entitydata
     std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
     // get entity and data
@@ -257,7 +249,7 @@ mapit::ICP::operate()
     std::list<std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>>> tf_combine_list;
 
     for (std::string cfg_input_one : cfg_input_) {
-        // get input clouds
+        // get input cloud
         mapit::time::Stamp input_stamp;
         pcl::PCLHeader input_header;
         std::shared_ptr<PointcloudEntitydata> entitydata_input;
