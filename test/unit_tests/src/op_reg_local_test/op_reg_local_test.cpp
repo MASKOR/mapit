@@ -1,4 +1,4 @@
-#include "op_reg_local_icp_test.h"
+#include "op_reg_local_test.h"
 #include "../../src/autotest.h"
 
 #include <upns/logging.h>
@@ -33,7 +33,7 @@ getTfMatrix()
 
 void OPRegLocalICPTest::init()
 {
-    fileSystemName_ = std::string("op_reg_local_icp_test.mapit");
+    fileSystemName_ = std::string("op_reg_local_test.mapit");
     cleanup();
     repo_ = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName_));
     checkout_ = std::shared_ptr<upns::Checkout>(repo_->createCheckout("master", "op_reg_local_icp_test"));
@@ -252,7 +252,7 @@ void OPRegLocalICPTest::test_icp_tf_add()
 {
     // execute operator ICP
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("reg_local_icp");
+    desc.mutable_operator_()->set_operatorname("reg_local");
     desc.set_params(
                 "{"
                 "   \"input\"             : \"bunny\","
@@ -282,7 +282,7 @@ void OPRegLocalICPTest::test_icp_for_more_than_one_input()
 {
     // execute operator ICP
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("reg_local_icp");
+    desc.mutable_operator_()->set_operatorname("reg_local");
     desc.set_params(
                 "{"
                 "   \"input\"             : [ \"bunny\", \"bunny2\", \"bunny3\" ],"
@@ -302,7 +302,7 @@ void OPRegLocalICPTest::test_icp_tf_combine()
 {
     // execute operator ICP
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("reg_local_icp");
+    desc.mutable_operator_()->set_operatorname("reg_local");
     desc.set_params(
                 "{"
                 "   \"input\"             : [ \"bunny\", \"bunny2\" ],"
