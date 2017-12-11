@@ -12,6 +12,7 @@
 #include <mapit/time/time.h>
 
 class QJsonDocument;
+class QJsonObject;
 
 class PointcloudEntitydata;
 namespace pcl {
@@ -75,13 +76,20 @@ private:
     enum class MatchingAlgorithm {ICP};
     MatchingAlgorithm cfg_matching_algorithm_;
     // ICP
-    upns::StatusCode get_cfg_icp(upns::OperationEnvironment* env);
+    upns::StatusCode get_cfg_icp(const QJsonObject& params);
     void icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
                      , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
                      , pcl::PointCloud<pcl::PointXYZ>& result_pc
                      , Eigen::Affine3f& result_transform
                      , bool& has_converged
                      , double& fitness_score);
+
+    bool cfg_icp_set_maximum_iterations_;
+    int cfg_icp_maximum_iterations_;
+    bool cfg_icp_set_max_correspondence_distance_;
+    double cfg_icp_max_correspondence_distance_;
+    bool cfg_icp_set_transformation_epsilon_;
+    double cfg_icp_transformation_epsilon_;
 
 };
 

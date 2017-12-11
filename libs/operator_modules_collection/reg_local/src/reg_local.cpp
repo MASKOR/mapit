@@ -107,7 +107,7 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     if ( 0 == cfg_matching_algorithm_str.compare("icp")) {
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
         log_info("reg_local_icp: \"matching-algorithm\" is ICP");
-        upns::StatusCode status_icp = get_cfg_icp(env);
+        upns::StatusCode status_icp = get_cfg_icp(params);
         if ( ! upnsIsOk(status_icp) ) {
             status = status_icp;
             return;
@@ -115,18 +115,12 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
     } else {
         log_error("reg_local_icp: \"matching-algorithm\" not specified, going to use ICP");
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
-        upns::StatusCode status_icp = get_cfg_icp(env);
+        upns::StatusCode status_icp = get_cfg_icp(params);
         if ( ! upnsIsOk(status_icp) ) {
             status = status_icp;
             return;
         }
     }
-}
-
-upns::StatusCode
-mapit::ICP::get_cfg_icp(upns::OperationEnvironment* env)
-{
-    return UPNS_STATUS_OK;
 }
 
 boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
@@ -418,6 +412,25 @@ mapit::ICP::operate()
     return UPNS_STATUS_OK;
 }
 
+upns::StatusCode
+mapit::ICP::get_cfg_icp(const QJsonObject &params)
+{
+    cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations");
+    if ( cfg_icp_set_maximum_iterations_ ) {
+        cfg_icp_maximum_iterations_ = params["icp-maximum-iterations"].toInt();
+    }
+    cfg_icp_set_max_correspondence_distance_ = params.contains("icp-max-correspondence-distance");
+    if ( cfg_icp_set_max_correspondence_distance_ ) {
+        cfg_icp_max_correspondence_distance_ = params["icp-max-correspondence-distance"].toDouble();
+    }
+    cfg_icp_set_transformation_epsilon_ = params.contains("icp-transformation-epsilon");
+    if ( cfg_icp_set_transformation_epsilon_ ) {
+        cfg_icp_transformation_epsilon_ = params["icp-transformation-epsilon"].toDouble();
+    }
+
+    return UPNS_STATUS_OK;
+}
+
 void
 mapit::ICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
                         , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
@@ -430,7 +443,15 @@ mapit::ICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> inpu
     icp.setInputSource(input);
     icp.setInputTarget(target);
 
-    // TODO: add cfgs for icp here
+    if (cfg_icp_set_maximum_iterations_) {
+        icp.setMaximumIterations(cfg_icp_maximum_iterations_);
+    }
+    if (cfg_icp_set_max_correspondence_distance_) {
+        icp.setMaxCorrespondenceDistance(cfg_icp_max_correspondence_distance_);
+    }
+    if (cfg_icp_set_transformation_epsilon_) {
+        icp.setTransformationEpsilon(cfg_icp_transformation_epsilon_);
+    }
 
     icp.align(result_pc);
 
