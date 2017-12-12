@@ -69,4 +69,4 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
     return icp.operate();
 }
 
-UPNS_MODULE(OPERATOR_NAME, "execute icp on pointclouds", "fhac", OPERATOR_VERSION, "any", &operate_reg_local_icp)
+UPNS_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", &operate_reg_local_icp)
