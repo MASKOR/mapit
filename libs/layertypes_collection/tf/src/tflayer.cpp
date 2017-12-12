@@ -113,7 +113,6 @@ std::shared_ptr<tf::store::TransformStampedList> TfEntitydata::getData(upnsReal 
                                        int lod)
 {
   if(m_transforms == nullptr) {
-    m_transforms = std::make_shared<tf::store::TransformStampedList>("not-set-this-should-have-been-overwritten", "not-set-this-should-have-been-overwritten", false);
     upnsIStream *in = m_streamProvider->startRead();
     {
       readTfFromStream( *in, m_transforms );
