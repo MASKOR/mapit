@@ -5,6 +5,8 @@ import QtQuick.Window 2.2 as Wnd
 
 import fhac.upns 1.0 as UPNS
 
+import "../components"
+
 StyledButton {
     id: root
     text: qsTr("Checkout")

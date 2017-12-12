@@ -1,6 +1,6 @@
  #include "qmlraycast.h"
 
-QmlRayCast::QmlRayCast(QObject *parent)
+QmlRaycast::QmlRaycast(QObject *parent)
     :QObject(parent)
     ,m_viewMatrix()
     ,m_viewportSize()
@@ -20,12 +20,12 @@ QmlRayCast::QmlRayCast(QObject *parent)
     ,m_dirtyPointOnPlane(true)
 {}
 
-QMatrix4x4 QmlRayCast::viewMatrix() const
+QMatrix4x4 QmlRaycast::viewMatrix() const
 {
     return m_viewMatrix;
 }
 
-void QmlRayCast::setViewMatrix(QMatrix4x4 viewMatrix)
+void QmlRaycast::setViewMatrix(QMatrix4x4 viewMatrix)
 {
     if (m_viewMatrix == viewMatrix)
         return;
@@ -34,12 +34,12 @@ void QmlRayCast::setViewMatrix(QMatrix4x4 viewMatrix)
     Q_EMIT viewMatrixChanged(m_viewMatrix);
 }
 
-QSize QmlRayCast::viewportSize() const
+QSize QmlRaycast::viewportSize() const
 {
     return m_viewportSize;
 }
 
-void QmlRayCast::setViewportSize(QSize viewportSize)
+void QmlRaycast::setViewportSize(QSize viewportSize)
 {
     if (m_viewportSize == viewportSize)
         return;
@@ -48,7 +48,7 @@ void QmlRayCast::setViewportSize(QSize viewportSize)
     Q_EMIT viewportSizeChanged(m_viewportSize);
 }
 
-QVector2D QmlRayCast::screenPosition()
+QVector2D QmlRaycast::screenPosition()
 {
     if(m_dirtyScreenPosition) {
         QVector3D worldPos(worldPosition());
@@ -66,7 +66,7 @@ QVector2D QmlRayCast::screenPosition()
     return m_screenPosition;
 }
 
-void QmlRayCast::setScreenPosition(QVector2D screenPosition)
+void QmlRaycast::setScreenPosition(QVector2D screenPosition)
 {
     m_dirtyScreenPosition = false;
     if (m_screenPosition == screenPosition)
@@ -80,7 +80,7 @@ void QmlRayCast::setScreenPosition(QVector2D screenPosition)
     Q_EMIT worldPositionChanged();
 }
 
-QVector3D QmlRayCast::worldDirection()
+QVector3D QmlRaycast::worldDirection()
 {
     if(m_dirtyWorldDirection) {
         if(!m_dirtyScreenPosition) {
@@ -98,7 +98,6 @@ QVector3D QmlRayCast::worldDirection()
         } else if(!m_dirtyWorldPosition) {
             float *data = viewMatrix().inverted().data();
             QVector3D cameraPosition(data[12], data[13], data[14]);
-            //cameraPosition = -cameraPosition;
             QVector3D worldDirectionNew = (worldPosition()-cameraPosition).normalized();
             m_worldDirection = worldDirectionNew;
             m_dirtyWorldDirection = false;
@@ -107,7 +106,7 @@ QVector3D QmlRayCast::worldDirection()
     return m_worldDirection;
 }
 
-void QmlRayCast::setWorldDirection(QVector3D worldDirection)
+void QmlRaycast::setWorldDirection(QVector3D worldDirection)
 {
     m_dirtyWorldDirection = false;
     if (m_worldDirection == worldDirection)
@@ -121,7 +120,7 @@ void QmlRayCast::setWorldDirection(QVector3D worldDirection)
     Q_EMIT screenPositionChanged();
 }
 
-QVector3D QmlRayCast::worldPosition()
+QVector3D QmlRaycast::worldPosition()
 {
     // may triggers calculating worldDirection and thus screenPosition.
     if(m_dirtyWorldPosition) {
@@ -199,7 +198,7 @@ QVector3D QmlRayCast::worldPosition()
     return m_worldPosition;
 }
 
-void QmlRayCast::setWorldPosition(QVector3D worldPosition)
+void QmlRaycast::setWorldPosition(QVector3D worldPosition)
 {
     m_dirtyWorldPosition = false;
     if (m_worldPosition == worldPosition)
@@ -219,7 +218,7 @@ void QmlRayCast::setWorldPosition(QVector3D worldPosition)
     Q_EMIT pointOnPlaneChanged();
 }
 
-float QmlRayCast::distance()
+float QmlRaycast::distance()
 {
     if(m_dirtyDistance) {
         // depends on worldPosition
@@ -236,7 +235,7 @@ float QmlRayCast::distance()
     return m_distance;
 }
 
-void QmlRayCast::setDistance(float distance)
+void QmlRaycast::setDistance(float distance)
 {
     m_dirtyDistance = false;
     qWarning("Floating point comparison needs context sanity check");
@@ -253,17 +252,17 @@ void QmlRayCast::setDistance(float distance)
     Q_EMIT pointOnPlaneChanged();
 }
 
-QMatrix4x4 QmlRayCast::projectionMatrix() const
+QMatrix4x4 QmlRaycast::projectionMatrix() const
 {
     return m_projectionMatrix;
 }
 
-QVector3D QmlRayCast::planeNormal()
+QVector3D QmlRaycast::planeNormal()
 {
     return m_planeNormal;
 }
 
-float QmlRayCast::planeOffset()
+float QmlRaycast::planeOffset()
 {
     if(m_dirtyPlaneOffset) {
         if(!m_dirtyPointOnPlane) {
@@ -279,7 +278,7 @@ float QmlRayCast::planeOffset()
     return m_planeOffset;
 }
 
-QVector3D QmlRayCast::pointOnPlane()
+QVector3D QmlRaycast::pointOnPlane()
 {
     if(m_dirtyPointOnPlane) {
         if(m_dirtyPlaneOffset) {
@@ -294,7 +293,7 @@ QVector3D QmlRayCast::pointOnPlane()
     return m_pointOnPlane;
 }
 
-void QmlRayCast::setProjectionMatrix(QMatrix4x4 projectionMatrix)
+void QmlRaycast::setProjectionMatrix(QMatrix4x4 projectionMatrix)
 {
     if (m_projectionMatrix == projectionMatrix)
         return;
@@ -303,7 +302,7 @@ void QmlRayCast::setProjectionMatrix(QMatrix4x4 projectionMatrix)
     Q_EMIT projectionMatrixChanged(m_projectionMatrix);
 }
 
-void QmlRayCast::setPlaneNormal(QVector3D planeNormal)
+void QmlRaycast::setPlaneNormal(QVector3D planeNormal)
 {
     m_dirtyPlaneNormal = false;
     if (m_planeNormal == planeNormal)
@@ -319,10 +318,9 @@ void QmlRayCast::setPlaneNormal(QVector3D planeNormal)
     Q_EMIT planeOffsetChanged();
 }
 
-void QmlRayCast::setPlaneOffset(float planeOffset)
+void QmlRaycast::setPlaneOffset(float planeOffset)
 {
     m_dirtyPlaneOffset = false;
-    qWarning("Floating point comparison needs context sanity check");
     if (qFuzzyCompare(m_planeOffset, planeOffset))
         return;
 
@@ -334,7 +332,7 @@ void QmlRayCast::setPlaneOffset(float planeOffset)
     Q_EMIT pointOnPlaneChanged();
 }
 
-void QmlRayCast::setPointOnPlane(QVector3D pointOnPlane)
+void QmlRaycast::setPointOnPlane(QVector3D pointOnPlane)
 {
     m_dirtyPointOnPlane = false;
     if (m_pointOnPlane == pointOnPlane)

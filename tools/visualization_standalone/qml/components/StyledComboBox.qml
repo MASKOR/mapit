@@ -8,9 +8,12 @@ ComboBox {
             implicitHeight: appStyle.controlHeightOuter
             implicitWidth: appStyle.controlHeightOuter*4
             color: appStyle.itemBackgroundColor
+            border.color: appStyle.buttonBorderColor
+            border.width: 1
+            radius: appStyle.radius
         }
         textColor: appStyle.textColor
-        selectionColor: appStyle.selectionColor
-        selectedTextColor: appStyle.selectionBorderColor
+        selectionColor: appStyle.highlightColor
+        selectedTextColor: appStyle.selectionColor
     }
 }

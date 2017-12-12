@@ -7,13 +7,14 @@ import Qt3D.Core 2.0
 import fhac.upns 1.0 as UPNS
 
 import ".."
+import "../components"
 
 ColumnLayout {
     id: root
     //// in ////
     property bool shown
     property bool editable
-    property var currentCheckout
+    property string currentCheckoutName
     property string currentEntityPath
 
     readonly property string angleUnit: appStyle.useRadians ? "rad" : qsTr( "\u00B0" ) // degree
@@ -61,7 +62,7 @@ ColumnLayout {
         id: priv
         UPNS.TfTransform {
             id: currentEntitydataTransformId
-            checkout: currentCheckout
+            checkout: currentCheckoutName
             mustExist: false
             path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
                                           && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)
@@ -135,7 +136,6 @@ ColumnLayout {
         HelperTarget {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
-            dialogRoot: root
             text: "Map: "
         }
         RowLayout {

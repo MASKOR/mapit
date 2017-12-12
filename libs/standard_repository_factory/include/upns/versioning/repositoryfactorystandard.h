@@ -37,7 +37,7 @@ public:
      * @param vars arguments from command line, parsed by boost::program_options
      * @return a repository to work with. Caller takes ownership. Delete the object after usage or initialize a smart pointer with it.
      */
-    static Repository* openRepository(boost::program_options::variables_map &vars);
+    static Repository* openRepository(boost::program_options::variables_map &vars, bool *specified=nullptr);
 
     /**
      * @brief openRepositorySimple If no command line should be used, this method can be

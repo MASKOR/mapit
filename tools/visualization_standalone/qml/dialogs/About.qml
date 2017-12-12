@@ -5,6 +5,8 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import FileIO 1.0
 
+import "../components"
+
 Dialog {
     title: qsTr( "About" )
     modality: Qt.WindowModal

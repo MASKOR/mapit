@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
+import "scene"
 import QtQuick.Scene3D 2.0
 import Qt3D.Core 2.0 as Q3D
 import Qt3D.Render 2.0
@@ -15,18 +16,21 @@ import QtQuick 2.0 as QQ2
 
 import qt3deditorlib 1.0
 
+import "components"
+import "dialogs"
+
 Item {
     id: root
-    property var applicationState
-    property var currentEntitydata
-    Connections {
-        target: currentEntitydata
-        onUpdated: {
-            colorizeSelect.model = currentEntitydata.getInfo("fields")
-        }
-    }
+    property var currentEntitydata: globalApplicationState.currentEntitydata
+//    Connections {
+//        target: currentEntitydata
+//        onUpdated: {
+//            colorizeSelect.model = currentEntitydata.info["fields"]
+//        }
+//    }
 
-    property var currentEntitydataTransform
+    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
     property alias currentFrameId: frameIdChooser.currentText
@@ -42,6 +46,7 @@ Item {
             id: toolbar
             anchors.left: parent.left
             anchors.right: parent.right
+            z: 1000
             RowLayout {
                 StyledLabel {
                     text: "PointSize: " + pointSizeSlider.value.toFixed(2)
@@ -75,7 +80,7 @@ Item {
                 }
                 StyledComboBox {
                     id: colorizeSelect
-                    model: currentEntitydata.getInfo("fields")//[ "x", "y", "z"]//, "intensity"]
+                    model: currentEntitydata.info["fields"] //currentEntitydata.info["fields"]//[ "x", "y", "z"]//, "intensity"]
                     textRole: "name"
                 }
                 StyledComboBox {
@@ -100,61 +105,94 @@ Item {
                     text: "Ref. Frame:"
                     verticalAlignment: Text.AlignVCenter
                 }
-                StyledComboBox {
+                FrameIdChooser {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 100
                     id: frameIdChooser
-                    model: []
-                    function addUniqueFrameIds(frameIds) {
-                        var modelArray = frameIdChooser.model
-                        frameIds.forEach(function(frameId) {
-                            var found = false
-                            for(var i=0; i<model.length; ++i) {
-                                var name = model[i]
-                                if(name === frameId) {
-                                    found = true
-                                }
-                            }
-                            if(!found) modelArray.push(frameId)
-                        })
-                        frameIdChooser.model = modelArray
-                    }
+                    allowNew: false
+                    currentCheckout: root.currentCheckout
                 }
+
+//                StyledComboBox {
+//                    id: frameIdChooser
+//                    model: []
+//                    function addUniqueFrameIds(frameIds) {
+//                        var modelArray = frameIdChooser.model
+//                        frameIds.forEach(function(frameId) {
+//                            var found = false
+//                            for(var i=0; i<model.length; ++i) {
+//                                var name = model[i]
+//                                if(name === frameId) {
+//                                    found = true
+//                                }
+//                            }
+//                            if(!found) modelArray.push(frameId)
+//                        })
+//                        frameIdChooser.model = modelArray
+//                    }
+//                }
             }
             RowLayout {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/sphere-skinny"
-                    onClicked: applicationState.selectOperator("place_primitive", {type:"sphere"})
+                    tooltip: "Place <i>sphere</i>"
+                    onClicked: {
+                        globalApplicationState.currentDetailDialog = "../pipelines/place_primitive"
+                        appStyle.tmpPrimitiveType = "sphere"
+                    }
                 }
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/plane-skinny"
-                    onClicked: applicationState.selectOperator("place_primitive", {type:"plane"})
+                    tooltip: "Place <i>plane</i>"
+                    onClicked: {
+                        globalApplicationState.currentDetailDialog = "../pipelines/place_primitive"
+                        appStyle.tmpPrimitiveType = "plane"
+                    }
                 }
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/cylinder-skinny"
-                    onClicked: applicationState.selectOperator("place_primitive", {type:"cylinder"})
+                    tooltip: "Place <i>cylinder</i>"
+                    onClicked: {
+                        globalApplicationState.currentDetailDialog = "../pipelines/place_primitive"
+                        appStyle.tmpPrimitiveType = "cylinder"
+                    }
                 }
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/cone-skinny"
-                    onClicked: applicationState.selectOperator("place_primitive", {type:"cone"})
+                    tooltip: "Place <i>cone</i>"
+                    onClicked: {
+                        globalApplicationState.currentDetailDialog = "../pipelines/place_primitive"
+                        appStyle.tmpPrimitiveType = "cone"
+                    }
                 }
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/torus-skinny"
-                    onClicked: applicationState.selectOperator("place_primitive", {type:"torus"})
+                    tooltip: "Place <i>torus</i>"
+                    onClicked: {
+                        globalApplicationState.currentDetailDialog = "../pipelines/place_primitive"
+                        appStyle.tmpPrimitiveType = "torus"
+                    }
                 }
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/cube-skinny"
-                    onClicked: applicationState.selectOperator("place_primitive", {type:"cube"})
+                    tooltip: "Place <i>cube</i>"
+                    onClicked: {
+                        globalApplicationState.currentDetailDialog = "../pipelines/place_primitive"
+                        appStyle.tmpPrimitiveType = "cube"
+                    }
                 }
                 StyledButton {
                     id: btnClick
                     isIcon: true
                     checkable: true
                     iconSource: "image://material/ic_location_searching"
+                    tooltip: "Drag Annotation with mouse directly into the scene"
                     onCheckedChanged: {
                         appStyle.tmpFollowMouse = checked
                     }
@@ -169,6 +207,7 @@ Item {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_settings"
+                    tooltip: "Settings"
                     onClicked: settings.show()
                 }
                 VisualizationSettings {
@@ -177,6 +216,7 @@ Item {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_info"
+                    tooltip: "About"
                     onClicked: about.open()
                 }
             }
@@ -188,6 +228,7 @@ Item {
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            z: 0
             MouseArea {
                 anchors.fill: parent
                 id: sceneMouseArea
@@ -228,7 +269,7 @@ Item {
                 }
             }
 
-            UPNS.RayCast {
+            UPNS.Raycast {
                 id: mouseRaycast
                 viewMatrix: camera.viewMatrix
                 projectionMatrix: camera.projectionMatrix
@@ -253,7 +294,7 @@ Item {
                 anchors.fill: parent
                 id: scene3d
                 aspects: ["render", "logic", "input"]
-                focus: priv.mouseOver
+                //focus: priv.mouseOver
                 z: 9
                 Q3D.Entity {
                     id: sceneRoot
@@ -517,14 +558,16 @@ Item {
                                     //                                                                                                      0, 0, 0, 1)
                                     layer: pointLayer
                                     parametersTmp: techniqueFilter.parameters
-                                    currentCheckout: UPNS.Checkout {
-                                        id: co
-                                        repository: globalRepository
-                                        name: model.checkoutName
-                                        Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
-                                    }
+                                    //Currently only one checkout is supported
+                                    currentCheckout: globalApplicationState.currentCheckout
+//                                    currentCheckout: UPNS.Checkout {
+//                                        id: co
+//                                        repository: globalRepository
+//                                        name: model.checkoutName
+//                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
+//                                    }
                                     currentEntitydata: UPNS.Entitydata {
-                                        checkout: co
+                                        checkout: currentCheckout
                                         path: model.path
                                     }
                                 }

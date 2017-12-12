@@ -6,19 +6,25 @@
 #include <upns/layertypes/tflayer/tf2/exceptions.h>
 #include <QStringList>
 #include <QSet>
+#include "operationexecutor.h"
 
 QmlCheckout::QmlCheckout()
-    :m_checkout( NULL ),
-     m_repository( NULL )
+    : m_checkout( NULL )
+    , m_repository( NULL )
+    , m_isInConflictMode( false )
+    , m_isBusyExecuting( false )
+    , m_executor( nullptr )
 {
-
 }
 
 // If name is not given, this must be a result of a merge.
 QmlCheckout::QmlCheckout(std::shared_ptr<upns::Checkout> &co, QmlRepository* repo, QString name)
-    :m_checkout( co ),
-     m_repository( repo ),
-     m_name( name )
+    : m_checkout( co )
+    , m_repository( repo )
+    , m_isInConflictMode( false )
+    , m_isBusyExecuting( false )
+    , m_executor( nullptr )
+    , m_name( name )
 {
     if(m_repository)
     {
@@ -27,20 +33,38 @@ QmlCheckout::QmlCheckout(std::shared_ptr<upns::Checkout> &co, QmlRepository* rep
     reloadEntities();
 }
 
+QmlCheckout::~QmlCheckout()
+{
+    if(m_executor) delete m_executor;
+}
+
 QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
 {
     if(!m_checkout) return "not initialized, too early";
+
+    if(isBusyExecuting()) return "can not execute, currently busy executing";
+    if(m_executor) delete m_executor;
+
     QJsonDocument doc(desc);
     QString strJson(doc.toJson(QJsonDocument::Compact));
     mapit::msgs::OperationDescription descript;
     descript.mutable_operator_()->set_operatorname(operatorname.toStdString());
     descript.set_params(strJson.toStdString());
-    upns::OperationResult res = m_checkout->doOperation(descript);
-    reloadEntities();
-    Q_EMIT internalCheckoutChanged(this);
-    //TODO Q_EMIT something changed()
-    // TODO: wrap operation result.
-    if(upnsIsOk(res.first)) return "error";
+
+    m_executor = new OperationExecutor(this, m_checkout, descript);
+
+    connect(m_executor, &OperationExecutor::operationExecuted, this, &QmlCheckout::operationExecuted);
+
+    m_isBusyExecuting = true;
+    Q_EMIT isBusyExecutingChanged(m_isBusyExecuting);
+
+    m_executor->start();
+//    upns::OperationResult res = m_checkout->doOperation(descript);
+//    reloadEntities();
+//    Q_EMIT internalCheckoutChanged(this);
+//    //TODO Q_EMIT something changed()
+//    // TODO: wrap operation result.
+//    if(upnsIsOk(res.first)) return "error";
     return "";
 }
 
@@ -134,6 +158,8 @@ bool QmlCheckout::isInConflictMode() const
     return m_isInConflictMode;
 }
 
+std::shared_ptr<Checkout> QmlCheckout::getCheckoutObj() { return m_checkout; }
+
 QmlRepository *QmlCheckout::repository() const
 {
     return m_repository;
@@ -183,6 +209,16 @@ QStringList QmlCheckout::getFrameIds()
     return frameIdSet.toList();
 }
 
+bool QmlCheckout::isBusyExecuting() const
+{
+    return m_isBusyExecuting;
+}
+
+int QmlCheckout::lastOperationStatus() const
+{
+    return m_lastOperationStatus;
+}
+
 void QmlCheckout::setRepository(QmlRepository *repository)
 {
     if (m_repository != repository)
@@ -226,6 +262,16 @@ void QmlCheckout::setName(QString name)
     }
 
     Q_EMIT nameChanged(name);
+}
+
+void QmlCheckout::operationExecuted(int result)
+{
+    m_isBusyExecuting = false;
+    m_lastOperationStatus = result;
+    reloadEntities();
+    Q_EMIT internalCheckoutChanged(this);
+    Q_EMIT isBusyExecutingChanged(m_isBusyExecuting);
+    Q_EMIT lastOperationStatusChanged(result);
 }
 
 void QmlCheckout::reloadEntities()

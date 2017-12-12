@@ -4,6 +4,8 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.0
 
+import "../components"
+
 Window {
     id: root
     width: controlsContainer.width + 25 /* width of scrollbar (TODO: remove hack) */

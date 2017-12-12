@@ -30,7 +30,7 @@ void OperatorLoader::run()
         obj["layerType"] = QJsonValue(iter->layerType.c_str());
         result.append(obj);
     }
-    operatorsAdded(result);
+    Q_EMIT operatorsAdded(result);
 }
 
 OperatorLoader::OperatorLoader(QObject *parent) : QThread(parent) {}

@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.1
 
 import ".."
 import "../operators"
+import "../components"
 
 ColumnLayout {
     id: root
@@ -48,7 +49,7 @@ ColumnLayout {
                     "stamp": { "sec": 0, "nsec": 0 }
                 },
                 "transform": {
-                    "child_frame_id" : childFrameIdInput.text,
+                    "child_frame_id" : childFrameIdInput.currentText,
                     "translation" : {
                         "x" : parseFloat(xInp.text),
                         "y" : parseFloat(yInp.text),
@@ -62,8 +63,7 @@ ColumnLayout {
                     }
                 }
             }
-        ],
-        "frame_id": frameIdInput.currentText
+        ]
     }
     Component.onCompleted: {
         primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
@@ -122,6 +122,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://primitive/sphere-skinny"
+            tooltip: "Place <i>sphere</i>"
             onCheckedChanged: if(checked) primitiveOption.singleSelect(btn1)
         }
         StyledButton {
@@ -129,6 +130,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://primitive/plane-skinny"
+            tooltip: "Place <i>plane</i>"
             onCheckedChanged: if(checked) primitiveOption.singleSelect(btn2)
         }
         StyledButton {
@@ -136,6 +138,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://primitive/cylinder-skinny"
+            tooltip: "Place <i>cylinder</i>"
             onCheckedChanged: if(checked) primitiveOption.singleSelect(btn3)
         }
         StyledButton {
@@ -143,6 +146,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://primitive/cone-skinny"
+            tooltip: "Place <i>cone</i>"
             onCheckedChanged: if(checked) primitiveOption.singleSelect(btn4)
         }
         StyledButton {
@@ -150,6 +154,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://primitive/torus-skinny"
+            tooltip: "Place <i>torus</i>"
             onCheckedChanged: if(checked) primitiveOption.singleSelect(btn5)
         }
         StyledButton {
@@ -157,6 +162,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://primitive/cube-skinny"
+            tooltip: "Place <i>cube</i>"
             onCheckedChanged: if(checked) primitiveOption.singleSelect(btn6)
         }
         Item {
@@ -167,6 +173,7 @@ ColumnLayout {
             isIcon: true
             checkable: true
             iconSource: "image://material/ic_location_searching"
+            tooltip: "Drag Annotation with mouse directly into the scene"
             onCheckedChanged: {
                 appStyle.tmpFollowMouse = checked
             }
@@ -181,7 +188,6 @@ ColumnLayout {
         Layout.fillWidth: true
         id: entityChooser
         currentEntityPath: root.currentEntityPath ? root.currentEntityPath : "/testmap/annotation/annotation_" + (new Date())
-        dialogRoot: root
         z: 200
     }
     RowLayout {
@@ -237,20 +243,13 @@ ColumnLayout {
             z:100
             id: frameIdInput
             Layout.fillWidth: true
-            height: appStyle.controlHeightInner
-            allowNew: true
+            allowNew: false
             model: currentCheckout.getFrameIds()
-            blurMouseArea: MouseArea {
-                parent: root.parent.parent
-                anchors.fill: parent
-                preventStealing: true
-                propagateComposedEvents: true
-                z:-1000
-            }
         }
     }
     RowLayout {
         Layout.fillWidth: true
+        z:99
         StyledLabel {
             Layout.alignment: Qt.AlignTop
             text: "child_frame_id:"
@@ -259,16 +258,8 @@ ColumnLayout {
             z:100
             id: childFrameIdInput
             Layout.fillWidth: true
-            height: appStyle.controlHeightInner
             allowNew: true
             model: currentCheckout.getFrameIds()
-            blurMouseArea: MouseArea {
-                parent: root.parent.parent
-                anchors.fill: parent
-                preventStealing: true
-                propagateComposedEvents: true
-                z:-1000
-            }
         }
     }
     RowLayout {

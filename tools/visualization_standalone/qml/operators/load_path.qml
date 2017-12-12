@@ -3,12 +3,12 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 import ".."
+import "../components"
 
 ColumnLayout {
     id: root
     //// in ////
     property bool editable
-    property var currentCheckout
     property string currentEntityPath
 
     function fromParameters(params) {
@@ -33,6 +33,5 @@ ColumnLayout {
         Layout.fillWidth: true
         id: entityChooser
         currentEntityPath: root.currentEntityPath
-        dialogRoot: root
     }
 }

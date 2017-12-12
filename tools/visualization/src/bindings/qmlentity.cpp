@@ -3,7 +3,7 @@
 #include <mapit/msgs/services.pb.h>
 
 QmlEntity::QmlEntity(QObject *parent)
-    :QObject(parent),m_entity( nullptr )
+    :QObject(parent), m_entity( nullptr )
 {
 
 }
@@ -34,5 +34,6 @@ QString QmlEntity::frameId() const
 
 QString QmlEntity::stamp() const
 {
+    if(!m_entity) return "";
     return QString::number(m_entity->stamp().sec()) + "s, " + QString::number(m_entity->stamp().nsec()) + "ns";
 }

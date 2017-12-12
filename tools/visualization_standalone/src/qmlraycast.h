@@ -5,16 +5,18 @@
 #include <QVector2D>
 
 ///
-/// \brief The QmlRayCast class helps projecting and unprojecting rays
-/// Can be used to
+/// \brief The QmlRaycast class helps projecting and unprojecting rays
+/// It can be used to
 /// 1) unproject a 2d point on screen to 3d point in world at a given distance
 /// 2) unproject a 2d point on screen to 3d point in world at a given plane
 /// 3) project 3d point from world to screen
 /// 4) direction from camera to an point in world or on screen
 /// This can be done in a declaraive way by setting the needed parameters
-/// and retrieve whatever is needed. Computation done lazy.
+/// and retrieve whatever is needed. Computation is done lazyly,
+/// however, property bindings are evaluated correctly and thus may
+/// break lazy evaluation.
 ///
-class QmlRayCast : public QObject
+class QmlRaycast : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QMatrix4x4 viewMatrix READ viewMatrix WRITE setViewMatrix NOTIFY viewMatrixChanged)
@@ -29,7 +31,7 @@ class QmlRayCast : public QObject
     Q_PROPERTY(QVector3D pointOnPlane READ pointOnPlane WRITE setPointOnPlane NOTIFY pointOnPlaneChanged)
 
 public:
-    QmlRayCast(QObject* parent = nullptr);
+    QmlRaycast(QObject* parent = nullptr);
 
     QMatrix4x4 viewMatrix() const;
     QSize viewportSize() const;

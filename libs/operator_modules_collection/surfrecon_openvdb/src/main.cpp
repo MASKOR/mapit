@@ -125,8 +125,9 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
 
     upnsFloatGridPtr outputFloatGrid;
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
-    if(ent)
+    if(ent && false)
     {
+        //TODO: at the moment always a new grid should be created
         log_info("Output grid already exists. ignoring voxelsize.");
         std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)

@@ -7,22 +7,21 @@ Item {
     id: root
     property bool allowNew: true
     property var model
-    property var blurMouseArea
+//    property var blurMouseArea: globalBlur
     property alias dropDownVisible: dropDown.visible
 
-    Connections {
-        target: blurMouseArea
-        onClicked: dropDown.visible = false
-    }
+    implicitHeight: ff.height
+//    Connections {
+//        target: blurMouseArea
+//        onClicked: dropDown.visible = false
+//    }
+    onFocusChanged: if(!focus) dropDown.visible = false
 
     property ListModel filteredModel: ListModel {}
     property alias selection: lv.currentItem
     property alias currentText: ff.text
     signal action(var item)
-//    gradient: Gradient {
-//        GradientStop { position: 0.0; color: ColorTheme.contextMenu1 }
-//        GradientStop { position: 1.0; color: ColorTheme.contextMenu2 }
-//    }
+
     onXChanged: reinit()
     onYChanged: reinit()
     onVisibleChanged: reinit()
@@ -33,8 +32,10 @@ Item {
             ff.forceActiveFocus();
         }
         filteredModel.clear();
-        for(var i=0; i<root.model.length ; ++i) {
-            filteredModel.append({"displayName": model[i]});
+        if(root.model) {
+            for(var i=0; i<root.model.length ; ++i) {
+                filteredModel.append({"displayName": model[i]});
+            }
         }
     }
     Keys.onReturnPressed: {
@@ -59,15 +60,6 @@ Item {
             lv.focus = false
         }
     }
-//    MouseArea {
-//        anchors.fill: parent
-//        preventStealing: true
-//        onClicked: {
-//            dropDownVisible = true
-//            ff.focus = true
-//        }
-//        z: 10
-//    }
     StyledTextField {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -90,39 +82,48 @@ Item {
     Rectangle {
         visible: false
         id: dropDown
+
         anchors.top: ff.bottom
         anchors.left: ff.left
         anchors.right: ff.right
         color: appStyle.itemBackgroundColor
         border.width: 1
-        border.color: "orange"
+        border.color: appStyle.selectionBorderColor
         height: 200
         z: 1000
 
         Component {
             id: highlightBar
             Rectangle {
-                color: appStyle.selectionColor
-//                y: listView.currentItem.y;
-//                Behavior on y { SpringAnimation { spring: 2; damping: 0.1 } }
+                width: lv.width
+                x: 0
+                y: lv.hoveredItem ? lv.hoveredItem.y : 0
+                height: lv.hoveredItem ? lv.hoveredItem.height : 0
+                color: appStyle.highlightColor
             }
         }
 
         ListView {
             z:10
-            anchors.leftMargin: 3
+            anchors.margins: 3
             anchors.fill: parent
             clip: true
             id: lv
             model: filteredModel
             highlight: highlightBar
-            highlightFollowsCurrentItem: true
+            highlightFollowsCurrentItem: false
+            property var hoveredItem
             delegate: StyledLabel {
                 text: displayName
+                width: parent.width
+                color: overItemMousearea.containsMouse ? appStyle.selectionColor : appStyle.textColor
                 //color: lv.currentIndex===index?"grey":"black"
                 MouseArea {
+                    id: overItemMousearea
                     anchors.fill: parent
                     property var drop: dropDown
+                    hoverEnabled: true
+
                     onClicked: {
                         lv.currentIndex = index
                         ff.text = displayName
@@ -135,6 +136,15 @@ Item {
                             root.action(filteredModel.get(lv.currentIndex).displayName);
                         }
                     }
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.NoButton
+                onPositionChanged: {
+                    var hitem = lv.itemAt(mouseX, mouseY)
+                    if(hitem) lv.hoveredItem = hitem
                 }
             }
         }

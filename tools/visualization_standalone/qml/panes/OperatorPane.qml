@@ -5,33 +5,20 @@ import QtQuick.Controls 1.4
 import fhac.upns 1.0 as UPNS
 
 import ".."
+import "../components"
 
-// Can load two types of dialogs:
-// Operator: the dialog must fill parameters, "Execute" Button is provided by this Pane.
-// Pipeline: Dialog executes on its own
 Item {
     id: root
-    property var currentEntityPath // to prefill operator
+    property string detailDialogPath
+    onDetailDialogPathChanged: privLoadDialog(detailDialogPath)
+    property string currentEntityPath: globalApplicationState.currentEntityPath // to prefill operator
     property var prefillHint
-    property string pipelineName
-    property var currentOperator
-    property var currentCheckout
+    property var currentCheckout: globalApplicationState.currentCheckout
     property var currentOperatorUiItem
     onCurrentOperatorUiItemChanged: {
         controlHolder.height = currentOperatorUiItem.implicitHeight + appStyle.controlMargin * 2
         currentOperatorUiItem.width = controlHolder.width
         controlColumn.update()
-    }
-
-    function loadOperatorDialog(operator, prefillHintParameters) {
-        prefillHint = prefillHintParameters
-        pipelineName = ""
-        currentOperator = operator
-    }
-    function loadPipelineDialog(pipelineNam, prefillHintParameters) {
-        prefillHint = prefillHintParameters
-        currentOperator = null
-        pipelineName = pipelineNam
     }
 
     Item {
@@ -47,9 +34,8 @@ Item {
     function finish( controlComponent ) {
         if (controlComponent.status === Component.Ready) {
             //if( typeof root.currentOperator == "undefined" ) return
-            root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentOperator: root.currentOperator,
-                                                                                       pipelineName: root.pipelineName,
-                                                                                       currentCheckout: root.currentCheckout,
+            root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentCheckout: root.currentCheckout,
+                                                                                       currentCheckoutName: root.currentCheckout.name,
                                                                                        currentEntityPath: root.currentEntityPath,
                                                                                        shown: true,
                                                                                        prefill: root.prefillHint})
@@ -68,7 +54,7 @@ Item {
     }
 
     Connections {
-        target: root.currentOperatorUiItem
+        target: root.currentOperatorUiItem ? root.currentOperatorUiItem : null
         onImplicitHeightChanged: {
             controlHolder.height = currentOperatorUiItem.implicitHeight + appStyle.controlMargin * 2
             currentOperatorUiItem.width = controlHolder.width
@@ -76,16 +62,16 @@ Item {
         }
     }
 
-    function loadDialog(path, name) {
+    function privLoadDialog(pathName) {
         if(typeof priv.controls === "undefined") {
             priv.controls = {}
         }
 
-        var controlComponent = priv.controls[name]
+        var controlComponent = priv.controls[pathName]
         if( typeof controlComponent == "undefined" ) {
 
             //TODO: this should look in a folder and not only in qrc resources!
-            controlComponent = Qt.createComponent(path + name + ".qml")
+            controlComponent = Qt.createComponent(pathName + ".qml")
             //turn caching off temporarily for development
             //priv.controls[renderWidget.selectedGraphicObject.objectType] = controlComponent
         }
@@ -110,23 +96,6 @@ Item {
         }
     }
 
-    onPipelineNameChanged: {
-        if( root.pipelineName === null || root.pipelineName === "" || typeof root.pipelineName == "undefined") {
-            controlHolder.children = ""
-            return;
-        }
-        currentOperator = null
-        loadDialog("../pipelines/", root.pipelineName)
-    }
-
-    onCurrentOperatorChanged: {
-        if( root.currentOperator === null || typeof root.currentOperator == "undefined") {
-            controlHolder.children = ""
-            return;
-        }
-        pipelineName = ""
-        loadDialog("../operators/", currentOperator.moduleName)
-    }
     Item {
         enabled: !globalRepository.isLoadingOperators
         id: controlColumn
@@ -134,35 +103,42 @@ Item {
         anchors.right: parent.right
         onWidthChanged: controlHolder.width = width
         z: 100
-        StyledLabel {
-            id: topLabel
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: appStyle.controlMargin
-            text: currentOperator ? currentOperator.moduleName : pipelineName
-        }
+//        StyledLabel {
+//            id: topLabel
+//            anchors.top: parent.top
+//            anchors.left: parent.left
+//            anchors.right: parent.right
+//            anchors.margins: appStyle.controlMargin
+//            text: currentOperator ? currentOperator.moduleName : pipelineName
+//        }
         Item {
-            anchors.top: topLabel.bottom
+            anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.margins: appStyle.controlMargin
             id: controlHolder
             z: 100
-            onWidthChanged: { currentOperatorUiItem.width = width }
+            onWidthChanged: { if(currentOperatorUiItem) currentOperatorUiItem.width = width }
         }
         RowLayout {
             anchors.top: controlHolder.bottom
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.margins: appStyle.controlMargin
-            visible: root.currentOperator !== null && typeof root.currentOperator !== "undefined"
+            visible: !globalApplicationState.currentDetailDialogHasExecuteButton
             StyledButton {
                 Layout.leftMargin: appStyle.controlMargin
                 text: "Execute"
-                enabled: currentCheckout?currentOperatorUiItem?currentOperatorUiItem.valid : false : false
+                enabled: currentCheckout ? currentOperatorUiItem ? currentOperatorUiItem.valid && !currentCheckout.isBusyExecuting : false : false
                 onClicked: {
-                    currentCheckout.doOperation(currentOperator.moduleName, currentOperatorUiItem.parameters)
+                    var dialogParts = globalApplicationState.currentDetailDialog.split("/")
+                    var moduleName = dialogParts[dialogParts.length-1]
+                    console.log("executing " + moduleName)
+                    currentCheckout.doOperation(moduleName, currentOperatorUiItem.parameters)
+                }
+                BusyIndicator {
+                    anchors.centerIn: parent
+                    running: currentCheckout.isBusyExecuting
                 }
             }
         }

@@ -19,10 +19,11 @@ QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
 
 QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent)
     :QObject( parent )
+    , m_repository( repo )
     , m_opLoaderWorker( nullptr )
-    , m_isLoaded(false)
+    , m_url( "." )
+    , m_isLoaded( false )
 {
-
     reload();
 }
 
@@ -76,7 +77,7 @@ void QmlRepository::reload()
     {
         disconnect(m_operatorWorkerConnection);
     }
-    m_operatorWorkerConnection = connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result){
+    m_operatorWorkerConnection = connect(m_opLoaderWorker, &OperatorLoader::operatorsAdded, this, [&](QList<QVariant> result) {
         for(auto iter = result.cbegin(); iter != result.cend(); ++iter)
         {
             m_operators.append(*iter);
@@ -87,6 +88,7 @@ void QmlRepository::reload()
     }, Qt::QueuedConnection);
 
     reloadOperators();
+    Q_EMIT isLoadedChanged(m_repository != nullptr);
     Q_EMIT checkoutNamesChanged( m_checkoutNames );
     Q_EMIT internalRepositoryChanged( this );
 }
@@ -292,7 +294,7 @@ void QmlRepository::setUrl(QString url)
     reload();
     Q_EMIT isLoadedChanged(m_repository != nullptr);
     Q_EMIT urlChanged(url);
-    Q_EMIT internalRepositoryChanged(this);
+    Q_EMIT internalRepositoryChanged( this );
 }
 
 bool QmlRepository::isLoaded() const

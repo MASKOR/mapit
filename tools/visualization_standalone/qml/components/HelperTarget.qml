@@ -4,10 +4,10 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 
 import ".."
+import "../components"
 
 RowLayout {
     property alias text: label.text
-    property var dialogRoot
     // second part ensures, that no top level entities can be created. This ensures compatibility to tfs.
     property bool valid: entityChooser.currentEntityPath != "" && entityChooser.currentEntityPath.substring(1).indexOf('/') != -1
     property alias currentEntityPath: entityChooser.currentEntityPath
@@ -20,7 +20,5 @@ RowLayout {
     EntityChooser {
         id: entityChooser
         Layout.fillWidth: true
-        currentCheckout: dialogRoot.currentCheckout
-        //currentEntityPath: dialogRoot.currentEntityPath
     }
 }

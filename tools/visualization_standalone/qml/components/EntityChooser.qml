@@ -9,7 +9,7 @@ Item {
     id:root
     height: appStyle.controlHeightOuter
     z: 1000
-    property var currentCheckout
+    property var currentCheckout: globalApplicationState.currentCheckout
     property alias currentEntityPath: filter.currentText
     property real extendedHeight: 200
     property bool allowNewMap: true
@@ -18,12 +18,5 @@ Item {
         anchors.fill: parent
         allowNew: true
         model: currentCheckout.entities
-        blurMouseArea: MouseArea {
-            parent: root.parent.parent
-            anchors.fill: parent
-            preventStealing: true
-            propagateComposedEvents: true
-            z:-1000
-        }
     }
 }

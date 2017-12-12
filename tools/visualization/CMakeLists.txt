@@ -103,6 +103,7 @@ target_link_libraries(${PROJECT_NAME}   ${mapit_core}
                                         layertype_pose_path
                                         layertype_asset
                                         layertype_openvdb
+                                        layertype_primitive
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)

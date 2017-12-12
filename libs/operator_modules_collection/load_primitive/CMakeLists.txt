@@ -7,9 +7,6 @@ find_package(mapit REQUIRED)
 
 aux_source_directory(. SRC_LIST)
 
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
-
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})

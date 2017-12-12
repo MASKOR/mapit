@@ -52,6 +52,10 @@ QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC qml.qrc)
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
 
+#file(GLOB_RECURSE QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/*.cpp ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/*.h)
+#list(REMOVE_ITEM QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/vrbackends/ovr/*)
+#list(REMOVE_ITEM QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/vrbackends/openvr/*)
+
 set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/ ${PROJECT_SOURCE_DIR}/shader/)
 file(GLOB FragmentShader ${ShaderPath}/*.frag)
 file(GLOB VertexShader ${ShaderPath}/*.vert)
@@ -70,6 +74,7 @@ file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR
 link_directories("/opt/qt59/lib")
 
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
+                                ${QT3DVR_SOURCES}
                                 ${UPNS_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}
                                 ${FragmentShader}
@@ -107,6 +112,7 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
     Qt3DPointcloudRenderer
     Qt3DOpenVDBRenderer
     layertype_tf
+    layertype_primitive
     ${YAML_CPP_LIBRARIES}
     ${PCL_LIBRARIES}
     ${Boost_LIBRARIES}

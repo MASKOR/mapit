@@ -14,19 +14,21 @@ ColumnLayout {
 
     function fromParameters(params) {
         entityChooser.currentEntityPath = params.target
+        radiusInput.text = params.radius
+        polynomialInput.checked = params.polynomial
     }
 
     //// out ////
-    property bool valid: entityChooser.valid
+    property bool valid: entityChooser.valid && radiusInput.text != ""
     property var parameters: {
-        "target":entityChooser.currentEntityPath,
-        "radius": radiusCb.checked ? parseFloat(radiusInput.text): "",
-        "k": kInput.checked ? parseInt(kInput.text) : ""
+        "target": entityChooser.currentEntityPath,
+        "radius": parseFloat(radiusInput.text),
+        "polynomial": parseInt(polynomialInput.text),
+        "computeNormals": computeNormalsInput.checked
     }
 
     //// UI ////
     HelperTarget {
-        Layout.fillWidth: true
         id: entityChooser
         currentEntityPath: root.currentEntityPath
     }
@@ -39,30 +41,28 @@ ColumnLayout {
             id: radiusInput
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "0.1"
-            onFocusChanged: if(focus) radiusCb.checked = true
-        }
-        StyledCheckBox {
-            id: radiusCb
-            onCheckedChanged: if(checked) kCb.checked = false
+            text: "0.01"
         }
     }
     RowLayout {
         Layout.fillWidth: true
         StyledLabel {
-            text: "k"
+            text: "Polynomial Fit"
         }
         StyledTextField {
-            id: kInput
+            id: polynomialInput
             Layout.fillWidth: true
             validator: IntValidator {}
-            text: "5"
-            onFocusChanged: if(focus) kCb.checked = true
+            text: "0.01"
+        }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "Compute Normals"
         }
         StyledCheckBox {
-            id: kCb
-            checked: true
-            onCheckedChanged: if(checked) radiusCb.checked = false
+            id: computeNormalsInput
         }
     }
 }

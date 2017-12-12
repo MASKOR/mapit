@@ -9,6 +9,7 @@ import pcl 1.0
 import fhac.upns 1.0 as UPNS
 
 import "panes"
+import "components"
 
 //Note: MenuBar and ApplicationWindow cannot be
 //      seperated, "MainWindow" contains basically
@@ -27,24 +28,39 @@ MainWindow {
     }
 
     visible: true
-    UPNS.Repository {
-        id: globalRepository
-        url: appStyle.repositoryUrl
-    }
 
     Item {
-        id: applicationStateItem
-        function selectOperator(name, props) {
-            appStyle.tmpPrimitiveType = props.type
-            leftPanels.selectOperator( name )
-        }
+        // overlay for popups, tooltips
+        z: 10000
+        id: overlay
+        anchors.fill: parent
+//        MouseArea {
+//            id: globalBlur
+//            anchors.fill: parent
+//            hoverEnabled: false
 
-        function selectEntity(path) {
+//            preventStealing: false
+//            propagateComposedEvents: true
+//            //z: -10000
+//            onClicked: mouse.accepted = false
+//            onPressed: {
+//                focus = true
+//                mouse.accepted = false
+//            }
+//        }
+    }
 
-        }
+    ApplicationState {
+        // most components communicate over this item. E.g. currently selected Entity
+        // Moreover there is AppStyle, which also holds parts of the application state
+        id: globalApplicationState
+        visible: false
     }
 
     AppStyle {
+        // Components beginning with "Styled*" use AppStyle for coloring, sizing, ...
+        // This is a practical solution for this application without overengineering
+        // or coming up with new ways of styling. Do not use SystemPalette directly!
         id: appStyle
         visible: false
     }
@@ -60,7 +76,6 @@ MainWindow {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
                 Layout.margins: 0
-                currentFrameId: sceneView.currentFrameId
                 width: appStyle.splitViewLeftWidth
                 onWidthChanged: {
                     appStyle.splitViewLeftWidth = width
@@ -71,29 +86,17 @@ MainWindow {
                 Layout.minimumWidth: 150
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                currentEntitydata: leftPanels.currentEntitydata
-                currentEntitydataTransform: leftPanels.currentEntitydataTransform
-                visibleEntityItems: leftPanels.visibleElems
-                applicationState: applicationStateItem
+                visibleEntityItems: globalApplicationState.visibleEntityPaths
             }
             DetailPanels {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50
                 Layout.margins: 0
                 width: appStyle.splitViewRightWidth
-                currentOperator: leftPanels.currentOperator
-                currentPipeline: leftPanels.currentPipeline
-                currentCheckout: leftPanels.currentCheckout
-                currentEntityPath: leftPanels.currentEntityPath
-                currentFrameId: sceneView.currentFrameId
                 onWidthChanged: {
                     appStyle.splitViewRightWidth = width
                 }
             }
         }
-    }
-
-    SystemPalette {
-        id: palette
     }
 }

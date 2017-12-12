@@ -80,15 +80,15 @@ int main(int argc, char *argv[])
         return 1;
     }
     po::notify(vars);
-
-    std::shared_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+    bool specified;
+    std::shared_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars, &specified ) );
 
     if(repo == nullptr)
     {
         log_error("Could not load Repository.");
         return 1;
     }
-    qmlRegisterType<QmlRayCast>("fhac.upns", 1, 0, "RayCast");
+    qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
     qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
+    engine.rootContext()->setContextProperty("globalRepositoryExplicitlySpecifiedCommandline", specified);
     //IconImageProvider *imgProviderDummy = new IconImageProvider("");
     IconImageProvider *imgProviderIcon = new IconImageProvider(":/icon/");
     IconImageProvider *imgProviderMaterialDesign = new IconImageProvider(":/icon/material");

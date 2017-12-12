@@ -19,7 +19,7 @@ void upns::RepositoryFactoryStandard::addProgramOptions(boost::program_options::
             ("compute-local", boost::program_options::bool_switch(), "only if remote repository with option \"--url\" is used");
 }
 
-upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program_options::variables_map &vars)
+upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program_options::variables_map &vars, bool *specified)
 {
 #ifdef WITH_YAML
     //TODO: remove yaml, it conflicts with program options and generates too complex
@@ -34,6 +34,7 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program
         {
             log_error("Specified Yaml config file cannot be read.");
             log_info(usage());
+            if(specified) *specified = false;
             return nullptr;
         }
     }
@@ -42,24 +43,29 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program
     {
         log_error("Multiple Repositories specified. (--repository-directory, --url)");
         log_info(usage());
+        if(specified) *specified = false;
         return nullptr;
     }
     if(vars.count("repository-directory"))
     {
+        if(specified) *specified = true;
         return RepositoryFactory::openLocalRepository(vars["repository-directory"].as<std::string>());
     }
     else if(vars.count("url"))
     {
+        if(specified) *specified = true;
         return RepositoryNetworkingFactory::connectToRemoteRepository(vars["url"].as<std::string>(), nullptr, vars["compute-local"].as<bool>());
     }
 #ifdef WITH_YAML
     else if(!mapsource.IsNull() && mapsource.IsDefined())
     {
+        if(specified) *specified = true;
         return RepositoryFactory::openLocalRepository(config);
     }
 #endif
     else
     {
+        if(specified) *specified = false;
         return RepositoryFactory::openLocalRepository(".");
 //        log_error("No Repository specified. (--repository-directory, --url)");
 //        log_info(usage());

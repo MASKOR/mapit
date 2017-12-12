@@ -5,11 +5,14 @@ import QtGraphicalEffects 1.0
 
 import fhac.upns 1.0 as UPNS
 
+import "../components"
+
 QCtl.TreeView {
     id: treeViewCheckout
-    property var currentCheckout
+    property var currentCheckout: globalApplicationState.currentCheckout
     property var contextMenu
     property var visibleElems: ListModel {}
+    signal visibleElemsUpdated
     alternatingRowColors: true
     headerVisible: false
     backgroundVisible: false
@@ -92,6 +95,11 @@ QCtl.TreeView {
             verticalAlignment:  Text.AlignVCenter
             text: styleData.value
             elide: StyledLabel.ElideRight
+            property var entity: currentCheckout.getEntity(model.path)
+            tooltip: entity && entity.isValid() ?
+                                ("<b>Type:</b> " + entity.type
+                           + "<br><b>Frame:</b> " + entity.frameId
+                           + "<br><b>Stamp:</b> " + entity.stamp):""
         }
     }
 //    QCtl.TableViewColumn {
@@ -145,6 +153,7 @@ QCtl.TreeView {
                     }
                 } else {
                     treeViewCheckout.visibleElems.append({idx:styleData.row, path:model.path, checkoutName: currentCheckout.name})
+                    globalApplicationState.visibleEntityPaths = treeViewCheckout.visibleElems
                 }
             }
         }

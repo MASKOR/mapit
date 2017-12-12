@@ -1,4 +1,3 @@
-//TODO: Rename this file
 import QtQuick 2.7
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
@@ -8,18 +7,35 @@ import pcl 1.0
 import fhac.upns 1.0 as UPNS
 import QtQuick 2.0 as QQ2
 import "panes"
+import "components"
 
 Item {
     id: root
-    property var currentOperator
-    onCurrentOperatorChanged: opPane.loadOperatorDialog(currentOperator)
-    property var currentPipeline
-    onCurrentPipelineChanged: opPane.loadPipelineDialog(currentPipeline)
-    property alias currentCheckout: opPane.currentCheckout
-    property alias currentEntityPath: opPane.currentEntityPath
-    property string currentFrameId
     function formatVec3(vec) {
         return "(" + vec.x.toFixed(2) + ", " + vec.y.toFixed(2) + ", " + vec.z.toFixed(2) + ")"
+    }
+
+
+    Connections {
+        // Connect all content to the global application state
+        target: globalApplicationState
+        onCurrentDetailDialogChanged: opPane.detailDialogPath = globalApplicationState.currentDetailDialog
+    }
+    Connections {
+        // show info about current transform in detail pane
+        target: globalApplicationState.currentEntityTransform
+        onMatrixChanged: {
+            var m = matrix
+            var m0 = m.row(0)
+            var m1 = m.row(1)
+            var m2 = m.row(2)
+            var m3 = m.row(3)
+            m00.text = m0.x.toFixed(2); m01.text = m0.y.toFixed(2); m02.text = m0.z.toFixed(2); m03.text = m0.w.toFixed(2)
+            m10.text = m1.x.toFixed(2); m11.text = m1.y.toFixed(2); m12.text = m1.z.toFixed(2); m13.text = m1.w.toFixed(2)
+            m20.text = m2.x.toFixed(2); m21.text = m2.y.toFixed(2); m22.text = m2.z.toFixed(2); m23.text = m2.w.toFixed(2)
+            m30.text = m3.x.toFixed(2); m31.text = m3.y.toFixed(2); m32.text = m3.z.toFixed(2); m33.text = m3.w.toFixed(2)
+            console.log("Executed: Pos:" + m30.text + " " + m31.text + " " + m33.text )
+        }
     }
 
     ColumnLayout {
@@ -33,6 +49,7 @@ Item {
             id: opPane
             Layout.fillWidth: true
             Layout.fillHeight: true
+            currentCheckout: globalApplicationState.currentCheckout
         }
         StyledHeader {
             Layout.fillWidth: true
@@ -43,12 +60,13 @@ Item {
             id: entityInfo
             Layout.fillWidth: true
             Layout.margins: appStyle.controlMargin
-            visible: entityHeader.checked && root.currentEntityPath !== undefined
-            property var currentEntity: root.currentEntityPath ? currentCheckout.getEntity(root.currentEntityPath) : null
-            property string currentEntityType: currentEntity ? currentEntity.type : ""
-            property string currentEntityFrameId: currentEntity ? currentEntity.frameId : ""
-            property string currentEntityStamp: currentEntity ? currentEntity.stamp : ""
-            property var currentEntitydata: root.currentEntityPath ? currentCheckout.getEntitydataReadOnly(root.currentEntityPath) : null
+            visible: entityHeader.checked && currentEntity !== undefined
+            property var currentEntity: globalApplicationState.currentEntity
+            property string currentEntityType: currentEntity && currentEntity.isValid() ? currentEntity.type : ""
+            property string currentEntityFrameId: currentEntity && currentEntity.isValid() ? currentEntity.frameId : ""
+            property string currentEntityStamp: currentEntity && currentEntity.isValid() ? currentEntity.stamp : ""
+            property var currentEntitydata: globalApplicationState.currentEntitydata
+            property bool loading: currentEntitydata.isLoading
             property bool isPointcloud: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
             GridLayout {
                 Layout.fillWidth: true
@@ -80,12 +98,12 @@ Item {
                 }
                 Flow {
                     id: infoFlow
-                    visible: entityInfo.isPointcloud
+                    visible: entityInfo.isPointcloud && !entityInfo.loading
                     Layout.fillWidth: true
                     Repeater {
                         id: repeater
                         onItemAdded: infoFlow.forceLayout()
-                        model: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("fields") : 0
+                        model: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["fields"] : 0
                         StyledLabel {
                             text: modelData.name + ((index != (repeater.count-1))?", ":"")
                         }
@@ -97,8 +115,8 @@ Item {
                     font.weight: Font.Bold
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud
-                    text: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("width") : ""
+                    visible: entityInfo.isPointcloud && !entityInfo.loading
+                    text: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["width"] : ""
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
@@ -106,8 +124,8 @@ Item {
                     font.weight: Font.Bold
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud
-                    text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("min") : Qt.vector3d(0,0,0))
+                    visible: entityInfo.isPointcloud && !entityInfo.loading
+                    text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["min"] : Qt.vector3d(0,0,0))
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
@@ -115,32 +133,12 @@ Item {
                     font.weight: Font.Bold
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud
-                    text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.getInfo("max") : Qt.vector3d(0,0,0))
-                }
-            }
-            UPNS.TfTransform {
-                id: currentEntitydataTransform
-                path: root.currentEntityPath
-                checkout: root.currentCheckout
-                targetFrame: root.currentFrameId
-                sourceFrame:  root.currentCheckout.getEntity(currentEntityPath).frameId
-                mustExist: false
-                onMatrixChanged: {
-                    var m = matrix
-                    var m0 = m.row(0)
-                    var m1 = m.row(1)
-                    var m2 = m.row(2)
-                    var m3 = m.row(3)
-                    m00.text = m0.x.toFixed(2); m01.text = m0.y.toFixed(2); m02.text = m0.z.toFixed(2); m03.text = m0.w.toFixed(2)
-                    m10.text = m1.x.toFixed(2); m11.text = m1.y.toFixed(2); m12.text = m1.z.toFixed(2); m13.text = m1.w.toFixed(2)
-                    m20.text = m2.x.toFixed(2); m21.text = m2.y.toFixed(2); m22.text = m2.z.toFixed(2); m23.text = m2.w.toFixed(2)
-                    m30.text = m3.x.toFixed(2); m31.text = m3.y.toFixed(2); m32.text = m3.z.toFixed(2); m33.text = m3.w.toFixed(2)
-                    console.log("Executed: Pos:" + m30.text + " " + m31.text + " " + m33.text )
+                    visible: entityInfo.isPointcloud && !entityInfo.loading
+                    text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["max"] : Qt.vector3d(0,0,0))
                 }
             }
             RowLayout {
-                visible: currentEntitydataTransform.exists
+                visible: globalApplicationState.currentEntityTransform.exists
                 Layout.fillWidth: true
                 StyledLabel {
                     Layout.fillWidth: true

@@ -4,10 +4,10 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 
 import ".."
+import "../components"
 
 RowLayout {
     Layout.fillWidth: true
-    property var dialogRoot
     property string fileExtension
     property alias filename: fileName.text
     property bool valid: filename != ""

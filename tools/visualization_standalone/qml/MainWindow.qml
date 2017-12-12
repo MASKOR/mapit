@@ -7,6 +7,7 @@ import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import "panes"
+import "components"
 
 ApplicationWindow {
     id: mainWindow
@@ -23,7 +24,7 @@ ApplicationWindow {
         maximumHeight: height
         minimumWidth: width
         maximumWidth: width
-        property alias currentOperator: opPane.currentOperator
+        property alias detailDialogPath: opPane.detailDialogPath
         property alias currentCheckout: opPane.currentCheckout
         property alias currentEntityPath: opPane.currentEntityPath
         RowLayout {
@@ -200,9 +201,9 @@ ApplicationWindow {
                 MenuItem {
                     text: operatorInstantiator.model[index].moduleName
                     onTriggered: {
-                        executeOperatorDialog.currentCheckout = leftPanels.currentCheckout //TODO: do not rely on "leftPanels"
-                        executeOperatorDialog.currentEntityPath = leftPanels.currentEntityPath //TODO: do not rely on "leftPanels"
-                        executeOperatorDialog.currentOperator = operatorInstantiator.model[index]
+                        executeOperatorDialog.currentCheckout = globalApplicationState.currentCheckout
+                        executeOperatorDialog.currentEntityPath = globalApplicationState.currentEntityPath
+                        executeOperatorDialog.detailDialogPath = "../operators/" + operatorInstantiator.model[index]
                         executeOperatorDialog.show()
                     }
                 }

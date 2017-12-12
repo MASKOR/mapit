@@ -288,9 +288,6 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    bool useAxisAlignedBoundingBox = params["useAABB"].toBool();
-    bool genTf = params["genTf"].toBool();
-
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)

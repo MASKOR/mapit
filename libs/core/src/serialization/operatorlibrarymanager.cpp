@@ -159,6 +159,7 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
     {
         return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
     }
+    log_info("open library: " + desc.operator_().operatorname());
     ModuleInfo* modInfo = getModuleInfo(handle);
     if(!modInfo)
     {
@@ -235,6 +236,7 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
                 log_warn("could not open library: " + name);
                 continue;
             }
+            log_info("open library: " + name);
             ModuleInfo* modInfo = getModuleInfo(handle);
             if(!modInfo)
             {
@@ -268,8 +270,11 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
 std::vector<OperatorInfo> OperatorLibraryManager::listOperators()
 {
     std::vector<OperatorInfo> moduleInfos;
+    log_info("loading operators from: " + MAPIT_LOCAL_OPERATOR_DIR);
     addOperatorsFromDirectory(moduleInfos, MAPIT_LOCAL_OPERATOR_DIR, true);
+    log_info("loading operators from: /usr/lib/");
     addOperatorsFromDirectory(moduleInfos, "/usr/lib/");
+    log_info("loading operators from: /usr/local/lib/");
     addOperatorsFromDirectory(moduleInfos, "/usr/local/lib/");
     return moduleInfos;
 }

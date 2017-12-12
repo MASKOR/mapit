@@ -3,16 +3,17 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.4
 import ".."
+import "../components"
 
 Item {
     id: root
-    property string currentPipeline
     property ListModel pipelines
-    property var currentOperator
+    property bool currentExecutableIsPipeline
+    property string currentDetailDialogPath
     onPipelinesChanged: priv.reinit()
     Component.onCompleted: priv.reinit()
 
-    function selectOperator(name) {
+    function selectItemByName(name) {
         for(var i=0; i<listview.model.count; ++i) {
             var operatorItem = listview.model.get(i)
             if(operatorItem.displayName === name) {
@@ -27,13 +28,16 @@ Item {
         property ListModel finalModel: ListModel {}
         property var operatorModel: globalRepository.operators
         function selectOpOrPipeline(objModelItem) {
+            var executableName
             if(typeof objModelItem.operator === "undefined" || objModelItem.operator === null) {
-                root.currentOperator = null
-                root.currentPipeline = objModelItem.displayName
+                executableName = objModelItem.displayName
+                root.currentExecutableIsPipeline = true
             } else {
-                root.currentPipeline = ""
-                root.currentOperator = objModelItem.operator
+                executableName = objModelItem.operator.moduleName
+                root.currentExecutableIsPipeline = false
             }
+            var dialogPath = (root.currentExecutableIsPipeline?"../pipelines/":"../operators/") + executableName
+            root.currentDetailDialogPath = dialogPath
         }
 
         onOperatorModelChanged: priv.reinit()
@@ -138,6 +142,22 @@ Item {
                                 renderType: Text.NativeRendering
                                 text: listview.model.get(index) ? listview.model.get(index).displayName : ""
                                 verticalAlignment: Text.AlignVCenter
+                                tooltip: {
+                                    if(!gridRoot.model.get(index)) return "Error"
+                                    var objModelItem = gridRoot.model.get(index)
+                                    return qsTr("Show details of <i>%1</i><br>").arg(
+                                             objModelItem.displayName )
+                                            + (objModelItem.operator?(
+                                              "<br><b>compiler</b>: " + objModelItem.operator.compiler
+                                            + "<br><b>compilerConfig</b>: " + objModelItem.operator.compilerConfig
+                                            + "<br><b>date</b>: " + objModelItem.operator.date
+                                            + "<br><b>time</b>: " + objModelItem.operator.time
+                                            + "<br><b>moduleName</b>: " + objModelItem.operator.moduleName
+                                            + "<br><b>description</b>: " + objModelItem.operator.description
+                                            + "<br><b>author</b>: " + objModelItem.operator.author
+                                            + "<br><b>moduleVersion</b>: " + objModelItem.operator.moduleVersion
+                                            + "<br><b>apiVersion</b>: " + objModelItem.operator.apiVersion):"(this is a pipeline)")
+                                }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: listview.currentIndex = index
@@ -182,8 +202,22 @@ Item {
                                 color: appStyle.itemBackgroundColor
                             }
                         }
-                        tooltip: qsTr("Show details of <i>%1</i>.").arg(
-                                     gridRoot.model.get(index) ? gridRoot.model.get(index).displayName : "")
+                        tooltip: {
+                            if(!gridRoot.model.get(index)) return "Error"
+                            var objModelItem = gridRoot.model.get(index)
+                            return qsTr("Show details of <i>%1</i><br>").arg(
+                                     objModelItem.displayName )
+                                    + (objModelItem.op?(
+                                      "<br><b>compiler</b>: " + objModelItem.operator.compiler
+                                    + "<br><b>compilerConfig</b>: " + objModelItem.operator.compilerConfig
+                                    + "<br><b>date</b>: " + objModelItem.operator.date
+                                    + "<br><b>time</b>: " + objModelItem.operator.time
+                                    + "<br><b>moduleName</b>: " + objModelItem.operator.moduleName
+                                    + "<br><b>description</b>: " + objModelItem.operator.description
+                                    + "<br><b>author</b>: " + objModelItem.operator.author
+                                    + "<br><b>moduleVersion</b>: " + objModelItem.operator.moduleVersion
+                                    + "<br><b>apiVersion</b>: " + objModelItem.operator.apiVersion):"(this is a pipeline)")
+                        }
                         Column {
                             y: 8
                             anchors.horizontalCenter: parent.horizontalCenter
