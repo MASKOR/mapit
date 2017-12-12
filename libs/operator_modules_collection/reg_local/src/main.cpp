@@ -62,7 +62,7 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      */
 
     upns::StatusCode status;
-    mapit::ICP icp(env, status);
+    mapit::RegLocal icp(env, status);
     if ( ! upnsIsOk( status ) ) {
         return status;
     }

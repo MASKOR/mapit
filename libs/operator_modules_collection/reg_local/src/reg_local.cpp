@@ -15,7 +15,7 @@
 
 #include <pcl/registration/icp.h>
 
-mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
+mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &status)
 {
     status = UPNS_STATUS_OK;
 
@@ -124,7 +124,7 @@ mapit::ICP::ICP(upns::OperationEnvironment* env, upns::StatusCode &status)
 }
 
 boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
-mapit::ICP::get_pointcloud(std::string path, upns::StatusCode &status, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
+mapit::RegLocal::get_pointcloud(std::string path, upns::StatusCode &status, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
 {
     status = UPNS_STATUS_OK;
     std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( path );
@@ -158,7 +158,7 @@ mapit::ICP::get_pointcloud(std::string path, upns::StatusCode &status, mapit::ti
 }
 
 upns::StatusCode
-mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
+mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
 {
     log_info("reg_local_icp: add "
            + (cfg_tf_is_static_ ? "static" : "dynamic")
@@ -216,7 +216,7 @@ mapit::ICP::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Aff
 }
 
 upns::StatusCode
-mapit::ICP::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &stamp_end)
+mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &stamp_end)
 {
     log_info("reg_local_icp: remove "
            + " transforms from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
@@ -253,7 +253,7 @@ mapit::ICP::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &
 }
 
 upns::StatusCode
-mapit::ICP::operate()
+mapit::RegLocal::operate()
 {
     // get target cloud
     upns::StatusCode status;
@@ -413,7 +413,7 @@ mapit::ICP::operate()
 }
 
 upns::StatusCode
-mapit::ICP::get_cfg_icp(const QJsonObject &params)
+mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
 {
     cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations");
     if ( cfg_icp_set_maximum_iterations_ ) {
@@ -432,7 +432,7 @@ mapit::ICP::get_cfg_icp(const QJsonObject &params)
 }
 
 void
-mapit::ICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+mapit::RegLocal::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
                         , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
                         , pcl::PointCloud<pcl::PointXYZ>& result_pc
                         , Eigen::Affine3f& result_transform

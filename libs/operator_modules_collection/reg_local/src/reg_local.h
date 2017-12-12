@@ -32,10 +32,10 @@ namespace tf2 {
 class BufferCore;
 }
 
-class ICP
+class RegLocal
 {
 public:
-    ICP(upns::OperationEnvironment* env, upns::StatusCode& status);
+    RegLocal(upns::OperationEnvironment* env, upns::StatusCode& status);
 
     upns::StatusCode operate();
 private:
