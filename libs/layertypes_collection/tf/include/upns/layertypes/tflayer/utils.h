@@ -136,7 +136,7 @@ namespace tf {
       add_transform(std::unique_ptr<TransformStamped> tf , bool is_static);
 
       upns::StatusCode
-      store_entities(CheckoutRaw* checkout, std::shared_ptr<mapit::Layer> layer);
+      store_entities(CheckoutRaw* checkout, const std::string& prefix);
     private:
       std::shared_ptr<std::map<std::string, std::shared_ptr<TransformStampedList>>> tfs_map_;
     };

@@ -1,3 +1,4 @@
+#include <mapit/time/time.h>
 #include <upns/layertypes/tflayer/utils.h>
 #include <upns/logging.h>
 
@@ -110,35 +111,44 @@ TransformStampedListGatherer::add_transform( std::unique_ptr<TransformStamped> t
 }
 
 upns::StatusCode
-TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, std::shared_ptr<mapit::Layer> layer)
+TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::string& prefix)
 {
   for (std::pair<std::string, std::shared_ptr<TransformStampedList>> tf_list : *tfs_map_) {
-    std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
-                                              layer
-                                              , tf_list.first
-                                              );
-    entity->set_frame_id( tf_list.second->get_frame_id() );
-    entity->set_stamp( tf_list.second->get_stamp_earliest() );
-
-    std::shared_ptr<upns::tf::store::TransformStampedList> ed;
-    if ( ! checkout->checkEntityData(entity) ) {
-      // create new
-      ed = tf_list.second;
-    } else {
-      std::shared_ptr<AbstractEntitydata> ed_a = checkout->getEntityDataReadWrite(entity);
-      // appand
-      if ( 0 != strcmp(TfEntitydata::TYPENAME(), ed_a->type()) ) {
-        log_error("tflayer: internal error, entity for tf with name " + entity->getName() + " has entity date of other type then tf is: " + ed_a->type());
-        return UPNS_STATUS_ERROR;
-      }
-      ed = std::static_pointer_cast<TfEntitydata>( ed_a )->getData();
-
-      std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list_tmp = tf_list.second->dispose();
-      for (auto &tf : *tf_list_tmp) {
-        ed->add_TransformStamped(std::move( tf ), tf_list.second->get_is_static());
-      }
+    std::string entity_name = prefix + "/" + tf_list.first;
+    std::shared_ptr<mapit::msgs::Entity> entity = checkout->getEntity(entity_name);
+    if (entity == nullptr) {
+        entity = std::make_shared<mapit::msgs::Entity>();
+        entity->set_type( TfEntitydata::TYPENAME() );
+        upns::StatusCode status = checkout->storeEntity(entity_name, entity);
+        if ( ! upnsIsOk(status) ) {
+            log_error("tflayer: can't store entity");
+            return status;
+        }
     }
-    checkout->storeEntity<TransformStampedList>(entity, ed);
+    entity->set_frame_id( tf_list.second->get_frame_id() );
+    unsigned long sec, nsec;
+    mapit::time::to_sec_and_nsec(tf_list.second->get_stamp_earliest(), sec, nsec);
+    entity->mutable_stamp()->set_sec(sec);
+    entity->mutable_stamp()->set_nsec(nsec);
+
+    if ( 0 != entity->type().compare( TfEntitydata::TYPENAME() ) ) {
+        log_error("tflayer: internal error, entity for tf with name " + entity_name + " has entity date of other type then tf is: " + entity->type());
+        return UPNS_STATUS_ERROR;
+    }
+
+    std::shared_ptr<upns::tf::store::TransformStampedList> ed_list;
+    std::shared_ptr<TfEntitydata> ed = std::static_pointer_cast<TfEntitydata>(checkout->getEntitydataForReadWrite(entity_name));
+    ed_list = ed->getData();
+    if (ed_list == nullptr) {
+        ed_list = std::make_shared<upns::tf::store::TransformStampedList>(tf_list.second->get_frame_id(), tf_list.second->get_child_frame_id(), tf_list.second->get_is_static());
+    }
+
+    std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list_tmp = tf_list.second->dispose();
+    for (auto &tf : *tf_list_tmp) {
+      ed_list->add_TransformStamped(std::move( tf ), tf_list.second->get_is_static());
+    }
+    checkout->storeEntity(entity_name, entity);
+    ed->setData(ed_list);
   }
 
   return UPNS_STATUS_OK;
