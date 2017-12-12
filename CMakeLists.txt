@@ -26,6 +26,17 @@ project(upns)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
 aux_source_directory(. SRC_LIST)
 
+function(message)
+  list(GET ARGV 0 MessageType)
+  if(MessageType STREQUAL FATAL_ERROR OR
+     MessageType STREQUAL SEND_ERROR OR
+     MessageType STREQUAL WARNING OR
+     MessageType STREQUAL AUTHOR_WARNING)
+    list(REMOVE_AT ARGV 0)
+    _message(${MessageType} "${ARGV}")
+  endif()
+endfunction()
+
 set(CPACK_PACKAGE_CONTACT "FH Aachen")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "d.bulla@fh-aachen.de")
 

@@ -35,8 +35,8 @@ endif (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
 
 
 if(WITH_PCL)
-    #find_package(PCL REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
-    find_package(PCL REQUIRED COMPONENTS common io)
+    #find_package(PCL QUIET REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
+    find_package(PCL QUIET REQUIRED COMPONENTS common io)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
 else(WITH_PCL)

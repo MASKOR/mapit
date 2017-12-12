@@ -38,7 +38,7 @@ const fs::path FSSerializer::_CHECKOUT_ROOT_FOLDER_   = "root";
 FSSerializer::FSSerializer(std::string directory)
 {
     fs::path path( directory );
-    log_info("Use repo at " + path.string());
+    //log_info("Use repo at " + path.string());
 
     // search for repo
     path = path / _PREFIX_MAPIT_;
@@ -61,7 +61,7 @@ FSSerializer::FSSerializer(std::string directory)
 //            }
 //        }
 
-    log_info("Use " + path.string() + " as repo");
+    //log_info("Use " + path.string() + " as repo");
     repo_ = path;
 
     // TODO do I need to lock this repo?
@@ -80,7 +80,7 @@ FSSerializer::fs_check_create(fs::path path)
         if ( ! fs::create_directories( path, ec ) && ec.value() != 0) { //  && ec.value() != 0 (0 means no error) is only needed since this bug the https://svn.boost.org/trac/boost/ticket/7258
             log_error("Can not create: " + path.string() + " code: " + ec.message());
         } else {
-            log_info("Create: " + path.string());
+            //log_info("Create: " + path.string());
         }
     }
 }
@@ -111,13 +111,13 @@ FSSerializer::fs_write(fs::path path, std::shared_ptr<GenericEntry> ge, MessageT
             log_warn("Duplicate found " + path.string());
             return;
         } else {
-            log_info("Overwrite duplicate " + path.string());
+            //log_info("Overwrite duplicate " + path.string());
         }
     }
 
     ge->set_type(msgType);
 
-    log_info("Write type \"" + MessageType_Name(msgType) + "\" to " + path.string());
+    //log_info("Write type \"" + MessageType_Name(msgType) + "\" to " + path.string());
     create_directories( path.parent_path() );
 
     std::filebuf buffer;

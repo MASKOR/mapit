@@ -13,7 +13,7 @@ find_package(mapit REQUIRED)
 #find_package(assimp REQUIRED)
 find_package(OpenVDB REQUIRED)
 find_package(TBB REQUIRED)
-find_package(PCL REQUIRED COMPONENTS common io filters)
+find_package(PCL QUIET REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -59,12 +59,14 @@ FOREACH(subdir ${SUBDIRS})
                                   ${mapit_networking_node}
                                   ${mapit_standard_repository_factory}
                                   layertype_pointcloud2
-                                  layertype_openvdb
                                   load_pointcloud
                                   layertype_tf
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                                   ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
+  if(WITH_OPENVDB)
+    target_link_libraries(${subdir} layertype_openvdb)
+  endif(WITH_OPENVDB)
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
 
@@ -95,7 +97,7 @@ ENDFOREACH()
 
 add_executable(TestAll ${TEST_MAIN} ${AllUnitTestH} ${AllUnitTestCPP} )
 #custom_target_use_boost(${subdir})
-find_package(Boost COMPONENTS filesystem system date_time REQUIRED)
+find_package(Boost  COMPONENTS filesystem system date_time REQUIRED)
 
 target_link_libraries(TestAll Qt5::Test
                               ${mapit_core}
@@ -104,14 +106,13 @@ target_link_libraries(TestAll Qt5::Test
                               ${mapit_networking_node}
                               ${mapit_standard_repository_factory}
                               layertype_pointcloud2
-                              layertype_openvdb
                               load_pointcloud
                               layertype_tf
                               ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                               ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
 if(WITH_OPENVDB)
-target_link_libraries(TestAll levelset_to_mesh)
+target_link_libraries(TestAll levelset_to_mesh layertype_openvdb)
 add_definitions(-DWITH_OPENVDB)
 endif(WITH_OPENVDB)
 #if(WIN32)

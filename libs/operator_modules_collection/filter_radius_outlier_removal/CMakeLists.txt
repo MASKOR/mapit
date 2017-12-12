@@ -10,7 +10,7 @@ if(NOT DISABLE_PCL)
     add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
     # pcl
-    find_package(PCL 1.8 REQUIRED
+    find_package(PCL QUIET 1.8 REQUIRED
         COMPONENTS filters)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
@@ -18,6 +18,9 @@ if(NOT DISABLE_PCL)
 
     # mapit
     find_package(mapit REQUIRED)
+
+    # Qt
+    find_package(Qt5Core REQUIRED)
 
     # describe target
     file(GLOB_RECURSE SOURCES
@@ -38,6 +41,8 @@ if(NOT DISABLE_PCL)
         ${mapit_interface}
         ${mapit_core}
         layertype_pointcloud2)
+
+    qt5_use_modules(${PROJECT_NAME} Core)
 
     install(TARGETS ${PROJECT_NAME}
         DESTINATION lib)

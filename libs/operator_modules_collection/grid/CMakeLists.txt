@@ -35,7 +35,7 @@ find_package(Qt5Core ${UPNS_QTVERSION} REQUIRED)
 # sudo make install
 
 #custom_set_vars_boost()
-find_package(PCL REQUIRED COMPONENTS common io filters)
+find_package(PCL QUIET REQUIRED COMPONENTS common io filters)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 set(PCL_REALLY_ALL_LIBRARIES ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
@@ -78,6 +78,8 @@ if(UNIX)
 endif(UNIX)
 get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_OPERATORS})
+
+qt5_use_modules(${PROJECT_NAME} Core)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 

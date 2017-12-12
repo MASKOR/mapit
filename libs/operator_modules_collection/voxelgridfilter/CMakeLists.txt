@@ -40,7 +40,7 @@ find_package(Qt5Gui REQUIRED)
 # sudo make install
 
 #custom_set_vars_boost()
-find_package(PCL REQUIRED COMPONENTS common io filters)
+find_package(PCL QUIET REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -57,6 +57,9 @@ target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_inter
 #    target_include_directories(${PROJECT_NAME} PUBLIC ${JSON11_INCLUDE_DIR})
 #    target_link_libraries( ${PROJECT_NAME} ${JSON11_LIBRARY})
 #endif(TARGET json11)
+
+# Qt
+find_package(Qt5Core REQUIRED)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}
@@ -89,6 +92,8 @@ if(UNIX)
 endif(UNIX)
 get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${UPNS_INSTALL_OPERATORS})
+
+qt5_use_modules(${PROJECT_NAME} Core)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 

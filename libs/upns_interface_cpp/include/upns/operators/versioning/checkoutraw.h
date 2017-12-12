@@ -5,6 +5,7 @@
 #include <mapit/msgs/services.pb.h>
 #include <upns/entitydata.h>
 #include <upns/versioning/checkoutcommon.h>
+#include <algorithm>
 
 namespace upns
 {
@@ -75,11 +76,13 @@ public:
      */
     std::shared_ptr<mapit::Map> getNewMap(const std::string name)
     {
-        std::shared_ptr<mapit::Map> map = getMap(name);
+        std::string name_escaped = name;
+        std::replace( name_escaped.begin(), name_escaped.end(), '/', '_');
+        std::shared_ptr<mapit::Map> map = getMap(name_escaped);
         if (map == nullptr) {
             // does not exists => create
             std::shared_ptr<mapit::msgs::Tree> tree = std::shared_ptr<mapit::msgs::Tree>(new mapit::msgs::Tree);
-            map = std::shared_ptr<mapit::Map>(new mapit::Map(tree, name));
+            map = std::shared_ptr<mapit::Map>(new mapit::Map(tree, name_escaped));
 
             return map;
         } else {
@@ -95,9 +98,11 @@ public:
      */
     std::shared_ptr<mapit::Map> getExistingOrNewMap(const std::string name)
     {
-        std::shared_ptr<mapit::Map> map = getMap(name);
+        std::string name_escaped = name;
+        std::replace( name_escaped.begin(), name_escaped.end(), '/', '_');
+        std::shared_ptr<mapit::Map> map = getMap(name_escaped);
         if (map == nullptr) {
-            return getNewMap( name );
+            return getNewMap( name_escaped );
         } else {
             return map;
         }
@@ -111,11 +116,13 @@ public:
      */
     std::shared_ptr<mapit::Layer> getNewLayer(std::shared_ptr<mapit::Map> map, const std::string name, const std::string type_name)
     {
-        std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
+        std::string name_escaped = name;
+        std::replace( name_escaped.begin(), name_escaped.end(), '/', '_');
+        std::shared_ptr<mapit::Layer> layer = getLayer(map, name_escaped);
         if (layer == nullptr) {
             // does not exists => create
             std::shared_ptr<mapit::msgs::Tree> tree = std::shared_ptr<mapit::msgs::Tree>(new mapit::msgs::Tree);
-            layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(tree, name, map, type_name));
+            layer = std::shared_ptr<mapit::Layer>(new mapit::Layer(tree, name_escaped, map, type_name));
 
             return layer;
         } else {
@@ -132,9 +139,11 @@ public:
      */
     std::shared_ptr<mapit::Layer> getExistingOrNewLayer(std::shared_ptr<mapit::Map> map, const std::string name, const std::string type_name)
     {
-        std::shared_ptr<mapit::Layer> layer = getLayer(map, name);
+        std::string name_escaped = name;
+        std::replace( name_escaped.begin(), name_escaped.end(), '/', '_');
+        std::shared_ptr<mapit::Layer> layer = getLayer(map, name_escaped);
         if (layer == nullptr) {
-            return getNewLayer(map, name, type_name);
+            return getNewLayer(map, name_escaped, type_name);
         } else {
             return layer;
         }
@@ -149,12 +158,14 @@ public:
      */
     std::shared_ptr<mapit::Entity> getNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name)
     {
-        std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
+        std::string entity_name = name;
+        std::replace( entity_name.begin(), entity_name.end(), '/', '_');
+        std::shared_ptr<mapit::Entity> entity = getEntity(layer, entity_name);
         if (entity == nullptr) {
             // does not exists => create
             std::shared_ptr<mapit::msgs::Entity> entity_tree = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
             entity_tree->set_type(layer->getTypeString());
-            entity = std::shared_ptr<mapit::Entity>(new mapit::Entity(entity_tree, name, layer));
+            entity = std::shared_ptr<mapit::Entity>(new mapit::Entity(entity_tree, entity_name, layer));
 
             return entity;
         } else {
@@ -172,9 +183,11 @@ public:
      */
     std::shared_ptr<mapit::Entity> getExistingOrNewEntity(std::shared_ptr<mapit::Layer> layer, const std::string name)
     {
-        std::shared_ptr<mapit::Entity> entity = getEntity(layer, name);
+        std::string entity_name = name;
+        std::replace( entity_name.begin(), entity_name.end(), '/', '_');
+        std::shared_ptr<mapit::Entity> entity = getEntity(layer, entity_name);
         if (entity == nullptr) {
-            return getNewEntity(layer, name);
+            return getNewEntity(layer, entity_name);
         } else {
             return entity;
         }
