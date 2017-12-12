@@ -41,6 +41,7 @@ if(NOT DISABLE_PCL)
     set_target_properties(${PROJECT_NAME} PROPERTIES
       VERSION ${OPERATOR_VERSION}
       SOVERSION ${OPERATOR_VERSION}
+      CXX_STANDARD 14
       )
     target_include_directories(${PROJECT_NAME}
       PRIVATE
