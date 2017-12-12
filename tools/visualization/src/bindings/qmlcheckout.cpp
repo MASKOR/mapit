@@ -170,9 +170,9 @@ QStringList QmlCheckout::getFrameIds()
                 if( ed == nullptr ) return true;
                 std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
                 if( tfEd == nullptr ) return true;
-                upns::tf::TransformPtr tf = tfEd->getData();
-                if(tf == nullptr ) return true;
-                frameIdSet.insert(QString::fromStdString(tf->child_frame_id));
+                std::shared_ptr<tf::store::TransformStampedList> tfStore = tfEd->getData();
+                if(tfStore == nullptr ) return true;
+                frameIdSet.insert(QString::fromStdString( tfStore->get_child_frame_id() ));
             }
             return true;
         },

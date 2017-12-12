@@ -63,6 +63,11 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
     layer_static = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_, TfEntitydata::TYPENAME());
     layer_dynamic = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_, TfEntitydata::TYPENAME());
 
+    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map_static
+        = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
+    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map_dynamic
+        = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
+
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
     for ( QJsonValue json_value_tf : json_transforms ) {
@@ -71,65 +76,70 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
         bool layer_is_static = json_tf["static"].toBool();
 
         // get data from json
-        tf::TransformStamped tf_loaded;
+        std::unique_ptr<tf::TransformStamped> tf_loaded = std::unique_ptr<tf::TransformStamped>(new tf::TransformStamped);
 
         // get header
         QJsonObject header( json_tf["header"].toObject() );
-        tf_loaded.frame_id = header["frame_id"].toString().toStdString();
+        tf_loaded->frame_id = header["frame_id"].toString().toStdString();
         QJsonObject stamp( header["stamp"].toObject() );
         // TODO when int is not enough we can use string and cast this to long (jason does not support long)
-        tf_loaded.stamp = mapit::time::from_sec_and_nsec(stamp["sec"].toInt(), stamp["nsec"].toInt());
+        tf_loaded->stamp = mapit::time::from_sec_and_nsec(stamp["sec"].toInt(), stamp["nsec"].toInt());
 
         // get data
         QJsonObject json_transform( json_tf["transform"].toObject() );
-        tf_loaded.transform.child_frame_id = json_transform["child_frame_id"].toString().toStdString();
+        tf_loaded->child_frame_id = json_transform["child_frame_id"].toString().toStdString();
         QJsonObject json_translation( json_transform["translation"].toObject() );
         QJsonObject json_rotation( json_transform["rotation"].toObject() );
+        tf_loaded->transform.translation = Eigen::Translation3f(
+                    (float)json_translation["x"].toDouble()
+                ,   (float)json_translation["y"].toDouble()
+                ,   (float)json_translation["z"].toDouble()
+                    );
 
-        tf_loaded.transform.rotation = Eigen::Quaternionf(
+        tf_loaded->transform.rotation = Eigen::Quaternionf(
                     (float)json_rotation["w"].toDouble()
                 ,   (float)json_rotation["x"].toDouble()
                 ,   (float)json_rotation["y"].toDouble()
                 ,   (float)json_rotation["z"].toDouble()
                     );
 
-        tf_loaded.transform.translation = Eigen::Translation3f(
+        tf_loaded->transform.translation = Eigen::Translation3f(
                     (float)json_translation["x"].toDouble()
                 ,   (float)json_translation["y"].toDouble()
                 ,   (float)json_translation["z"].toDouble()
                     );
-        tf_loaded.transform.rotation.normalize();
+        tf_loaded->transform.rotation.normalize();
 
-        bool valid = std::abs((tf_loaded.transform.rotation.w() * tf_loaded.transform.rotation.w()
-                             + tf_loaded.transform.rotation.x() * tf_loaded.transform.rotation.x()
-                             + tf_loaded.transform.rotation.y() * tf_loaded.transform.rotation.y()
-                             + tf_loaded.transform.rotation.z() * tf_loaded.transform.rotation.z()) - 1.0f) < 10e-6;
+        bool valid = std::abs((tf_loaded->transform.rotation.w() * tf_loaded->transform.rotation.w()
+                             + tf_loaded->transform.rotation.x() * tf_loaded->transform.rotation.x()
+                             + tf_loaded->transform.rotation.y() * tf_loaded->transform.rotation.y()
+                             + tf_loaded->transform.rotation.z() * tf_loaded->transform.rotation.z()) - 1.0f) < 10e-6;
         if(!valid)
         {
             log_warn("Invalid Quaternion 0.");
             return UPNS_STATUS_ERROR;
         }
 
-        // write data
-        std::shared_ptr<mapit::Layer> layer;
+        // add data to map
+        std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map;
         if (layer_is_static) {
-            layer = layer_static;
+            tfs_map = tfs_map_static;
         } else {
-            layer = layer_dynamic;
+            tfs_map = tfs_map_dynamic;
         }
-        unsigned long sec, nsec;
-        mapit::time::to_sec_and_nsec(tf_loaded.stamp, sec, nsec);
-        std::shared_ptr<mapit::Entity> entity = checkout->getExistingOrNewEntity(
-                      layer
-                    , tf_loaded.frame_id + std::to_string( sec ) + std::to_string( nsec ) + tf_loaded.transform.child_frame_id);
-
-        std::shared_ptr<tf::Transform> entity_data = std::shared_ptr<tf::Transform>(new tf::Transform(tf_loaded.transform));
-        entity->set_frame_id( tf_loaded.frame_id );
-        entity->set_stamp( tf_loaded.stamp );
-        checkout->storeEntity<tf::Transform>(entity, entity_data);
+        tfs_map->add_transform( std::move( tf_loaded ) );
     }
 
-    return UPNS_STATUS_OK;
+    upns::StatusCode usc_static = tfs_map_static->store_entities(checkout, layer_static);
+    upns::StatusCode usc_dynamic = tfs_map_dynamic->store_entities(checkout, layer_dynamic);
+
+    if (   usc_static == UPNS_STATUS_OK
+        && usc_dynamic == UPNS_STATUS_OK) {
+      return UPNS_STATUS_OK;
+    } else {
+      return UPNS_STATUS_ERROR;
+    }
+
 }
 
 UPNS_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_tfs)

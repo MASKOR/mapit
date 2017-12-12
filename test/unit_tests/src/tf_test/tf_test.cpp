@@ -46,7 +46,7 @@ void TFTest::compareTfs(upns::tf::TransformStamped a, upns::tf::TransformStamped
 {
     QVERIFY(a.frame_id == b.frame_id);
     QVERIFY(a.stamp == b.stamp);
-    QVERIFY(a.transform.child_frame_id == b.transform.child_frame_id);
+    QVERIFY(a.child_frame_id == b.child_frame_id);
     QVERIFY( fabs(a.transform.translation.x() - b.transform.translation.x()) < 1e-6);
     QVERIFY( fabs(a.transform.translation.y() - b.transform.translation.y()) < 1e-6);
     QVERIFY( fabs(a.transform.translation.z() - b.transform.translation.z()) < 1e-6);
@@ -64,7 +64,7 @@ void TFTest::test_input_output()
 
     upns::tf::TransformStamped in_out;
     in_out.frame_id  = "in";
-    in_out.transform.child_frame_id = "out";
+    in_out.child_frame_id = "out";
     in_out.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
     in_out.transform.translation = Eigen::Translation3f(1, 2, 3);
     in_out.transform.rotation = Eigen::Quaternionf::Identity();
@@ -77,7 +77,7 @@ void TFTest::test_input_output()
     buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
     upns::tf::TransformStamped in_out_rot;
     in_out_rot.frame_id  = "in";
-    in_out_rot.transform.child_frame_id = "out";
+    in_out_rot.child_frame_id = "out";
     in_out_rot.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
     in_out_rot.transform.translation = Eigen::Translation3f(1, 2, 3);
     in_out_rot.transform.rotation =
@@ -97,7 +97,7 @@ void TFTest::test_chain_of_2_tfs()
 
     upns::tf::TransformStamped chain_1;
     chain_1.frame_id  = "cb";
-    chain_1.transform.child_frame_id = "cm";
+    chain_1.child_frame_id = "cm";
     chain_1.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
     chain_1.transform.translation = Eigen::Translation3f(1, 2, 3);
     chain_1.transform.rotation =
@@ -109,7 +109,7 @@ void TFTest::test_chain_of_2_tfs()
 
     upns::tf::TransformStamped chain_2;
     chain_2.frame_id  = "cm";
-    chain_2.transform.child_frame_id = "ce";
+    chain_2.child_frame_id = "ce";
     chain_2.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
     chain_2.transform.translation = Eigen::Translation3f(1, 2, 3);
     chain_2.transform.rotation =
@@ -122,7 +122,7 @@ void TFTest::test_chain_of_2_tfs()
     upns::tf::TransformStamped chain_together;
     chain_together.frame_id = chain_1.frame_id;
     chain_together.stamp = chain_1.stamp;
-    chain_together.transform.child_frame_id = chain_2.transform.child_frame_id;
+    chain_together.child_frame_id = chain_2.child_frame_id;
     Eigen::Affine3f c1m = chain_1.transform.translation * chain_1.transform.rotation;
     Eigen::Affine3f c2m = chain_2.transform.translation * chain_2.transform.rotation;
     Eigen::Affine3f chain_tf = c1m * c2m;
@@ -139,7 +139,7 @@ void TFTest::test_interpolation()
 
     upns::tf::TransformStamped inter_1;
     inter_1.frame_id  = "a";
-    inter_1.transform.child_frame_id = "b";
+    inter_1.child_frame_id = "b";
     inter_1.stamp = mapit::time::from_sec_and_nsec(1000, 0);
     inter_1.transform.translation = Eigen::Translation3f(1, 2, 3);
     inter_1.transform.rotation =
@@ -151,7 +151,7 @@ void TFTest::test_interpolation()
 
     upns::tf::TransformStamped inter_2;
     inter_2.frame_id  = "a";
-    inter_2.transform.child_frame_id = "b";
+    inter_2.child_frame_id = "b";
     inter_2.stamp = mapit::time::from_sec_and_nsec(1002, 0);
     inter_2.transform.translation = Eigen::Translation3f(5, 7, 11);
     inter_2.transform.rotation =
@@ -165,7 +165,7 @@ void TFTest::test_interpolation()
     upns::tf::TransformStamped inter_together;
     inter_together.frame_id = inter_1.frame_id;
     inter_together.stamp    = mapit::time::from_sec_and_nsec(1001, 0);
-    inter_together.transform.child_frame_id = inter_1.transform.child_frame_id;
+    inter_together.child_frame_id = inter_1.child_frame_id;
     float time_1 = (inter_together.stamp - inter_1.stamp).count();
     float time_2 = (inter_2.stamp - inter_together.stamp).count();
     float factor_1 = time_1 / (time_1 + time_2);
@@ -191,13 +191,13 @@ void TFTest::test_layertype_to_buffer()
     upns::tf::TransformStamped tf_in_1, tf_in_2;
     tf_in_1.frame_id = "world";
     tf_in_1.stamp = mapit::time::from_sec_and_nsec(1000, 500000000);
-    tf_in_1.transform.child_frame_id = "frame_1";
+    tf_in_1.child_frame_id = "frame_1";
     tf_in_1.transform.rotation = Eigen::Quaternionf(1, 0, 0, 0);
     tf_in_1.transform.translation = Eigen::Translation3f(1, 2, 3);
 
     tf_in_2.frame_id = "world";
     tf_in_2.stamp = mapit::time::from_sec_and_nsec(1001, 500000000);
-    tf_in_2.transform.child_frame_id = "frame_2";
+    tf_in_2.child_frame_id = "frame_2";
     tf_in_2.transform.rotation = Eigen::Quaternionf(1, 0, 0, 0);
     tf_in_2.transform.translation = Eigen::Translation3f(5, 7, 11);
 

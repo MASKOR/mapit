@@ -24,7 +24,6 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
     std::string target = params["target"].toString().toStdString();
 
     bool useAxisAlignedBoundingBox = params["useAABB"].toBool();
-    bool genTf = params["genTf"].toBool();
 
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
@@ -60,59 +59,25 @@ upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
                  + std::to_string(ctr[1]) + ", "
                  + std::to_string(ctr[2]) + ")");
     }
-    if(!genTf)
-    {
-        pcl::PointCloud<pcl::PointXYZ> pcCtr; // TODO: make generic
-        pcl::demeanPointCloud(pc, ctr, pcCtr);
 
-        upnsPointcloud2Ptr pc2Out(new pcl::PCLPointCloud2());
-        pcl::toPCLPointCloud2( pcCtr, *pc2Out);
+    pcl::PointCloud<pcl::PointXYZ> pcCtr; // TODO: make generic
+    pcl::demeanPointCloud(pc, ctr, pcCtr);
 
-        entityData->setData(pc2Out);
-        pcl::PointXYZ min;
-        pcl::PointXYZ max;
-        pcl::getMinMax3D(pcCtr, min, max);
-        log_info("Centroid to origin: New minimum is ("
-                 + std::to_string(min.x) + ", "
-                 + std::to_string(min.y) + ", "
-                 + std::to_string(min.z) + "), Maximum: ("
-                 + std::to_string(max.x) + ", "
-                 + std::to_string(max.y) + ", "
-                 + std::to_string(max.z) + ")");
-    }
-    else
-    {
-        std::string tfEntityName = params["tfTarget"].toString().toStdString();
-        // Get Target
-        std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(tfEntityName);
-        if(tfEntity == NULL)
-        {
-            // If target could not be received, create new entity
-            // There must be an entity in order to write entity data in the next step
-            tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
-            tfEntity->set_type(TfEntitydata::TYPENAME());
-            StatusCode s = env->getCheckout()->storeEntity(tfEntityName, tfEntity);
-            if(!upnsIsOk(s))
-            {
-                log_error("Failed to create transform entity.");
-                return UPNS_STATUS_ERR_UNKNOWN;
-            }
-        }
-        std::shared_ptr<AbstractEntitydata> abstractEntitydataTf = env->getCheckout()->getEntitydataForReadWrite( tfEntityName );
-        if(abstractEntitydataTf == NULL)
-        {
-            return UPNS_STATUS_ERR_UNKNOWN;
-        }
-        std::shared_ptr<TfEntitydata> entityDataTf = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydataTf );
-        if(entityDataTf == NULL)
-        {
-            log_error("Tf Transform has wrong type.");
-            return UPNS_STATUS_ERR_UNKNOWN;
-        }
-        upns::tf::TransformPtr tf = upns::tf::TransformPtr(new upns::tf::Transform);
-        tf->translation = Eigen::Translation3f(-ctr[0], -ctr[1], -ctr[2]);
-        entityDataTf->setData(tf);
-    }
+    upnsPointcloud2Ptr pc2Out(new pcl::PCLPointCloud2());
+    pcl::toPCLPointCloud2( pcCtr, *pc2Out);
+
+    entityData->setData(pc2Out);
+    pcl::PointXYZ min;
+    pcl::PointXYZ max;
+    pcl::getMinMax3D(pcCtr, min, max);
+    log_info("Centroid to origin: New minimum is ("
+             + std::to_string(min.x) + ", "
+             + std::to_string(min.y) + ", "
+             + std::to_string(min.z) + "), Maximum: ("
+             + std::to_string(max.x) + ", "
+             + std::to_string(max.y) + ", "
+             + std::to_string(max.z) + ")");
+
     return UPNS_STATUS_OK;
 }
 

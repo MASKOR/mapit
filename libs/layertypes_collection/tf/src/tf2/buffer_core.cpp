@@ -77,7 +77,7 @@ void transformTF2ToMsg(const Transform& tf2, ::tf::TransformStamped& msg, mapit:
   transformTF2ToMsg(tf2, msg.transform);
   msg.stamp = stamp;
   msg.frame_id = frame_id;
-  msg.transform.child_frame_id = child_frame_id;
+  msg.child_frame_id = child_frame_id;
 }
 
 void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translation3f& pos, ::tf::Transform& msg)
@@ -91,7 +91,7 @@ void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translatio
   transformTF2ToMsg(orient, pos, msg.transform);
   msg.stamp = stamp;
   msg.frame_id = frame_id;
-  msg.transform.child_frame_id = child_frame_id;
+  msg.child_frame_id = child_frame_id;
 }
 
 void setIdentity(::tf::Transform& tx)
@@ -216,17 +216,14 @@ BufferCore::setTransforms(std::shared_ptr<upns::Checkout> checkout, std::shared_
 {
     for (auto entity : checkout->getListOfEntities(layer)) {
         //TODO: nullpointer checks.
-        upns::tf::TransformPtr entity_data = std::dynamic_pointer_cast<TfEntitydata>(
-                    checkout->getEntityDataReadOnly( entity )
-                    )->getData();
+        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> entity_data
+            = std::dynamic_pointer_cast<TfEntitydata>(
+                checkout->getEntityDataReadOnly( entity )
+                )->getData()->dispose();
 
-        upns::tf::TransformStamped tfs;
-        tfs.frame_id = entity->frame_id();
-        tfs.stamp = entity->stamp();
-
-        tfs.transform = *entity_data;
-
-        setTransform(tfs, layer->getName(), is_static);
+        for (const std::unique_ptr<upns::tf::TransformStamped>& tfs : *entity_data) {
+          setTransform(*tfs, layer->getName(), is_static);
+        }
     }
 }
 
@@ -266,18 +263,18 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
   /////// New implementation
   ::tf::TransformStamped stripped = transform_in;
   stripped.frame_id = stripSlash(stripped.frame_id);
-  stripped.transform.child_frame_id = stripSlash(stripped.transform.child_frame_id);
+  stripped.child_frame_id = stripSlash(stripped.child_frame_id);
 
   stripped.transform.rotation.normalize();
 
   bool error_exists = false;
-  if (stripped.transform.child_frame_id == stripped.frame_id)
+  if (stripped.child_frame_id == stripped.frame_id)
   {
-    log_error("TF_SELF_TRANSFORM: Ignoring transform from authority \"" + authority + "\" with frame_id and child_frame_id  \"" + stripped.transform.child_frame_id + "\" because they are the same");
+    log_error("TF_SELF_TRANSFORM: Ignoring transform from authority \"" + authority + "\" with frame_id and child_frame_id  \"" + stripped.child_frame_id + "\" because they are the same");
     error_exists = true;
   }
 
-  if (stripped.transform.child_frame_id == "")
+  if (stripped.child_frame_id == "")
   {
     log_error("TF_NO_CHILD_FRAME_ID: Ignoring transform from authority \"" + authority + "\" because child_frame_id not set ");
     error_exists = true;
@@ -285,14 +282,14 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
 
   if (stripped.frame_id == "")
   {
-    log_error("TF_NO_FRAME_ID: Ignoring transform with child_frame_id \"" + stripped.transform.child_frame_id + "\"  from authority \"" + authority + "\" because frame_id not set");
+    log_error("TF_NO_FRAME_ID: Ignoring transform with child_frame_id \"" + stripped.child_frame_id + "\"  from authority \"" + authority + "\" because frame_id not set");
     error_exists = true;
   }
 
   if (std::isnan(stripped.transform.translation.x()) || std::isnan(stripped.transform.translation.y()) || std::isnan(stripped.transform.translation.z()) ||
       std::isnan(stripped.transform.rotation.x()) ||       std::isnan(stripped.transform.rotation.y()) ||       std::isnan(stripped.transform.rotation.z()) ||       std::isnan(stripped.transform.rotation.w()))
   {
-    log_error("TF_NAN_INPUT: Ignoring transform for child_frame_id \"" + stripped.transform.child_frame_id + "\" from authority \"" + authority
+    log_error("TF_NAN_INPUT: Ignoring transform for child_frame_id \"" + stripped.child_frame_id + "\" from authority \"" + authority
            + "\" because of a nan value in the transform ("
            + std::to_string( stripped.transform.translation.x() ) + " " + std::to_string( stripped.transform.translation.y() ) + " " + std::to_string( stripped.transform.translation.z() ) + ") ("
            + std::to_string( stripped.transform.rotation.x() ) + " " + std::to_string( stripped.transform.rotation.y() ) + " " + std::to_string( stripped.transform.rotation.z() ) + " " + std::to_string( stripped.transform.rotation.w() ) + ")"
@@ -307,7 +304,7 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
 
   if (!valid) 
   {
-    log_error("TF_DENORMALIZED_QUATERNION: Ignoring transform for child_frame_id \"" + stripped.transform.child_frame_id + "\" from authority \"" + authority
+    log_error("TF_DENORMALIZED_QUATERNION: Ignoring transform for child_frame_id \"" + stripped.child_frame_id + "\" from authority \"" + authority
            + "\" because of an invalid quaternion in the transform (" + std::to_string( stripped.transform.rotation.x() ) + " " + std::to_string( stripped.transform.rotation.y() ) + " " + std::to_string( stripped.transform.rotation.z() ) + " " + std::to_string( stripped.transform.rotation.w() ) + ")"
              );
     error_exists = true;
@@ -318,7 +315,7 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
   
   {
     boost::mutex::scoped_lock lock(frame_mutex_);
-    CompactFrameID frame_number = lookupOrInsertFrameNumber(stripped.transform.child_frame_id);
+    CompactFrameID frame_number = lookupOrInsertFrameNumber(stripped.child_frame_id);
     TimeCacheInterfacePtr frame = getFrame(frame_number);
     if (frame == NULL)
       frame = allocateFrame(frame_number, is_static);
@@ -329,7 +326,7 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
     }
     else
     {
-      log_warn( "TF_OLD_DATA ignoring data from the past for frame " + stripped.transform.child_frame_id + " at time " + std::to_string( mapit::time::to_sec(stripped.stamp) ) + " according to authority " + authority + "\nPossible reasons are listed at http://wiki.ros.org/tf/Errors%%20explained" );
+      log_warn( "TF_OLD_DATA ignoring data from the past for frame " + stripped.child_frame_id + " at time " + std::to_string( mapit::time::to_sec(stripped.stamp) ) + " according to authority " + authority + "\nPossible reasons are listed at http://wiki.ros.org/tf/Errors%%20explained" );
       return false;
     }
   }
@@ -641,7 +638,7 @@ struct TransformAccum
   if (target_frame == source_frame) {
     ::tf::TransformStamped identity;
     identity.frame_id = target_frame;
-    identity.transform.child_frame_id = source_frame;
+    identity.child_frame_id = source_frame;
     identity.transform.rotation.setIdentity();
     identity.transform.translation = identity.transform.translation.Identity();
 
@@ -709,7 +706,7 @@ struct TransformAccum
   transformTF2ToMsg(tf2*tf1, output.transform);
   output.stamp = temp2.stamp;
   output.frame_id = target_frame;
-  output.transform.child_frame_id = source_frame;
+  output.child_frame_id = source_frame;
   return output;
 }
 

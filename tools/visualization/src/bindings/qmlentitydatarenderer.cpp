@@ -138,12 +138,15 @@ void QmlEntitydataRenderer::updateGeometry()
             qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a tf)";
             return;
         }
-        Eigen::Affine3f tfMat = Eigen::Affine3f(
-                                    tfEd->getData()->translation
-                                  * tfEd->getData()->rotation
-                                );
-        QMatrix4x4 mat( &(tfMat.matrix()(0)) );
-        qDebug() << mat;
+        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfList = tfEd->getData()->dispose();
+        for (const std::unique_ptr<upns::tf::TransformStamped>& tf : *tfList) {
+          Eigen::Affine3f tfMat = Eigen::Affine3f(
+                                      tf->transform.translation
+                                    * tf->transform.rotation
+                                  );
+          QMatrix4x4 mat( &(tfMat.matrix()(0)) );
+          qDebug() << mat;
+        }
     }
     else if(strcmp(ed->type(), AssetEntitydata::TYPENAME()) == 0)
     {

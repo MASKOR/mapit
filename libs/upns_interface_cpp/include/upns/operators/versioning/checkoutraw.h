@@ -57,6 +57,8 @@ public:
      */
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity) = 0;
 
+    virtual bool checkEntitydata(const Path &entity) = 0;
+
 
 
     /**
@@ -67,6 +69,16 @@ public:
     std::shared_ptr<AbstractEntitydata> getEntityDataReadWrite(std::shared_ptr<mapit::Entity> entity)
     {
         return getEntitydataForReadWrite(entity->getDataPath());
+    }
+
+    /**
+     * @brief getEntityDataReadWrite get read and writable data of an entety
+     * @param entity
+     * @return
+     */
+    bool checkEntityData(std::shared_ptr<mapit::Entity> entity)
+    {
+        return checkEntitydata(entity->getDataPath());
     }
 
     /**

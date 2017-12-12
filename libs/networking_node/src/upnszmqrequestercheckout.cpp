@@ -136,6 +136,16 @@ std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntityd
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }
 
+bool upns::ZmqRequesterCheckout::checkEntitydata(const Path &entityId)
+{
+  std::shared_ptr<Entity> e = getEntity(entityId);
+  if(!e)
+  {
+      return false;
+  }
+  return true;
+}
+
 std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const upns::ObjectId &entityId)
 {
     //TODO: nyi
