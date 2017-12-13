@@ -261,7 +261,8 @@ void OPRegLocalICPTest::test_icp_tf_add()
                 "   \"tf-prefix\"         : \"/tfs/\","
                 "   \"tf-frame_id\"       : \"world\","
                 "   \"tf-child_frame_id\" : \"bunny\","
-                "   \"tf-is_static\"      : true"
+                "   \"tf-is_static\"      : true,"
+                "   \"matching-algorithm\" : \"icp\""
                 "}"
                 );
     upns::OperationResult ret = checkout_->doOperation( desc );
@@ -291,7 +292,8 @@ void OPRegLocalICPTest::test_icp_for_more_than_one_input()
                 "   \"tf-prefix\"         : \"/tfs/\","
                 "   \"tf-frame_id\"       : \"world\","
                 "   \"tf-child_frame_id\" : \"bunny\","
-                "   \"tf-is_static\"      : false"
+                "   \"tf-is_static\"      : false,"
+                "   \"matching-algorithm\" : \"icp\""
                 "}"
                 );
     upns::OperationResult ret = checkout_->doOperation( desc );
@@ -311,7 +313,8 @@ void OPRegLocalICPTest::test_icp_tf_combine()
                 "   \"tf-prefix\"         : \"/tf-combine/tf_dynamic/\","
                 "   \"tf-frame_id\"       : \"world\","
                 "   \"tf-child_frame_id\" : \"bunny\","
-                "   \"tf-is_static\"      : false"
+                "   \"tf-is_static\"      : false,"
+                "   \"matching-algorithm\" : \"icp\""
                 "}"
                 );
     upns::OperationResult ret = checkout_->doOperation( desc );
