@@ -120,9 +120,7 @@ public:
   /**
    * @brief BufferCore returnes the buffer core filled with the transforms from the checkout
    * @param checkout from where to load the transforms
-   * @param map_name
-   * @param layername_tf_static  [default]
-   * @param layername_tf_dynamic [default]
+   * @param tf_prefix
    */
   BufferCore(upns::CheckoutCommon *checkout
           , std::string tf_prefix
