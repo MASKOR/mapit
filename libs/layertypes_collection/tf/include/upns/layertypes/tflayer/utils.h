@@ -110,6 +110,15 @@ namespace tf {
       add_TransformStamped(std::unique_ptr<upns::tf::TransformStamped> in, bool is_static);
 
       /**
+       * @brief delete_TransformStamped delete the transforms inbetween the time from start to end
+       * @param start
+       * @param end
+       * @return error code (1 fault, 0 ok)
+       */
+      int
+      delete_TransformStamped(const mapit::time::Stamp& start, const mapit::time::Stamp& end);
+
+      /**
        * @brief dispose returns the list of the container, this can not be used afterwards
        * @return
        */

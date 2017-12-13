@@ -41,6 +41,8 @@ namespace time {
   double to_sec(Stamp stamp);
 
   double to_sec(Duration dur);
+
+  std::string to_string(Stamp stamp);
 }
 }
 

@@ -43,5 +43,21 @@ namespace  time {
   {
     return dur.count();
   }
+
+  std::string to_string(Stamp stamp)
+  {
+    unsigned long sec, nsec;
+    to_sec_and_nsec(stamp, sec, nsec);
+
+    std::string nsec_str = std::to_string(nsec);
+    int zeros_to_add = 9 - nsec_str.size();
+    std::string zeroes = "";
+    for (int i = 0; i < zeros_to_add; ++i) {
+        zeroes += "0";
+    }
+
+    std::string out = std::to_string(sec) + "." + zeroes + nsec_str;
+    return out;
+  }
 };
 }

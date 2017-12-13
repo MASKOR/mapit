@@ -63,11 +63,13 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 
     std::string target = params["target"].string_value();
 
+    unsigned long sec = params["sec"].int_value();
+    unsigned long nsec = params["nsec"].int_value();
     std::shared_ptr<Entity> pclEntity(new Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
     pclEntity->set_frame_id( params["frame_id"].string_value() );
-    pclEntity->mutable_stamp()->set_sec( params["sec"].int_value() );
-    pclEntity->mutable_stamp()->set_nsec( params["nsec"].int_value() );
+    pclEntity->mutable_stamp()->set_sec( sec );
+    pclEntity->mutable_stamp()->set_nsec( nsec );
     StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {

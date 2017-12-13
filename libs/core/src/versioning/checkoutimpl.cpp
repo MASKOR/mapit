@@ -356,7 +356,7 @@ Path CheckoutImpl::preparePath(const Path &path)
         p += "/";
     }
 
-    // search and replace double // untill there are no more of it
+    // search and replace double // until there are no more of it
     size_t f = p.find("//");
     while (std::string::npos != f) {
         p.replace(f, std::string("//").length(), "/");

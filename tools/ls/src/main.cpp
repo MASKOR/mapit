@@ -3,112 +3,107 @@
 #include <upns/versioning/repositoryfactorystandard.h>
 #include <upns/logging.h>
 #include <boost/program_options.hpp>
+#include <upns/depthfirstsearch.h>
 
 namespace po = boost::program_options;
 
 int
 get_program_options(int argc, char *argv[], po::variables_map& vars)
 {
-  po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
-  program_options_desc.add_options()
-      ("help,h", "print usage")
-      ("workspace,w", po::value<std::string>(), "the workspace (formerly checkout) to work with")
-      ("recursive,r", po::bool_switch()->default_value(false), "the structure should be displayed recursivly")
-      ("map,m", po::value<std::string>(), "the content within the map")
-      ("layer,l", po::value<std::string>(), "the content within the layer, needs map to be specified")
-      ("entity,e", po::value<std::string>(), "the content within the entity, needs layer to be specified");
-  po::positional_options_description pos_options;
-  pos_options.add("workspace",  1);
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
+    program_options_desc.add_options()
+            ("help,h", "print usage")
+            ("workspace,w", po::value<std::string>(), "the workspace (formerly checkout) to work with")
+            ("recursive,r", po::bool_switch()->default_value(false), "the structure should be displayed recursivly")
+            ("path,p", po::value<std::string>(), "the path to start the search with");
+    po::positional_options_description pos_options;
+    pos_options.add("workspace",  1);
 
-  upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
-  try {
-    po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
-  } catch(...) {
-    std::cout << program_options_desc << std::endl;
-    return 1;
-  }
-  if(vars.count("help")) {
-    std::cout << program_options_desc << std::endl;
-    return 1;
-  }
-  try {
-    po::notify(vars);
-  } catch(...) {
-    std::cout << program_options_desc << std::endl;
-    return 1;
-  }
-
-  return 0;
-}
-
-void
-display_checkout(std::string name)
-{
-  log_info("- " + name);
-}
-
-void
-display_map(std::string name)
-{
-  log_info("  |- " + name);
-}
-
-void
-display_layer(std::string name, std::string type)
-{
-  log_info("  |  |- " + name + "\t\t[" + type + "]");
-}
-
-void
-display_entity(std::string name)
-{
-  log_info("  |  |  |- " + name);
-}
-
-void
-display_entities(std::shared_ptr<upns::Checkout> co, std::shared_ptr<mapit::Layer> layer, bool use_recursive)
-{
-  std::list<std::shared_ptr<mapit::Entity>> entities = co->getListOfEntities(layer);
-  for (auto entity : entities) {
-    display_entity(entity->getName());
-  }
-}
-
-void
-display_layers(std::shared_ptr<upns::Checkout> co, std::shared_ptr<mapit::Map> map, bool use_recursive)
-{
-  std::list<std::shared_ptr<mapit::Layer>> layers = co->getListOfLayers(map);
-  for (auto layer : layers) {
-    display_layer(layer->getName(), layer->getTypeString());
-    if (use_recursive) {
-      display_entities(co, layer, use_recursive);
+    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    try {
+        po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
+    } catch(...) {
+        std::cout << program_options_desc << std::endl;
+        return 1;
     }
-  }
+    if(vars.count("help")) {
+        std::cout << program_options_desc << std::endl;
+        return 1;
+    }
+    try {
+        po::notify(vars);
+    } catch(...) {
+        std::cout << program_options_desc << std::endl;
+        return 1;
+    }
+
+    return 0;
 }
 
-void
-display_maps(std::shared_ptr<upns::Checkout> co, bool use_recursive)
+void display_checkout(std::shared_ptr<upns::Checkout> co, bool use_recursive = false, std::string search_prefix = "")
 {
-  std::list<std::shared_ptr<mapit::Map>> maps = co->getListOfMaps();
-  for (auto map : maps) {
-    display_map(map->getName());
-    if (use_recursive) {
-      display_layers(co, map, use_recursive);
-    }
-  }
-}
+    int depth = 1;
+    ObjectReference nullRef;
+    upns::StatusCode s = upns::depthFirstSearch(
+                co.get(),
+                search_prefix.empty() ? co->getRoot() : co->getTree(search_prefix),
+                nullRef,
+                search_prefix,
+                depthFirstSearchAll(Commit),
+                depthFirstSearchAll(Commit),
+                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &path)
+                {
+                    std::string prefix = "  ";
+                    for (int t = 0; t < depth-1; ++t) {
+                        prefix +="|  ";
+                    }
+                    for (int t = std::max(depth-1, 0); t < depth; ++t) {
+                        prefix +="|- ";
+                    }
 
-void
-display_checkouts(std::shared_ptr<upns::Repository> repo, bool use_recursive)
-{
-  std::vector<std::string> co_names = repo->listCheckoutNames();
-  for (auto co_name : co_names) {
-    display_checkout(co_name);
-    if (use_recursive) {
-      std::shared_ptr<upns::Checkout> co = repo->getCheckout( co_name );
-      display_maps(co, use_recursive);
-    }
-  }
+                    if ( ! path.empty() ) {
+                        log_info(prefix + path.substr(path.find_last_of("/")+1));
+                        ++depth;
+                    }
+
+                    if (path.empty() || use_recursive) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &path)
+                {
+                    if ( ! path.empty() ) {
+                        --depth;
+                    }
+
+                    return true;
+                },
+                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                {
+                    std::string prefix = "  ";
+                    for (int t = 0; t < depth-1; ++t) {
+                        prefix +="|  ";
+                    }
+                    for (int t = depth-1; t < depth; ++t) {
+                        prefix +="|- ";
+                    }
+                    std::string output = prefix + path.substr(path.find_last_of("/")+1);
+                    std::string spacing = "";
+                    if (output.size() < 60) {
+                        for (int i = output.size(); i < 60; ++i) {
+                            spacing += " ";
+                        }
+                    } else {
+                        spacing = "\t";
+                    }
+                    log_info(output + spacing + "(" + obj->type() + ")");
+
+                    return true;
+                },
+                depthFirstSearchAll(mapit::msgs::Entity)
+            );
 }
 
 int main(int argc, char *argv[])
@@ -124,20 +119,9 @@ int main(int argc, char *argv[])
     }
     bool use_recursive = vars["recursive"].as<bool>();
     bool use_workspace = vars.count("workspace");
-    bool use_map = vars.count("map");
-    if (use_map && ! use_workspace) {
-      log_error("when a map is given, a workspace needs to be given as well");
-      return 1;
-    }
-    bool use_layer = vars.count("layer");
-    if (use_layer && ! use_map) {
-      log_error("when a layer is given, a map needs to be given as well");
-      return 1;
-    }
-    bool use_entity = vars.count("entity");
-    if (use_entity && ! use_layer) {
-      log_error("when an entity is given, a layer needs to be given as well");
-      return 1;
+    bool use_path = vars.count("path");
+    if (use_path && ! use_workspace) {
+        log_error("can't display path without workspace");
     }
 
     // connect to repo and workspace
@@ -157,29 +141,21 @@ int main(int argc, char *argv[])
           return 1;
       }
 
-      display_checkout( vars["workspace"].as<std::string>() );
-      if (use_entity) {
-        std::shared_ptr<mapit::Map> map = co->getMap( vars["map"].as<std::string>() );
-        display_map(map->getName());
-        std::shared_ptr<mapit::Layer> layer = co->getLayer( map, vars["layer"].as<std::string>() );
-        display_layer(layer->getName(), layer->getTypeString());
-        std::shared_ptr<mapit::Entity> entity = co->getEntity( layer, vars["entity"].as<std::string>() );
-        display_entity(entity->getName());
-      } else if (use_layer) {
-        std::shared_ptr<mapit::Map> map = co->getMap( vars["map"].as<std::string>() );
-        display_map(map->getName());
-        std::shared_ptr<mapit::Layer> layer = co->getLayer( map, vars["layer"].as<std::string>() );
-        display_layer(layer->getName(), layer->getTypeString());
-        display_entities(co, layer, use_recursive);
-      } else if (use_map) {
-        std::shared_ptr<mapit::Map> map = co->getMap( vars["map"].as<std::string>() );
-        display_map(map->getName());
-        display_layers(co, map, use_recursive);
-      } else if ( ! use_map ) {
-        display_maps(co, use_recursive);
+      if (use_path) {
+          display_checkout(co, use_recursive, vars["path"].as<std::string>());
+      } else {
+          display_checkout(co, use_recursive);
       }
+
     } else {
-      display_checkouts(repo, use_recursive);
+        std::vector<std::string> co_names = repo->listCheckoutNames();
+        for (auto co_name : co_names) {
+          log_info("- " + co_name);
+          if (use_recursive) {
+            std::shared_ptr<upns::Checkout> co = repo->getCheckout( co_name );
+            display_checkout(co, use_recursive);
+          }
+        }
     }
 
     return 0;
