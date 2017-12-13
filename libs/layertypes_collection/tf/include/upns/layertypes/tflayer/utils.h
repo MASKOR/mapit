@@ -47,7 +47,7 @@ namespace tf {
        * @param frame_id       the frame_id for all transforms that are stored within this list
        * @param child_frame_id this child_fram_id for all transforms that are stored within this list
        */
-      TransformStampedList(std::string frame_id, std::string child_frame_id);
+      TransformStampedList(std::string frame_id, std::string child_frame_id, bool is_static);
 
       /**
        * @brief get_entity_name ONLY USE THIS WHEN YOU DON'T HAVE AND CAN'T GET AN INSTANCE OF THIS CLASS!
@@ -87,6 +87,13 @@ namespace tf {
       get_child_frame_id();
 
       /**
+       * @brief get_is_static returns whether the transforms contained in the list are static or not
+       * @return
+       */
+      bool
+      get_is_static();
+
+      /**
        * @brief get_stamp_earliest returnes the stamp of the earliest data in the list
        * @return
        */
@@ -100,7 +107,7 @@ namespace tf {
        * @return error code (1 fault, 0 ok)
        */
       int
-      add_TransformStamped(std::unique_ptr<upns::tf::TransformStamped> in);
+      add_TransformStamped(std::unique_ptr<upns::tf::TransformStamped> in, bool is_static);
 
       /**
        * @brief dispose returns the list of the container, this can not be used afterwards
@@ -113,6 +120,7 @@ namespace tf {
       mapit::time::Stamp stamp_earliest_;
       std::string frame_id_;
       std::string child_frame_id_;
+      bool is_static_;
       std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> transforms_;
     };
 
@@ -125,10 +133,10 @@ namespace tf {
       TransformStampedListGatherer();
 
       void
-      add_transform( std::unique_ptr<TransformStamped> tf );
+      add_transform(std::unique_ptr<TransformStamped> tf , bool is_static);
 
       upns::StatusCode
-      store_entities(CheckoutRaw* checkout, std::shared_ptr<mapit::Layer> layer);
+      store_entities(CheckoutRaw* checkout, const std::string& prefix);
     private:
       std::shared_ptr<std::map<std::string, std::shared_ptr<TransformStampedList>>> tfs_map_;
     };

@@ -342,6 +342,7 @@ ObjectReference CheckoutImpl::objectReferenceForPath(const Path &path)
 Path CheckoutImpl::preparePath(const Path &path)
 {
     // path p has no beginning / and always trailing /
+    // also removed double //
     // root "/" remains "/"
     Path p = path;
     assert(!p.empty());
@@ -354,6 +355,14 @@ Path CheckoutImpl::preparePath(const Path &path)
     {
         p += "/";
     }
+
+    // search and replace double // untill there are no more of it
+    size_t f = p.find("//");
+    while (std::string::npos != f) {
+        p.replace(f, std::string("//").length(), "/");
+        f = p.find("//");
+    }
+
     return p;
 }
 

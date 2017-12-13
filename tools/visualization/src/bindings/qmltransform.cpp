@@ -107,7 +107,7 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
         if(found) *found = false;
         return tfs;
     }
-    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout()->getCheckoutObj(), p));
+    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout()->getCheckoutObj().get(), p));
 
     try
     {

@@ -30,7 +30,7 @@ public:
 
     inline std::shared_ptr<mapit::Map> getMap() { return map_; }
 
-    inline ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > getRefs() { return layer_->refs(); }
+    inline const ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >& getRefs() { return layer_->refs(); }
 
 protected:
     std::shared_ptr<mapit::msgs::Tree> layer_;

@@ -8,17 +8,18 @@ public:
   void operator()(T* ptr){}
 };
 
-void readTfFromStream(upnsIStream &in, tf::store::TransformStampedList &tfsout )
+void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStampedList> &tfsout )
 {
   mapit::msgs::TransformStampedList tfs;
   if(!tfs.ParseFromIstream(&in)) {
-    log_error("Could not read tranforms from stream.");
+    log_warn("TfEntitydata: tf entity is empty.");
+    tfsout = nullptr;
     return;
   } else {
     std::string frame_id = tfs.frame_id();
     std::string child_frame_id = tfs.child_frame_id();
 
-    tfsout = std::move(tf::store::TransformStampedList(frame_id, child_frame_id));
+    tfsout = std::make_shared<tf::store::TransformStampedList>( std::move(tf::store::TransformStampedList(frame_id, child_frame_id, tfs.is_static())) );
 
     for (auto tf : tfs.transforms()) {
       std::unique_ptr<upns::tf::TransformStamped> tfout = std::make_unique<upns::tf::TransformStamped>();
@@ -36,14 +37,16 @@ void readTfFromStream(upnsIStream &in, tf::store::TransformStampedList &tfsout )
       tfout->transform.rotation.y() = tf.transform().rotation().y();
       tfout->transform.rotation.z() = tf.transform().rotation().z();
 
-      tfsout.add_TransformStamped( std::move(tfout) );
+      tfsout->add_TransformStamped( std::move(tfout), tfs.is_static() );
     }
   }
 }
 void writeTfToStream(upnsOStream &out, tf::store::TransformStampedList &data )
 {
-  std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfs_in = data.dispose();
   mapit::msgs::TransformStampedList tfs_to_write;
+  tfs_to_write.set_is_static( data.get_is_static() );
+
+  std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfs_in = data.dispose();
 
   bool at_least_one_data = false;
 
@@ -110,10 +113,9 @@ std::shared_ptr<tf::store::TransformStampedList> TfEntitydata::getData(upnsReal 
                                        int lod)
 {
   if(m_transforms == nullptr) {
-    m_transforms = std::make_shared<tf::store::TransformStampedList>("not-set-this-should-have-been-overwritten", "not-set-this-should-have-been-overwritten");
     upnsIStream *in = m_streamProvider->startRead();
     {
-      readTfFromStream( *in, *m_transforms );
+      readTfFromStream( *in, m_transforms );
     }
     m_streamProvider->endRead(in);
   }

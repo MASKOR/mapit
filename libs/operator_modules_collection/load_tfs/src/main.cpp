@@ -73,7 +73,7 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
     for ( QJsonValue json_value_tf : json_transforms ) {
         QJsonObject json_tf( json_value_tf.toObject() );
 
-        bool layer_is_static = json_tf["static"].toBool();
+        bool is_static = json_tf["static"].toBool();
 
         // get data from json
         std::unique_ptr<tf::TransformStamped> tf_loaded = std::unique_ptr<tf::TransformStamped>(new tf::TransformStamped);
@@ -122,16 +122,16 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
 
         // add data to map
         std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map;
-        if (layer_is_static) {
+        if (is_static) {
             tfs_map = tfs_map_static;
         } else {
             tfs_map = tfs_map_dynamic;
         }
-        tfs_map->add_transform( std::move( tf_loaded ) );
+        tfs_map->add_transform( std::move( tf_loaded ), is_static );
     }
 
-    upns::StatusCode usc_static = tfs_map_static->store_entities(checkout, layer_static);
-    upns::StatusCode usc_dynamic = tfs_map_dynamic->store_entities(checkout, layer_dynamic);
+    upns::StatusCode usc_static = tfs_map_static->store_entities(checkout, layer_static->getDataPath());
+    upns::StatusCode usc_dynamic = tfs_map_dynamic->store_entities(checkout, layer_dynamic->getDataPath());
 
     if (   usc_static == UPNS_STATUS_OK
         && usc_dynamic == UPNS_STATUS_OK) {

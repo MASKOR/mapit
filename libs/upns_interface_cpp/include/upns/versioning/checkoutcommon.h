@@ -165,12 +165,23 @@ public:
      */
     std::shared_ptr<mapit::Entity> getEntity(std::shared_ptr<mapit::Layer> layer, std::string entity_name)
     {
-        for (auto entity : getListOfEntities(layer)) {
-            if (0 == entity->getName().compare(entity_name) ) {
-                return entity;
-            }
+        // fast way
+        auto entity_it = layer->getRefs().find(entity_name);
+        if ( entity_it != layer->getRefs().end() ) {
+            std::shared_ptr<mapit::msgs::Entity> entity_tree = getEntity( entity_it->second.path() );
+            return std::shared_ptr<mapit::Entity>(new mapit::Entity(entity_tree, entity_it->first, layer));
+//          return std::shared_ptr<mapit::Entity>();
         }
+
         return nullptr;
+
+        // elegant way
+//        for (auto entity : getListOfEntities(layer)) {
+//            if (0 == entity->getName().compare(entity_name) ) {
+//                return entity;
+//            }
+//        }
+//        return nullptr;
     }
 
     /**
