@@ -111,6 +111,7 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
     ${mapit_standard_repository_factory}
     Qt3DPointcloudRenderer
     Qt3DOpenVDBRenderer
+    GraphBlocks
     layertype_tf
     layertype_primitive
     ${YAML_CPP_LIBRARIES}

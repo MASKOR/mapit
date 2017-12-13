@@ -124,7 +124,6 @@ Item {
                         Layout.fillHeight: true
                         Layout.bottomMargin: appStyle.controlMargin
                         id: treeViewCheckout
-                        property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
                         onCurrentEntityPathChanged: globalApplicationState.currentEntityPath = currentEntityPath
                         contextMenu: QCtl.Menu {
                             id: contextMenu

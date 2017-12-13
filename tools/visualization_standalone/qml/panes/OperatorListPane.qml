@@ -158,8 +158,31 @@ Item {
                                             + "<br><b>moduleVersion</b>: " + objModelItem.operator.moduleVersion
                                             + "<br><b>apiVersion</b>: " + objModelItem.operator.apiVersion):"(this is a pipeline)")
                                 }
+                                property string currentClassName: gridRoot.model.get(index) ? gridRoot.model.get(index).operator.moduleName : ""
+                                //property var myCompo: compo
+                                property var myGraph//: graph?graph:null
+                                property bool myIsClass: true
+                                property bool dragActive: dragArea.drag.active
+                                property real dragStartX
+                                property real dragStartY
+                                onDragActiveChanged: {
+                                    forceActiveFocus();
+                                    if (dragActive) {
+                                        dragStartX = x;
+                                        dragStartY = y;
+                                        if(currentClassName == "") return
+                                        Drag.start();
+                                    } else {
+                                        Drag.drop();
+                                        x = dragStartX;
+                                        y = dragStartY;
+                                    }
+                                }
+                                Drag.dragType: Drag.Internal
                                 MouseArea {
+                                    id: dragArea
                                     anchors.fill: parent
+                                    drag.target: parent
                                     onClicked: listview.currentIndex = index
                                 }
                             }

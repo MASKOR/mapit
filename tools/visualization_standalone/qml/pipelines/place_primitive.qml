@@ -22,6 +22,7 @@ ColumnLayout {
     }
     function updateTranslationMatrix() {
         var translateMatrix = Qt.matrix4x4()
+        if(xInp == null || yInp == null || zInp == null) return // Note: the line below produced error logs. bug?
         translateMatrix.translate(xInp.text, yInp.text, zInp.text)
         appStyle.tmpPreviewMatrix = translateMatrix
     }

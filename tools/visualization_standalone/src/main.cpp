@@ -56,6 +56,10 @@
 
 #include "imageupdater.h"
 
+#ifndef NO_GRAPHBLOCKS
+#include <graphblocks.h>
+#endif
+
 namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
@@ -88,6 +92,11 @@ int main(int argc, char *argv[])
         log_error("Could not load Repository.");
         return 1;
     }
+
+#ifndef NO_GRAPHBLOCKS
+    GraphblocksContext* graphblockCtx = initializeGraphBlocks();
+#endif
+
     qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
     qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
     qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
@@ -123,6 +132,12 @@ int main(int argc, char *argv[])
     QmlRepository *exampleRepo = new QmlRepository(repo, engine.rootContext());
     engine.rootContext()->setContextProperty("globalRepository", exampleRepo);
     engine.rootContext()->setContextProperty("globalRepositoryExplicitlySpecifiedCommandline", specified);
+
+#ifndef NO_GRAPHBLOCKS
+    engine.rootContext()->setContextProperty("globalGraphBlocksEnabled", true);
+#else
+    engine.rootContext()->setContextProperty("globalGraphBlocksEnabled", false);
+#endif
     //IconImageProvider *imgProviderDummy = new IconImageProvider("");
     IconImageProvider *imgProviderIcon = new IconImageProvider(":/icon/");
     IconImageProvider *imgProviderMaterialDesign = new IconImageProvider(":/icon/material");
@@ -171,6 +186,9 @@ int main(int argc, char *argv[])
     }
 
     int result = app.exec();
+#ifndef NO_GRAPHBLOCKS
+    shutdownGraphBlocks(graphblockCtx);
+#endif
     return result;
 }
 

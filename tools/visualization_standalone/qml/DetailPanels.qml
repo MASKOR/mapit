@@ -8,10 +8,10 @@ import fhac.upns 1.0 as UPNS
 import QtQuick 2.0 as QQ2
 import "panes"
 import "components"
-
 Item {
     id: root
     function formatVec3(vec) {
+        if(!vec) return "(NaN,NaN,NaN,NaN,Watman)"
         return "(" + vec.x.toFixed(2) + ", " + vec.y.toFixed(2) + ", " + vec.z.toFixed(2) + ")"
     }
 
@@ -38,7 +38,15 @@ Item {
         }
     }
 
+    QCtl.BusyIndicator {
+        z: 100
+        property var pos: entityInfo.mapToItem(parent, (entityInfo.width-width)*0.5, (entityInfo.height-height)*0.5)
+        x: pos.x
+        y: pos.y
+        running: entityInfo.loading
+    }
     ColumnLayout {
+        id: detailTab
         anchors.fill: parent
         StyledHeader {
             Layout.fillWidth: true
@@ -70,6 +78,7 @@ Item {
             property bool isPointcloud: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
             property bool isOpenVDB: entityInfo.currentEntityType === "layertype_openvdb"
             property bool isPrimitive: entityInfo.currentEntityType === "layertype_primitive"
+
             GridLayout {
                 Layout.fillWidth: true
                 columns: 2

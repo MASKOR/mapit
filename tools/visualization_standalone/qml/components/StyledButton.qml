@@ -47,6 +47,7 @@ Button {
                 y: 0
                 anchors.centerIn: parent
                 visible: control.isIcon
+                opacity: control.enabled ? 1.0 : 0.5
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 source: control.iconSource && control.iconSource !== "" ? control.iconSource : "image://icon/"

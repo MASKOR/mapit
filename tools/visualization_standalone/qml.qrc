@@ -366,5 +366,18 @@
         <file>qml/EntityVisualSettings.qml</file>
         <file>qml/components/HelperOpenFile.qml</file>
         <file>qml/components/HelperTarget.qml</file>
+        <file>icon/material/ic_3d_rotation_black_24dp_1x.png</file>
+        <file>icon/material/ic_3d_rotation_black_24dp_2x.png</file>
+        <file>icon/material/ic_3d_rotation_white_24dp_1x.png</file>
+        <file>icon/material/ic_3d_rotation_white_24dp_2x.png</file>
+        <file>icon/material/ic_filter_center_focus_black_24dp_1x.png</file>
+        <file>icon/material/ic_filter_center_focus_black_24dp_2x.png</file>
+        <file>icon/material/ic_filter_center_focus_white_24dp_1x.png</file>
+        <file>icon/material/ic_filter_center_focus_white_24dp_2x.png</file>
+        <file>icon/material/ic_replay_black_24dp_1x.png</file>
+        <file>icon/material/ic_replay_black_24dp_2x.png</file>
+        <file>icon/material/ic_replay_white_24dp_1x.png</file>
+        <file>icon/material/ic_replay_white_24dp_2x.png</file>
+        <file>qml/MapitBlocksLib.qml</file>
     </qresource>
 </RCC>

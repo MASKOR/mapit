@@ -49,3 +49,6 @@
 [submodule "tools/Qt3DOpenVDBRenderer"]
 	path = tools/Qt3DOpenVDBRenderer
 	url = https://github.com/MASKOR/Qt3DOpenVDBRenderer
+[submodule "tools/graphblocks"]
+	path = tools/graphblocks
+	url = https://github.com/dabulla/graphblocks.git

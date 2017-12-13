@@ -2,6 +2,7 @@ import QtQuick 2.4
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
+import QtQml.Models 2.3
 
 import fhac.upns 1.0 as UPNS
 
@@ -12,11 +13,16 @@ QCtl.TreeView {
     property var currentCheckout: globalApplicationState.currentCheckout
     property var contextMenu
     property var visibleElems: ListModel {}
+    property string currentEntityPath: selectionModel.currentIndex && treeViewCheckout.model.data(selectionModel.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(selectionModel.currentIndex, Qt.ToolTipRole) : ""
     signal visibleElemsUpdated
     alternatingRowColors: true
     headerVisible: false
     backgroundVisible: false
     //selectionMode: SelectionMode.SingleSelection
+    selection: ItemSelectionModel {
+        id: selectionModel
+        model: treeViewCheckout.model
+    }
     model: UPNS.RootTreeModel {
         id: rootModel
 //        Component.onCompleted: {
@@ -91,6 +97,7 @@ QCtl.TreeView {
         resizable: true
         width: treeViewCheckout.width-appStyle.controlHeightInner-visibleColumn.width-12 /*12=scrollbarwidth*/
         delegate: StyledLabel {
+            id: itemLabel
             height: appStyle.controlHeightInner
             verticalAlignment:  Text.AlignVCenter
             text: styleData.value
@@ -100,6 +107,35 @@ QCtl.TreeView {
                                 ("<b>Type:</b> " + entity.type
                            + "<br><b>Frame:</b> " + entity.frameId
                            + "<br><b>Stamp:</b> " + entity.stamp):""
+
+            property string currentClassName: "MapitEntity"
+            property var parameters: { "currentEntityPath": model.path }
+            property var myGraph
+            property bool myIsClass: true
+            property bool dragActive: dragArea.drag.active
+            property real dragStartX
+            property real dragStartY
+            onDragActiveChanged: {
+                forceActiveFocus();
+                if (dragActive) {
+                    dragStartX = x;
+                    dragStartY = y;
+                    Drag.start();
+                } else {
+                    Drag.drop();
+                    x = dragStartX;
+                    y = dragStartY;
+                }
+            }
+            Drag.source: itemLabel
+            Drag.dragType: Drag.Internal
+            MouseArea {
+                id: dragArea
+                anchors.fill: parent
+                drag.target: parent
+                onClicked: treeViewCheckout.selection.setCurrentIndex(styleData.index, ItemSelectionModel.ClearAndSelect)
+            }
+
         }
     }
 //    QCtl.TableViewColumn {
@@ -182,6 +218,7 @@ QCtl.TreeView {
 //                anchors.verticalCenter: parent !== null ? parent.verticalCenter : warningSuppressor.verticalCenter
 //                height: parent !== null ? parent.height : warningSuppressor.height
                 color: styleData.selected ? appStyle.highlightColor : appStyle.itemBackgroundColor
+
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton

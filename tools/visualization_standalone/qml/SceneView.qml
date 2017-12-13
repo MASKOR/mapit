@@ -19,6 +19,10 @@ import qt3deditorlib 1.0
 import "components"
 import "dialogs"
 
+import FileIO 1.0
+import Library 1.0
+import Clipboard 1.0
+
 Item {
     id: root
     property var currentEntitydata: globalApplicationState.currentEntitydata
@@ -222,7 +226,8 @@ Item {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_3d_rotation"
-                    tooltip: "Center Data"
+                    enabled: entityInstantiator.loadingItems == 0
+                    tooltip: "Top View"
                     onClicked: {
                         var bbCenter = entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
                         var offset = bbCenter.minus(mainCamera.position)
@@ -249,8 +254,12 @@ Item {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_filter_center_focus"
-                    tooltip: "Top View"
-                    onClicked: centerAnimation.start()
+                    enabled: entityInstantiator.loadingItems == 0
+                    tooltip: "Center Data"
+                    onClicked: {
+                        mainCamera.upVector = Qt.vector3d(0.0, 1.0, -0.0001)
+                        centerAnimation.start()
+                    }
                     Vector3dAnimation {
                         id: centerAnimation
                         from: mainCamera.viewCenter
@@ -269,6 +278,10 @@ Item {
                         mainCamera.position = Qt.vector3d( 0.0, 20.0, -40.0 )
                         mainCamera.viewCenter = Qt.vector3d( 0.0, 0.0, 0.0 )
                     }
+                }
+                StyledButton {
+                    text: "WYSIWYG"
+                    onClicked: gbcontrol.doOperations()
                 }
             }
             About {
@@ -311,7 +324,7 @@ Item {
                     }
 
                     StyledButton {
-                        z: 10
+                        z: 200
                         anchors.bottom: parent.bottom
                         anchors.left: parent.left
                         width: height
@@ -322,6 +335,19 @@ Item {
                         AxisGizmo {
                             anchors.fill: parent
                             finalTransform: mainCamera.viewMatrix.times(coordianteSystemTransform.matrix)
+                        }
+                    }
+
+                    QCtl.BusyIndicator {
+                        z: 200
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        running: entityInstantiator.loadingItems != 0
+                        StyledButton {
+                            visible: parent.running
+                            anchors.fill: parent
+                            opacity: 0.0
+                            tooltip: "Calculating bounding boxes, ..."
                         }
                     }
 
@@ -625,6 +651,7 @@ Item {
                                         function recalcBoundingBox() {
                                             boundingBoxRecalculator.start()
                                         }
+                                        property int loadingItems: 0
                                         property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
                                         property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
 
@@ -651,6 +678,10 @@ Item {
                                             currentEntitydata: UPNS.Entitydata {
                                                 checkout: currentCheckout
                                                 path: model.path
+                                                onIsLoadingChanged: if(isLoading)
+                                                                        entityInstantiator.loadingItems++
+                                                                    else
+                                                                        entityInstantiator.loadingItems--
                                             }
                                             onMinChanged: entityInstantiator.recalcBoundingBox()
                                             onMaxChanged: entityInstantiator.recalcBoundingBox()
@@ -688,13 +719,70 @@ Item {
                         }
                     }
                 }
-//                Rectangle {
-//                    Layout.fillWidth: true
-//                    Layout.minimumHeight: 20
-//                    color: "red"
-//                    implicitHeight: 10
-//                    implicitWidth: 200
-//                }
+                Item {
+                    Layout.fillWidth: true
+                    enabled: globalGraphBlocksEnabled
+                    Layout.maximumHeight: globalGraphBlocksEnabled ? 5000 : 0
+                    Layout.minimumHeight: 120
+
+                    Item {
+                        id: globalOperationScheduler
+                        property var operatorList: []
+                        function work() {
+                            operationTimer.executeOperations()
+                        }
+                    }
+                    Timer {
+                        id: operationTimer
+                        interval: 100
+                        repeat: false
+                        onTriggered: executeOperations()
+                        function executeOperations() {
+                            //if(running) return
+                            if(globalApplicationState.currentCheckout.isBusyExecuting) {
+                                operationTimer.start()
+                                return
+                            }
+                            console.log("Last Operation Status: " + globalApplicationState.currentCheckout.lastOperationStatus)
+                            if(globalOperationScheduler.operatorList.length == 0) {
+                                console.log("Done executing")
+                                return
+                            }
+                            var op = globalOperationScheduler.operatorList.shift()
+                            console.log("Starting: " + op.moduleName + ", params: " + op.parameters)
+                            globalApplicationState.currentCheckout.doOperation(op.moduleName, op.parameters)
+                            operationTimer.start()
+                        }
+                    }
+
+                    MapitBlocksLib { id: mapitLib }
+                    GraphBlocksBasicLibrary {
+                        id: basicLib
+                    }
+                    Item {
+                        id: internalLib
+                        GraphBlocksSuperBlock {
+                            controlManager: root
+                        }
+                    }
+                    GraphBlocksGraphControl {
+                        id: gbcontrol
+                        anchors.fill: parent
+                        Component.onCompleted: {
+                            importLibrary("basic", basicLib);
+                            importLibrary("internal", internalLib)
+                            importLibrary("mapit", mapitLib)
+                        }
+                        isEditingSuperblock: false
+                        sourceElement: gbcontrol
+                        manualMode: true
+                        function doOperations() {
+                            globalOperationScheduler.operatorList = []
+                            execute()
+                            globalOperationScheduler.work()
+                        }
+                    }
+                }
             }
         }
     }
