@@ -185,6 +185,8 @@ void QmlTransform::setTargetFrame(QString targetFrame)
     m_targetFrame = targetFrame;
     Q_EMIT targetFrameChanged(m_targetFrame);
     Q_EMIT updated();
+    QMatrix4x4 mat = matrix();
+    Q_EMIT matrixChanged(mat);
 }
 
 void QmlTransform::setSourceFrame(QString sourceFrame)
@@ -195,6 +197,8 @@ void QmlTransform::setSourceFrame(QString sourceFrame)
     m_sourceFrame = sourceFrame;
     Q_EMIT sourceFrameChanged(m_sourceFrame);
     Q_EMIT updated();
+    QMatrix4x4 mat = matrix();
+    Q_EMIT matrixChanged(mat);
 }
 
 void QmlTransform::setSec(int sec)

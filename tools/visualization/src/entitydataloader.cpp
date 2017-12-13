@@ -14,6 +14,28 @@
 #include <upns/layertypes/openvdblayer.h>
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
+#include <upns/layertypes/primitive.h>
+
+
+QString typeToString(mapit::msgs::Primitive::PrimitiveType type)
+{
+    switch(type) {
+    case mapit::msgs::Primitive::SPHERE: return "SPHERE";
+    case mapit::msgs::Primitive::CUBE: return "CUBE";
+    case mapit::msgs::Primitive::PLANE: return "PLANE";
+    case mapit::msgs::Primitive::CYLINDER: return "CYLINDER";
+    case mapit::msgs::Primitive::CONE: return "CONE";
+    case mapit::msgs::Primitive::CAPSULE: return "CAPSULE";
+    case mapit::msgs::Primitive::TORUS: return "TORUS";
+    case mapit::msgs::Primitive::DISC: return "DISC";
+    case mapit::msgs::Primitive::POINT: return "POINT";
+    case mapit::msgs::Primitive::ARROW: return "ARROW";
+    case mapit::msgs::Primitive::LINE: return "LINE";
+    case mapit::msgs::Primitive::TEXT: return "TEXT";
+    case mapit::msgs::Primitive::ICON: return "ICON";
+    default: return "unknown";
+    }
+}
 
 QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> entitydata)
 {
@@ -22,18 +44,25 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> 
 //#if WITH_PCL OR/AND OPENVDB
     if(strcmp(entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0 || strcmp(entitydata->type(), FloatGridEntitydata::TYPENAME()) == 0)
     {
-        std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( entitydata );
-        if(entityData != nullptr)
-        {
-            upnsPointcloud2Ptr pc2 = entityData->getData();
-            result["width"] = QJsonValue(static_cast<qint64>(pc2->width));
-            result["length"] = QJsonValue(static_cast<qint64>(pc2->width));
-        }
         std::shared_ptr<PointcloudEntitydata> entitydataPointcloud;
         std::shared_ptr<FloatGridEntitydata> entitydataOpenVDB;
         if(entitydataPointcloud = std::dynamic_pointer_cast<PointcloudEntitydata>( entitydata ))
         {
             upnsPointcloud2Ptr pc2 = entitydataPointcloud->getData();
+            result["width"] = QJsonValue(static_cast<qint64>(pc2->width));
+            result["length"] = QJsonValue(static_cast<qint64>(pc2->width));
+            float xMin, yMin, zMin, xMax, yMax, zMax;
+            entitydataPointcloud->getEntityBoundingBox(xMin, yMin, zMin, xMax, yMax, zMax);
+            QJsonObject minVec3;
+            minVec3["x"] = QJsonValue( xMin );
+            minVec3["y"] = QJsonValue( yMin );
+            minVec3["z"] = QJsonValue( zMin );
+            result["min"] = minVec3;
+            QJsonObject maxVec3;
+            maxVec3["x"] = QJsonValue( xMax );
+            maxVec3["y"] = QJsonValue( yMax );
+            maxVec3["z"] = QJsonValue( zMax );
+            result["max"] = maxVec3;
             QJsonArray returnPointfieldList;
             for(std::vector<::pcl::PCLPointField>::iterator iter(pc2->fields.begin());
                 iter != pc2->fields.end();
@@ -49,6 +78,18 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> 
         }
         else if(entitydataOpenVDB = std::dynamic_pointer_cast<FloatGridEntitydata>( entitydata ))
         {
+            float xMin, yMin, zMin, xMax, yMax, zMax;
+            entitydataOpenVDB->getEntityBoundingBox(xMin, yMin, zMin, xMax, yMax, zMax);
+            QJsonObject minVec3;
+            minVec3["x"] = QJsonValue( xMin );
+            minVec3["y"] = QJsonValue( yMin );
+            minVec3["z"] = QJsonValue( zMin );
+            result["min"] = minVec3;
+            QJsonObject maxVec3;
+            maxVec3["x"] = QJsonValue( xMax );
+            maxVec3["y"] = QJsonValue( yMax );
+            maxVec3["z"] = QJsonValue( zMax );
+            result["max"] = maxVec3;
             //For now ovdb is visualized as a pointcloud, so
             // this emulates pointcloud visualization for float grids
             QJsonArray returnPointfieldList;
@@ -139,6 +180,28 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> 
             qint64 w = static_cast<qint64>(pp->poses_size());
             result["width"] = QJsonValue(w);
             result["length"] = QJsonValue(w);
+        }
+    }
+    else if(strcmp(entitydata->type(), PrimitiveEntitydata::TYPENAME()) == 0)
+    {
+        std::shared_ptr<PrimitiveEntitydata> primitiveEntitydata = std::dynamic_pointer_cast<PrimitiveEntitydata>( entitydata );
+        if(primitiveEntitydata != nullptr)
+        {
+            PrimitivePtr prim = primitiveEntitydata->getData();
+            result["type"] = typeToString(prim->type());
+            result["text"] = QString::fromStdString(prim->text());
+            float xMin, yMin, zMin, xMax, yMax, zMax;
+            primitiveEntitydata->getEntityBoundingBox(xMin, yMin, zMin, xMax, yMax, zMax);
+            QJsonObject minVec3;
+            minVec3["x"] = QJsonValue( xMin );
+            minVec3["y"] = QJsonValue( yMin );
+            minVec3["z"] = QJsonValue( zMin );
+            result["min"] = minVec3;
+            QJsonObject maxVec3;
+            maxVec3["x"] = QJsonValue( xMax );
+            maxVec3["y"] = QJsonValue( yMax );
+            maxVec3["z"] = QJsonValue( zMax );
+            result["max"] = maxVec3;
         }
     }
     else

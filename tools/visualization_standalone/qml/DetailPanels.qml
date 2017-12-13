@@ -68,6 +68,8 @@ Item {
             property var currentEntitydata: globalApplicationState.currentEntitydata
             property bool loading: currentEntitydata.isLoading
             property bool isPointcloud: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"
+            property bool isOpenVDB: entityInfo.currentEntityType === "layertype_openvdb"
+            property bool isPrimitive: entityInfo.currentEntityType === "layertype_primitive"
             GridLayout {
                 Layout.fillWidth: true
                 columns: 2
@@ -93,6 +95,25 @@ Item {
                     text: entityInfo.currentEntityStamp
                 }
                 StyledLabel {
+                    visible: entityInfo.isPrimitive
+                    text: "Type:"
+                    font.weight: Font.Bold
+                }
+                StyledLabel {
+                    visible: entityInfo.isPrimitive && !entityInfo.loading
+                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["type"] : ""
+                }
+                StyledLabel {
+                    visible: entityInfo.isPrimitive
+                    text: "Text:"
+                    font.weight: Font.Bold
+                }
+                StyledLabel {
+                    visible: entityInfo.isPrimitive && !entityInfo.loading
+                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["text"] : ""
+                }
+                StyledLabel {
+                    visible: entityInfo.isPointcloud
                     text: "Fields:"
                     font.weight: Font.Bold
                 }
@@ -116,24 +137,24 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud && !entityInfo.loading
-                    text: entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["width"] : ""
+                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["width"] : ""
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud
+                    visible: entityInfo.isPointcloud || entityInfo.isOpenVDB || entityInfo.isPrimitive
                     text: "Min:"
                     font.weight: Font.Bold
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud && !entityInfo.loading
+                    visible: (entityInfo.isPointcloud || entityInfo.isOpenVDB || entityInfo.isPrimitive) && !entityInfo.loading
                     text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["min"] : Qt.vector3d(0,0,0))
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud
+                    visible: entityInfo.isPointcloud || entityInfo.isOpenVDB || entityInfo.isPrimitive
                     text: "Max:"
                     font.weight: Font.Bold
                 }
                 StyledLabel {
-                    visible: entityInfo.isPointcloud && !entityInfo.loading
+                    visible: (entityInfo.isPointcloud || entityInfo.isOpenVDB || entityInfo.isPrimitive) && !entityInfo.loading
                     text: formatVec3(entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["max"] : Qt.vector3d(0,0,0))
                 }
             }

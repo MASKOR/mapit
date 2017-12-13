@@ -6,6 +6,7 @@
 #include <pcl/compression/octree_pointcloud_compression.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/common/common.h> // for bb
 
 const char *PointcloudEntitydata::TYPENAME()
 {
@@ -106,7 +107,17 @@ void PointcloudEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
 int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-    //TODO
+    pcl::PointXYZ min;
+    pcl::PointXYZ max;
+    pcl::PointCloud<pcl::PointXYZ> pxyz;
+    pcl::fromPCLPointCloud2<pcl::PointXYZ>(*m_pointcloud, pxyz);
+    pcl::getMinMax3D(pxyz, min, max);
+    x1 = min.x;
+    y1 = min.y;
+    z1 = min.z;
+    x2 = max.x;
+    y2 = max.y;
+    z2 = max.z;
     return 0;
 }
 

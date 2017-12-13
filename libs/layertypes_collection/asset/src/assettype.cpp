@@ -103,7 +103,7 @@ int AssetEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
     //TODO
-    return 0;
+    return 1;
 }
 
 upnsIStream *AssetEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)

@@ -172,8 +172,7 @@ void TfEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
 int TfEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                        upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-    //TODO
-    return 0;
+    return 1;
 }
 
 upnsIStream *TfEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)

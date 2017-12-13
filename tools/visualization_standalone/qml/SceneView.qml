@@ -219,389 +219,482 @@ Item {
                     tooltip: "About"
                     onClicked: about.open()
                 }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://material/ic_3d_rotation"
+                    tooltip: "Center Data"
+                    onClicked: {
+                        var bbCenter = entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
+                        var offset = bbCenter.minus(mainCamera.position)
+                        var direction = offset.normalized().times(0.01)
+                        mainCamera.upVector = Qt.vector3d(0.0, 1.0, -0.001).plus(direction)
+                        centerAnimation.start()
+                        camPosAnimation.start()
+                    }
+                    Vector3dAnimation {
+                        property real bbEdgeX: entityInstantiator.boundingboxMax.x - entityInstantiator.boundingboxMin.x
+                        property real bbEdgeY: entityInstantiator.boundingboxMax.y - entityInstantiator.boundingboxMin.y
+                        property real bbEdgeZ: entityInstantiator.boundingboxMax.z - entityInstantiator.boundingboxMin.z
+                        property real bbEdgeMax: Math.max(bbEdgeX, Math.max(bbEdgeY, bbEdgeZ))
+                        id: camPosAnimation
+                        from: mainCamera.position
+                        to: entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
+                            .plus(Qt.vector3d(0.0, Math.max(10.0, bbEdgeMax / (2 * Math.tan(mainCamera.fieldOfView * 0.5))), 0.0))
+                        target: mainCamera
+                        property: "position"
+                        duration: 1000
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://material/ic_filter_center_focus"
+                    tooltip: "Top View"
+                    onClicked: centerAnimation.start()
+                    Vector3dAnimation {
+                        id: centerAnimation
+                        from: mainCamera.viewCenter
+                        to: entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
+                        target: mainCamera
+                        property: "viewCenter"
+                        duration: 1000
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+                StyledButton {
+                    isIcon: true
+                    iconSource: "image://material/ic_replay"
+                    tooltip: "Reset Camera"
+                    onClicked: {
+                        mainCamera.position = Qt.vector3d( 0.0, 20.0, -40.0 )
+                        mainCamera.viewCenter = Qt.vector3d( 0.0, 0.0, 0.0 )
+                    }
+                }
             }
             About {
                 id: about
             }
         }
 
-        Item {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            z: 0
-            MouseArea {
-                anchors.fill: parent
-                id: sceneMouseArea
-                z: 100
-
-                hoverEnabled: true
-                preventStealing: true
-
-                onEntered: priv.mouseOver = true
-                onExited: priv.mouseOver = false
-                onWheel: {
-                    cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
-                }
-                acceptedButtons: Qt.LeftButton
-                onClicked: {
-                    appStyle.emitClickedAction()
-                    appStyle.tmpFollowMouse = false
-                }
-
+        ColumnLayout {
+            StyledSplitView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                orientation: Qt.Vertical
                 Item {
-                    id: priv
-                    property bool mouseOver: true
-                }
-            }
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    z: 0
+                    MouseArea {
+                        anchors.fill: parent
+                        id: sceneMouseArea
+                        z: 100
 
-            StyledButton {
-                z: 10
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                width: height
-                checkable: true
-                checked: appStyle.showGizmoAlways
-                clip: true
-                onCheckedChanged: appStyle.showGizmoAlways = checked
-                AxisGizmo {
-                    anchors.fill: parent
-                    finalTransform: mainCamera.viewMatrix.times(coordianteSystemTransform.matrix)
-                }
-            }
+                        hoverEnabled: true
+                        preventStealing: true
 
-            UPNS.Raycast {
-                id: mouseRaycast
-                viewMatrix: camera.viewMatrix
-                projectionMatrix: camera.projectionMatrix
-                viewportSize: Qt.size(scene3d.width, scene3d.height)
-                pointOnPlane: camera.viewCenter
-                planeNormal: camera.viewVector
-                screenPosition: Qt.vector2d(sceneMouseArea.mouseX, sceneMouseArea.mouseY)
-            }
+                        onEntered: priv.mouseOver = true
+                        onExited: priv.mouseOver = false
+                        onWheel: {
+                            cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
+                        }
+                        acceptedButtons: Qt.LeftButton
+                        onClicked: {
+                            appStyle.emitClickedAction()
+                            appStyle.tmpFollowMouse = false
+                        }
 
-            Q3D.Transform {
-                id: previewTransform
-                translation: coordianteSystemTransform.matrix.inverted().times(mouseRaycast.worldPosition)
-                onMatrixChanged: {
-                    if(appStyle.tmpFollowMouse) {
-                        appStyle.tmpPreviewMatrix = matrix
-                    }
-                }
-            }
-
-            Scene3D {
-                //hoverEnabled: true
-                anchors.fill: parent
-                id: scene3d
-                aspects: ["render", "logic", "input"]
-                //focus: priv.mouseOver
-                z: 9
-                Q3D.Entity {
-                    id: sceneRoot
-                    Camera {
-                        id: mainCamera
-                        projectionType: CameraLens.PerspectiveProjection
-                        fieldOfView: 45
-                        aspectRatio: scene3d.width/scene3d.height
-                        nearPlane : 0.1*appStyle.cameraScale
-                        farPlane : 1000.0*appStyle.cameraScale
-                        position: Qt.vector3d( 0.0, 20.0, -40.0 )
-                        upVector: Qt.vector3d( 0.0, 1.0, 0.0 )
-                        viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
-                        onViewCenterChanged: gizmoHideTimer.start()
-                        Timer {
-                            id: gizmoHideTimer
-                            interval: 2000
-                            onRunningChanged: gizmoEntity.isVisible = running
+                        Item {
+                            id: priv
+                            property bool mouseOver: true
                         }
                     }
-                    EditorCameraController {
-                        id: cameraController
-                        camera: sceneView.camera
+
+                    StyledButton {
+                        z: 10
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        width: height
+                        checkable: true
+                        checked: appStyle.showGizmoAlways
+                        clip: true
+                        onCheckedChanged: appStyle.showGizmoAlways = checked
+                        AxisGizmo {
+                            anchors.fill: parent
+                            finalTransform: mainCamera.viewMatrix.times(coordianteSystemTransform.matrix)
+                        }
+                    }
+
+                    UPNS.Raycast {
+                        id: mouseRaycast
+                        viewMatrix: camera.viewMatrix
+                        projectionMatrix: camera.projectionMatrix
                         viewportSize: Qt.size(scene3d.width, scene3d.height)
+                        pointOnPlane: camera.viewCenter
+                        planeNormal: camera.viewVector
+                        screenPosition: Qt.vector2d(sceneMouseArea.mouseX, sceneMouseArea.mouseY)
                     }
-                    components: [
-                        RenderSettings {
-                            activeFrameGraph: Viewport {
-                                id: viewport
-                                normalizedRect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
-                                RenderSurfaceSelector {
-                                    CameraSelector {
-                                        id : cameraSelector
-                                        camera: mainCamera
-                                        FrustumCulling {
-                                            ClearBuffers {
-                                                buffers : ClearBuffers.ColorDepthBuffer
-                                                clearColor: appStyle.background3d
-                                                NoDraw {}
-                                            }
-                                            LayerFilter {
-                                                Layer {
-                                                    id: noGridLayer
-                                                }
-                                                Layer {
-                                                    id: gridLayer
-                                                }
-                                                layers: appStyle.showGrid ? gridLayer : noGridLayer
-                                            }
-                                            LayerFilter {
-                                                layers: Layer {
-                                                    id: invisibleLayer
-                                                }
-                                                NoDraw {}
-                                            }
-                                            LayerFilter {
-                                                layers: Layer {
-                                                    id: solidLayer
-                                                }
-                                            }
-                                            LayerFilter {
-                                                layers: Layer {
-                                                    id: pointLayer
-                                                }
-                                                TechniqueFilter {
-                                                    id: techniqueFilter
-                                                    function fieldnameToShaderindex(text) {
-                                                        if(text === "x") return 0;
-                                                        if(text === "y") return 1;
-                                                        if(text === "z") return 2;
-                                                        if(text === "normal_x") return 3;
-                                                        if(text === "normal_y") return 4;
-                                                        if(text === "normal_z") return 5;
-                                                        if(text === "curvature") return 6;
-                                                        if(text === "rgb") return 7;
-                                                        if(text === "intensity") return 8;
-                                                    }
 
-                                                    matchAll: [
-                                                        FilterKey { name: "primitiveType"; value: "point" },
-                                                        FilterKey { name: "renderstyle";   value: renderstyleSelect.currentText }
-                                                    ]
-                                                    parameters: [
-                                                        Parameter { name: "colorize"; value: techniqueFilter.fieldnameToShaderindex(colorizeSelect.currentText) },
-                                                        Parameter { name: "colorMode"; value: colorModeSelect.currentIndex },
-                                                        Parameter { name: "pointSize"; value: pointSizeSlider.value },
-                                                        Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
-                                                        Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
-                                                        Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
-                                                        Parameter { name: "farPlane"; value: mainCamera.farPlane },
-                                                        Parameter { name: "width"; value: scene3d.width },
-                                                        Parameter { name: "height"; value: scene3d.height },
-                                                        Parameter { name: "lod"; value: appStyle.pointcloudLod },
-                                                        Parameter { name: "colorscale"; value: colorscaleSlider.value },
-                                                        Parameter { name: "constantSize"; value: constantSizeCheckbox.checked },
-                                                        Parameter { name: "yPointsUp"; value: appStyle.coordinateSystemYPointsUp }
-                                                    ]
-                                                    RenderStateSet {
-                                                        renderStates: [
-                                                            //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
-                                                            PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
-                                                            DepthTest { depthFunction: DepthTest.Less }
-                                                            //DepthMask { mask: true }
-                                                        ]
-                                                    }
-                                                }
-                                            }
-                                            LayerFilter {
-                                                Layer {
-                                                    id: gizmoLayer
-                                                }
-                                                layers: gizmoLayer
-                                            }
-                                        }
-                                    }
+                    Q3D.Transform {
+                        id: previewTransform
+                        translation: coordianteSystemTransform.matrix.inverted().times(mouseRaycast.worldPosition)
+                        onMatrixChanged: {
+                            if(appStyle.tmpFollowMouse) {
+                                appStyle.tmpPreviewMatrix = matrix
+                            }
+                        }
+                    }
+                    Scene3D {
+                        anchors.fill: parent
+                        //hoverEnabled: true
+                        id: scene3d
+                        aspects: ["render", "logic", "input"]
+                        //focus: priv.mouseOver
+                        z: 9
+                        Q3D.Entity {
+                            id: sceneRoot
+                            Camera {
+                                id: mainCamera
+                                projectionType: CameraLens.PerspectiveProjection
+                                fieldOfView: 45
+                                aspectRatio: scene3d.width/scene3d.height
+                                nearPlane : 0.1*appStyle.cameraScale
+                                farPlane : 1000.0*appStyle.cameraScale
+                                position: Qt.vector3d( 0.0, 20.0, -40.0 )
+                                upVector: Qt.vector3d( 0.0, 1.0, 0.0 ) // small offset to make top view easily possible
+                                viewCenter: Qt.vector3d( 0.0, 0.0, 0.0 )
+                                onViewCenterChanged: gizmoHideTimer.start()
+                                Timer {
+                                    id: gizmoHideTimer
+                                    interval: 2000
+                                    onRunningChanged: gizmoEntity.isVisible = running
                                 }
                             }
-                        },
-                        // Event Source will be set by the Qt3DQuickWindow
-                        InputSettings {
-                            objectName: "inputSettings"
-                            eventSource: scene3d
-                            enabled: true
-
-                        }
-                    ]
-
-                    Q3D.Entity {
-                        id: worldEntity
-                        components: [
-                            Q3D.Transform {
-                                id: worldTransform
-                                scale: appStyle.cameraScale
-                            }]
-                        Q3D.Entity {
-                            id: gridEntity
-                            Q3D.Transform {
-                                id: gridTransform
-                                translation: Qt.vector3d(0, 0, 0)
+                            EditorCameraController {
+                                id: cameraController
+                                camera: sceneView.camera
+                                viewportSize: Qt.size(scene3d.width, scene3d.height)
                             }
-                            HelperGridMesh {
-                                id: gridMesh
-                                gridSpacing: appStyle.gridSpacing
-                                lines: appStyle.gridLines
-                            }
-
-                            property Material materialPhong: PhongMaterial {
-                                ambient: Qt.rgba(0.0,0.0,0.0,1.0)
-                            }
-                            components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
-                        }
-
-                        Q3D.Entity {
-                            id: gizmoEntity
-
-                            property var meshTransform: Q3D.Transform {
-                                id: viewCenterTransform
-                                translation: mainCamera.viewCenter
-                                rotation: coordianteSystemTransform.rotation
-                            }
-                            PerVertexColorMaterial {
-                                id: perVertexColorMaterial
-                            }
-                            GeometryRenderer {
-                                id: gizmoRenderer
-
-                                function rebuild() {
-                                    buffer.data = buffer.buildGrid()
-                                }
-                                instanceCount: 1
-                                indexOffset: 0
-                                firstInstance: 0
-                                vertexCount: 6
-                                primitiveType: GeometryRenderer.Lines
-                                geometry: Geometry {
-                                    Attribute {
-                                        id: positionAttribute
-                                        attributeType: Attribute.VertexAttribute
-                                        vertexBaseType: Attribute.Float
-                                        vertexSize: 3
-                                        byteOffset: 0
-                                        byteStride: 6 * 4
-                                        count: 6
-                                        name: "vertexPosition"//defaultPositionAttributeName()
-                                        buffer: Buffer {
-                                            id: bufferPosColor
-                                            type: Buffer.VertexBuffer
-                                            function buildGrid() {
-                                                var vertices = 6;
-                                                var vertexFloats = 6;
-                                                var vertexArray = new Float32Array(vertexFloats * vertices);
-                                                vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
-                                                vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
-                                                vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
-                                                vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
-
-                                                vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
-                                                vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
-                                                vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
-                                                vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
-
-                                                vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
-                                                vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
-                                                vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
-                                                vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
-                                                return vertexArray
-                                            }
-                                            data: buildGrid()
-                                        }
-                                    }
-                                    Attribute {
-                                        id: colorAttribute
-                                        attributeType: Attribute.VertexAttribute
-                                        vertexBaseType: Attribute.Float
-                                        vertexSize: 3
-                                        byteOffset: 3 * 4
-                                        byteStride: 6 * 4
-                                        count: 6
-                                        name: "vertexColor"//defaultColorAttributeName()
-                                        buffer: bufferPosColor
-                                    }
-                                }
-                            }
-                            property bool isVisible
-                            property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
-                            components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
-                        }
-
-                        Q3D.Entity {
-                            id: objectsRoot
-                            property alias objectsRootTransform: coordianteSystemTransform
                             components: [
-                                Q3D.Transform {
-                                    id: coordianteSystemTransform
-                                    rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
-                                }]
+                                RenderSettings {
+                                    activeFrameGraph: Viewport {
+                                        id: viewport
+                                        normalizedRect: Qt.rect(0.0, 0.0, 1.0, 1.0) // From Top Left
+                                        RenderSurfaceSelector {
+                                            CameraSelector {
+                                                id : cameraSelector
+                                                camera: mainCamera
+                                                FrustumCulling {
+                                                    ClearBuffers {
+                                                        buffers : ClearBuffers.ColorDepthBuffer
+                                                        clearColor: appStyle.background3d
+                                                        NoDraw {}
+                                                    }
+                                                    LayerFilter {
+                                                        Layer {
+                                                            id: noGridLayer
+                                                        }
+                                                        Layer {
+                                                            id: gridLayer
+                                                        }
+                                                        layers: appStyle.showGrid ? gridLayer : noGridLayer
+                                                    }
+                                                    LayerFilter {
+                                                        layers: Layer {
+                                                            id: invisibleLayer
+                                                        }
+                                                        NoDraw {}
+                                                    }
+                                                    LayerFilter {
+                                                        layers: Layer {
+                                                            id: solidLayer
+                                                        }
+                                                    }
+                                                    LayerFilter {
+                                                        layers: Layer {
+                                                            id: pointLayer
+                                                        }
+                                                        TechniqueFilter {
+                                                            id: techniqueFilter
+                                                            function fieldnameToShaderindex(text) {
+                                                                if(text === "x") return 0;
+                                                                if(text === "y") return 1;
+                                                                if(text === "z") return 2;
+                                                                if(text === "normal_x") return 3;
+                                                                if(text === "normal_y") return 4;
+                                                                if(text === "normal_z") return 5;
+                                                                if(text === "curvature") return 6;
+                                                                if(text === "rgb") return 7;
+                                                                if(text === "intensity") return 8;
+                                                            }
 
-                            HandleTranslate {
-                                id: manipulationGizmo
-                                layer: gizmoLayer
-                                property var gizmoTransform: Q3D.Transform {
-                                    translation: Qt.vector3d(2.0,2.0,2.0)
+                                                            matchAll: [
+                                                                FilterKey { name: "primitiveType"; value: "point" },
+                                                                FilterKey { name: "renderstyle";   value: renderstyleSelect.currentText }
+                                                            ]
+                                                            parameters: [
+                                                                Parameter { name: "colorize"; value: techniqueFilter.fieldnameToShaderindex(colorizeSelect.currentText) },
+                                                                Parameter { name: "colorMode"; value: colorModeSelect.currentIndex },
+                                                                Parameter { name: "pointSize"; value: pointSizeSlider.value },
+                                                                Parameter { name: "fieldOfView"; value: mainCamera.fieldOfView },
+                                                                Parameter { name: "fieldOfViewVertical"; value: mainCamera.fieldOfView/mainCamera.aspectRatio },
+                                                                Parameter { name: "nearPlane"; value: mainCamera.nearPlane },
+                                                                Parameter { name: "farPlane"; value: mainCamera.farPlane },
+                                                                Parameter { name: "width"; value: scene3d.width },
+                                                                Parameter { name: "height"; value: scene3d.height },
+                                                                Parameter { name: "lod"; value: appStyle.pointcloudLod },
+                                                                Parameter { name: "colorscale"; value: colorscaleSlider.value },
+                                                                Parameter { name: "constantSize"; value: constantSizeCheckbox.checked },
+                                                                Parameter { name: "yPointsUp"; value: appStyle.coordinateSystemYPointsUp }
+                                                            ]
+                                                            RenderStateSet {
+                                                                renderStates: [
+                                                                    //PointSize { sizeMode: PointSize.Fixed; value: 5.0 }, // exception when closing application in qt 5.7
+                                                                    PointSize { sizeMode: PointSize.Programmable }, //supported since OpenGL 3.2
+                                                                    DepthTest { depthFunction: DepthTest.Less }
+                                                                    //DepthMask { mask: true }
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                    LayerFilter {
+                                                        Layer {
+                                                            id: gizmoLayer
+                                                        }
+                                                        layers: gizmoLayer
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                // Event Source will be set by the Qt3DQuickWindow
+                                InputSettings {
+                                    objectName: "inputSettings"
+                                    eventSource: scene3d
+                                    enabled: true
+
                                 }
-                                components: [ gizmoTransform, gizmoLayer ]
-                            }
+                            ]
 
-                            UPNS.PointcloudCoordinatesystem {
-                                id: coordSys
-                            }
-                            Q3D.NodeInstantiator {
-                                id: entityInstantiator
-                                model: root.visibleEntityItems
-                                delegate: MapitEntity {
-                                    mainCameratmp: mainCamera
-                                    scene3dtmp: scene3d
-                                    coordinateSystem: coordSys
-                                    currentFrameId: root.currentFrameId
-                                    //transformMat: root.currentEntitydataTransform ? root.currentEntitydataTransform.matrix : Qt.matrix4x4(1, 0, 0, 0,
-                                    //                                                                                                      0, 1, 0, 0,
-                                    //                                                                                                      0, 0, 1, 0,
-                                    //                                                                                                      0, 0, 0, 1)
-                                    layer: pointLayer
-                                    parametersTmp: techniqueFilter.parameters
-                                    //Currently only one checkout is supported
-                                    currentCheckout: globalApplicationState.currentCheckout
-//                                    currentCheckout: UPNS.Checkout {
-//                                        id: co
-//                                        repository: globalRepository
-//                                        name: model.checkoutName
-//                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
-//                                    }
-                                    currentEntitydata: UPNS.Entitydata {
-                                        checkout: currentCheckout
-                                        path: model.path
+                            Q3D.Entity {
+                                id: worldEntity
+                                components: [
+                                    Q3D.Transform {
+                                        id: worldTransform
+                                        scale: appStyle.cameraScale
+                                    }]
+                                Q3D.Entity {
+                                    id: gridEntity
+                                    Q3D.Transform {
+                                        id: gridTransform
+                                        translation: Qt.vector3d(0, 0, 0)
+                                    }
+                                    HelperGridMesh {
+                                        id: gridMesh
+                                        gridSpacing: appStyle.gridSpacing
+                                        lines: appStyle.gridLines
+                                    }
+
+                                    property Material materialPhong: PhongMaterial {
+                                        ambient: Qt.rgba(0.0,0.0,0.0,1.0)
+                                    }
+                                    components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
+                                }
+
+                                Q3D.Entity {
+                                    id: gizmoEntity
+
+                                    property var meshTransform: Q3D.Transform {
+                                        id: viewCenterTransform
+                                        translation: mainCamera.viewCenter
+                                        rotation: coordianteSystemTransform.rotation
+                                    }
+                                    PerVertexColorMaterial {
+                                        id: perVertexColorMaterial
+                                    }
+                                    GeometryRenderer {
+                                        id: gizmoRenderer
+
+                                        function rebuild() {
+                                            buffer.data = buffer.buildGrid()
+                                        }
+                                        instanceCount: 1
+                                        indexOffset: 0
+                                        firstInstance: 0
+                                        vertexCount: 6
+                                        primitiveType: GeometryRenderer.Lines
+                                        geometry: Geometry {
+                                            Attribute {
+                                                id: positionAttribute
+                                                attributeType: Attribute.VertexAttribute
+                                                vertexBaseType: Attribute.Float
+                                                vertexSize: 3
+                                                byteOffset: 0
+                                                byteStride: 6 * 4
+                                                count: 6
+                                                name: "vertexPosition"//defaultPositionAttributeName()
+                                                buffer: Buffer {
+                                                    id: bufferPosColor
+                                                    type: Buffer.VertexBuffer
+                                                    function buildGrid() {
+                                                        var vertices = 6;
+                                                        var vertexFloats = 6;
+                                                        var vertexArray = new Float32Array(vertexFloats * vertices);
+                                                        vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
+                                                        vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
+                                                        vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
+                                                        vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
+
+                                                        vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
+                                                        vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
+                                                        vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
+                                                        vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
+
+                                                        vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
+                                                        vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
+                                                        vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
+                                                        vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
+                                                        return vertexArray
+                                                    }
+                                                    data: buildGrid()
+                                                }
+                                            }
+                                            Attribute {
+                                                id: colorAttribute
+                                                attributeType: Attribute.VertexAttribute
+                                                vertexBaseType: Attribute.Float
+                                                vertexSize: 3
+                                                byteOffset: 3 * 4
+                                                byteStride: 6 * 4
+                                                count: 6
+                                                name: "vertexColor"//defaultColorAttributeName()
+                                                buffer: bufferPosColor
+                                            }
+                                        }
+                                    }
+                                    property bool isVisible
+                                    property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
+                                    components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
+                                }
+
+                                Q3D.Entity {
+                                    id: objectsRoot
+                                    property alias objectsRootTransform: coordianteSystemTransform
+                                    components: [
+                                        Q3D.Transform {
+                                            id: coordianteSystemTransform
+                                            rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
+                                        }]
+
+                                    HandleTranslate {
+                                        id: manipulationGizmo
+                                        layer: gizmoLayer
+                                        property var gizmoTransform: Q3D.Transform {
+                                            translation: Qt.vector3d(2.0,2.0,2.0)
+                                        }
+                                        components: [ gizmoTransform, gizmoLayer ]
+                                    }
+
+                                    UPNS.PointcloudCoordinatesystem {
+                                        id: coordSys
+                                    }
+                                    Timer {
+                                        id: boundingBoxRecalculator
+                                        interval: 1
+                                        repeat: false
+                                        onTriggered: {
+                                            var minx= Infinity, miny= Infinity, minz= Infinity
+                                              , maxx=-Infinity, maxy=-Infinity, maxz=-Infinity
+                                            for(var i=0; i<entityInstantiator.count; i++) {
+                                                var item = entityInstantiator.objectAt(i)
+                                                if(minx > item.min.x) minx = item.min.x
+                                                if(miny > item.min.y) miny = item.min.y
+                                                if(minz > item.min.z) minz = item.min.z
+                                                if(maxx < item.max.x) maxx = item.max.x
+                                                if(maxy < item.max.y) maxy = item.max.y
+                                                if(maxz < item.max.z) maxz = item.max.z
+                                            }
+                                            entityInstantiator.boundingboxMin = Qt.vector3d(minx, miny, minz)
+                                            entityInstantiator.boundingboxMax = Qt.vector3d(maxx, maxy, maxz)
+                                        }
+                                    }
+
+                                    Q3D.NodeInstantiator {
+                                        id: entityInstantiator
+                                        function recalcBoundingBox() {
+                                            boundingBoxRecalculator.start()
+                                        }
+                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
+                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
+
+                                        onModelChanged: recalcBoundingBox()
+                                        onObjectAdded: recalcBoundingBox()
+                                        onObjectRemoved: recalcBoundingBox()
+                                        model: root.visibleEntityItems
+                                        delegate: MapitEntity {
+                                            mainCameratmp: mainCamera
+                                            scene3dtmp: scene3d
+                                            coordinateSystem: coordSys
+                                            currentFrameId: root.currentFrameId
+
+                                            layer: pointLayer
+                                            parametersTmp: techniqueFilter.parameters
+                                            //Currently only one checkout is supported
+                                            currentCheckout: globalApplicationState.currentCheckout
+        //                                    currentCheckout: UPNS.Checkout {
+        //                                        id: co
+        //                                        repository: globalRepository
+        //                                        name: model.checkoutName
+        //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
+        //                                    }
+                                            currentEntitydata: UPNS.Entitydata {
+                                                checkout: currentCheckout
+                                                path: model.path
+                                            }
+                                            onMinChanged: entityInstantiator.recalcBoundingBox()
+                                            onMaxChanged: entityInstantiator.recalcBoundingBox()
+                                        }
+                                    }
+                                    Q3D.Entity {
+                                        id: annotationPreviewEntity
+                                        property ObjectPicker picker: ObjectPicker {
+                                            onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
+                                        }
+
+                                        property var meshTransform: Q3D.Transform {
+                                            matrix: appStyle.tmpPreviewMatrix
+                                        }
+                                        property var sphereMesh: SphereMesh { }
+                                        property var planeMesh: PlaneMesh { }
+                                        property var cylinderMesh: CylinderMesh { }
+                                        property var coneMesh: ConeMesh { }
+                                        property var torusMesh: TorusMesh { minorRadius: 0.3 }
+                                        property var cubeMesh: CuboidMesh { }
+                                        property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
+                                                                 : appStyle.tmpPrimitiveType === "plane" ? planeMesh
+                                                                 : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
+                                                                 : appStyle.tmpPrimitiveType === "cone" ? coneMesh
+                                                                 : appStyle.tmpPrimitiveType === "torus" ? torusMesh
+                                                                 : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
+                                                                 : sphereMesh
+
+                                        property var materialPhong: PhongMaterial { }
+                                        property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
+                                        components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
                                     }
                                 }
-                            }
-                            Q3D.Entity {
-                                id: annotationPreviewEntity
-                                property ObjectPicker picker: ObjectPicker {
-                                    onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
-                                }
-
-                                property var meshTransform: Q3D.Transform {
-                                    matrix: appStyle.tmpPreviewMatrix
-                                }
-                                property var sphereMesh: SphereMesh { }
-                                property var planeMesh: PlaneMesh { }
-                                property var cylinderMesh: CylinderMesh { }
-                                property var coneMesh: ConeMesh { }
-                                property var torusMesh: TorusMesh { minorRadius: 0.3 }
-                                property var cubeMesh: CuboidMesh { }
-                                property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
-                                                         : appStyle.tmpPrimitiveType === "plane" ? planeMesh
-                                                         : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
-                                                         : appStyle.tmpPrimitiveType === "cone" ? coneMesh
-                                                         : appStyle.tmpPrimitiveType === "torus" ? torusMesh
-                                                         : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
-                                                         : sphereMesh
-
-                                property var materialPhong: PhongMaterial { }
-                                property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
-                                components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
                             }
                         }
                     }
                 }
+//                Rectangle {
+//                    Layout.fillWidth: true
+//                    Layout.minimumHeight: 20
+//                    color: "red"
+//                    implicitHeight: 10
+//                    implicitWidth: 200
+//                }
             }
         }
     }

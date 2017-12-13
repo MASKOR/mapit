@@ -103,8 +103,8 @@ void PosePathEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
 int PosePathEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-    //TODO
-    return 0;
+    // TODO
+    return 1;
 }
 
 upnsIStream *PosePathEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)

@@ -7,6 +7,7 @@ import QtQml 2.2
 import fhac.upns 1.0 as UPNS
 
 Q3D.Entity {
+    id: pointcloud
     //property alias transformMat: theMeshTransform.matrix
     property alias currentEntitydata : edrender.entitydata
     //property var currentEntitydata
@@ -18,7 +19,23 @@ Q3D.Entity {
     property alias parametersTmp: surfelTechnique.parameters
     property alias coordinateSystem: edrender.coordinateSystem
     property string currentFrameId
-    id: pointcloud
+
+    property vector3d min: Qt.vector3d(priv.min.x, priv.min.y, priv.min.z)
+    property vector3d max: Qt.vector3d(priv.max.x, priv.max.y, priv.max.z)
+    QtObject {
+        id: priv
+        property bool evalBBox: (pointcloud.currentEntitydata && pointcloud.currentEntitydata.info["min"]) ? true : false
+        property bool withTransform: pointcloud.currentTransform.exists ? true : false
+        property vector4d minUntf: evalBBox ? Qt.vector4d(pointcloud.currentEntitydata.info["min"].x,
+                                                          pointcloud.currentEntitydata.info["min"].y,
+                                                          pointcloud.currentEntitydata.info["min"].z, 1.0) : Qt.vector4d(0.0, 0.0, 0.0, 0.0)
+        property vector4d maxUntf: evalBBox ? Qt.vector4d(pointcloud.currentEntitydata.info["max"].x,
+                                                          pointcloud.currentEntitydata.info["max"].y,
+                                                          pointcloud.currentEntitydata.info["max"].z, 1.0) : Qt.vector4d(0.0, 0.0, 0.0, 0.0)
+        property vector4d min: withTransform ? pointcloud.currentTransform.matrix.times(minUntf) : minUntf
+        property vector4d max: withTransform ? pointcloud.currentTransform.matrix.times(maxUntf) : maxUntf
+    }
+
 
     UPNS.TfTransform {
         id: currentEntitydataTransform
@@ -26,6 +43,7 @@ Q3D.Entity {
         targetFrame: pointcloud.currentFrameId
         sourceFrame:  pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).frameId
         mustExist: false
+
     }
     property ObjectPicker picker: ObjectPicker {
         hoverEnabled: true

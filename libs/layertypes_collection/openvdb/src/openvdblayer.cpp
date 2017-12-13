@@ -126,7 +126,13 @@ void FloatGridEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
 int FloatGridEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-    //TODO
+    openvdb::CoordBBox bbox = getData()->evalActiveVoxelBoundingBox();
+    x1 = bbox.min().x();
+    y1 = bbox.min().y();
+    z1 = bbox.min().z();
+    x2 = bbox.max().x();
+    y2 = bbox.max().y();
+    z2 = bbox.max().z();
     return 0;
 }
 
