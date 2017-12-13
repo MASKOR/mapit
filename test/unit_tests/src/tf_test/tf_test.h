@@ -26,7 +26,7 @@ private slots:
 
     void test_layertype_to_buffer();
 private:
-    char* fileSystemName_;
+    std::string fileSystemName_;
     std::shared_ptr<upns::Repository> repo_;
     std::shared_ptr<upns::Checkout> checkout_;
 

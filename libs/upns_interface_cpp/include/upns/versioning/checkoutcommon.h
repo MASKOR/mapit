@@ -185,11 +185,11 @@ public:
     }
 
     /**
-     * @brief getEntityDataReadOnly gets the data assosiated with the entity
+     * @brief getEntitydataReadOnly gets the data assosiated with the entity
      * @param entity
      * @return
      */
-    std::shared_ptr<upns::AbstractEntitydata> getEntityDataReadOnly(std::shared_ptr<mapit::Entity> entity)
+    std::shared_ptr<upns::AbstractEntitydata> getEntitydataReadOnly(std::shared_ptr<mapit::Entity> entity)
     {
         return getEntitydataReadOnly(entity->getDataPath());
     }

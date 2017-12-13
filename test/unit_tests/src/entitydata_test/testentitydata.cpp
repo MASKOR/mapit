@@ -71,7 +71,7 @@ void TestEntitydata::testCreateLayer()
 //    assert(layer->id() != -1);
 //    assert(entity->id() != 0);
 //    assert(entity->id() != -1);
-//    upnsSharedPointer<AbstractEntityData> abstractData = m_mapService->getEntityData( map->id(), layer->id(), entity->id() );
+//    upnsSharedPointer<AbstractEntityData> abstractData = m_mapService->getEntitydata( map->id(), layer->id(), entity->id() );
 //    QCOMPARE(abstractData->layerType(), LayerType::POINTCLOUD2);
 //    upnsSharedPointer<PointcloudEntitydata> pointclouddata;
 //    pointclouddata = upns::static_pointer_cast<PointcloudEntitydata>(abstractData);
@@ -83,7 +83,7 @@ void TestEntitydata::testCreateLayer()
 //    pcl::toPCLPointCloud2<pcl::PointXYZ>(cloud, *pclpc2);
 //    pointclouddata->setData(pclpc2);
 
-//    upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapService->getEntityData( map->id(), layer->id(), entity->id() );
+//    upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapService->getEntitydata( map->id(), layer->id(), entity->id() );
 //    QCOMPARE(abstractData2->layerType(), LayerType::POINTCLOUD2);
 //    upnsSharedPointer<PointcloudEntitydata> pointclouddata2;
 //    pointclouddata2 = upns::static_pointer_cast<PointcloudEntitydata>(abstractData2);

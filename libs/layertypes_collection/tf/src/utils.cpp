@@ -14,7 +14,7 @@ TransformStampedList::TransformStampedList(std::string frame_id, std::string chi
   , child_frame_id_(child_frame_id)
   , is_static_(is_static)
 {
-  transforms_ = std::move( std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>>( new std::list<std::unique_ptr<upns::tf::TransformStamped>>() ) );
+  transforms_ = std::make_unique<std::list<std::unique_ptr<upns::tf::TransformStamped>>>( );
 }
 
 std::string
