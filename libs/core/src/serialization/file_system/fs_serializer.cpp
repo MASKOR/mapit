@@ -173,7 +173,8 @@ FSSerializer::getTree(const ObjectId &oid)
     fs_read(path, ge);
 
     if ( ge->type() != MessageTree ) {
-        log_error("Tree at: " + path.string() + " has variable type not set correctly");
+//        log_debug("Tree at: " + path.string() + " has variable type not set correctly");
+        return nullptr;
     }
     if ( ! ge->has_tree() ) {
         log_fatal("Tree at: " + path.string() + " is no tree");
@@ -197,7 +198,7 @@ FSSerializer::getTreeTransient(const PathInternal &transientId)
 
     if ( ge->type() != MessageTree ) {
         //log_warn("Tree at: " + path.string() + " has variable type not set correctly");
-        return std::shared_ptr<Tree>(NULL);
+        return nullptr;
     }
     if ( ! ge->has_tree() ) {
         log_fatal("Tree at: " + path.string() + " is no tree");
@@ -259,7 +260,8 @@ FSSerializer::getEntity(const ObjectId oid)
     fs_read(path, ge);
 
     if ( ge->type() != MessageEntity ) {
-        log_error("Entity at: " + path.string() + " has variable type not set correctly");
+//        log_debug("Entity at: " + path.string() + " has variable type not set correctly");
+        return nullptr;
     }
     if ( ! ge->has_entity() ) {
         log_fatal("Entity at: " + path.string() + " is no entity");
@@ -284,7 +286,8 @@ FSSerializer::getEntityTransient(const PathInternal oid)
     fs_read(path, ge);
 
     if ( ge->type() != MessageEntity ) {
-        log_error("Entity at: " + path.string() + " has variable type not set correctly");
+//        log_debug("Entity at: " + path.string() + " has variable type not set correctly");
+        return nullptr;
     }
     if ( ! ge->has_entity() ) {
         log_fatal("Entity at: " + path.string() + " is no entity");
@@ -346,7 +349,8 @@ FSSerializer::getCommit(const ObjectId &oid)
     fs_read(path, ge);
 
     if ( ge->type() != MessageCommit ) {
-        log_error("Commit at: " + path.string() + " has variable type not set correctly");
+//        log_debug("Commit at: " + path.string() + " has variable type not set correctly");
+        return nullptr;
     }
     if ( ! ge->has_commit() ) {
         log_fatal("Commit at: " + path.string() + " is no commit");
@@ -412,7 +416,8 @@ FSSerializer::getCheckoutCommit(const std::string &name)
     fs_read(path, ge);
 
     if ( ge->type() != MessageCheckout ) {
-        log_error("Checkout at: " + path.string() + " has variable type not set correctly");
+//        log_error("Checkout at: " + path.string() + " has variable type not set correctly");
+        return nullptr;
     }
     if ( ! ge->has_checkout() ) {
         log_fatal("Checkout at: " + path.string() + " is no checkout");
@@ -511,7 +516,8 @@ FSSerializer::getBranch(const std::string &name)
     fs_read(path, ge);
 
     if ( ge->type() != MessageBranch ) {
-        log_error("Branch at: " + path.string() + " has variable type not set correctly");
+//        log_error("Branch at: " + path.string() + " has variable type not set correctly");
+        return nullptr;
     }
     if ( ! ge->has_branch() ) {
         log_fatal("Branch at: " + path.string() + " is no branch");
