@@ -205,7 +205,7 @@ void TFTest::test_layertype_to_buffer()
     desc.mutable_operator_()->set_operatorname("load_tfs");
     desc.set_params(
                 "{"
-                "   \"map\" : \"map_tftest\","
+                "   \"prefix\" : \"map_tftest\","
                 "   \"transforms\" : "
                 "   ["
                 "       {"
