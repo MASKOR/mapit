@@ -39,6 +39,13 @@ upns::StatusCode get_or_create_entity(  CheckoutRaw* checkout
     }
 }
 
+std::string escape_slashes(const std::string& in)
+{
+   std::string out = in;
+   std::replace( out.begin(), out.end(), '/', '_');
+   return out;
+}
+
 upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
 {
     /** structure:
@@ -101,7 +108,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
           if (        0 == mapit_type.compare( PointcloudEntitydata::TYPENAME() ) ) {
             sensor_msgs::PointCloud2::ConstPtr pc2 = msg.instantiate<sensor_msgs::PointCloud2>();
             if (pc2 != NULL) {
-              std::string entity_name = prefix_name + "/" + pc2->header.frame_id + std::to_string(pc2->header.stamp.sec) + "." + std::to_string(pc2->header.stamp.nsec);
+              std::string entity_name = prefix_name + "/" + escape_slashes(pc2->header.frame_id + std::to_string(pc2->header.stamp.sec) + "." + std::to_string(pc2->header.stamp.nsec));
 
               std::shared_ptr<mapit::msgs::Entity> entity;
               upns::StatusCode get_entity_status = get_or_create_entity(checkout, entity_name, PointcloudEntitydata::TYPENAME(), entity);
