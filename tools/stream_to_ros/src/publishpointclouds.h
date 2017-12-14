@@ -8,7 +8,7 @@ class PublishPointClouds : public PublishToROS
 public:
   using PublishToROS::PublishToROS;
 
-  virtual void publish_entity(std::shared_ptr<mapit::Entity> entity);
+  virtual void publish_entity(const std::string& entity_name, const std::shared_ptr<::Entity>& entity);
 };
 
 #endif // PUBLISHPOINTCLOUDS_H

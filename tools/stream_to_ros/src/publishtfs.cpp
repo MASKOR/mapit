@@ -4,10 +4,15 @@
 #include "publishtfs.h"
 
 void
-PublishTFs::publish_entity(std::shared_ptr<mapit::Entity> entity)
+PublishTFs::publish_entity(const std::string& entity_name, const std::shared_ptr<::Entity>& entity)
 {
   // get data
-  std::shared_ptr<upns::AbstractEntitydata> entity_data_abstract = checkout_->getEntitydataReadOnly(entity);
+  std::shared_ptr<upns::AbstractEntitydata> entity_data_abstract = checkout_->getEntitydataReadOnly(entity_name);
+  if ( entity_data_abstract == nullptr || 0 != std::strcmp(entity_data_abstract->type(), TfEntitydata::TYPENAME()) ) {
+    log_error("stream_to_ros: can't publish " + entity_name + " since the type is wrongly given\n"
+              "type is: " + entity_data_abstract->type() + " but we need: " + TfEntitydata::TYPENAME());
+    return;
+  }
   std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfs =
       std::static_pointer_cast<TfEntitydata>(
         entity_data_abstract
@@ -25,6 +30,8 @@ PublishTFs::publish_entity(std::shared_ptr<mapit::Entity> entity)
   tf_entitys_.push_back( std::move( tmp ) );
 
   log_info("start to publish tf entities");
+  // TODO: there should be a special case when a tf entity should be published to ROS, but not in playback mode
+  //       its not implemented yet, since I can't imagen the result or the usecase
   tf_timer_ = std::make_shared<ros::Timer>( node_handle_->createTimer(ros::Rate(100), &PublishTFs::tf_timer_callback, this) );
 }
 
