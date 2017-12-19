@@ -134,6 +134,7 @@ void EditorCameraController::adjustCamera(const QVector3D &translateVec)
 
 void EditorCameraController::handleTriggered(float dt)
 {
+    if(dt > 0.06) dt = 0.06; //TODO: for low framerates do not overcompensate!
     if (m_camera) {
         if (m_rightMouseButtonAction->isActive()) {
             // Ignore first press so you don't get the initial jolt,

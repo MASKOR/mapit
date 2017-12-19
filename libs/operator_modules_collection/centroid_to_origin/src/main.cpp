@@ -224,8 +224,8 @@ StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<Pointcl
                  + std::to_string(ctr[1]) + ", "
                  + std::to_string(ctr[2]) + ")");
     }
-    if(!genTf)
-    {
+//    if(!genTf)
+//    {
         pcl::PointCloud<PointT> pcCtr;
         pcl::demeanPointCloud(pcAll, ctr, pcCtr);
         //demean(pc, ctr, &pcCtr);
@@ -244,40 +244,40 @@ StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<Pointcl
                  + std::to_string(max.x) + ", "
                  + std::to_string(max.y) + ", "
                  + std::to_string(max.z) + ")");
-    }
-    else
-    {
-        std::string tfEntityName = params["tfTarget"].toString().toStdString();
-        // Get Target
-        std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(tfEntityName);
-        if(tfEntity == NULL)
-        {
-            // If target could not be received, create new entity
-            // There must be an entity in order to write entity data in the next step
-            tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
-            tfEntity->set_type(TfEntitydata::TYPENAME());
-            StatusCode s = env->getCheckout()->storeEntity(tfEntityName, tfEntity);
-            if(!upnsIsOk(s))
-            {
-                log_error("Failed to create transform entity.");
-                return UPNS_STATUS_ERR_UNKNOWN;
-            }
-        }
-        std::shared_ptr<AbstractEntitydata> abstractEntitydataTf = env->getCheckout()->getEntitydataForReadWrite( tfEntityName );
-        if(abstractEntitydataTf == NULL)
-        {
-            return UPNS_STATUS_ERR_UNKNOWN;
-        }
-        std::shared_ptr<TfEntitydata> entityDataTf = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydataTf );
-        if(entityDataTf == NULL)
-        {
-            log_error("Tf Transform has wrong type.");
-            return UPNS_STATUS_ERR_UNKNOWN;
-        }
-        upns::tf::TransformPtr tf = upns::tf::TransformPtr(new upns::tf::Transform);
-        tf->translation = Eigen::Translation3f(-ctr[0], -ctr[1], -ctr[2]);
-        entityDataTf->setData(tf);
-    }
+//    }
+//    else
+//    {
+//        std::string tfEntityName = params["tfTarget"].toString().toStdString();
+//        // Get Target
+//        std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(tfEntityName);
+//        if(tfEntity == NULL)
+//        {
+//            // If target could not be received, create new entity
+//            // There must be an entity in order to write entity data in the next step
+//            tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
+//            tfEntity->set_type(TfEntitydata::TYPENAME());
+//            StatusCode s = env->getCheckout()->storeEntity(tfEntityName, tfEntity);
+//            if(!upnsIsOk(s))
+//            {
+//                log_error("Failed to create transform entity.");
+//                return UPNS_STATUS_ERR_UNKNOWN;
+//            }
+//        }
+//        std::shared_ptr<AbstractEntitydata> abstractEntitydataTf = env->getCheckout()->getEntitydataForReadWrite( tfEntityName );
+//        if(abstractEntitydataTf == NULL)
+//        {
+//            return UPNS_STATUS_ERR_UNKNOWN;
+//        }
+//        std::shared_ptr<TfEntitydata> entityDataTf = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydataTf );
+//        if(entityDataTf == NULL)
+//        {
+//            log_error("Tf Transform has wrong type.");
+//            return UPNS_STATUS_ERR_UNKNOWN;
+//        }
+//        upns::tf::TransformPtr tf = upns::tf::TransformPtr(new upns::tf::Transform);
+//        tf->translation = Eigen::Translation3f(-ctr[0], -ctr[1], -ctr[2]);
+//        entityDataTf->setData(tf);
+//    }
     return UPNS_STATUS_OK;
 }
 

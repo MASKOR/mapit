@@ -4,17 +4,20 @@ import fhac.upns 1.0 as UPNS
 
 Item {
     id: root
+
 //    Note: globalRepository comes from cpp and may be used with command line
 //    UPNS.Repository {
 //        id: globalRepository
 //        url: appStyle.repositoryUrl
 //        onUrlChanged: appStyle.repositoryUrl = url
 //    }
+
     Component.onCompleted: {
         if(!globalRepositoryExplicitlySpecifiedCommandline) {
             globalRepository.url = appStyle.repositoryUrl
         }
     }
+
     Connections {
         target: globalRepository
         onUrlChanged: {
@@ -37,6 +40,7 @@ Item {
             console.log("Path of current entity: " + path)
         }
     }
+
     UPNS.TfTransform {
         id: globalEntityTransform
         checkout: root.currentCheckout
@@ -58,6 +62,8 @@ Item {
     readonly property var currentCheckout: globalCheckout
 
     property string currentEntityPath
+    onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath
+
     // One Entity is selected at a time
     readonly property var currentEntity: currentCheckout ? currentCheckout.getEntity(currentEntityPath) : null
     // Entitydata may be loaded only once into the UI (here)! Note that it may freeze the UI for a short time (at the moment).

@@ -40,6 +40,7 @@ void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStamp
 
       tfsout->add_TransformStamped( std::move(tfout), tfs.is_static() );
     }
+  }
 }
 void writeTfToStream(upnsOStream &out, tf::store::TransformStampedList &data )
 {

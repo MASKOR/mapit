@@ -279,10 +279,6 @@ Item {
                         mainCamera.viewCenter = Qt.vector3d( 0.0, 0.0, 0.0 )
                     }
                 }
-                StyledButton {
-                    text: "WYSIWYG"
-                    onClicked: gbcontrol.doOperations()
-                }
             }
             About {
                 id: about
@@ -719,55 +715,37 @@ Item {
                         }
                     }
                 }
-                Item {
+                ColumnLayout {
+                    spacing: 0
                     Layout.fillWidth: true
                     enabled: globalGraphBlocksEnabled
                     Layout.maximumHeight: globalGraphBlocksEnabled ? 5000 : 0
-                    Layout.minimumHeight: 120
+                    //Layout.minimumHeight: 120
 
-                    Item {
-                        id: globalOperationScheduler
-                        property var operatorList: []
-                        function work() {
-                            operationTimer.executeOperations()
+                    StyledHeader {
+                        id: nodeGraphHeader
+                        Layout.fillWidth: true
+                        text: "Node Graph"
+                        iconSource: "image://material/ic_device_hub"
+                        StyledButton {
+                            isIcon: true
+                            visible: !globalApplicationState.currentCheckout.isBusyExecuting
+                            iconSource: "image://material/ic_play_circle_filled"
+                            onClicked: gbcontrol.doOperations()
                         }
-                    }
-                    Timer {
-                        id: operationTimer
-                        interval: 100
-                        repeat: false
-                        onTriggered: executeOperations()
-                        function executeOperations() {
-                            //if(running) return
-                            if(globalApplicationState.currentCheckout.isBusyExecuting) {
-                                operationTimer.start()
-                                return
-                            }
-                            console.log("Last Operation Status: " + globalApplicationState.currentCheckout.lastOperationStatus)
-                            if(globalOperationScheduler.operatorList.length == 0) {
-                                console.log("Done executing")
-                                return
-                            }
-                            var op = globalOperationScheduler.operatorList.shift()
-                            console.log("Starting: " + op.moduleName + ", params: " + op.parameters)
-                            globalApplicationState.currentCheckout.doOperation(op.moduleName, op.parameters)
-                            operationTimer.start()
+                        StyledButton {
+                            isIcon: true
+                            visible: globalApplicationState.currentCheckout.isBusyExecuting
+                            iconSource: "image://material/ic_pause_circle_filled"
+                            enabled: false
                         }
-                    }
-
-                    MapitBlocksLib { id: mapitLib }
-                    GraphBlocksBasicLibrary {
-                        id: basicLib
-                    }
-                    Item {
-                        id: internalLib
-                        GraphBlocksSuperBlock {
-                            controlManager: root
-                        }
+                        onCheckedChanged: if(!checked) parent.height = appStyle.controlHeightContainer
                     }
                     GraphBlocksGraphControl {
                         id: gbcontrol
-                        anchors.fill: parent
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        visible: nodeGraphHeader.checked
                         Component.onCompleted: {
                             importLibrary("basic", basicLib);
                             importLibrary("internal", internalLib)
@@ -780,6 +758,47 @@ Item {
                             globalOperationScheduler.operatorList = []
                             execute()
                             globalOperationScheduler.work()
+                        }
+
+                        Item {
+                            id: globalOperationScheduler
+                            property var operatorList: []
+                            function work() {
+                                operationTimer.executeOperations()
+                            }
+                        }
+                        Timer {
+                            id: operationTimer
+                            interval: 100
+                            repeat: false
+                            onTriggered: executeOperations()
+                            function executeOperations() {
+                                //if(running) return
+                                if(globalApplicationState.currentCheckout.isBusyExecuting) {
+                                    operationTimer.start()
+                                    return
+                                }
+                                console.log("Last Operation Status: " + globalApplicationState.currentCheckout.lastOperationStatus)
+                                if(globalOperationScheduler.operatorList.length == 0) {
+                                    console.log("Done executing")
+                                    return
+                                }
+                                var op = globalOperationScheduler.operatorList.shift()
+                                console.log("Starting: " + op.moduleName + ", params: " + op.parameters)
+                                globalApplicationState.currentCheckout.doOperation(op.moduleName, op.parameters)
+                                operationTimer.start()
+                            }
+                        }
+
+                        MapitBlocksLib { id: mapitLib }
+                        GraphBlocksBasicLibrary {
+                            id: basicLib
+                        }
+                        Item {
+                            id: internalLib
+                            GraphBlocksSuperBlock {
+                                controlManager: root
+                            }
                         }
                     }
                 }

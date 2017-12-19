@@ -14,7 +14,7 @@ ColumnLayout {
     //// in ////
     property bool shown
     property bool editable
-    property string currentCheckoutName
+    property string currentCheckout
     property string currentEntityPath
 
     readonly property string angleUnit: appStyle.useRadians ? "rad" : qsTr( "\u00B0" ) // degree
@@ -62,7 +62,7 @@ ColumnLayout {
         id: priv
         UPNS.TfTransform {
             id: currentEntitydataTransformId
-            checkout: currentCheckoutName
+            checkout: globalApplicationState.currentCheckout
             mustExist: false
             path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
                                           && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)
@@ -126,6 +126,7 @@ ColumnLayout {
 
     function updateTranslationMatrix() {
         var translateMatrix = Qt.matrix4x4()
+        if(xInp == null || yInp == null || zInp == null) return // Note: the line below produced error logs. bug?
         translateMatrix.translate(xInp.text, yInp.text, zInp.text)
         root.translationMatrix = translateMatrix
     }

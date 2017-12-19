@@ -35,6 +35,7 @@ Item {
                     Layout.fillWidth: true
                     id: headerOpPane
                     text: qsTr("Operators")
+                    iconSource: "image://material/ic_functions"
                 }
                 OperatorListPane {
                     Layout.fillWidth: true
@@ -95,6 +96,7 @@ Item {
                     Layout.fillWidth: true
                     id: headerCheckout
                     text: qsTr("Checkout")
+                    iconSource: "image://material/ic_layers"
                 }
                 ColumnLayout {
                     Layout.fillWidth: true

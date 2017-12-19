@@ -379,5 +379,57 @@
         <file>icon/material/ic_replay_white_24dp_1x.png</file>
         <file>icon/material/ic_replay_white_24dp_2x.png</file>
         <file>qml/MapitBlocksLib.qml</file>
+        <file>icon/material/ic_check_box_black_24dp_1x.png</file>
+        <file>icon/material/ic_check_box_black_24dp_2x.png</file>
+        <file>icon/material/ic_check_box_outline_blank_black_24dp_1x.png</file>
+        <file>icon/material/ic_check_box_outline_blank_black_24dp_2x.png</file>
+        <file>icon/material/ic_grid_off_black_24dp_1x.png</file>
+        <file>icon/material/ic_grid_off_black_24dp_2x.png</file>
+        <file>icon/material/ic_grid_off_white_24dp_1x.png</file>
+        <file>icon/material/ic_grid_off_white_24dp_2x.png</file>
+        <file>icon/material/ic_grid_on_black_24dp_1x.png</file>
+        <file>icon/material/ic_grid_on_black_24dp_2x.png</file>
+        <file>icon/material/ic_grid_on_white_24dp_1x.png</file>
+        <file>icon/material/ic_grid_on_white_24dp_2x.png</file>
+        <file>icon/material/ic_play_circle_filled_black_24dp_1x.png</file>
+        <file>icon/material/ic_play_circle_filled_black_24dp_2x.png</file>
+        <file>icon/material/ic_play_circle_filled_white_24dp_1x.png</file>
+        <file>icon/material/ic_play_circle_filled_white_24dp_2x.png</file>
+        <file>icon/material/ic_poll_black_24dp_1x.png</file>
+        <file>icon/material/ic_poll_black_24dp_2x.png</file>
+        <file>icon/material/ic_poll_white_24dp_1x.png</file>
+        <file>icon/material/ic_poll_white_24dp_2x.png</file>
+        <file>icon/material/ic_tune_black_24dp_1x.png</file>
+        <file>icon/material/ic_tune_black_24dp_2x.png</file>
+        <file>icon/material/ic_tune_white_24dp_1x.png</file>
+        <file>icon/material/ic_tune_white_24dp_2x.png</file>
+        <file>icon/material/ic_device_hub_black_24dp_1x.png</file>
+        <file>icon/material/ic_device_hub_black_24dp_2x.png</file>
+        <file>icon/material/ic_device_hub_white_24dp_1x.png</file>
+        <file>icon/material/ic_device_hub_white_24dp_2x.png</file>
+        <file>icon/material/ic_format_paint_white_24dp_1x.png</file>
+        <file>icon/material/ic_format_paint_white_24dp_2x.png</file>
+        <file>icon/material/ic_functions_black_24dp_1x.png</file>
+        <file>icon/material/ic_functions_black_24dp_2x.png</file>
+        <file>icon/material/ic_functions_white_24dp_1x.png</file>
+        <file>icon/material/ic_functions_white_24dp_2x.png</file>
+        <file>icon/material/ic_input_black_24dp_1x.png</file>
+        <file>icon/material/ic_input_black_24dp_2x.png</file>
+        <file>icon/material/ic_input_white_24dp_1x.png</file>
+        <file>icon/material/ic_input_white_24dp_2x.png</file>
+        <file>icon/material/ic_open_in_new_black_24dp_1x.png</file>
+        <file>icon/material/ic_open_in_new_black_24dp_2x.png</file>
+        <file>icon/material/ic_open_in_new_white_24dp_1x.png</file>
+        <file>icon/material/ic_open_in_new_white_24dp_2x.png</file>
+        <file>icon/material/ic_pause_circle_filled_black_24dp_1x.png</file>
+        <file>icon/material/ic_pause_circle_filled_black_24dp_2x.png</file>
+        <file>icon/material/ic_pause_circle_filled_white_24dp_1x.png</file>
+        <file>icon/material/ic_pause_circle_filled_white_24dp_2x.png</file>
+        <file>icon/material/ic_layers_black_24dp_1x.png</file>
+        <file>icon/material/ic_layers_black_24dp_2x.png</file>
+        <file>icon/material/ic_layers_white_24dp_1x.png</file>
+        <file>icon/material/ic_layers_white_24dp_2x.png</file>
+        <file>icon/material/ic_format_paint_black_24dp_1x.png</file>
+        <file>icon/material/ic_format_paint_black_24dp_2x.png</file>
     </qresource>
 </RCC>

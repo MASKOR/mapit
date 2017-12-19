@@ -6,16 +6,40 @@ Rectangle {
     id: root
     property alias text: headerLabel.text
     property bool checked: true
+    property bool hasIcon: icon.status == Image.Ready
+    property alias iconSource: icon.source
+    default property alias _conentChildren: flow.data
     color: appStyle.headerColor
     height: appStyle.controlHeightContainer
     implicitHeight: appStyle.controlHeightContainer
+    Image {
+        id: icon
+        visible: root.hasIcon
+        anchors.left: parent.left
+        anchors.leftMargin: root.hasIcon ? 8 : 0
+        anchors.verticalCenter: parent.verticalCenter
+        height: appStyle.iconSize
+        width: root.hasIcon ? appStyle.iconSize : 0
+        opacity: 0.5
+    }
+
     StyledLabel {
         id: headerLabel
-        anchors.left: parent.left
+        anchors.left: icon.right
         anchors.leftMargin: 8
         anchors.verticalCenter: parent.verticalCenter
         font.weight: appStyle.headerFontWeight
     }
+
+    Flow {
+        id: flow
+        height: appStyle.controlHeightOuter
+        anchors.topMargin: (appStyle.controlHeightContainer-appStyle.controlHeightOuter) * 0.5
+        anchors.left: headerLabel.right
+        anchors.leftMargin: 8
+        //anchors.verticalCenter: parent.verticalCenter
+    }
+
     Button {
         anchors.right: parent.right
         anchors.rightMargin: 8

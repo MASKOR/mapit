@@ -99,6 +99,7 @@ Window {
                 StyledHeader {
                     id: headerSettingsGrid
                     text: "Grid Settings"
+                    iconSource: "image://material/ic_grid_on"
                     Layout.fillWidth: true
                 }
                 GridLayout {
@@ -145,6 +146,7 @@ Window {
                 StyledHeader {
                     id: headerSettingsCoordinateSystem
                     text: "Coordinate System and 3D Settings"
+                    iconSource: "image://material/ic_tune"
                     Layout.fillWidth: true
                 }
                 GridLayout {
@@ -227,6 +229,7 @@ Window {
                 StyledHeader {
                     id: headerSettingsUi
                     text: "UI Settings"
+                    iconSource: "image://material/ic_format_paint"
                     Layout.fillWidth: true
                     checked: false
                 }
@@ -242,13 +245,13 @@ Window {
                         text: "Selection Animation for Highlight"
                     }
                     StyledCheckBox {
-                        id: selectionAnimation
+                        id: selectionAnimationCheckbox
                         Layout.column: 1
                         Layout.row: 0
                         Binding {
                             target: appStyle
                             property: "selectionAnimation"
-                            value: selectionAnimation.checked
+                            value: selectionAnimationCheckbox.checked
                             when: root.visible
                         }
                     }

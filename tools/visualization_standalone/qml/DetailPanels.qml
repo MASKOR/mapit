@@ -52,6 +52,7 @@ Item {
             Layout.fillWidth: true
             id: operatorHeader
             text: qsTr("Operator")
+            iconSource: "image://material/ic_input"
         }
         OperatorPane {
             id: opPane
@@ -63,6 +64,7 @@ Item {
             Layout.fillWidth: true
             id: entityHeader
             text: qsTr("Entity")
+            iconSource: "image://material/ic_poll"
         }
         ColumnLayout {
             id: entityInfo
@@ -110,7 +112,8 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPrimitive && !entityInfo.loading
-                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["type"] : ""
+
+                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["type"] ? entityInfo.currentEntitydata.info["type"] : "" : ""
                 }
                 StyledLabel {
                     visible: entityInfo.isPrimitive
@@ -119,7 +122,7 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPrimitive && !entityInfo.loading
-                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["text"] : ""
+                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["text"] ? entityInfo.currentEntitydata.info["text"] : "" : ""
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud
@@ -146,7 +149,8 @@ Item {
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud && !entityInfo.loading
-                    text: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["width"] : ""
+                    property var infoWidth: visible && entityInfo.currentEntitydata ? entityInfo.currentEntitydata.info["width"] : ""
+                    text: (typeof infoWidth) !== "undefined" ? infoWidth : ""
                 }
                 StyledLabel {
                     visible: entityInfo.isPointcloud || entityInfo.isOpenVDB || entityInfo.isPrimitive

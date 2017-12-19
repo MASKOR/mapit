@@ -11,4 +11,11 @@ QuickAccessMenu {
     id: frameIdInput
     height: appStyle.controlHeightInner
     model: currentCheckout?currentCheckout.getFrameIds():[]
+    Connections {
+        target: currentCheckout
+        onIsBusyExecutingChanged: {
+            if(!currentCheckout.isBusyExecuting)
+                frameIdInput.model = currentCheckout.getFrameIds()
+        }
+    }
 }
