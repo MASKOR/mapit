@@ -27,173 +27,226 @@ ColumnLayout {
     }
 
     //// UI ////
-    HelperTarget {
-        z: 101
-        Layout.fillWidth: true
-        id: entityChooserTarget
-        currentEntityPath: root.currentEntityPath
-    }
-    // input
-    HelperTarget {
-        nameOverwrite: "Input:"
-        Layout.fillWidth: true
-        id: entityChooserInput
-        currentEntityPath: root.currentEntityPath
-    }
-    // tf setup and general cfg
-    RowLayout {
-        Layout.fillWidth: true
+    GridLayout {
+        // target
         StyledLabel {
+            Layout.column: 0
+            Layout.row: 0
+            text: "Target:"
+        }
+        EntityChooser {
+            Layout.column: 1
+            Layout.row: 0
+            id: entityChooserTarget
+            Layout.fillWidth: true
+            currentEntityPath: root.currentEntityPath
+        }
+        // input
+        StyledLabel {
+            Layout.column: 0
+            Layout.row: 1
+            text: "Input:"
+        }
+        EntityChooser {
+            Layout.column: 1
+            Layout.row: 1
+            id: entityChooserInput
+            Layout.fillWidth: true
+            currentEntityPath: root.currentEntityPath
+        }
+        // tf setup and general cfg
+        StyledLabel {
+            Layout.column: 0
+            Layout.row: 2
             text: "tf-prefix:"
         }
         StyledTextField {
+            Layout.column: 1
+            Layout.row: 2
             id: tfPrefix
             Layout.fillWidth: true
             placeholderText: "optional"
             text: ""
         }
-    }
-    RowLayout {
-        Layout.fillWidth: true
         StyledLabel {
+            Layout.column: 0
+            Layout.row: 3
             text: "frame_id:"
         }
 
         StyledTextField {
+            Layout.column: 1
+            Layout.row: 3
             id: frameId
             Layout.fillWidth: true
             placeholderText: "optional"
             text: ""
         }
-    }
-    RowLayout {
-        Layout.fillWidth: true
         StyledLabel {
+            Layout.column: 0
+            Layout.row: 4
             text: "use-metascan:"
         }
-        StyledCheckBox {
-            id: useMetascan
-            onCheckedChanged: if(checked) kCb.checked = false
+        RowLayout {
+            Layout.column: 1
+            Layout.row: 4
+            StyledCheckBox {
+                id: useMetascan
+                onCheckedChanged: if(checked) kCb.checked = false
+            }
+            StyledLabel {
+                visible: useMetascan.checked
+                text: "voxelgrid:"
+            }
+            StyledTextField {
+                visible: useMetascan.checked
+                id: useMetascanVoxelgrid
+                Layout.fillWidth: true
+                validator: DoubleValidator {}
+                placeholderText: "not implemented"
+    //            text: "0.3"
+            }
         }
+        // choose how to handle the result
         StyledLabel {
-            visible: useMetascan.checked
-            text: "voxelgrid:"
-        }
-        StyledTextField {
-            visible: useMetascan.checked
-            id: useMetascanVoxelgrid
-            Layout.fillWidth: true
-            validator: DoubleValidator {}
-            placeholderText: "not implemented"
-//            text: "0.3"
-        }
-    }
-    // choose algorithm
-    RowLayout {
-        Layout.fillWidth: true
-        StyledLabel {
+            Layout.column: 0
+            Layout.row: 5
             text: "handle-result:"
         }
         StyledComboBox {
+            Layout.column: 1
+            Layout.row: 5
+            Layout.fillWidth: true
             id: handleResultSelect
             model:  ["tf-add", "tf-combine", "data-change"]
         }
-    }
-    ColumnLayout {
-        Layout.fillWidth: true
-        visible:   handleResultSelect.currentText == "tf-add"
-                || handleResultSelect.currentText == "tf-combine"
-        RowLayout {
-            StyledLabel {
-                text: "tf-is_static:"
-            }
-            StyledCheckBox {
-                id: tfISstatic
-                onCheckedChanged: if(checked) kCb.checked = false
-            }
-        }
-        RowLayout {
-            StyledLabel {
-                text: "tf-frame_id:"
-            }
-            FrameIdChooser {
-                Layout.fillWidth: true
-                Layout.minimumWidth: 100
-                id: tfFrameId
-                allowNew: false
-                currentCheckout: root.currentCheckout
-            }
-        }
-        RowLayout {
-            StyledLabel {
-                text: "tf-child_frame_id:"
-            }
-            FrameIdChooser {
-                Layout.fillWidth: true
-                Layout.minimumWidth: 100
-                id: tfChildFrameId
-                allowNew: false
-                currentCheckout: root.currentCheckout
-            }
-        }
-    }
-
-    // choose matching algorithm
-    RowLayout {
-        Layout.fillWidth: true
+        // choose matching algorithm
         StyledLabel {
+            Layout.column: 0
+            Layout.row: 6
             text: "matching-algorithm:"
         }
         StyledComboBox {
+            Layout.column: 1
+            Layout.row: 6
+            Layout.fillWidth: true
             id: matchingAlgorithm
             model:  ["icp", "nothing"]
         }
     }
-    // algorithm specific, ICP
-    GridLayout {
+
+    // handle result specific config
+    GroupBox {
+        visible:   handleResultSelect.currentText == "tf-add"
+                || handleResultSelect.currentText == "tf-combine"
         Layout.fillWidth: true
+        ColumnLayout {
+            StyledLabel {
+                horizontalAlignment: "AlignHCenter"
+                Layout.fillWidth: true
+                text: "Handle result as TF"
+            }
+            GridLayout {
+                Layout.fillWidth: true
+                StyledLabel {
+                    Layout.column: 0
+                    Layout.row: 0
+                    text: "tf-is_static:"
+                }
+                StyledCheckBox {
+                    Layout.column: 1
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    id: tfISstatic
+                    onCheckedChanged: if(checked) kCb.checked = false
+                }
+                StyledLabel {
+                    Layout.column: 0
+                    Layout.row: 1
+                    text: "tf-frame_id:"
+                }
+                FrameIdChooser {
+                    Layout.column: 1
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 100
+                    id: tfFrameId
+                    allowNew: false
+                    currentCheckout: root.currentCheckout
+                }
+                StyledLabel {
+                    Layout.column: 0
+                    Layout.row: 2
+                    text: "tf-child_frame_id:"
+                }
+                FrameIdChooser {
+                    Layout.column: 1
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 100
+                    id: tfChildFrameId
+                    allowNew: false
+                    currentCheckout: root.currentCheckout
+                }
+            }
+        }
+    }
+
+    // algorithm specific, ICP
+    GroupBox {
         visible:   matchingAlgorithm.currentText == "icp"
-        StyledLabel {
-            Layout.column: 0
-            Layout.row: 0
-            text: "maximum-iterations:"
-        }
-        StyledTextField {
-            Layout.column: 1
-            Layout.row: 0
-            id: icpMaximumIterations
-            Layout.fillWidth: true
-            validator: IntValidator {}
-            placeholderText: "optional"
-            text: ""
-        }
-        StyledLabel {
-            Layout.column: 0
-            Layout.row: 1
-            text: "max-correspondence-distance:"
-        }
-        StyledTextField {
-            Layout.column: 1
-            Layout.row: 1
-            id: icpMaxCorrespondenceDistance
-            Layout.fillWidth: true
-            validator: DoubleValidator {}
-            placeholderText: "optional"
-            text: ""
-        }
-        StyledLabel {
-            Layout.column: 0
-            Layout.row: 2
-            text: "max-transformation-epsilon:"
-        }
-        StyledTextField {
-            Layout.column: 1
-            Layout.row: 2
-            id: icpTransformationEpsilon
-            Layout.fillWidth: true
-            validator: DoubleValidator {}
-            placeholderText: "optional"
-            text: ""
+        Layout.fillWidth: true
+        ColumnLayout {
+            StyledLabel {
+                horizontalAlignment: "AlignHCenter"
+                Layout.fillWidth: true
+                text: "ICP configs"
+            }
+            GridLayout {
+                Layout.fillWidth: true
+                StyledLabel {
+                    Layout.column: 0
+                    Layout.row: 0
+                    text: "maximum-iterations:"
+                }
+                StyledTextField {
+                    Layout.column: 1
+                    Layout.row: 0
+                    id: icpMaximumIterations
+                    Layout.fillWidth: true
+                    validator: IntValidator {}
+                    placeholderText: "optional"
+                    text: ""
+                }
+                StyledLabel {
+                    Layout.column: 0
+                    Layout.row: 1
+                    text: "max-correspondence-distance:"
+                }
+                StyledTextField {
+                    Layout.column: 1
+                    Layout.row: 1
+                    id: icpMaxCorrespondenceDistance
+                    Layout.fillWidth: true
+                    validator: DoubleValidator {}
+                    placeholderText: "optional"
+                    text: ""
+                }
+                StyledLabel {
+                    Layout.column: 0
+                    Layout.row: 2
+                    text: "max-transformation-epsilon:"
+                }
+                StyledTextField {
+                    Layout.column: 1
+                    Layout.row: 2
+                    id: icpTransformationEpsilon
+                    Layout.fillWidth: true
+                    validator: DoubleValidator {}
+                    placeholderText: "optional"
+                    text: ""
+                }
+            }
         }
     }
 }
