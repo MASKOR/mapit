@@ -139,55 +139,50 @@ ColumnLayout {
     GroupBox {
         visible:   handleResultSelect.currentText == "tf-add"
                 || handleResultSelect.currentText == "tf-combine"
+        title: "Handle result as TF"
         Layout.fillWidth: true
-        ColumnLayout {
+        width: parent.width
+        GridLayout {
+            anchors.fill: parent
             StyledLabel {
-                horizontalAlignment: "AlignHCenter"
-                Layout.fillWidth: true
-                text: "Handle result as TF"
+                Layout.column: 0
+                Layout.row: 0
+                text: "tf-is_static:"
             }
-            GridLayout {
+            StyledCheckBox {
+                Layout.column: 1
+                Layout.row: 0
                 Layout.fillWidth: true
-                StyledLabel {
-                    Layout.column: 0
-                    Layout.row: 0
-                    text: "tf-is_static:"
-                }
-                StyledCheckBox {
-                    Layout.column: 1
-                    Layout.row: 0
-                    Layout.fillWidth: true
-                    id: tfISstatic
-                    onCheckedChanged: if(checked) kCb.checked = false
-                }
-                StyledLabel {
-                    Layout.column: 0
-                    Layout.row: 1
-                    text: "tf-frame_id:"
-                }
-                FrameIdChooser {
-                    Layout.column: 1
-                    Layout.row: 1
-                    Layout.fillWidth: true
-                    Layout.minimumWidth: 100
-                    id: tfFrameId
-                    allowNew: false
-                    currentCheckout: root.currentCheckout
-                }
-                StyledLabel {
-                    Layout.column: 0
-                    Layout.row: 2
-                    text: "tf-child_frame_id:"
-                }
-                FrameIdChooser {
-                    Layout.column: 1
-                    Layout.row: 2
-                    Layout.fillWidth: true
-                    Layout.minimumWidth: 100
-                    id: tfChildFrameId
-                    allowNew: false
-                    currentCheckout: root.currentCheckout
-                }
+                id: tfISstatic
+                onCheckedChanged: if(checked) kCb.checked = false
+            }
+            StyledLabel {
+                Layout.column: 0
+                Layout.row: 1
+                text: "tf-frame_id:"
+            }
+            FrameIdChooser {
+                Layout.column: 1
+                Layout.row: 1
+                Layout.fillWidth: true
+                Layout.minimumWidth: 100
+                id: tfFrameId
+                allowNew: false
+                currentCheckout: root.currentCheckout
+            }
+            StyledLabel {
+                Layout.column: 0
+                Layout.row: 2
+                text: "tf-child_frame_id:"
+            }
+            FrameIdChooser {
+                Layout.column: 1
+                Layout.row: 2
+                Layout.fillWidth: true
+                Layout.minimumWidth: 100
+                id: tfChildFrameId
+                allowNew: false
+                currentCheckout: root.currentCheckout
             }
         }
     }
@@ -195,57 +190,52 @@ ColumnLayout {
     // algorithm specific, ICP
     GroupBox {
         visible:   matchingAlgorithm.currentText == "icp"
+        title: "ICP configs"
         Layout.fillWidth: true
-        ColumnLayout {
+        width: parent.width
+        GridLayout {
+            anchors.fill: parent
             StyledLabel {
-                horizontalAlignment: "AlignHCenter"
-                Layout.fillWidth: true
-                text: "ICP configs"
+                Layout.column: 0
+                Layout.row: 0
+                text: "maximum-iterations:"
             }
-            GridLayout {
+            StyledTextField {
+                Layout.column: 1
+                Layout.row: 0
+                id: icpMaximumIterations
                 Layout.fillWidth: true
-                StyledLabel {
-                    Layout.column: 0
-                    Layout.row: 0
-                    text: "maximum-iterations:"
-                }
-                StyledTextField {
-                    Layout.column: 1
-                    Layout.row: 0
-                    id: icpMaximumIterations
-                    Layout.fillWidth: true
-                    validator: IntValidator {}
-                    placeholderText: "optional"
-                    text: ""
-                }
-                StyledLabel {
-                    Layout.column: 0
-                    Layout.row: 1
-                    text: "max-correspondence-distance:"
-                }
-                StyledTextField {
-                    Layout.column: 1
-                    Layout.row: 1
-                    id: icpMaxCorrespondenceDistance
-                    Layout.fillWidth: true
-                    validator: DoubleValidator {}
-                    placeholderText: "optional"
-                    text: ""
-                }
-                StyledLabel {
-                    Layout.column: 0
-                    Layout.row: 2
-                    text: "max-transformation-epsilon:"
-                }
-                StyledTextField {
-                    Layout.column: 1
-                    Layout.row: 2
-                    id: icpTransformationEpsilon
-                    Layout.fillWidth: true
-                    validator: DoubleValidator {}
-                    placeholderText: "optional"
-                    text: ""
-                }
+                validator: IntValidator {}
+                placeholderText: "optional"
+                text: ""
+            }
+            StyledLabel {
+                Layout.column: 0
+                Layout.row: 1
+                text: "max-correspondence-distance:"
+            }
+            StyledTextField {
+                Layout.column: 1
+                Layout.row: 1
+                id: icpMaxCorrespondenceDistance
+                Layout.fillWidth: true
+                validator: DoubleValidator {}
+                placeholderText: "optional"
+                text: ""
+            }
+            StyledLabel {
+                Layout.column: 0
+                Layout.row: 2
+                text: "max-transformation-epsilon:"
+            }
+            StyledTextField {
+                Layout.column: 1
+                Layout.row: 2
+                id: icpTransformationEpsilon
+                Layout.fillWidth: true
+                validator: DoubleValidator {}
+                placeholderText: "optional"
+                text: ""
             }
         }
     }
