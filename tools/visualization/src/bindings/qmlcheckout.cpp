@@ -187,11 +187,13 @@ QStringList QmlCheckout::getFrameIds()
         {
             // get the stream to write into a file
             std::shared_ptr<upns::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly(path);
+
+            std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
+            assert(ent);
+            frameIdSet.insert(QString::fromStdString(ent->frame_id()));
+
             if(ed && strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
             {
-                std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
-                assert(ent);
-                frameIdSet.insert(QString::fromStdString(ent->frame_id()));
                 std::shared_ptr<upns::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly( path );
                 if( ed == nullptr ) return true;
                 std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
