@@ -18,12 +18,27 @@ ColumnLayout {
     }
 
     //// out ////
-    property bool valid:   entityChooserTarget.valid
-                        && entityChooserInput.valid
+    property bool valid:   true
     property var parameters: {
         "target":    entityChooserTarget.currentEntityPath,
-        "input":     "[" + entityChooserTarget.currentEntityPath + "]",
+        "input":     entityChooserInput.currentEntityPath,
         "tf-prefix": tfPrefix.currentEntityPath,
+        "frame_id":  frameId.currentText,
+
+        "use-metascan": useMetascan.checked,
+        "voxelgrid": useMetascanVoxelgrid.text,
+
+        "handle-result": handleResultSelect.currentText,
+
+        "tf-frame_id": tfFrameId.currentText,
+        "tf-child_frame_id": tfChildFrameId.currentText,
+        "tf-is_static": tfISstatic.checked ? "true" : "false",
+
+        "matching-algorithm": matchingAlgorithm.currentText,
+
+        "icp-maximum-iterations": icpMaximumIterations.text,
+        "icp-max-correspondence-distance": icpMaxCorrespondenceDistance.text,
+        "icp-transformation-epsilon": icpTransformationEpsilon.text
     }
 
     //// UI ////
@@ -37,6 +52,7 @@ ColumnLayout {
         EntityChooser {
             Layout.column: 1
             Layout.row: 0
+            z: 189
             id: entityChooserTarget
             Layout.fillWidth: true
             currentEntityPath: root.currentEntityPath
@@ -50,6 +66,7 @@ ColumnLayout {
         EntityChooser {
             Layout.column: 1
             Layout.row: 1
+            z: 188
             id: entityChooserInput
             Layout.fillWidth: true
             currentEntityPath: root.currentEntityPath
@@ -60,27 +77,28 @@ ColumnLayout {
             Layout.row: 2
             text: "tf-prefix:"
         }
-        StyledTextField {
+        EntityChooser {
             Layout.column: 1
             Layout.row: 2
+            z: 169
             id: tfPrefix
             Layout.fillWidth: true
-            placeholderText: "optional"
-            text: ""
+            currentEntityPath: ""
         }
         StyledLabel {
             Layout.column: 0
             Layout.row: 3
             text: "frame_id:"
         }
-
-        StyledTextField {
+        FrameIdChooser {
             Layout.column: 1
             Layout.row: 3
-            id: frameId
+            z: 168
             Layout.fillWidth: true
-            placeholderText: "optional"
-            text: ""
+            Layout.minimumWidth: 100
+            id: frameId
+            allowNew: false
+            currentCheckout: root.currentCheckout
         }
         StyledLabel {
             Layout.column: 0
@@ -131,7 +149,7 @@ ColumnLayout {
             Layout.row: 6
             Layout.fillWidth: true
             id: matchingAlgorithm
-            model:  ["icp", "nothing"]
+            model:  ["icp", "nothing (will not work, just for GUI)"]
         }
     }
 
@@ -152,6 +170,7 @@ ColumnLayout {
             StyledCheckBox {
                 Layout.column: 1
                 Layout.row: 0
+                z: 159
                 Layout.fillWidth: true
                 id: tfISstatic
                 onCheckedChanged: if(checked) kCb.checked = false
@@ -164,6 +183,7 @@ ColumnLayout {
             FrameIdChooser {
                 Layout.column: 1
                 Layout.row: 1
+                z: 158
                 Layout.fillWidth: true
                 Layout.minimumWidth: 100
                 id: tfFrameId
@@ -178,6 +198,7 @@ ColumnLayout {
             FrameIdChooser {
                 Layout.column: 1
                 Layout.row: 2
+                z: 157
                 Layout.fillWidth: true
                 Layout.minimumWidth: 100
                 id: tfChildFrameId
