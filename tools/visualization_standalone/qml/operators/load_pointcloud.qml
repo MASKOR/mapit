@@ -18,10 +18,14 @@ ColumnLayout {
     }
 
     //// out ////
-    property bool valid: fileChooser.valid && entityChooser.valid
+    property bool valid:    fileChooser.valid
+                         && entityChooser.valid
     property var parameters: {
         "filename": fileChooser.filename,
-        "target": entityChooser.currentEntityPath
+        "target": entityChooser.currentEntityPath,
+        "frame_id": frameId.currentText,
+        "sec":      stampSec.text,
+        "nsec:":    stampNSec.text
     }
 
     //// UI ////
@@ -34,5 +38,33 @@ ColumnLayout {
         Layout.fillWidth: true
         id: entityChooser
         currentEntityPath: root.currentEntityPath
+    }
+    RowLayout {
+        StyledLabel {
+            text: "frame_id:"
+        }
+        FrameIdChooser {
+            Layout.fillWidth: true
+            Layout.minimumWidth: 100
+            id: frameId
+            allowNew: true
+            currentCheckout: root.currentCheckout
+        }
+    }
+    RowLayout {
+        StyledLabel {
+            text: "Stamp:"
+        }
+        StyledTextField {
+            id: stampSec
+            validator: IntValidator {}
+            placeholderText: "sec"
+        }
+        StyledTextField {
+            Layout.fillWidth: true
+            id: stampNSec
+            validator: IntValidator {}
+            placeholderText: "nsec"
+        }
     }
 }
