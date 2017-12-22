@@ -90,7 +90,7 @@ void QmlPathGeometry::updateAttributes()
             qDebug() << "skipped index";
         }
     }
-    Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);
+    Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(nullptr);
     attrib->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
     attrib->setDataType(Qt3DRender::QAttribute::Float);
     attrib->setDataSize(3);

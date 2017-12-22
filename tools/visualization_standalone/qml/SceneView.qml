@@ -662,7 +662,7 @@ Item {
                                             currentFrameId: root.currentFrameId
 
                                             layer: pointLayer
-                                            parametersTmp: techniqueFilter.parameters
+                                            //parametersTmp: techniqueFilter.parameters
                                             //Currently only one checkout is supported
                                             currentCheckout: globalApplicationState.currentCheckout
         //                                    currentCheckout: UPNS.Checkout {

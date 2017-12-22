@@ -129,7 +129,7 @@ void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount)
             removeAttribute(attr);
             attr->deleteLater();
     }
-    Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(this);
+    Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(nullptr);
     attrib->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
     attrib->setDataType(Qt3DRender::QAttribute::Float);
     attrib->setDataSize(3);
@@ -141,7 +141,7 @@ void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount)
     setBoundingVolumePositionAttribute(attrib);
     addAttribute(attrib);
 
-    Qt3DRender::QAttribute* idxAttrib = new Qt3DRender::QAttribute(this);
+    Qt3DRender::QAttribute* idxAttrib = new Qt3DRender::QAttribute(nullptr);
     idxAttrib->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
     idxAttrib->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
     idxAttrib->setBuffer(m_p->m_indexBuffer);

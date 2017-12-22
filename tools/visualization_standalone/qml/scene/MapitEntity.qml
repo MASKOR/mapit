@@ -93,7 +93,7 @@ Q3D.Entity {
                     }
                 },
                 Technique {
-                    parameters: surfelTechnique.parameters
+                    //parameters: surfelTechnique.parameters
                     filterKeys: [ FilterKey { name: "primitiveType"; value: "point" },
                                   FilterKey { name: "renderstyle";   value:"points" } ]
                     renderPasses: RenderPass {
