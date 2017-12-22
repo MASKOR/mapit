@@ -43,6 +43,7 @@ ColumnLayout {
 
     //// UI ////
     GridLayout {
+        z: 189
         // target
         StyledLabel {
             Layout.column: 0
@@ -160,6 +161,7 @@ ColumnLayout {
         title: "Handle result as TF"
         Layout.fillWidth: true
         width: parent.width
+        z: 159
         GridLayout {
             anchors.fill: parent
             StyledLabel {
@@ -214,6 +216,7 @@ ColumnLayout {
         title: "ICP configs"
         Layout.fillWidth: true
         width: parent.width
+        z: 149
         GridLayout {
             anchors.fill: parent
             StyledLabel {
