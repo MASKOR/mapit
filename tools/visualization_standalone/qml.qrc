@@ -253,6 +253,7 @@
         <file>qml/operators/levelset_to_mesh.qml</file>
         <file>qml/operators/normalestimation.qml</file>
         <file>qml/operators/reg_local.qml</file>
+        <file>qml/operators/reg_local.png</file>
         <file>qml/operators/surfrecon_openvdb.qml</file>
         <file>qml/operators/voxelgridfilter.qml</file>
         <file>qml/operators/load_las.qml</file>
