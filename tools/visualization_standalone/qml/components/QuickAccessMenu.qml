@@ -21,6 +21,7 @@ Item {
     property ListModel filteredModel: ListModel {}
     property alias selection: lv.currentItem
     property alias currentText: ff.text
+    property var internalTextField: ff
     signal action(var item)
 
     onModelChanged: reinit()
