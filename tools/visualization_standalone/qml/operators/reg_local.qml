@@ -14,7 +14,6 @@ ColumnLayout {
 
     function fromParameters(params) {
         entityChooserTarget.currentEntityPath = params.target
-        entityChooserInput.currentEntityPath = params.target
     }
 
     //// out ////
@@ -47,40 +46,79 @@ ColumnLayout {
         // target
         StyledLabel {
             Layout.column: 0
-            Layout.row: 0
+            Layout.row: 1
             text: "Target:"
         }
         EntityChooser {
             Layout.column: 1
-            Layout.row: 0
+            Layout.row: 1
             z: 189
             id: entityChooserTarget
             Layout.fillWidth: true
             currentEntityPath: root.currentEntityPath
         }
         // input
+        Repeater {
+            id: inputLableRepeater
+            model: 0
+            StyledLabel {
+                Layout.column: 0
+                Layout.row: 2 + (2 * index)
+                text: "Input[" + index + "]"
+            }
+        }
+        Repeater {
+            id: inputRepeater
+            model: ListModel {}
+            EntityChooser {
+                Layout.column: 1
+                Layout.row: 2 + (2 * index)
+                z: 188 - index
+                id: entityChooserInputRepeated
+                Layout.fillWidth: true
+                currentEntityPath: inputRepeater.model.get(index).name
+                onCurrentEntityPathChanged: {
+                    inputRepeater.model.get(index).name = currentEntityPath
+//                    inputRepeater.modelChanged()
+                }
+            }
+        }
+
         StyledLabel {
             Layout.column: 0
-            Layout.row: 1
-            text: "Input:"
+            Layout.row: 3 + (2 * inputRepeater.count)
+            text: "Input[" + inputRepeater.count + "]"
         }
         EntityChooser {
             Layout.column: 1
-            Layout.row: 1
-            z: 188
+            Layout.row: 3 + (2 * inputRepeater.count)
+            z: 188 - index
             id: entityChooserInput
             Layout.fillWidth: true
             currentEntityPath: root.currentEntityPath
         }
+        Connections {
+            target: entityChooserInput.internalTextField
+            onEditingFinished: {
+                if (entityChooserInput.currentEntityPath) {
+                    var entityLastName = entityChooserInput.currentEntityPath
+                    entityChooserInput.currentEntityPath = ""
+
+                    inputRepeater.model.append( { "name": entityLastName } )
+                    inputLableRepeater.model = inputRepeater.count
+//                    updateParameterInput()
+                }
+            }
+        }
         // tf setup and general cfg
         StyledLabel {
             Layout.column: 0
-            Layout.row: 2
+            Layout.row: 5 + (2 * inputRepeater.count)
             text: "tf-prefix:"
         }
         EntityChooser {
             Layout.column: 1
-            Layout.row: 2
+            Layout.row: 5 + (2 * inputRepeater.count)
             z: 169
             id: tfPrefix
             Layout.fillWidth: true
@@ -88,12 +126,12 @@ ColumnLayout {
         }
         StyledLabel {
             Layout.column: 0
-            Layout.row: 3
+            Layout.row: 7 + (2 * inputRepeater.count)
             text: "frame_id:"
         }
         FrameIdChooser {
             Layout.column: 1
-            Layout.row: 3
+            Layout.row: 7 + (2 * inputRepeater.count)
             z: 168
             Layout.fillWidth: true
             Layout.minimumWidth: 100
@@ -103,12 +141,12 @@ ColumnLayout {
         }
         StyledLabel {
             Layout.column: 0
-            Layout.row: 4
+            Layout.row: 9 + (2 * inputRepeater.count)
             text: "use-metascan:"
         }
         RowLayout {
             Layout.column: 1
-            Layout.row: 4
+            Layout.row: 9 + (2 * inputRepeater.count)
             StyledCheckBox {
                 id: useMetascan
                 onCheckedChanged: if(checked) kCb.checked = false
@@ -129,12 +167,12 @@ ColumnLayout {
         // choose how to handle the result
         StyledLabel {
             Layout.column: 0
-            Layout.row: 5
+            Layout.row: 11 + (2 * inputRepeater.count)
             text: "handle-result:"
         }
         StyledComboBox {
             Layout.column: 1
-            Layout.row: 5
+            Layout.row: 11 + (2 * inputRepeater.count)
             Layout.fillWidth: true
             id: handleResultSelect
             model:  ["tf-add", "tf-combine", "data-change"]
@@ -142,12 +180,12 @@ ColumnLayout {
         // choose matching algorithm
         StyledLabel {
             Layout.column: 0
-            Layout.row: 6
+            Layout.row: 13 + (2 * inputRepeater.count)
             text: "matching-algorithm:"
         }
         StyledComboBox {
             Layout.column: 1
-            Layout.row: 6
+            Layout.row: 13 + (2 * inputRepeater.count)
             Layout.fillWidth: true
             id: matchingAlgorithm
             model:  ["icp", "nothing (will not work, just for GUI)"]
