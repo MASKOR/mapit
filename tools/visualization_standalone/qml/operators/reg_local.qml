@@ -32,13 +32,13 @@ ColumnLayout {
 
         "tf-frame_id": tfFrameId.currentText,
         "tf-child_frame_id": tfChildFrameId.currentText,
-        "tf-is_static": tfISstatic.checked ? "true" : "false",
+        "tf-is_static": tfISstatic.checked,
 
         "matching-algorithm": matchingAlgorithm.currentText,
 
-        "icp-maximum-iterations": icpMaximumIterations.text,
-        "icp-max-correspondence-distance": icpMaxCorrespondenceDistance.text,
-        "icp-transformation-epsilon": icpTransformationEpsilon.text
+        "icp-maximum-iterations": parseInt(icpMaximumIterations.text),
+        "icp-max-correspondence-distance": parseFloat(icpMaxCorrespondenceDistance.text),
+        "icp-transformation-epsilon": parseFloat(icpTransformationEpsilon.text)
     }
 
     //// UI ////
