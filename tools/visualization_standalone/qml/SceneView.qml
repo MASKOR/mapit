@@ -114,7 +114,7 @@ Item {
                     Layout.minimumWidth: 100
                     id: frameIdChooser
                     allowNew: false
-                    currentCheckout: root.currentCheckout
+                    //currentCheckout: root.currentCheckout
                 }
 
 //                StyledComboBox {

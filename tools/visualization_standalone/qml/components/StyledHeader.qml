@@ -33,12 +33,27 @@ Rectangle {
 
     Flow {
         id: flow
+        z: 10
         height: appStyle.controlHeightOuter
-        anchors.topMargin: (appStyle.controlHeightContainer-appStyle.controlHeightOuter) * 0.5
         anchors.left: headerLabel.right
         anchors.leftMargin: 8
-        //anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenter: parent.verticalCenter
     }
+//    Rectangle {
+//        z: 9
+//        anchors.left: flow.left
+//        anchors.right: parent.right
+//        anchors.top: parent.top
+//        anchors.bottom: parent.bottom
+//        //anchors.bottomMargin: 3
+//        color: appStyle.unhighlight(root.color)
+//        gradient: Gradient {
+//            GradientStop { position: 1.0; color: "black" }
+//            GradientStop { position: 0.0; color: "grey" }
+//        }
+
+//        opacity: 0.2
+//    }
 
     Button {
         anchors.right: parent.right

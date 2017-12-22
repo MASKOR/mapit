@@ -240,12 +240,10 @@ ColumnLayout {
             Layout.alignment: Qt.AlignTop
             text: "frame_id:"
         }
-        QuickAccessMenu {
-            z:100
+        FrameIdChooser {
             id: frameIdInput
             Layout.fillWidth: true
             allowNew: false
-            model: currentCheckout.getFrameIds()
         }
     }
     RowLayout {
@@ -255,12 +253,10 @@ ColumnLayout {
             Layout.alignment: Qt.AlignTop
             text: "child_frame_id:"
         }
-        QuickAccessMenu {
-            z:100
+        FrameIdChooser {
             id: childFrameIdInput
             Layout.fillWidth: true
             allowNew: true
-            model: currentCheckout.getFrameIds()
         }
     }
     RowLayout {

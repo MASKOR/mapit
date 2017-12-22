@@ -7,15 +7,20 @@ import "."
 
 QuickAccessMenu {
     property var currentCheckout: globalApplicationState.currentCheckout
-    z:100
+    z: 100
     id: frameIdInput
     height: appStyle.controlHeightInner
-    model: currentCheckout?currentCheckout.getFrameIds():[]
+    model: currentCheckout ? currentCheckout.getFrameIds() : []
     Connections {
         target: currentCheckout
         onIsBusyExecutingChanged: {
             if(!currentCheckout.isBusyExecuting)
-                frameIdInput.model = currentCheckout.getFrameIds()
+                frameIdInput.model = frameIdInput.currentCheckout.getFrameIds()
+        }
+        onInternalCheckoutChanged: {
+            if(!currentCheckout.is)
+                frameIdInput.model = frameIdInput.currentCheckout.getFrameIds()
         }
     }
+    onCurrentCheckoutChanged: frameIdInput.model = frameIdInput.currentCheckout.getFrameIds()
 }

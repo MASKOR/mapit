@@ -10,6 +10,7 @@ Item {
     property ListModel pipelines
     property bool currentExecutableIsPipeline
     property string currentDetailDialogPath
+    property string currentDisplayName
     onPipelinesChanged: priv.reinit()
     Component.onCompleted: priv.reinit()
 
@@ -38,6 +39,7 @@ Item {
             }
             var dialogPath = (root.currentExecutableIsPipeline?"../pipelines/":"../operators/") + executableName
             root.currentDetailDialogPath = dialogPath
+            root.currentDisplayName = executableName
         }
 
         onOperatorModelChanged: priv.reinit()
@@ -191,7 +193,7 @@ Item {
                     onCurrentIndexChanged: priv.selectOpOrPipeline(model.get(currentIndex))
                     highlightMoveDuration: appStyle.selectionAnimation ? 1000 : 0
                     highlightResizeDuration: appStyle.selectionAnimation ? 1000 : 0
-                    highlight: Rectangle { color: appStyle.itemBackgroundColor }
+                    highlight: Rectangle { color: appStyle.highlightColor }
                 }
             }
             ScrollView {
@@ -219,10 +221,10 @@ Item {
                         height: gridRoot.buttonSize
                         style: ButtonStyle {
                             background: Rectangle {
-                                property bool selected: root.currentOperator ? root.currentOperator.moduleName === gridRoot.model.get(index).displayName : false
+                                property bool selected: root.currentDisplayName ? root.currentDisplayName === gridRoot.model.get(index).displayName : false
                                 border.width: selected ? 1 : 0
                                 border.color: appStyle.selectionBorderColor
-                                color: appStyle.itemBackgroundColor
+                                color: selected ? appStyle.highlightColor : appStyle.itemBackgroundColor
                             }
                         }
                         tooltip: {

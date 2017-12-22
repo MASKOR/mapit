@@ -7,6 +7,7 @@ Item {
     id: root
     property bool allowNew: true
     property var model
+
 //    property var blurMouseArea: globalBlur
     property alias dropDownVisible: dropDown.visible
 
@@ -22,6 +23,7 @@ Item {
     property alias currentText: ff.text
     signal action(var item)
 
+    onModelChanged: reinit()
     onXChanged: reinit()
     onYChanged: reinit()
     onVisibleChanged: reinit()

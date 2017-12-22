@@ -23,7 +23,6 @@ Item {
         }
     }
     Item {
-        id: blockVoxelgrid
         property string displayName: "Voxelgrid"
         property string className: "voxelgridfilter"
         property var compo: Component {
@@ -37,11 +36,59 @@ Item {
                 property string target
                 property real leafsize
                 function serialize() {
-                    return {src: target};
+                    return {};
                 }
                 function execute() {
-                    console.log("exec: " + target + ", l: " + leafsize)
+                    console.log("exec: voxelgridfilter " + target + ", l: " + leafsize)
                     globalOperationScheduler.operatorList.push({moduleName:"voxelgridfilter", parameters:parameters})
+                }
+            }
+        }
+    }
+    Item {
+        property string displayName: "Normalestimation"
+        property string className: "normalestimation"
+        property var compo: Component {
+            Item {
+                property var parameters: {
+                    "target": target,
+                    "radius": radius,
+                    "k": k
+                }
+                property var output: ["target"]
+                property var input: ["target", "radius", "k"]
+                property string target
+                property real radius
+                property real k
+                function serialize() {
+                    return {};
+                }
+                function execute() {
+                    console.log("exec: normalestimation " + target + ", r: " + radius + ", k: " + k)
+                    globalOperationScheduler.operatorList.push({moduleName:"normalestimation", parameters:parameters})
+                }
+            }
+        }
+    }
+    Item {
+        property string displayName: "Load Pointcloud"
+        property string className: "load_pointcloud"
+        property var compo: Component {
+            Item {
+                property var parameters: {
+                    "target": target,
+                    "filename": filename
+                }
+                property var output: ["target"]
+                property var input: ["target", "filename"]
+                property string target
+                property string filename
+                function serialize() {
+                    return {};
+                }
+                function execute() {
+                    console.log("exec: load_pointcloud " + target + ", f: " + file)
+                    globalOperationScheduler.operatorList.push({moduleName:"load_pointcloud", parameters:parameters})
                 }
             }
         }
