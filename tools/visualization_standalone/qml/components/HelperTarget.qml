@@ -16,7 +16,7 @@ RowLayout {
     z: 100
     StyledLabel {
         id: label
-        text: nameOverwrite == "" ? "Target:" : nameOverwrite
+        text: nameOverwrite === "" ? "Target:" : nameOverwrite
     }
     EntityChooser {
         id: entityChooser
