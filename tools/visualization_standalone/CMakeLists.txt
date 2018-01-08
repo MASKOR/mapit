@@ -124,6 +124,7 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
 #find_package(OpenVDB REQUIRED)
 target_link_libraries(${PROJECT_NAME} load_primitive)
 target_link_libraries(${PROJECT_NAME} load_tfs)
+target_link_libraries(${PROJECT_NAME} reg_local)
 
 #target_link_libraries(${PROJECT_NAME} load_las_from_csv)
 #target_link_libraries(${PROJECT_NAME} load_asset)

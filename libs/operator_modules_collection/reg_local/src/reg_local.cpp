@@ -49,7 +49,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     log_info(output_pointcloud);
 
     // config parameter
-    cfg_use_frame_id_ = ! params["frame_id"].isNull();
+    cfg_use_frame_id_ = ! (params["frame_id"].isNull() || params["frame_id"].toString().isEmpty());
     if (cfg_use_frame_id_) {
         cfg_frame_id_ = params["frame_id"].toString().toStdString();
         log_info("reg_local_icp: transform to \"" + cfg_frame_id_ + "\" before executing ICP");
@@ -415,17 +415,35 @@ mapit::RegLocal::operate()
 upns::StatusCode
 mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
 {
-    cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations");
+    cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations") && ! params["icp-maximum-iterations"].toString().isEmpty();
     if ( cfg_icp_set_maximum_iterations_ ) {
-        cfg_icp_maximum_iterations_ = params["icp-maximum-iterations"].toInt();
+        if (params["icp-maximum-iterations"].isString()) {
+            std::string par = params["icp-maximum-iterations"].toString().toStdString();
+            std::replace( par.begin(), par.end(), ',', '.');
+            cfg_icp_maximum_iterations_ = std::stoi( par );
+        } else {
+            cfg_icp_maximum_iterations_ = params["icp-maximum-iterations"].toInt();
+        }
     }
-    cfg_icp_set_max_correspondence_distance_ = params.contains("icp-max-correspondence-distance");
+    cfg_icp_set_max_correspondence_distance_ = params.contains("icp-max-correspondence-distance") && ! params["icp-max-correspondence-distance"].toString().isEmpty();
     if ( cfg_icp_set_max_correspondence_distance_ ) {
-        cfg_icp_max_correspondence_distance_ = params["icp-max-correspondence-distance"].toDouble();
+        if (params["icp-max-correspondence-distance"].isString()) {
+            std::string par = params["icp-max-correspondence-distance"].toString().toStdString();
+            std::replace( par.begin(), par.end(), ',', '.');
+            cfg_icp_max_correspondence_distance_ = std::stod( par );
+        } else {
+            cfg_icp_max_correspondence_distance_ = params["icp-max-correspondence-distance"].toDouble();
+        }
     }
-    cfg_icp_set_transformation_epsilon_ = params.contains("icp-transformation-epsilon");
+    cfg_icp_set_transformation_epsilon_ = params.contains("icp-transformation-epsilon") && ! params["icp-transformation-epsilon"].toString().isEmpty();
     if ( cfg_icp_set_transformation_epsilon_ ) {
-        cfg_icp_transformation_epsilon_ = params["icp-transformation-epsilon"].toDouble();
+        if (params["icp-transformation-epsilon"].isString()) {
+            std::string par = params["icp-transformation-epsilon"].toString().toStdString();
+            std::replace( par.begin(), par.end(), ',', '.');
+            cfg_icp_transformation_epsilon_ = std::stod( par );
+        } else {
+            cfg_icp_transformation_epsilon_ = params["icp-transformation-epsilon"].toDouble();
+        }
     }
 
     return UPNS_STATUS_OK;

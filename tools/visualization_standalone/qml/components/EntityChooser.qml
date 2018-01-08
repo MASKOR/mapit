@@ -13,6 +13,7 @@ Item {
     property alias currentEntityPath: filter.currentText
     property real extendedHeight: 200
     property bool allowNewMap: true
+    property var internalTextField: filter.internalTextField
     QuickAccessMenu {
         id: filter
         anchors.fill: parent
