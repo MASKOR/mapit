@@ -20,7 +20,6 @@ ColumnLayout {
     property bool valid:   true
     property var parameters: {
         "target":    entityChooserTarget.currentEntityPath,
-        "input":     entityChooserInput.currentEntityPath,
         "tf-prefix": tfPrefix.currentEntityPath,
         "frame_id":  frameId.currentText,
 
@@ -38,6 +37,18 @@ ColumnLayout {
         "icp-maximum-iterations": parseInt(icpMaximumIterations.text),
         "icp-max-correspondence-distance": parseFloat(icpMaxCorrespondenceDistance.text),
         "icp-transformation-epsilon": parseFloat(icpTransformationEpsilon.text)
+    }
+
+    function beforeOperation() {
+        var input = []
+        for (var i = 0; i < inputRepeater.model.count; ++i) {
+            input.push( inputRepeater.model.get(i).name )
+        }
+        if (entityChooserInput.currentEntityPath !== "") {
+            input.push( entityChooserInput.currentEntityPath )
+        }
+
+        parameters["input"] = input;
     }
 
     //// UI ////
@@ -79,7 +90,6 @@ ColumnLayout {
                 currentEntityPath: inputRepeater.model.get(index).name
                 onCurrentEntityPathChanged: {
                     inputRepeater.model.get(index).name = currentEntityPath
-//                    inputRepeater.modelChanged()
                 }
             }
         }
@@ -106,7 +116,6 @@ ColumnLayout {
 
                     inputRepeater.model.append( { "name": entityLastName } )
                     inputLableRepeater.model = inputRepeater.count
-//                    updateParameterInput()
                 }
             }
         }
