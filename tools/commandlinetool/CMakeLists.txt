@@ -1,6 +1,14 @@
 project(commandlinetool)
 cmake_minimum_required(VERSION 2.8)
 
+  # message colors
+  if(NOT WIN32)
+    string(ASCII 27 Esc)
+    set(ColourReset "${Esc}[m")
+    set(Red         "${Esc}[31m")
+    set(Green       "${Esc}[32m")
+  endif()
+
 #file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/script/*)
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add bash script files to project" SOURCES ${UPNS_SOURCES})
@@ -36,3 +44,15 @@ execute_process(
 
 #install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(PROGRAMS script/mapit DESTINATION bin )
+
+find_package(bash-completion)
+if(NOT BASH_COMPLETION_FOUND)
+  message(AUTHOR_WARNING "${Red}"
+    "Can't find bash-completion"
+    "${ColourReset}")
+else()
+  message(AUTHOR_WARNING "${Green}"
+    "Found bash-completion:\n${BASH_COMPLETION_COMPLETIONSDIR}"
+    "${ColourReset}")
+  install(PROGRAMS completion/mapit DESTINATION ${BASH_COMPLETION_COMPLETIONSDIR} )
+endif()

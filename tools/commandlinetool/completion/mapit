@@ -1,0 +1,22 @@
+_mapit() 
+{
+  local cur prev opts
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ "$COMP_CWORD" == 1 ]]; then
+    # 1. param: for program to be loaded
+    for i in $( ls /usr/local/bin/upns_tools/ ); do
+      opts="${opts} ${i} "
+    done
+    COMPREPLY=( $(compgen -W "${opts}" ${cur}) )
+  else
+    # next param: of the program to be loaded
+    complete -F _command /usr/local/bin/upns_tools/$prev
+#    complete -F _command_offset 1 /usr/local/bin/upns_tools/$prev 
+  fi
+
+  return 0
+}
+complete -F _mapit mapit
