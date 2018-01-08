@@ -201,17 +201,6 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(cons
     return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
 }
 
-bool CheckoutImpl::checkEntitydata(const Path &path)
-{
-    Path p(m_name + "/" + preparePathFilename(path));
-    std::shared_ptr<Entity> ent = m_serializer->getEntityTransient( p );
-    if( ent == NULL )
-    {
-        return false;
-    }
-    return true;
-}
-
 StatusCode CheckoutImpl::storeTree(const Path &path, std::shared_ptr<Tree> tree)
 {
     return createPath(path, tree);

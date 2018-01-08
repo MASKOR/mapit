@@ -15,9 +15,7 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
 {
     /** structure:
      * {
-     *  "map" : ...,
-     *  "dynamic_layer" : ...,  [optional]
-     *  "static_layer" : ...,   [optional]
+     *  "prefix" : ...,
      *  "transforms" :
      *  [                       [repeated]
      *      {
@@ -54,23 +52,11 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    std::string map_name = params["map"].toString().toStdString();
-    if(map_name.empty())
-    {
-        log_error("parameter map is missing");
-        return UPNS_STATUS_ERROR;
-    }
-    map_name = CheckoutCommon::getMapPathOfEntry(map_name);
+    std::string prefix = params["prefix"].toString().toStdString();
 
     CheckoutRaw* checkout = env->getCheckout();
-    std::shared_ptr<mapit::Map> map = checkout->getExistingOrNewMap(map_name);
-    std::shared_ptr<mapit::Layer> layer_static, layer_dynamic;
-    layer_static = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_STATIC_, TfEntitydata::TYPENAME());
-    layer_dynamic = checkout->getExistingOrNewLayer(map, upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_, TfEntitydata::TYPENAME());
 
-    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map_static
-        = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
-    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map_dynamic
+    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map
         = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
 
     // TODO check if data is available
@@ -126,23 +112,15 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
         }
 
         // add data to map
-        std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map;
-        if (is_static) {
-            tfs_map = tfs_map_static;
-        } else {
-            tfs_map = tfs_map_dynamic;
-        }
         tfs_map->add_transform( std::move( tf_loaded ), is_static );
     }
 
-    upns::StatusCode usc_static = tfs_map_static->store_entities(checkout, layer_static->getDataPath());
-    upns::StatusCode usc_dynamic = tfs_map_dynamic->store_entities(checkout, layer_dynamic->getDataPath());
+    upns::StatusCode usc_static = tfs_map->store_entities(checkout, prefix);
 
-    if (   usc_static == UPNS_STATUS_OK
-        && usc_dynamic == UPNS_STATUS_OK) {
+    if (   usc_static == UPNS_STATUS_OK) {
       return UPNS_STATUS_OK;
     } else {
-      return UPNS_STATUS_ERROR;
+      return usc_static;
     }
 
 }

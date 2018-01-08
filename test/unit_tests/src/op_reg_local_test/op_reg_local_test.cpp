@@ -124,7 +124,7 @@ void OPRegLocalICPTest::init()
     desc_add_tfs.mutable_operator_()->set_operatorname("load_tfs");
     desc_add_tfs.set_params(
                 "{"
-                "   \"map\" : \"tf-combine\","
+                "   \"prefix\" : \"tf-combine\","
                 "   \"transforms\" : "
                 "   ["
                 "       {"
@@ -310,7 +310,7 @@ void OPRegLocalICPTest::test_icp_tf_combine()
                 "   \"input\"             : [ \"bunny\", \"bunny2\" ],"
                 "   \"target\"            : \"bunny_tf\","
                 "   \"handle-result\"     : \"tf-combine\","
-                "   \"tf-prefix\"         : \"/tf-combine/tf_dynamic/\","
+                "   \"tf-prefix\"         : \"/tf-combine/\","
                 "   \"tf-frame_id\"       : \"world\","
                 "   \"tf-child_frame_id\" : \"bunny\","
                 "   \"tf-is_static\"      : false,"

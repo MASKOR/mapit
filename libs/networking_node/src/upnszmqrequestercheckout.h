@@ -35,7 +35,6 @@ public:
     std::shared_ptr<Branch> getParentBranch();
     std::vector<CommitId> getParentCommitIds();
     std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &entityId);
-    bool checkEntitydata(const Path &entityId);
     std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
     StatusCode depthFirstSearch(std::function<bool (std::shared_ptr<Commit>, const ObjectReference &, const Path &)> beforeCommit,
                                 std::function<bool (std::shared_ptr<Commit>, const ObjectReference &, const Path &)> afterCommit,

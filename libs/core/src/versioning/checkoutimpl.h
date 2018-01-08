@@ -62,7 +62,6 @@ public:
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &path);
-    virtual bool checkEntitydata(const Path &path);
 
     virtual StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree);
     virtual StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity);

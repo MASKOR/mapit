@@ -10,7 +10,7 @@ class PublishTFs : public PublishToROS
 public:
   using PublishToROS::PublishToROS;
 
-  virtual void publish_entity(std::shared_ptr<mapit::Entity> entity);
+  virtual void publish_entity(const std::string& entity_name, const std::shared_ptr<::Entity>& entity);
 
   void tf_timer_callback(const ros::TimerEvent&);
   void publish_one_tf_entity(std::unique_ptr<upns::tf::TransformStamped> tf_stamped);
