@@ -7,7 +7,7 @@ import QtQuick.Controls.Private 1.0
 // Tested on: Qt 5.10
 
 Label {
-    //Note: If tooltips are enabled, the lable can not be clicked through
+    //Note: If tooltips are enabled, the label can not be clicked through
     property alias tooltip: tooltipMousearea.text
     color: enabled ? appStyle.textColor : appStyle.textColorDisabled
     font.family: appStyle.labelFontFamily

@@ -10,7 +10,8 @@ import "../components"
 /**
  * The operator can/should use the following to integrate into the GUI
  *
- * property bool valid        execute button will be only clicalbe when true
+ * property bool editable     indicates if the dialog is editable/readonly
+ * property bool valid        execute button will be only clickable when true
  * property var parameters    these json object will be given to the operator
  * function beforeOperation() when exists, this function will be called before
  *                            the operator will be executed, last changes on the parameters can be done here

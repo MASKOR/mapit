@@ -24,8 +24,8 @@ ColumnLayout {
         "filename": fileChooser.filename,
         "target": entityChooser.currentEntityPath,
         "frame_id": frameId.currentText,
-        "sec":      stampSec.text,
-        "nsec:":    stampNSec.text
+        "sec":      parseInt(stampSec.text),
+        "nsec:":    parseInt(stampNSec.text)
     }
 
     //// UI ////

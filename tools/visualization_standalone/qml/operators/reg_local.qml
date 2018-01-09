@@ -30,7 +30,7 @@ ColumnLayout {
 
         "tf-frame_id": tfFrameId.currentText,
         "tf-child_frame_id": tfChildFrameId.currentText,
-        "tf-is_static": tfISstatic.checked,
+        "tf-is_static": tfIsStatic.checked,
 
         "matching-algorithm": matchingAlgorithm.currentText,
 
@@ -70,7 +70,7 @@ ColumnLayout {
         }
         // input
         Repeater {
-            id: inputLableRepeater
+            id: inputLabelRepeater
             model: 0
             StyledLabel {
                 Layout.column: 0
@@ -115,7 +115,7 @@ ColumnLayout {
                     entityChooserInput.currentEntityPath = ""
 
                     inputRepeater.model.append( { "name": entityLastName } )
-                    inputLableRepeater.model = inputRepeater.count
+                    inputLabelRepeater.model = inputRepeater.count
                 }
             }
         }
@@ -221,7 +221,7 @@ ColumnLayout {
                 Layout.row: 0
                 z: 159
                 Layout.fillWidth: true
-                id: tfISstatic
+                id: tfIsStatic
                 onCheckedChanged: if(checked) kCb.checked = false
             }
             StyledLabel {
