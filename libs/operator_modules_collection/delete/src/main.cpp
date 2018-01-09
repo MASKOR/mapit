@@ -52,13 +52,21 @@ operateDelete(upns::OperationEnvironment* env)
     if (        params["target"].isString() ) {
         // just one entity/tree
         std::string entityName = params["target"].toString().toStdString();
-        deleteEntityOrTree(checkout, entityName);
+        upns::StatusCode s = deleteEntityOrTree(checkout, entityName);
+        if ( ! upnsIsOk(s) ) {
+//            log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
+            return s;
+        }
     } else if ( params["target"].isArray() ) {
         // list of entity/tree
         QJsonArray jsonEntityNames( params["target"].toArray() );
         for (auto jsonEntityName : jsonEntityNames) {
             std::string entityName = jsonEntityName.toString().toStdString();
-            deleteEntityOrTree(checkout, entityName);
+            upns::StatusCode s = deleteEntityOrTree(checkout, entityName);
+            if ( ! upnsIsOk(s) ) {
+    //            log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
+                return s;
+            }
         }
     } else {
         // unknown
