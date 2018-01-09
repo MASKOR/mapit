@@ -25,6 +25,7 @@ private:
     std::shared_ptr<upns::Repository> repo_;
     std::shared_ptr<upns::Checkout> checkout_;
 
+    void add_bunny(std::string path);
     void createTestdata();
 };
 

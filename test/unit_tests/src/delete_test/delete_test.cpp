@@ -42,21 +42,27 @@ void DeleteTest::cleanupTestCase()
 {
 }
 
-void DeleteTest::test_delete_entity()
+void DeleteTest::add_bunny(std::string path)
 {
-    //add bunny
     OperationDescription desc_bunny;
+    upns::OperationResult ret;
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
                 "{"
                 "  \"filename\" : \"data/bunny.pcd\","
-                "  \"target\"   : \"bunny1\","
+                "  \"target\"   : \"" + path + "\","
                 "  \"sec\"      : 1, "
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    upns::OperationResult ret = checkout_->doOperation( desc_bunny );
+    ret = checkout_->doOperation( desc_bunny );
     QVERIFY( upnsIsOk(ret.first) );
+}
+
+void DeleteTest::test_delete_entity()
+{
+    //add bunny
+    add_bunny("bunny1");
 
     QVERIFY( checkout_->getEntity( "bunny1" ) != nullptr);
 
@@ -75,22 +81,108 @@ void DeleteTest::test_delete_entity()
 
 void DeleteTest::test_delete_tree()
 {
+    //add bunnys
+    add_bunny("bunnys/bun1");
+    add_bunny("bunnys/bun2");
+    add_bunny("bunnys/bun3");
+    add_bunny("keep1/bun1");
+    add_bunny("keep2/bun1");
+    add_bunny("keep_bun1");
 
+    OperationDescription desc_del;
+    desc_del.mutable_operator_()->set_operatorname("delete");
+    desc_del.set_params(
+                "{"
+                "  \"target\"   : \"bunnys\""
+                "}"
+                );
+    upns::OperationResult ret_del = checkout_->doOperation( desc_del );
+    QVERIFY( upnsIsOk(ret_del.first) );
+
+    QVERIFY( checkout_->getTree("bunnys" ) == nullptr);
+    QVERIFY( checkout_->getEntity( "bunnys/bun1" ) == nullptr);
+    QVERIFY( checkout_->getEntity( "bunnys/bun2" ) == nullptr);
+    QVERIFY( checkout_->getEntity( "bunnys/bun3" ) == nullptr);
+    QVERIFY( checkout_->getEntity( "keep1/bun1" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "keep2/bun1" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "keep_bun1" ) != nullptr);
 }
 
 void DeleteTest::test_delete_sub_entity()
 {
+    //add bunnys
+    add_bunny("bunnys/bun1");
+    add_bunny("bunnys/bun2");
+    add_bunny("bunnys/bun3");
 
+    OperationDescription desc_del;
+    desc_del.mutable_operator_()->set_operatorname("delete");
+    desc_del.set_params(
+                "{"
+                "  \"target\"   : \"bunnys/bun2\""
+                "}"
+                );
+    upns::OperationResult ret_del = checkout_->doOperation( desc_del );
+    QVERIFY( upnsIsOk(ret_del.first) );
+
+    QVERIFY( checkout_->getTree("bunnys" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "bunnys/bun1" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "bunnys/bun2" ) == nullptr);
+    QVERIFY( checkout_->getEntity( "bunnys/bun3" ) != nullptr);
 }
 
 void DeleteTest::test_delete_sub_tree()
 {
+    //add bunnys
+    add_bunny("suuub/bunnys/bun1");
+    add_bunny("suuub/bunnys/bun2");
+    add_bunny("suuub/bunnys/bun3");
+    add_bunny("suuub/keep/bun");
+    add_bunny("suuub/keep_bun");
 
+    OperationDescription desc_del;
+    desc_del.mutable_operator_()->set_operatorname("delete");
+    desc_del.set_params(
+                "{"
+                "  \"target\"   : \"suuub/bunnys\""
+                "}"
+                );
+    upns::OperationResult ret_del = checkout_->doOperation( desc_del );
+    QVERIFY( upnsIsOk(ret_del.first) );
+
+    QVERIFY( checkout_->getTree("suuub" ) != nullptr);
+    QVERIFY( checkout_->getTree("suuub/bunnys" ) == nullptr);
+    QVERIFY( checkout_->getTree("suuub/keep" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "suuub/keep_bun" ) != nullptr);
 }
 
 void DeleteTest::test_delete_entities_and_trees_mixed()
 {
+    //add bunnys
+    add_bunny("suuub/bunnys/del1");
+    add_bunny("suuub/bunnys/del2");
+    add_bunny("suuub/bunnys2/keep1");
+    add_bunny("suuub/bunnys2/del2");
+    add_bunny("suuub/keep/bun");
+    add_bunny("suuub/keep_bun");
 
+    OperationDescription desc_del;
+    desc_del.mutable_operator_()->set_operatorname("delete");
+    desc_del.set_params(
+                "{"
+                "  \"target\"   : [ \"suuub/bunnys\", \"suuub/bunnys2/del2\" ]"
+                "}"
+                );
+    upns::OperationResult ret_del = checkout_->doOperation( desc_del );
+    QVERIFY( upnsIsOk(ret_del.first) );
+
+    QVERIFY( checkout_->getTree("suuub" ) != nullptr);
+    QVERIFY( checkout_->getTree("suuub/keep" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "suuub/keep_bun" ) != nullptr);
+    QVERIFY( checkout_->getTree("suuub/bunnys" ) == nullptr);
+    QVERIFY( checkout_->getTree("suuub/bunnys2" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "suuub/bunnys2/keep1" ) != nullptr);
+    QVERIFY( checkout_->getEntity( "suuub/bunnys2/del2" ) == nullptr);
 }
 
 DECLARE_TEST(DeleteTest)
