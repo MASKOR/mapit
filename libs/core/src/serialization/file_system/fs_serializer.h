@@ -60,7 +60,7 @@ namespace upns
     virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<Tree> &obj);
     virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal &transientId);
     //virtual std::pair<StatusCode, ObjectId> createTreeTransient(std::shared_ptr<Tree> &obj, const Path &path);
-    virtual StatusCode removeTree(const ObjectId &oid);
+    virtual StatusCode removeTreeTransient(const ObjectId &oid);
 
     virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId oid);
     virtual std::shared_ptr<mapit::msgs::Entity> getEntityTransient(const PathInternal oid);
