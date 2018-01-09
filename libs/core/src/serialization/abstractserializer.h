@@ -39,7 +39,7 @@ public:
     virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> &obj) = 0;
     virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> &obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createEntity(std::shared_ptr<Entity> &obj) = 0;
-    virtual StatusCode removeEntity(const ObjectId &oid) = 0;
+    virtual StatusCode removeEntityTransient(const ObjectId &oid) = 0;
 
     virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const ObjectId &oid) = 0;
     //virtual StatusCode storeCommit(std::shared_ptr<Commit> &obj) = 0;

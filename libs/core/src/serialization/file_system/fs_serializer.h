@@ -46,6 +46,7 @@ namespace upns
     void fs_check_create(fs::path path);
     void fs_write(fs::path path, std::shared_ptr<GenericEntry> ge, MessageType msgType, bool overwrite = false);
     void fs_read(fs::path path, std::shared_ptr<GenericEntry> entry);
+    void fs_delete(fs::path path);
   public:
 
     FSSerializer(std::string directory);
@@ -66,7 +67,7 @@ namespace upns
     virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> &obj);
     virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> &obj, const PathInternal &transientId);
     //virtual StatusCode createEntityTransient(std::shared_ptr<Entity> &obj);
-    virtual StatusCode removeEntity(const ObjectId &oid);
+    virtual StatusCode removeEntityTransient(const ObjectId &oid);
 
     virtual std::shared_ptr<Commit> getCommit(const ObjectId &oid);
     //virtual std::pair<StatusCode, ObjectId> storeCommit(std::shared_ptr<Commit> &obj);

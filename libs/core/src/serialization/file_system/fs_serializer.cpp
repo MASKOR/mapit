@@ -100,7 +100,7 @@ FSSerializer::objectid_to_checkout_fs_path(ObjectId oid)
 //        log_warn("Can't find \"/\" in ObjectId of object in checkout, don't extended path as <checkoutname>/" + _CHECKOUT_ROOT_FOLDER_.string() + "/<checkoutid>\n the path is: " + path.string());
     }
 
-    return path;
+    return path.remove_trailing_separator();
 }
 
 void
@@ -158,6 +158,12 @@ FSSerializer::fs_read(fs::path path, std::shared_ptr<GenericEntry> entry)
 //    buffer.close();
 
     entry->ParseFromString( strs.str() );
+}
+
+void
+FSSerializer::fs_delete(fs::path path)
+{
+    fs::remove(path);
 }
 
 std::shared_ptr<Tree>
@@ -330,10 +336,37 @@ FSSerializer::storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInter
 }
 
 StatusCode
-FSSerializer::removeEntity(const ObjectId &oid)
+FSSerializer::removeEntityTransient(const ObjectId &oid)
 {
-    //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    std::shared_ptr<Entity> entity = getEntityTransient(oid);
+    if (entity == nullptr) {
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
+
+    fs::path path_entity = objectid_to_checkout_fs_path( oid );
+    fs_delete( path_entity / _CHECKOUT_GENERIC_ENTRY_ );
+    fs_delete( path_entity / _CHECKOUT_ENTITY_DATA_ );
+
+    size_t len = oid.find_last_of("/");
+    if (len == oid.length() - 1) {
+        len = oid.find_last_of("/", len - 1);
+    }
+
+    std::string tree_name = oid.substr(0,  len) + "/";
+    std::shared_ptr<Tree> tree = getTreeTransient(tree_name);
+    if (tree == nullptr) {
+        return UPNS_STATUS_ERR_DB_CORRUPTION;
+    }
+
+    std::string entity_name = oid.substr(len + 1, oid.size());
+    if (entity_name.back() == '/') {
+        entity_name = entity_name.substr(0, entity_name.size() - 1);
+    }
+
+    tree->mutable_refs()->erase(entity_name);
+    storeTreeTransient(tree, tree_name);
+
+    return UPNS_STATUS_OK;
 }
 
 std::shared_ptr<Commit>

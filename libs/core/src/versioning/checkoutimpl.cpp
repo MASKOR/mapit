@@ -218,7 +218,13 @@ StatusCode CheckoutImpl::deleteTree(const Path &path)
 
 StatusCode CheckoutImpl::deleteEntity(const Path &path)
 {
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    // TODO remove from commit
+    Path p(preparePath(path));
+    if (p.empty()) {
+        return UPNS_STATUS_ERROR;
+    }
+
+    return m_serializer->removeEntityTransient(m_name + "/" + p);
 }
 
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
