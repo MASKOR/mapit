@@ -52,6 +52,8 @@ public:
 public:
     StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree);
     StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity);
+    virtual StatusCode deleteTree(const Path &path);
+    virtual StatusCode deleteEntity(const Path &path);
     std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity);
 
 private:

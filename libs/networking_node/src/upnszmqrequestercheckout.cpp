@@ -230,6 +230,16 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     }
 }
 
+upns::StatusCode upns::ZmqRequesterCheckout::deleteTree(const Path &path)
+{
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+}
+
+upns::StatusCode upns::ZmqRequesterCheckout::deleteEntity(const Path &path)
+{
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+}
+
 std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataForReadWrite(const upns::Path &entity)
 {
     std::shared_ptr<Entity> e = getEntity(entity);

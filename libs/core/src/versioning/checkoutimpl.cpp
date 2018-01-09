@@ -211,6 +211,16 @@ StatusCode CheckoutImpl::storeEntity(const Path &path, std::shared_ptr<Entity> e
     return createPath(path, entity);
 }
 
+StatusCode CheckoutImpl::deleteTree(const Path &path)
+{
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+}
+
+StatusCode CheckoutImpl::deleteEntity(const Path &path)
+{
+    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+}
+
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 {
     //TODO

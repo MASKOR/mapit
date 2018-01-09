@@ -66,6 +66,9 @@ public:
     virtual StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree);
     virtual StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity);
 
+    virtual StatusCode deleteTree(const Path &path);
+    virtual StatusCode deleteEntity(const Path &path);
+
     virtual void setConflictSolved(const Path &path, const ObjectId &oid);
 
     virtual std::shared_ptr<Branch> getParentBranch();
