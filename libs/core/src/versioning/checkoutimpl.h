@@ -167,7 +167,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     Path p = preparePath(path);
 
     // final path of "transient" objects
-    std::vector< std::shared_ptr<Tree> > exclusiveTreePath;
+    std::vector< std::shared_ptr<Tree> > transientTreePath;
 
     // current element for iteration (only for trees)
     std::shared_ptr<Tree> current;
@@ -177,21 +177,21 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
 
     // check if root is transient/exclusive
     // if root is not transient and must be copied to edit.
-    bool rootNotExclusive = (!rootMissing) && (!m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty());
+    bool rootNotTransient = (!rootMissing) && (!m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty());
     //bool rootNotExclusive = m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root()) == 0;
-    assert(rootMissing || (rootNotExclusive == (m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root().path()) == 0)));
+    assert(rootMissing || (rootNotTransient == (m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root().path()) == 0)));
     // if there is no root directory, checkout must be empty and have nothing transient
     assert(!rootMissing || rootMissing && m_checkout->transientoidstoorigin_size() == 0);
 
     // step 1) make root exclusive or create new root and hook it into rolling commit.
     // This can not be done in step 2), because the parent is not a tree.
 
-    if(rootMissing || rootNotExclusive)
+    if(rootMissing || rootNotTransient)
     {
         // create/copy root for checkout
 
         // ObjectIdentifier/Hash of original object.
-        // Commit stores the origin-version of each altered object in transientoidstoorigin (empty if nely created).
+        // Commit stores the origin-version of each altered object in transientoidstoorigin (empty if newly created).
         ::std::string originOid;
 
         if(rootMissing)
@@ -202,26 +202,26 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         }
         else
         {
-            // copy to make exclusive
+            // copy to make transient
             originOid = m_checkout->rollingcommit().root().id();
             current = m_serializer->getTree(originOid);
         }
         m_checkout->mutable_rollingcommit()->mutable_root()->set_path(m_name + "/");
         m_checkout->mutable_transientoidstoorigin()
                 ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(m_checkout->rollingcommit().root().path(), originOid));
-        exclusiveTreePath.push_back( current );
+        transientTreePath.push_back( current );
     }
     else
     {
-        // root exists and can exclusively be altered
+        // root exists and is transient; can be altered
         PathInternal path = m_checkout->rollingcommit().root().path();
         current = m_serializer->getTreeTransient(path);
-        exclusiveTreePath.push_back( current );
+        transientTreePath.push_back( current );
     }
 
-    // step 2) step though trees. Fill "exclusiveTreePath" and finally persist all objects
+    // step 2) step though trees. Fill "transientTreePath" and finally persist all objects
     // This must be done in two steps:
-    //   2.1) construct the objects in memory and update them (fill exclusiveTreePath)
+    //   2.1) construct the objects in memory and update them (fill transientTreePath)
     //   2.2) persist objects and ensure parent/child relationship
 
     // indicates if leaf was successfully appended in "before" step
@@ -243,8 +243,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         // for each of these cases we must handle the last element special
         // ...which leads to 6 cases:
         // 1+2) no oid yet          -> create tree/entity, put in vector to update and store. (for leaf: create directly)
-        // 3+4) exclusive oids      -> put in vector to update and store (for leaf: create directly)
-        // 5+6) non-exclusive oids  -> put copy in vector to update and store (for leaf: create directly)
+        // 3+4) transient oids      -> put in vector to update and store (for leaf: create directly)
+        // 5+6) non-transient oids  -> put copy in vector to update and store (for leaf: create directly)
 
         assert(ref.id().empty() || ref.path().empty()); // both must not be set at the same time.
 
@@ -256,7 +256,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
             {
                 // case 1: append tree
                 std::shared_ptr<Tree> tree(new Tree);
-                exclusiveTreePath.push_back( tree );
+                transientTreePath.push_back( tree );
                 m_checkout->mutable_transientoidstoorigin()
                         ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ""));
                 current = tree;
@@ -276,10 +276,10 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         else
         {
             // use or copy existing
-            bool segExclusive = ref.id().empty() && !ref.path().empty();
+            bool segTransient = ref.id().empty() && !ref.path().empty();
             //bool segExclusive = m_checkout->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is exclusive, instead this is ensured in assertion below)
-            assert(segExclusive == (m_checkout->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
-            if(segExclusive)
+            assert(segTransient == (m_checkout->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
+            if(segTransient)
             {
                 // use existing
                 if(!isLast || (isLast && createLeaf == NULL))
@@ -291,7 +291,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                         log_error("Segment of path was not a tree or path was wrong");
                         return false;
                     }
-                    exclusiveTreePath.push_back( tree );
+                    transientTreePath.push_back( tree );
                     current = tree;
                 }
                 else
@@ -321,7 +321,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                     }
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
-                    exclusiveTreePath.push_back( tree );
+                    transientTreePath.push_back( tree );
                     current = tree;
                 }
                 else
@@ -351,13 +351,13 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         }
         else
         {
-            current = exclusiveTreePath.back();
-            exclusiveTreePath.pop_back();
+            current = transientTreePath.back();
+            transientTreePath.pop_back();
             pathInternal = m_name + "/" + p.substr(0, idx);
             std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(current, pathInternal);
             pathInternal = status_path.second;
             if(!upnsIsOk(status_path.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
-            if(exclusiveTreePath.empty())
+            if(transientTreePath.empty())
             {
                 assert(idx == 0);
                 return false;
@@ -365,7 +365,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         }
 
         // update parent child relationship
-        std::shared_ptr<Tree> parent = exclusiveTreePath.back();
+        std::shared_ptr<Tree> parent = transientTreePath.back();
         ObjectReference oref;
         oref.set_path(pathInternal);
         //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
@@ -376,8 +376,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     });
 
     // store/create root
-    std::shared_ptr<Tree> obj = exclusiveTreePath.back();
-    exclusiveTreePath.pop_back();
+    std::shared_ptr<Tree> obj = transientTreePath.back();
+    transientTreePath.pop_back();
     std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(obj, m_name + "/");
     if(!upnsIsOk(status_path.first)) return status_path.first;
 
