@@ -155,23 +155,45 @@ private:
 };
 
 //TODO: This method could be implemented shorter with less branching and duplication in code.
+// This method ensures that the path consist of transient objects.
+// This is needed when objects are changed in a checkout/workspace, because history must not be changed.
+// Method walks through path and detects the first branch into history. It then copies all objects from
+// history or creates new objects.
+// If "createLeafe" is set, the last element of the path will be hooked correctly into the
+// (maybe newly created) parent.
 template <typename T>
 StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf)
 {
     Path p = preparePath(path);
+
+    // final path of "transient" objects
     std::vector< std::shared_ptr<Tree> > exclusiveTreePath;
+
+    // current element for iteration (only for trees)
     std::shared_ptr<Tree> current;
+
+    // check if root tree exists
     bool rootMissing = !m_checkout->rollingcommit().has_root() || m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty();
-    // root is not transient and must be copied to edit.
+
+    // check if root is transient/exclusive
+    // if root is not transient and must be copied to edit.
     bool rootNotExclusive = (!rootMissing) && (!m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty());
     //bool rootNotExclusive = m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root()) == 0;
     assert(rootMissing || (rootNotExclusive == (m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root().path()) == 0)));
     // if there is no root directory, checkout must be empty and have nothing transient
     assert(!rootMissing || rootMissing && m_checkout->transientoidstoorigin_size() == 0);
+
+    // step 1) make root exclusive or create new root and hook it into rolling commit.
+    // This can not be done in step 2), because the parent is not a tree.
+
     if(rootMissing || rootNotExclusive)
     {
         // create/copy root for checkout
+
+        // ObjectIdentifier/Hash of original object.
+        // Commit stores the origin-version of each altered object in transientoidstoorigin (empty if nely created).
         ::std::string originOid;
+
         if(rootMissing)
         {
             // create new root
@@ -197,27 +219,42 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         exclusiveTreePath.push_back( current );
     }
 
+    // step 2) step though trees. Fill "exclusiveTreePath" and finally persist all objects
+    // This must be done in two steps:
+    //   2.1) construct the objects in memory and update them (fill exclusiveTreePath)
+    //   2.2) persist objects and ensure parent/child relationship
+
+    // indicates if leaf was successfully appended in "before" step
     bool leafWasStored = false;
     PathInternal leafPathIntenal;
     forEachPathSegment(p,
     [&](std::string seg, size_t idx, bool isLast)
     {
-        if(current == NULL) return false; // can not go futher
-        if(seg.empty()) return false; // "//" not allowed
+        if(current == NULL) return false; //< can not go futher
+        if(seg.empty()) return false; //< "//" not allowed
+
         ObjectReference ref = objectReferenceOfChild(current, seg);
         PathInternal pathInternal = m_name + "/" + p.substr(0,idx);
-        // 6 cases:
+
+        // For each segment the object might be
+        // - not yet existant -> create
+        // - already transient -> alter
+        // - not yet transient -> copy and alter
+        // for each of these cases we must handle the last element special
+        // ...which leads to 6 cases:
         // 1+2) no oid yet          -> create tree/entity, put in vector to update and store. (for leaf: create directly)
         // 3+4) exclusive oids      -> put in vector to update and store (for leaf: create directly)
         // 5+6) non-exclusive oids  -> put copy in vector to update and store (for leaf: create directly)
+
         assert(ref.id().empty() || ref.path().empty()); // both must not be set at the same time.
+
         bool segNotExistant = ref.id().empty() && ref.path().empty();
         if(segNotExistant)
         {
             // create new
             if(!isLast || (isLast && createLeaf == NULL))
             {
-                // append tree
+                // case 1: append tree
                 std::shared_ptr<Tree> tree(new Tree);
                 exclusiveTreePath.push_back( tree );
                 m_checkout->mutable_transientoidstoorigin()
@@ -226,7 +263,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
             }
             else
             {
-                // create Leaf. This is executed once. Next step is after(...).
+                // case 2: create Leaf. This is executed once. Next step is after(...).
                 std::pair<StatusCode, PathInternal> pathStatus = storeObject(createLeaf, pathInternal);
                 leafPathIntenal = pathStatus.second;
                 if(!upnsIsOk(pathStatus.first)) return false;
@@ -240,14 +277,14 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         {
             // use or copy existing
             bool segExclusive = ref.id().empty() && !ref.path().empty();
-            //bool segExclusive = m_checkout->transientoidstoorigin().count(oid) != 0;
-            assert(segExclusive == (m_checkout->transientoidstoorigin().count(ref.path()) != 0));
+            //bool segExclusive = m_checkout->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is exclusive, instead this is ensured in assertion below)
+            assert(segExclusive == (m_checkout->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
             if(segExclusive)
             {
                 // use existing
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
-                    // put tree in vector and do nothing
+                    // case 3: put tree in vector and do nothing
                     std::shared_ptr<Tree> tree(m_serializer->getTreeTransient(ref.path()));
                     if(tree == NULL)
                     {
@@ -259,7 +296,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 }
                 else
                 {
-                    // overwrite Leaf. This is executed once. Next step is after(...).
+                    // case 4: overwrite Leaf. This is executed once. Next step is after(...).
                     // Note: here might be two transient ids in the pair
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, "")); //TODO: history of createLeaf lost, if ther was one
@@ -275,7 +312,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 assert(!ref.id().empty() && ref.path().empty());
                 if(!isLast || (isLast && createLeaf == NULL))
                 {
-                    // copy existing tree under transient oid
+                    // case 5: copy existing tree under transient oid
                     std::shared_ptr<Tree> tree(m_serializer->getTree(ref.id()));
                     if(tree == NULL)
                     {
@@ -289,7 +326,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 }
                 else
                 {
-                    // overwrite Leaf with copy. This is executed once. Next step is after(...).
+                    // case 6: overwrite Leaf with copy. This is executed once. Next step is after(...).
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     //createLeaf->set_id(nextOid);
@@ -305,6 +342,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     },
     [&](std::string seg, size_t idx, bool isLast)
     {
+        // store object
         PathInternal pathInternal;
         if(leafWasStored && isLast) // leaf already created in "before"
         {
@@ -325,6 +363,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 return false;
             }
         }
+
+        // update parent child relationship
         std::shared_ptr<Tree> parent = exclusiveTreePath.back();
         ObjectReference oref;
         oref.set_path(pathInternal);
