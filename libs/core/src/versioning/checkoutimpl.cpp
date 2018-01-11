@@ -213,56 +213,24 @@ StatusCode CheckoutImpl::storeEntity(const Path &path, std::shared_ptr<Entity> e
 
 StatusCode CheckoutImpl::deleteTree(const Path &path)
 {
-    StatusCode status_search = UPNS_STATUS_OK;
-    ObjectReference nullRef;
-    upns::depthFirstSearch(
-                this,
-                getTree(path),
-                nullRef,
-                path,
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Tree),
-                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &path)
-                {
-                    // TODO remove from commit
-                    Path p(preparePath(path));
-                    if (p.empty()) {
-                        status_search = UPNS_STATUS_ERROR;
-                    }
-
-                    StatusCode s =  m_serializer->removeTreeTransient(m_name + "/" + p);
-                    if ( ! upnsIsOk(s) ) {
-                        status_search = s;
-                    }
-
-                    return true;
-                },
-                depthFirstSearchAll(Entity),
-                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
-                {
-                    // TODO using deleteEntity() results in changing the parrent tree of this entity, but at the end the tree might get deleted itself
-                    StatusCode s = deleteEntity(path);
-                    if ( ! upnsIsOk(s) ) {
-                        status_search = s;
-                    }
-
-                    return true;
-                }
-            );
-
-    return status_search;
-}
-
-StatusCode CheckoutImpl::deleteEntity(const Path &path)
-{
-    // TODO remove from commit
     Path p(preparePath(path));
     if (p.empty()) {
         return UPNS_STATUS_ERROR;
     }
 
-    return m_serializer->removeEntityTransient(m_name + "/" + p);
+    createPath<Tree>(path, nullptr, true);
+    return UPNS_STATUS_OK;
+}
+
+StatusCode CheckoutImpl::deleteEntity(const Path &path)
+{
+    Path p(preparePath(path));
+    if (p.empty()) {
+        return UPNS_STATUS_ERROR;
+    }
+
+    createPath<Entity>(path, nullptr, true);
+    return UPNS_STATUS_OK;
 }
 
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
@@ -417,8 +385,10 @@ Path CheckoutImpl::preparePathFilename(const Path &path)
     return p;
 }
 
-bool CheckoutImpl::forEachPathSegment(const Path &path,
-                                      std::function<bool (std::string, size_t, bool)> before, std::function<bool (std::string, size_t, bool)> after, const int start)
+bool CheckoutImpl::forEachPathSegment(const Path &path
+                        , std::function<bool(std::string, size_t, bool)> before
+                        , std::function<bool(std::string, size_t, bool)> after
+                        , const int start)
 {
     assert(!path.empty());
     size_t nextSlash = path.find_first_of('/', start);
@@ -467,6 +437,58 @@ std::pair<StatusCode, PathInternal> CheckoutImpl::storeObject<Entity>(std::share
 {
     PathInternal real_id = pathInternal.substr(0, pathInternal.size() - 1 );
     return m_serializer->storeEntityTransient(leafObject, real_id);
+}
+
+template <>
+StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
+{
+    StatusCode status_search = UPNS_STATUS_OK;
+    ObjectReference nullRef;
+    upns::depthFirstSearch(
+                this,
+                getTree(path), // we just need to delete trees that are actualy transient
+                nullRef,
+                path,
+                depthFirstSearchAll(Commit),
+                depthFirstSearchAll(Commit),
+                depthFirstSearchAll(Tree),
+                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &pathInt)
+                {
+                    Path p(preparePath(pathInt));
+                    if (p.empty()) {
+                        status_search = UPNS_STATUS_ERROR;
+                        return false;
+                    }
+
+                    StatusCode s =  m_serializer->removeTreeTransient(m_name + "/" + p);
+                    if ( ! upnsIsOk(s) ) {
+                        status_search = s;
+                        return false;
+                    }
+
+                    return true;
+               },
+                depthFirstSearchAll(Entity),
+                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &pathInt)
+                {
+                    StatusCode s = deleteEntity(pathInt);
+                    if ( ! upnsIsOk(s) ) {
+                        status_search = s;
+                        return false;
+                    }
+
+                    return true;
+                }
+            );
+
+    return status_search;
+}
+
+template <>
+StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
+{
+    PathInternal real_id = m_name + "/" + path.substr(0, path.size() - 1 );
+    return m_serializer->removeEntityTransient(real_id);
 }
 
 //StatusCode CheckoutImpl::depthFirstSearch(std::shared_ptr<Entity> obj, const ObjectId& oid, const Path &path,

@@ -247,37 +247,10 @@ FSSerializer::storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal 
 }
 
 StatusCode
-FSSerializer::removeTreeTransient(const ObjectId &oid)
+FSSerializer::removeTreeTransient(const PathInternal &transientId)
 {
-    // check if tree exists
-    std::shared_ptr<Tree> tree = getTreeTransient(oid);
-    if (tree == nullptr) {
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
-    }
-
-    // delete tree
-    fs::path path_tree = objectid_to_checkout_fs_path( oid );
-    fs_delete( path_tree / _CHECKOUT_GENERIC_ENTRY_ );
-
-    size_t len = oid.find_last_of("/");
-    if (len == oid.length() - 1) {
-        len = oid.find_last_of("/", len - 1);
-    }
-
-    // remove ref from parrent tree
-    std::string tree_parrent_name = oid.substr(0,  len) + "/";
-    std::shared_ptr<Tree> tree_parrent = getTreeTransient(tree_parrent_name);
-    if (tree_parrent == nullptr) {
-        return UPNS_STATUS_ERR_DB_CORRUPTION;
-    }
-
-    std::string tree_name = oid.substr(len + 1, oid.size());
-    if (tree_name.back() == '/') {
-        tree_name = tree_name.substr(0, tree_name.size() - 1);
-    }
-
-    tree_parrent->mutable_refs()->erase(tree_name);
-    storeTreeTransient(tree_parrent, tree_parrent_name);
+    fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs_delete( path );
 
     return UPNS_STATUS_OK;
 }
@@ -365,38 +338,12 @@ FSSerializer::storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInter
 }
 
 StatusCode
-FSSerializer::removeEntityTransient(const ObjectId &oid)
+FSSerializer::removeEntityTransient(const PathInternal &transientId)
 {
-    // check if entity exists
-    std::shared_ptr<Entity> entity = getEntityTransient(oid);
-    if (entity == nullptr) {
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
-    }
-
     // delete entity and entitydata
-    fs::path path_entity = objectid_to_checkout_fs_path( oid );
+    fs::path path_entity = objectid_to_checkout_fs_path( transientId );
     fs_delete( path_entity / _CHECKOUT_GENERIC_ENTRY_ );
     fs_delete( path_entity / _CHECKOUT_ENTITY_DATA_ );
-
-    // remove ref from parrent tree
-    size_t len = oid.find_last_of("/");
-    if (len == oid.length() - 1) {
-        len = oid.find_last_of("/", len - 1);
-    }
-
-    std::string tree_name = oid.substr(0,  len) + "/";
-    std::shared_ptr<Tree> tree = getTreeTransient(tree_name);
-    if (tree == nullptr) {
-        return UPNS_STATUS_ERR_DB_CORRUPTION;
-    }
-
-    std::string entity_name = oid.substr(len + 1, oid.size());
-    if (entity_name.back() == '/') {
-        entity_name = entity_name.substr(0, entity_name.size() - 1);
-    }
-
-    tree->mutable_refs()->erase(entity_name);
-    storeTreeTransient(tree, tree_name);
 
     return UPNS_STATUS_OK;
 }

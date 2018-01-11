@@ -112,7 +112,7 @@ private:
      * @param createLeaf null, if the leaf exists as non-exclusive tree/entity. Can also be a new entity. Can also be a tree (e.g. copy/move operation).
      */
     template <typename T>
-    StatusCode createPath(const Path &path, std::shared_ptr<T> createLeaf = std::shared_ptr<T>(nullptr));
+    StatusCode createPath(const Path &path, std::shared_ptr<T> createLeaf = std::shared_ptr<T>(nullptr), bool deleteLeaf = false);
 
     /**
      * @brief Stores all kind of objects at a path.
@@ -120,8 +120,16 @@ private:
     template <typename T>
     std::pair<StatusCode, PathInternal> storeObject(std::shared_ptr<T> leafObject, const PathInternal &pathInternal);
 
-    bool forEachPathSegment(const Path &path,
-                                  std::function<bool(std::string, size_t, bool)> before, std::function<bool(std::string, size_t, bool)> after, const int start = 0);
+    /**
+     * @brief Delete all kind of objects at a path.
+     */
+    template <typename T>
+    StatusCode deleteObject(const Path &path);
+
+    bool forEachPathSegment(const Path &path
+                            , std::function<bool(std::string, size_t, bool)> before
+                            , std::function<bool(std::string, size_t, bool)> after
+                            , const int start = 0);
 
 //    /**
 //     * @brief Depth first search for Commit, Tree and Entity.
@@ -165,7 +173,7 @@ private:
 // If "createLeafe" is set, the last element of the path will be hooked correctly into the
 // (maybe newly created) parent.
 template <typename T>
-StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf)
+StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf, bool deleteLeaf)
 {
     Path p = preparePath(path);
 
@@ -248,14 +256,23 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         // 1+2) no oid yet          -> create tree/entity, put in vector to update and store. (for leaf: create directly)
         // 3+4) transient oids      -> put in vector to update and store (for leaf: create directly)
         // 5+6) non-transient oids  -> put copy in vector to update and store (for leaf: create directly)
+        // for deleting we have to 3 more cases, for each case we have to remove the reference to the leaf from its parrent
+        // 7)   no oid yet          -> we don't have to do anything at all (not eaven removing of the reference in the parrent)
+        // 8)   transient oids      -> we need to delete the leaf and its children
+        // 9)   non-transient oids  -> we don't have to do anything more
 
         assert(ref.id().empty() || ref.path().empty()); // both must not be set at the same time.
 
         bool segNotExistant = ref.id().empty() && ref.path().empty();
         if(segNotExistant)
         {
+            // delete leaf
+            if (isLast && deleteLeaf)
+            {
+                // case 7: we don't need to do anything, since the leaf dosn't exists
+            }
             // create new
-            if(!isLast || (isLast && createLeaf == NULL))
+            else if(!isLast || (isLast && createLeaf == NULL))
             {
                 // case 1: append tree
                 std::shared_ptr<Tree> tree(new Tree);
@@ -280,12 +297,18 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         {
             // use or copy existing
             bool segTransient = ref.id().empty() && !ref.path().empty();
-            //bool segExclusive = m_checkout->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is exclusive, instead this is ensured in assertion below)
+            //bool segTransient = m_checkout->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is transient, instead this is ensured in assertion below)
             assert(segTransient == (m_checkout->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
             if(segTransient)
             {
+                // delete leaf
+                if (isLast && deleteLeaf)
+                {
+                    // case 8: remove this (and in case of a tree its children)
+                    deleteObject<T>( p.substr(0,idx) );
+                }
                 // use existing
-                if(!isLast || (isLast && createLeaf == NULL))
+                else if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // case 3: put tree in vector and do nothing
                     std::shared_ptr<Tree> tree(m_serializer->getTreeTransient(ref.path()));
@@ -313,7 +336,12 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
             {
                 // copy
                 assert(!ref.id().empty() && ref.path().empty());
-                if(!isLast || (isLast && createLeaf == NULL))
+                // delete leaf
+                if (isLast && deleteLeaf)
+                {
+                    // case 9: only the reference of the parrent needs to be removed
+                }
+                else if(!isLast || (isLast && createLeaf == NULL))
                 {
                     // case 5: copy existing tree under transient oid
                     std::shared_ptr<Tree> tree(m_serializer->getTree(ref.id()));
@@ -347,7 +375,11 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     {
         // store object
         PathInternal pathInternal;
-        if(leafWasStored && isLast) // leaf already created in "before"
+        if (isLast && deleteLeaf)
+        {
+            // this is the leaf we just deleted, we don't need to do anything now, but need to remove its reference at the bottom
+        }
+        else if(leafWasStored && isLast) // leaf already created in "before"
         {
             assert(!leafPathIntenal.empty());
             pathInternal = leafPathIntenal;
@@ -369,12 +401,20 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
 
         // update parent child relationship
         std::shared_ptr<Tree> parent = transientTreePath.back();
-        ObjectReference oref;
-        oref.set_path(pathInternal);
-        //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
         assert(parent);
-        parent->mutable_refs()
-                ->insert( ::google::protobuf::MapPair< ::std::string, ::mapit::msgs::ObjectReference>( seg, oref));
+        if (isLast && deleteLeaf)
+        {
+            // this is the leaf we just deleted, now we have to remove its reference
+            parent->mutable_refs()->erase(seg);
+        }
+        else
+        {
+            ObjectReference oref;
+            oref.set_path(pathInternal);
+            //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
+            parent->mutable_refs()
+                    ->insert( ::google::protobuf::MapPair< ::std::string, ::mapit::msgs::ObjectReference>( seg, oref));
+        }
         return true;
     });
 
