@@ -17,4 +17,6 @@ upns::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string ur
     add_receivable_message_type<ReplyGenericEntry>();
     add_receivable_message_type<ReplyStoreEntity>();
     add_receivable_message_type<ReplyStoreTree>();
+    add_receivable_message_type<ReplyDeleteEntity>();
+    add_receivable_message_type<ReplyDeleteTree>();
 }

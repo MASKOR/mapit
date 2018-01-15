@@ -232,12 +232,40 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
 
 upns::StatusCode upns::ZmqRequesterCheckout::deleteTree(const Path &path)
 {
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    std::unique_ptr<RequestDeleteTree> req = std::make_unique<RequestDeleteTree>();
+    req->set_checkout(m_checkoutName);
+    req->set_path(path);
+    m_node->send(std::move(req));
+
+    std::shared_ptr<ReplyDeleteTree> rep(m_node->receive<ReplyDeleteTree>());
+    if(rep->status() == ReplyDeleteTree::SUCCESS)
+    {
+        return UPNS_STATUS_OK;
+    }
+    else
+    {
+        log_error("ZmqRequesterCheckout: Could not delete tree \"" + path + "\"");
+        return UPNS_STATUS_ERROR;
+    }
 }
 
 upns::StatusCode upns::ZmqRequesterCheckout::deleteEntity(const Path &path)
 {
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    std::unique_ptr<RequestDeleteEntity> req = std::make_unique<RequestDeleteEntity>();
+    req->set_checkout(m_checkoutName);
+    req->set_path(path);
+    m_node->send(std::move(req));
+
+    std::shared_ptr<ReplyDeleteEntity> rep(m_node->receive<ReplyDeleteEntity>());
+    if(rep->status() == ReplyDeleteEntity::SUCCESS)
+    {
+        return UPNS_STATUS_OK;
+    }
+    else
+    {
+        log_error("ZmqRequesterCheckout: Could not delete entity \"" + path + "\"");
+        return UPNS_STATUS_ERROR;
+    }
 }
 
 std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntitydataForReadWrite(const upns::Path &entity)
