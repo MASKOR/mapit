@@ -25,17 +25,17 @@ protected:
     // Can not be deleted from outside (module)
     virtual ~CheckoutRaw() {}
 public:
-    /**
-     * @brief storeTree changes the tree at a given path. No conflict is generated, the old version is overwritten.
-     * If there already was a conflict, a new sibling/candidate is created. Use setConflictSolved and choose an Object for the next version.
-     * If NULL is given as a parameter, the tree is deleted.
-     * The object at the given path must not be involved in a conflict.
-     * New trees can be created with this method.
-     * @param path
-     * @param tree
-     * @return
-     */
-    virtual StatusCode storeTree(const Path &path, std::shared_ptr<mapit::msgs::Tree> tree) = 0;
+//    /**
+//     * @brief storeTree changes the tree at a given path. No conflict is generated, the old version is overwritten.
+//     * If there already was a conflict, a new sibling/candidate is created. Use setConflictSolved and choose an Object for the next version.
+//     * If NULL is given as a parameter, the tree is deleted.
+//     * The object at the given path must not be involved in a conflict.
+//     * New trees can be created with this method.
+//     * @param path
+//     * @param tree
+//     * @return
+//     */
+//    virtual StatusCode storeTree(const Path &path, std::shared_ptr<mapit::msgs::Tree> tree) = 0;
 
     /**
      * @brief storeEntity changes the entity at a given path. No conflict is generated.

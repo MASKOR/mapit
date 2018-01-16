@@ -53,9 +53,9 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreEntity>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreTree, &upns::ZmqResponderPrivate::handleRequestStoreTree>;
-    fn = std::bind(member, this, std::placeholders::_1);
-    add_receivable_message_type<RequestStoreTree>( fn );
+//    member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreTree, &upns::ZmqResponderPrivate::handleRequestStoreTree>;
+//    fn = std::bind(member, this, std::placeholders::_1);
+//    add_receivable_message_type<RequestStoreTree>( fn );
 
     //TODO: allow ssh://?
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
@@ -458,46 +458,46 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
-{
-    std::unique_ptr<ReplyStoreTree> rep(new ReplyStoreTree());
+//void upns::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
+//{
+//    std::unique_ptr<ReplyStoreTree> rep(new ReplyStoreTree());
 
-    // Validate input
-    std::shared_ptr<Checkout> checkout = m_repo->getCheckout(msg->checkout());
-    if(checkout == NULL)
-    {
-        rep->set_status( ReplyStoreTree::CHECKOUT_NOT_FOUND );
-        send( std::move( rep ) );
-        return;
-    }
-    MessageType type = checkout->typeOfObject(msg->path());
-    if(type != MessageEmpty)
-    {
-        rep->set_status( ReplyStoreTree::EXISTED );
-        send( std::move( rep ) );
-        return;
-    }
-    OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("StoreTree");
-    desc.set_params("{source:\"network\"}");
-    upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
-        upns::CheckoutRaw* coraw = env->getCheckout();
-        std::shared_ptr<Tree> tree;
-        StatusCode s = coraw->storeTree(msg->path(), tree);
-        return s;
-    });
-    if(upnsIsOk(res.first))
-    {
-        assert(!has_more());
-        rep->set_status(ReplyStoreTree::SUCCESS);
-    }
-    else
-    {
-        log_info("Could not store tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
-        rep->set_status(ReplyStoreTree::ERROR);
-    }
-    send( std::move( rep ) );
-}
+//    // Validate input
+//    std::shared_ptr<Checkout> checkout = m_repo->getCheckout(msg->checkout());
+//    if(checkout == NULL)
+//    {
+//        rep->set_status( ReplyStoreTree::CHECKOUT_NOT_FOUND );
+//        send( std::move( rep ) );
+//        return;
+//    }
+//    MessageType type = checkout->typeOfObject(msg->path());
+//    if(type != MessageEmpty)
+//    {
+//        rep->set_status( ReplyStoreTree::EXISTED );
+//        send( std::move( rep ) );
+//        return;
+//    }
+//    OperationDescription desc;
+//    desc.mutable_operator_()->set_operatorname("StoreTree");
+//    desc.set_params("{source:\"network\"}");
+//    upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
+//        upns::CheckoutRaw* coraw = env->getCheckout();
+//        std::shared_ptr<Tree> tree;
+//        StatusCode s = coraw->storeTree(msg->path(), tree);
+//        return s;
+//    });
+//    if(upnsIsOk(res.first))
+//    {
+//        assert(!has_more());
+//        rep->set_status(ReplyStoreTree::SUCCESS);
+//    }
+//    else
+//    {
+//        log_info("Could not store tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
+//        rep->set_status(ReplyStoreTree::ERROR);
+//    }
+//    send( std::move( rep ) );
+//}
 
 void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
 {
