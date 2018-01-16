@@ -220,11 +220,15 @@ StatusCode CheckoutImpl::depthFirstSearch(std::function<bool(std::shared_ptr<Com
                                           std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                                           std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    std::shared_ptr<Commit> rootCommit(new Commit(m_checkout->rollingcommit()));
-    ObjectReference nullRef;
-    StatusCode s = upns::depthFirstSearch(this, rootCommit, nullRef, "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-    *m_checkout->mutable_rollingcommit() = *rootCommit;
-    return s;
+    return upns::depthFirstSearch(this, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+}
+
+StatusCode CheckoutImpl::depthFirstSearch(const Path& path,
+                                          std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
+                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
+                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+{
+    return upns::depthFirstSearch(this, path, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 std::shared_ptr<CheckoutObj> CheckoutImpl::getCheckoutObj()

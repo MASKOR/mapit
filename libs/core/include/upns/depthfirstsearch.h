@@ -28,6 +28,23 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<mapit::msg
                             std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> afterTree,
                             std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity);
 
+StatusCode depthFirstSearch(  upns::CheckoutCommon *checkout
+                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit
+                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit
+                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
+
+StatusCode depthFirstSearch(  upns::CheckoutCommon *checkout
+                            , const Path& path
+                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit
+                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit
+                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
+
 #define depthFirstSearchAll(c) ([](std::shared_ptr<c> obj, const ObjectReference& ref, const upns::Path &path){return true;})
 
 }

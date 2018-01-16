@@ -143,18 +143,19 @@ std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntityd
     return std::shared_ptr<upns::AbstractEntitydata>(nullptr);
 }
 
-upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool (std::shared_ptr<Commit>, const ObjectReference &, const upns::Path &)> beforeCommit,
-                                                              std::function<bool (std::shared_ptr<Commit>, const ObjectReference &, const upns::Path &)> afterCommit,
-                                                              std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const upns::Path &)> beforeTree,
-                                                              std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const upns::Path &)> afterTree,
-                                                              std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const upns::Path &)> beforeEntity,
-                                                              std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const upns::Path &)> afterEntity)
+upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
+                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
+                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    //TODO: remove "Commit" from depthFirstSearch! There is no commit in checkout by design. (only technically)
-    // Use internal service instead of ReplyHierarchy
-    ObjectReference nullRef;
-    StatusCode s = upns::depthFirstSearch(this, getRoot(), nullRef, "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-    return s;
+    return upns::depthFirstSearch(this, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+}
+
+upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(const Path& path,
+                                          std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
+                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
+                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+{
+    return upns::depthFirstSearch(this, path, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const OperationDescription &desc)
