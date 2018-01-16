@@ -45,27 +45,6 @@ public:
      */
     virtual std::shared_ptr<mapit::msgs::Tree> getRoot() = 0;
 
-
-    //TODO: This is another (api-)layer. Put code in a different place to hide none-map/layer/entity methods if this (api-)layer is used.
-    // Keep map/layer/entity assumtions away from core, to not sacrifice ability to stream octrees and other structures.
-
-    /**
-     * @brief getMapPathOfEntry get top level tree of tree, map/layer/entity, path.
-     * @return
-     */
-    static Path getMapPathOfEntry(const Path &path)
-    {
-        std::string p(path);
-        while(p[0] == '/')
-        {
-            if(p.length() == 1) break;
-            p = p.substr(1);
-        }
-        p = p.substr(0, p.find_first_of('/'));
-        if(p.empty()) p = ".global";
-        return p;
-    }
-
     /**
      * @brief getTreeConflict gets a Tree from repository/checkout. Tree must be reachable from this checkout (descendant of <root>)
      * This must only be used for conflicting objects. Use getTree otherwise
