@@ -216,19 +216,21 @@ void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
     //TODO
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+StatusCode CheckoutImpl::depthFirstSearch(  std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                          , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                          , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                          , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    return upns::depthFirstSearch(this, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    return upns::depthFirstSearch(this, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(const Path& path,
-                                          std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
+                                          , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree
+                                          , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
+                                          , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
+                                          , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity)
 {
-    return upns::depthFirstSearch(this, path, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    return upns::depthFirstSearch(this, path, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 std::shared_ptr<CheckoutObj> CheckoutImpl::getCheckoutObj()

@@ -143,19 +143,21 @@ std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequesterCheckout::getEntityd
     return std::shared_ptr<upns::AbstractEntitydata>(nullptr);
 }
 
-upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(  std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> beforeTree
+                                                              , std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> afterTree
+                                                              , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity
+                                                              , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> afterEntity)
 {
-    return upns::depthFirstSearch(this, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    return upns::depthFirstSearch(this, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(const Path& path,
-                                          std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                          std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                          std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+upns::StatusCode upns::ZmqRequesterCheckout::depthFirstSearch(  const Path& path
+                                                              , std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> beforeTree
+                                                              , std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> afterTree
+                                                              , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity
+                                                              , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> afterEntity)
 {
-    return upns::depthFirstSearch(this, path, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    return upns::depthFirstSearch(this, path, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const OperationDescription &desc)

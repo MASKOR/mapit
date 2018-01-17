@@ -283,8 +283,6 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
     else
     {
         StatusCode s = co->depthFirstSearch(
-            [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
-            [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path) {return true;},
             [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
             [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path) {return true;},
             [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
