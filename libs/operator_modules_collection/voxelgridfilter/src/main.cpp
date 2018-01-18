@@ -8,25 +8,13 @@
 #include <memory>
 #include <upns/errorcodes.h>
 #include <upns/operators/versioning/checkoutraw.h>
+#include <upns/depthfirstsearch.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
+upns::StatusCode executeVoxelgrid(upns::OperationEnvironment* env, const std::string& target, const double& leafSize)
 {
-    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
-    log_info( "Voxelgrid params:" + env->getParameters() );
-    QJsonObject params(paramsDoc.object());
-    double leafSize = params["leafsize"].toDouble();
-
-    if(leafSize == 0.0)
-    {
-        log_info( "Leafsize was 0, using 0.01" );
-        leafSize = 0.01f;
-    }
-
-    std::string target = params["target"].toString().toStdString();
-
     std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
@@ -49,19 +37,49 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
 
     entityData->setData(cloud_filtered);
 
-//    OperationDescription out;
-//    out.set_operatorname(OPERATOR_NAME);
-//    out.set_operatorversion(OPERATOR_VERSION);
-//    OperationParameter *outTarget = out.add_params();
-//    outTarget->set_key("target");
-////    outTarget->set_mapval( map->id() );
-////    outTarget->set_layerval( layer->id() );
-////    outTarget->set_entityval( entity->id() );
-//    OperationParameter *outMapname = out.add_params();
-//    outMapname->set_key("leafsize");
-//    outMapname->set_realval( leafSize );
-//    env->setOutputDescription( out.SerializeAsString() );
     return UPNS_STATUS_OK;
+}
+
+upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
+{
+    QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
+    log_info( "Voxelgrid params:" + env->getParameters() );
+    QJsonObject params(paramsDoc.object());
+    double leafSize = params["leafsize"].toDouble();
+
+    if(leafSize == 0.0)
+    {
+        log_info( "Leafsize was 0, using 0.01" );
+        leafSize = 0.01f;
+    }
+
+    std::string target = params["target"].toString().toStdString();
+
+    if ( env->getCheckout()->getEntity(target) ) {
+        // execute on entity
+        return executeVoxelgrid(env, target, leafSize);
+    } else if ( env->getCheckout()->getTree(target) ) {
+        // execute on tree
+        upns::StatusCode status = UPNS_STATUS_OK;
+        env->getCheckout()->depthFirstSearch(
+                      target
+                    , depthFirstSearchAll(mapit::msgs::Tree)
+                    , depthFirstSearchAll(mapit::msgs::Tree)
+                    , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                        {
+                            status = executeVoxelgrid(env, path, leafSize);
+                            if ( ! upnsIsOk(status) ) {
+                                return false;
+                            }
+                            return true;
+                        }
+                    , depthFirstSearchAll(mapit::msgs::Entity)
+                    );
+        return status;
+    } else {
+        log_error("operator voxelgrid: target is neither a tree nor entity");
+        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
 }
 
 UPNS_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_vxg)
