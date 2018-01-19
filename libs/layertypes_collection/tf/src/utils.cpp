@@ -170,3 +170,37 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
 
   return UPNS_STATUS_OK;
 }
+
+upns::StatusCode upns::tf::store::getOrCreateTransformStampedList(  CheckoutRaw* workspace
+                                                                  , const std::string& frame_id
+                                                                  , const std::string& child_frame_id
+                                                                  , const std::string& tfStoragePrefix
+                                                                  , std::shared_ptr<mapit::msgs::Entity>& entity
+                                                                  , std::shared_ptr<TfEntitydata>& ed
+                                                                  , std::shared_ptr<tf::store::TransformStampedList>& tfList
+                                                                  , const bool& is_static)
+{
+    std::string entityTFName = tfStoragePrefix + "/" + upns::tf::store::TransformStampedList::get_entity_name(frame_id, child_frame_id);
+    entity = workspace->getEntity( entityTFName );
+    if (entity == nullptr) {
+      entity = std::make_shared<mapit::msgs::Entity>();
+      entity->set_type(TfEntitydata::TYPENAME());
+      StatusCode s = workspace->storeEntity(entityTFName, entity);
+      if( ! upnsIsOk(s) ) {
+          log_error("tf utils: Failed to create entity " + entityTFName + ".");
+        return UPNS_STATUS_ERROR;
+      }
+    }
+    std::shared_ptr<upns::AbstractEntitydata> edAbstract = workspace->getEntitydataForReadWrite(entityTFName);
+    if ( 0 != std::strcmp(edAbstract->type(), TfEntitydata::TYPENAME()) ) {
+        log_error("tf utils: can't add tf, retrieved entity is not of type TfEntitydata");
+      return UPNS_STATUS_ERROR;
+    }
+    ed = std::static_pointer_cast<TfEntitydata>(edAbstract);
+    tfList = ed->getData();
+    if (tfList == nullptr) {
+        tfList = std::make_shared<tf::store::TransformStampedList>(frame_id, child_frame_id, is_static);
+    }
+
+    return UPNS_STATUS_OK;
+}
