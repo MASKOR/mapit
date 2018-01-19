@@ -167,29 +167,11 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
 //    std::cout << transform.matrix() << std::endl;
     // get infos
     mapit::time::Stamp stamp = input_stamp;
-    std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
-    // get entity and data
-    // TODO how to check for existance of entity?
-    std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( entity_name );
+    std::shared_ptr<mapit::msgs::Entity> entity;
     std::shared_ptr<TfEntitydata> ed_tf;
-    if (entity == nullptr) {
-      entity = std::make_shared<mapit::msgs::Entity>();
-      entity->set_type(TfEntitydata::TYPENAME());
-      StatusCode s = checkout_->storeEntity(entity_name, entity);
-      if( ! upnsIsOk(s) ) {
-        log_error("reg_local_icp: Failed to create entity.");
+    std::shared_ptr<tf::store::TransformStampedList> ed_d;
+    if ( ! upnsIsOk( upns::tf::store::getOrCreateTransformStampedList(checkout_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
         return UPNS_STATUS_ERROR;
-      }
-    }
-    std::shared_ptr<upns::AbstractEntitydata> ed_a = checkout_->getEntitydataForReadWrite(entity_name);
-    if ( 0 != std::strcmp(ed_a->type(), TfEntitydata::TYPENAME()) ) {
-      log_error("reg_local_icp: can't add tf, retrieved entity is not of type TfEntitydata");
-      return UPNS_STATUS_ERROR;
-    }
-    ed_tf = std::static_pointer_cast<TfEntitydata>(ed_a);
-    std::shared_ptr<tf::store::TransformStampedList> ed_d = ed_tf->getData();
-    if (ed_d == nullptr) {
-        ed_d = std::make_shared<tf::store::TransformStampedList>(cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_is_static_);
     }
 
     std::unique_ptr<upns::tf::TransformStamped> tfs = std::make_unique<upns::tf::TransformStamped>();
@@ -209,6 +191,7 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
     entity->mutable_stamp()->set_nsec( nsec );
 
     // write data
+    std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
     checkout_->storeEntity(entity_name, entity);
     ed_tf->setData(ed_d);
 
