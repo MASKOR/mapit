@@ -215,6 +215,9 @@ if(UPNS_ENABLE_VISUALIZATION)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
   add_subdirectory(tools/Qt3DOpenVDBRenderer)
   add_subdirectory(tools/graphblocks)
+  if(UPNS_ENABLE_VISUALIZATION_VR)
+    add_subdirectory(tools/visualization_vr)
+  endif(UPNS_ENABLE_VISUALIZATION_VR)
 endif(UPNS_ENABLE_VISUALIZATION)
 
 

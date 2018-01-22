@@ -18,6 +18,7 @@ QmlRaycast::QmlRaycast(QObject *parent)
     ,m_dirtyPlaneNormal(true)
     ,m_dirtyPlaneOffset(true)
     ,m_dirtyPointOnPlane(true)
+    ,m_dirtyViewMatrix(true)
 {}
 
 QMatrix4x4 QmlRaycast::viewMatrix() const
@@ -25,12 +26,35 @@ QMatrix4x4 QmlRaycast::viewMatrix() const
     return m_viewMatrix;
 }
 
+// If ViewMatrix is updated, worldPosition is used to recalculate the rest (e.g. screenposition).
+// If position is dirty, worldDirection is used, if both are dirty, screenpos updates
+// TODO: This should be configurable. Current implementation may limit usecases where QmlRaycast can be used.
 void QmlRaycast::setViewMatrix(QMatrix4x4 viewMatrix)
 {
+    m_dirtyViewMatrix = false;
     if (m_viewMatrix == viewMatrix)
         return;
 
     m_viewMatrix = viewMatrix;
+    if(!m_dirtyWorldPosition) {
+        m_dirtyWorldDirection = true;
+        m_dirtyScreenPosition = true;
+        Q_EMIT screenPositionChanged();
+        Q_EMIT worldDirectionChanged();
+    } else if(!m_dirtyWorldDirection) {
+        m_dirtyWorldPosition = true;
+        m_dirtyScreenPosition = true;
+        Q_EMIT worldPositionChanged();
+        Q_EMIT screenPositionChanged();
+
+    } else if(!m_dirtyScreenPosition) {
+        m_dirtyWorldPosition = true;
+        m_dirtyWorldDirection = true;
+        Q_EMIT worldDirectionChanged();
+        Q_EMIT worldPositionChanged();
+    } else {
+        qDebug() << "Raycast: viewMatrix updated, cannot recalculate.";
+    }
     Q_EMIT viewMatrixChanged(m_viewMatrix);
 }
 
@@ -57,9 +81,9 @@ QVector2D QmlRaycast::screenPosition()
             return QVector2D(0.0f, 0.0f);
         }
         QMatrix4x4 viewProjectionMatrix = projectionMatrix() * viewMatrix();
-        QVector3D clippingCoord(viewProjectionMatrix * QVector4D(worldPos, 1.0));
-        float x = (( clippingCoord.x() + 1 ) / 2.0) * viewportSize().width();
-        float y = (( 1 - clippingCoord.y() ) / 2.0) * viewportSize().height();
+        QVector4D clippingCoord(viewProjectionMatrix * QVector4D(worldPos, 1.0));
+        float x = (( clippingCoord.x()/clippingCoord.w() + 1 ) / 2.0) * viewportSize().width();
+        float y = (( 1 - clippingCoord.y()/clippingCoord.w()  ) / 2.0) * viewportSize().height();
         m_screenPosition = QVector2D(x, y);
         m_dirtyScreenPosition = false;
     }

@@ -160,7 +160,7 @@ Item {
                                             + "<br><b>moduleVersion</b>: " + objModelItem.operator.moduleVersion
                                             + "<br><b>apiVersion</b>: " + objModelItem.operator.apiVersion):"(this is a pipeline)")
                                 }
-                                property string currentClassName: gridRoot.model.get(index) ? gridRoot.model.get(index).operator.moduleName : ""
+                                property string currentClassName: gridRoot.model.get(index) ? gridRoot.model.get(index).operator ? gridRoot.model.get(index).operator.moduleName : "" : ""
                                 //property var myCompo: compo
                                 property var myGraph//: graph?graph:null
                                 property bool myIsClass: true
@@ -221,7 +221,8 @@ Item {
                         height: gridRoot.buttonSize
                         style: ButtonStyle {
                             background: Rectangle {
-                                property bool selected: root.currentDisplayName ? root.currentDisplayName === gridRoot.model.get(index).displayName : false
+                                property var itemDisplayName: gridRoot.model.get(index) ? gridRoot.model.get(index).displayName : ""
+                                property bool selected: root.currentDisplayName ? root.currentDisplayName === itemDisplayName : false
                                 border.width: selected ? 1 : 0
                                 border.color: appStyle.selectionBorderColor
                                 color: selected ? appStyle.highlightColor : appStyle.itemBackgroundColor

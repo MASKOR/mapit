@@ -7,6 +7,7 @@ import Qt3D.Core 2.0 as Q3D
 import Qt3D.Render 2.0
 import Qt3D.Input 2.0
 import Qt3D.Extras 2.0
+import QtQml.Models 2.3
 
 import pcl 1.0
 
@@ -18,6 +19,7 @@ import qt3deditorlib 1.0
 
 import "components"
 import "dialogs"
+import "network"
 
 import FileIO 1.0
 import Library 1.0
@@ -26,18 +28,19 @@ import Clipboard 1.0
 Item {
     id: root
     property var currentEntitydata: globalApplicationState.currentEntitydata
-//    Connections {
-//        target: currentEntitydata
-//        onUpdated: {
-//            colorizeSelect.model = currentEntitydata.info["fields"]
-//        }
-//    }
+    //    Connections {
+    //        target: currentEntitydata
+    //        onUpdated: {
+    //            colorizeSelect.model = currentEntitydata.info["fields"]
+    //        }
+    //    }
 
     property var currentCheckout: globalApplicationState.currentCheckout
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
     property alias visibleEntityItems: entityInstantiator.model
     property alias camera: mainCamera
     property alias currentFrameId: frameIdChooser.currentText
+    property MapitClient mapitClient: globalApplicationState.mapitClient
     onVisibleEntityItemsChanged: {
         console.log("DBG: Visible Entities len: " + root.visibleEntityItems.length)
     }
@@ -117,24 +120,24 @@ Item {
                     //currentCheckout: root.currentCheckout
                 }
 
-//                StyledComboBox {
-//                    id: frameIdChooser
-//                    model: []
-//                    function addUniqueFrameIds(frameIds) {
-//                        var modelArray = frameIdChooser.model
-//                        frameIds.forEach(function(frameId) {
-//                            var found = false
-//                            for(var i=0; i<model.length; ++i) {
-//                                var name = model[i]
-//                                if(name === frameId) {
-//                                    found = true
-//                                }
-//                            }
-//                            if(!found) modelArray.push(frameId)
-//                        })
-//                        frameIdChooser.model = modelArray
-//                    }
-//                }
+                //                StyledComboBox {
+                //                    id: frameIdChooser
+                //                    model: []
+                //                    function addUniqueFrameIds(frameIds) {
+                //                        var modelArray = frameIdChooser.model
+                //                        frameIds.forEach(function(frameId) {
+                //                            var found = false
+                //                            for(var i=0; i<model.length; ++i) {
+                //                                var name = model[i]
+                //                                if(name === frameId) {
+                //                                    found = true
+                //                                }
+                //                            }
+                //                            if(!found) modelArray.push(frameId)
+                //                        })
+                //                        frameIdChooser.model = modelArray
+                //                    }
+                //                }
             }
             RowLayout {
                 StyledButton {
@@ -244,7 +247,7 @@ Item {
                         id: camPosAnimation
                         from: mainCamera.position
                         to: entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
-                            .plus(Qt.vector3d(0.0, Math.max(10.0, bbEdgeMax / (2 * Math.tan(mainCamera.fieldOfView * 0.5))), 0.0))
+                        .plus(Qt.vector3d(0.0, Math.max(10.0, bbEdgeMax / (2 * Math.tan(mainCamera.fieldOfView * 0.5))), 0.0))
                         target: mainCamera
                         property: "position"
                         duration: 1000
@@ -355,6 +358,24 @@ Item {
                         pointOnPlane: camera.viewCenter
                         planeNormal: camera.viewVector
                         screenPosition: Qt.vector2d(sceneMouseArea.mouseX, sceneMouseArea.mouseY)
+                    }
+                    Repeater {
+                        model: root.mapitClient ? root.mapitClient.state.realtimeObjects.count : 0
+                        Text {
+                            z: 1000
+                            text: peerRaycast.theRto ? root.mapitClient.state.peerToPeerState[peerRaycast.theRto.peerOwner].peername : "unknown"
+                            x: peerRaycast.screenPosition.x
+                            y: peerRaycast.screenPosition.y
+                            UPNS.Raycast {
+                                id: peerRaycast
+                                viewMatrix: camera.viewMatrix
+                                projectionMatrix: camera.projectionMatrix
+                                viewportSize: Qt.size(scene3d.width, scene3d.height)
+                                property var theRto: root.mapitClient.state.realtimeObjects.get(index)
+                                property matrix4x4 posMat: theRto.tf.inverted()
+                                worldPosition: Qt.vector3d(posMat.m14, posMat.m24, posMat.m34)
+                            }
+                        }
                     }
 
                     Q3D.Transform {
@@ -523,6 +544,49 @@ Item {
                                     }
                                     components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
                                 }
+                                Q3D.NodeInstantiator {
+                                    id: realtimeObjectInstantiator
+                                    model: root.mapitClient ? root.mapitClient.state.realtimeObjects.count : 0
+                                    HandleTranslate {
+                                        id: manipulationGizmo
+                                        layer: gizmoLayer
+                                        property var theRto: root.mapitClient.state.realtimeObjects.get(index)
+                                        property var gizmoTransform: Q3D.Transform {
+                                            //property vector3d pos: Qt.vector3d(matrix.m14, matrix.m24, matrix.m34)
+                                            matrix: manipulationGizmo.theRto ? manipulationGizmo.theRto.tf.inverted() : Qt.matrix4x4()
+                                        }
+                                        components: [ gizmoTransform, gizmoLayer ]
+
+//                                        Q3D.Entity {
+//                                            property Material material: PhongMaterial { diffuse: "red" }
+//                                            components: [text1Transform, solidLayer, material, text]
+//                                            ExtrudedTextMesh { // Not a type
+//                                                id: text
+//                                                text: "Hello World"
+//                                                width: 20
+//                                                height: 10
+//                                            }
+
+//                                            Q3D.Transform {
+//                                                id: text1Transform
+//                                                translation: Qt.vector3d(0, 2, 0)//manipulationGizmo.gizmoTransform.pos.plus( Qt.vector3d(0, 2, 0) )
+//                                            }
+//                                            TextLabelEntity { // Error when more than 2 peers
+//                                                text: manipulationGizmo.theRto ? root.mapitClient.state.peerToPeerState[manipulationGizmo.theRto.peerOwner].peername : "unknown"
+//                                                layer: solidLayer //TO DO: would be awesome if children are rendered, when parent is in "solidLayer" automatically
+//                                            }
+//                                        }
+                                    }
+//                                    Q3D.Entity {
+
+//                                        property var meshTransform: Q3D.Transform {
+//                                            property var theRto: root.mapitClient.state.realtimeObjects.get(index)
+//                                            matrix: theRto ? theRto.tf.inverted() : Qt.matrix4x4()
+//                                        }
+//                                        property var coneMesh: ConeMesh { }
+//                                        components: [ coneMesh, perVertexColorMaterial, meshTransform, solidLayer ]
+//                                    }
+                                }
 
                                 Q3D.Entity {
                                     id: gizmoEntity
@@ -609,14 +673,14 @@ Item {
                                             rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
                                         }]
 
-                                    HandleTranslate {
-                                        id: manipulationGizmo
-                                        layer: gizmoLayer
-                                        property var gizmoTransform: Q3D.Transform {
-                                            translation: Qt.vector3d(2.0,2.0,2.0)
-                                        }
-                                        components: [ gizmoTransform, gizmoLayer ]
-                                    }
+                                    //                                    HandleTranslate {
+                                    //                                        id: manipulationGizmo
+                                    //                                        layer: gizmoLayer
+                                    //                                        property var gizmoTransform: Q3D.Transform {
+                                    //                                            translation: Qt.vector3d(2.0,2.0,2.0)
+                                    //                                        }
+                                    //                                        components: [ gizmoTransform, gizmoLayer ]
+                                    //                                    }
 
                                     UPNS.PointcloudCoordinatesystem {
                                         id: coordSys
@@ -627,7 +691,7 @@ Item {
                                         repeat: false
                                         onTriggered: {
                                             var minx= Infinity, miny= Infinity, minz= Infinity
-                                              , maxx=-Infinity, maxy=-Infinity, maxz=-Infinity
+                                            , maxx=-Infinity, maxy=-Infinity, maxz=-Infinity
                                             for(var i=0; i<entityInstantiator.count; i++) {
                                                 var item = entityInstantiator.objectAt(i)
                                                 if(minx > item.min.x) minx = item.min.x
@@ -665,12 +729,12 @@ Item {
                                             //parametersTmp: techniqueFilter.parameters
                                             //Currently only one checkout is supported
                                             currentCheckout: globalApplicationState.currentCheckout
-        //                                    currentCheckout: UPNS.Checkout {
-        //                                        id: co
-        //                                        repository: globalRepository
-        //                                        name: model.checkoutName
-        //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
-        //                                    }
+                                            //                                    currentCheckout: UPNS.Checkout {
+                                            //                                        id: co
+                                            //                                        repository: globalRepository
+                                            //                                        name: model.checkoutName
+                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
+                                            //                                    }
                                             currentEntitydata: UPNS.Entitydata {
                                                 checkout: currentCheckout
                                                 path: model.path
@@ -699,12 +763,12 @@ Item {
                                         property var torusMesh: TorusMesh { minorRadius: 0.3 }
                                         property var cubeMesh: CuboidMesh { }
                                         property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
-                                                                 : appStyle.tmpPrimitiveType === "plane" ? planeMesh
-                                                                 : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
-                                                                 : appStyle.tmpPrimitiveType === "cone" ? coneMesh
-                                                                 : appStyle.tmpPrimitiveType === "torus" ? torusMesh
-                                                                 : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
-                                                                 : sphereMesh
+                                                                                                          : appStyle.tmpPrimitiveType === "plane" ? planeMesh
+                                                                                                                                                  : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
+                                                                                                                                                                                             : appStyle.tmpPrimitiveType === "cone" ? coneMesh
+                                                                                                                                                                                                                                    : appStyle.tmpPrimitiveType === "torus" ? torusMesh
+                                                                                                                                                                                                                                                                            : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
+                                                                                                                                                                                                                                                                                                                   : sphereMesh
 
                                         property var materialPhong: PhongMaterial { }
                                         property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer

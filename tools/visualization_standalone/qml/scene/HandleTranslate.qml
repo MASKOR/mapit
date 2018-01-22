@@ -16,21 +16,12 @@ Q3D.Entity {
 
     property matrix4x4 matrix
 
-    property var meshAxis: CylinderMesh { // points to z axis by default
-        length: handle.axisExtend
-        radius: handle.axisRadius
-    }
-    property var meshArrow: ConeMesh {
-        length: handle.arrowLen
-        bottomRadius: handle.arrowBottomRadius
-    }
-    property var meshPlane: PlaneMesh {
-        width: axisPlaneExtend
-        height: axisPlaneExtend
-    }
-
     Q3D.Entity {
         id: axisX
+        property var meshAxis: CylinderMesh { // points to z axis by default
+            length: handle.axisExtend
+            radius: handle.axisRadius
+        }
         property Material material: PhongMaterial { diffuse: "red" }
         property var trans: Q3D.Transform {
             rotationZ: -90
@@ -44,14 +35,23 @@ Q3D.Entity {
         components: [ meshAxis, material, trans, handle.layer, picker ]
         Q3D.Entity {
             id: arrowX
+            property var meshArrow: ConeMesh {
+                length: handle.arrowLen
+                bottomRadius: handle.arrowBottomRadius
+            }
             property var trans: Q3D.Transform {
                 translation: Qt.vector3d(0.0, handle.axisExtend * 0.5, 0.0)
             }
-            components: [ meshArrow, axisX.material, trans, handle.layer, axisX.picker ]
+            property Material material: PhongMaterial { diffuse: "red" }
+            components: [ meshArrow, material, trans, handle.layer, axisX.picker ]
         }
     }
     Q3D.Entity {
         id: axisY
+        property var meshAxis: CylinderMesh { // points to z axis by default
+            length: handle.axisExtend
+            radius: handle.axisRadius
+        }
         property Material material: PhongMaterial { diffuse: "green" }
         property var trans: Q3D.Transform {
             translation: Qt.vector3d(0.0, handle.axisExtend * 0.5, 0.0)
@@ -59,14 +59,23 @@ Q3D.Entity {
         components: [ meshAxis, material, trans, handle.layer ]
         Q3D.Entity {
             id: arrowY
+            property var meshArrow: ConeMesh {
+                length: handle.arrowLen
+                bottomRadius: handle.arrowBottomRadius
+            }
             property var trans: Q3D.Transform {
                 translation: Qt.vector3d(0.0, handle.axisExtend * 0.5, 0.0)
             }
-            components: [ meshArrow, axisY.material, trans, handle.layer ]
+            property Material material: PhongMaterial { diffuse: "green" }
+            components: [ meshArrow, material, trans, handle.layer ]
         }
     }
     Q3D.Entity {
         id: axisZ
+        property var meshAxis: CylinderMesh { // points to z axis by default
+            length: handle.axisExtend
+            radius: handle.axisRadius
+        }
         property Material material: PhongMaterial { diffuse: "blue" }
         property var trans: Q3D.Transform {
             rotationX: 90
@@ -75,14 +84,23 @@ Q3D.Entity {
         components: [ meshAxis, material, trans, handle.layer ]
         Q3D.Entity {
             id: arrowZ
+            property var meshArrow: ConeMesh {
+                length: handle.arrowLen
+                bottomRadius: handle.arrowBottomRadius
+            }
             property var trans: Q3D.Transform {
                 translation: Qt.vector3d(0.0, handle.axisExtend * 0.5, 0.0)
             }
-            components: [ meshArrow, axisZ.material, trans, handle.layer ]
+            property Material material: PhongMaterial { diffuse: "blue" }
+            components: [ meshArrow, material, trans, handle.layer ]
         }
     }
     Q3D.Entity {
         id: planeX
+        property var meshPlane: PlaneMesh {
+            width: handle.axisPlaneExtend
+            height: handle.axisPlaneExtend
+        }
         property Material material: PhongMaterial { diffuse: Qt.rgba(1.0,0.0,0.0,0.5) }
         property var trans: Q3D.Transform {
             rotationZ: -90
@@ -92,6 +110,10 @@ Q3D.Entity {
     }
     Q3D.Entity {
         id: planeY
+        property var meshPlane: PlaneMesh {
+            width: handle.axisPlaneExtend
+            height: handle.axisPlaneExtend
+        }
         property Material material: PhongMaterial { diffuse: Qt.rgba(0.0,1.0,0.0,0.5) }
         property var trans: Q3D.Transform {
             translation: Qt.vector3d(handle.axisPlaneExtend * 0.5, 0.0, handle.axisPlaneExtend * 0.5)
@@ -100,6 +122,10 @@ Q3D.Entity {
     }
     Q3D.Entity {
         id: planeZ
+        property var meshPlane: PlaneMesh {
+            width: handle.axisPlaneExtend
+            height: handle.axisPlaneExtend
+        }
         property Material material: PhongMaterial { diffuse: Qt.rgba(0.0,0.0,1.0,0.5) }
         property var trans: Q3D.Transform {
             rotationX: 90

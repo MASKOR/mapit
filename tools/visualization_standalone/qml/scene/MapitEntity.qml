@@ -42,6 +42,8 @@ Q3D.Entity {
         path: currentEntitydata.path
         targetFrame: pointcloud.currentFrameId
         sourceFrame:  pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).frameId
+//        sec: pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).stamp.sec
+//        nsec: pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).stamp.nsec
         mustExist: false
 
     }

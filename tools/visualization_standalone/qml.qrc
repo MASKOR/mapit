@@ -433,5 +433,12 @@
         <file>icon/material/ic_layers_white_24dp_2x.png</file>
         <file>icon/material/ic_format_paint_black_24dp_1x.png</file>
         <file>icon/material/ic_format_paint_black_24dp_2x.png</file>
+        <file>qml/network/MapitClient.qml</file>
+        <file>qml/network/MapitServer.qml</file>
+        <file>qml/network/MapitMultiviewNetworkState.qml</file>
+        <file>qml/network/MapitMultiviewPeerState.qml</file>
+        <file>qml/network/RealtimeObject.qml</file>
+        <file>qml/scene/HandleViewport.qml</file>
+        <file>qml/scene/TextLabelEntity.qml</file>
     </qresource>
 </RCC>

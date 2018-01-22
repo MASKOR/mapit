@@ -86,6 +86,7 @@ private:
     bool m_dirtyPlaneNormal;
     bool m_dirtyPlaneOffset;
     bool m_dirtyPointOnPlane;
+    bool m_dirtyViewMatrix;
 };
 
 QT_END_NAMESPACE

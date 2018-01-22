@@ -1,6 +1,9 @@
 import QtQuick 2.4
+import QtQml.Models 2.3
 
 import fhac.upns 1.0 as UPNS
+
+import "network"
 
 Item {
     id: root
@@ -60,6 +63,9 @@ Item {
     readonly property var currentRepository: globalRepository
     // At the moment zero or one checkout is open at a time. In the future entities may be showed without a checkout
     readonly property var currentCheckout: globalCheckout
+
+    // realtime objects of connected peers and more
+    property MapitClient mapitClient
 
     property string currentEntityPath
     onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath
