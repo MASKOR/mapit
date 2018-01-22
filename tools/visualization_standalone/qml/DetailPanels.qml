@@ -74,7 +74,7 @@ Item {
             property var currentEntity: globalApplicationState.currentEntity
             property string currentEntityType: currentEntity && currentEntity.isValid() ? currentEntity.type : ""
             property string currentEntityFrameId: currentEntity && currentEntity.isValid() ? currentEntity.frameId : ""
-            property string currentEntityStamp: currentEntity && currentEntity.isValid() ? currentEntity.stamp : ""
+            property string currentEntityStamp: currentEntity && currentEntity.isValid() ? currentEntity.stamp.text : ""
             property var currentEntitydata: globalApplicationState.currentEntitydata
             property bool loading: currentEntitydata.isLoading
             property bool isPointcloud: entityInfo.currentEntityType === "layertype_pointcloud2" || entityInfo.currentEntityType === "layertype_las"

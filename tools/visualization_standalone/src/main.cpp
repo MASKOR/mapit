@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
 
     qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
+    qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
 
     qmlRegisterType<QmlRootTreeModel>("fhac.upns", 1, 0, "RootTreeModel");
 

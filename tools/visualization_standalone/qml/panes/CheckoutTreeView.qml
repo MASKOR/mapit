@@ -106,7 +106,7 @@ QCtl.TreeView {
             tooltip: entity && entity.isValid() ?
                                 ("<b>Type:</b> " + entity.type
                            + "<br><b>Frame:</b> " + entity.frameId
-                           + "<br><b>Stamp:</b> " + entity.stamp):""
+                           + "<br><b>Stamp:</b> " + entity.stamp.text):""
 
             property string currentClassName: "MapitEntity"
             property var parameters: { "currentEntityPath": model.path }

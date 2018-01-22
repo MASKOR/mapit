@@ -5,6 +5,7 @@
 #include <QMatrix4x4>
 #include "qmlentitydata.h"
 #include "qmlcheckout.h"
+#include "qmlstamp.h"
 #include <upns/layertypes/tflayer/tf2/buffer_core.h>
 
 class QmlTransform : public QObject
@@ -17,8 +18,7 @@ class QmlTransform : public QObject
     Q_PROPERTY(bool exists READ exists NOTIFY existsChanged)
     Q_PROPERTY(QString targetFrame READ targetFrame WRITE setTargetFrame NOTIFY targetFrameChanged)
     Q_PROPERTY(QString sourceFrame READ sourceFrame WRITE setSourceFrame NOTIFY sourceFrameChanged)
-    Q_PROPERTY(int sec READ sec WRITE setSec NOTIFY secChanged)
-    Q_PROPERTY(int nsec READ nsec WRITE setNsec NOTIFY nsecChanged)
+    Q_PROPERTY(QmlStamp* stamp READ stamp WRITE setStamp NOTIFY stampChanged)
 
 public:
     QmlTransform();
@@ -28,16 +28,11 @@ public:
     bool exists() const;
 
     QmlCheckout* checkout() const;
-
     QString path() const;
-
     QString targetFrame() const;
-
     QString sourceFrame() const;
 
-    int sec() const;
-
-    int nsec() const;
+    QmlStamp *stamp() const;
 
 public Q_SLOTS:
     void setMustExist(bool mustExist);
@@ -45,8 +40,8 @@ public Q_SLOTS:
     void setPath(QString path);
     void setTargetFrame(QString targetFrame);
     void setSourceFrame(QString sourceFrame);
-    void setSec(int sec);
-    void setNsec(int nsec);
+
+    void setStamp(QmlStamp *stamp);
 
 Q_SIGNALS:
     void matrixChanged(QMatrix4x4 matrix);
@@ -56,9 +51,9 @@ Q_SIGNALS:
     void pathChanged(QString path);
     void targetFrameChanged(QString targetFrame);
     void sourceFrameChanged(QString sourceFrame);
-    void secChanged(int sec);
-    void nsecChanged(int nsec);
     void updated();
+
+    void stampChanged(QmlStamp *stamp);
 
 private Q_SLOTS:
     void emitMatrixChanged();
@@ -70,10 +65,9 @@ private:
     QString m_path;
     QString m_targetFrame;
     QString m_sourceFrame;
-    int m_sec;
-    int m_nsec;
 
     ::tf::TransformStamped getTfs(bool *found = nullptr) const;
+    QmlStamp *m_stamp;
 };
 
 #endif

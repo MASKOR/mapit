@@ -12,8 +12,7 @@ QmlTransform::QmlTransform()
     , m_path()
     , m_targetFrame()
     , m_sourceFrame()
-    , m_sec(0)
-    , m_nsec(0)
+    , m_stamp(new QmlStamp(nullptr, this))
 {
     connect(this, &QmlTransform::updated, this, &QmlTransform::emitMatrixChanged);
     connect(this, &QmlTransform::updated, this, &QmlTransform::emitExistsChanged);
@@ -111,9 +110,11 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
 
     try
     {
+        long sec =  stamp()->getStamp() ? stamp()->getStamp()->sec()  : 0;
+        long nsec = stamp()->getStamp() ? stamp()->getStamp()->nsec() : 0;
         tfs = buffer->lookupTransform(targetFrame().toStdString(),
                                       sourceFrame().toStdString(),
-                                      mapit::time::from_sec_and_nsec(sec(), nsec()));
+                                      mapit::time::from_sec_and_nsec(sec, nsec));
         if(found) *found = true;
         return tfs;
     }
@@ -147,14 +148,9 @@ QString QmlTransform::sourceFrame() const
     return m_sourceFrame;
 }
 
-int QmlTransform::sec() const
+QmlStamp *QmlTransform::stamp() const
 {
-    return m_sec;
-}
-
-int QmlTransform::nsec() const
-{
-    return m_nsec;
+    return m_stamp;
 }
 
 void QmlTransform::setCheckout(QmlCheckout *checkout)
@@ -201,22 +197,11 @@ void QmlTransform::setSourceFrame(QString sourceFrame)
     Q_EMIT matrixChanged(mat);
 }
 
-void QmlTransform::setSec(int sec)
+void QmlTransform::setStamp(QmlStamp *stamp)
 {
-    if (m_sec == sec)
+    if (m_stamp == stamp)
         return;
 
-    m_sec = sec;
-    Q_EMIT secChanged(m_sec);
-    Q_EMIT updated();
-}
-
-void QmlTransform::setNsec(int nsec)
-{
-    if (m_nsec == nsec)
-        return;
-
-    m_nsec = nsec;
-    Q_EMIT nsecChanged(m_nsec);
-    Q_EMIT updated();
+    m_stamp = stamp;
+    Q_EMIT stampChanged(m_stamp);
 }

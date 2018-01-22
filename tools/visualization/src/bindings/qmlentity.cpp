@@ -3,13 +3,16 @@
 #include <mapit/msgs/services.pb.h>
 
 QmlEntity::QmlEntity(QObject *parent)
-    :QObject(parent), m_entity( nullptr )
+    : QObject(parent)
+    , m_entity( nullptr )
+    , m_stamp( nullptr )
 {
 
 }
 
 QmlEntity::QmlEntity(std::shared_ptr<mapit::msgs::Entity> &obj)
-    :m_entity( obj )
+    : m_entity( obj )
+    , m_stamp( nullptr )
 {
 
 }
@@ -32,8 +35,12 @@ QString QmlEntity::frameId() const
     return QString::fromStdString(m_entity->frame_id());
 }
 
-QString QmlEntity::stamp() const
+QmlStamp *QmlEntity::stamp()
 {
-    if(!m_entity) return "";
-    return QString::number(m_entity->stamp().sec()) + "s, " + QString::number(m_entity->stamp().nsec()) + "ns";
+    if(!m_entity) return nullptr;
+    if(!m_stamp)
+    {
+        m_stamp = new QmlStamp(m_entity->mutable_stamp(), this);
+    }
+    return m_stamp;
 }
