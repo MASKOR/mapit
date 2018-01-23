@@ -563,7 +563,6 @@ Item {
                                         }
                                         aspectRatio: theRto.additionalData.aspect
                                         horizontalFov: theRto.additionalData.fov
-                                        onHorizontalFovChanged: console.log("DBG: fov" + horizontalFov)
                                         components: [ gizmoTransform ]
 
 //                                        Q3D.Entity {
