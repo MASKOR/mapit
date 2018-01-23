@@ -53,7 +53,7 @@ void QmlRaycast::setViewMatrix(QMatrix4x4 viewMatrix)
         Q_EMIT worldDirectionChanged();
         Q_EMIT worldPositionChanged();
     } else {
-        qDebug() << "Raycast: viewMatrix updated, cannot recalculate.";
+        //qDebug() << "Raycast: viewMatrix updated, cannot recalculate.";
     }
     Q_EMIT viewMatrixChanged(m_viewMatrix);
 }
@@ -161,7 +161,7 @@ QVector3D QmlRaycast::worldPosition()
             QVector3D cameraPosition(data[12], data[13], data[14]);
             QVector3D worldDir(worldDirection());
             if(m_dirtyWorldDirection) {
-                qWarning("worldPosition can not be determined. Please provide worldDirection or screenPosition.");
+                //qWarning("worldPosition can not be determined. Please provide worldDirection or screenPosition.");
                 return QVector3D(0.0f, 0.0f, 0.0f);
             }
             QVector3D planeNormal(worldDir);
@@ -181,7 +181,7 @@ QVector3D QmlRaycast::worldPosition()
             QVector3D cameraPosition(data[12], data[13], data[14]);
             QVector3D worldDir(worldDirection());
             if(m_dirtyWorldDirection) {
-                qWarning("worldPosition can not be determined. Please provide worldDirection or screenPosition.");
+                //qWarning("worldPosition can not be determined. Please provide worldDirection or screenPosition.");
                 return QVector3D(0.0f, 0.0f, 0.0f);
             }
             float divisor = QVector3D::dotProduct(worldDir, m_planeNormal);
@@ -200,7 +200,7 @@ QVector3D QmlRaycast::worldPosition()
             QVector3D cameraPosition(data[12], data[13], data[14]);
             QVector3D worldDir(worldDirection());
             if(m_dirtyWorldDirection) {
-                qWarning("worldPosition can not be determined. Please provide worldDirection or screenPosition.");
+                //qWarning("worldPosition can not be determined. Please provide worldDirection or screenPosition.");
                 return QVector3D(0.0f, 0.0f, 0.0f);
             }
             float divisor = QVector3D::dotProduct(worldDir, m_planeNormal);
