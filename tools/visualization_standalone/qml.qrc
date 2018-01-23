@@ -18,12 +18,6 @@
         <file>icon/arrow-branch-gyr-24-ns.png</file>
         <file>icon/arrow-down-16-ns.png</file>
         <file>icon/arrow-down-24-ns.png</file>
-        <file>icon/arrow-incident-blue-16-ns.png</file>
-        <file>icon/arrow-incident-blue-24-ns.png</file>
-        <file>icon/arrow-incident-green-16-ns.png</file>
-        <file>icon/arrow-incident-green-24-ns.png</file>
-        <file>icon/arrow-incident-red-16-ns.png</file>
-        <file>icon/arrow-incident-red-24-ns.png</file>
         <file>icon/arrow-left-16-ns.png</file>
         <file>icon/arrow-left-24-ns.png</file>
         <file>icon/arrow-right-16-ns.png</file>
@@ -112,20 +106,6 @@
         <file>icon/circle-wood-24-ns.png</file>
         <file>icon/circle-yellow-16-ns.png</file>
         <file>icon/circle-yellow-24-ns.png</file>
-        <file>icon/clipboard-audit-16-ns.png</file>
-        <file>icon/clipboard-audit-24-ns.png</file>
-        <file>icon/clipboard-comment-16-ns.png</file>
-        <file>icon/clipboard-comment-24-ns.png</file>
-        <file>icon/clipboard-eye-16-ns.png</file>
-        <file>icon/clipboard-eye-24-ns.png</file>
-        <file>icon/clipboard-fingerprint-16-ns.png</file>
-        <file>icon/clipboard-fingerprint-24-ns.png</file>
-        <file>icon/clipboard-report-bar-16-ns.png</file>
-        <file>icon/clipboard-report-bar-24-ns.png</file>
-        <file>icon/clipboard-search-16-ns.png</file>
-        <file>icon/clipboard-search-24-ns.png</file>
-        <file>icon/clipboard-warning-16-ns.png</file>
-        <file>icon/clipboard-warning-24-ns.png</file>
         <file>icon/comment-16-ns.png</file>
         <file>icon/comment-24-ns.png</file>
         <file>icon/comment-chat-16-ns.png</file>
@@ -134,86 +114,16 @@
         <file>icon/comment-inactive-24-ns.png</file>
         <file>icon/cross-16-ns.png</file>
         <file>icon/cross-24-ns.png</file>
-        <file>icon/dice-red-16-ns.png</file>
-        <file>icon/dice-red-24-ns.png</file>
-        <file>icon/dice-white-16-ns.png</file>
-        <file>icon/dice-white-24-ns.png</file>
-        <file>icon/email-16-ns.png</file>
-        <file>icon/email-24-ns.png</file>
-        <file>icon/email-minus-16-ns.png</file>
-        <file>icon/email-minus-24-ns.png</file>
-        <file>icon/email-plus-16-ns.png</file>
-        <file>icon/email-plus-24-ns.png</file>
-        <file>icon/heart-16-ns.png</file>
-        <file>icon/heart-24-ns.png</file>
         <file>icon/lightening-16-ns.png</file>
         <file>icon/lightening-24-ns.png</file>
         <file>icon/minus-16-ns.png</file>
         <file>icon/minus-24-ns.png</file>
-        <file>icon/note-16-ns.png</file>
-        <file>icon/note-24-ns.png</file>
-        <file>icon/note-star-16-ns.png</file>
-        <file>icon/note-star-24-ns.png</file>
-        <file>icon/note-todo-16-ns.png</file>
-        <file>icon/note-todo-24-ns.png</file>
-        <file>icon/note-todo-list-16-ns.png</file>
-        <file>icon/note-todo-list-24-ns.png</file>
-        <file>icon/page-16-ns.png</file>
-        <file>icon/page-24-ns.png</file>
-        <file>icon/page-forum-16-ns.png</file>
-        <file>icon/page-forum-24-ns.png</file>
-        <file>icon/page-pencil-16-ns.png</file>
-        <file>icon/page-pencil-24-ns.png</file>
-        <file>icon/page-star-16-ns.png</file>
-        <file>icon/page-star-24-ns.png</file>
-        <file>icon/paper-arrow-blue-16-ns.png</file>
-        <file>icon/paper-arrow-blue-24-ns.png</file>
-        <file>icon/paper-arrow-green-16-ns.png</file>
-        <file>icon/paper-arrow-green-24-ns.png</file>
-        <file>icon/paper-arrow-red-16-ns.png</file>
-        <file>icon/paper-arrow-red-24-ns.png</file>
-        <file>icon/paper-arrow-teal-16-ns.png</file>
-        <file>icon/paper-arrow-teal-24-ns.png</file>
-        <file>icon/paper-arrow-yellow-16-ns.png</file>
-        <file>icon/paper-arrow-yellow-24-ns.png</file>
-        <file>icon/paper-calculate-percent-16-ns.png</file>
-        <file>icon/paper-calculate-percent-24-ns.png</file>
-        <file>icon/paper-control-16-ns.png</file>
-        <file>icon/paper-control-24-ns.png</file>
-        <file>icon/paper-excerpt-blue-16-ns.png</file>
-        <file>icon/paper-excerpt-blue-24-ns.png</file>
-        <file>icon/paper-excerpt-green-16-ns.png</file>
-        <file>icon/paper-excerpt-green-24-ns.png</file>
-        <file>icon/paper-excerpt-red-16-ns.png</file>
-        <file>icon/paper-excerpt-red-24-ns.png</file>
-        <file>icon/paper-excerpt-teal-16-ns.png</file>
-        <file>icon/paper-excerpt-teal-24-ns.png</file>
-        <file>icon/paper-excerpt-yellow-16-ns.png</file>
-        <file>icon/paper-excerpt-yellow-24-ns.png</file>
-        <file>icon/paper-gavel-16-ns.png</file>
-        <file>icon/paper-gavel-24-ns.png</file>
-        <file>icon/paper-workplan-16-ns.png</file>
-        <file>icon/paper-workplan-24-ns.png</file>
-        <file>icon/pencil-16-ns.png</file>
-        <file>icon/pencil-24-ns.png</file>
-        <file>icon/person-16-ns.png</file>
-        <file>icon/person-24-ns.png</file>
-        <file>icon/person-heart-16-ns.png</file>
-        <file>icon/person-heart-24-ns.png</file>
-        <file>icon/person-minus-16-ns.png</file>
-        <file>icon/person-minus-24-ns.png</file>
-        <file>icon/person-plus-16-ns.png</file>
-        <file>icon/person-plus-24-ns.png</file>
-        <file>icon/person-profile-16-ns.png</file>
-        <file>icon/person-profile-24-ns.png</file>
         <file>icon/plus-16-ns.png</file>
         <file>icon/plus-24-ns.png</file>
         <file>icon/search-16-ns.png</file>
         <file>icon/search-24-ns.png</file>
         <file>icon/settings-16-ns.png</file>
         <file>icon/settings-24-ns.png</file>
-        <file>icon/shield-blue-broken-16-ns.png</file>
-        <file>icon/shield-blue-broken-24-ns.png</file>
         <file>icon/square-black-16-ns.png</file>
         <file>icon/square-black-24-ns.png</file>
         <file>icon/square-blue-16-ns.png</file>
@@ -236,20 +146,10 @@
         <file>icon/square-teal-24-ns.png</file>
         <file>icon/square-white-16-ns.png</file>
         <file>icon/square-white-24-ns.png</file>
-        <file>icon/square-wood-16-ns.png</file>
-        <file>icon/square-wood-24-ns.png</file>
         <file>icon/square-yellow-16-ns.png</file>
         <file>icon/square-yellow-24-ns.png</file>
-        <file>icon/star-16-ns.png</file>
-        <file>icon/star-24-ns.png</file>
-        <file>icon/star-inactive-16-ns.png</file>
-        <file>icon/star-inactive-24-ns.png</file>
         <file>icon/warning-16-ns.png</file>
         <file>icon/warning-24-ns.png</file>
-        <file>icon/zoom-in-16-ns.png</file>
-        <file>icon/zoom-in-24-ns.png</file>
-        <file>icon/zoom-out-16-ns.png</file>
-        <file>icon/zoom-out-24-ns.png</file>
         <file>qml/operators/levelset_to_mesh.qml</file>
         <file>qml/operators/normalestimation.qml</file>
         <file>qml/operators/reg_local.qml</file>
@@ -264,8 +164,6 @@
         <file>qml/operators/normalestimation.png</file>
         <file>qml/operators/surfrecon_openvdb.png</file>
         <file>qml/AppStyle.qml</file>
-        <file>icon/eye-16-ns.png</file>
-        <file>icon/eye-24-ns.png</file>
         <file>qml/operators/las2pcd.qml</file>
         <file>qml/operators/centroid_to_origin.qml</file>
         <file>icon/ic_arrow_drop_down_black-24-ns.png</file>
@@ -441,5 +339,6 @@
         <file>qml/scene/TextLabelEntity.qml</file>
         <file>qml/scene/HandleFrustum.qml</file>
         <file>qml/scene/HandleBoundingBox.qml</file>
+        <file>qml/network/NetworkDialog.qml</file>
     </qresource>
 </RCC>

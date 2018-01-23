@@ -38,159 +38,22 @@ ApplicationWindow {
             }
         }
     }
-    Window {
-        visible: true
+    NetworkDialog {
         id: connectRealtimeMultiviewDialog
-        flags: Qt.Tool
-        title: qsTr( "Choose Checkout" )
-        color: appStyle.backgroundColor
-        width: 420
-        height: connectRealtimeMultiviewGrid.implicitHeight
-        minimumHeight: height
-        maximumHeight: height
-        minimumWidth: width
-        maximumWidth: width
-        GridLayout {
-            id: connectRealtimeMultiviewGrid
-            anchors.fill: parent
-
-            StyledLabel {
-                text: qsTr( "Url" )
-                Layout.column: 0
-                Layout.row: 0
-            }
-            StyledTextField {
-                id: clientUrl
-                text: webServer.url
-                enabled: !isServerCheckbox.checked
-                onEnabledChanged: text = webServer.url
-                Layout.column: 1
-                Layout.row: 0
-                Layout.fillWidth: true
-            }
-            StyledCheckBox {
-                id: isServerCheckbox
-                text: qsTr( "Server" )
-                Layout.column: 0
-                Layout.row: 1
-            }
-            RowLayout {
-                StyledLabel {
-                    text: qsTr( "Port" )
-                }
-                StyledTextField {
-                    id: portTextfield
-                    validator: IntValidator {
-                        bottom: 0
-                        top: 65535
-                    }
-                    text: "55511"
-                }
-                Layout.column: 1
-                Layout.row: 1
-                Layout.fillWidth: true
-            }
-            StyledButton {
-                text: "Cancel"
-                onClicked: {
-                    webServer.listen = false;
-                    connectRealtimeMultiviewDialog.visible = false
-                }
-                Layout.column: 0
-                Layout.row: 2
-            }
-            StyledButton {
-                text: qsTr( "Ok" )
-                enabled: clientUrl.text.trim().length !== 0
-                         && clientUrl.text.trim().length !== 0
-                onClicked: {
-                    if(isServerCheckbox.checked) {
-                        webServer.listen = true
-                        webServer.accept = true
-                        mapitClient.active = true
-                    } else {
-                        mapitClient.active = true
-                    }
-
-                    //DBG: diabled for debugging connectRealtimeMultiviewDialog.visible = false
-                }
-                Layout.column: 1
-                Layout.row: 2
-            }
-            RowLayout {
-                StyledLabel {
-                    text: qsTr( "Name" )
-                }
-                StyledTextField {
-                    id: peernameTextfield
-                    text: "Alice" + Date.now()
-                }
-                Layout.column: 0
-                Layout.row: 3
-                Layout.fillWidth: true
-            }
-            StyledButton {
-                text: qsTr( "Send State" )
-                //enabled: !isServerCheckbox.checked && mapitClient.active
-                onClicked: {
-                    mapitClient.sendOwnState()
-                }
-                Layout.column: 1
-                Layout.row: 3
-            }
-            StyledTextField {
-                Layout.column: 0
-                Layout.row: 4
-                id: rtoType
-                placeholderText: qsTr( "ObjectType" )
-            }
-            StyledTextField {
-                Layout.column: 1
-                Layout.row: 4
-                id: rtoVecX
-                placeholderText: qsTr( "vecx" )
-            }
-            ColumnLayout {
-                Layout.column: 0
-                Layout.columnSpan: 2
-                Layout.row: 5
-                Layout.fillWidth: true
-                Layout.minimumHeight: 700
-                height: 700
-                Text {
-                    text: "Realtime objects:"
-                }
-                Repeater {
-                    id: peersListView
-                    model: mapitClient.state.realtimeObjects.count
-                    Text {
-                        property RealtimeObject obj: mapitClient.state.realtimeObjects.get(index)
-                        text: "Obj: " + mapitClient.state.peerToPeerState[obj.peerOwner].peername + " " + obj.ident + " " + obj.type
-                    }
-                }
-                Item {
-                    Layout.fillHeight: true
-                }
-            }
-        }
     }
 
     MapitClient {
         id: mapitClient
-        url: clientUrl.text
+        url: connectRealtimeMultiviewDialog.url
         Component.onCompleted: globalApplicationState.mapitClient = mapitClient
         ownState: MapitMultiviewPeerState {
-            peername: peernameTextfield.text
+            peername: connectRealtimeMultiviewDialog.peername
+            onPeernameChanged: mapitClient.sendOwnState()
             realtimeObjects: [
                 RealtimeObject {
                     id: theRto
                     tf: sceneView.camera.viewMatrix
-//                    tf: Qt.matrix4x4(1.0, 0.0, 0.0, pos.x,
-//                                     0.0, 1.0, 0.0, pos.y,
-//                                     0.0, 0.0, 1.0, pos.z,
-//                                     0.0, 0.0, 0.0, 1.0)
-//                    property vector3d pos: sceneView.camera.position
-                    type: rtoType.text
+                    type: "frustum"
                     additionalData: { "aspect": sceneView.camera.aspectRatio, "fov": sceneView.camera.fieldOfView }
                 }
             ]
@@ -203,17 +66,9 @@ ApplicationWindow {
         onFieldOfViewChanged: mapitClient.sendOwnState()
     }
 
-//    Timer {
-//        id: updateTimer
-//        running: mapitClient.active
-//        interval: 100
-//        repeat: true
-//        onTriggered: mapitClient.sendOwnState()
-//    }
-
     MapitServer {
         id: webServer
-        port: parseInt(portTextfield.text)
+        port: connectRealtimeMultiviewDialog.port
         listen: true
         accept: true
     }

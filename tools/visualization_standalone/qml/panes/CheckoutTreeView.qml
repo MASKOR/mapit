@@ -24,6 +24,7 @@ QCtl.TreeView {
         model: treeViewCheckout.model
     }
     model: UPNS.RootTreeModel {
+        sortRole: 0 // "displayRole"
         id: rootModel
 //        Component.onCompleted: {
 //            visiblePathToVisibility = {}
