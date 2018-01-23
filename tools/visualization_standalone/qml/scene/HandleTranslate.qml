@@ -14,8 +14,6 @@ Q3D.Entity {
     property real arrowLen: 0.1
     property real arrowBottomRadius: 0.05
 
-    property matrix4x4 matrix
-
     Q3D.Entity {
         id: axisX
         property var meshAxis: CylinderMesh { // points to z axis by default

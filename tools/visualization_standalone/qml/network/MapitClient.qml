@@ -63,7 +63,8 @@ QtObject {
                 peerOwner: orig.peerOwner,
                 tf: transf,
                 vel: [orig.vel.x, orig.vel.y, orig.vel.z ],
-                type: orig.type
+                type: orig.type,
+                additionalData: orig.additionalData
             }
 //            for(var prop in original) {
 //                if(original.hasOwnProperty(prop))

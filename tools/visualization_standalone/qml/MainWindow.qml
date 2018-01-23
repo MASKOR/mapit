@@ -123,7 +123,7 @@ ApplicationWindow {
                 }
                 StyledTextField {
                     id: peernameTextfield
-                    text: "Alice"
+                    text: "Alice" + Date.now()
                 }
                 Layout.column: 0
                 Layout.row: 3
@@ -191,6 +191,7 @@ ApplicationWindow {
 //                                     0.0, 0.0, 0.0, 1.0)
 //                    property vector3d pos: sceneView.camera.position
                     type: rtoType.text
+                    additionalData: { "aspect": sceneView.camera.aspectRatio, "fov": sceneView.camera.fieldOfView }
                 }
             ]
         }
@@ -198,6 +199,8 @@ ApplicationWindow {
     Connections {
         target: sceneView.camera
         onViewMatrixChanged: mapitClient.sendOwnState()
+        onAspectRatioChanged: mapitClient.sendOwnState()
+        onFieldOfViewChanged: mapitClient.sendOwnState()
     }
 
 //    Timer {

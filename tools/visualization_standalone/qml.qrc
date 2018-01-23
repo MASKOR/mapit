@@ -438,7 +438,8 @@
         <file>qml/network/MapitMultiviewNetworkState.qml</file>
         <file>qml/network/MapitMultiviewPeerState.qml</file>
         <file>qml/network/RealtimeObject.qml</file>
-        <file>qml/scene/HandleViewport.qml</file>
         <file>qml/scene/TextLabelEntity.qml</file>
+        <file>qml/scene/HandleFrustum.qml</file>
+        <file>qml/scene/HandleBoundingBox.qml</file>
     </qresource>
 </RCC>

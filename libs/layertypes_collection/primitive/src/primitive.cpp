@@ -103,7 +103,7 @@ void PrimitiveEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
 int PrimitiveEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
                                               upnsReal &x2, upnsReal &y2, upnsReal &z2)
 {
-    float size = 0.5;
+    float size = 1.0;
     x1 = -size;
     y1 = -size;
     z1 = -size;

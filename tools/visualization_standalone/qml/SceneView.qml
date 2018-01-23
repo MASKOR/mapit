@@ -210,6 +210,13 @@ Item {
                     }
                 }
             }
+            StyledButton {
+                id: boundingBoxButton
+                width: height
+                text: "BB"
+                tooltip: "Show <i>Bounding Boxes</i>"
+                checkable: true
+            }
             RowLayout {
                 StyledButton {
                     isIcon: true
@@ -547,15 +554,17 @@ Item {
                                 Q3D.NodeInstantiator {
                                     id: realtimeObjectInstantiator
                                     model: root.mapitClient ? root.mapitClient.state.realtimeObjects.count : 0
-                                    HandleTranslate {
-                                        id: manipulationGizmo
+                                    HandleFrustum {
+                                        id: peerGizmo
                                         layer: gizmoLayer
                                         property var theRto: root.mapitClient.state.realtimeObjects.get(index)
                                         property var gizmoTransform: Q3D.Transform {
-                                            //property vector3d pos: Qt.vector3d(matrix.m14, matrix.m24, matrix.m34)
-                                            matrix: manipulationGizmo.theRto ? manipulationGizmo.theRto.tf.inverted() : Qt.matrix4x4()
+                                            matrix: peerGizmo.theRto ? peerGizmo.theRto.tf.inverted() : Qt.matrix4x4()
                                         }
-                                        components: [ gizmoTransform, gizmoLayer ]
+                                        aspectRatio: theRto.additionalData.aspect
+                                        horizontalFov: theRto.additionalData.fov
+                                        onHorizontalFovChanged: console.log("DBG: fov" + horizontalFov)
+                                        components: [ gizmoTransform ]
 
 //                                        Q3D.Entity {
 //                                            property Material material: PhongMaterial { diffuse: "red" }
@@ -745,6 +754,11 @@ Item {
                                             }
                                             onMinChanged: entityInstantiator.recalcBoundingBox()
                                             onMaxChanged: entityInstantiator.recalcBoundingBox()
+                                            HandleBoundingBox {
+                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
+                                                min: parent.min
+                                                max: parent.max
+                                            }
                                         }
                                     }
                                     Q3D.Entity {

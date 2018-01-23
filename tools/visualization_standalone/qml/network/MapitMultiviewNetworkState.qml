@@ -147,6 +147,7 @@ Item {
             theRto2.tf = Qt.matrix4x4( newRtoState.tf )
             theRto2.vel = Qt.vector3d( newRtoState.vel[0], newRtoState.vel[1], newRtoState.vel[2] )
             theRto2.type = newRtoState.type
+            theRto2.additionalData = newRtoState.additionalData
 //            for(var prop in newRtoState) {
 //                if(typeof theRto2[prop] === "undefined") {
 //                    console.log("Can not set property of RealtimeObject: " + prop)
@@ -159,14 +160,15 @@ Item {
         // create
         for( var rtoC=0 ; rtoC < newRtos.length ; ++rtoC) {
             var newRto = newRtos[rtoC]
-            var blueprint = {
+            var blueprintRto = {
                 ident: newRto.ident,
                 peerOwner: newRto.peerOwner,
                 tf: Qt.matrix4x4( newRto.tf ),
                 vel: Qt.vector3d( newRto.vel[0], newRto.vel[1], newRto.vel[2] ),
-                type: newRto.type
+                type: newRto.type,
+                additionalData: newRto.additionalData
             }
-            realtimeObjects.append(realtimeObjectComponent.createObject(null, blueprint))
+            realtimeObjects.append(realtimeObjectComponent.createObject(null, blueprintRto))
         }
     }
     Component {
