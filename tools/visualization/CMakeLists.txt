@@ -104,6 +104,7 @@ target_link_libraries(${PROJECT_NAME}   ${mapit_core}
                                         layertype_asset
                                         layertype_openvdb
                                         layertype_primitive
+                                        networking_node
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)

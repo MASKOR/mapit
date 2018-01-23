@@ -345,5 +345,6 @@
         <file>qml/scene/HandleFrustum.qml</file>
         <file>qml/scene/HandleBoundingBox.qml</file>
         <file>qml/network/NetworkDialog.qml</file>
+        <file>qml/network/EntityVisualInfo.qml</file>
     </qresource>
 </RCC>

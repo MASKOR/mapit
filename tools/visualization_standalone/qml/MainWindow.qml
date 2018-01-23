@@ -10,6 +10,7 @@ import QtQuick.Layouts 1.1
 import "panes"
 import "components"
 import "network"
+import fhac.upns 1.0 as UPNS
 
 ApplicationWindow {
     id: mainWindow
@@ -47,8 +48,12 @@ ApplicationWindow {
         url: connectRealtimeMultiviewDialog.url
         Component.onCompleted: globalApplicationState.mapitClient = mapitClient
         ownState: MapitMultiviewPeerState {
+            id: multiviewPeerState
             peername: connectRealtimeMultiviewDialog.peername
             onPeernameChanged: mapitClient.sendOwnState()
+            isHost: connectRealtimeMultiviewDialog.isServer
+            repositoryPort: repoServer.port
+            checkoutName: globalApplicationState.currentCheckoutName
             realtimeObjects: [
                 RealtimeObject {
                     id: theRto
@@ -58,6 +63,23 @@ ApplicationWindow {
                 }
             ]
         }
+    }
+    Connections {
+        target: mapitClient.state
+        enabled: !connectRealtimeMultiviewDialog.isServer
+        onCheckoutNameChanged: {
+            globalApplicationState.currentCheckoutName = mapitClient.state.checkoutName
+        }
+        onRepositoryUrlChanged: {
+            globalRepository.url = mapitClient.state.repositoryUrl
+        }
+    }
+
+    UPNS.RepositoryServer {
+        id: repoServer
+        running: connectRealtimeMultiviewDialog.isServer
+        repository: globalRepository
+        onRunningChanged: console.log("Repositoryserver started at port " + port)
     }
     Connections {
         target: sceneView.camera

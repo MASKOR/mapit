@@ -124,8 +124,8 @@ Window {
                 RowLayout {
                     StyledLabel {
                         property RealtimeObject obj: mapitClient.state.realtimeObjects.get(index)
-                        property string owner: mapitClient.state.peerToPeerState[obj.peerOwner].peername
-                        text: obj.ident + ", <b>Owner</b>: " + owner + ", <b>Type</b>:  " + obj.type
+                        property var owner: mapitClient.state.peerToPeerState[obj.peerOwner]
+                        text: obj.ident + ", <b>Owner</b>: " + owner.peername + ", <b>Type</b>:  " + obj.type + (owner.isHost ? "(<b>Host</b>)" : "")
                         tooltip: "" + obj.peerOwner + "<br>" + obj.tf
                         renderType: Text.NativeRendering
                     }

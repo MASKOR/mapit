@@ -16,7 +16,7 @@ import QtWebSockets 1.1
 //    response: "get_uid_reply" -> { uid: "<globally unique identifier>", data: "<identifier for response>"}
 //  messagetypes from server to client:
 //  (see above *_reply-messages)
-//  "world -> { world: [MapitMultiviewPeerStates without the peers own state] }
+//  "world -> { world: [MapitMultiviewPeerStates without the peers own state], repositoryUrl: <"ip:port of repo">, checkoutName:<checkoutName> }
 // application layer:
 //  there is a list of MapitMultiviewPeerStates
 //  the own state can be send to the server
@@ -46,6 +46,9 @@ QtObject {
         property var connectedPeers: ({}) // ident -> date last seen
         property var peerWebSockets: ({})
         property bool peersNeedUpdate: false
+        property string identOfCurrentHost
+        property string repositoryUrl
+        property string checkoutName
         function isMessageValidFromRegisteredPeer(msgData, message) {
             if( typeof msgData.sessionId !== "string" ) {
                 console.log(qsTr("Server received message without \"sessionId\": %1").arg(message))
@@ -81,20 +84,26 @@ QtObject {
                     webServer.connectedPeers[id] = Date.now()
                     webServer.peerWebSockets[id] = webSocket
                     webServer.peerIdentToSessId[id] = sid
-                    var emptyState = {ident: id, sessionId:sid, realtimeObjects: []}
+                    var emptyState = {ident: id, sessionId:sid, realtimeObjects: [], visibleEntityInfos: []}
                     webServer.peerStates[id] = emptyState
                     webServer.peersNeedUpdate = true
                     break
                 case "state":
                     var msgData = msg.message
                     if( !isMessageValidFromRegisteredPeer(msgData, message) ) return
-                    if(typeof msgData.peername !== "undefined") {
+                    if(typeof msgData.peername !== "undefined" || msgData.isHost) {
                         // name update
                         // check if name is already in use
                         for(var ident in webServer.peerStates) {
                             var state = webServer.peerStates[ident]
                             if(state.ident !== ident) console.log("Server has corrupt data (ident Map)")
                             if(state.ident !== msgData.ident) {
+                                if((state.isHost === true) && (msgData.isHost === true)) {
+                                    console.log(qsTr("Server received message to reasign host from peername: %1").arg(message))
+                                    var replyStatusHost = { messagetype: "state_reply", message: { peername: msgData.peername, status: "there already is a host (id other:" + state.ident + ", id requestor:" + msgData.ident + ")" }}
+                                    webSocket.sendTextMessage(JSON.stringify(replyStatusHost))
+                                    return
+                                }
                                 if(state.peername === msgData.peername) {
                                     console.log(qsTr("Server received message with duplicate peername: %1").arg(message))
                                     var replyStatus = { messagetype: "state_reply", message: { peername: msgData.peername, status: "name already in use (id other:" + state.ident + ", id requestor:" + msgData.ident + ")" }}
@@ -104,6 +113,33 @@ QtObject {
                             }
                         }
                     }
+                    var hostname = "" + webSocket.url;
+                    //find & remove protocol (http, ftp, etc.) and get hostname
+
+                    if (hostname.indexOf("://") > -1) {
+                        hostname = hostname.split('/')[2];
+                    }
+                    else {
+                        hostname = hostname.split('/')[0];
+                    }
+
+                    //find & remove port number
+                    hostname = hostname.split(':')[0];
+                    //find & remove "?"
+                    hostname = hostname.split('?')[0];
+                    if(msgData.isHost) {
+                        identOfCurrentHost = msgData.ident
+                        var newReopUrl = "tcp://" + hostname + ":" + msgData.repositoryPort
+                        if(repositoryUrl !== newReopUrl) {
+                            repositoryUrl = newReopUrl
+                            console.log("Server received new repository url for host: " + repositoryUrl)
+                        }
+                        if(checkoutName !== msgData.checkoutName) {
+                            checkoutName = msgData.checkoutName
+                            console.log("Server received new checkout name from host: " + checkoutName)
+                        }
+                    }
+
                     // any other update can be made without checks
                     // TODO: maybe check realtime objects peerOwner for the senders ident
                     webServer.peerStates[msgData.ident] = msgData
@@ -156,7 +192,13 @@ QtObject {
                 if(ident3 === ident2) continue
                 strippedStatesWithoutOwn.push(strippedStates[ident3])
             }
-            var messageWorld = { messagetype: "world", message: { world: strippedStatesWithoutOwn} }
+            var messageWorld = { messagetype: "world"
+                , message: {
+                    world: strippedStatesWithoutOwn
+                  , repositoryUrl: webServer.repositoryUrl
+                  , checkoutName: webServer.checkoutName
+                }
+            }
             webSocket.sendTextMessage(JSON.stringify(messageWorld))
         }
     }

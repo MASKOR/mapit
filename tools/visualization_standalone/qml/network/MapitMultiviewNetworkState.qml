@@ -10,6 +10,11 @@ Item {
     id: root
     property var peerToPeerState: ({})
     readonly property ObjectModel realtimeObjects: ObjectModel {}
+    readonly property ObjectModel visibleEntityInfos: ObjectModel {}
+
+    property string repositoryUrl
+    //property int repositoryPort
+    property string checkoutName
 
     signal peerJoined(var peer)
     signal peerUpdated(var peer)
@@ -21,6 +26,7 @@ Item {
     signal visibleObjectUpdated(var rto)
     signal visibleObjectRemoved(var rtoIdent)
     function worldUpdated(world) {
+        var hostPeer
         // extract add/update/delete
         var newPeers =[] // no old peer for new peer in world. CREATE
         var foundPeers = [] // old peer is found in world. UPDATE
@@ -30,6 +36,7 @@ Item {
             missingPeers.push(p)
         }
         for( var k=0 ; k < world.length ; ++k) {
+            if(world[k].isHost) hostPeer = world[k]
             var worldPeerIdent = world[k].ident
             hashIdentToNewState[worldPeerIdent] = world[k]
             var found = false
@@ -106,9 +113,51 @@ Item {
 
         //console.log("DBG: rto fin, new: " + newRtos.length + ", found: " + foundRtos.length + ", miss: " + missingRtos.length)
 
-        // TODO: visibleObjects
+        // Update Visible EntityInfos (use foundPeers for that)
+        var newVisObjs =[] // CREATE
+        var foundVisObjs = [] // UPDATE
+        var foundVisObjsByIdent = {} // UPDATE
+        var missingVisObjs = [] // DELETE
+        var missingVisObjsModelIdx = [] // DELETE
+        for( var allVisObjsI=0 ; allVisObjsI < visibleEntityInfos.count ; ++allVisObjsI) {
+            var theVisObj = visibleEntityInfos.get(allVisObjsI)
+            missingVisObjs.push(theVisObj.path)
+            missingVisObjsModelIdx.push(allVisObjsI)
+        }
 
-        worldUpdatedDiff(newPeers, foundPeers, missingPeers, newRtos, foundRtos, missingRtos, [], [], [])
+        for( var fp=0 ; fp < foundPeers.length ; ++fp) {
+            var fpIdent = foundPeers[fp].ident
+            for( var visObjNewI=0 ; visObjNewI < hashIdentToNewState[fpIdent].visibleEntityInfos.length ; ++visObjNewI) {
+                var visObjNew = hashIdentToNewState[fpIdent].visibleEntityInfos[visObjNewI]
+                var foundVisObj = false
+                var iVisObj = missingVisObjs.length
+                while (iVisObj--) {
+                    if(visObjNew.path === missingVisObjs[iVisObj]) {
+                        foundVisObjs.push(visObjNew)
+                        foundVisObjsByIdent[visObjNew.path] = visObjNew
+                        missingVisObjs.splice(iVisObj, 1)
+                        missingVisObjsModelIdx.splice(iVisObj, 1)
+                        foundVisObj = true
+                        break
+                    }
+                }
+                if( !foundVisObj ) {
+                    newVisObjs.push(visObjNew)
+                }
+            }
+        }
+
+        for( var np=0 ; np < newPeers.length ; ++np) {
+            var npIdent = newPeers[np].ident
+            for( var visObjNewJ=0 ; visObjNewJ < hashIdentToNewState[npIdent].visibleEntityInfos.length ; ++visObjNewJ) {
+                var visObjNew2 = hashIdentToNewState[npIdent].visibleEntityInfos[visObjNewJ]
+                newVisObjs.push(visObjNew2)
+            }
+        }
+
+        worldUpdatedDiff( newPeers,   foundPeers,   missingPeers
+                         ,newRtos,    foundRtos,    missingRtos
+                         ,newVisObjs, foundVisObjs, missingVisObjs)
 
         // update peers
         for( var prsmiss=0 ; prsmiss < missingPeers.length ; ++prsmiss) {
@@ -126,7 +175,7 @@ Item {
             var blueprint = {
                 ident: newPeerObj.ident,
                 peername: newPeerObj.peername,
-                visibleObjects: newPeerObj.visibleObjects,
+                visibleEntityInfos: newPeerObj.visibleEntityInfos,
                 realtimeObjects: newPeerObj.realtimeObjects,
                 timestamp: newPeerObj.timestamp
             }
@@ -137,6 +186,7 @@ Item {
         // remove
         for( var mrmi=0 ; mrmi < missingRtosModelIdx.length ; ++mrmi) {
             var idx = missingRtosModelIdx[mrmi]
+            console.log("DBG: removed rto: " + idx)
             realtimeObjects.remove(idx, 1)
         }
         // update
@@ -148,14 +198,6 @@ Item {
             theRto2.vel = Qt.vector3d( newRtoState.vel[0], newRtoState.vel[1], newRtoState.vel[2] )
             theRto2.type = newRtoState.type
             theRto2.additionalData = newRtoState.additionalData
-//            for(var prop in newRtoState) {
-//                if(typeof theRto2[prop] === "undefined") {
-//                    console.log("Can not set property of RealtimeObject: " + prop)
-//                } else {
-//                    console.log("DBG: updated rto " + newRtoState.ident + "." + prop)
-//                    theRto2[prop] = newRtoState[prop]
-//                }
-//            }
         }
         // create
         for( var rtoC=0 ; rtoC < newRtos.length ; ++rtoC) {
@@ -170,10 +212,39 @@ Item {
             }
             realtimeObjects.append(realtimeObjectComponent.createObject(null, blueprintRto))
         }
+
+        // update visibleEntityInfos model
+        // remove
+        for( var mrmi2=0 ; mrmi2 < missingRtosModelIdx.length ; ++mrmi2) {
+            var idx2 = missingVisObjsModelIdx[mrmi2]
+            visibleEntityInfos.remove(idx2, 1)
+        }
+        // update
+        for( var visObjUpd=0 ; visObjUpd < visibleEntityInfos.count ; ++visObjUpd) {
+            var theVisObj2 = visibleEntityInfos.get(visObjUpd)
+            var newVisObjState = foundVisObjsByIdent[theVisObj2.path]
+
+            theVisObj2.peerOwner = newVisObjState.peerOwner
+            theVisObj2.additionalData = newRtoState.additionalData
+        }
+        // create
+        for( var visObjC=0 ; visObjC < newVisObjs.length ; ++visObjC) {
+            var newVisObj = newVisObjs[visObjC]
+            var blueprintVisObj = {
+                path: newVisObj.path,
+                peerOwner: newVisObj.peerOwner,
+                additionalData: newVisObj.additionalData
+            }
+            visibleEntityInfos.append(visibleObjectComponent.createObject(null, blueprintVisObj))
+        }
     }
     Component {
         id: realtimeObjectComponent
         RealtimeObject {}
+    }
+    Component {
+        id: visibleObjectComponent
+        EntityVisualInfo {}
     }
     Component {
         id: peerStateComponent

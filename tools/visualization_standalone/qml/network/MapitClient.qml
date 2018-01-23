@@ -10,6 +10,17 @@ QtObject {
     property alias status: socket.status
     readonly property MapitMultiviewNetworkState state: MapitMultiviewNetworkState {}
     property MapitMultiviewPeerState ownState: MapitMultiviewPeerState {}
+    onActiveChanged: if(active) {
+                         sendOwnState()
+                     } else {
+                         console.log("Disconnect/Server closed connection.")
+                         state.peerToPeerState = ({})
+                         state.realtimeObjects.clear()
+                         state.visibleEntityInfos.clear()
+                         state.repositoryUrl = ""
+                         state.checkoutName = ""
+                     }
+
     function sendOwnState(ownState) {
         if(typeof ownState === "undefined") {
             ownState = root.ownState
@@ -72,7 +83,26 @@ QtObject {
 //            }
             rtos.push(rto)
         }
-        var ownStateJson = {ident: ownState.ident, sessionId: ownState.sessionId, peername: ownState.peername, visibleObjects: [], realtimeObjects: rtos, timestamp: Date.now()}
+        var visObjs = []
+        for(var i2=0 ; i2 < ownState.visibleEntityInfos.length ; ++i2) {
+            var orig2 = ownState.visibleEntityInfos[i]
+            // We have to list copied properties here or we transmit all qml properies...
+            var visObj = {path: orig2.path,
+                peerOwner: orig2.peerOwner,
+                additionalData: orig2.additionalData
+            }
+            visObjs.push(visObj)
+        }
+
+        var ownStateJson = { ident: ownState.ident
+                           , sessionId: ownState.sessionId
+                           , peername: ownState.peername
+                           , visibleEntityInfos: visObjs
+                           , realtimeObjects: rtos
+                           , timestamp: Date.now()
+                           , isHost: ownState.isHost
+                           , repositoryPort: ownState.repositoryPort
+                           , checkoutName: ownState.checkoutName}
 
         var message = {messagetype: "state", message: ownStateJson}
 //        console.log("DBG: sending own state: " + JSON.stringify(message))
@@ -118,6 +148,9 @@ QtObject {
                 delete priv.callbackHash[msgData.data]
                 break
             case "world":
+
+                state.repositoryUrl = msgData.repositoryUrl
+                state.checkoutName = msgData.checkoutName
                 state.worldUpdated(msgData.world)
                 break
             default:

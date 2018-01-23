@@ -33,6 +33,7 @@
 #include <upns/ui/bindings/qmlentitydata.h>
 #include <upns/ui/bindings/qmltransform.h>
 #include <upns/ui/bindings/qmlbranch.h>
+#include <upns/ui/bindings/qmlrepositoryserver.h>
 #include "qpointcloud.h"
 #include "qpointcloudgeometry.h"
 #include "qpointfield.h"
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlEntity>("fhac.upns", 1, 0, "Entity");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
+    qmlRegisterType<QmlRepositoryServer>("fhac.upns", 1, 0, "RepositoryServer");
 
     qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
     qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");

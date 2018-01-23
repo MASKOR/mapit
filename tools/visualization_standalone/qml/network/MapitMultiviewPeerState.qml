@@ -10,12 +10,20 @@ Item {
     // human readable name of the peer, can be freely chosen
     property string peername
 
+    property bool isHost
+
+    // repoUrl: is set by server to the host-client ip + repositoryPort
+    property int repositoryPort
+    property string checkoutName
+
     // list of path to objects, the peer currently sees (and works with and wants other to see)
-    property var visibleObjects
+    //property var visibleObjects
 
     // list of objects that are not part of the collaborative workspace, exculsive to the peer
     //property list<RealtimeObject> realtimeObjects
     property list<RealtimeObject> realtimeObjects
+
+    property list<EntityVisualInfo> visibleEntityInfos
 
     property var timestamp: Date.now()
 }

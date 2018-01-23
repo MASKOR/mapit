@@ -52,3 +52,6 @@
 [submodule "tools/graphblocks"]
 	path = tools/graphblocks
 	url = https://github.com/dabulla/graphblocks.git
+[submodule "tools/visualization_vr/qt3d-vr-example"]
+	path = tools/visualization_vr/qt3d-vr-example
+	url = https://github.com/dabulla/qt3d-vr-example
