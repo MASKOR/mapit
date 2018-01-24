@@ -15,6 +15,7 @@ import fhac.upns 1.0 as UPNS
 
 ApplicationWindow {
     id: mainWindow
+    objectName: "mainWindow"
     color: appStyle.backgroundColor
     onClosing: Qt.quit()
     Window {
@@ -55,6 +56,7 @@ ApplicationWindow {
             isHost: connectRealtimeMultiviewDialog.isServer
             repositoryPort: repoServer.port
             checkoutName: globalApplicationState.currentCheckoutName
+            visibleEntityInfos: leftPanels.treeView.visualInfoModel
             realtimeObjects: [
                 RealtimeObject {
                     id: theRto

@@ -86,8 +86,10 @@ QtObject {
         var visObjs = []
         for(var i2=0 ; i2 < ownState.visibleEntityInfos.length ; ++i2) {
             var orig2 = ownState.visibleEntityInfos[i]
+            if(!orig2.isVisible) continue
             // We have to list copied properties here or we transmit all qml properies...
-            var visObj = {path: orig2.path,
+            var visObj = {
+                path: orig2.path,
                 peerOwner: orig2.peerOwner,
                 additionalData: orig2.additionalData
             }

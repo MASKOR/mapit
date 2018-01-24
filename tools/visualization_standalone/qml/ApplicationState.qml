@@ -78,6 +78,8 @@ Item {
 
     // Multiple Entities may be visible at a time
     property ListModel visibleEntityModel: ListModel {} // ListModel {}
+    // TODO: Bug: There is a bug in Qt3D NodeInstantiator: It will crash when used with ObjectModel. Thus, there is an explicit ListModel at the moment
+    property ObjectModel visualInfoModel
 
     property string currentFrameId
     readonly property var currentEntityTransform: globalEntityTransform

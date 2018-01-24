@@ -18,6 +18,22 @@ Item {
 //    }
     onFocusChanged: if(!focus) dropDown.visible = false
 
+    Connections {
+        target: globalMouseEventFilter
+        onMouseReleased: {
+            if(dropDownVisible) {
+                blurTimer.start()
+            }
+        }
+    }
+    Timer {
+        id: blurTimer
+        interval: 10
+        onTriggered: {
+            dropDownVisible = false
+        }
+    }
+
     property ListModel filteredModel: ListModel {}
     property alias selection: lv.currentItem
     property alias currentText: ff.text
@@ -72,7 +88,10 @@ Item {
         anchors.right: parent.right
         id: ff
         placeholderText: "filter..."
-        onActiveFocusChanged: dropDown.visible = activeFocus
+        onActiveFocusChanged: {
+            dropDown.visible = activeFocus
+            blurTimer.stop()
+        }
         onTextChanged: {
             filteredModel.clear();
             var re = new RegExp(ff.text, "i"); // Case insensitive
@@ -152,6 +171,7 @@ Item {
                 onPositionChanged: {
                     var hitem = lv.itemAt(mouseX, mouseY)
                     if(hitem) lv.hoveredItem = hitem
+                    blurTimer.stop()
                 }
             }
         }
@@ -159,6 +179,7 @@ Item {
             anchors.fill: parent
             onClicked: {
                 dropDown.visible = false
+                blurTimer.stop()
             }
         }
     }

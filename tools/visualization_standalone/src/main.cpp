@@ -61,6 +61,9 @@
 #include <graphblocks.h>
 #endif
 
+#include "mouseeventfilter.h"
+
+
 namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
@@ -115,6 +118,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
     qmlRegisterType<QmlRepositoryServer>("fhac.upns", 1, 0, "RepositoryServer");
+    qmlRegisterUncreatableType<MouseEventFilter>("fhac.upns", 1, 0, "MouseEventFilter", "Use globalMouseEventFilter to blur popups");
 
     qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
     qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
@@ -151,6 +155,8 @@ int main(int argc, char *argv[])
     engine.addImageProvider("material", imgProviderMaterialDesign);
     engine.addImageProvider("operator", imgProviderOperator);
     engine.addImageProvider("primitive", imgProviderPrimitive);
+    MouseEventFilter filter1;
+    engine.rootContext()->setContextProperty("globalMouseEventFilter", &filter1);
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     if(!engine.rootObjects().empty())
@@ -179,13 +185,14 @@ int main(int argc, char *argv[])
             updater->updateAllImages();
         }
         //Qt3DCore::Quick::QQmlAspectEngine * test = engine.findChild<Qt3DCore::Quick::QQmlAspectEngine *>();
-        QObject *mainWindow = engine.rootObjects().first()->findChild<QObject *>("mainWindow");
+        QObject *mainWindow = engine.rootObjects().first();//->findChild<QObject *>("mainWindow");
         Qt3DInput::QInputSettings *inputSettings = engine.rootObjects().first()->findChild<Qt3DInput::QInputSettings *>();
         if (inputSettings) {
             inputSettings->setEventSource(mainWindow);
         } else {
             qDebug() << "No Input Settings found, keyboard and mouse events won't be handled";
         }
+        mainWindow->installEventFilter(&filter1);
     }
 
     int result = app.exec();
