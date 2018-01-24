@@ -27,7 +27,7 @@ public:
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
     void handleRequestGenericEntry(RequestGenericEntry *msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);
-    void handleRequestStoreTree(RequestStoreTree *msg);
+//    void handleRequestStoreTree(RequestStoreTree *msg);
 //    void handleRequestStoreGenericEntry(upns::RequestStoreGenericEntry *msg);
 //    void handleRequestEntity(upns::RequestEntity *msg);
 //    void handleRequestTree(upns::RequestTree *msg);
