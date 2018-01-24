@@ -61,15 +61,7 @@ int main(int argc, char *argv[])
         rootPath /= fs::path( vars["checkout"].as<std::string>() );
     }
 
-    upns::StatusCode s = co->depthFirstSearch([&](
-        std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
-        {
-            return true;
-        },
-        [&](std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
-        {
-            return true;
-        },
+    upns::StatusCode s = co->depthFirstSearch(
         [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
         {
             fs::path current( rootPath );

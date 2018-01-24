@@ -98,14 +98,6 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
     // extract entities mapname
     ::tf::TransformStamped tfs;
 
-    std::string p = CheckoutCommon::getMapPathOfEntry(path().toStdString());
-
-    if(p.empty() || !checkout()->getCheckoutObj()->getTree(p))
-    {
-        log_warn("No transform found in map: \""+p+"\"");
-        if(found) *found = false;
-        return tfs;
-    }
     std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout()->getCheckoutObj().get(), ""));
 
     try

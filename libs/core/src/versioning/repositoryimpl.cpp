@@ -1,6 +1,7 @@
 #include "repositoryimpl.h"
 #include "serialization/abstractserializer.h"
 #include "versioning/checkoutimpl.h"
+#include <upns/depthfirstsearch.h>
 #include <upns/serialization/entitydatalibrarymanager.h>
 #include <chrono>
 
@@ -148,8 +149,14 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
     CommitId ret;
-    StatusCode s = co->depthFirstSearch(
-        [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path){return true;},
+    std::shared_ptr<Commit> rootCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
+    ObjectReference nullRef;
+    StatusCode s = upns::depthFirstSearch(
+                co,
+                rootCommit,
+                nullRef,
+                "",
+        depthFirstSearchAll(Commit),
         [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path)
         {
             const Path pathOfRootDir("");
@@ -182,7 +189,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             ret = statusOid.second;
             return true;
         },
-        [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
+        depthFirstSearchAll(Tree),
         [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path)
         {
             assert(obj != NULL);
@@ -206,7 +213,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
-        [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path){return true;},
+        depthFirstSearchAll(Entity),
         [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
         {
             std::pair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());

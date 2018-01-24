@@ -45,27 +45,6 @@ public:
      */
     virtual std::shared_ptr<mapit::msgs::Tree> getRoot() = 0;
 
-
-    //TODO: This is another (api-)layer. Put code in a different place to hide none-map/layer/entity methods if this (api-)layer is used.
-    // Keep map/layer/entity assumtions away from core, to not sacrifice ability to stream octrees and other structures.
-
-    /**
-     * @brief getMapPathOfEntry get top level tree of tree, map/layer/entity, path.
-     * @return
-     */
-    static Path getMapPathOfEntry(const Path &path)
-    {
-        std::string p(path);
-        while(p[0] == '/')
-        {
-            if(p.length() == 1) break;
-            p = p.substr(1);
-        }
-        p = p.substr(0, p.find_first_of('/'));
-        if(p.empty()) p = ".global";
-        return p;
-    }
-
     /**
      * @brief getTreeConflict gets a Tree from repository/checkout. Tree must be reachable from this checkout (descendant of <root>)
      * This must only be used for conflicting objects. Use getTree otherwise
@@ -139,9 +118,29 @@ public:
      * @param afterEntity
      * @return
      */
-    virtual StatusCode depthFirstSearch(std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::msgs::ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::msgs::ObjectReference&, const Path&)> afterCommit,
-                                        std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree,
-                                        std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity) = 0;
+    virtual StatusCode depthFirstSearch(  std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity) = 0;
+
+    /**
+     * @brief depthFirstSearch goes through all reachable elements with a DFS. If one of the callbacks returns false, all other descending
+     * callbacks are skipped. If this happens in a "before" callback, also the "after" callback is skipped. TODO: Add proper skipping,
+     * of all elements, after "false".
+     * @param path         the path of the tree to start from
+     * @param beforeCommit
+     * @param afterCommit
+     * @param beforeTree
+     * @param afterTree
+     * @param beforeEntity
+     * @param afterEntity
+     * @return
+     */
+    virtual StatusCode depthFirstSearch(  const Path& path
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
+                                        , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity) = 0;
 
     virtual mapit::msgs::MessageType typeOfObject(const Path &oidOrName) = 0;
 };

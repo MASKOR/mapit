@@ -181,7 +181,6 @@ QStringList QmlCheckout::getFrameIds()
     QSet<QString> frameIdSet;
 
     upns::StatusCode s = this->m_checkout->depthFirstSearch(
-        depthFirstSearchAll(Commit), depthFirstSearchAll(Commit),
         depthFirstSearchAll(Tree), depthFirstSearchAll(Tree),
         [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
         {
@@ -281,15 +280,7 @@ void QmlCheckout::reloadEntities()
     m_entities.clear();
     if(m_checkout)
     {
-        upns::StatusCode s = m_checkout->depthFirstSearch([&](
-            std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
-            {
-                return true;
-            },
-            [&](std::shared_ptr<Commit> obj, const ObjectReference& ref, const upns::Path &path)
-            {
-                return true;
-            },
+        upns::StatusCode s = m_checkout->depthFirstSearch(
             [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
             {
                 return true;

@@ -77,9 +77,15 @@ public:
     template <typename T>
     inline std::string generateTransientOid(const std::shared_ptr<T> &obj);
 
-    StatusCode depthFirstSearch(std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
+    StatusCode depthFirstSearch(  std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
+    StatusCode depthFirstSearch(  const Path& path
+                                , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree
+                                , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
+                                , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
+                                , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity);
     std::shared_ptr<CheckoutObj> getCheckoutObj();
     const std::string& getName() const;
 private:
