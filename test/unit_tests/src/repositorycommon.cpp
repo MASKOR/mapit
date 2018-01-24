@@ -10,7 +10,7 @@ Q_DECLARE_METATYPE(std::shared_ptr<upns::Repository>)
 Q_DECLARE_METATYPE(std::shared_ptr<upns::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
-void RepositoryCommon::createTestdata(bool withServer)
+void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalculated)
 {
     const bool testLevelDB = false;
     const bool testRemote = withServer;
@@ -29,12 +29,25 @@ void RepositoryCommon::createTestdata(bool withServer)
         QTest::newRow("remote")        << m_repo[2] << m_checkout[2] << std::function<void()>([this]()
             {
                 QMutexLocker l(&m_serverThreadMutex);
-                m_serverThread->start();
+                m_serverThread[0]->start();
             })
             << std::function<void()>([this]()
             {
                 QMutexLocker l(&m_serverThreadMutex);
-                m_serverThread->stop();
+                m_serverThread[0]->stop();
+            });
+    }
+    if (withServerLocalyCalculated)
+    {
+        QTest::newRow("remote with local execution")        << m_repo[3] << m_checkout[3] << std::function<void()>([this]()
+            {
+                QMutexLocker l(&m_serverThreadMutex);
+                m_serverThread[1]->start();
+            })
+            << std::function<void()>([this]()
+            {
+                QMutexLocker l(&m_serverThreadMutex);
+                m_serverThread[1]->stop();
             });
     }
 }
@@ -80,15 +93,34 @@ void RepositoryCommon::initTestdata()
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        m_networkRepo = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName2));
+        m_networkRepo[0] = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName2));
 
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
-        std::shared_ptr<upns::RepositoryServer> srv = std::shared_ptr<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo.get()));
+        std::shared_ptr<upns::RepositoryServer> srv = std::shared_ptr<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo[0].get()));
         m_repo[2] = std::shared_ptr<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
-        m_serverThread = std::shared_ptr<ServerThread>(new ServerThread(srv));
-        m_serverThread->start();
+        m_serverThread[0] = std::shared_ptr<ServerThread>(new ServerThread(srv));
+        m_serverThread[0]->start();
         m_checkout[2] = std::shared_ptr<upns::Checkout>(m_repo[2]->createCheckout("master", "testcheckout"));
-        m_serverThread->stop();
+        m_serverThread[0]->stop();
+    }
+    {
+        //// Setup Repository as Network connection
+        const char* fileSystemName2 = "remote-with-local-execution.mapit";
+        QDir dir(fileSystemName2);
+        if(dir.exists())
+        {
+            bool result = dir.removeRecursively();
+            QVERIFY( result );
+        }
+        m_networkRepo[1] = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName2));
+
+        // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
+        std::shared_ptr<upns::RepositoryServer> srv = std::shared_ptr<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5655, m_networkRepo[1].get()));
+        m_repo[3] = std::shared_ptr<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5655", NULL, true));
+        m_serverThread[1] = std::shared_ptr<ServerThread>(new ServerThread(srv));
+        m_serverThread[1]->start();
+        m_checkout[3] = std::shared_ptr<upns::Checkout>(m_repo[3]->createCheckout("master", "testcheckout"));
+        m_serverThread[1]->stop();
     }
 }
 
@@ -97,12 +129,17 @@ void RepositoryCommon::cleanupTestdata()
     m_checkout[0] = nullptr;
     m_checkout[1] = nullptr;
     m_checkout[2] = nullptr;
+    m_checkout[3] = nullptr;
     m_repo[0] = nullptr;
     m_repo[1] = nullptr;
     m_repo[2] = nullptr;
-    m_networkRepo = nullptr;
-    m_serverThread->wait(600);
-    m_serverThread = nullptr;
+    m_repo[3] = nullptr;
+    m_networkRepo[0] = nullptr;
+    m_networkRepo[1] = nullptr;
+    m_serverThread[0]->wait(600);
+    m_serverThread[1]->wait(600);
+    m_serverThread[0] = nullptr;
+    m_serverThread[1] = nullptr;
 }
 
 void RepositoryCommon::startServer()

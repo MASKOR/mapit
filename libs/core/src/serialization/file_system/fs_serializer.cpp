@@ -100,7 +100,7 @@ FSSerializer::objectid_to_checkout_fs_path(ObjectId oid)
 //        log_warn("Can't find \"/\" in ObjectId of object in checkout, don't extended path as <checkoutname>/" + _CHECKOUT_ROOT_FOLDER_.string() + "/<checkoutid>\n the path is: " + path.string());
     }
 
-    return path;
+    return path.remove_trailing_separator();
 }
 
 void
@@ -158,6 +158,12 @@ FSSerializer::fs_read(fs::path path, std::shared_ptr<GenericEntry> entry)
 //    buffer.close();
 
     entry->ParseFromString( strs.str() );
+}
+
+void
+FSSerializer::fs_delete(fs::path path)
+{
+    fs::remove(path);
 }
 
 std::shared_ptr<Tree>
@@ -241,10 +247,12 @@ FSSerializer::storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal 
 }
 
 StatusCode
-FSSerializer::removeTree(const ObjectId &oid)
+FSSerializer::removeTreeTransient(const PathInternal &transientId)
 {
-    //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs_delete( path );
+
+    return UPNS_STATUS_OK;
 }
 
 std::shared_ptr<Entity>
@@ -330,10 +338,14 @@ FSSerializer::storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInter
 }
 
 StatusCode
-FSSerializer::removeEntity(const ObjectId &oid)
+FSSerializer::removeEntityTransient(const PathInternal &transientId)
 {
-    //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    // delete entity and entitydata
+    fs::path path_entity = objectid_to_checkout_fs_path( transientId );
+    fs_delete( path_entity / _CHECKOUT_GENERIC_ENTRY_ );
+    fs_delete( path_entity / _CHECKOUT_ENTITY_DATA_ );
+
+    return UPNS_STATUS_OK;
 }
 
 std::shared_ptr<Commit>

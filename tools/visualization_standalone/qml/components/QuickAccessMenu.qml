@@ -24,7 +24,11 @@ Item {
     property var internalTextField: ff
     signal action(var item)
 
-    onModelChanged: reinit()
+    onModelChanged: {
+        var oldName = currentEntityPath
+        reinit()
+        currentEntityPath = oldName
+    }
     onXChanged: reinit()
     onYChanged: reinit()
     onVisibleChanged: reinit()

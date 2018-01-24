@@ -47,6 +47,20 @@ public:
     virtual StatusCode storeEntity(const Path &path, std::shared_ptr<mapit::msgs::Entity> entity) = 0;
 
     /**
+     * @brief deleteEntity delete the entity and entitydata
+     * @param path
+     * @return
+     */
+    virtual StatusCode deleteEntity(const Path &path) = 0;
+
+    /**
+     * @brief deleteTree deletes all entities and entitiesdata below this tree
+     * @param path
+     * @return
+     */
+    virtual StatusCode deleteTree(const Path &path) = 0;
+
+    /**
      * @brief getEntitydata Retrieves a data of the entity, which can be casted to a concrete type. Stream can be read maybe.
      * It can definitily not be read if entitydata is in conflict mode (Which one?).
      * It may be tracked, if the stream is accessed for read. Only then, the read data might be generated, if it is not stored in the cache.

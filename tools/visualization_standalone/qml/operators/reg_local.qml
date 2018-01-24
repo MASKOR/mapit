@@ -42,7 +42,9 @@ ColumnLayout {
     function beforeOperation() {
         var input = []
         for (var i = 0; i < inputRepeater.model.count; ++i) {
-            input.push( inputRepeater.model.get(i).name )
+            if (inputRepeater.model.get(i).name) {
+                input.push( inputRepeater.model.get(i).name )
+            }
         }
         if (entityChooserInput.currentEntityPath !== "") {
             input.push( entityChooserInput.currentEntityPath )

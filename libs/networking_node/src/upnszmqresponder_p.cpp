@@ -57,6 +57,14 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
 //    fn = std::bind(member, this, std::placeholders::_1);
 //    add_receivable_message_type<RequestStoreTree>( fn );
 
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestDeleteEntity, &upns::ZmqResponderPrivate::handleRequestDeleteEntity>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestDeleteEntity>( fn );
+
+    member = &upns::ZmqResponderPrivate::toDelegate<RequestDeleteTree, &upns::ZmqResponderPrivate::handleRequestDeleteTree>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestDeleteTree>( fn );
+
     //TODO: allow ssh://?
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
@@ -498,6 +506,75 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
 //    }
 //    send( std::move( rep ) );
 //}
+
+void
+upns::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
+{
+    std::unique_ptr<ReplyDeleteEntity> rep = std::make_unique<ReplyDeleteEntity>();
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+    if(co == NULL)
+    {
+        discard_more();
+        log_info("Checkout was not available");
+        rep->set_status(ReplyDeleteEntity::ERROR);
+        send( std::move( rep ) );
+        return;
+    }
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("DeleteEntity");
+    desc.set_params("{source:\"network\"}");
+
+    upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
+        upns::CheckoutRaw* coraw = env->getCheckout();
+
+        return coraw->deleteEntity(msg->path());
+    });
+    if(upnsIsOk(res.first))
+    {
+        rep->set_status(ReplyDeleteEntity::SUCCESS);
+    }
+    else
+    {
+        log_info("Could not delete entity \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
+        rep->set_status(ReplyDeleteEntity::ERROR);
+    }
+    send( std::move( rep ) );
+}
+
+
+void
+upns::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
+{
+    std::unique_ptr<ReplyDeleteTree> rep = std::make_unique<ReplyDeleteTree>();
+    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+    if(co == NULL)
+    {
+        discard_more();
+        log_info("Checkout was not available");
+        rep->set_status(ReplyDeleteTree::ERROR);
+        send( std::move( rep ) );
+        return;
+    }
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("DeleteTree");
+    desc.set_params("{source:\"network\"}");
+
+    upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
+        upns::CheckoutRaw* coraw = env->getCheckout();
+
+        return coraw->deleteTree(msg->path());
+    });
+    if(upnsIsOk(res.first))
+    {
+        rep->set_status(ReplyDeleteTree::SUCCESS);
+    }
+    else
+    {
+        log_info("Could not delete tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
+        rep->set_status(ReplyDeleteTree::ERROR);
+    }
+    send( std::move( rep ) );
+}
 
 void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
 {
