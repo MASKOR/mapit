@@ -65,17 +65,10 @@ void QmlRepositoryServer::setPort(int port)
 
 void QmlRepositoryServer::setRunning(bool running)
 {
-    if (m_thread && m_thread->isRunning() == running)
+    if (m_thread && (m_running == running))
         return;
     m_running = running;
-    if(running)
-    {
-        reconnect();
-    }
-    else
-    {
-        reconnect();
-    }
+    reconnect();
     //TODO: running change event should be deferred
     Q_EMIT runningChanged(m_running);
 }

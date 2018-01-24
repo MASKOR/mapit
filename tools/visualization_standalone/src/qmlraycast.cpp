@@ -150,10 +150,10 @@ QVector3D QmlRaycast::worldPosition()
     if(m_dirtyWorldPosition) {
         //distance must be known, can not be retrieved/calculated
         if(m_dirtyDistance == (m_dirtyPlaneNormal && m_dirtyPlaneOffset && m_dirtyPointOnPlane)) {
-            if(m_dirtyDistance)
-                qWarning("worldPosition can not be determined. Please provide distance, worldPosition xor plane.");
-            else
-                qWarning("worldPosition can not be determined. Please provide only distance xor plane.");
+//            if(m_dirtyDistance)
+//                qWarning("worldPosition can not be determined. Please provide distance, worldPosition xor plane.");
+//            else
+//                qWarning("worldPosition can not be determined. Please provide only distance xor plane.");
             return QVector3D(0.0f, 0.0f, 0.0f);
         }
         if(!m_dirtyDistance) {

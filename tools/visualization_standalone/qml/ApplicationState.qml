@@ -77,7 +77,7 @@ Item {
     readonly property var currentEntitydata: globalEntitydata
 
     // Multiple Entities may be visible at a time
-    property var visibleEntityPaths: ListModel {}
+    property ListModel visibleEntityModel: ListModel {} // ListModel {}
 
     property string currentFrameId
     readonly property var currentEntityTransform: globalEntityTransform

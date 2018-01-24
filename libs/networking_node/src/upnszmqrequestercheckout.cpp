@@ -57,20 +57,6 @@ MessageType upns::ZmqRequesterCheckout::typeOfObject(const upns::Path &oidOrName
 
 std::shared_ptr<Tree> upns::ZmqRequesterCheckout::getRoot()
 {
-//    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
-//    req->set_checkout(m_checkoutName);
-//    m_node->send(std::move(req));
-//    std::unique_ptr<upns::ReplyHierarchy> rep(m_node->receive<upns::ReplyHierarchy>());
-//    std::shared_ptr<upns::Tree> ret(new upns::Tree);
-//    for(google::protobuf::Map< ::std::string, ::upns::ReplyHierarchyMap >::const_iterator ch( rep->maps().cbegin() );
-//        ch != rep->maps().cend();
-//        ++ch)
-//    {
-//        upns::ObjectReference ref;
-//        ref.set_path(m_checkoutName + "/" + ch->first);
-//        ret->mutable_refs()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ObjectReference>(ch->first, upns::ObjectReference()));
-//    }
-//    return ret;
     return getTree("/");
 }
 
@@ -93,7 +79,14 @@ std::shared_ptr<Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path
     std::unique_ptr<RequestGenericEntry> req(new RequestGenericEntry);
     req->set_checkout(m_checkoutName);
     req->set_path(path);
-    m_node->send(std::move(req));
+    try {
+        m_node->send(std::move(req));
+    }
+    catch (std::runtime_error err)
+    {
+        log_error(err.what());
+        return nullptr;
+    }
     std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
     std::shared_ptr<Tree> ret(rep->mutable_entry()->release_tree());
     return ret;
@@ -104,7 +97,14 @@ std::shared_ptr<Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &
     std::unique_ptr<RequestGenericEntry> req(new RequestGenericEntry);
     req->set_checkout(m_checkoutName);
     req->set_path(path);
-    m_node->send(std::move(req));
+    try {
+        m_node->send(std::move(req));
+    }
+    catch (std::runtime_error err)
+    {
+        log_error(err.what());
+        return nullptr;
+    }
     std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
     std::shared_ptr<Entity> ret(rep->mutable_entry()->release_entity());
     return ret;
@@ -173,7 +173,16 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const OperationDes
         std::unique_ptr<RequestOperatorExecution> req(new RequestOperatorExecution);
         req->set_checkout(m_checkoutName);
         *req->mutable_param() = desc;
-        m_node->send(std::move(req));
+        try {
+            m_node->send(std::move(req));
+        }
+        catch (std::runtime_error err)
+        {
+            log_error(err.what());
+            upns::OperationResult res;
+            res.first = UPNS_STATUS_ERROR;
+            return res;
+        }
         std::shared_ptr<ReplyOperatorExecution> rep(m_node->receive<ReplyOperatorExecution>());
         upns::OperationResult res;
         res.first = rep->status_code();
@@ -200,7 +209,7 @@ upns::OperationResult upns::ZmqRequesterCheckout::doUntraceableOperation(const O
 //{
 //    std::unique_ptr<upns::RequestHierarchy> req(new upns::RequestHierarchy);
 //    req->set_checkout(m_checkoutName);
-//    m_node->send(std::move(req));
+//    m_node->send(std::move(req)); catch
 //    std::unique_ptr<upns::ReplyHierarchy> hierarchy(m_node->receive<upns::ReplyHierarchy>());
 //    assert(m_cache);
 //    //m_cache->
@@ -220,7 +229,14 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     req->set_offset(0ul);
     req->set_sendlength(0ul);
     req->set_entitylength(0ul);
-    m_node->send(std::move(req));
+    try {
+        m_node->send(std::move(req));
+    }
+    catch (std::runtime_error err)
+    {
+        log_error(err.what());
+        return UPNS_STATUS_ERROR;
+    }
     std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
     if(rep->status() == ReplyStoreEntity::SUCCESS)
     {

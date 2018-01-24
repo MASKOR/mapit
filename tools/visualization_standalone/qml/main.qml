@@ -55,6 +55,7 @@ MainWindow {
         // Moreover there is AppStyle, which also holds parts of the application state
         id: globalApplicationState
         visible: false
+        visibleEntityModel: leftPanels.treeView.visibleEntityModel
     }
 
     AppStyle {
@@ -86,7 +87,7 @@ MainWindow {
                 Layout.minimumWidth: 150
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                visibleEntityItems: globalApplicationState.visibleEntityPaths
+                visibleEntityModel: globalApplicationState.visibleEntityModel
             }
             DetailPanels {
                 Layout.fillHeight: true

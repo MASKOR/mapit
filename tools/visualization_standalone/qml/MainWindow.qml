@@ -10,6 +10,7 @@ import QtQuick.Layouts 1.1
 import "panes"
 import "components"
 import "network"
+
 import fhac.upns 1.0 as UPNS
 
 ApplicationWindow {
@@ -79,7 +80,7 @@ ApplicationWindow {
         id: repoServer
         running: connectRealtimeMultiviewDialog.isServer
         repository: globalRepository
-        onRunningChanged: console.log("Repositoryserver started at port " + port)
+        onRunningChanged: if(running) console.log("Repositoryserver started at port " + port)
     }
     Connections {
         target: sceneView.camera
@@ -91,8 +92,8 @@ ApplicationWindow {
     MapitServer {
         id: webServer
         port: connectRealtimeMultiviewDialog.port
-        listen: true
-        accept: true
+        listen: false
+        accept: false
     }
 
     Window {
@@ -262,7 +263,7 @@ ApplicationWindow {
                 onObjectRemoved: operatorsMenu.removeItem( object )
                 onModelChanged: console.log("Model Changed" + globalRepository.operators.length)
                 MenuItem {
-                    text: operatorInstantiator.model[index].moduleName
+                    text: operatorInstantiator.model[index] ? operatorInstantiator.model[index].moduleName : "unknown module"
                     onTriggered: {
                         executeOperatorDialog.currentCheckout = globalApplicationState.currentCheckout
                         executeOperatorDialog.currentEntityPath = globalApplicationState.currentEntityPath

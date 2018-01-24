@@ -37,12 +37,12 @@ Item {
 
     property var currentCheckout: globalApplicationState.currentCheckout
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
-    property alias visibleEntityItems: entityInstantiator.model
+    property alias visibleEntityModel: entityInstantiator.model
     property alias camera: mainCamera
     property alias currentFrameId: frameIdChooser.currentText
     property MapitClient mapitClient: globalApplicationState.mapitClient
-    onVisibleEntityItemsChanged: {
-        console.log("DBG: Visible Entities len: " + root.visibleEntityItems.length)
+    onVisibleEntityModelChanged: {
+        console.log("DBG: Visible Entities len: " + root.visibleEntityModel.count)
     }
 
     ColumnLayout {
@@ -726,7 +726,7 @@ Item {
                                         onModelChanged: recalcBoundingBox()
                                         onObjectAdded: recalcBoundingBox()
                                         onObjectRemoved: recalcBoundingBox()
-                                        model: root.visibleEntityItems
+                                        model: root.visibleEntityModel.count
                                         delegate: MapitEntity {
                                             mainCameratmp: mainCamera
                                             scene3dtmp: scene3d
@@ -745,11 +745,14 @@ Item {
                                             //                                    }
                                             currentEntitydata: UPNS.Entitydata {
                                                 checkout: currentCheckout
-                                                path: model.path
-                                                onIsLoadingChanged: if(isLoading)
+                                                path: entityInstantiator.model.get(index) ? entityInstantiator.model.get(index).path : ""
+                                                onIsLoadingChanged: if(isLoading) {
                                                                         entityInstantiator.loadingItems++
-                                                                    else
+                                                                        entityInstantiator.model.get(index).isLoading = isLoading
+                                                                    } else {
                                                                         entityInstantiator.loadingItems--
+                                                                        entityInstantiator.model.get(index).isLoading = isLoading
+                                                                    }
                                             }
                                             onMinChanged: entityInstantiator.recalcBoundingBox()
                                             onMaxChanged: entityInstantiator.recalcBoundingBox()

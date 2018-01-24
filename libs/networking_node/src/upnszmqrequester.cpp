@@ -21,7 +21,13 @@ std::vector<std::string> upns::ZmqRequester::listCheckoutNames()
     m_d->send(std::move(req));
     std::shared_ptr<ReplyListCheckouts> rep(m_d->receive<ReplyListCheckouts>());
 
-    std::vector<std::string> ret(rep->checkouts_size());
+    std::vector<std::string> ret;
+    if(rep == nullptr)
+    {
+        return ret;
+    }
+
+    ret.resize(rep->checkouts_size());
     for(int i=0 ; i<rep->checkouts_size() ; ++i)
     {
         ret.push_back(rep->checkouts(i));
@@ -92,8 +98,8 @@ std::shared_ptr<upns::Checkout> upns::ZmqRequester::createCheckout(const upns::C
     req->set_createifnotexists(true);
     m_d->send(std::move(req));
     std::shared_ptr<ReplyCheckout> rep(m_d->receive<ReplyCheckout>());
-    if(rep->status() == ReplyCheckout::SUCCESS ||
-       rep->status() == ReplyCheckout::EXISTED)
+    if(rep && (rep->status() == ReplyCheckout::SUCCESS ||
+       rep->status() == ReplyCheckout::EXISTED))
     {
         return std::shared_ptr<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
     }

@@ -11,9 +11,7 @@ Window {
     title: qsTr( "Choose Checkout" )
     color: appStyle.backgroundColor
     width: 420
-    height: connectRealtimeMultiviewGrid.implicitHeight
-    minimumHeight: height
-    maximumHeight: height
+    height: 400
     minimumWidth: width
     maximumWidth: width
     property alias isServer: isServerCheckbox.checked
@@ -113,8 +111,9 @@ Window {
             Layout.columnSpan: 2
             Layout.row: 4
             Layout.fillWidth: true
-            Layout.minimumHeight: 700
-            height: 700
+            Layout.fillHeight: true
+            //Layout.minimumHeight: 200
+            height: 200
             Text {
                 text: "Realtime objects:"
             }

@@ -346,5 +346,7 @@
         <file>qml/scene/HandleBoundingBox.qml</file>
         <file>qml/network/NetworkDialog.qml</file>
         <file>qml/network/EntityVisualInfo.qml</file>
+        <file>icon/eye-16-ns.png</file>
+        <file>icon/eye-24-ns.png</file>
     </qresource>
 </RCC>
