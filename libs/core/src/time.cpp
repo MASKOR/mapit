@@ -23,6 +23,21 @@ namespace  time {
     return t;
   }
 
+  Stamp from_msg(const mapit::msgs::Time& stamp)
+  {
+      return from_sec_and_nsec(stamp.sec(), stamp.nsec());
+  }
+
+  mapit::msgs::Time to_msg(const Stamp& stamp)
+  {
+      unsigned long sec, nsec;
+      to_sec_and_nsec(stamp, sec, nsec);
+      mapit::msgs::Time msg;
+      msg.set_sec(sec);
+      msg.set_nsec(nsec);
+      return msg;
+  }
+
   void to_sec_and_nsec(Stamp stamp, unsigned long &sec, unsigned long &nsec)
   {
     seconds d_sec = std::chrono::duration_cast<seconds>( stamp.time_since_epoch() );

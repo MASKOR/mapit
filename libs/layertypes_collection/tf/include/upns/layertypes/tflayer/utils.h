@@ -10,10 +10,12 @@
 
 #include <list>
 
+class TfEntitydata;
+
 namespace upns {
 namespace tf {
-  const std::string _DEFAULT_LAYER_NAME_STATIC_ = "tf_static";
-  const std::string _DEFAULT_LAYER_NAME_DYNAMIC_ = "tf_dynamic";
+//  const std::string _DEFAULT_LAYER_NAME_STATIC_ = "tf_static";
+//  const std::string _DEFAULT_LAYER_NAME_DYNAMIC_ = "tf_dynamic";
   struct Transform {
     Eigen::Translation3f translation;
     Eigen::Quaternionf rotation;
@@ -152,6 +154,25 @@ namespace tf {
     private:
       std::shared_ptr<std::map<std::string, std::shared_ptr<TransformStampedList>>> tfs_map_;
     };
+
+    /**
+     * @brief getOrCreateTransformStampedList loads a <TfEntitydata>entity and its TransformStampedList from the repo
+     * @param workspace
+     * @param frame_id
+     * @param child_frame_id
+     * @param tfStoragePrefix
+     * @param entity
+     * @param ed
+     * @param tfList
+     * @param is_static
+     * @return
+     */
+    upns::StatusCode getOrCreateTransformStampedList(CheckoutRaw* workspace
+                                                     , const std::string& frame_id
+                                                     , const std::string& child_frame_id
+                                                     , const std::string& tfStoragePrefix
+                                                     , std::shared_ptr<mapit::msgs::Entity> &entity, std::shared_ptr<TfEntitydata> &ed
+                                                     , std::shared_ptr<TransformStampedList> &tfList, const bool &is_static);
   }
 }
 }

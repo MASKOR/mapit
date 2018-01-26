@@ -1,6 +1,7 @@
 #ifndef MAPIT_TIME_H
 #define MAPIT_TIME_H
 
+#include <mapit/msgs/datastructs.pb.h>
 #include <chrono>
 #include "date/date.h"
 
@@ -35,6 +36,9 @@ namespace time {
   bool is_zero(Stamp stamp);
 
   Stamp from_sec_and_nsec(long sec, long nsec);
+
+  Stamp from_msg(const mapit::msgs::Time& stamp);
+  mapit::msgs::Time to_msg(const Stamp& stamp);
 
   void to_sec_and_nsec(Stamp stamp, unsigned long &sec, unsigned long &nsec);
 
