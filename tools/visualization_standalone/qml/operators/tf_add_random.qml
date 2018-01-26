@@ -108,7 +108,7 @@ ColumnLayout {
             id: xMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "1.0"
+            text: "-1.0"
         }
         StyledTextField {
             Layout.column: 2
@@ -130,7 +130,7 @@ ColumnLayout {
             id: yMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "1.0"
+            text: "-1.0"
         }
         StyledTextField {
             Layout.column: 2
@@ -152,7 +152,7 @@ ColumnLayout {
             id: zMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "1.0"
+            text: "-1.0"
         }
         StyledTextField {
             Layout.column: 2
@@ -174,7 +174,7 @@ ColumnLayout {
             id: rollMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "0.1"
+            text: "-0.1"
         }
         StyledTextField {
             Layout.column: 2
@@ -196,7 +196,7 @@ ColumnLayout {
             id: pitchMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "0.1"
+            text: "-0.1"
         }
         StyledTextField {
             Layout.column: 2
@@ -218,7 +218,7 @@ ColumnLayout {
             id: yawMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
-            text: "0.1"
+            text: "-0.1"
         }
         StyledTextField {
             Layout.column: 2
