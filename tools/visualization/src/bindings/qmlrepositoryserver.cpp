@@ -1,6 +1,8 @@
 #include "upns/ui/bindings/qmlrepositoryserver.h"
 #include "upns/versioning/repositorynetworkingfactory.h"
 #include "../serverthread.h"
+#include <zmq.hpp>
+#include <upns/logging.h>
 
 QmlRepositoryServer::QmlRepositoryServer(QObject *parent)
     :QObject(parent)
@@ -76,15 +78,25 @@ void QmlRepositoryServer::setRunning(bool running)
 void QmlRepositoryServer::reconnect()
 {
     if(m_running) {
-        std::shared_ptr<upns::RepositoryServer> server( upns::RepositoryNetworkingFactory::openRepositoryAsServer(m_port, repository()->getRepository().get()) );
-        m_thread.reset(new ServerThread(server));
-        m_thread->start();
+        try
+        {
+            //TODO: allow ssh://?
+            std::shared_ptr<upns::RepositoryServer> server( upns::RepositoryNetworkingFactory::openRepositoryAsServer(m_port, repository()->getRepository().get()) );
+            m_thread.reset(new ServerThread(server));
+            m_thread->start();
+        }
+        catch (zmq::error_t err)
+        {
+            log_error("Server: Could not start: " + err.what());
+            setRunning(false);
+        }
     }
     else
     {
         if(m_thread)
         {
             m_thread->stop();
+            m_thread.reset();
         }
     }
 }

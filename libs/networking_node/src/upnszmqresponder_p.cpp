@@ -71,6 +71,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
 
 void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 {
+    log_info("Server DBG: handleRequestCheckout");
     std::unique_ptr<ReplyCheckout> ptr(new ReplyCheckout());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
@@ -105,90 +106,124 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
         }
         ptr->set_status( ReplyCheckout::EXISTED );
     }
+    log_info("Server DBG: send(ReplyCheckout)");
     send( std::move( ptr ) );
 }
 
 void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 {
-    std::unique_ptr<ReplyEntitydata> ptr(new ReplyEntitydata());
+    try {
+        log_info("Server DBG: handleRequestEntitydata");
+        std::unique_ptr<ReplyEntitydata> ptr(new ReplyEntitydata());
 
-    // Validate input
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
-    {
-        ptr->set_status( ReplyEntitydata::NOT_FOUND );
-        ptr->set_receivedlength( 0 );
-        ptr->set_entitylength( 0 );
-        send( std::move( ptr ) );
-        return;
-    }
-    std::shared_ptr<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
-
-    ReplyEntitydata::Status status;
-    if(ed == nullptr )
-    {
-        log_info("Could not find requested entitydata \"" + msg->entitypath() + "\"");
-        status = ReplyEntitydata::NOT_FOUND;
-    }
-    else
-    {
-        if(msg->offset() > ed->size())
+        // Validate input
+        std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+        if(co == NULL)
         {
-            log_warn("Server got request with offset exceeding entitydata size.");
-            status = ReplyEntitydata::EXCEEDED_BOUNDARY;
+            ptr->set_status( ReplyEntitydata::NOT_FOUND );
+            ptr->set_receivedlength( 0 );
+            ptr->set_entitylength( 0 );
+            send( std::move( ptr ) );
+            return;
         }
-//        else if(msg->offset() + msg->maxlength() > ed->size())
-//        {
-              // This is absolutly okay
-//            log_warn("Server got request trying to read across entitydata size boundary.");
-//            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
-//        }
+        std::shared_ptr<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
+
+        ReplyEntitydata::Status status;
+        if(ed == nullptr )
+        {
+            log_info("Could not find requested entitydata \"" + msg->entitypath() + "\"");
+            status = ReplyEntitydata::NOT_FOUND;
+        }
         else
         {
-            status = ReplyEntitydata::SUCCESS;
+            if(msg->offset() > ed->size())
+            {
+                log_warn("Server got request with offset exceeding entitydata size.");
+                status = ReplyEntitydata::EXCEEDED_BOUNDARY;
+            }
+    //        else if(msg->offset() + msg->maxlength() > ed->size())
+    //        {
+                  // This is absolutly okay
+    //            log_warn("Server got request trying to read across entitydata size boundary.");
+    //            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
+    //        }
+            else
+            {
+                status = ReplyEntitydata::SUCCESS;
+            }
         }
-    }
-    if( status != ReplyEntitydata::SUCCESS )
-    {
-        // Invalid arguments
-        ptr->set_status( status );
-        ptr->set_receivedlength( 0 );
-        ptr->set_entitylength( ed == nullptr ? 0 : ed->size() );
+        if( status != ReplyEntitydata::SUCCESS )
+        {
+            // Invalid arguments
+            ptr->set_status( status );
+            ptr->set_receivedlength( 0 );
+            ptr->set_entitylength( ed == nullptr ? 0 : ed->size() );
 
-        // protobuf frame
-        send( std::move( ptr ) );
+            // protobuf frame
+            send( std::move( ptr ) );
+            return;
+        }
+
+        upnsuint64 offset = msg->offset(), len = msg->maxlength();
+        if(len == 0)
+        {
+            len = ed->size()-offset;
+        }
+        else
+        {
+            len = std::min(len, ed->size()-offset);
+        }
+
+        ptr->set_status( status );
+        ptr->set_receivedlength( len );
+        ptr->set_entitylength( ed->size() );
+
+        // Send multipart message
+
+        try {
+            // protobuf frame
+            send( std::move( ptr ), ZMQ_SNDMORE );
+        }
+        catch(zmq::error_t err )
+        {
+            log_error("Zmq Responder could not reply with entitydata (handleRequestEntitydata): " + err.what());
+            unsigned char buffer[0];
+            send_raw_body( buffer, 0 );
+            return;
+        }
+        // binary frames
+        upnsIStream *strm = ed->startReadBytes( offset, len);
+        try
+        {
+            unsigned char buffer[4096];
+            while (strm->read(reinterpret_cast<char*>(buffer), sizeof(buffer)))
+            {
+                send_raw_body( buffer, sizeof(buffer), ZMQ_SNDMORE );
+            }
+            int remaining = strm->gcount();
+            send_raw_body( buffer, remaining );
+        }
+        catch(zmq::error_t err )
+        {
+            log_error("Zmq Responder could not reply with entitydata (handleRequestEntitydata (2)): " + err.what());
+            ed->endRead(strm);
+            unsigned char buffer[0];
+            send_raw_body( buffer, 0 );
+            return;
+        }
+        catch(...)
+        {
+            log_error("Zmq Responder could not reply with entitydata (handleRequestEntitydata)");
+            ed->endRead(strm);
+            return;
+        }
+        ed->endRead(strm);
+    }
+    catch(...)
+    {
+        log_error("Zmq Responder could not reply with entitydata (handleRequestEntitydata)");
         return;
     }
-
-    upnsuint64 offset = msg->offset(), len = msg->maxlength();
-    if(len == 0)
-    {
-        len = ed->size()-offset;
-    }
-    else
-    {
-        len = std::min(len, ed->size()-offset);
-    }
-
-    ptr->set_status( status );
-    ptr->set_receivedlength( len );
-    ptr->set_entitylength( ed->size() );
-
-    // Send multipart message
-
-    // protobuf frame
-    send( std::move( ptr ), ZMQ_SNDMORE );
-
-    // binary frames
-    upnsIStream *strm = ed->startReadBytes( offset, len);
-    unsigned char buffer[4096];
-    while (strm->read(reinterpret_cast<char*>(buffer), sizeof(buffer)))
-    {
-        send_raw_body( buffer, sizeof(buffer), ZMQ_SNDMORE );
-    }
-    int remaining = strm->gcount();
-    send_raw_body( buffer, remaining );
-    ed->endRead(strm);
 }
 
 void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
@@ -308,6 +343,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
 
 void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
 {
+    log_info("Server DBG: handleRequestListCheckouts");
     std::unique_ptr<ReplyListCheckouts> rep(new ReplyListCheckouts());
     std::vector<std::string> cos = m_repo->listCheckoutNames();
     for(std::vector<std::string>::const_iterator iter(cos.cbegin()) ; iter != cos.cend() ; ++iter)
@@ -576,6 +612,7 @@ upns::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
 
 void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
 {
+    log_info("Server DBG: handleRequestGenericEntry");
     Replier<ReplyGenericEntry> rep(new ReplyGenericEntry(), this);
     //std::unique_ptr<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());

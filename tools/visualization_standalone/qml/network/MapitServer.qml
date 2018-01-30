@@ -84,7 +84,7 @@ QtObject {
                     webServer.connectedPeers[id] = Date.now()
                     webServer.peerWebSockets[id] = webSocket
                     webServer.peerIdentToSessId[id] = sid
-                    var emptyState = {ident: id, sessionId:sid, realtimeObjects: [], visibleEntityInfos: []}
+                    var emptyState = {ident: id, sessionId:sid, peername:"", isHost:false, repositoryPort:-1, checkoutName: "", timestamp: Date.now(), realtimeObjects: [], visibleEntityInfos: []}
                     webServer.peerStates[id] = emptyState
                     webServer.peersNeedUpdate = true
                     break
@@ -199,6 +199,7 @@ QtObject {
                   , checkoutName: webServer.checkoutName
                 }
             }
+            console.log("DBG: WROLD SERVER: " + JSON.stringify(messageWorld))
             webSocket.sendTextMessage(JSON.stringify(messageWorld))
         }
     }

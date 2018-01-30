@@ -1,6 +1,7 @@
 import QtQuick 2.9
 
-QtObject {
+//QtObject {
+Item {
     property string ident: ""
     property string peerOwner
 

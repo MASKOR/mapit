@@ -54,9 +54,9 @@ ApplicationWindow {
             peername: connectRealtimeMultiviewDialog.peername
             onPeernameChanged: mapitClient.sendOwnState()
             isHost: connectRealtimeMultiviewDialog.isServer
-            repositoryPort: repoServer.port
+            //repositoryPort: repoServer.port
             checkoutName: globalApplicationState.currentCheckoutName
-            visibleEntityInfos: leftPanels.treeView.visualInfoModel
+            allVisualInfoModel: leftPanels.treeView.allVisualInfoModel
             realtimeObjects: [
                 RealtimeObject {
                     id: theRto
@@ -73,17 +73,17 @@ ApplicationWindow {
         onCheckoutNameChanged: {
             globalApplicationState.currentCheckoutName = mapitClient.state.checkoutName
         }
-        onRepositoryUrlChanged: {
-            globalRepository.url = mapitClient.state.repositoryUrl
-        }
+//        onRepositoryUrlChanged: {
+//            globalRepository.url = mapitClient.state.repositoryUrl
+//        }
     }
-
-    UPNS.RepositoryServer {
-        id: repoServer
-        running: connectRealtimeMultiviewDialog.isServer
-        repository: globalRepository
-        onRunningChanged: if(running) console.log("Repositoryserver started at port " + port)
-    }
+//TODO: Use Zmq Router for async requests
+//    UPNS.RepositoryServer {
+//        id: repoServer
+//        running: connectRealtimeMultiviewDialog.isServer
+//        repository: globalRepository
+//        onRunningChanged: if(running) console.log("Repositoryserver started at port " + port)
+//    }
     Connections {
         target: sceneView.camera
         onViewMatrixChanged: mapitClient.sendOwnState()

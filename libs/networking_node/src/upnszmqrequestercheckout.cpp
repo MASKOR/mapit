@@ -80,16 +80,23 @@ std::shared_ptr<Tree> upns::ZmqRequesterCheckout::getTree(const upns::Path &path
     req->set_checkout(m_checkoutName);
     req->set_path(path);
     try {
+        m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
+        std::shared_ptr<Tree> ret(rep->mutable_entry()->release_tree());
+        return ret;
     }
     catch (std::runtime_error err)
     {
-        log_error(err.what());
+        log_error("Server Error while getTree(" + path + "): " + err.what());
         return nullptr;
     }
-    std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
-    std::shared_ptr<Tree> ret(rep->mutable_entry()->release_tree());
-    return ret;
+    catch (zmq::error_t err)
+    {
+        log_error("Server Error while getTree(" + path + "): " + err.what());
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &path)
@@ -98,16 +105,18 @@ std::shared_ptr<Entity> upns::ZmqRequesterCheckout::getEntity(const upns::Path &
     req->set_checkout(m_checkoutName);
     req->set_path(path);
     try {
+        m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
+        std::shared_ptr<Entity> ret(rep->mutable_entry()->release_entity());
+        return ret;
     }
     catch (std::runtime_error err)
     {
         log_error(err.what());
         return nullptr;
     }
-    std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
-    std::shared_ptr<Entity> ret(rep->mutable_entry()->release_entity());
-    return ret;
 }
 
 std::shared_ptr<Branch> upns::ZmqRequesterCheckout::getParentBranch()
@@ -174,7 +183,18 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const OperationDes
         req->set_checkout(m_checkoutName);
         *req->mutable_param() = desc;
         try {
+            m_node->prepareForwardComChannel();
             m_node->send(std::move(req));
+            m_node->prepareBackComChannel();
+            std::shared_ptr<ReplyOperatorExecution> rep(m_node->receive<ReplyOperatorExecution>());
+            upns::OperationResult res;
+            res.first = rep->status_code();
+            res.second = rep->result();
+            if(!rep->error_msg().empty())
+            {
+                log_error("Remote Operator Executions returned an error: " + rep->error_msg());
+            }
+            return res;
         }
         catch (std::runtime_error err)
         {
@@ -183,15 +203,6 @@ upns::OperationResult upns::ZmqRequesterCheckout::doOperation(const OperationDes
             res.first = UPNS_STATUS_ERROR;
             return res;
         }
-        std::shared_ptr<ReplyOperatorExecution> rep(m_node->receive<ReplyOperatorExecution>());
-        upns::OperationResult res;
-        res.first = rep->status_code();
-        res.second = rep->result();
-        if(!rep->error_msg().empty())
-        {
-            log_error("Remote Operator Executions returned an error: " + rep->error_msg());
-        }
-        return res;
     }
 }
 
@@ -230,21 +241,23 @@ upns::StatusCode upns::ZmqRequesterCheckout::storeEntity(const upns::Path &path,
     req->set_sendlength(0ul);
     req->set_entitylength(0ul);
     try {
+        m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+        if(rep->status() == ReplyStoreEntity::SUCCESS)
+        {
+            return UPNS_STATUS_OK;
+        }
+        else
+        {
+            log_error("Could not store entity \"" + path + "\"");
+            return UPNS_STATUS_ERROR;
+        }
     }
     catch (std::runtime_error err)
     {
         log_error(err.what());
-        return UPNS_STATUS_ERROR;
-    }
-    std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
-    if(rep->status() == ReplyStoreEntity::SUCCESS)
-    {
-        return UPNS_STATUS_OK;
-    }
-    else
-    {
-        log_error("Could not store entity \"" + path + "\"");
         return UPNS_STATUS_ERROR;
     }
 }

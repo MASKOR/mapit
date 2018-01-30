@@ -16,12 +16,13 @@ QtObject {
                          console.log("Disconnect/Server closed connection.")
                          state.peerToPeerState = ({})
                          state.realtimeObjects.clear()
-                         state.visibleEntityInfos.clear()
+                         //state.visibleEntityInfos.clear()
                          state.repositoryUrl = ""
                          state.checkoutName = ""
                      }
 
     function sendOwnState(ownState) {
+        console.log("DBG: sendOwnState")
         if(typeof ownState === "undefined") {
             ownState = root.ownState
         }
@@ -61,6 +62,7 @@ QtObject {
 
     // this is used internally for async processing
     function _proceedSendingOwnState(ownState) {
+        console.log("DBG: _proceedSendingOwnState: ")
         // JSONify State
         var rtos = []
         for(var i=0 ; i < ownState.realtimeObjects.length ; ++i) {
@@ -82,19 +84,27 @@ QtObject {
 //                    rto[prop] = original[prop]
 //            }
             rtos.push(rto)
+            console.log("DBG: rtos.push(rto)")
         }
+        console.log("DBG: for( ownState.allVisualInfoModel )")
         var visObjs = []
-        for(var i2=0 ; i2 < ownState.visibleEntityInfos.length ; ++i2) {
-            var orig2 = ownState.visibleEntityInfos[i]
+        for(var i2=0 ; i2 < ownState.allVisualInfoModel.length/**/ ; ++i2) {
+            console.log("DBG: allVisualInfoModel[ " + i2 + "]")
+            console.log("DBG: allVisualInfoModel[ " + i2 + "] (after first access)")
+            var orig2 = ownState.allVisualInfoModel[i2]
+            console.log("DBG: visualInfoModel = " + i2 + " -> " + JSON.stringify(orig2))
             if(!orig2.isVisible) continue
+            console.log("DBG: visualInfoModel.isVisible == true;  " + i2 + " -> " + JSON.stringify(orig2))
             // We have to list copied properties here or we transmit all qml properies...
             var visObj = {
                 path: orig2.path,
-                peerOwner: orig2.peerOwner,
+                peerOwner: root.ident,
                 additionalData: orig2.additionalData
             }
+            console.log("DBG: visObjs.push(" + JSON.stringify(visObj)+")")
             visObjs.push(visObj)
         }
+        console.log("DBG: SENDING visualInfoModels: #" + visObjs.length)
 
         var ownStateJson = { ident: ownState.ident
                            , sessionId: ownState.sessionId
@@ -104,11 +114,11 @@ QtObject {
                            , timestamp: Date.now()
                            , isHost: ownState.isHost
                            , repositoryPort: ownState.repositoryPort
-                           , checkoutName: ownState.checkoutName}
+                           , checkoutName: ownState.checkoutName }
 
-        var message = {messagetype: "state", message: ownStateJson}
-//        console.log("DBG: sending own state: " + JSON.stringify(message))
+        var message = { messagetype: "state", message: ownStateJson }
         socket.sendTextMessage(JSON.stringify(message))
+        console.log("DBG: SENT visualInfoModels")
     }
 
     function getUniqueIdentifier(callback) {

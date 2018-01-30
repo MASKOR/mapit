@@ -1,6 +1,7 @@
 import QtQuick 2.9
 
 QtObject {
+//Item {
     property string path: ""
     property string peerOwner
 

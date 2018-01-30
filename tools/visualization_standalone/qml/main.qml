@@ -56,7 +56,7 @@ MainWindow {
         id: globalApplicationState
         visible: false
         visibleEntityModel: leftPanels.treeView.visibleEntityModel
-        visualInfoModel: leftPanels.treeView.visualInfoModel
+        allVisualInfoModel: leftPanels.treeView.visualInfoModel
     }
 
     AppStyle {

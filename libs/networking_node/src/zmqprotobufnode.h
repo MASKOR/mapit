@@ -25,6 +25,7 @@ private:
   bool connected_;
   bool isReply_;
   std::string address_;
+  std::string identity_;
 
   typedef std::pair<uint16_t, uint16_t> KeyType;
   typedef std::function<void(google::protobuf::Message*)> ReceiveDelegate;
@@ -139,6 +140,8 @@ public:
    */
   bool has_more();
 
+  void prepareForwardComChannel();
+  void prepareBackComChannel();
   /**
    * @brief send Send a protobuf message
    * @param msg protobuf message

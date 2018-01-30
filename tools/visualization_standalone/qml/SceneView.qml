@@ -37,7 +37,7 @@ Item {
 
     property var currentCheckout: globalApplicationState.currentCheckout
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
-    property alias visibleEntityModel: entityInstantiator.model
+    property ListModel visibleEntityModel//: entityInstantiator.model
     property var visualInfoModel
     property alias camera: mainCamera
     property alias currentFrameId: frameIdChooser.currentText
@@ -724,6 +724,7 @@ Item {
                                         property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
                                         property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
 
+                                        model: root.visibleEntityModel
                                         onModelChanged: recalcBoundingBox()
                                         onObjectAdded: recalcBoundingBox()
                                         onObjectRemoved: recalcBoundingBox()
@@ -733,7 +734,6 @@ Item {
                                             scene3dtmp: scene3d
                                             coordinateSystem: coordSys
                                             currentFrameId: root.currentFrameId
-
                                             layer: pointLayer
                                             //parametersTmp: techniqueFilter.parameters
                                             //Currently only one checkout is supported
@@ -746,7 +746,7 @@ Item {
                                             //                                    }
                                             currentEntitydata: UPNS.Entitydata {
                                                 checkout: currentCheckout
-                                                path: entityInstantiator.model.get(index) ? entityInstantiator.model.get(index).path : ""
+                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
                                                 onIsLoadingChanged: {
 //                                                    if(isLoading) {
 //                                                        // Busy indicator disabled at the moment
@@ -755,8 +755,11 @@ Item {
 //                                                        // Busy indicator disabled at the moment
 //                                                        entityInstantiator.loadingItems--
 //                                                    }
-                                                    var idxInVisualInfoModel = entityInstantiator.model.get(index).idxInVisualInfoModel
-                                                    root.visualInfoModel.get(idxInVisualInfoModel).isLoading = isLoading
+                                                    if(entityInstantiator.model[index])
+                                                    {
+                                                        var idxInVisualInfoModel = entityInstantiator.model[index].idxInVisualInfoModel
+                                                        root.visualInfoModel[idxInVisualInfoModel].isLoading = isLoading
+                                                    }
                                                 }
                                             }
                                             onMinChanged: entityInstantiator.recalcBoundingBox()
@@ -769,49 +772,47 @@ Item {
                                         }
                                     }
 
-//                                    Q3D.NodeInstantiator {
-//                                        id: peerVisualEntityInstantiator
-//                                        function recalcBoundingBox() {
-//                                            boundingBoxRecalculator.start()
-//                                        }
-//                                        property int loadingItems: 0
-//                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
-//                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
+                                    Q3D.NodeInstantiator {
+                                        id: peerVisualEntityInstantiator
+                                        function recalcBoundingBox() {
+                                            boundingBoxRecalculator.start()
+                                        }
+                                        property int loadingItems: 0
+                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
+                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
 
-//                                        onModelChanged: recalcBoundingBox()
-//                                        onObjectAdded: recalcBoundingBox()
-//                                        onObjectRemoved: recalcBoundingBox()
-//                                        model: root.mapitClient.state.visibleEntityInfos
-//                                        delegate: MapitEntity {
-//                                            mainCameratmp: mainCamera
-//                                            scene3dtmp: scene3d
-//                                            coordinateSystem: coordSys
-//                                            currentFrameId: root.currentFrameId
+                                        //onModelChanged: recalcBoundingBox()
+                                        onObjectAdded: recalcBoundingBox()
+                                        onObjectRemoved: recalcBoundingBox()
+                                        model: root.mapitClient.state.visibleEntityInfosList
+                                        onModelChanged: {
+                                            recalcBoundingBox()
+                                            console.log("DBG: PEERMODEL CHANGED" + root.mapitClient.state.visibleEntityInfosList.count)
+                                        }
 
-//                                            layer: pointLayer
-//                                            //parametersTmp: techniqueFilter.parameters
-//                                            //Currently only one checkout is supported
-//                                            currentCheckout: globalApplicationState.currentCheckout
-//                                            currentEntitydata: UPNS.Entitydata {
-//                                                checkout: currentCheckout
-//                                                path: entityInstantiator.model.get(index) ? entityInstantiator.model.get(index).path : ""
-//                                                onIsLoadingChanged: if(isLoading) {
-//                                                                        entityInstantiator.loadingItems++
-//                                                                        entityInstantiator.model.get(index).isLoading = isLoading
-//                                                                    } else {
-//                                                                        entityInstantiator.loadingItems--
-//                                                                        entityInstantiator.model.get(index).isLoading = isLoading
-//                                                                    }
-//                                            }
-//                                            onMinChanged: entityInstantiator.recalcBoundingBox()
-//                                            onMaxChanged: entityInstantiator.recalcBoundingBox()
-//                                            HandleBoundingBox {
-//                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
-//                                                min: parent.min
-//                                                max: parent.max
-//                                            }
-//                                        }
-//                                    }
+                                        delegate: MapitEntity {
+                                            mainCameratmp: mainCamera
+                                            scene3dtmp: scene3d
+                                            coordinateSystem: coordSys
+                                            currentFrameId: root.currentFrameId
+
+                                            layer: pointLayer
+                                            //parametersTmp: techniqueFilter.parameters
+                                            //Currently only one checkout is supported
+                                            currentCheckout: globalApplicationState.currentCheckout
+                                            currentEntitydata: UPNS.Entitydata {
+                                                checkout: currentCheckout
+                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
+                                            }
+                                            onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()
+                                            onMaxChanged: peerVisualEntityInstantiator.recalcBoundingBox()
+                                            HandleBoundingBox {
+                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
+                                                min: parent.min
+                                                max: parent.max
+                                            }
+                                        }
+                                    }
 
                                     Q3D.Entity {
                                         id: annotationPreviewEntity

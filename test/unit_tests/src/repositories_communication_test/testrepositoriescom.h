@@ -9,6 +9,9 @@ namespace upns {
 class RepositoryServer;
 }
 
+//NOTE: This does not use Repositorycommon because it tests special network cases. RepositoryCommon uses standard network setups.
+// This class is hard to debug because of fork(). Other Testclasses use proper threads.
+
 class TestRepositoriesCommunication : public QObject
 {
     Q_OBJECT

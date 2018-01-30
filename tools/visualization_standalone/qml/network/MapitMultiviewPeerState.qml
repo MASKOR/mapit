@@ -1,4 +1,5 @@
 import QtQuick 2.9
+import QtQml.Models 2.3
 
 Item {
     // identifier given on the first request by the server (secret). Only set for own state
@@ -23,7 +24,7 @@ Item {
     //property list<RealtimeObject> realtimeObjects
     property list<RealtimeObject> realtimeObjects
 
-    property list<EntityVisualInfo> visibleEntityInfos
+    property var allVisualInfoModel: ([])
 
     property var timestamp: Date.now()
 }
