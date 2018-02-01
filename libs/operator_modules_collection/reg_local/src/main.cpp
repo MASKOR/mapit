@@ -62,11 +62,11 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      */
 
     upns::StatusCode status;
-    mapit::RegLocal icp(env, status);
+    mapit::RegLocal reg_local(env, status);
     if ( ! upnsIsOk( status ) ) {
         return status;
     }
-    return icp.operate();
+    return reg_local.operate();
 }
 
 UPNS_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", &operate_reg_local_icp)

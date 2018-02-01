@@ -7,6 +7,7 @@
 #include <upns/operators/versioning/checkoutraw.h>
 #include <upns/operators/operationenvironment.h>
 #include <upns/errorcodes.h>
+#include <upns/depthfirstsearch.h>
 #include <upns/logging.h>
 
 #include <upns/layertypes/tflayer/tf2/buffer_core.h>
@@ -22,8 +23,9 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     // pointcloud parameter
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
+    std::list<std::string> input_list;
     if        ( params["input"].isString() ) {
-        cfg_input_.push_back( params["input"].toString().toStdString() );
+        input_list.push_back( params["input"].toString().toStdString() );
     } else if ( params["input"].isArray() ) {
         for (QJsonValue input : params["input"].toArray() ) {
             if ( ! input.isString() ) {
@@ -31,12 +33,40 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
                 status = UPNS_STATUS_INVALID_ARGUMENT;
                 return;
             }
-            cfg_input_.push_back( input.toString().toStdString() );
+            input_list.push_back( input.toString().toStdString() );
         }
     } else {
         log_error("reg_local_icp: cfg \"input\" does not is a string or array of strings");
         status = UPNS_STATUS_INVALID_ARGUMENT;
         return;
+    }
+
+    // search for all in input
+    // if entity -> add to list
+    // if tree -> depth search, add all entities to list
+    // otherwise error
+    for (std::string input_name : input_list) {
+        if (env->getCheckout()->getEntity(input_name) != nullptr) {
+            cfg_input_.push_back(input_name);
+        } else {
+            if (env->getCheckout()->getTree(input_name) != nullptr) {
+                env->getCheckout()->depthFirstSearch(
+                              input_name
+                            , depthFirstSearchAll(mapit::msgs::Tree)
+                            , depthFirstSearchAll(mapit::msgs::Tree)
+                            , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                              {
+                                  cfg_input_.push_back(path);
+                                  return true;
+                              }
+                            , depthFirstSearchAll(mapit::msgs::Entity)
+                            );
+            } else {
+                log_error("reg_local: pointcloud name \"" + input_name + "\" given in param \"input\", is neither a entity nor a tree");
+                status = UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+                return;
+            }
+        }
     }
     cfg_target_ = params["target"].toString().toStdString();
     cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
