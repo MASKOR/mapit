@@ -112,7 +112,7 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
     }
     catch(mapit::tf2::TransformException e)
     {
-        log_info("Could not lookup transform " << sourceFrame().toStdString() << " -> " << targetFrame().toStdString());
+//        log_info("Could not lookup transform " << sourceFrame().toStdString() << " -> " << targetFrame().toStdString());
         if(found) *found = false;
 
         // use identity on error
