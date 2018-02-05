@@ -24,7 +24,7 @@ import QtWebSockets 1.1
 // The server has no interaction with the application, it only listens for clients
 // The application has to connect to the server on its own and is a client like everyone else.
 
-QtObject {
+Item {
     id: root
     property alias url: webServer.url
     property alias host: webServer.host
@@ -49,23 +49,23 @@ QtObject {
         property string identOfCurrentHost
         property string repositoryUrl
         property string checkoutName
-        function isMessageValidFromRegisteredPeer(msgData, message) {
+        function isMessageValidFromRegisteredPeer(msgData) {
             if( typeof msgData.sessionId !== "string" ) {
-                console.log(qsTr("Server received message without \"sessionId\": %1").arg(message))
+                console.log(qsTr("Server received message without \"sessionId\": %1").arg(JSON.stringify(msgData)))
                 return false
             } else if( typeof msgData.ident !== "string" ) {
-                console.log(qsTr("Server received message without \"ident\": %1").arg(message))
+                console.log(qsTr("Server received message without \"ident\": %1").arg(JSON.stringify(msgData)))
                 return false
             } else if(typeof webServer.connectedPeers[msgData.ident] === "undefined") {
-                console.log(qsTr("Server received message from unknown peer (not connected): %1").arg(message))
+                console.log(qsTr("Server received message from unknown peer (not connected): %1").arg(JSON.stringify(msgData)))
                 return false
             } else if(typeof webServer.peerIdentToSessId[msgData.ident] !== "string") {
-                console.log(qsTr("Server received message from unknown peer (not connected): %1").arg(message))
+                console.log(qsTr("Server received message from unknown peer (not connected): %1").arg(JSON.stringify(msgData)))
             } else if( webServer.peerIdentToSessId[msgData.ident] === msgData.sessionId ) {
                 //check if secret sessionId fits to public peer identifier
                 return true
             } else {
-                console.log(qsTr("Server: Client tried to spoof (wrong ident/sessionId pair): %1").arg(message))
+                console.log(qsTr("Server: Client tried to spoof (wrong ident/sessionId pair): %1").arg(JSON.stringify(msgData)))
                 return false
             }
         }
@@ -75,10 +75,28 @@ QtObject {
             webSocket.onTextMessageReceived.connect(function(message) {
                 //console.log(qsTr("Server received message: %1").arg(message))
                 var msg = JSON.parse(message)
+                webServer.messages.push({msg: msg, socket: webSocket})
+            });
+        }
+        onErrorStringChanged: {
+            console.log(qsTr("Server error: %1").arg(errorString));
+        }
+        onPeersNeedUpdateChanged: {
+            if(peersNeedUpdate) sendDelayTimer.start()
+        }
+        property var messages: ([])
+        function processMessages() {
+            var lenBefore = webServer.messages.length
+            var msgCpy = webServer.messages.slice() //TODO: block between copy an clear
+            if(msgCpy.length !== lenBefore) console.log("DBG: LEN err: " + lenBefore + " != " + msgCpy.length)
+            webServer.messages = []
+            for(var i=0 ; i < msgCpy.length ; ++i) {
+                var msg = msgCpy[i].msg
+                var webSocket = msgCpy[i].socket
                 switch(msg.messagetype) {
                 case "connect":
-                    var id = "plr_id" + (uniquePlayerIdCounter++) // public identification for this client. Known by other clients to identify her although name may changed
-                    var sid = "sess_id" + (uniquePlayerIdCounter++) // secret to identify client
+                    var id = "plr_id" + (webServer.uniquePlayerIdCounter++) // public identification for this client. Known by other clients to identify her although name may changed
+                    var sid = "sess_id" + (webServer.uniquePlayerIdCounter++) // secret to identify client
                     var replyConnect = { messagetype: "connect_reply", message: { ident: id, sessionId: sid }}
                     webSocket.sendTextMessage(JSON.stringify(replyConnect))
                     webServer.connectedPeers[id] = Date.now()
@@ -90,7 +108,7 @@ QtObject {
                     break
                 case "state":
                     var msgData = msg.message
-                    if( !isMessageValidFromRegisteredPeer(msgData, message) ) return
+                    if( !isMessageValidFromRegisteredPeer(msgData) ) return
                     if(typeof msgData.peername !== "undefined" || msgData.isHost) {
                         // name update
                         // check if name is already in use
@@ -143,26 +161,22 @@ QtObject {
                     // any other update can be made without checks
                     // TODO: maybe check realtime objects peerOwner for the senders ident
                     webServer.peerStates[msgData.ident] = msgData
+                    console.log("DBG: Server state saved: " + JSON.stringify(msgData) )
                     webServer.peersNeedUpdate = true
                     break
                 case "get_uid":
                     var msgDataUid = msg.message
-                    if( !isMessageValidFromRegisteredPeer(msgDataUid, message) ) return
+                    if( !isMessageValidFromRegisteredPeer(msgDataUid) ) return
                     var replyStatusUid = { messagetype: "get_uid_reply", message: { data: msgDataUid.data, uid: "uid_" + (webServer.uniqueIdCounter++) }}
                     webSocket.sendTextMessage(JSON.stringify(replyStatusUid))
                     break
                 default:
                     console.log(qsTr("Server received unknown message: %1").arg(message));
                 }
-            });
-        }
-        onErrorStringChanged: {
-            console.log(qsTr("Server error: %1").arg(errorString));
-        }
-        onPeersNeedUpdateChanged: {
-            if(peersNeedUpdate) sendDelayTimer.start()
+            }
         }
     }
+
     function sendStateToPeers() {
         if(!webServer.peersNeedUpdate) return
         webServer.peersNeedUpdate = false
@@ -203,13 +217,24 @@ QtObject {
             webSocket.sendTextMessage(JSON.stringify(messageWorld))
         }
     }
-
+    Timer {
+        id: processMessageTimer
+        interval: 10
+        running: true
+        repeat: true
+        onTriggered: {
+            webServer.processMessages()
+        }
+    }
     readonly property Timer _sendDelayTimer: Timer {
         id: sendDelayTimer
         interval: 1 /* minimum ping */
         running: false
         repeat: false
-        onTriggered: root.sendStateToPeers()
+        onTriggered: {
+            webServer.processMessages()
+            root.sendStateToPeers()
+        }
     }
 //    readonly property Timer _timer: Timer {
 //        interval: 1000 /* interval to send updates although nothing changed */

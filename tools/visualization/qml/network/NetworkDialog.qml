@@ -99,15 +99,6 @@ Window {
             Layout.row: 3
             Layout.fillWidth: true
         }
-//        StyledButton {
-//            text: qsTr( "Send State" )
-//            //enabled: !isServerCheckbox.checked && mapitClient.active
-//            onClicked: {
-//                mapitClient.sendOwnState()
-//            }
-//            Layout.column: 1
-//            Layout.row: 3
-//        }
         ColumnLayout {
             Layout.column: 0
             Layout.columnSpan: 2
@@ -120,13 +111,26 @@ Window {
                 text: "Realtime objects:"
             }
             Repeater {
-                id: peersListView
                 model: mapitClient.state.realtimeObjects.count
                 RowLayout {
                     StyledLabel {
                         property RealtimeObject obj: mapitClient.state.realtimeObjects.get(index)
                         property var owner: mapitClient.state.peerToPeerState[obj.peerOwner]
                         text: obj.ident + ", <b>Owner</b>: " + owner.peername + ", <b>Type</b>:  " + obj.type + (owner.isHost ? "(<b>Host</b>)" : "")
+                        tooltip: "" + obj.peerOwner + "<br>" + obj.tf
+                        renderType: Text.NativeRendering
+                    }
+                }
+            }
+            Text {
+                text: "Visible Network Entities:"
+            }
+            Repeater {
+                model: mapitClient.state.visibleEntityInfosList.count
+                RowLayout {
+                    StyledLabel {
+                        property var obj: mapitClient.state.visibleEntityInfosList.get(index)
+                        text: obj.path
                         tooltip: "" + obj.peerOwner + "<br>" + obj.tf
                         renderType: Text.NativeRendering
                     }

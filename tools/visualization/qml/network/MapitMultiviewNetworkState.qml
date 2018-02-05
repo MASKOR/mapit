@@ -184,10 +184,10 @@ Item {
             peerToPeerState[peerIdentIndex].timestamp = foundPeers[prsupd].timestamp
 
         }
-        console.log("DBG: newPeers: ")
+        console.log("DBG: newPeers: #" + newPeers.length)
         for( var prsnew=0 ; prsnew < newPeers.length ; ++prsnew) {
             var newPeerObj = newPeers[prsnew]
-            console.log("  DBG: newPeer: " + newPeerObj.peername)
+            console.log("  DBG: newPeer: \"" + newPeerObj.peername + "\" (" + newPeerObj.ident + ")" )
             //VO BO mapping
             var blueprint = {
                 ident: newPeerObj.ident,
@@ -199,7 +199,7 @@ Item {
             peerToPeerState[newPeers[prsnew].ident] = peerStateComponent.createObject(null, blueprint)
         }
 
-        console.log("DBG: for(missingRtosModelIdx): ")
+        console.log("DBG: for(missingRtosModelIdx): #" + missingRtosModelIdx.length)
         // update rto model
         // remove
         for( var mrmi=0 ; mrmi < missingRtosModelIdx.length ; ++mrmi) {
@@ -207,7 +207,7 @@ Item {
             console.log("  DBG: missingRtosModelIdx: " + idx)
             realtimeObjects.remove(idx, 1)
         }
-        console.log("DBG: update realtimeObjects for(...): ")
+        console.log("DBG: update realtimeObjects for(...) #" + realtimeObjects.count)
         // update
         for( var rtoUpd=0 ; rtoUpd < realtimeObjects.count ; ++rtoUpd) {
             var theRto2 = realtimeObjects.get(rtoUpd)
@@ -219,7 +219,7 @@ Item {
             theRto2.type = newRtoState.type
             theRto2.additionalData = newRtoState.additionalData
         }
-        console.log("DBG: create realtimeObjects for(...): ")
+        console.log("DBG: create realtimeObjects for(...) #" + newRtos.length)
         // create
         for( var rtoC=0 ; rtoC < newRtos.length ; ++rtoC) {
             var newRto = newRtos[rtoC]
@@ -233,7 +233,7 @@ Item {
             }
             realtimeObjects.append(realtimeObjectComponent.createObject(null, blueprintRto))
         }
-        console.log("DBG: Working on VisualObjectInfos: ")
+        console.log("DBG: Working on VisualObjectInfos for(...) #" + missingVisObjsModelIdx.length)
         // update visibleEntityInfos model
         // remove
         for( var mrmi2=0 ; mrmi2 < missingVisObjsModelIdx.length ; ++mrmi2) {
@@ -242,19 +242,20 @@ Item {
             var arr = visibleEntityInfos
             arr.splice(idx2, 1)
             visibleEntityInfos = arr
+            console.log("DBG: Removed VisualObjectInfo " + visibleEntityInfosList.get(idx2).path)
             visibleEntityInfosList.remove(idx2)
         }
-        console.log("DBG: UPDATE VisualObjectInfos: ")
+        console.log("DBG: UPDATE VisualObjectInfos for(...) #" + visibleEntityInfosList.count)
         // update
         for( var visObjUpd=0 ; visObjUpd < visibleEntityInfosList.count/**/ ; ++visObjUpd) {
             var theVisObj2 = visibleEntityInfos[visObjUpd]
             var newVisObjState = foundVisObjsByIdent[theVisObj2.path]
             if(!newVisObjState) continue
-
+            console.log("  DBG: UPDATE VisualObjectInfos " + JSON.stringify(newVisObjState))
             theVisObj2.peerOwner = newVisObjState.peerOwner
             theVisObj2.additionalData = newRtoState.additionalData
         }
-        console.log("DBG: CREATE VisualObjectInfos:for(...) ")
+        console.log("DBG: CREATE VisualObjectInfos:for(...) #" + newVisObjs.length)
         // create
         for( var visObjC=0 ; visObjC < newVisObjs.length ; ++visObjC) {
             var newVisObj = newVisObjs[visObjC]

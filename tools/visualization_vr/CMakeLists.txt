@@ -1,9 +1,10 @@
-project(visualization_standalone)
+project(visualization_vr)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-# other libs don't like 'foreach' (openvdb?)
-add_definitions(-DQT_NO_KEYWORDS)
+#TODO: Clean up CMake after meetintg
+
+remove_definitions(-DQT_NO_KEYWORDS)
 
 #if(UNIX)
 #set (CMAKE_PREFIX_PATH ${QTDIR}"/gcc_64")
@@ -36,6 +37,21 @@ find_package(Qt53DRender REQUIRED)
 find_package(Qt53DQuickInput REQUIRED)
 find_package(Qt53DQuickRender REQUIRED)
 
+set(OPENVR_INSTALL_DIR CACHE PATH "OpenVR Installation directory with headers and lib/linux64")
+include_directories( ${OPENVR_INSTALL_DIR}/headers )
+link_directories( ${OPENVR_INSTALL_DIR}/lib/linux64 )
+
+include_directories( ${Qt5Quick_INCLUDE_DIRS} )
+include_directories( ${Qt5Quick_PRIVATE_INCLUDE_DIRS} )
+include_directories( /usr/include/qt/Qt3DCore/5.10.0/ ) # for private headers
+include_directories( /usr/include/qt/Qt3DRender/5.10.0/ ) # for private headers
+include_directories( /usr/include/qt/Qt3DCore/5.10.0/Qt3DCore ) # for private headers
+include_directories( /usr/include/qt/Qt3DRender/5.10.0/Qt3DRender ) # for private headers
+
+add_definitions(-DQT3DVR_COMPILE_WITH_OPENVR=true)
+
+#set(QtPrivateHeaderRoot )
+
 #if(WITH_PCL)
 #    #find_package(PCL QUIET REQUIRED COMPONENTS common io filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
 #    find_package(PCL QUIET REQUIRED COMPONENTS common io) # apps visualization)
@@ -47,35 +63,35 @@ find_package(Qt53DQuickRender REQUIRED)
 #else(WITH_PCL)
 #endif(WITH_PCL)
 
-QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization_standalone.qrc)
+QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization_vr.qrc)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
+#file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
+
+file(GLOB_RECURSE QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/qt3d-vr-example/virtualreality/*.cpp ${PROJECT_SOURCE_DIR}/qt3d-vr-example/virtualreality/*.h)
 
 #file(GLOB_RECURSE QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/*.cpp ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/*.h)
 #list(REMOVE_ITEM QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/vrbackends/ovr/*)
 #list(REMOVE_ITEM QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/vrbackends/openvr/*)
 
-set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/ ${PROJECT_SOURCE_DIR}/shader/)
-file(GLOB FragmentShader ${ShaderPath}/*.frag)
-file(GLOB VertexShader ${ShaderPath}/*.vert)
-file(GLOB TesControlShader ${ShaderPath}/*.tcs)
-file(GLOB TesEvalShader ${ShaderPath}/*.tes)
-file(GLOB GeometryShader ${ShaderPath}/*.geom)
-file(GLOB GlslIncludeShader ${ShaderPath}/*.glsl)
+#set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/ ${PROJECT_SOURCE_DIR}/shader/)
+#file(GLOB FragmentShader ${ShaderPath}/*.frag)
+#file(GLOB VertexShader ${ShaderPath}/*.vert)
+#file(GLOB TesControlShader ${ShaderPath}/*.tcs)
+#file(GLOB TesEvalShader ${ShaderPath}/*.tes)
+#file(GLOB GeometryShader ${ShaderPath}/*.geom)
+#file(GLOB GlslIncludeShader ${ShaderPath}/*.glsl)
 
-set(DataDir ${PROJECT_SOURCE_DIR}/data)
-file(GLOB Datas ${DataDir}/*)
-file(GLOB_RECURSE Datas_All ${DataDir}/*)
+#set(DataDir ${PROJECT_SOURCE_DIR}/data)
+#file(GLOB Datas ${DataDir}/*)
+#file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
-file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
-
-#hardcoded for ubuntu 16.04 + qt3d input/logic should not affect other installations
-#link_directories("/opt/qt59/lib")
+#file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${QT3DVR_SOURCES}
                                 ${UPNS_SOURCES}
+                                ${QT3DVR_SOURCES}
                                 ${UPNS_VIS_RESOURCES_RCC}
                                 ${FragmentShader}
                                 ${VertexShader}
@@ -83,17 +99,18 @@ add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${TesEvalShader}
                                 ${GeometryShader}
                                 ${GlslIncludeShader}
-
+                                ${OPENVR_INCLUDE_DIRS}
                                 ${UPNS_QMLFILES})
 
-add_custom_target(resourceFilesVizStandalone ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
+add_custom_target(resourceFilesVizVR ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
 #custom_target_use_boost(${PROJECT_NAME})
 find_package(Boost COMPONENTS filesystem system date_time)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src/
-                                                   ${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include)
+                                                   ${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include
+                                                   ${PROJECT_SOURCE_DIR}/qt3d-vr-example/virtualreality)
 
 if(WIN32)
 #target_link_libraries(${PROJECT_NAME} Qt5::Qml Qt5::Widgets Qt5::Quick ${Boost_LIBRARIES} uuid ${libzip} ${PCL_LIBRARIES} ${OPENVDB_MINGW_BUILD_DIR}/libopenvdb.a C:/MinGW/bin/zlib1.dll ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_system-mgw49-mt-1_58.a ${OPENVDB_MINGW_BUILD_DIR}/boost/stage/lib/libboost_iostreams-mgw49-mt-1_58.a nulibz Half tbb)
@@ -111,12 +128,12 @@ target_link_libraries(${PROJECT_NAME} upns_visualization
     ${mapit_standard_repository_factory}
     Qt3DPointcloudRenderer
     Qt3DOpenVDBRenderer
-    GraphBlocks
     layertype_tf
     layertype_primitive
     ${YAML_CPP_LIBRARIES}
     ${PCL_LIBRARIES}
     ${Boost_LIBRARIES}
+    openvr_api
     stdc++)
 
 ######## FOR DEBUGGING PURPOSES ONLY ########

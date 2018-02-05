@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
     upns_init_logging();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
+    Q_INIT_RESOURCE(mapit_visualization);
+    Q_INIT_RESOURCE(mapit_visualization_standalone);
     app.setOrganizationName("Fachhochschule Aachen");
     app.setOrganizationDomain("fh-aachen.de");
     app.setApplicationName("Mapit Viewer");
@@ -102,12 +104,11 @@ int main(int argc, char *argv[])
 #endif
 
     qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
-    qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
-    qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
-    qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
-    //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntitydataPointcloud2");
-    qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
-    //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
+//    qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
+//    qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
+//    //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntitydataPointcloud2");
+//    qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
+//    //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
 
     //qmlRegisterUncreatableType<QmlRepository>("fhac.upns", 1, 0, "Repository", "Not yet implemented. Uses RAII and must be wrapped to set all program_options for repo. Use global \"globalRepository\" for now.");
     qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");

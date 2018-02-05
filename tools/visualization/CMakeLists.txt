@@ -51,7 +51,7 @@ if(WIN32)
     link_directories(${UPNS_ROOT_DIR}/externals/windows/lib-msvc2013-md-64)
 endif()
 
-QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC qml.qrc)
+QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization.qrc)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)

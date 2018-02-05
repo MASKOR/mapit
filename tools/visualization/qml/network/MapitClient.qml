@@ -1,7 +1,7 @@
 import QtQuick 2.9
 import QtWebSockets 1.1
 
-QtObject {
+Item {
     id: root
     readonly property string ident: priv.givenIdent
     readonly property string sessionId: priv.givenSessionId
@@ -37,7 +37,7 @@ QtObject {
         //count number of object which need id from server
         for(var r1=0 ; r1 < ownState.realtimeObjects.length ; ++r1) {
             ownState.realtimeObjects[r1].peerOwner = root.ident
-            if(ownState.realtimeObjects[r1].ident === "") {
+            if(ownState.realtimeObjects[r1].ident === "" || ownState.realtimeObjects[r1] === "pending") {
                 numberOfCallbacks++;
                 noWait = false
             }
@@ -45,7 +45,8 @@ QtObject {
         // request ident from server an defer futher processing
         for(var r2=0 ; r2 < ownState.realtimeObjects.length ; ++r2) {
             var currentRto = ownState.realtimeObjects[r2]
-            if(currentRto.ident === "") {
+            if(currentRto.ident === "" && currentRto.ident !== "pending") {
+                currentRto.ident = "pending"
                 getUniqueIdentifier(function(newIdent) {
                     currentRto.ident = newIdent
                     numberOfCallbacks--
@@ -88,13 +89,16 @@ QtObject {
         }
         console.log("DBG: for( ownState.allVisualInfoModel )")
         var visObjs = []
-        for(var i2=0 ; i2 < ownState.allVisualInfoModel.length/**/ ; ++i2) {
-            console.log("DBG: allVisualInfoModel[ " + i2 + "]")
-            console.log("DBG: allVisualInfoModel[ " + i2 + "] (after first access)")
-            var orig2 = ownState.allVisualInfoModel[i2]
+        var copyOfAllObjects = ownState.allVisualInfoModel
+        for(var i2=0 ; i2 < copyOfAllObjects.length/**/ ; ++i2) {
+            console.log("DBG: allVisualInfoModel[" + i2 + "]")
+            console.log("DBG: allVisualInfoModel[" + i2 + "] (after first access)")
+            var orig2 = copyOfAllObjects[i2]
             console.log("DBG: visualInfoModel = " + i2 + " -> " + JSON.stringify(orig2))
+            if(!orig2) continue
             if(!orig2.isVisible) continue
-            console.log("DBG: visualInfoModel.isVisible == true;  " + i2 + " -> " + JSON.stringify(orig2))
+            if(!orig2.isEntity) continue
+            console.log("DBG: visualInfoModel.isVisible == true; " + i2 + " -> " + JSON.stringify(orig2))
             // We have to list copied properties here or we transmit all qml properies...
             var visObj = {
                 path: orig2.path,
@@ -118,7 +122,7 @@ QtObject {
 
         var message = { messagetype: "state", message: ownStateJson }
         socket.sendTextMessage(JSON.stringify(message))
-        console.log("DBG: SENT visualInfoModels")
+        console.log("DBG: SENT visualInfoModels: " + JSON.stringify(message))
     }
 
     function getUniqueIdentifier(callback) {
@@ -134,12 +138,22 @@ QtObject {
         property string givenSessionId
         property var callbackHash: ({})
         property int uidCounter: 234
+        onGivenIdentChanged: console.log("DBG: my ident is: " + givenIdent)
     }
-    readonly property WebSocket _webSocket: WebSocket {
-        id: socket
-        onTextMessageReceived: {
-            //console.log(qsTr("Client received message: %1").arg(message))
-            var msg = JSON.parse(message)
+    Timer {
+        repeat: true
+        running: true
+        interval: 10
+        onTriggered: processMessages()
+    }
+    function processMessages() {
+        if(socket.messages.length != 0)
+        console.log("DBG: 1 len " + socket.messages.length)
+        var msgCpy = socket.messages.slice()
+        socket.messages = []
+        //console.log("DBG: 2 len " + msgCpy.length)
+        for(var i=0 ; i < msgCpy.length ; ++i) {
+            var msg = msgCpy[i]
             var msgData = msg.message
             switch(msg.messagetype) {
             case "connect_reply":
@@ -149,6 +163,8 @@ QtObject {
                 }
                 priv.givenIdent = msgData.ident
                 priv.givenSessionId = msgData.sessionId
+                console.log("Connected to mapit server, ownId: " + priv.givenIdent )
+                root.sendOwnState();
                 break
             case "state_reply":
                 if(typeof msgData.status !== "string") {
@@ -169,7 +185,19 @@ QtObject {
                 console.log(qsTr("Server received unknown message: %1").arg(message));
             }
         }
+    }
+    readonly property WebSocket _webSocket: WebSocket {
+        id: socket
+        property var messages: ([])
+        onTextMessageReceived: {
+            console.log("DBG: MESSSSSSSSSSS OF WEBSOCKET")
+            console.log("Client received message: " + message)
+            var msg = JSON.parse(message)
+            socket.messages.push(msg)
+        }
+
         onStatusChanged: {
+            console.log("DBG: STATUS CHANGED OF WEBSOCKET")
             if (socket.status == WebSocket.Error) {
                 console.log(qsTr("Client error: %1").arg(socket.errorString))
             } else if (socket.status == WebSocket.Closed) {

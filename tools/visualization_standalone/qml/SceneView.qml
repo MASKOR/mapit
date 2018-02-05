@@ -1,7 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 1.4 as QCtl
 import QtQuick.Layouts 1.1
-import "scene"
+import "qrc:/qml/scene"
 import QtQuick.Scene3D 2.0
 import Qt3D.Core 2.0 as Q3D
 import Qt3D.Render 2.0
@@ -19,7 +19,7 @@ import qt3deditorlib 1.0
 
 import "components"
 import "dialogs"
-import "network"
+import "qrc:/qml/network"
 
 import FileIO 1.0
 import Library 1.0
@@ -38,7 +38,7 @@ Item {
     property var currentCheckout: globalApplicationState.currentCheckout
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
     property ListModel visibleEntityModel//: entityInstantiator.model
-    property var visualInfoModel
+    property var allVisualInfoModel
     property alias camera: mainCamera
     property alias currentFrameId: frameIdChooser.currentText
     property MapitClient mapitClient: globalApplicationState.mapitClient
@@ -237,10 +237,10 @@ Item {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_3d_rotation"
-                    enabled: entityInstantiator.loadingItems == 0
+                    enabled: mapitScene.entityInstantiator.loadingItems == 0
                     tooltip: "Top View"
                     onClicked: {
-                        var bbCenter = entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
+                        var bbCenter = mapitScene.entityInstantiator.boundingboxMax.plus(mapitScene.entityInstantiator.boundingboxMin).times(0.5)
                         var offset = bbCenter.minus(mainCamera.position)
                         var direction = offset.normalized().times(0.01)
                         mainCamera.upVector = Qt.vector3d(0.0, 1.0, -0.001).plus(direction)
@@ -248,13 +248,13 @@ Item {
                         camPosAnimation.start()
                     }
                     Vector3dAnimation {
-                        property real bbEdgeX: entityInstantiator.boundingboxMax.x - entityInstantiator.boundingboxMin.x
-                        property real bbEdgeY: entityInstantiator.boundingboxMax.y - entityInstantiator.boundingboxMin.y
-                        property real bbEdgeZ: entityInstantiator.boundingboxMax.z - entityInstantiator.boundingboxMin.z
+                        property real bbEdgeX: mapitScene.entityInstantiator.boundingboxMax.x - mapitScene.entityInstantiator.boundingboxMin.x
+                        property real bbEdgeY: mapitScene.entityInstantiator.boundingboxMax.y - mapitScene.entityInstantiator.boundingboxMin.y
+                        property real bbEdgeZ: mapitScene.entityInstantiator.boundingboxMax.z - mapitScene.entityInstantiator.boundingboxMin.z
                         property real bbEdgeMax: Math.max(bbEdgeX, Math.max(bbEdgeY, bbEdgeZ))
                         id: camPosAnimation
                         from: mainCamera.position
-                        to: entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
+                        to: mapitScene.entityInstantiator.boundingboxMax.plus(mapitScene.entityInstantiator.boundingboxMin).times(0.5)
                         .plus(Qt.vector3d(0.0, Math.max(10.0, bbEdgeMax / (2 * Math.tan(mainCamera.fieldOfView * 0.5))), 0.0))
                         target: mainCamera
                         property: "position"
@@ -265,7 +265,7 @@ Item {
                 StyledButton {
                     isIcon: true
                     iconSource: "image://material/ic_filter_center_focus"
-                    enabled: entityInstantiator.loadingItems == 0
+                    enabled: mapitScene.entityInstantiator.loadingItems == 0
                     tooltip: "Center Data"
                     onClicked: {
                         mainCamera.upVector = Qt.vector3d(0.0, 1.0, -0.0001)
@@ -274,7 +274,7 @@ Item {
                     Vector3dAnimation {
                         id: centerAnimation
                         from: mainCamera.viewCenter
-                        to: entityInstantiator.boundingboxMax.plus(entityInstantiator.boundingboxMin).times(0.5)
+                        to: mapitScene.entityInstantiator.boundingboxMax.plus(mapitScene.entityInstantiator.boundingboxMin).times(0.5)
                         target: mainCamera
                         property: "viewCenter"
                         duration: 1000
@@ -341,7 +341,7 @@ Item {
                         onCheckedChanged: appStyle.showGizmoAlways = checked
                         AxisGizmo {
                             anchors.fill: parent
-                            finalTransform: mainCamera.viewMatrix.times(coordianteSystemTransform.matrix)
+                            finalTransform: mainCamera.viewMatrix.times(mapitScene.coordianteSystemTransform.matrix)
                         }
                     }
 
@@ -349,7 +349,7 @@ Item {
                         z: 200
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
-                        running: entityInstantiator.loadingItems != 0
+                        running: mapitScene.entityInstantiator.loadingItems != 0
                         StyledButton {
                             visible: parent.running
                             anchors.fill: parent
@@ -388,7 +388,7 @@ Item {
 
                     Q3D.Transform {
                         id: previewTransform
-                        translation: coordianteSystemTransform.matrix.inverted().times(mouseRaycast.worldPosition)
+                        translation: mapitScene.coordianteSystemTransform.matrix.inverted().times(mouseRaycast.worldPosition)
                         onMatrixChanged: {
                             if(appStyle.tmpFollowMouse) {
                                 appStyle.tmpPreviewMatrix = matrix
@@ -418,7 +418,7 @@ Item {
                                 Timer {
                                     id: gizmoHideTimer
                                     interval: 2000
-                                    onRunningChanged: gizmoEntity.isVisible = running
+                                    onRunningChanged: mapitScene.gizmoEntity.isVisible = running
                                 }
                             }
                             EditorCameraController {
@@ -527,322 +527,338 @@ Item {
 
                                 }
                             ]
+                            MapitScene {
+                                id: mapitScene
+                                visibleEntityPaths: root.visibleEntityModel
+                                allEntities: root.allVisualInfoModel
+                                currentFrameId: root.currentFrameId
+                                currentCheckout: globalApplicationState.currentCheckout
+                                mapitClient: root.mapitClient
+                                camera: mainCamera
+                                appStyleOptional: appStyle
 
-                            Q3D.Entity {
-                                id: worldEntity
-                                components: [
-                                    Q3D.Transform {
-                                        id: worldTransform
-                                        scale: appStyle.cameraScale
-                                    }]
-                                Q3D.Entity {
-                                    id: gridEntity
-                                    Q3D.Transform {
-                                        id: gridTransform
-                                        translation: Qt.vector3d(0, 0, 0)
-                                    }
-                                    HelperGridMesh {
-                                        id: gridMesh
-                                        gridSpacing: appStyle.gridSpacing
-                                        lines: appStyle.gridLines
-                                    }
+                                gridLayer: gridLayer
+                                gizmoLayer: gizmoLayer
+                                invisibleLayer: invisibleLayer
+                                pointLayer: pointLayer
+                                solidLayer: solidLayer
+                            }
 
-                                    property Material materialPhong: PhongMaterial {
-                                        ambient: Qt.rgba(0.0,0.0,0.0,1.0)
-                                    }
-                                    components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
-                                }
-                                Q3D.NodeInstantiator {
-                                    id: realtimeObjectInstantiator
-                                    model: root.mapitClient ? root.mapitClient.state.realtimeObjects.count : 0
-                                    HandleFrustum {
-                                        id: peerGizmo
-                                        layer: gizmoLayer
-                                        property var theRto: root.mapitClient.state.realtimeObjects.get(index)
-                                        property var gizmoTransform: Q3D.Transform {
-                                            matrix: peerGizmo.theRto ? peerGizmo.theRto.tf.inverted() : Qt.matrix4x4()
-                                        }
-                                        aspectRatio: theRto.additionalData.aspect
-                                        horizontalFov: theRto.additionalData.fov
-                                        components: [ gizmoTransform ]
+//                            Q3D.Entity {
+//                                id: worldEntity
+//                                components: [
+//                                    Q3D.Transform {
+//                                        id: worldTransform
+//                                        scale: appStyle.cameraScale
+//                                    }]
+//                                Q3D.Entity {
+//                                    id: gridEntity
+//                                    Q3D.Transform {
+//                                        id: gridTransform
+//                                        translation: Qt.vector3d(0, 0, 0)
+//                                    }
+//                                    HelperGridMesh {
+//                                        id: gridMesh
+//                                        gridSpacing: appStyle.gridSpacing
+//                                        lines: appStyle.gridLines
+//                                    }
 
-//                                        Q3D.Entity {
-//                                            property Material material: PhongMaterial { diffuse: "red" }
-//                                            components: [text1Transform, solidLayer, material, text]
-//                                            ExtrudedTextMesh { // Not a type
-//                                                id: text
-//                                                text: "Hello World"
-//                                                width: 20
-//                                                height: 10
+//                                    property Material materialPhong: PhongMaterial {
+//                                        ambient: Qt.rgba(0.0,0.0,0.0,1.0)
+//                                    }
+//                                    components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
+//                                }
+//                                Q3D.NodeInstantiator {
+//                                    id: realtimeObjectInstantiator
+//                                    model: root.mapitClient ? root.mapitClient.state.realtimeObjects.count : 0
+//                                    HandleFrustum {
+//                                        id: peerGizmo
+//                                        layer: gizmoLayer
+//                                        property var theRto: root.mapitClient.state.realtimeObjects.get(index)
+//                                        property var gizmoTransform: Q3D.Transform {
+//                                            matrix: peerGizmo.theRto ? peerGizmo.theRto.tf.inverted() : Qt.matrix4x4()
+//                                        }
+//                                        aspectRatio: theRto.additionalData.aspect
+//                                        horizontalFov: theRto.additionalData.fov
+//                                        components: [ gizmoTransform ]
+
+////                                        Q3D.Entity {
+////                                            property Material material: PhongMaterial { diffuse: "red" }
+////                                            components: [text1Transform, solidLayer, material, text]
+////                                            ExtrudedTextMesh { // Not a type
+////                                                id: text
+////                                                text: "Hello World"
+////                                                width: 20
+////                                                height: 10
+////                                            }
+
+////                                            Q3D.Transform {
+////                                                id: text1Transform
+////                                                translation: Qt.vector3d(0, 2, 0)//manipulationGizmo.gizmoTransform.pos.plus( Qt.vector3d(0, 2, 0) )
+////                                            }
+////                                            TextLabelEntity { // Error when more than 2 peers
+////                                                text: manipulationGizmo.theRto ? root.mapitClient.state.peerToPeerState[manipulationGizmo.theRto.peerOwner].peername : "unknown"
+////                                                layer: solidLayer //TO DO: would be awesome if children are rendered, when parent is in "solidLayer" automatically
+////                                            }
+////                                        }
+//                                    }
+////                                    Q3D.Entity {
+
+////                                        property var meshTransform: Q3D.Transform {
+////                                            property var theRto: root.mapitClient.state.realtimeObjects.get(index)
+////                                            matrix: theRto ? theRto.tf.inverted() : Qt.matrix4x4()
+////                                        }
+////                                        property var coneMesh: ConeMesh { }
+////                                        components: [ coneMesh, perVertexColorMaterial, meshTransform, solidLayer ]
+////                                    }
+//                                }
+
+//                                Q3D.Entity {
+//                                    id: gizmoEntity
+
+//                                    property var meshTransform: Q3D.Transform {
+//                                        id: viewCenterTransform
+//                                        translation: mainCamera.viewCenter
+//                                        rotation: coordianteSystemTransform.rotation
+//                                    }
+//                                    PerVertexColorMaterial {
+//                                        id: perVertexColorMaterial
+//                                    }
+//                                    GeometryRenderer {
+//                                        id: gizmoRenderer
+
+//                                        function rebuild() {
+//                                            buffer.data = buffer.buildGrid()
+//                                        }
+//                                        instanceCount: 1
+//                                        indexOffset: 0
+//                                        firstInstance: 0
+//                                        vertexCount: 6
+//                                        primitiveType: GeometryRenderer.Lines
+//                                        geometry: Geometry {
+//                                            Attribute {
+//                                                id: positionAttribute
+//                                                attributeType: Attribute.VertexAttribute
+//                                                vertexBaseType: Attribute.Float
+//                                                vertexSize: 3
+//                                                byteOffset: 0
+//                                                byteStride: 6 * 4
+//                                                count: 6
+//                                                name: "vertexPosition"//defaultPositionAttributeName()
+//                                                buffer: Buffer {
+//                                                    id: bufferPosColor
+//                                                    type: Buffer.VertexBuffer
+//                                                    function buildGrid() {
+//                                                        var vertices = 6;
+//                                                        var vertexFloats = 6;
+//                                                        var vertexArray = new Float32Array(vertexFloats * vertices);
+//                                                        vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
+//                                                        vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
+//                                                        vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
+//                                                        vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
+
+//                                                        vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
+//                                                        vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
+//                                                        vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
+//                                                        vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
+
+//                                                        vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
+//                                                        vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
+//                                                        vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
+//                                                        vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
+//                                                        return vertexArray
+//                                                    }
+//                                                    data: buildGrid()
+//                                                }
 //                                            }
-
-//                                            Q3D.Transform {
-//                                                id: text1Transform
-//                                                translation: Qt.vector3d(0, 2, 0)//manipulationGizmo.gizmoTransform.pos.plus( Qt.vector3d(0, 2, 0) )
-//                                            }
-//                                            TextLabelEntity { // Error when more than 2 peers
-//                                                text: manipulationGizmo.theRto ? root.mapitClient.state.peerToPeerState[manipulationGizmo.theRto.peerOwner].peername : "unknown"
-//                                                layer: solidLayer //TO DO: would be awesome if children are rendered, when parent is in "solidLayer" automatically
+//                                            Attribute {
+//                                                id: colorAttribute
+//                                                attributeType: Attribute.VertexAttribute
+//                                                vertexBaseType: Attribute.Float
+//                                                vertexSize: 3
+//                                                byteOffset: 3 * 4
+//                                                byteStride: 6 * 4
+//                                                count: 6
+//                                                name: "vertexColor"//defaultColorAttributeName()
+//                                                buffer: bufferPosColor
 //                                            }
 //                                        }
-                                    }
+//                                    }
+//                                    property bool isVisible
+//                                    property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
+//                                    components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
+//                                }
+
+//                                Q3D.Entity {
+//                                    id: objectsRoot
+//                                    property alias objectsRootTransform: coordianteSystemTransform
+//                                    components: [
+//                                        Q3D.Transform {
+//                                            id: coordianteSystemTransform
+//                                            rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
+//                                        }]
+
+//                                    //                                    HandleTranslate {
+//                                    //                                        id: manipulationGizmo
+//                                    //                                        layer: gizmoLayer
+//                                    //                                        property var gizmoTransform: Q3D.Transform {
+//                                    //                                            translation: Qt.vector3d(2.0,2.0,2.0)
+//                                    //                                        }
+//                                    //                                        components: [ gizmoTransform, gizmoLayer ]
+//                                    //                                    }
+
+//                                    UPNS.PointcloudCoordinatesystem {
+//                                        id: coordSys
+//                                    }
+//                                    Timer {
+//                                        id: boundingBoxRecalculator
+//                                        interval: 1
+//                                        repeat: false
+//                                        onTriggered: {
+//                                            var minx= Infinity, miny= Infinity, minz= Infinity
+//                                            , maxx=-Infinity, maxy=-Infinity, maxz=-Infinity
+//                                            for(var i=0; i<entityInstantiator.count; i++) {
+//                                                var item = entityInstantiator.objectAt(i)
+//                                                if(minx > item.min.x) minx = item.min.x
+//                                                if(miny > item.min.y) miny = item.min.y
+//                                                if(minz > item.min.z) minz = item.min.z
+//                                                if(maxx < item.max.x) maxx = item.max.x
+//                                                if(maxy < item.max.y) maxy = item.max.y
+//                                                if(maxz < item.max.z) maxz = item.max.z
+//                                            }
+//                                            entityInstantiator.boundingboxMin = Qt.vector3d(minx, miny, minz)
+//                                            entityInstantiator.boundingboxMax = Qt.vector3d(maxx, maxy, maxz)
+//                                        }
+//                                    }
+
+//                                    Q3D.NodeInstantiator {
+//                                        id: entityInstantiator
+//                                        function recalcBoundingBox() {
+//                                            boundingBoxRecalculator.start()
+//                                        }
+//                                        property int loadingItems: 0
+//                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
+//                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
+
+//                                        model: root.visibleEntityModel
+//                                        onModelChanged: recalcBoundingBox()
+//                                        onObjectAdded: recalcBoundingBox()
+//                                        onObjectRemoved: recalcBoundingBox()
+//                                        //model: root.visibleEntityModel
+//                                        delegate: MapitEntity {
+//                                            mainCameratmp: mainCamera
+//                                            scene3dtmp: scene3d
+//                                            coordinateSystem: coordSys
+//                                            currentFrameId: root.currentFrameId
+//                                            layer: pointLayer
+//                                            //parametersTmp: techniqueFilter.parameters
+//                                            //Currently only one checkout is supported
+//                                            currentCheckout: globalApplicationState.currentCheckout
+//                                            //                                    currentCheckout: UPNS.Checkout {
+//                                            //                                        id: co
+//                                            //                                        repository: globalRepository
+//                                            //                                        name: model.checkoutName
+//                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
+//                                            //                                    }
+//                                            currentEntitydata: UPNS.Entitydata {
+//                                                checkout: currentCheckout
+//                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
+//                                                onIsLoadingChanged: {
+////                                                    if(isLoading) {
+////                                                        // Busy indicator disabled at the moment
+////                                                        entityInstantiator.loadingItems++
+////                                                    } else {
+////                                                        // Busy indicator disabled at the moment
+////                                                        entityInstantiator.loadingItems--
+////                                                    }
+//                                                    if(entityInstantiator.model[index])
+//                                                    {
+//                                                        var idxInVisualInfoModel = entityInstantiator.model[index].idxInVisualInfoModel
+//                                                        root.visualInfoModel[idxInVisualInfoModel].isLoading = isLoading
+//                                                    }
+//                                                }
+//                                            }
+//                                            onMinChanged: entityInstantiator.recalcBoundingBox()
+//                                            onMaxChanged: entityInstantiator.recalcBoundingBox()
+//                                            HandleBoundingBox {
+//                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
+//                                                min: parent.min
+//                                                max: parent.max
+//                                            }
+//                                        }
+//                                    }
+
+//                                    Q3D.NodeInstantiator {
+//                                        id: peerVisualEntityInstantiator
+//                                        function recalcBoundingBox() {
+//                                            boundingBoxRecalculator.start()
+//                                        }
+//                                        property int loadingItems: 0
+//                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
+//                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
+
+//                                        //onModelChanged: recalcBoundingBox()
+//                                        onObjectAdded: recalcBoundingBox()
+//                                        onObjectRemoved: recalcBoundingBox()
+//                                        model: root.mapitClient.state.visibleEntityInfosList
+//                                        onModelChanged: {
+//                                            recalcBoundingBox()
+//                                            console.log("DBG: PEERMODEL CHANGED" + root.mapitClient.state.visibleEntityInfosList.count)
+//                                        }
+
+//                                        delegate: MapitEntity {
+//                                            mainCameratmp: mainCamera
+//                                            scene3dtmp: scene3d
+//                                            coordinateSystem: coordSys
+//                                            currentFrameId: root.currentFrameId
+
+//                                            layer: pointLayer
+//                                            //parametersTmp: techniqueFilter.parameters
+//                                            //Currently only one checkout is supported
+//                                            currentCheckout: globalApplicationState.currentCheckout
+//                                            currentEntitydata: UPNS.Entitydata {
+//                                                checkout: currentCheckout
+//                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
+//                                            }
+//                                            onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()
+//                                            onMaxChanged: peerVisualEntityInstantiator.recalcBoundingBox()
+//                                            HandleBoundingBox {
+//                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
+//                                                min: parent.min
+//                                                max: parent.max
+//                                            }
+//                                        }
+//                                    }
+
 //                                    Q3D.Entity {
+//                                        id: annotationPreviewEntity
+//                                        property ObjectPicker picker: ObjectPicker {
+//                                            onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
+//                                        }
 
 //                                        property var meshTransform: Q3D.Transform {
-//                                            property var theRto: root.mapitClient.state.realtimeObjects.get(index)
-//                                            matrix: theRto ? theRto.tf.inverted() : Qt.matrix4x4()
+//                                            matrix: appStyle.tmpPreviewMatrix
 //                                        }
+//                                        property var sphereMesh: SphereMesh { }
+//                                        property var planeMesh: PlaneMesh { }
+//                                        property var cylinderMesh: CylinderMesh { }
 //                                        property var coneMesh: ConeMesh { }
-//                                        components: [ coneMesh, perVertexColorMaterial, meshTransform, solidLayer ]
+//                                        property var torusMesh: TorusMesh { minorRadius: 0.3 }
+//                                        property var cubeMesh: CuboidMesh { }
+//                                        property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
+//                                                                                                          : appStyle.tmpPrimitiveType === "plane" ? planeMesh
+//                                                                                                                                                  : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
+//                                                                                                                                                                                             : appStyle.tmpPrimitiveType === "cone" ? coneMesh
+//                                                                                                                                                                                                                                    : appStyle.tmpPrimitiveType === "torus" ? torusMesh
+//                                                                                                                                                                                                                                                                            : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
+//                                                                                                                                                                                                                                                                                                                   : sphereMesh
+
+//                                        property var materialPhong: PhongMaterial { }
+//                                        property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
+//                                        components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
 //                                    }
-                                }
-
-                                Q3D.Entity {
-                                    id: gizmoEntity
-
-                                    property var meshTransform: Q3D.Transform {
-                                        id: viewCenterTransform
-                                        translation: mainCamera.viewCenter
-                                        rotation: coordianteSystemTransform.rotation
-                                    }
-                                    PerVertexColorMaterial {
-                                        id: perVertexColorMaterial
-                                    }
-                                    GeometryRenderer {
-                                        id: gizmoRenderer
-
-                                        function rebuild() {
-                                            buffer.data = buffer.buildGrid()
-                                        }
-                                        instanceCount: 1
-                                        indexOffset: 0
-                                        firstInstance: 0
-                                        vertexCount: 6
-                                        primitiveType: GeometryRenderer.Lines
-                                        geometry: Geometry {
-                                            Attribute {
-                                                id: positionAttribute
-                                                attributeType: Attribute.VertexAttribute
-                                                vertexBaseType: Attribute.Float
-                                                vertexSize: 3
-                                                byteOffset: 0
-                                                byteStride: 6 * 4
-                                                count: 6
-                                                name: "vertexPosition"//defaultPositionAttributeName()
-                                                buffer: Buffer {
-                                                    id: bufferPosColor
-                                                    type: Buffer.VertexBuffer
-                                                    function buildGrid() {
-                                                        var vertices = 6;
-                                                        var vertexFloats = 6;
-                                                        var vertexArray = new Float32Array(vertexFloats * vertices);
-                                                        vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
-                                                        vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
-                                                        vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
-                                                        vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
-
-                                                        vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
-                                                        vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
-                                                        vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
-                                                        vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
-
-                                                        vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
-                                                        vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
-                                                        vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
-                                                        vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
-                                                        return vertexArray
-                                                    }
-                                                    data: buildGrid()
-                                                }
-                                            }
-                                            Attribute {
-                                                id: colorAttribute
-                                                attributeType: Attribute.VertexAttribute
-                                                vertexBaseType: Attribute.Float
-                                                vertexSize: 3
-                                                byteOffset: 3 * 4
-                                                byteStride: 6 * 4
-                                                count: 6
-                                                name: "vertexColor"//defaultColorAttributeName()
-                                                buffer: bufferPosColor
-                                            }
-                                        }
-                                    }
-                                    property bool isVisible
-                                    property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
-                                    components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
-                                }
-
-                                Q3D.Entity {
-                                    id: objectsRoot
-                                    property alias objectsRootTransform: coordianteSystemTransform
-                                    components: [
-                                        Q3D.Transform {
-                                            id: coordianteSystemTransform
-                                            rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
-                                        }]
-
-                                    //                                    HandleTranslate {
-                                    //                                        id: manipulationGizmo
-                                    //                                        layer: gizmoLayer
-                                    //                                        property var gizmoTransform: Q3D.Transform {
-                                    //                                            translation: Qt.vector3d(2.0,2.0,2.0)
-                                    //                                        }
-                                    //                                        components: [ gizmoTransform, gizmoLayer ]
-                                    //                                    }
-
-                                    UPNS.PointcloudCoordinatesystem {
-                                        id: coordSys
-                                    }
-                                    Timer {
-                                        id: boundingBoxRecalculator
-                                        interval: 1
-                                        repeat: false
-                                        onTriggered: {
-                                            var minx= Infinity, miny= Infinity, minz= Infinity
-                                            , maxx=-Infinity, maxy=-Infinity, maxz=-Infinity
-                                            for(var i=0; i<entityInstantiator.count; i++) {
-                                                var item = entityInstantiator.objectAt(i)
-                                                if(minx > item.min.x) minx = item.min.x
-                                                if(miny > item.min.y) miny = item.min.y
-                                                if(minz > item.min.z) minz = item.min.z
-                                                if(maxx < item.max.x) maxx = item.max.x
-                                                if(maxy < item.max.y) maxy = item.max.y
-                                                if(maxz < item.max.z) maxz = item.max.z
-                                            }
-                                            entityInstantiator.boundingboxMin = Qt.vector3d(minx, miny, minz)
-                                            entityInstantiator.boundingboxMax = Qt.vector3d(maxx, maxy, maxz)
-                                        }
-                                    }
-
-                                    Q3D.NodeInstantiator {
-                                        id: entityInstantiator
-                                        function recalcBoundingBox() {
-                                            boundingBoxRecalculator.start()
-                                        }
-                                        property int loadingItems: 0
-                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
-                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
-
-                                        model: root.visibleEntityModel
-                                        onModelChanged: recalcBoundingBox()
-                                        onObjectAdded: recalcBoundingBox()
-                                        onObjectRemoved: recalcBoundingBox()
-                                        //model: root.visibleEntityModel
-                                        delegate: MapitEntity {
-                                            mainCameratmp: mainCamera
-                                            scene3dtmp: scene3d
-                                            coordinateSystem: coordSys
-                                            currentFrameId: root.currentFrameId
-                                            layer: pointLayer
-                                            //parametersTmp: techniqueFilter.parameters
-                                            //Currently only one checkout is supported
-                                            currentCheckout: globalApplicationState.currentCheckout
-                                            //                                    currentCheckout: UPNS.Checkout {
-                                            //                                        id: co
-                                            //                                        repository: globalRepository
-                                            //                                        name: model.checkoutName
-                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
-                                            //                                    }
-                                            currentEntitydata: UPNS.Entitydata {
-                                                checkout: currentCheckout
-                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
-                                                onIsLoadingChanged: {
-//                                                    if(isLoading) {
-//                                                        // Busy indicator disabled at the moment
-//                                                        entityInstantiator.loadingItems++
-//                                                    } else {
-//                                                        // Busy indicator disabled at the moment
-//                                                        entityInstantiator.loadingItems--
-//                                                    }
-                                                    if(entityInstantiator.model[index])
-                                                    {
-                                                        var idxInVisualInfoModel = entityInstantiator.model[index].idxInVisualInfoModel
-                                                        root.visualInfoModel[idxInVisualInfoModel].isLoading = isLoading
-                                                    }
-                                                }
-                                            }
-                                            onMinChanged: entityInstantiator.recalcBoundingBox()
-                                            onMaxChanged: entityInstantiator.recalcBoundingBox()
-                                            HandleBoundingBox {
-                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
-                                                min: parent.min
-                                                max: parent.max
-                                            }
-                                        }
-                                    }
-
-                                    Q3D.NodeInstantiator {
-                                        id: peerVisualEntityInstantiator
-                                        function recalcBoundingBox() {
-                                            boundingBoxRecalculator.start()
-                                        }
-                                        property int loadingItems: 0
-                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
-                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
-
-                                        //onModelChanged: recalcBoundingBox()
-                                        onObjectAdded: recalcBoundingBox()
-                                        onObjectRemoved: recalcBoundingBox()
-                                        model: root.mapitClient.state.visibleEntityInfosList
-                                        onModelChanged: {
-                                            recalcBoundingBox()
-                                            console.log("DBG: PEERMODEL CHANGED" + root.mapitClient.state.visibleEntityInfosList.count)
-                                        }
-
-                                        delegate: MapitEntity {
-                                            mainCameratmp: mainCamera
-                                            scene3dtmp: scene3d
-                                            coordinateSystem: coordSys
-                                            currentFrameId: root.currentFrameId
-
-                                            layer: pointLayer
-                                            //parametersTmp: techniqueFilter.parameters
-                                            //Currently only one checkout is supported
-                                            currentCheckout: globalApplicationState.currentCheckout
-                                            currentEntitydata: UPNS.Entitydata {
-                                                checkout: currentCheckout
-                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
-                                            }
-                                            onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()
-                                            onMaxChanged: peerVisualEntityInstantiator.recalcBoundingBox()
-                                            HandleBoundingBox {
-                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
-                                                min: parent.min
-                                                max: parent.max
-                                            }
-                                        }
-                                    }
-
-                                    Q3D.Entity {
-                                        id: annotationPreviewEntity
-                                        property ObjectPicker picker: ObjectPicker {
-                                            onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
-                                        }
-
-                                        property var meshTransform: Q3D.Transform {
-                                            matrix: appStyle.tmpPreviewMatrix
-                                        }
-                                        property var sphereMesh: SphereMesh { }
-                                        property var planeMesh: PlaneMesh { }
-                                        property var cylinderMesh: CylinderMesh { }
-                                        property var coneMesh: ConeMesh { }
-                                        property var torusMesh: TorusMesh { minorRadius: 0.3 }
-                                        property var cubeMesh: CuboidMesh { }
-                                        property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
-                                                                                                          : appStyle.tmpPrimitiveType === "plane" ? planeMesh
-                                                                                                                                                  : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
-                                                                                                                                                                                             : appStyle.tmpPrimitiveType === "cone" ? coneMesh
-                                                                                                                                                                                                                                    : appStyle.tmpPrimitiveType === "torus" ? torusMesh
-                                                                                                                                                                                                                                                                            : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
-                                                                                                                                                                                                                                                                                                                   : sphereMesh
-
-                                        property var materialPhong: PhongMaterial { }
-                                        property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
-                                        components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
-                                    }
-                                }
-                            }
+//                                }
+//                            }
                         }
                     }
                 }

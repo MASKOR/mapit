@@ -7,7 +7,7 @@ import QtQml.Models 2.3
 import fhac.upns 1.0 as UPNS
 
 import "../components"
-import "../network"
+import "qrc:/qml/network"
 
 QCtl.TreeView {
     id: treeViewCheckout
@@ -29,6 +29,13 @@ QCtl.TreeView {
     }
     function getVisualInfoForPath(path, isEntity) {
         if(!path) return
+        for(var itmr=0 ; listSynchronizer.itemsToAddToAllVisualInfoModel.length > itmr ; ++itmr) {
+            var current = listSynchronizer.itemsToAddToAllVisualInfoModel[itmr]
+            if(current.path === path) {
+                current.isEntity = isEntity
+                return current
+            }
+        }
         for(var i=0 ; treeViewCheckout.allVisualInfoModel.length > i ; ++i) {
             var current = treeViewCheckout.allVisualInfoModel[i]
             if(current.path === path) {
@@ -50,10 +57,18 @@ QCtl.TreeView {
                 for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
                     if(treeViewCheckout.visibleEntityModel.get(i).path === newObject.path) {
                         found = true
-                        idx = i
                         break
                     }
                 }
+                if(!found) {
+                    for(var itmr2=0 ; itmr2 < listSynchronizer.itemsToAdd.length ; ++itmr2) {
+                        if(listSynchronizer.itemsToAdd[itmr2].path === newObject.path) {
+                            found = true
+                            break
+                        }
+                    }
+                }
+
                 console.log("DBG: getVisualInfoForPath: found in treeview?: " + found)
                 if(!found) {
                     var idx = -1
@@ -64,27 +79,72 @@ QCtl.TreeView {
                         }
                     }
                     console.log("DBG: getVisualInfoForPath: Index in treeViewCheckout.allVisualInfoModel: " + idx)
-                    treeViewCheckout.visibleEntityModel.append({path:newObject.path, idxInVisualInfoModel:idx})
+                    listSynchronizer.itemsToAdd.push({path:newObject.path, idxInVisualInfoModel:idx})
+                    listSynchronizer.start()
+//                    treeViewCheckout.visibleEntityModel.append({path:newObject.path, idxInVisualInfoModel:idx})
 //                    var arr = treeViewCheckout.visibleEntityModel
 //                    arr.push({path:newObject.path, idxInVisualInfoModel:idx})
 //                    treeViewCheckout.visibleEntityModel = arr
                 }
             } else {
+                listSynchronizer.itemsToRemove.push(newObject)
+                listSynchronizer.start()
+//                console.log("DBG: getVisualInfoForPath: removing count: " + treeViewCheckout.visibleEntityModel.count)
+//                for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
+//                    console.log("DBG: getVisualInfoForPath: treeViewCheckout.visibleEntityModel index: " + i)
+//                    if(treeViewCheckout.visibleEntityModel.get(i).path === newObject.path) {
+//                        console.log("DBG: getVisualInfoForPath: removed newObject.path: " + newObject.path)
+//                        treeViewCheckout.visibleEntityModel.remove(i)
+//                        console.log("DBG: getVisualInfoForPath: deleted newObject.path: " + newObject.path)
+////                        var arr = treeViewCheckout.visibleEntityModel
+////                        arr.splice(i, 1)
+////                        treeViewCheckout.visibleEntityModel = arr
+//                    }
+//                }
+            }
+        })
+        listSynchronizer.itemsToAddToAllVisualInfoModel.push(newObject)
+        listSynchronizer.start()
+//        treeViewCheckout.allVisualInfoModel.push(newObject)
+        return newObject
+    }
+    Timer {
+        // it is not safe to call treeViewCheckout.visibleEntityModel.remove(i) while view are processed.
+        id: listSynchronizer
+        property var itemsToRemove: ([])
+        property var itemsToAdd: ([])
+        property var itemsToAddToAllVisualInfoModel: ([])
+        // does not work because no bindings for array
+        //running: itemsToAdd.length !== 0 || itemsToRemove.length !== 0
+        interval: 100
+        onTriggered: {
+            var toRemoveIndex = listSynchronizer.itemsToRemove.length
+            while(toRemoveIndex--) {
+                var removeItem = listSynchronizer.itemsToRemove[toRemoveIndex]
                 console.log("DBG: getVisualInfoForPath: removing count: " + treeViewCheckout.visibleEntityModel.count)
                 for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
                     console.log("DBG: getVisualInfoForPath: treeViewCheckout.visibleEntityModel index: " + i)
-                    if(treeViewCheckout.visibleEntityModel.get(i).path === newObject.path) {
-                        console.log("DBG: getVisualInfoForPath: removed newObject.path: " + newObject.path)
+                    if(treeViewCheckout.visibleEntityModel.get(i).path === removeItem.path) {
+                        console.log("DBG: getVisualInfoForPath: removed newObject.path: " + removeItem.path)
                         treeViewCheckout.visibleEntityModel.remove(i)
-//                        var arr = treeViewCheckout.visibleEntityModel
-//                        arr.splice(i, 1)
-//                        treeViewCheckout.visibleEntityModel = arr
+                        console.log("DBG: getVisualInfoForPath: deleted newObject.path: " + removeItem.path)
                     }
                 }
+                listSynchronizer.itemsToRemove.splice(toRemoveIndex, 1)
             }
-        })
-        treeViewCheckout.allVisualInfoModel.push(newObject)
-        return newObject
+            var toAddIndex = listSynchronizer.itemsToAdd.length
+            while(toAddIndex--) {
+                var addItem = listSynchronizer.itemsToAdd[toAddIndex]
+                treeViewCheckout.visibleEntityModel.append(addItem)
+                listSynchronizer.itemsToAdd.splice(toAddIndex, 1)
+            }
+            var toAddIndex2 = listSynchronizer.itemsToAddToAllVisualInfoModel.length
+            while(toAddIndex2--) {
+                var addItem2 = listSynchronizer.itemsToAddToAllVisualInfoModel[toAddIndex2]
+                treeViewCheckout.allVisualInfoModel.push(addItem2)
+                listSynchronizer.itemsToAddToAllVisualInfoModel.splice(toAddIndex2, 1)
+            }
+        }
     }
 
     model: UPNS.RootTreeModel {

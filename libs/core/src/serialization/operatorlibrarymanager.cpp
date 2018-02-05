@@ -230,10 +230,10 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
         }
         else if(!name.compare(0, prefix.length(), prefix))
         {
-            HandleOpModule handle = loadOperatorModule(path + name, false);
+            HandleOpModule handle = loadOperatorModule(path + name, true);
             if(!handle)
             {
-                log_warn("could not open library: " + name);
+                //log_warn("could not open library: " + name);
                 continue;
             }
             log_info("open library: " + name);

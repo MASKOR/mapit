@@ -9,7 +9,7 @@ import QtQuick.Layouts 1.1
 
 import "panes"
 import "components"
-import "network"
+import "qrc:/qml/network"
 
 import fhac.upns 1.0 as UPNS
 
@@ -59,7 +59,6 @@ ApplicationWindow {
             allVisualInfoModel: leftPanels.treeView.allVisualInfoModel
             realtimeObjects: [
                 RealtimeObject {
-                    id: theRto
                     tf: sceneView.camera.viewMatrix
                     type: "frustum"
                     additionalData: { "aspect": sceneView.camera.aspectRatio, "fov": sceneView.camera.fieldOfView }

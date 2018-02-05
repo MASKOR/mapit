@@ -56,7 +56,7 @@ MainWindow {
         id: globalApplicationState
         visible: false
         visibleEntityModel: leftPanels.treeView.visibleEntityModel
-        allVisualInfoModel: leftPanels.treeView.visualInfoModel
+        allVisualInfoModel: leftPanels.treeView.allVisualInfoModel
     }
 
     AppStyle {
@@ -89,7 +89,7 @@ MainWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 visibleEntityModel: globalApplicationState.visibleEntityModel
-                visualInfoModel: globalApplicationState.visualInfoModel
+                allVisualInfoModel: globalApplicationState.allVisualInfoModel
             }
             DetailPanels {
                 Layout.fillHeight: true

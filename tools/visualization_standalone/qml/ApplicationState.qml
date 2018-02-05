@@ -3,7 +3,7 @@ import QtQml.Models 2.3
 
 import fhac.upns 1.0 as UPNS
 
-import "network"
+import "qrc:/qml/network"
 
 Item {
     id: root
