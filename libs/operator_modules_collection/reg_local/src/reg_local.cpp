@@ -163,9 +163,7 @@ mapit::RegLocal::get_pointcloud(std::string path, upns::StatusCode &status, mapi
         return nullptr;
     }
     std::string frame_id = entity->frame_id();
-    unsigned long sec = entity->stamp().sec();
-    unsigned long nsec = entity->stamp().nsec();
-    stamp = mapit::time::from_sec_and_nsec( sec, nsec );
+    stamp = mapit::time::from_msg(entity->stamp());
     std::shared_ptr<AbstractEntitydata> abstract_entitydata = checkout_->getEntitydataForReadWrite( path );
     if ( 0 != std::strcmp( abstract_entitydata->type(), PointcloudEntitydata::TYPENAME() )) {
         status = UPNS_STATUS_INVALID_ARGUMENT;
