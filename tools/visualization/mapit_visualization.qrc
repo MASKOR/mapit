@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/scene/Camera.qml</file>
+        <file>qml/scene/HandleBoundingBox.qml</file>
+        <file>qml/scene/HandleFrustum.qml</file>
+        <file>qml/scene/HandleRotate.qml</file>
+        <file>qml/scene/HandleScale.qml</file>
+        <file>qml/scene/HandleTranslate.qml</file>
+        <file>qml/scene/HelperGridMesh.qml</file>
+        <file>qml/scene/MapitEntity.qml</file>
+        <file>qml/scene/MapitScene.qml</file>
+        <file>qml/scene/TextLabelEntity.qml</file>
+        <file>qml/network/EntityVisualInfo.qml</file>
+        <file>qml/network/MapitClient.qml</file>
+        <file>qml/network/MapitMultiviewNetworkState.qml</file>
+        <file>qml/network/MapitMultiviewPeerState.qml</file>
+        <file>qml/network/MapitServer.qml</file>
+        <file>qml/network/NetworkDialog.qml</file>
+        <file>qml/network/RealtimeObject.qml</file>
+        <file>shader/pointcloud.frag</file>
+        <file>shader/pointcloud.vert</file>
+        <file>shader/surfel.frag</file>
+        <file>shader/surfel.vert</file>
+    </qresource>
+</RCC>
