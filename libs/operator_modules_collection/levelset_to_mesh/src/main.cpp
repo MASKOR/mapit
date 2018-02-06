@@ -19,6 +19,49 @@
 
 using namespace mapit::msgs;
 
+void normalForTri(uint32_t& i1, uint32_t& i2, uint32_t i3,
+                  std::vector<float> &normalsVec,
+                  std::vector<int> &adjacentFaces,
+                  openvdb::v4_0_2::math::Vec3<float> &pV1,
+                  openvdb::v4_0_2::math::Vec3<float> &pV2,
+                  openvdb::v4_0_2::math::Vec3<float> &pV3)
+{
+    float a[3], b[3], crossprod[3], invlength;
+    //get the difference in position (two edges of the triangle)
+    //vec3 a = p2.xyz - p1.xyz;
+    //vec3 b = p2.xyz - p3.xyz;
+    a[0] = pV1[0]-pV2[0];
+    a[1] = pV1[1]-pV2[1];
+    a[2] = pV1[2]-pV2[2];
+    b[0] = pV2[0]-pV3[0];
+    b[1] = pV2[1]-pV3[1];
+    b[2] = pV2[2]-pV3[2];
+
+    //cross
+    crossprod[0] = a[1]*b[2]-a[2]*b[1];
+    crossprod[1] = a[2]*b[0]-a[0]*b[2];
+    crossprod[2] = a[0]*b[1]-a[1]*b[0];
+
+    //normalize, switch side (ccw triangles)
+    invlength = 1.f/sqrt(pow(crossprod[0],2.f)+pow(crossprod[1],2.f)+pow(crossprod[2],2.f));
+    crossprod[0] *= invlength;
+    crossprod[1] *= invlength;
+    crossprod[2] *= invlength;
+
+    normalsVec[i1*3] += crossprod[0];
+    normalsVec[i1*3+1] += crossprod[1];
+    normalsVec[i1*3+2] += crossprod[2];
+    normalsVec[i2*3] += crossprod[0];
+    normalsVec[i2*3+1] += crossprod[1];
+    normalsVec[i2*3+2] += crossprod[2];
+    normalsVec[i3*3] += crossprod[0];
+    normalsVec[i3*3+1] += crossprod[1];
+    normalsVec[i3*3+2] += crossprod[2];
+    adjacentFaces[i1]++;
+    adjacentFaces[i2]++;
+    adjacentFaces[i3]++;
+}
+
 void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> mesher, std::shared_ptr<AssetEntitydata> output)
 {
     unsigned int trianglecount = 0;
@@ -36,6 +79,20 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
         std::vector<uint32_t> indicesBuf;
         indicesBuf.resize(3 * trianglecount);
 
+
+        std::vector<float> normalsVec;
+        std::vector<int> adjacentFaces;
+        normalsVec.resize(mesher->pointListSize() * 3);
+        adjacentFaces.resize(mesher->pointListSize());
+
+        for(int i=0 ; i < adjacentFaces.size() ; ++i)
+        {
+            normalsVec[i*3] = 0.0f;
+            normalsVec[i*3+1] = 0.0f;
+            normalsVec[i*3+2] = 0.0f;
+            adjacentFaces[i] = 0;
+        }
+
         unsigned int currentIndex = 0;
         for (openvdb::Index64 n = 0, N = mesher->polygonPoolListSize(); n < N; ++n)
         {
@@ -50,6 +107,15 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
                 currentIdx[4] = quad[3];
                 currentIdx[5] = quad[2];
                 currentIndex += 2;
+
+                openvdb::v4_0_2::math::Vec3<float> &pV1 = mesher->pointList()[currentIdx[0]];
+                openvdb::v4_0_2::math::Vec3<float> &pV2 = mesher->pointList()[currentIdx[1]];
+                openvdb::v4_0_2::math::Vec3<float> &pV3 = mesher->pointList()[currentIdx[2]];
+                normalForTri(currentIdx[0], currentIdx[1], currentIdx[2], normalsVec, adjacentFaces, pV1, pV2, pV3 );
+                pV1 = mesher->pointList()[currentIdx[3]];
+                pV2 = mesher->pointList()[currentIdx[4]];
+                pV3 = mesher->pointList()[currentIdx[5]];
+                normalForTri(currentIdx[3], currentIdx[4], currentIdx[5], normalsVec, adjacentFaces, pV1, pV2, pV3 );
             }
             for (openvdb::Index64 i = 0, I = polygons.numTriangles(); i < I; ++i) {
                 const openvdb::Vec3I& tri = polygons.triangle(i);
@@ -58,7 +124,20 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
                 currentIdx[1] = tri[2];
                 currentIdx[2] = tri[1];
                 currentIndex += 1;
+
+                openvdb::v4_0_2::math::Vec3<float> &pV1 = mesher->pointList()[currentIdx[0]];
+                openvdb::v4_0_2::math::Vec3<float> &pV2 = mesher->pointList()[currentIdx[1]];
+                openvdb::v4_0_2::math::Vec3<float> &pV3 = mesher->pointList()[currentIdx[2]];
+                normalForTri(currentIdx[0], currentIdx[1], currentIdx[2], normalsVec, adjacentFaces, pV1, pV2, pV3 );
             }
+        }
+
+        for(int i=0 ; i<adjacentFaces.size() ; i++)
+        {
+            float invlength = 1.f/adjacentFaces[i];
+            normalsVec[i*3] *= invlength;
+            normalsVec[i*3+1] *= invlength;
+            normalsVec[i*3+2] *= invlength;
         }
 
 //        {
@@ -66,6 +145,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
             tinyply::PlyFile *ply(&myFile->first);
             std::vector<float> vertsVec(&mesher->pointList()[0][0], &mesher->pointList()[0][0]+mesher->pointListSize() * 3);
             ply->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
+            ply->add_properties_to_element("vertex", { "nx", "ny", "nz" }, normalsVec);
             ply->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
             {
                 output->setData(myFile);

@@ -62,8 +62,10 @@ class QmlPlyMeshGeometryPrivate
 public:
     QmlPlyMeshGeometryPrivate()
         :m_vertexBuffer( nullptr ),
+         m_normalsBuffer( nullptr ),
          m_asset( nullptr ){}
     Qt3DRender::QBuffer *m_vertexBuffer;
+    Qt3DRender::QBuffer *m_normalsBuffer;
     Qt3DRender::QBuffer *m_indexBuffer;
     AssetPtr m_asset;
 };
@@ -72,6 +74,7 @@ QmlPlyMeshGeometry::QmlPlyMeshGeometry(Qt3DCore::QNode *parent)
     :m_p(new QmlPlyMeshGeometryPrivate)
 {
     m_p->m_vertexBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, this);
+    m_p->m_normalsBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, this);
     m_p->m_indexBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, this);
 }
 
@@ -85,9 +88,11 @@ void QmlPlyMeshGeometry::updateVertices()
     //QMetaObject::invokeMethod(this, "updateAttributes", Qt::QueuedConnection);
 
     std::vector<float> verts;
+    std::vector<float> normals;
     std::vector<uint32_t> faces;
 ////    std::vector<uint32_t> faces16;
     uint32_t vertexCount = m_p->m_asset->first.request_properties_from_element("vertex", { "x", "y", "z" }, verts);
+    uint32_t normalsCount = m_p->m_asset->first.request_properties_from_element("vertex", { "nx", "ny", "nz" }, normals);
     m_p->m_asset->first.request_properties_from_element("face", { "vertex_indices" }, faces, 3);
     m_p->m_asset->first.read(*m_p->m_asset->second);
 ////    faces16.reserve(faces.size());
@@ -116,11 +121,12 @@ void QmlPlyMeshGeometry::updateVertices()
 //    m_p->m_vertexBuffer->setDataGenerator(Qt3DRender::QBufferDataGeneratorPtr(new PlyVertexDataGenerator(verts)));
 //    m_p->m_indexBuffer->setDataGenerator(Qt3DRender::QBufferDataGeneratorPtr(new PlyIndexDataGenerator(faces)));
     m_p->m_vertexBuffer->setData(QByteArray(reinterpret_cast<char*>(verts.data()), verts.size()*sizeof(float)));
+    m_p->m_normalsBuffer->setData(QByteArray(reinterpret_cast<char*>(normals.data()), normals.size()*sizeof(float)));
     m_p->m_indexBuffer->setData(QByteArray(reinterpret_cast<char*>(faces.data()), faces.size()*sizeof(uint32_t)));
-    updateAttributes(vertexCount);
+    updateAttributes(vertexCount, normalsCount >= 0);
 }
 
-void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount)
+void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount, bool hasNormals)
 {
     // completely rebuild attribute list and remove all previous attributes
     QVector<Qt3DRender::QAttribute *> atts = attributes();
@@ -140,6 +146,21 @@ void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount)
     attrib->setCount(vertexCount);
     setBoundingVolumePositionAttribute(attrib);
     addAttribute(attrib);
+
+    if(hasNormals)
+    {
+        Qt3DRender::QAttribute* attrib = new Qt3DRender::QAttribute(nullptr);
+        attrib->setName(Qt3DRender::QAttribute::defaultNormalAttributeName());
+        attrib->setDataType(Qt3DRender::QAttribute::Float);
+        attrib->setDataSize(3);
+        attrib->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+        attrib->setBuffer(m_p->m_normalsBuffer);
+        attrib->setByteStride(3*sizeof(float));
+        attrib->setByteOffset(0);
+        attrib->setCount(vertexCount);
+        setBoundingVolumePositionAttribute(attrib);
+        addAttribute(attrib);
+    }
 
     Qt3DRender::QAttribute* idxAttrib = new Qt3DRender::QAttribute(nullptr);
     idxAttrib->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);

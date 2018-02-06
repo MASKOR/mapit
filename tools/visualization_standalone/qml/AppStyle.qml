@@ -58,7 +58,7 @@ Item {
     property color headerColor: itemBackgroundColor
     property int maximumControlWidth: 200
     property int controlMargin: 4
-    property real controlHeightInner: 25
+    property real controlHeightInner: 16
     property real controlHeightOuter: controlHeightInner + controlMargin*2
     property real controlHeightContainer: controlHeightInner + controlMargin*2
     property real radius: 2

@@ -38,6 +38,8 @@ Item {
         name: "Mapit Viewer"
         listen: false
         accept: false
+        host: "0.0.0.0"
+
         onListenChanged: console.log("Server is " + (listen?"":"not ") + "listening.")
         property int uniquePlayerIdCounter: 10
         property int uniqueIdCounter: 1234
