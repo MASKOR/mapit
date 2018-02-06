@@ -161,7 +161,6 @@ Item {
                     // any other update can be made without checks
                     // TODO: maybe check realtime objects peerOwner for the senders ident
                     webServer.peerStates[msgData.ident] = msgData
-                    console.log("DBG: Server state saved: " + JSON.stringify(msgData) )
                     webServer.peersNeedUpdate = true
                     break
                 case "get_uid":
@@ -213,7 +212,6 @@ Item {
                   , checkoutName: webServer.checkoutName
                 }
             }
-            console.log("DBG: WROLD SERVER: " + JSON.stringify(messageWorld))
             webSocket.sendTextMessage(JSON.stringify(messageWorld))
         }
     }

@@ -16,6 +16,7 @@ import fhac.upns 1.0 as UPNS
 
 Q3D.Entity {
     id: root
+    property string currentFrameId: ""
 
     components: RenderSettings {
         StereoFrameGraph {
@@ -89,8 +90,8 @@ Q3D.Entity {
         onTriggered: {
             // this is a temporary workaround and there are no property change events here
             realtimeHead.tf = vrCam.trackedObjectMatrixTmp(0).inverted()
-//            realtimeStation1.tf = vrCam.trackedObjectMatrixTmp(2)
-//            realtimeLeftHand.tf = vrCam.trackedObjectMatrixTmp(4)
+            realtimeRightHand.tf = vrCam.trackedObjectMatrixTmp(1).inverted()
+            realtimeLeftHand.tf = vrCam.trackedObjectMatrixTmp(2).inverted()
             mapitClient.sendOwnState()
         }
     }
@@ -134,13 +135,20 @@ Q3D.Entity {
         }
     }
     Timer {
-        running: !mapitClient.status !== WebSocket.Open
+        running: activator.activat && (!mapitClient.status !== WebSocket.Open) //Crash!
+        //running: !mapitClient.status !== WebSocket.Open
         interval: 1000
         onTriggered: mapitClient.active = true
+    }
+    Item {
+        objectName: "activator"
+        id: activator
+        property bool activat: false
     }
 
     MapitClient {
         id: mapitClient
+        objectName: "mapitClient"
         url: "ws://127.0.0.1:55511"
         ownState: MapitMultiviewPeerState {
             id: multiviewPeerState
@@ -152,26 +160,24 @@ Q3D.Entity {
                     id: realtimeHead
                     type: "frustum"
                     additionalData: { "aspect": 20/8, "fov": 110 }
+                },
+                RealtimeObject {
+                    id: realtimeLeftHand
+                    type: "hand"
+                    additionalData: { }
+                },
+                RealtimeObject {
+                    id: realtimeRightHand
+                    type: "hand"
+                    additionalData: { }
                 }//,
 //                RealtimeObject {
 //                    id: realtimeStation1
-//                    tf: vrCam.trackedObjectMatrixTmp(1)
-//                    type: "frustum"
+//                    type: "station"
 //                    additionalData: { "aspect": 1, "fov": Math.PI }
 //                },
 //                RealtimeObject {
-//                    id: realtimeLeftHand
-//                    tf: vrCam.trackedObjectMatrixTmp(2)
-//                    type: "frustum"
-//                    additionalData: { "aspect": 3, "fov": Math.PI }
-//                }
-//                RealtimeObject {
-//                    tf: vrCam.trackedObjectMatrixTmp(3)
-//                    type: "head"
-//                    additionalData: { }
-//                },
-//                RealtimeObject {
-//                    tf: vrCam.trackedObjectMatrixTmp(4)
+//                    id: realtimeStation2
 //                    type: "station"
 //                    additionalData: { }
 //                },

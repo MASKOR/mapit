@@ -82,7 +82,7 @@ Window {
                     mapitClient.active = true
                 }
 
-                //DBG: diabled for debugging connectRealtimeMultiviewDialog.visible = false
+                //DBG: disabled for debugging connectRealtimeMultiviewDialog.visible = false
             }
             Layout.column: 1
             Layout.row: 2

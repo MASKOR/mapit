@@ -22,7 +22,6 @@ Item {
                      }
 
     function sendOwnState(ownState) {
-        console.log("DBG: sendOwnState")
         if(typeof ownState === "undefined") {
             ownState = root.ownState
         }
@@ -32,28 +31,35 @@ Item {
         if(typeof ownState.ident === "undefined" || ownState.ident === "") {
             ownState.ident = root.ident
         }
+        if(typeof ownState.ident === "undefined" || ownState.ident === ""
+        || typeof ownState.sessionId === "undefined" || ownState.sessionId === "") {
+            // need to connect first
+            return
+        }
         var numberOfCallbacks = 0;
         var noWait = true
         //count number of object which need id from server
         for(var r1=0 ; r1 < ownState.realtimeObjects.length ; ++r1) {
             ownState.realtimeObjects[r1].peerOwner = root.ident
-            if(ownState.realtimeObjects[r1].ident === "" || ownState.realtimeObjects[r1] === "pending") {
+            if((ownState.realtimeObjects[r1].ident === "") && (ownState.realtimeObjects[r1].ident !== "pending")) {
                 numberOfCallbacks++;
                 noWait = false
             }
         }
+        console.log("DBG: NUMBER of Callbacks: " + numberOfCallbacks)
         // request ident from server an defer futher processing
         for(var r2=0 ; r2 < ownState.realtimeObjects.length ; ++r2) {
             var currentRto = ownState.realtimeObjects[r2]
-            if(currentRto.ident === "" && currentRto.ident !== "pending") {
+            if((currentRto.ident === "") && (currentRto.ident !== "pending")) {
                 currentRto.ident = "pending"
-                getUniqueIdentifier(function(newIdent) {
-                    currentRto.ident = newIdent
+                getUniqueIdentifier(function(newIdent, data) {
+                    ownState.realtimeObjects[data.idx].ident = newIdent
+                    console.log("DBG: set ident: " + newIdent + " to " + data.idx + " noc: " + numberOfCallbacks + "-1")
                     numberOfCallbacks--
                     if(numberOfCallbacks == 0) {
                         root._proceedSendingOwnState(ownState)
                     }
-                })
+                }, {idx: r2})
             }
         }
 
@@ -63,7 +69,6 @@ Item {
 
     // this is used internally for async processing
     function _proceedSendingOwnState(ownState) {
-        console.log("DBG: _proceedSendingOwnState: ")
         // JSONify State
         var rtos = []
         for(var i=0 ; i < ownState.realtimeObjects.length ; ++i) {
@@ -85,30 +90,22 @@ Item {
 //                    rto[prop] = original[prop]
 //            }
             rtos.push(rto)
-            console.log("DBG: rtos.push(rto)")
         }
-        console.log("DBG: for( ownState.allVisualInfoModel )")
         var visObjs = []
-        var copyOfAllObjects = ownState.allVisualInfoModel
+        var copyOfAllObjects = ownState.allVisualInfoModel.slice()
         for(var i2=0 ; i2 < copyOfAllObjects.length/**/ ; ++i2) {
-            console.log("DBG: allVisualInfoModel[" + i2 + "]")
-            console.log("DBG: allVisualInfoModel[" + i2 + "] (after first access)")
             var orig2 = copyOfAllObjects[i2]
-            console.log("DBG: visualInfoModel = " + i2 + " -> " + JSON.stringify(orig2))
             if(!orig2) continue
             if(!orig2.isVisible) continue
             if(!orig2.isEntity) continue
-            console.log("DBG: visualInfoModel.isVisible == true; " + i2 + " -> " + JSON.stringify(orig2))
             // We have to list copied properties here or we transmit all qml properies...
             var visObj = {
                 path: orig2.path,
                 peerOwner: root.ident,
                 additionalData: orig2.additionalData
             }
-            console.log("DBG: visObjs.push(" + JSON.stringify(visObj)+")")
             visObjs.push(visObj)
         }
-        console.log("DBG: SENDING visualInfoModels: #" + visObjs.length)
 
         var ownStateJson = { ident: ownState.ident
                            , sessionId: ownState.sessionId
@@ -122,13 +119,13 @@ Item {
 
         var message = { messagetype: "state", message: ownStateJson }
         socket.sendTextMessage(JSON.stringify(message))
-        console.log("DBG: SENT visualInfoModels: " + JSON.stringify(message))
     }
 
-    function getUniqueIdentifier(callback) {
+    function getUniqueIdentifier(callback, callbackData) {
         var hashValue = "data_" + (++priv.uidCounter) + Date.now()
-        priv.callbackHash[hashValue] = callback
+        priv.callbackHash[hashValue] = {cb: callback, cbData: callbackData }
         var message = {messagetype: "get_uid", message: { ident: root.ident, sessionId: root.sessionId, data: hashValue }}
+        console.log("DBG: Requested IDENT for: " + JSON.stringify(message.message))
         socket.sendTextMessage(JSON.stringify(message))
     }
 
@@ -147,8 +144,6 @@ Item {
         onTriggered: processMessages()
     }
     function processMessages() {
-        if(socket.messages.length != 0)
-        console.log("DBG: 1 len " + socket.messages.length)
         var msgCpy = socket.messages.slice()
         socket.messages = []
         //console.log("DBG: 2 len " + msgCpy.length)
@@ -172,7 +167,7 @@ Item {
                 }
                 break
             case "get_uid_reply":
-                priv.callbackHash[msgData.data](msgData.uid)
+                priv.callbackHash[msgData.data].cb(msgData.uid, priv.callbackHash[msgData.data].cbData)
                 delete priv.callbackHash[msgData.data]
                 break
             case "world":
@@ -190,14 +185,12 @@ Item {
         id: socket
         property var messages: ([])
         onTextMessageReceived: {
-            console.log("DBG: MESSSSSSSSSSS OF WEBSOCKET")
             console.log("Client received message: " + message)
             var msg = JSON.parse(message)
             socket.messages.push(msg)
         }
 
         onStatusChanged: {
-            console.log("DBG: STATUS CHANGED OF WEBSOCKET")
             if (socket.status == WebSocket.Error) {
                 console.log(qsTr("Client error: %1").arg(socket.errorString))
             } else if (socket.status == WebSocket.Closed) {

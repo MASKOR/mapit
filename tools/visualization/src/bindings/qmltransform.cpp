@@ -102,8 +102,8 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
 
     try
     {
-        long sec =  stamp()->getStamp() ? stamp()->getStamp()->sec()  : 0;
-        long nsec = stamp()->getStamp() ? stamp()->getStamp()->nsec() : 0;
+        long sec =  (stamp() && stamp()->getStamp()) ? stamp()->getStamp()->sec()  : 0;
+        long nsec = (stamp() && stamp()->getStamp()) ? stamp()->getStamp()->nsec() : 0;
         tfs = buffer->lookupTransform(targetFrame().toStdString(),
                                       sourceFrame().toStdString(),
                                       mapit::time::from_sec_and_nsec(sec, nsec));
@@ -142,7 +142,7 @@ QString QmlTransform::sourceFrame() const
 
 QmlStamp *QmlTransform::stamp() const
 {
-    return m_stamp;
+    return nullptr;//m_stamp; //TODO Temp, will be fixed by TN
 }
 
 void QmlTransform::setCheckout(QmlCheckout *checkout)

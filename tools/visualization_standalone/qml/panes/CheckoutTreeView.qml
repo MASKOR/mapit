@@ -46,13 +46,9 @@ QCtl.TreeView {
         var newObject = visualInfoComponent.createObject(treeViewCheckout)
         newObject.path = path
         newObject.isEntity = isEntity
-        console.log("DBG: getVisualInfoForPath: newObject.path = " + newObject.path)
         newObject.onIsVisibleChanged.connect(function(isVisible) {
-            console.log("DBG: getVisualInfoForPath: isVisibleChanged Called for: " + newObject.path)
             if(!newObject.isEntity) return
-            console.log("DBG: getVisualInfoForPath: newObject is an Entity")
             if(newObject.isVisible) {
-                console.log("DBG: getVisualInfoForPath: newObject.isVisible == true")
                 var found = false
                 for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
                     if(treeViewCheckout.visibleEntityModel.get(i).path === newObject.path) {
@@ -69,7 +65,6 @@ QCtl.TreeView {
                     }
                 }
 
-                console.log("DBG: getVisualInfoForPath: found in treeview?: " + found)
                 if(!found) {
                     var idx = -1
                     for(var i=0 ; i < treeViewCheckout.allVisualInfoModel.length ; ++i) {
@@ -78,7 +73,6 @@ QCtl.TreeView {
                             break
                         }
                     }
-                    console.log("DBG: getVisualInfoForPath: Index in treeViewCheckout.allVisualInfoModel: " + idx)
                     listSynchronizer.itemsToAdd.push({path:newObject.path, idxInVisualInfoModel:idx})
                     listSynchronizer.start()
 //                    treeViewCheckout.visibleEntityModel.append({path:newObject.path, idxInVisualInfoModel:idx})
@@ -121,13 +115,9 @@ QCtl.TreeView {
             var toRemoveIndex = listSynchronizer.itemsToRemove.length
             while(toRemoveIndex--) {
                 var removeItem = listSynchronizer.itemsToRemove[toRemoveIndex]
-                console.log("DBG: getVisualInfoForPath: removing count: " + treeViewCheckout.visibleEntityModel.count)
                 for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
-                    console.log("DBG: getVisualInfoForPath: treeViewCheckout.visibleEntityModel index: " + i)
                     if(treeViewCheckout.visibleEntityModel.get(i).path === removeItem.path) {
-                        console.log("DBG: getVisualInfoForPath: removed newObject.path: " + removeItem.path)
                         treeViewCheckout.visibleEntityModel.remove(i)
-                        console.log("DBG: getVisualInfoForPath: deleted newObject.path: " + removeItem.path)
                     }
                 }
                 listSynchronizer.itemsToRemove.splice(toRemoveIndex, 1)
@@ -286,9 +276,7 @@ QCtl.TreeView {
                     visible: true
                 }
                 onClicked: {
-                    console.log("DBG: SETTING ISVISIBLE TO: " + !myVisualInfo.isVisible + " FOR: " + myVisualInfo.path)
                     myVisualInfo.isVisible = !myVisualInfo.isVisible
-                    console.log("DBG: SETTING DONE ISVISIBLE TO: " + myVisualInfo.isVisible + " FOR: " + myVisualInfo.path)
                     if(!myVisualInfo.isEntity) {
                         // tree
                         rootModel.forEachItem(styleData.index, function(itemIndexI, i2, parentItem) {

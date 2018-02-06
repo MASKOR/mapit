@@ -33,10 +33,38 @@
 #include "qpointcloudgeometry.h"
 #include "qpointfield.h"
 //#include <qmlraycast.h>
+#include <QQmlApplicationEngine> // For Network Dialog
 
 #include <Qt3DRender/QCameraLens> // TO DO: Temporary
 
 namespace po = boost::program_options;
+
+
+
+void onSceneCreated(QObject *rootItem)
+{
+    QQmlApplicationEngine *engine(new QQmlApplicationEngine(rootItem));
+
+    QObject *mapitClient = rootItem->findChild<QObject *>("mapitClient");
+    if(!mapitClient)
+    {
+        qDebug() << "Dialog has no Network Object for Visualization";
+    }
+    else
+    {
+        engine->rootContext()->setContextProperty("globalMapitClient", mapitClient);
+    }
+    QObject *activator = rootItem->findChild<QObject *>("activator");
+    if(!mapitClient)
+    {
+        qDebug() << "Dialog has no debug Activator to start deferred connection";
+    }
+    else
+    {
+        engine->rootContext()->setContextProperty("activator", activator);
+    }
+    engine->load(QUrl(QStringLiteral("qrc:///qml/NetworkDialog.qml")));
+}
 
 int main(int argc, char* argv[])
 {
@@ -113,9 +141,7 @@ int main(int argc, char* argv[])
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
     qmlRegisterType<QmlRepositoryServer>("fhac.upns", 1, 0, "RepositoryServer");
 
-
-
-
+    QObject::connect(hmd, &Qt3DVirtualReality::QHeadMountedDisplay::sceneCreated, &onSceneCreated);
     hmd->setSource(QUrl("qrc:///qml/main.qml"));
 
     hmd->run();

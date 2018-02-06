@@ -39,6 +39,7 @@ Item {
         for( var k=0 ; k < world.length ; ++k) {
             if(world[k].isHost) hostPeer = world[k]
             var worldPeerIdent = world[k].ident
+            if(worldPeerIdent === "" || worldPeerIdent === "pending") continue
             hashIdentToNewState[worldPeerIdent] = world[k]
             var found = false
             var i = missingPeers.length
@@ -78,17 +79,27 @@ Item {
         var missingRtosModelIdx = [] // DELETE
         for( var allRtoI=0 ; allRtoI < realtimeObjects.count ; ++allRtoI) {
             var theRto = realtimeObjects.get(allRtoI)
+            if(!theRto || theRto.ident === "" || theRto.ident === "pending") continue
             missingRtos.push(theRto.ident)
             missingRtosModelIdx.push(allRtoI)
         }
 
         for( var fp=0 ; fp < foundPeers.length ; ++fp) {
             var fpIdent = foundPeers[fp].ident
+            if(fpIdent === "" || fpIdent === "pending") continue // peer
             for( var rtoNewI=0 ; rtoNewI < hashIdentToNewState[fpIdent].realtimeObjects.length ; ++rtoNewI) {
                 var rtoNew = hashIdentToNewState[fpIdent].realtimeObjects[rtoNewI]
+                if(!rtoNew || rtoNew.ident === "" || rtoNew.ident === "pending") {
+                    console.log("Error, server sent uninitialized object")
+                    continue
+                }
                 var foundRto = false
                 var iRto = missingRtos.length
                 while (iRto--) {
+                    if(!missingRtos[iRto] || missingRtos[iRto] === "" || missingRtos[iRto] === "pending") {
+                        console.log("Error, server sent uninitialized object")
+                        continue
+                    }
                     if(rtoNew.ident === missingRtos[iRto]) {
                         foundRtos.push(rtoNew)
                         foundRtosByIdent[rtoNew.ident] = rtoNew
@@ -106,6 +117,7 @@ Item {
 
         for( var np=0 ; np < newPeers.length ; ++np) {
             var npIdent = newPeers[np].ident
+            if(npIdent === "" || npIdent === "pending") continue // peer
             for( var rtoNewJ=0 ; rtoNewJ < hashIdentToNewState[npIdent].realtimeObjects.length ; ++rtoNewJ) {
                 var rtoNew2 = hashIdentToNewState[npIdent].realtimeObjects[rtoNewJ]
                 newRtos.push(rtoNew2)
@@ -128,6 +140,7 @@ Item {
 
         for( var fp=0 ; fp < foundPeers.length ; ++fp) {
             var fpIdent = foundPeers[fp].ident
+            if(fpIdent === "" || fpIdent === "pending") continue // peer
             for( var visObjNewI=0 ; visObjNewI < hashIdentToNewState[fpIdent].visibleEntityInfos.length ; ++visObjNewI) {
                 var visObjNew = hashIdentToNewState[fpIdent].visibleEntityInfos[visObjNewI]
                 var foundVisObj = false
@@ -150,6 +163,7 @@ Item {
 
         for( var np=0 ; np < newPeers.length ; ++np) {
             var npIdent = newPeers[np].ident
+            if(npIdent === "" || npIdent === "pending") continue // peer
             for( var visObjNewJ=0 ; visObjNewJ < hashIdentToNewState[npIdent].visibleEntityInfos.length ; ++visObjNewJ) {
                 var visObjNew2 = hashIdentToNewState[npIdent].visibleEntityInfos[visObjNewJ]
                 newVisObjs.push(visObjNew2)
@@ -187,6 +201,7 @@ Item {
         console.log("DBG: newPeers: #" + newPeers.length)
         for( var prsnew=0 ; prsnew < newPeers.length ; ++prsnew) {
             var newPeerObj = newPeers[prsnew]
+            if(!newPeerObj || newPeerObj.ident === "" || newPeerObj.ident === "pending") continue // peer
             console.log("  DBG: newPeer: \"" + newPeerObj.peername + "\" (" + newPeerObj.ident + ")" )
             //VO BO mapping
             var blueprint = {
@@ -202,7 +217,8 @@ Item {
         console.log("DBG: for(missingRtosModelIdx): #" + missingRtosModelIdx.length)
         // update rto model
         // remove
-        for( var mrmi=0 ; mrmi < missingRtosModelIdx.length ; ++mrmi) {
+        missingRtosModelIdx.sort()
+        for( var mrmi=missingRtosModelIdx.length-1 ; mrmi >= 0 ; --mrmi) {
             var idx = missingRtosModelIdx[mrmi]
             console.log("  DBG: missingRtosModelIdx: " + idx)
             realtimeObjects.remove(idx, 1)
@@ -211,6 +227,7 @@ Item {
         // update
         for( var rtoUpd=0 ; rtoUpd < realtimeObjects.count ; ++rtoUpd) {
             var theRto2 = realtimeObjects.get(rtoUpd)
+            if(!theRto2 || theRto2.ident === "" || theRto2.ident === "pending") continue
             var newRtoState = foundRtosByIdent[theRto2.ident]
             if(!newRtoState) continue
 
@@ -223,6 +240,7 @@ Item {
         // create
         for( var rtoC=0 ; rtoC < newRtos.length ; ++rtoC) {
             var newRto = newRtos[rtoC]
+            if(!newRto || newRto.ident === "" || newRto.ident === "pending") continue
             var blueprintRto = {
                 ident: newRto.ident,
                 peerOwner: newRto.peerOwner,
@@ -236,7 +254,8 @@ Item {
         console.log("DBG: Working on VisualObjectInfos for(...) #" + missingVisObjsModelIdx.length)
         // update visibleEntityInfos model
         // remove
-        for( var mrmi2=0 ; mrmi2 < missingVisObjsModelIdx.length ; ++mrmi2) {
+        missingVisObjsModelIdx.sort()
+        for( var mrmi2=missingVisObjsModelIdx.length-1 ; mrmi2 >= 0 ; --mrmi2) {
             var idx2 = missingVisObjsModelIdx[mrmi2]
             //TODO: Array fails?
             var arr = visibleEntityInfos

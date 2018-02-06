@@ -58,9 +58,37 @@ Q3D.Entity {
             }
             components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
         }
+
+//        Timer {
+//            id: debugTempSyncTimerRtos
+//            running: true
+//            interval: 1000
+//            repeat: true
+//            property int lastLength: 0
+//            property int intermediateLength: 0
+//            property int currentLength: 0//sceneRoot.mapitClient ? sceneRoot.mapitClient.state.realtimeObjects.count : 0
+//            onTriggered: {
+//                currentLength = intermediateLength
+//                intermediateLength = lastLength
+//                lastLength = sceneRoot.mapitClient.state.realtimeObjects.count
+//            }
+//        }
+
         Q3D.NodeInstantiator {
             id: realtimeObjectInstantiator
             model: sceneRoot.mapitClient ? sceneRoot.mapitClient.state.realtimeObjects.count : 0
+            //active: debugTempSyncTimerRtos.lastLength === debugTempSyncTimerRtos.currentLength
+            //model: debugTempSyncTimerRtos.intermediateLength
+//                function recalcBoundingBox() {
+//                    boundingBoxRecalculator.start()
+//                }
+//                property int loadingItems: 0
+//                property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
+//                property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
+
+            //onModelChanged: recalcBoundingBox()
+//                onObjectAdded: recalcBoundingBox()
+//                onObjectRemoved: recalcBoundingBox()
             Q3D.Entity {
                 id: peerGizmo
                 property Material material: PhongMaterial { diffuse: "red" }
@@ -233,7 +261,7 @@ Q3D.Entity {
                 property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
                 property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
 
-                model: sceneRoot.visibleEntityPaths.count
+                model: sceneRoot.visibleEntityPaths ? sceneRoot.visibleEntityPaths.count : 0
                 onModelChanged: recalcBoundingBox()
                 onObjectAdded: recalcBoundingBox()
                 onObjectRemoved: recalcBoundingBox()
@@ -288,10 +316,9 @@ Q3D.Entity {
                 property int intermediateLength: 0
                 property int currentLength: sceneRoot.mapitClient ? sceneRoot.mapitClient.state.visibleEntityInfosList.count : 0
                 onTriggered: {
-                    currentLength = lastLength
+                    currentLength = intermediateLength
                     intermediateLength = lastLength
                     lastLength = sceneRoot.mapitClient.state.visibleEntityInfosList.count
-                    //console.log("DBG: NodeInstantiator Crashes. Notfallplan: 1) Objekt Statisch ansehen, 2) kein Object anzeigen und Netzwerk klappt") TODO
                 }
             }
 
@@ -310,24 +337,6 @@ Q3D.Entity {
 //                onObjectAdded: recalcBoundingBox()
 //                onObjectRemoved: recalcBoundingBox()
                 model: debugTempSyncTimer.intermediateLength // sceneRoot.mapitClient ? sceneRoot.mapitClient.state.visibleEntityInfosList.count : 0
-                onModelChanged: {
-                    console.log("DBG: ObjectAdded: " + model + " -> ")
-                    //console.log(" DBG: " + sceneRoot.mapitClient.state.visibleEntityInfosList.get(peerVisualEntityInstantiator.count))
-                }
-
-                onObjectAdded: {
-                    console.log("DBG: ObjectAdded: " + model + " -> ")
-                    //console.log(" DBG: " + sceneRoot.mapitClient.state.visibleEntityInfosList.get(peerVisualEntityInstantiator.count))
-                }
-
-//                delegate: Q3D.Entity {
-//                    property var transf: Q3D.Transform {
-//                        rotationX: 0
-//                    }
-//                    property var cylinderMesh: CylinderMesh { }
-//                    property var materialPhong: PhongMaterial { }
-//                    components: [ cylinderMesh, materialPhong, solidLayer, transf ]
-//                }
 
                 delegate: MapitEntity {
                     mainCameratmp: sceneRoot.camera
