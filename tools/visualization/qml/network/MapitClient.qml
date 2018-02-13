@@ -110,6 +110,7 @@ Item {
         var ownStateJson = { ident: ownState.ident
                            , sessionId: ownState.sessionId
                            , peername: ownState.peername
+                           , additionalData: ownState.additionalData
                            , visibleEntityInfos: visObjs
                            , realtimeObjects: rtos
                            , timestamp: Date.now()

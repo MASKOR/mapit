@@ -123,7 +123,7 @@ void QmlPlyMeshGeometry::updateVertices()
     m_p->m_vertexBuffer->setData(QByteArray(reinterpret_cast<char*>(verts.data()), verts.size()*sizeof(float)));
     m_p->m_normalsBuffer->setData(QByteArray(reinterpret_cast<char*>(normals.data()), normals.size()*sizeof(float)));
     m_p->m_indexBuffer->setData(QByteArray(reinterpret_cast<char*>(faces.data()), faces.size()*sizeof(uint32_t)));
-    updateAttributes(vertexCount, normalsCount >= 0);
+    updateAttributes(vertexCount, normalsCount > 0);
 }
 
 void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount, bool hasNormals)
@@ -158,7 +158,6 @@ void QmlPlyMeshGeometry::updateAttributes(uint32_t vertexCount, bool hasNormals)
         attrib->setByteStride(3*sizeof(float));
         attrib->setByteOffset(0);
         attrib->setCount(vertexCount);
-        setBoundingVolumePositionAttribute(attrib);
         addAttribute(attrib);
     }
 

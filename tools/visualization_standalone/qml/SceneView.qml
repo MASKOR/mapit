@@ -35,6 +35,10 @@ Item {
     //        }
     //    }
 
+    property real pointSize: pointSizeSlider.value
+    property int shaderVar: techniqueFilter.fieldnameToShaderindex(colorizeSelect.currentText)
+    property int shaderVar2: colorModeSelect.currentIndex //TODO: shaderVar and Var2 are temporary for demo
+    property string renderStyle: renderstyleSelect.currentText
     property var currentCheckout: globalApplicationState.currentCheckout
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
     property ListModel visibleEntityModel//: entityInstantiator.model

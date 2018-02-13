@@ -23,6 +23,7 @@ Q3D.Entity {
             id: stereoFrameGraph
             leftCamera: vrCam.leftCamera
             rightCamera: vrCam.rightCamera
+            hostState: mapitClient.state.hostState
         }
     }
     Item {

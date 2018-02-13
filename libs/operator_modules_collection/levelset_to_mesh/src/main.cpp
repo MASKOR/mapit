@@ -19,12 +19,12 @@
 
 using namespace mapit::msgs;
 
-void normalForTri(uint32_t& i1, uint32_t& i2, uint32_t i3,
+void normalForTri(const uint32_t& i1, const uint32_t& i2, const uint32_t i3,
                   std::vector<float> &normalsVec,
                   std::vector<int> &adjacentFaces,
-                  openvdb::v4_0_2::math::Vec3<float> &pV1,
-                  openvdb::v4_0_2::math::Vec3<float> &pV2,
-                  openvdb::v4_0_2::math::Vec3<float> &pV3)
+                  const openvdb::v4_0_2::math::Vec3<float> &pV1,
+                  const openvdb::v4_0_2::math::Vec3<float> &pV2,
+                  const openvdb::v4_0_2::math::Vec3<float> &pV3)
 {
     float a[3], b[3], crossprod[3], invlength;
     //get the difference in position (two edges of the triangle)
@@ -43,7 +43,7 @@ void normalForTri(uint32_t& i1, uint32_t& i2, uint32_t i3,
     crossprod[2] = a[0]*b[1]-a[1]*b[0];
 
     //normalize, switch side (ccw triangles)
-    invlength = 1.f/sqrt(pow(crossprod[0],2.f)+pow(crossprod[1],2.f)+pow(crossprod[2],2.f));
+    invlength = 1.f/std::max(0.00000001f,sqrt(pow(crossprod[0],2.f)+pow(crossprod[1],2.f)+pow(crossprod[2],2.f)));
     crossprod[0] *= invlength;
     crossprod[1] *= invlength;
     crossprod[2] *= invlength;
@@ -76,7 +76,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
 //    // Scopes for memory deletion, only buf will survive
 //    std::string buf;
 //    {
-        std::vector<uint32_t> indicesBuf;
+        std::vector<int32_t> indicesBuf;
         indicesBuf.resize(3 * trianglecount);
 
 
@@ -99,7 +99,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
             const openvdb::tools::PolygonPool& polygons = mesher->polygonPoolList()[n];
             for (openvdb::Index64 i = 0, I = polygons.numQuads(); i < I; ++i) {
                 const openvdb::Vec4I& quad = polygons.quad(i);
-                uint32_t *currentIdx = &indicesBuf[currentIndex * 3];
+                int32_t *currentIdx = &indicesBuf[currentIndex * 3];
                 currentIdx[0] = quad[0];
                 currentIdx[1] = quad[2];
                 currentIdx[2] = quad[1];
@@ -119,7 +119,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
             }
             for (openvdb::Index64 i = 0, I = polygons.numTriangles(); i < I; ++i) {
                 const openvdb::Vec3I& tri = polygons.triangle(i);
-                uint32_t *currentIdx = &indicesBuf[currentIndex * 3];
+                int32_t *currentIdx = &indicesBuf[currentIndex * 3];
                 currentIdx[0] = tri[0];
                 currentIdx[1] = tri[2];
                 currentIdx[2] = tri[1];
@@ -131,10 +131,11 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
                 normalForTri(currentIdx[0], currentIdx[1], currentIdx[2], normalsVec, adjacentFaces, pV1, pV2, pV3 );
             }
         }
+        assert(currentIndex == trianglecount);
 
         for(int i=0 ; i<adjacentFaces.size() ; i++)
         {
-            float invlength = 1.f/adjacentFaces[i];
+            float invlength = 1.f/std::max(1,adjacentFaces[i]);
             normalsVec[i*3] *= invlength;
             normalsVec[i*3+1] *= invlength;
             normalsVec[i*3+2] *= invlength;
@@ -146,7 +147,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
             std::vector<float> vertsVec(&mesher->pointList()[0][0], &mesher->pointList()[0][0]+mesher->pointListSize() * 3);
             ply->add_properties_to_element("vertex", { "x", "y", "z" }, vertsVec);
             ply->add_properties_to_element("vertex", { "nx", "ny", "nz" }, normalsVec);
-            ply->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::UINT32);
+            ply->add_properties_to_element("face", { "vertex_indices" }, indicesBuf, 3, tinyply::PlyProperty::Type::INT32);
             {
                 output->setData(myFile);
 //                mesher.reset(); // hopefully free some memory here

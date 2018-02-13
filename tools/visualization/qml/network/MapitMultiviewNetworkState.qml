@@ -17,6 +17,8 @@ Item {
     //property int repositoryPort
     property string checkoutName
 
+    property var hostState
+
     signal peerJoined(var peer)
     signal peerUpdated(var peer)
     signal peerLeft(var peerIdent)
@@ -190,6 +192,7 @@ Item {
             console.log("DBG: foundPeers[x]: " + JSON.stringify(foundPeers[prsupd]))
             peerToPeerState[peerIdentIndex].ident = foundPeers[prsupd].ident
             peerToPeerState[peerIdentIndex].peername = foundPeers[prsupd].peername
+            peerToPeerState[peerIdentIndex].additionalData = foundPeers[prsupd].additionalData
             peerToPeerState[peerIdentIndex].isHost = foundPeers[prsupd].isHost
             peerToPeerState[peerIdentIndex].repositoryPort = foundPeers[prsupd].repositoryPort
             peerToPeerState[peerIdentIndex].checkoutName = foundPeers[prsupd].checkoutName
@@ -197,6 +200,7 @@ Item {
             //peerToPeerState[peerIdentIndex].visibleEntityInfos = foundPeers[prsupd].visibleEntityInfos
             peerToPeerState[peerIdentIndex].timestamp = foundPeers[prsupd].timestamp
 
+            if(peerToPeerState[peerIdentIndex].isHost) root.hostState = peerToPeerState[peerIdentIndex]
         }
         console.log("DBG: newPeers: #" + newPeers.length)
         for( var prsnew=0 ; prsnew < newPeers.length ; ++prsnew) {
@@ -207,11 +211,14 @@ Item {
             var blueprint = {
                 ident: newPeerObj.ident,
                 peername: newPeerObj.peername,
+                additionalData: newPeerObj.additionalData,
+                isHost: newPeerObj.isHost,
 //                visibleEntityInfos: newPeerObj.visibleEntityInfos,
 //                realtimeObjects: newPeerObj.realtimeObjects,
                 timestamp: newPeerObj.timestamp
             }
             peerToPeerState[newPeers[prsnew].ident] = peerStateComponent.createObject(null, blueprint)
+            if(newPeerObj.isHost) root.hostState = peerToPeerState[newPeers[prsnew].ident]
         }
 
         console.log("DBG: for(missingRtosModelIdx): #" + missingRtosModelIdx.length)

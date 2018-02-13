@@ -90,7 +90,18 @@ MainWindow {
                 Layout.fillHeight: true
                 visibleEntityModel: globalApplicationState.visibleEntityModel
                 allVisualInfoModel: globalApplicationState.allVisualInfoModel
+                onPointSizeChanged: sendDelayedTimer.start()
+                onShaderVarChanged: sendDelayedTimer.start()
+                onShaderVar2Changed: sendDelayedTimer.start()
+                onRenderStyleChanged: sendDelayedTimer.start()
             }
+            Timer {
+                id: sendDelayedTimer
+                interval: 10
+                repeat: false
+                onTriggered: sceneView.mapitClient.sendOwnState()
+            }
+
             DetailPanels {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50

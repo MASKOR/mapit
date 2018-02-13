@@ -11,6 +11,8 @@ Item {
     // human readable name of the peer, can be freely chosen
     property string peername
 
+    property var additionalData: ({})
+
     property bool isHost
 
     // repoUrl: is set by server to the host-client ip + repositoryPort

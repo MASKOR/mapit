@@ -54,6 +54,7 @@ ApplicationWindow {
             peername: connectRealtimeMultiviewDialog.peername
             onPeernameChanged: mapitClient.sendOwnState()
             isHost: connectRealtimeMultiviewDialog.isServer
+            additionalData: ({ pointSize: sceneView.pointSize, shaderVar: sceneView.shaderVar, shaderVar2: sceneView.shaderVar2, renderStyle: sceneView.renderStyle })
             //repositoryPort: repoServer.port
             checkoutName: globalApplicationState.currentCheckoutName
             allVisualInfoModel: leftPanels.treeView.allVisualInfoModel

@@ -63,6 +63,7 @@ Viewport {
     property alias pointLayer: pointLayer
     property alias solidLayer: solidLayer
 
+    property var hostState
     RenderSurfaceSelector {
         id: surfaceSelector
         //surface: _hmd.surface
@@ -126,16 +127,16 @@ Viewport {
 
                                 matchAll: [
                                     FilterKey { name: "primitiveType"; value: "point" },
-                                    FilterKey { name: "renderstyle";   value: "points" }
+                                    FilterKey { name: "renderstyle";   value: "points" } //hostState.additionalData.renderStyle }
                                 ]
                                 parameters: [
-                                    Parameter { name: "colorize"; value: techniqueFilter.fieldnameToShaderindex("rgb") },
-                                    Parameter { name: "colorMode"; value: 1 },
-                                    Parameter { name: "pointSize"; value: 0.1 },
+                                    Parameter { name: "colorize"; value: hostState.additionalData.shaderVar },//techniqueFilter.fieldnameToShaderindex("rgb") },
+                                    Parameter { name: "colorMode"; value: hostState.additionalData.shaderVar2 },
+                                    Parameter { name: "pointSize"; value: hostState.additionalData.pointSize },
                                     Parameter { name: "fieldOfView"; value: vrCam.leftCameraLens.fieldOfView },
                                     Parameter { name: "fieldOfViewVertical"; value: vrCam.leftCameraLens.fieldOfView/vrCam.leftCameraLens.aspectRatio },
-                                    Parameter { name: "nearPlane"; value: vrCam.leftCameraLens.nearPlane },
-                                    Parameter { name: "farPlane"; value: vrCam.leftCameraLens.farPlane },
+                                    Parameter { name: "nearPlane"; value: 0.2},//vrCam.leftCameraLens.nearPlane },
+                                    Parameter { name: "farPlane"; value: 1000.0},//vrCam.leftCameraLens.farPlane },
                                     Parameter { name: "width"; value: _hmd.renderTargetSize.width },
                                     Parameter { name: "height"; value: _hmd.renderTargetSize.height },
                                     Parameter { name: "lod"; value: 1 },
@@ -194,18 +195,18 @@ Viewport {
                             TechniqueFilter {
                                 matchAll: [
                                     FilterKey { name: "primitiveType"; value: "point" },
-                                    FilterKey { name: "renderstyle";   value: "points" }
+                                    FilterKey { name: "renderstyle";   value: "points" }//hostState.additionalData.renderStyle }
                                 ]
                                 parameters: [
-                                    Parameter { name: "colorize"; value: techniqueFilter.fieldnameToShaderindex("rgb") },
-                                    Parameter { name: "colorMode"; value: 1 },
-                                    Parameter { name: "pointSize"; value: 0.1 },
-                                    Parameter { name: "fieldOfView"; value: vrCam.rightCameraLens.fieldOfView },
-                                    Parameter { name: "fieldOfViewVertical"; value: vrCam.rightCameraLens.fieldOfView/vrCam.rightCameraLens.aspectRatio },
-                                    Parameter { name: "nearPlane"; value: vrCam.rightCameraLens.nearPlane },
-                                    Parameter { name: "farPlane"; value: vrCam.rightCameraLens.farPlane },
-                                    Parameter { name: "width"; value: _hmd.renderTargetSize.width },
-                                    Parameter { name: "height"; value: _hmd.renderTargetSize.height },
+                                    Parameter { name: "colorize"; value: hostState.additionalData.shaderVar }, //techniqueFilter.fieldnameToShaderindex("rgb") },
+                                    Parameter { name: "colorMode"; value: hostState.additionalData.shaderVar2 },
+                                    Parameter { name: "pointSize"; value: hostState.additionalData.pointSize },
+                                    Parameter { name: "fieldOfView"; value: Math.PI/180*110 }, //vrCam.rightCameraLens.fieldOfView },
+                                    Parameter { name: "fieldOfViewVertical"; value: Math.PI/180*100}, //vrCam.rightCameraLens.fieldOfView/vrCam.rightCameraLens.aspectRatio },
+                                    Parameter { name: "nearPlane"; value: 0.2 },//vrCam.rightCameraLens.nearPlane },
+                                    Parameter { name: "farPlane"; value: 1000.0},//vrCam.rightCameraLens.farPlane },
+                                    Parameter { name: "width"; value: 2160*0.5},//_hmd.renderTargetSize.width },
+                                    Parameter { name: "height"; value: 1200},//_hmd.renderTargetSize.height },
                                     Parameter { name: "lod"; value: 1 },
                                     Parameter { name: "colorscale"; value: 1 },
                                     Parameter { name: "constantSize"; value: false },
