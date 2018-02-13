@@ -35,7 +35,7 @@ ApplicationWindow {
             Layout.column: 1
             Layout.row: 0
             Layout.fillWidth: true
-            onTextChanged: mapitClient.url = text
+            //onTextChanged: mapitClient.url = text
         }
         Button {
             text: "Cancel"
@@ -88,7 +88,7 @@ ApplicationWindow {
                     Label {
                         property var obj: connectRealtimeMultiviewDialog.mapitClient.state.realtimeObjects.get(index)
                         property var owner: obj ? connectRealtimeMultiviewDialog.mapitClient.state.peerToPeerState[obj.peerOwner] : null
-                        text: obj ? obj.ident + ", <b>Owner</b>: " + owner.peername + ", <b>Type</b>:  " + obj.type + (owner.isHost ? "(<b>Host</b>)" : "") : "loading"
+                        text: obj ? obj.ident + ", <b>Owner</b>: " + (owner ? owner.peername : "<loading>") + ", <b>Type</b>:  " + obj.type + (owner && owner.isHost ? "(<b>Host</b>)" : "") : "loading"
                         //tooltip: "" + obj.peerOwner + "<br>" + obj.tf
                         renderType: Text.NativeRendering
                     }

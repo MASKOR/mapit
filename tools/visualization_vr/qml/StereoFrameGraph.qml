@@ -132,7 +132,7 @@ Viewport {
                                 parameters: [
                                     Parameter { name: "colorize"; value: hostState.additionalData.shaderVar },//techniqueFilter.fieldnameToShaderindex("rgb") },
                                     Parameter { name: "colorMode"; value: hostState.additionalData.shaderVar2 },
-                                    Parameter { name: "pointSize"; value: hostState.additionalData.pointSize },
+                                    Parameter { name: "pointSize"; value: hostState.additionalData.pointSize ? hostState.additionalData.pointSize : 15},
                                     Parameter { name: "fieldOfView"; value: vrCam.leftCameraLens.fieldOfView },
                                     Parameter { name: "fieldOfViewVertical"; value: vrCam.leftCameraLens.fieldOfView/vrCam.leftCameraLens.aspectRatio },
                                     Parameter { name: "nearPlane"; value: 0.2},//vrCam.leftCameraLens.nearPlane },
