@@ -19,7 +19,7 @@
 
 using namespace mapit::msgs;
 
-void normalForTri(const uint32_t& i1, const uint32_t& i2, const uint32_t i3,
+void normalForTri(const int32_t& i1, const int32_t& i2, const int32_t i3,
                   std::vector<float> &normalsVec,
                   std::vector<int> &adjacentFaces,
                   const openvdb::v4_0_2::math::Vec3<float> &pV1,
