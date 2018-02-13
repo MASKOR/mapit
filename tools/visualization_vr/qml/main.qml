@@ -139,7 +139,10 @@ Q3D.Entity {
         running: activator.activat && (!mapitClient.status !== WebSocket.Open) //Crash!
         //running: !mapitClient.status !== WebSocket.Open
         interval: 1000
-        onTriggered: mapitClient.active = true
+        onTriggered: {
+            mapitClient.active = true
+            activator.activat = false
+        }
     }
     Item {
         objectName: "activator"
@@ -153,7 +156,7 @@ Q3D.Entity {
         url: "ws://127.0.0.1:55511"
         ownState: MapitMultiviewPeerState {
             id: multiviewPeerState
-            peername: "VR Bob" + (Math.random()*1000).toFixed(0)
+            peername: "VR Bob Main" + (Math.random()*1000).toFixed(0)
             onPeernameChanged: mapitClient.sendOwnState()
             isHost: false
             realtimeObjects: [

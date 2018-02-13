@@ -18,6 +18,7 @@ ApplicationWindow {
     property alias url: clientUrl.text
     property alias peername: peernameTextfield.text
     property var mapitClient: globalMapitClient
+
     GridLayout {
         id: connectRealtimeMultiviewGrid
         anchors.fill: parent
@@ -34,6 +35,7 @@ ApplicationWindow {
             Layout.column: 1
             Layout.row: 0
             Layout.fillWidth: true
+            onTextChanged: mapitClient.url = text
         }
         Button {
             text: "Cancel"
@@ -62,7 +64,8 @@ ApplicationWindow {
             }
             TextField {
                 id: peernameTextfield
-                text: "Alice" + Date.now()
+                text: "VR Bob" + Date.now()
+                onTextChanged: mapitClient.ownState.peername = text
             }
             Layout.column: 0
             Layout.row: 3
