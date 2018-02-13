@@ -50,11 +50,49 @@ Q3D.Entity {
         //offset: cameraProps.circlePosition.plus(Qt.vector3d(0, 45 * Math.sin(cameraProps.circleRotation * 2), 0)).plus(cameraProps.tan.times(-2))
     }
 
+
+    UPNS.Raycast {
+        id: teleportRaycast
+        viewMatrix: realtimeHead.tf
+        projectionMatrix: vrCam.leftCameraLens.projectionMatrix
+        onProjectionMatrixChanged: console.log("DBG: projectionMatrix " + projectionMatrix)
+        viewportSize: Qt.size(_hmd.renderTargetSize.width, _hmd.renderTargetSize.height)
+        pointOnPlane: vrCam.offset
+        planeNormal: Qt.vector3d(0.0,1.0,0.0)
+        worldDirection: tmpTimer.worldDir
+        onWorldPositionChanged: console.log("DBG: WORLD POSITIONS CHNAGED + " + console.log())
+    }
+
+    Q3D.Entity {
+            property var mesh: TorusMesh {
+                radius: 0.5
+                minorRadius: 0.05
+                rings: 20
+                slices: 5
+            }
+            property var transf: Q3D.Transform {
+                id: transform
+                translation: teleportRaycast.worldPosition
+                rotation: fromAxisAndAngle(Qt.vector3d(1.0, 0.0, 0.0), 90)
+            }
+            property var matr: PhongMaterial {
+                diffuse: Qt.rgba(Math.abs(Math.cos(transform.angle)), 204 / 255, 75 / 255, 1)
+                specular: "white"
+                shininess: 20.0
+            }
+            components: [
+                mesh,
+                transf,
+                matr,
+                stereoFrameGraph.solidLayer
+            ]
+        }
+
 //    // Torus obsctacles
 //    Q3D.NodeInstantiator {
 //        id: obstaclesRepeater
 //        model: 40
-//        readonly property real radius: 3.0
+//        readonly property real radius: 1.0
 //        readonly property real det: 1.0 / model
 //        delegate: Q3D.Entity {
 //            property var mesh: TorusMesh {
@@ -68,7 +106,7 @@ Q3D.Entity {
 //                readonly property real angle: Math.PI * 2.0 * index * obstaclesRepeater.det
 //                translation: Qt.vector3d(obstaclesRepeater.radius * Math.cos(transform.angle),
 //                                         0.0,
-//                                         obstaclesRepeater.radius * Math.sin(transform.angle))
+//                                         obstaclesRepeater.radius * Math.sin(transform.angle)).plus(teleportRaycast.worldPosition)
 //                rotation: fromAxisAndAngle(Qt.vector3d(0.0, 1.0, 0.0), -transform.angle * 180 / Math.PI)
 //            }
 //            property var matr: PhongMaterial {
@@ -85,17 +123,34 @@ Q3D.Entity {
 //        }
 //    }
     Timer {
+        id: tmpTimer
         running: true
         repeat: true
         interval: 100
+        property var worldDir
         onTriggered: {
             // this is a temporary workaround and there are no property change events here
             realtimeHead.tf = vrCam.trackedObjectMatrixTmp(0).inverted()
             realtimeRightHand.tf = vrCam.trackedObjectMatrixTmp(1).inverted()
             realtimeLeftHand.tf = vrCam.trackedObjectMatrixTmp(2).inverted()
             mapitClient.sendOwnState()
+            var dir = realtimeRightHand.tf.row(2)
+            worldDir = Qt.vector3d(dir.x, dir.y, dir.z)
+            console.log("DBG: Raycast: " + worldDir)
+            if(vrCam.isTriggerTmp() && !teleportTimer.running) {
+                teleportTimer.start();
+                vrCam.offset = teleportRaycast.worldPosition
+            }
         }
     }
+    Timer {
+        id: teleportTimer
+        repeat: false
+        running: false
+        interval: 1000
+        //onTriggered: running = false
+    }
+
     Q3D.NodeInstantiator {
         id: trackedObjectsRepeater
         // TO DO: a model does not yet work here (array with indices). temporarily using a number
@@ -212,7 +267,7 @@ Q3D.Entity {
 
     MapitScene {
         id: mapitScene
-        visibleEntityPaths: ListModel { ListElement{ path: "demomap/FARO/eloop" }}
+        //visibleEntityPaths: ListModel { ListElement{ path: "demomap/FARO/eloop" }}
         currentFrameId: root.currentFrameId
         mapitClient: mapitClient
         camera: vrCam.leftCamera

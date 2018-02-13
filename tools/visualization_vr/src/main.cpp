@@ -37,6 +37,8 @@
 
 #include <Qt3DRender/QCameraLens> // TO DO: Temporary
 
+#include <qmlraycast.h> // TODO: put this to visualization
+
 namespace po = boost::program_options;
 
 
@@ -131,6 +133,7 @@ int main(int argc, char* argv[])
     qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
     qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
 
+    qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
 
     qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
     qmlRegisterType<QmlCheckout>("fhac.upns", 1, 0, "Checkout");
