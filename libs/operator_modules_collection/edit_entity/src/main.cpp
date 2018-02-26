@@ -20,13 +20,17 @@ upns::StatusCode operate_edit_entity(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    bool frameIdExists = params["frame_id"].isString();
+    bool frameIdExists = params["frame_id"].isString() && ! params["frame_id"].toString().isEmpty();
     std::string frameId;
     if(frameIdExists)
     {
         frameId = params["frame_id"].toString().toStdString();
     }
-    bool stampExists = params["stamp"].isObject();
+    bool stampExists = params["stamp"].isObject()
+                    && (
+                           params["stamp"].toObject()["sec"].toInt() != 0
+                        || params["stamp"].toObject()["nsec"].toInt() != 0
+                       );
     QJsonObject stamp;
     int sec;
     int nsec;
