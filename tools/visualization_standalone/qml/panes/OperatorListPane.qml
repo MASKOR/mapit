@@ -160,7 +160,7 @@ Item {
                                             + "<br><b>moduleVersion</b>: " + objModelItem.operator.moduleVersion
                                             + "<br><b>apiVersion</b>: " + objModelItem.operator.apiVersion):"(this is a pipeline)")
                                 }
-                                property string currentClassName: gridRoot.model.get(index) ? gridRoot.model.get(index).operator ? gridRoot.model.get(index).operator.moduleName : "" : ""
+                                property string currentClassName: gridRoot.model.get(index) ? gridRoot.model.get(index).operator ? gridRoot.model.get(index).operator.moduleName ? gridRoot.model.get(index).operator.moduleName : "" : "" : ""
                                 //property var myCompo: compo
                                 property var myGraph//: graph?graph:null
                                 property bool myIsClass: true

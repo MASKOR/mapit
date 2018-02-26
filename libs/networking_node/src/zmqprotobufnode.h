@@ -24,6 +24,8 @@ private:
   zmq::socket_t *socket_;
   bool connected_;
   bool isReply_;
+  std::string address_;
+  std::string identity_;
 
   typedef std::pair<uint16_t, uint16_t> KeyType;
   typedef std::function<void(google::protobuf::Message*)> ReceiveDelegate;
@@ -138,6 +140,8 @@ public:
    */
   bool has_more();
 
+  void prepareForwardComChannel();
+  void prepareBackComChannel();
   /**
    * @brief send Send a protobuf message
    * @param msg protobuf message
@@ -195,7 +199,11 @@ MT* ZmqProtobufNode::receive()
     Header h;
     zmq::message_t msg_h;
     bool status = socket_->recv( &msg_h );
-    if(!status) return nullptr;
+    if(!status) {
+        socket_->disconnect(address_);
+        connected_ = false;
+        return nullptr;
+    }
     h.ParseFromArray(msg_h.data(), msg_h.size());
 
     if(h.comp_id() != key.first || h.msg_type() != key.second)

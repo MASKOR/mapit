@@ -5,7 +5,7 @@
 #include <mapit/msgs/services.pb.h>
 
 //TODO: Add fromDate toDate Qml Methods. Stamps will be used in Qml, UI.
-//TODO: make Stamp compatibl with Qml (sec and nsec are long, which is not available in Qml)
+//TODO: make Stamp compatible with Qml (sec and nsec are long, which is not available in Qml)
 class QmlStamp : public QObject
 {
     Q_OBJECT

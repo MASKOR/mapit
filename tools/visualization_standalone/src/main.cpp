@@ -33,6 +33,7 @@
 #include <upns/ui/bindings/qmlentitydata.h>
 #include <upns/ui/bindings/qmltransform.h>
 #include <upns/ui/bindings/qmlbranch.h>
+#include <upns/ui/bindings/qmlrepositoryserver.h>
 #include "qpointcloud.h"
 #include "qpointcloudgeometry.h"
 #include "qpointfield.h"
@@ -60,6 +61,9 @@
 #include <graphblocks.h>
 #endif
 
+#include "mouseeventfilter.h"
+
+
 namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
@@ -67,6 +71,8 @@ int main(int argc, char *argv[])
     upns_init_logging();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
+    Q_INIT_RESOURCE(mapit_visualization);
+    Q_INIT_RESOURCE(mapit_visualization_standalone);
     app.setOrganizationName("Fachhochschule Aachen");
     app.setOrganizationDomain("fh-aachen.de");
     app.setApplicationName("Mapit Viewer");
@@ -98,12 +104,11 @@ int main(int argc, char *argv[])
 #endif
 
     qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
-    qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
-    qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
-    qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
-    //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntitydataPointcloud2");
-    qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
-    //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
+//    qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
+//    qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
+//    //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntitydataPointcloud2");
+//    qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
+//    //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
 
     //qmlRegisterUncreatableType<QmlRepository>("fhac.upns", 1, 0, "Repository", "Not yet implemented. Uses RAII and must be wrapped to set all program_options for repo. Use global \"globalRepository\" for now.");
     qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
@@ -113,6 +118,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<QmlEntity>("fhac.upns", 1, 0, "Entity");
     qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
     qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
+    qmlRegisterType<QmlRepositoryServer>("fhac.upns", 1, 0, "RepositoryServer");
+    qmlRegisterUncreatableType<MouseEventFilter>("fhac.upns", 1, 0, "MouseEventFilter", "Use globalMouseEventFilter to blur popups");
 
     qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
     qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
@@ -149,6 +156,8 @@ int main(int argc, char *argv[])
     engine.addImageProvider("material", imgProviderMaterialDesign);
     engine.addImageProvider("operator", imgProviderOperator);
     engine.addImageProvider("primitive", imgProviderPrimitive);
+    MouseEventFilter filter1;
+    engine.rootContext()->setContextProperty("globalMouseEventFilter", &filter1);
     engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     if(!engine.rootObjects().empty())
@@ -177,13 +186,14 @@ int main(int argc, char *argv[])
             updater->updateAllImages();
         }
         //Qt3DCore::Quick::QQmlAspectEngine * test = engine.findChild<Qt3DCore::Quick::QQmlAspectEngine *>();
-        QObject *mainWindow = engine.rootObjects().first()->findChild<QObject *>("mainWindow");
+        QObject *mainWindow = engine.rootObjects().first();//->findChild<QObject *>("mainWindow");
         Qt3DInput::QInputSettings *inputSettings = engine.rootObjects().first()->findChild<Qt3DInput::QInputSettings *>();
         if (inputSettings) {
             inputSettings->setEventSource(mainWindow);
         } else {
             qDebug() << "No Input Settings found, keyboard and mouse events won't be handled";
         }
+        mainWindow->installEventFilter(&filter1);
     }
 
     int result = app.exec();

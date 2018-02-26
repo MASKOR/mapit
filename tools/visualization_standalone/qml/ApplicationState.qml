@@ -3,7 +3,7 @@ import QtQml.Models 2.3
 
 import fhac.upns 1.0 as UPNS
 
-import "network"
+import "qrc:/qml/network"
 
 Item {
     id: root
@@ -77,7 +77,9 @@ Item {
     readonly property var currentEntitydata: globalEntitydata
 
     // Multiple Entities may be visible at a time
-    property var visibleEntityPaths: ListModel {}
+    property ListModel visibleEntityModel: ListModel {} // ListModel {}
+    // TODO: Bug: There is a bug in Qt3D NodeInstantiator: It will crash when used with ObjectModel. Thus, there is an explicit ListModel at the moment
+    property var allVisualInfoModel
 
     property string currentFrameId
     readonly property var currentEntityTransform: globalEntityTransform

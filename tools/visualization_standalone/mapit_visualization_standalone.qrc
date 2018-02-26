@@ -1,10 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
-        <file>shader/pointcloud.frag</file>
-        <file>shader/pointcloud.vert</file>
-        <file>shader/surfel.frag</file>
-        <file>shader/surfel.vert</file>
         <file>qml/panes/OperatorListPane.qml</file>
         <file>qml/panes/OperatorPane.qml</file>
         <file>qml/operators/load_pointcloud.qml</file>
@@ -154,11 +150,6 @@
         <file>qml/operators/normalestimation.qml</file>
         <file>qml/operators/reg_local.qml</file>
         <file>qml/operators/reg_local.png</file>
-        <file>qml/operators/copy.qml</file>
-        <file>qml/operators/delete.qml</file>
-        <file>qml/operators/delete.png</file>
-        <file>qml/operators/tf_add_random.qml</file>
-        <file>qml/operators/tf_add_random.png</file>
         <file>qml/operators/surfrecon_openvdb.qml</file>
         <file>qml/operators/voxelgridfilter.qml</file>
         <file>qml/operators/load_las.qml</file>
@@ -260,13 +251,6 @@
         <file>qml/dialogs/About.qml</file>
         <file>qml/dialogs/VisualizationSettings.qml</file>
         <file>qml/panes/CheckoutTreeView.qml</file>
-        <file>qml/scene/Camera.qml</file>
-        <file>qml/scene/HandleRotate.qml</file>
-        <file>qml/scene/HandleScale.qml</file>
-        <file>qml/scene/HandleTranslate.qml</file>
-        <file>qml/scene/HelperGridMesh.qml</file>
-        <file>qml/scene/MapitEntity.qml</file>
-        <file>qml/scene/MapitScene.qml</file>
         <file>qml/components/CheckoutChooser.qml</file>
         <file>qml/EntityVisualSettings.qml</file>
         <file>qml/components/HelperOpenFile.qml</file>
@@ -336,14 +320,7 @@
         <file>icon/material/ic_layers_white_24dp_2x.png</file>
         <file>icon/material/ic_format_paint_black_24dp_1x.png</file>
         <file>icon/material/ic_format_paint_black_24dp_2x.png</file>
-        <file>qml/network/MapitClient.qml</file>
-        <file>qml/network/MapitServer.qml</file>
-        <file>qml/network/MapitMultiviewNetworkState.qml</file>
-        <file>qml/network/MapitMultiviewPeerState.qml</file>
-        <file>qml/network/RealtimeObject.qml</file>
-        <file>qml/scene/TextLabelEntity.qml</file>
-        <file>qml/scene/HandleFrustum.qml</file>
-        <file>qml/scene/HandleBoundingBox.qml</file>
-        <file>qml/network/NetworkDialog.qml</file>
+        <file>icon/eye-16-ns.png</file>
+        <file>icon/eye-24-ns.png</file>
     </qresource>
 </RCC>

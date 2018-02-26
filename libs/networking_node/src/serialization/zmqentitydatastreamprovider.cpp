@@ -130,15 +130,25 @@ upns::upnsuint64 upns::ZmqEntitydataStreamProvider::getStreamSize() const
         req->set_entitypath(m_pathOrOid);
         req->set_offset(0ul);
         req->set_maxlength(0ul);
-        m_node->send(std::move(req));
-        std::shared_ptr<ReplyEntitydata> rep(m_node->receive<ReplyEntitydata>());
-        if(rep->status() != ReplyEntitydata::SUCCESS)
+        try
         {
-            log_error("received error from server when storing entitydata");
+            m_node->prepareForwardComChannel();
+            m_node->send(std::move(req));
+            m_node->prepareBackComChannel();
+            std::shared_ptr<ReplyEntitydata> rep(m_node->receive<ReplyEntitydata>());
+            if(rep->status() != ReplyEntitydata::SUCCESS)
+            {
+                log_error("received error from server when storing entitydata");
+            }
+            else
+            {
+                m_entityLength = rep->entitylength();
+            }
         }
-        else
+        catch( zmq::error_t err)
         {
-            m_entityLength = rep->entitylength();
+            log_error("network error for setStreamSize: " + err.what());
+            return 0;
         }
     }
     return m_entityLength;
@@ -153,11 +163,20 @@ void upns::ZmqEntitydataStreamProvider::setStreamSize(upns::upnsuint64 entitylen
     req->set_offset(0ul);
     req->set_sendlength(0ul);
     req->set_entitylength(m_entityLength);
-    m_node->send(std::move(req));
-    std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
-    if(rep->status() != ReplyStoreEntity::SUCCESS)
+    try
     {
-        log_error("received error from server when setting entitydata length");
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+        if(rep->status() != ReplyStoreEntity::SUCCESS)
+        {
+            log_error("received error from server when setting entitydata length");
+        }
+    }
+    catch( zmq::error_t err)
+    {
+        log_error("network error for setStreamSize: " + err.what());
     }
 }
 
@@ -212,9 +231,19 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
     req->set_entitypath(m_pathOrOid);
     req->set_offset(start);
     req->set_maxlength(maxBufferSize);
-    m_node->send(std::move(req));
-    std::shared_ptr<ReplyEntitydata> rep(m_node->receive<ReplyEntitydata>());
-    if(rep->status() != ReplyEntitydata::SUCCESS)
+    std::shared_ptr<ReplyEntitydata> rep;
+    try {
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        rep.reset(m_node->receive<ReplyEntitydata>());
+    }
+    catch( zmq::error_t err)
+    {
+        log_error("network error when asked for entitydata: " + err.what());
+        return nullptr;
+    }
+    if(rep && rep->status() != ReplyEntitydata::SUCCESS)
     {
         log_error("received error from server when asked for entitydata");
         return nullptr;
@@ -245,7 +274,14 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
         size_t offset = 0;
         do
         {
-            offset += m_node->receive_raw_body(buf+offset, recvlen-offset);
+            try {
+                offset += m_node->receive_raw_body(buf+offset, recvlen-offset);
+            }
+            catch( zmq::error_t err)
+            {
+                log_error("network error when asked for entitydata: " + err.what());
+                return nullptr;
+            }
         } while (m_node->has_more() && offset <= recvlen);
 
         if( offset != recvlen && !(offset == 0 && recvlen == 1) )
@@ -273,14 +309,23 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
     req->set_offset(offset);
     req->set_sendlength(length);
     req->set_entitylength(m_entityLength);
-    // Note: Entitytype can not be set here!
-    m_node->send(std::move(req), ZMQ_SNDMORE);
-    m_node->send_raw_body( reinterpret_cast<const unsigned char*>(memory), length ); //TODO: add zero copy support!
 
-    std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
-    if(rep->status() != ReplyStoreEntity::SUCCESS)
+    try {
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req), ZMQ_SNDMORE);
+        m_node->send_raw_body( reinterpret_cast<const unsigned char*>(memory), length ); //TODO: add zero copy support!
+        // Note: Entitytype can not be set here!
+
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+        if(rep->status() != ReplyStoreEntity::SUCCESS)
+        {
+            log_error("received error from server when asked for entitydata");
+        }
+    }
+    catch( zmq::error_t err)
     {
-        log_error("received error from server when asked for entitydata");
+        log_error("network error while endWrite: " + err.what());
     }
 }
 
@@ -296,7 +341,7 @@ std::string upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHand
     std::string tmpfilename = std::tmpnam(filename);
 
     handle = static_cast<ReadWriteHandle>(filename);
-    std::ofstream outfile (tmpfilename,std::ofstream::binary);
+    std::ofstream outfile (tmpfilename, std::ofstream::binary);
 
     upnsuint64 outLen;
     char* ptr = startRead(0, 0, outLen);

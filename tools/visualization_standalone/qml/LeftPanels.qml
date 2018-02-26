@@ -12,6 +12,7 @@ import "components"
 
 Item {
     id: root
+    property alias treeView: treeViewCheckout
 //    property alias currentOperator: operatorListPane.currentOperator
 //    property alias currentPipeline: operatorListPane.currentPipeline
 //    property alias visibleElems: treeViewCheckout.visibleElems

@@ -17,7 +17,7 @@ public:
 public Q_SLOTS:
     void setAsset(AssetPtr asset);
 private Q_SLOTS:
-    void updateAttributes(uint32_t vertexCount);
+    void updateAttributes(uint32_t vertexCount, bool hasNormals);
 Q_SIGNALS:
     void assetChanged(AssetPtr asset);
 private:

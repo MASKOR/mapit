@@ -9,10 +9,13 @@ import QtQuick.Layouts 1.1
 
 import "panes"
 import "components"
-import "network"
+import "qrc:/qml/network"
+
+import fhac.upns 1.0 as UPNS
 
 ApplicationWindow {
     id: mainWindow
+    objectName: "mainWindow"
     color: appStyle.backgroundColor
     onClosing: Qt.quit()
     Window {
@@ -47,11 +50,16 @@ ApplicationWindow {
         url: connectRealtimeMultiviewDialog.url
         Component.onCompleted: globalApplicationState.mapitClient = mapitClient
         ownState: MapitMultiviewPeerState {
+            id: multiviewPeerState
             peername: connectRealtimeMultiviewDialog.peername
             onPeernameChanged: mapitClient.sendOwnState()
+            isHost: connectRealtimeMultiviewDialog.isServer
+            additionalData: ({ pointSize: sceneView.pointSize, shaderVar: sceneView.shaderVar, shaderVar2: sceneView.shaderVar2, renderStyle: sceneView.renderStyle })
+            //repositoryPort: repoServer.port
+            checkoutName: globalApplicationState.currentCheckoutName
+            allVisualInfoModel: leftPanels.treeView.allVisualInfoModel
             realtimeObjects: [
                 RealtimeObject {
-                    id: theRto
                     tf: sceneView.camera.viewMatrix
                     type: "frustum"
                     additionalData: { "aspect": sceneView.camera.aspectRatio, "fov": sceneView.camera.fieldOfView }
@@ -59,6 +67,23 @@ ApplicationWindow {
             ]
         }
     }
+    Connections {
+        target: mapitClient.state
+        enabled: !connectRealtimeMultiviewDialog.isServer
+        onCheckoutNameChanged: {
+            globalApplicationState.currentCheckoutName = mapitClient.state.checkoutName
+        }
+//        onRepositoryUrlChanged: {
+//            globalRepository.url = mapitClient.state.repositoryUrl
+//        }
+    }
+//TODO: Use Zmq Router for async requests
+//    UPNS.RepositoryServer {
+//        id: repoServer
+//        running: connectRealtimeMultiviewDialog.isServer
+//        repository: globalRepository
+//        onRunningChanged: if(running) console.log("Repositoryserver started at port " + port)
+//    }
     Connections {
         target: sceneView.camera
         onViewMatrixChanged: mapitClient.sendOwnState()
@@ -69,8 +94,8 @@ ApplicationWindow {
     MapitServer {
         id: webServer
         port: connectRealtimeMultiviewDialog.port
-        listen: true
-        accept: true
+        listen: false
+        accept: false
     }
 
     Window {
@@ -240,7 +265,7 @@ ApplicationWindow {
                 onObjectRemoved: operatorsMenu.removeItem( object )
                 onModelChanged: console.log("Model Changed" + globalRepository.operators.length)
                 MenuItem {
-                    text: operatorInstantiator.model[index].moduleName
+                    text: operatorInstantiator.model[index] ? operatorInstantiator.model[index].moduleName : "unknown module"
                     onTriggered: {
                         executeOperatorDialog.currentCheckout = globalApplicationState.currentCheckout
                         executeOperatorDialog.currentEntityPath = globalApplicationState.currentEntityPath

@@ -147,6 +147,4 @@ private:
     bool m_isLoadingOperators;
 };
 
-
-
 #endif

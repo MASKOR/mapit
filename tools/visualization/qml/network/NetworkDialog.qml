@@ -11,9 +11,7 @@ Window {
     title: qsTr( "Choose Checkout" )
     color: appStyle.backgroundColor
     width: 420
-    height: connectRealtimeMultiviewGrid.implicitHeight
-    minimumHeight: height
-    maximumHeight: height
+    height: 400
     minimumWidth: width
     maximumWidth: width
     property alias isServer: isServerCheckbox.checked
@@ -75,6 +73,8 @@ Window {
                      && clientUrl.text.trim().length !== 0
             onClicked: {
                 if(isServerCheckbox.checked) {
+                    console.log("DBG: tmp: override repository")
+                    globalRepository.url = "." //TODO: temp, DBG
                     webServer.listen = true
                     webServer.accept = true
                     mapitClient.active = true
@@ -82,7 +82,7 @@ Window {
                     mapitClient.active = true
                 }
 
-                //DBG: diabled for debugging connectRealtimeMultiviewDialog.visible = false
+                //DBG: disabled for debugging connectRealtimeMultiviewDialog.visible = false
             }
             Layout.column: 1
             Layout.row: 2
@@ -99,33 +99,38 @@ Window {
             Layout.row: 3
             Layout.fillWidth: true
         }
-//        StyledButton {
-//            text: qsTr( "Send State" )
-//            //enabled: !isServerCheckbox.checked && mapitClient.active
-//            onClicked: {
-//                mapitClient.sendOwnState()
-//            }
-//            Layout.column: 1
-//            Layout.row: 3
-//        }
         ColumnLayout {
             Layout.column: 0
             Layout.columnSpan: 2
             Layout.row: 4
             Layout.fillWidth: true
-            Layout.minimumHeight: 700
-            height: 700
+            Layout.fillHeight: true
+            //Layout.minimumHeight: 200
+            height: 200
             Text {
                 text: "Realtime objects:"
             }
             Repeater {
-                id: peersListView
                 model: mapitClient.state.realtimeObjects.count
                 RowLayout {
                     StyledLabel {
                         property RealtimeObject obj: mapitClient.state.realtimeObjects.get(index)
-                        property string owner: mapitClient.state.peerToPeerState[obj.peerOwner].peername
-                        text: obj.ident + ", <b>Owner</b>: " + owner + ", <b>Type</b>:  " + obj.type
+                        property var owner: mapitClient.state.peerToPeerState[obj.peerOwner]
+                        text: obj.ident + ", <b>Owner</b>: " + owner.peername + ", <b>Type</b>:  " + obj.type + (owner.isHost ? "(<b>Host</b>)" : "")
+                        tooltip: "" + obj.peerOwner + "<br>" + obj.tf
+                        renderType: Text.NativeRendering
+                    }
+                }
+            }
+            Text {
+                text: "Visible Network Entities:"
+            }
+            Repeater {
+                model: mapitClient.state.visibleEntityInfosList.count
+                RowLayout {
+                    StyledLabel {
+                        property var obj: mapitClient.state.visibleEntityInfosList.get(index)
+                        text: obj.path
                         tooltip: "" + obj.peerOwner + "<br>" + obj.tf
                         renderType: Text.NativeRendering
                     }

@@ -18,15 +18,31 @@ upns::ZmqRequester::~ZmqRequester()
 std::vector<std::string> upns::ZmqRequester::listCheckoutNames()
 {
     std::unique_ptr<RequestListCheckouts> req(new RequestListCheckouts);
-    m_d->send(std::move(req));
-    std::shared_ptr<ReplyListCheckouts> rep(m_d->receive<ReplyListCheckouts>());
-
-    std::vector<std::string> ret(rep->checkouts_size());
-    for(int i=0 ; i<rep->checkouts_size() ; ++i)
+    try
     {
-        ret.push_back(rep->checkouts(i));
+        m_d->prepareForwardComChannel();
+        m_d->send(std::move(req));
+        m_d->prepareBackComChannel();
+        std::shared_ptr<ReplyListCheckouts> rep(m_d->receive<ReplyListCheckouts>());
+
+        std::vector<std::string> ret;
+        if(rep == nullptr)
+        {
+            return ret;
+        }
+
+        ret.resize(rep->checkouts_size());
+        for(int i=0 ; i<rep->checkouts_size() ; ++i)
+        {
+            ret.push_back(rep->checkouts(i));
+        }
+        return ret;
     }
-    return ret;
+    catch(zmq::error_t err)
+    {
+        log_error("ZmqRequester: Error in listCheckoutNames: " + err.what());
+        return std::vector<std::string>();
+    }
 }
 
 std::shared_ptr<Tree> upns::ZmqRequester::getTree(const upns::ObjectId &oid)
@@ -90,16 +106,31 @@ std::shared_ptr<upns::Checkout> upns::ZmqRequester::createCheckout(const upns::C
     req->set_checkout(name);
     req->add_commit(commitIdOrBranchname);
     req->set_createifnotexists(true);
-    m_d->send(std::move(req));
-    std::shared_ptr<ReplyCheckout> rep(m_d->receive<ReplyCheckout>());
-    if(rep->status() == ReplyCheckout::SUCCESS ||
-       rep->status() == ReplyCheckout::EXISTED)
+    try
     {
-        return std::shared_ptr<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
+        log_info("DBG: REQ: create checkout m_d->prepareForwardComChannel()");
+        m_d->prepareForwardComChannel();
+        log_info("DBG: REQ: create checkout m_d->send(std::move(req))");
+        m_d->send(std::move(req));
+        log_info("DBG: REQ: create checkout m_d->prepareBackComChannel()");
+        m_d->prepareBackComChannel();
+        log_info("DBG: REQ: create checkout m_d->receive<ReplyCheckout>()");
+        std::shared_ptr<ReplyCheckout> rep(m_d->receive<ReplyCheckout>());
+        log_info("DBG: REQ: create checkout Done");
+        if(rep && (rep->status() == ReplyCheckout::SUCCESS ||
+           rep->status() == ReplyCheckout::EXISTED))
+        {
+            return std::shared_ptr<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
+        }
+        else
+        {
+            log_error("Could not create checkout \"" + name + "\"");
+            return std::shared_ptr<upns::Checkout>(nullptr);
+        }
     }
-    else
+    catch(zmq::error_t err)
     {
-        log_error("Could not create checkout \"" + name + "\"");
+        log_error("ZmqRequester: Error in createCheckout: " + err.what());
         return std::shared_ptr<upns::Checkout>(nullptr);
     }
 }

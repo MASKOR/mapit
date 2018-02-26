@@ -10,6 +10,7 @@ Q3D.Entity {
     onHorizontalFovChanged: renderer.rebuild()
     onAspectRatioChanged: renderer.rebuild()
     property Layer layer
+    property alias geometryRenderer: renderer
     Q3D.Entity {
         property Material material: PhongMaterial { diffuse: "red" }
         property var trans: Q3D.Transform {

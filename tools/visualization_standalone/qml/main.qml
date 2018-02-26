@@ -55,6 +55,8 @@ MainWindow {
         // Moreover there is AppStyle, which also holds parts of the application state
         id: globalApplicationState
         visible: false
+        visibleEntityModel: leftPanels.treeView.visibleEntityModel
+        allVisualInfoModel: leftPanels.treeView.allVisualInfoModel
     }
 
     AppStyle {
@@ -86,8 +88,20 @@ MainWindow {
                 Layout.minimumWidth: 150
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                visibleEntityItems: globalApplicationState.visibleEntityPaths
+                visibleEntityModel: globalApplicationState.visibleEntityModel
+                allVisualInfoModel: globalApplicationState.allVisualInfoModel
+                onPointSizeChanged: sendDelayedTimer.start()
+                onShaderVarChanged: sendDelayedTimer.start()
+                onShaderVar2Changed: sendDelayedTimer.start()
+                onRenderStyleChanged: sendDelayedTimer.start()
             }
+            Timer {
+                id: sendDelayedTimer
+                interval: 10
+                repeat: false
+                onTriggered: sceneView.mapitClient.sendOwnState()
+            }
+
             DetailPanels {
                 Layout.fillHeight: true
                 Layout.minimumWidth: 50

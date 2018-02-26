@@ -1,14 +1,16 @@
 import QtQuick 2.9
 
 QtObject {
-    property string ident: ""
+//Item {
+    property string path: ""
     property string peerOwner
 
-    property matrix4x4 tf
-    property vector3d vel
+    // not exchanged over network
+    property bool isLoading
+    // not exchanged over network
+    property bool isVisible: false
 
-    // "camera"
-    property string type
+    property bool isEntity
 
     // can be anything, property bindings will work only for top level properties.
     // e.g. will work for data.points but may not work for data.points.first.x (TODO: test)

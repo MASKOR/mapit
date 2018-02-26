@@ -20,7 +20,8 @@ public:
         NodePathRole = Qt::ToolTipRole,
         NodeTypeRole = Qt::UserRole + 1,
         NodeNodeRole = Qt::UserRole,
-        NodeVisibleRole = Qt::UserRole +2
+        NodeVisibleRole = Qt::UserRole + 2,
+        NodeVisualInfoRole =  Qt::UserRole + 3
     };
 
     QmlRootTreeModel();

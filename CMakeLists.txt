@@ -103,6 +103,7 @@ set(WITH_OCTOMAP FALSE CACHE BOOL "Enable Octomap Layers")
 set(WITH_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
 
 set(WITH_LOG4CPLUS FALSE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
+set(WITH_VIRTUALREALITY FALSE CACHE BOOL "Enable VR using OpenVR and Qt3dVirtualReality")
 
 if(WITH_LOG4CPLUS)
   include(FindLog4cplus)
@@ -215,9 +216,9 @@ if(UPNS_ENABLE_VISUALIZATION)
   add_subdirectory(tools/Qt3DPointcloudRenderer)
   add_subdirectory(tools/Qt3DOpenVDBRenderer)
   add_subdirectory(tools/graphblocks)
-  if(UPNS_ENABLE_VISUALIZATION_VR)
+  if(WITH_VIRTUALREALITY)
     add_subdirectory(tools/visualization_vr)
-  endif(UPNS_ENABLE_VISUALIZATION_VR)
+  endif(WITH_VIRTUALREALITY)
 endif(UPNS_ENABLE_VISUALIZATION)
 
 

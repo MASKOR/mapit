@@ -14,7 +14,6 @@ Q3D.Entity {
     property alias currentTransform : currentEntitydataTransform
     property alias currentCheckout : currentEntitydataTransform.checkout
     property var mainCameratmp
-    property var scene3dtmp
     property Layer layer
     property alias parametersTmp: surfelTechnique.parameters
     property alias coordinateSystem: edrender.coordinateSystem
@@ -67,7 +66,7 @@ Q3D.Entity {
     }
     property var meshTransform: Q3D.Transform {
             id: theMeshTransform
-            matrix: (appStyle.tmpUsePreviewMatrix && pointcloud.currentEntitydata.path === appStyle.tmpCurrentEditEntity) ? appStyle.tmpPreviewMatrix : currentEntitydataTransform.matrix
+            matrix: ((typeof appStyle !== "undefined") && appStyle.tmpUsePreviewMatrix && pointcloud.currentEntitydata.path === appStyle.tmpCurrentEditEntity) ? appStyle.tmpPreviewMatrix : currentEntitydataTransform.matrix
     }
     property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
         id: edrender

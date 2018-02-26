@@ -8,6 +8,7 @@ QmlRootTreeModel::QmlRootTreeModel()
     m_roleNameMapping[NodeTypeRole] = "type";
     m_roleNameMapping[NodeNodeRole] = "node";
     m_roleNameMapping[NodeVisibleRole] = "visible";
+    m_roleNameMapping[NodeVisualInfoRole] = "visualInfo";
 }
 
 QVariantMap QmlRootTreeModel::get(int idx) const
@@ -79,6 +80,7 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
             {
                 csi->setData(QVariant::fromValue(ent), Qt::UserRole);
                 csi->setData(QmlRootTreeModel::EntityNode, NodeTypeRole);
+                //csi->setData({}, NodeVisualInfoRole);
                 csi->setData(false, NodeVisibleRole);
             }
             //TODO: conflicts
