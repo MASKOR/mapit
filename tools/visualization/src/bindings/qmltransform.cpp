@@ -142,7 +142,7 @@ QString QmlTransform::sourceFrame() const
 
 QmlStamp *QmlTransform::stamp() const
 {
-    return nullptr;//m_stamp; //TODO Temp, will be fixed by TN
+    return m_stamp;
 }
 
 void QmlTransform::setCheckout(QmlCheckout *checkout)
