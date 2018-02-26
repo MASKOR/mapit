@@ -36,7 +36,8 @@ ColumnLayout {
 
         "icp-maximum-iterations": parseInt(icpMaximumIterations.text),
         "icp-max-correspondence-distance": parseFloat(icpMaxCorrespondenceDistance.text),
-        "icp-transformation-epsilon": parseFloat(icpTransformationEpsilon.text)
+        "icp-transformation-epsilon": parseFloat(icpTransformationEpsilon.text),
+        "icp-euclidean-fitness-epsilon": parseFloat(icpEuclideanFitnessEpsilon.text),
     }
 
     function beforeOperation() {
@@ -65,7 +66,7 @@ ColumnLayout {
         EntityChooser {
             Layout.column: 1
             Layout.row: 1
-            z: 189
+            z: 200
             id: entityChooserTarget
             Layout.fillWidth: true
             currentEntityPath: root.currentEntityPath
@@ -81,6 +82,7 @@ ColumnLayout {
             }
         }
         Repeater {
+            z: 199
             id: inputRepeater
             model: ListModel {}
             EntityChooser {
@@ -305,6 +307,20 @@ ColumnLayout {
                 Layout.column: 1
                 Layout.row: 2
                 id: icpTransformationEpsilon
+                Layout.fillWidth: true
+                validator: DoubleValidator {}
+                placeholderText: "optional"
+                text: ""
+            }
+            StyledLabel {
+                Layout.column: 0
+                Layout.row: 3
+                text: "euclidean-fitness-epsilon:"
+            }
+            StyledTextField {
+                Layout.column: 1
+                Layout.row: 3
+                id: icpEuclideanFitnessEpsilon
                 Layout.fillWidth: true
                 validator: DoubleValidator {}
                 placeholderText: "optional"

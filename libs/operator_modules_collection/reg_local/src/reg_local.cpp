@@ -27,21 +27,21 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     } else if ( params["input"].isArray() ) {
         for (QJsonValue input : params["input"].toArray() ) {
             if ( ! input.isString() ) {
-                log_error("reg_local_icp: cfg \"input\" does not is a string or array of strings");
+                log_error("reg_local: cfg \"input\" does not is a string or array of strings");
                 status = UPNS_STATUS_INVALID_ARGUMENT;
                 return;
             }
             cfg_input_.push_back( input.toString().toStdString() );
         }
     } else {
-        log_error("reg_local_icp: cfg \"input\" does not is a string or array of strings");
+        log_error("reg_local: cfg \"input\" does not is a string or array of strings");
         status = UPNS_STATUS_INVALID_ARGUMENT;
         return;
     }
     cfg_target_ = params["target"].toString().toStdString();
     cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
 
-    std::string output_pointcloud = "reg_local_icp: executing ICP on pointclouds [ ";
+    std::string output_pointcloud = "reg_local: executing algorithm on pointclouds [ ";
     for (std::string cfg_input_one : cfg_input_) {
         output_pointcloud += "\"" + cfg_input_one + "\", ";
     }
@@ -52,16 +52,16 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     cfg_use_frame_id_ = ! (params["frame_id"].isNull() || params["frame_id"].toString().isEmpty());
     if (cfg_use_frame_id_) {
         cfg_frame_id_ = params["frame_id"].toString().toStdString();
-        log_info("reg_local_icp: transform to \"" + cfg_frame_id_ + "\" before executing ICP");
+        log_info("reg_local: transform to \"" + cfg_frame_id_ + "\" before executing algorithm");
     } else {
-        log_info("reg_local_icp: do not transform in any frame before executing ICP");
+        log_info("reg_local: do not transform in any frame before executing algorithm");
     }
 
     cfg_use_metascan_ = params.contains("use-metascan") ? params["use-metascan"].toBool() : false;
     if (cfg_use_metascan_) {
-        log_info("reg_local_icp: use metascan on target (with voxelgrid TODO, not yet implemented)");
+        log_info("reg_local: use metascan on target (with voxelgrid TODO, not yet implemented)");
     } else {
-        log_info("reg_local_icp: do not use metascan");
+        log_info("reg_local: do not use metascan");
     }
 
     // handle parameter
@@ -73,7 +73,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     } else if ( 0 == cfg_handle_result_str.compare("data-change") ) {
         cfg_handle_result_ = HandleResult::data_change;
     } else {
-        log_error("reg_local_icp: can't handle parameter \"handle-result\" = \"" + cfg_handle_result_str + "\"");
+        log_error("reg_local: can't handle parameter \"handle-result\" = \"" + cfg_handle_result_str + "\"");
         status = UPNS_STATUS_INVALID_ARGUMENT;
         return;
     }
@@ -91,7 +91,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
 
     // sanity check
     if ( cfg_tf_is_static_ && cfg_input_.size() != 1) {
-        log_error("reg_local_icp: \"tf-is_static\" := true is only allowed for one \"input\" cloud specified");
+        log_error("reg_local: \"tf-is_static\" := true is only allowed for one \"input\" cloud specified");
         status = UPNS_STATUS_INVALID_ARGUMENT;
         return;
     }
@@ -106,14 +106,14 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     std::string cfg_matching_algorithm_str = params.contains("matching-algorithm") ? params["matching-algorithm"].toString().toStdString() : "";
     if ( 0 == cfg_matching_algorithm_str.compare("icp")) {
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
-        log_info("reg_local_icp: \"matching-algorithm\" is ICP");
+        log_info("reg_local: \"matching-algorithm\" is ICP");
         upns::StatusCode status_icp = get_cfg_icp(params);
         if ( ! upnsIsOk(status_icp) ) {
             status = status_icp;
             return;
         }
     } else {
-        log_error("reg_local_icp: \"matching-algorithm\" not specified, going to use ICP");
+        log_error("reg_local: \"matching-algorithm\" not specified, going to use ICP");
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
         upns::StatusCode status_icp = get_cfg_icp(params);
         if ( ! upnsIsOk(status_icp) ) {
@@ -160,7 +160,7 @@ mapit::RegLocal::get_pointcloud(std::string path, upns::StatusCode &status, mapi
 upns::StatusCode
 mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
 {
-    log_info("reg_local_icp: add "
+    log_info("reg_local: add "
            + (cfg_tf_is_static_ ? "static" : "dynamic")
            + " transform from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
            + "\" at time " + mapit::time::to_string(input_stamp) );
@@ -201,7 +201,7 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
 upns::StatusCode
 mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &stamp_end)
 {
-    log_info("reg_local_icp: remove "
+    log_info("reg_local: remove "
            + " transforms from \"" + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
            + "\" between time " + mapit::time::to_string(stamp_start)
            + "\" and " + mapit::time::to_string(stamp_end)
@@ -211,18 +211,18 @@ mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::St
     // get entity and data
     std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( entity_name );
     if (entity == nullptr) {
-        log_warn("reg_local_icp: transform entity \"" + entity_name + "\" does not exists, do not remove anything");
+        log_warn("reg_local: transform entity \"" + entity_name + "\" does not exists, do not remove anything");
         return UPNS_STATUS_OK;
     }
     std::shared_ptr<upns::AbstractEntitydata> ed_a = checkout_->getEntitydataForReadWrite(entity_name);
     if ( 0 != std::strcmp(ed_a->type(), TfEntitydata::TYPENAME()) ) {
-      log_error("reg_local_icp: can't add tf, retrieved entity is not of type TfEntitydata");
+      log_error("reg_local: can't add tf, retrieved entity is not of type TfEntitydata");
       return UPNS_STATUS_ERROR;
     }
     std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>(ed_a);
     std::shared_ptr<tf::store::TransformStampedList> ed_d = ed_tf->getData();
     if (ed_d == nullptr) {
-        log_warn("reg_local_icp: transforms in entity are empty, do not remove anything");
+        log_warn("reg_local: transforms in entity are empty, do not remove anything");
         return UPNS_STATUS_OK;
     }
 
@@ -272,16 +272,16 @@ mapit::RegLocal::operate()
                 break;
             }
             default: {
-                log_error("reg_local_icp: can't select algorithm for matching");
+                log_error("reg_local: can't select algorithm for matching");
                 return UPNS_STATUS_ERROR;
             }
         }
 
         if ( ! has_converged ) {
-          log_error("reg_local_icp: algorithm didn't converged");
+          log_error("reg_local: algorithm didn't converged");
           return UPNS_STATUS_ERROR;
         } else {
-            log_info("reg_local_icp: ICP for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
+            log_info("reg_local: ICP for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
                    + "\" finished with fitness score " + std::to_string( fitness_score ));
 
             if (cfg_use_metascan_) {
@@ -292,9 +292,9 @@ mapit::RegLocal::operate()
         // handle the result
         switch (cfg_handle_result_) {
             case HandleResult::data_change: {
-                log_info("reg_local_icp: change pointcloud " + cfg_input_one/* + " with tf:"*/);
+                log_info("reg_local: change pointcloud " + cfg_input_one/* + " with tf:"*/);
 //                std::cout << transform.matrix() << std::endl;
-                log_warn("reg_local_icp: only XYZ will survive, intensity and color will be lost");
+                log_warn("reg_local: only XYZ will survive, intensity and color will be lost");
                 // TODO find way to transform pointcloud2 so that all data survive
                 std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
                 pcl::toPCLPointCloud2(result_pc, *icp_out2);
@@ -320,7 +320,7 @@ mapit::RegLocal::operate()
                     tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
                     tf_in_buffer.rotate( tf.transform.rotation );
                 } catch (...) {
-                    log_warn("reg_local_icp: tf \""
+                    log_warn("reg_local: tf \""
                            + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
                            + "\" at time " + std::to_string(sec) + "." + std::to_string(nsec) + " does not exists. Identity will be used");
                     tf_in_buffer = Eigen::Affine3f::Identity();
@@ -334,7 +334,7 @@ mapit::RegLocal::operate()
                 break;
             }
             default: {
-                log_error("reg_local_icp: do not handle result of ICP (no effect), its not yet implemented.");
+                log_error("reg_local: do not handle result of ICP (no effect), its not yet implemented.");
             }
         }
     }
@@ -398,35 +398,25 @@ mapit::RegLocal::operate()
 upns::StatusCode
 mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
 {
-    cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations") && ! params["icp-maximum-iterations"].toString().isEmpty();
+    cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations") && params["icp-maximum-iterations"].toInt() != 0;
     if ( cfg_icp_set_maximum_iterations_ ) {
-        if (params["icp-maximum-iterations"].isString()) {
-            std::string par = params["icp-maximum-iterations"].toString().toStdString();
-            std::replace( par.begin(), par.end(), ',', '.');
-            cfg_icp_maximum_iterations_ = std::stoi( par );
-        } else {
-            cfg_icp_maximum_iterations_ = params["icp-maximum-iterations"].toInt();
-        }
+        cfg_icp_maximum_iterations_ = params["icp-maximum-iterations"].toInt();
+        log_info("reg_local/ICP: use cfg \"icp-maximum-iterations\": " << cfg_icp_maximum_iterations_);
     }
-    cfg_icp_set_max_correspondence_distance_ = params.contains("icp-max-correspondence-distance") && ! params["icp-max-correspondence-distance"].toString().isEmpty();
+    cfg_icp_set_max_correspondence_distance_ = params.contains("icp-max-correspondence-distance") && params["icp-max-correspondence-distance"].toDouble() != 0;
     if ( cfg_icp_set_max_correspondence_distance_ ) {
-        if (params["icp-max-correspondence-distance"].isString()) {
-            std::string par = params["icp-max-correspondence-distance"].toString().toStdString();
-            std::replace( par.begin(), par.end(), ',', '.');
-            cfg_icp_max_correspondence_distance_ = std::stod( par );
-        } else {
-            cfg_icp_max_correspondence_distance_ = params["icp-max-correspondence-distance"].toDouble();
-        }
+        cfg_icp_max_correspondence_distance_ = params["icp-max-correspondence-distance"].toDouble();
+        log_info("reg_local/ICP: use cfg \"icp-max-correspondence-distance\": " << cfg_icp_max_correspondence_distance_);
     }
-    cfg_icp_set_transformation_epsilon_ = params.contains("icp-transformation-epsilon") && ! params["icp-transformation-epsilon"].toString().isEmpty();
+    cfg_icp_set_transformation_epsilon_ = params.contains("icp-transformation-epsilon") && params["icp-transformation-epsilon"].toDouble() != 0;
     if ( cfg_icp_set_transformation_epsilon_ ) {
-        if (params["icp-transformation-epsilon"].isString()) {
-            std::string par = params["icp-transformation-epsilon"].toString().toStdString();
-            std::replace( par.begin(), par.end(), ',', '.');
-            cfg_icp_transformation_epsilon_ = std::stod( par );
-        } else {
-            cfg_icp_transformation_epsilon_ = params["icp-transformation-epsilon"].toDouble();
-        }
+        cfg_icp_transformation_epsilon_ = params["icp-transformation-epsilon"].toDouble();
+        log_info("reg_local/ICP: use cfg \"icp-transformation-epsilon\": " << cfg_icp_transformation_epsilon_);
+    }
+    cfg_icp_set_euclidean_fitness_epsilon_ = params.contains("icp-euclidean-fitness-epsilon") && params["icp-euclidean-fitness-epsilon"].toDouble() != 0;
+    if ( cfg_icp_set_euclidean_fitness_epsilon_ ) {
+        cfg_icp_euclidean_fitness_epsilon_ = params["icp-euclidean-fitness-epsilon"].toDouble();
+        log_info("reg_local/ICP: use cfg \"icp-euclidean-fitness-epsilon\": " << cfg_icp_euclidean_fitness_epsilon_);
     }
 
     return UPNS_STATUS_OK;
@@ -452,6 +442,9 @@ mapit::RegLocal::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
     }
     if (cfg_icp_set_transformation_epsilon_) {
         icp.setTransformationEpsilon(cfg_icp_transformation_epsilon_);
+    }
+    if (cfg_icp_set_euclidean_fitness_epsilon_) {
+        icp.setEuclideanFitnessEpsilon(cfg_icp_euclidean_fitness_epsilon_);
     }
 
     icp.align(result_pc);
