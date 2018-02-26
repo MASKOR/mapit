@@ -19,7 +19,6 @@ ColumnLayout {
 
     //// out ////
     property bool valid:    fileChooser.valid
-                         && entityChooser.valid
     property var parameters: {
         "filename": fileChooser.filename,
         "target": entityChooser.currentEntityPath,

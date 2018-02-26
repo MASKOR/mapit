@@ -20,7 +20,7 @@ ColumnLayout {
     }
 
     //// out ////
-    property bool valid: entityChooser.valid
+    property bool valid: true
     property var parameters: {
         "target": entityChooser.currentEntityPath,
         "frame_id": frameIdInput.text,

@@ -143,10 +143,10 @@ Item {
                 onClicked: {
                     var dialogParts = globalApplicationState.currentDetailDialog.split("/")
                     var moduleName = dialogParts[dialogParts.length-1]
-                    console.log("executing " + moduleName)
                     if (typeof currentOperatorUiItem.beforeOperation === "function") {
                         currentOperatorUiItem.beforeOperation()
                     }
+                    console.log("executing \"" + moduleName + "\" with parameter\n" + JSON.stringify(currentOperatorUiItem.parameters))
                     currentCheckout.doOperation(moduleName, currentOperatorUiItem.parameters)
                 }
                 BusyIndicator {

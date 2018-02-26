@@ -14,8 +14,8 @@ Window {
     flags: Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint
     modality: Qt.NonModal
     visible: false
-    maximumWidth: 500//Math.min(dialogContent.width, 200)
-    minimumWidth: 500//dialogContent.width
+//    maximumWidth: dialogContent.width
+    minimumWidth: dialogContent.width
     property var model: ListModel {
         ListElement { label: "Background 3D"; propName: "background3d" }
         ListElement { label: "Background Color"; propName: "backgroundColor" }
@@ -30,6 +30,7 @@ Window {
         ListElement { label: "Item Background Color"; propName: "itemBackgroundColor" }
         ListElement { label: "Item Color"; propName: "itemColor" }
         ListElement { label: "Icon Highlight Color"; propName: "iconHighlightColor" }
+        ListElement { label: "Background 3D Color"; propName: "background3d" }
     }
 
     onVisibleChanged: {

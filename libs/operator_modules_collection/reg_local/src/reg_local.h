@@ -90,6 +90,8 @@ private:
     double cfg_icp_max_correspondence_distance_;
     bool cfg_icp_set_transformation_epsilon_;
     double cfg_icp_transformation_epsilon_;
+    bool cfg_icp_set_euclidean_fitness_epsilon_;
+    double cfg_icp_euclidean_fitness_epsilon_;
 
 };
 
