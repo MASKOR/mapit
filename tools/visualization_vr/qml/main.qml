@@ -28,10 +28,6 @@ Q3D.Entity {
     }
     Item {
         id: cameraProps
-        readonly property real cameraRadius: obstaclesRepeater.radius - 50
-        readonly property vector3d circlePosition: Qt.vector3d(cameraRadius * Math.cos(circleRotation), 0.0, cameraRadius * Math.sin(circleRotation))
-        readonly property vector3d tan: circlePosition.crossProduct(Qt.vector3d(0, 1, 0).normalized())
-        property real circleRotation: 0
 
         QQ2.NumberAnimation {
             target: cameraProps
@@ -45,7 +41,7 @@ Q3D.Entity {
     // Camera
     VrCamera {
         id: vrCam
-        offset: Qt.vector3d(-5.0, -2.0, -2.0)
+        offset: Qt.vector3d(-5.0, -1.8, -2.0)
         //offsetOrientation:
         //offset: cameraProps.circlePosition.plus(Qt.vector3d(0, 45 * Math.sin(cameraProps.circleRotation * 2), 0)).plus(cameraProps.tan.times(-2))
     }
@@ -55,73 +51,40 @@ Q3D.Entity {
         id: teleportRaycast
         viewMatrix: realtimeHead.tf
         projectionMatrix: vrCam.leftCameraLens.projectionMatrix
-        onProjectionMatrixChanged: console.log("DBG: projectionMatrix " + projectionMatrix)
         viewportSize: Qt.size(_hmd.renderTargetSize.width, _hmd.renderTargetSize.height)
         pointOnPlane: vrCam.offset
         planeNormal: Qt.vector3d(0.0,1.0,0.0)
         worldDirection: tmpTimer.worldDir
-        onWorldPositionChanged: console.log("DBG: WORLD POSITIONS CHNAGED + " + console.log())
     }
 
     Q3D.Entity {
-            property var mesh: TorusMesh {
-                radius: 0.5
-                minorRadius: 0.05
-                rings: 20
-                slices: 5
-            }
-            property var transf: Q3D.Transform {
-                id: transform
-                translation: teleportRaycast.worldPosition
-                rotation: fromAxisAndAngle(Qt.vector3d(1.0, 0.0, 0.0), 90)
-            }
-            property var matr: PhongMaterial {
-                diffuse: Qt.rgba(Math.abs(Math.cos(transform.angle)), 204 / 255, 75 / 255, 1)
-                specular: "white"
-                shininess: 20.0
-            }
-            components: [
-                mesh,
-                transf,
-                matr,
-                stereoFrameGraph.solidLayer
-            ]
+        property var mesh: TorusMesh {
+            radius: 0.5
+            minorRadius: 0.05
+            rings: 20
+            slices: 5
         }
+        property var transf: Q3D.Transform {
+            id: transform
+            translation: teleportRaycast.worldPosition
+            Behavior on translation {
+                Vector3dAnimation { duration: 100 }
+            }
+            rotation: fromAxisAndAngle(Qt.vector3d(1.0, 0.0, 0.0), 90)
+        }
+        property var matr: PhongMaterial {
+            diffuse: Qt.rgba(Math.abs(Math.cos(transform.angle)), 204 / 255, 75 / 255, 1)
+            specular: "white"
+            shininess: 20.0
+        }
+        components: [
+            mesh,
+            transf,
+            matr,
+            stereoFrameGraph.solidLayer
+        ]
+    }
 
-//    // Torus obsctacles
-//    Q3D.NodeInstantiator {
-//        id: obstaclesRepeater
-//        model: 40
-//        readonly property real radius: 1.0
-//        readonly property real det: 1.0 / model
-//        delegate: Q3D.Entity {
-//            property var mesh: TorusMesh {
-//                radius: 0.5
-//                minorRadius: 0.05
-//                rings: 100
-//                slices: 20
-//            }
-//            property var transf: Q3D.Transform {
-//                id: transform
-//                readonly property real angle: Math.PI * 2.0 * index * obstaclesRepeater.det
-//                translation: Qt.vector3d(obstaclesRepeater.radius * Math.cos(transform.angle),
-//                                         0.0,
-//                                         obstaclesRepeater.radius * Math.sin(transform.angle)).plus(teleportRaycast.worldPosition)
-//                rotation: fromAxisAndAngle(Qt.vector3d(0.0, 1.0, 0.0), -transform.angle * 180 / Math.PI)
-//            }
-//            property var matr: PhongMaterial {
-//                diffuse: Qt.rgba(Math.abs(Math.cos(transform.angle)), 204 / 255, 75 / 255, 1)
-//                specular: "white"
-//                shininess: 20.0
-//            }
-//            components: [
-//                mesh,
-//                transf,
-//                matr,
-//                stereoFrameGraph.solidLayer
-//            ]
-//        }
-//    }
     Timer {
         id: tmpTimer
         running: true
@@ -208,7 +171,7 @@ Q3D.Entity {
     MapitClient {
         id: mapitClient
         objectName: "mapitClient"
-        url: "ws://149.201.37.170:55511"
+        url: "ws://127.0.0.1:55511"
         active: false
         ownState: MapitMultiviewPeerState {
             id: multiviewPeerState
@@ -267,7 +230,7 @@ Q3D.Entity {
 
     MapitScene {
         id: mapitScene
-        //visibleEntityPaths: ListModel { ListElement{ path: "demomap/FARO/eloop" }}
+        //visibleEntityPaths: ListModel { ListElement{ path: "fh_aachen/FARO/eloop_filtered-ovdb-ply" }} <- use this to quickly visualize an entity in lack of UI and network
         currentFrameId: root.currentFrameId
         mapitClient: mapitClient
         camera: vrCam.leftCamera

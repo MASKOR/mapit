@@ -43,10 +43,17 @@ link_directories( ${OPENVR_INSTALL_DIR}/lib/linux64 )
 
 include_directories( ${Qt5Quick_INCLUDE_DIRS} )
 include_directories( ${Qt5Quick_PRIVATE_INCLUDE_DIRS} )
-include_directories( /usr/include/qt/Qt3DCore/5.10.0/ ) # for private headers
-include_directories( /usr/include/qt/Qt3DRender/5.10.0/ ) # for private headers
-include_directories( /usr/include/qt/Qt3DCore/5.10.0/Qt3DCore ) # for private headers
-include_directories( /usr/include/qt/Qt3DRender/5.10.0/Qt3DRender ) # for private headers
+set(QT_PRIVATE_HEADERS "/usr/include/qt" CACHE PATH "Point to qt installation dir where private headers can be found. This can not be done via find-script, e.g. /usr/include/qt")
+
+if(NOT EXISTS "${QT_PRIVATE_HEADERS}/Qt3DRender/5.10.1/Qt3DRender/private/qrenderaspect_p.h" )
+  message("Private Headers for virtual reality not found. Disable WITH_VIRTUALREALITY or set QT_PRIVATE_HEADERS")
+endif(NOT EXISTS "${QT_PRIVATE_HEADERS}/Qt3DRender/5.10.1/Qt3DRender/private/qrenderaspect_p.h")
+
+
+include_directories( ${QT_PRIVATE_HEADERS}/Qt3DCore/5.10.1/ ) # for private headers
+include_directories( ${QT_PRIVATE_HEADERS}/Qt3DRender/5.10.1/ ) # for private headers
+include_directories( ${QT_PRIVATE_HEADERS}/Qt3DCore/5.10.1/Qt3DCore ) # for private headers
+include_directories( ${QT_PRIVATE_HEADERS}/Qt3DRender/5.10.1/Qt3DRender ) # for private headers
 
 add_definitions(-DQT3DVR_COMPILE_WITH_OPENVR=true)
 
