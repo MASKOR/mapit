@@ -4,6 +4,7 @@
 #include <upns/operators/operationenvironment.h>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <cmath>
 
 upns::StatusCode operateMovingLeastSquares(upns::OperationEnvironment* environment)
 {
