@@ -86,7 +86,7 @@ set(CMAKE_MODULE_PATH
 )
 
 if(WIN32)
-    #globally solve issue with windows.h and <algorithm>. Also fixes this for protobuf.
+    #globaly solve issue with windows.h and <algorithm>. Also fixes this for protobuf.
     add_definitions("-DNOMINMAX")
 endif(WIN32)
 # to make find_package(mapit) in build dir work

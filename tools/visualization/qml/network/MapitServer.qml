@@ -13,7 +13,7 @@ import QtWebSockets 1.1
 //  "state" -> MapitMultiviewPeerState
 //    response: none or "state_reply" -> { peername: "<peername>", state: "name already in use"}
 //  "get_uid" -> {data: "<identifier for response>"}
-//    response: "get_uid_reply" -> { uid: "<globally unique identifier>", data: "<identifier for response>"}
+//    response: "get_uid_reply" -> { uid: "<globaly unique identifier>", data: "<identifier for response>"}
 //  messagetypes from server to client:
 //  (see above *_reply-messages)
 //  "world -> { world: [MapitMultiviewPeerStates without the peers own state], repositoryUrl: <"ip:port of repo">, checkoutName:<checkoutName> }
