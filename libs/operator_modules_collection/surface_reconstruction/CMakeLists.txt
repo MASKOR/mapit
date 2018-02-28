@@ -27,6 +27,8 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
 
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -38,6 +40,8 @@ file(GLOB_RECURSE UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/sr
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES})
 
 target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2 layertype_asset)
+
+qt5_use_modules(${PROJECT_NAME} Core Gui)
 
 #if(TARGET json11)
     target_link_libraries( ${PROJECT_NAME} json11)

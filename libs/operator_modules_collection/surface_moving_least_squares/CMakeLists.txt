@@ -9,6 +9,9 @@ if(NOT DISABLE_PCL)
     add_definitions(-DOPERATOR_NAME="${OPERATOR_NAME}")
     add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Gui REQUIRED)
+
     # pcl
     find_package(PCL 1.8 REQUIRED
         COMPONENTS surface)
@@ -31,6 +34,8 @@ if(NOT DISABLE_PCL)
         VERSION ${OPERATOR_VERSION}
         SOVERSION ${OPERATOR_VERSION}
         PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX}${UPNS_INSTALL_OPERATORS})
+
+    qt5_use_modules(${PROJECT_NAME} Core Gui)
 
     # linker
     target_link_libraries(${PROJECT_NAME}
