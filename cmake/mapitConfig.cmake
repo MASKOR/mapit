@@ -53,7 +53,7 @@ else(MAPIT_CMAKE_TARGETS_AVAILABLE)
   # only used if in build directory
   set(CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_LIST_DIR}/libs/core
-    ${CMAKE_CURRENT_LIST_DIR}/libs/upns_interface
+    ${CMAKE_CURRENT_LIST_DIR}/libs/mapit-msgs
     ${CMAKE_CURRENT_LIST_DIR}/libs/upns_interface_cpp
     ${CMAKE_CURRENT_LIST_DIR}/libs/standard_repository_factory
     ${CMAKE_PREFIX_PATH}

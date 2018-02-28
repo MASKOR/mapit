@@ -1,6 +1,3 @@
-[submodule "libs/upns_interface"]
-	path = libs/upns_interface
-	url = gitolite@robotics.fh-aachen.de:upns_interface
 [submodule "externals/grpc"]
 	path = externals/grpc
 	url = https://github.com/grpc/grpc.git
@@ -28,3 +25,6 @@
 [submodule "tools/visualization_vr/qt3d-vr-example"]
 	path = tools/visualization_vr/qt3d-vr-example
 	url = https://github.com/dabulla/qt3d-vr-example
+[submodule "libs/mapit-msgs"]
+	path = libs/mapit-msgs
+	url = git@mascor.fh-aachen.de:mapit-msgs

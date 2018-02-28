@@ -144,7 +144,7 @@ add_library(${PROJECT_NAME} SHARED main.cpp)
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES}
                                        ${PROTOBUF_LIBRARIES}
                                        json11
-                                       upns_interface
+                                       mapit-msgs
                                        upns_core
                                        layertype_pointcloud2)
 

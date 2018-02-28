@@ -148,11 +148,11 @@ if(WITH_LOG4CPLUS)
 endif(WITH_LOG4CPLUS)
 #include_directories(${UPNS_ROOT_DIR}/externals/include) # for sha initially
 
-#set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/upns_interface/)
+#set(UPNS_INTERFACE_INCLUDE ${CMAKE_CURRENT_BINARY_DIR}/libs/mapit-msgs/)
 
 add_subdirectory(libs/core)
 add_subdirectory(libs/operator_modules_collection)
-add_subdirectory(libs/upns_interface)
+add_subdirectory(libs/mapit-msgs)
 add_subdirectory(libs/upns_interface_cpp)
 add_subdirectory(libs/layertypes_collection)
 add_subdirectory(libs/networking_node)
