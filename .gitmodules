@@ -1,39 +1,12 @@
 [submodule "libs/upns_interface"]
 	path = libs/upns_interface
 	url = gitolite@robotics.fh-aachen.de:upns_interface
-[submodule "externals/leveldb"]
-	path = externals/leveldb
-	url = https://github.com/google/leveldb.git
-[submodule "externals/protobuf"]
-	path = externals/protobuf
-	url = https://github.com/google/protobuf.git
 [submodule "externals/grpc"]
 	path = externals/grpc
 	url = https://github.com/grpc/grpc.git
-[submodule "externals/log4cplus"]
-	path = externals/log4cplus
-	url = https://github.com/log4cplus/log4cplus.git
-[submodule "externals/yaml-cpp"]
-	path = externals/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp.git
 [submodule "tools/Qt3DPointcloudRenderer"]
 	path = tools/Qt3DPointcloudRenderer
 	url = https://github.com/MASKOR/Qt3DPointcloudRenderer.git
-[submodule "externals/geometry2"]
-	path = externals/geometry2
-	url = https://github.com/ros/geometry2
-[submodule "externals/console_bridge"]
-	path = externals/console_bridge
-	url = https://github.com/ros/console_bridge
-[submodule "externals/cppzmq"]
-	path = externals/cppzmq
-	url = https://github.com/zeromq/cppzmq.git
-[submodule "externals/json11"]
-	path = externals/json11
-	url = https://github.com/dropbox/json11.git
-[submodule "externals/eigen3"]
-	path = externals/eigen3
-	url = https://github.com/RLovelett/eigen.git
 [submodule "libs/layertypes_collection/asset/tinyply"]
 	path = libs/layertypes_collection/asset/tinyply
 	url = https://github.com/bchretien/tinyply
