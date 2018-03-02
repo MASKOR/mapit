@@ -8,17 +8,22 @@ if len(sys.argv) < 2:
 
 use_cmake = False
 use_qml = False
+use_vert = False
 if len(sys.argv) >= 3:
   if sys.argv[2] == 'cmake':
     use_cmake = True
   if sys.argv[2] == 'qml':
     use_qml = True
+  if sys.argv[2] == 'vert':
+    use_vert = True
 
 proc_find = ""
 if use_cmake:
   proc_find = subprocess.Popen(["find " + sys.argv[1] + " \( -name CMakeLists.txt \)"], stdout=subprocess.PIPE, shell=True)
 elif use_qml:
   proc_find = subprocess.Popen(["find " + sys.argv[1] + " \( -name \*.qml \)"], stdout=subprocess.PIPE, shell=True)
+elif use_vert:
+  proc_find = subprocess.Popen(["find " + sys.argv[1] + " \( -name \*.vert \)"], stdout=subprocess.PIPE, shell=True)
 else:
   proc_find = subprocess.Popen(["find " + sys.argv[1] + " \( -name \*.h -o -name \*.cpp -o -name \*.hpp -o -name \*.c -o -name \*.cxx -o -name \*.cc -o -name \*.c \)"], stdout=subprocess.PIPE, shell=True)
 (find, err) = proc_find.communicate()
