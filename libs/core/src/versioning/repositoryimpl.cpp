@@ -171,7 +171,7 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
-    CommitId ret;
+    CommitId refID;
     std::shared_ptr<Commit> rootCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
     ObjectReference nullRef;
     StatusCode s = mapit::depthFirstSearch(
@@ -180,36 +180,33 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
                 nullRef,
                 "",
         depthFirstSearchAll(Commit),
-        [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path)
+        [&](std::shared_ptr<Commit> commit, const ObjectReference &ref, const Path &path)
         {
-            const Path pathOfRootDir("");
-            assert(ref.path().empty() != ref.id().empty()); //XOR
+            const Path pathOfRootDir("/");
             bool changes = oldPathsToNewOids.find(pathOfRootDir) != oldPathsToNewOids.end();
-            // check if there where changes but on a non exclusive object
-            assert(!ref.id().empty() && changes);
-            if(ref.id().empty() && changes)
-            {
-                obj->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
-                obj->mutable_root()->clear_path();
-            }
-            else
-            {
+
+            if ( changes ) {
+                // add reference to root
+                commit->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
+                commit->mutable_root()->clear_path();
+            } else {
                 // no changes where found
                 log_warn("commit empty checkout on empty parent commit (no root)");
             }
-            //TODO: Lots of todos here (Metadata)
-            if(msg.find_last_of('\n') != msg.length()-1)
-            {
+
+            if(msg.find_last_of('\n') != msg.length()-1) {
                 msg += "\n";
             }
-            obj->set_commitmessage(msg);
+            commit->set_commitmessage(msg);
             int64_t millisecs = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-            obj->set_datetime(millisecs);
-            obj->set_author("tester <test@maskor.fh-aachen.de>");
+            commit->set_datetime(millisecs);
+            commit->set_author("tester <test@maskor.fh-aachen.de>");
 
-            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(obj);
-            if(mapitIsOk(!statusOid.first)) return false;
-            ret = statusOid.second;
+            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(commit);
+            if ( ! mapitIsOk(statusOid.first) ) {
+                return false;
+            }
+            refID = statusOid.second;
             return true;
         },
         depthFirstSearchAll(Tree),
@@ -297,7 +294,7 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
         log_error("Error during commit. Could not update current checkout.");
     }
     //m_p->m_serializer->debugDump();
-    return ret;
+    return refID;
 }
 
 std::vector<std::shared_ptr<Branch> > RepositoryImpl::getBranches()
