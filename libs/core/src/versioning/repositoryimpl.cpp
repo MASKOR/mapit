@@ -167,7 +167,7 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
     return m_p->m_serializer->removeCheckout(checkoutName);
 }
 
-CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg)
+CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string msg)
 {
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
