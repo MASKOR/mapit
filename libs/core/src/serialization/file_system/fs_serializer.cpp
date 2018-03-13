@@ -109,6 +109,14 @@ FSSerializer::fs_check_create(fs::path path)
 }
 
 fs::path
+FSSerializer::path_to_commit_fs_path(const Path& path, const fs::path& prefix)
+{
+    fs::path pathInternal = repo_ / _PREFIX_COMMIT_ / prefix / path;
+
+    return pathInternal.remove_trailing_separator();
+}
+
+fs::path
 FSSerializer::objectid_to_checkout_fs_path(ObjectId oid)
 {
     fs::path path = repo_ / _PREFIX_CHECKOUTS_;
@@ -693,8 +701,64 @@ FSSerializer::exists(const ObjectId &oidOrName)
 std::pair<StatusCode, ObjectId>
 FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
 {
-    //TODO
-    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_ERR_DB_IO_ERROR, "");
+    if (pathInternal.empty()) {
+        return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, "");
+    }
+
+    // get EntityData path
+    fs::path transientPath = objectid_to_checkout_fs_path(pathInternal) / _CHECKOUT_ENTITY_DATA_;
+
+    // calculate chunk size
+    size_t entitySize = fs::file_size(transientPath);
+    size_t offsetMax = 4 * 1024 * 1024; // 4 MB // what makes sense? 100MB?
+    size_t offsetStep = entitySize;
+    if ( offsetStep > offsetMax ) {
+        offsetStep = offsetMax;
+    }
+
+    // create temporarly file to write copy of transient file
+    fs::path tempPath = repo_ / "temp" / _PREFIX_ENTITY_DATA_ / pathInternal;
+    fs_check_create( tempPath.parent_path() );
+    std::ofstream tempStream(tempPath.string(), std::ios::out | std::ios::binary);
+
+    // create buffer for hash TODO, use SHA update to not store in RAM
+    std::string fileHash = "";
+
+    // read chunks, while storing temporarly and creating the hash
+    std::ifstream transientStream(transientPath.string(), std::ifstream::in | std::ios_base::binary);
+    bool writeIsDone = false;
+    for (size_t offsetIterator = 0; ! writeIsDone; offsetIterator++) {
+        char* buffer = new char[offsetStep];
+
+        if ( transientStream.read(buffer, offsetStep) ) { // if the end is not reached
+            // write to temporarly file
+            tempStream.write(buffer, offsetStep);
+            // and update hash
+            fileHash += buffer; // TODO, use update of hash to be able to not have the whole file in RAM
+        } else {
+            // write to temporarly file
+            size_t left = transientStream.gcount();
+            tempStream.write(buffer, left);  // write the left rest
+            // and update hash
+            fileHash += buffer; // TODO, use update of hash to be able to not have the whole file in RAM
+
+            writeIsDone = true; // stop writing with next loop
+        }
+        delete[] buffer;
+    }
+    tempStream.flush();
+    tempStream.close();
+    transientStream.close();
+
+    // finish hash
+    ObjectId persistentID = hash_toString(fileHash);
+
+    // move temporarly file to correct position with hash
+    fs::path persistentPath = repo_ / _PREFIX_ENTITY_DATA_ / persistentID;
+    fs_check_create( persistentPath.parent_path() );
+    fs::rename(tempPath, persistentPath);
+
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, persistentID);
 }
 
 bool

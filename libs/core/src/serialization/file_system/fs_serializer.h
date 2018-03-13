@@ -66,6 +66,7 @@ namespace mapit
     fs::path repo_;
   private:
     fs::path objectid_to_checkout_fs_path(ObjectId oid);
+    fs::path path_to_commit_fs_path(const Path& path, const fs::path& prefix);
     void fs_check_create(fs::path path);
     void fs_write(fs::path path, std::shared_ptr<GenericEntry> ge, MessageType msgType, bool overwrite = false);
     void fs_read(fs::path path, std::shared_ptr<GenericEntry> entry);
