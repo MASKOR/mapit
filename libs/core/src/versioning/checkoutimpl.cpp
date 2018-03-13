@@ -288,6 +288,11 @@ const std::string &CheckoutImpl::getName() const
     return m_name;
 }
 
+const std::string &CheckoutImpl::getBranchName() const
+{
+    return m_branchname;
+}
+
 std::shared_ptr<Tree> CheckoutImpl::getTree(const ObjectReference &ref)
 {
     if(!ref.id().empty())

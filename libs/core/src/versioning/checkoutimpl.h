@@ -111,6 +111,7 @@ public:
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity);
     std::shared_ptr<CheckoutObj> getCheckoutObj();
     const std::string& getName() const;
+    const std::string& getBranchName() const;
 private:
 
     std::shared_ptr<Tree> getTree(const ObjectReference &ref);
