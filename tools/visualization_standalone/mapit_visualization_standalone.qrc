@@ -330,5 +330,7 @@
         <file>icon/eye-16-ns.png</file>
         <file>icon/eye-24-ns.png</file>
         <file>qml/CameraController.qml</file>
+        <file>license/ModifiedBSDsha256</file>
+        <file>license/MPL20</file>
     </qresource>
 </RCC>

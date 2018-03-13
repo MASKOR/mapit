@@ -17,7 +17,7 @@ Dialog {
         StyledLabel {
             Layout.fillWidth: true
             textFormat: Text.RichText
-            text: "About"
+            text: "3rd Party Software"
         }
         StyledLabel {
             Layout.fillWidth: true
@@ -35,7 +35,6 @@ Dialog {
                 standardButtons: StandardButton.Ok
                 contentItem: Rectangle {
                     anchors.fill: parent
-                    id: licRect
                     color: appStyle.backgroundColor
                     TextArea {
                         anchors.fill: parent
@@ -59,6 +58,99 @@ Dialog {
                     }
                 }
             }
+        }
+        StyledLabel {
+            Layout.fillWidth: true
+            textFormat: Text.RichText
+            text: "sha256.h"
+        }
+        StyledButton {
+            Layout.fillWidth: true
+            text: "Show License"
+            onClicked: shaDialogLicense.open()
+            Dialog {
+                title: "Modified BSD License (sha256.h)"
+                id: shaDialogLicense
+                standardButtons: StandardButton.Ok
+                contentItem: Rectangle {
+                    anchors.fill: parent
+                    color: appStyle.backgroundColor
+                    TextArea {
+                        anchors.fill: parent
+                        textColor: appStyle.textColor
+                        font.family: appStyle.labelFontFamily
+                        font.weight: appStyle.labelFontWeight
+                        font.pixelSize: appStyle.labelFontPixelSize
+                        style: TextAreaStyle {
+                            textColor: appStyle.textColor
+                            selectionColor: appStyle.selectionColor
+                            selectedTextColor: appStyle.textColor
+                            backgroundColor: appStyle.backgroundColor
+                            renderType: Text.NativeRendering
+                        }
+                        text: mbsdLicense.read()
+                        FileIO {
+                            id: mbsdLicense
+                            source: ":/license/ModifiedBSDsha256"
+                            onError: console.log(msg)
+                        }
+                    }
+                }
+            }
+        }
+        StyledLabel {
+            Layout.fillWidth: true
+            textFormat: Text.RichText
+            text: "Point Cloud Library"
+        }
+        StyledLabel {
+            Layout.fillWidth: true
+            textFormat: Text.RichText
+            text: "OpenVDB"
+        }
+        StyledButton {
+            Layout.fillWidth: true
+            text: "Show License"
+            onClicked: mplDialogLicense.open()
+            Dialog {
+                title: "Mozilla Public License"
+                id: mplDialogLicense
+                standardButtons: StandardButton.Ok
+                contentItem: Rectangle {
+                    anchors.fill: parent
+                    color: appStyle.backgroundColor
+                    TextArea {
+                        anchors.fill: parent
+                        textColor: appStyle.textColor
+                        font.family: appStyle.labelFontFamily
+                        font.weight: appStyle.labelFontWeight
+                        font.pixelSize: appStyle.labelFontPixelSize
+                        style: TextAreaStyle {
+                            textColor: appStyle.textColor
+                            selectionColor: appStyle.selectionColor
+                            selectedTextColor: appStyle.textColor
+                            backgroundColor: appStyle.backgroundColor
+                            renderType: Text.NativeRendering
+                        }
+                        text: mpl2Lic.read()
+                        FileIO {
+                            id: mpl2Lic
+                            source: ":/license/MPL20"
+                            onError: console.log(msg)
+                        }
+                    }
+                }
+            }
+        }
+        StyledLabel {
+            Layout.fillWidth: true
+            textFormat: Text.RichText
+            text: "TBB"
+        }
+        StyledLabel {
+            Layout.fillWidth: true
+            textFormat: Text.RichText
+            text: "ZeroMQ"
         }
         StyledLabel {
             Layout.fillWidth: true
