@@ -178,7 +178,7 @@ void TestOperators::testPointcloudToMesh()
     OperationResult ret = checkout->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
 
-#if WITH_OPENVDB
+#if MAPIT_ENABLE_OPENVDB
     desc.mutable_operator_()->set_operatorname("surfrecon_openvdb");
     desc.set_params("{\"voxelsize\":0.1, \"radius\":1, \"input\":\"bunny/laser/eins\", \"output\":\"bunny/laser/levelset\"}");
     ret = checkout->doOperation( desc );

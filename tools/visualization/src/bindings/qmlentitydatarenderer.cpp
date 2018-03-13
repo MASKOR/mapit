@@ -28,10 +28,10 @@
 #if WITH_LAS
 #include <upns/layertypes/lastype.h>
 #endif // WITH_LAS
-//#if WITH_OPENVDB
+//#if MAPIT_ENABLE_OPENVDB
 #include <upns/layertypes/openvdblayer.h>
 #include <qopenvdbgridpointsurfacegeometry.h>
-//#endif // WITH_OPENVDB
+//#endif // MAPIT_ENABLE_OPENVDB
 #include <upns/layertypes/tflayer.h>
 #include <upns/layertypes/pose_path.h>
 #include <upns/layertypes/assettype.h>
@@ -210,7 +210,7 @@ void QmlEntitydataRenderer::updateGeometry()
         // TODO: does shared pointer survive here? Will the pointer be cleaned?
         QMetaObject::invokeMethod(pointcloudGeometry, "setPath", Qt::QueuedConnection, Q_ARG(PosePathPtr, path) );
     }
-//#ifdef WITH_OPENVDB
+//#ifdef MAPIT_ENABLE_OPENVDB
     else if(strcmp(ed->type(), FloatGridEntitydata::TYPENAME()) == 0)
     {
         QGeometryRenderer::setPrimitiveType(QGeometryRenderer::Points);

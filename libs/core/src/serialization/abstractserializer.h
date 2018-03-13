@@ -101,7 +101,7 @@ public:
      * @return
      */
     virtual StatusCode cleanUp() = 0;
-#ifdef UPNS_DEBUG
+#ifdef MAPIT_DEBUG
     virtual void debugDump() = 0;
 #endif
 };

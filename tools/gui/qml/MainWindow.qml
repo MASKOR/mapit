@@ -123,7 +123,7 @@ ApplicationWindow {
     Window {
         id: openRepoDialog
         flags: Qt.Tool
-        title: qsTr( "Choose Checkout" )
+        title: qsTr( "Choose Workspace" )
         color: appStyle.backgroundColor
         width: 420
         height: openRepoGrid.implicitHeight

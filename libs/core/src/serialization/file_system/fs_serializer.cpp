@@ -696,7 +696,7 @@ FSSerializer::canWrite()
     //TODO
     return true;
 }
-#ifdef UPNS_DEBUG
+#ifdef MAPIT_DEBUG
 void
 FSSerializer::debugDump()
 {

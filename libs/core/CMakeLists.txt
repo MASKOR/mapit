@@ -40,21 +40,22 @@ add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_MM_SOURCES} )
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 #Note: Windows (and also linux in some cases?):
-# PCL was linked statically against boost. PCL is linked statically to layertype.
-# Layertype has nothing to do with core. (linked dynamic and at runtime)
+# PCL was linked statically against boost. Entitytype is linked statically against PCL.
+# Entitytype has nothing to do with core. (linked dynamic and at runtime)
 # Somehow boost dependency comes in here. I guess a static library wants it, thus the executable/dynamic-library must have it.
 target_link_libraries(${PROJECT_NAME} interface interface_cpp ${Boost_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
 
-if(WITH_LOG4CPLUS)
+# tell the code which postfix to use for dynamic operator/layertype loading
+add_definitions(-DDEBUG_POSTFIX="${CMAKE_DEBUG_POSTFIX}")
+
+#TODO: maybe not needed
+if(MAPIT_ENABLE_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
-endif(WITH_LOG4CPLUS)
+endif(MAPIT_ENABLE_LOG4CPLUS)
 
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} dl)
 endif(NOT WIN32)
-#    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_filesystem-vc120-mt-gd-1_55.lib
-#    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_system-vc120-mt-gd-1_55.lib
-#    E:/devel/boost_1_55_0/lib64-msvc-12.0/libboost_date_time-vc120-mt-gd-1_55.lib)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -76,13 +77,12 @@ set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
   COMPATIBLE_INTERFACE_STRING mapit_MAJOR_VERSION
 )
 
-install(TARGETS ${PROJECT_NAME} EXPORT upns_core_targets
+install(TARGETS ${PROJECT_NAME} EXPORT mapit_core_targets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
 install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
@@ -93,7 +93,7 @@ write_basic_package_version_file(
 )
 
 # TODO: CMAKE_BINARY_DIR or CMAKE_CURRENT_BINARY_DIR?
-export(EXPORT upns_core_targets
+export(EXPORT mapit_core_targets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_coreTargets.cmake"
   NAMESPACE mapit::
 )
@@ -104,7 +104,7 @@ configure_file(cmake/mapit_coreConfig.cmake
 )
 
 set(ConfigPackageLocation lib/cmake/mapit)
-install(EXPORT upns_core_targets
+install(EXPORT mapit_core_targets
   FILE
     mapit_coreTargets.cmake
   NAMESPACE

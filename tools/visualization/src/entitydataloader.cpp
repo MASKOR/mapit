@@ -63,7 +63,7 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> 
 {
     QJsonObject result;
     if(entitydata == nullptr) return result;
-//#if WITH_PCL OR/AND OPENVDB
+//#if MAPIT_ENABLE_PCL OR/AND OPENVDB
     if(strcmp(entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0 || strcmp(entitydata->type(), FloatGridEntitydata::TYPENAME()) == 0)
     {
         std::shared_ptr<PointcloudEntitydata> entitydataPointcloud;

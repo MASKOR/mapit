@@ -34,8 +34,8 @@ The *\-\-compute-locale*-Flags specifies, that all computation has to take place
 Currently there is a small list of *commands*:
 
 ```bash
-checkout_create
-execute_operator
+checkout
+execute
 mapitd
 checkout2filesystem
 ```
@@ -47,7 +47,7 @@ checkout2filesystem
 Getting data into the system is done by using a special operator, which accesses the filesystem it is running on. For Pointlocuds the operator is calls *load_pointcloud*
 
 ```bash
-mapit execute_operator testcheckout load_pointcloud '{"filename":"./data/bunny.pcd", "target":"testmap/testlayer/bunny"}'
+mapit execute testcheckout load_pointcloud '{"filename":"./data/bunny.pcd", "target":"testmap/testlayer/bunny"}'
 ```
 
 ### Write Data to filesystem
@@ -72,7 +72,7 @@ Data can only be changed by operators. Operator always work on a specific versio
 Executing an operator is possible with:
 
 ```bash
-mapit execute_operator <checkout> <operator> <params>
+mapit execute <checkout> <operator> <params>
 ```
 
 The list of operators is always growing, currently these operators are available/in-development
@@ -90,7 +90,7 @@ mapit export2filesystem <checkout> <local_destination_directory> --url tcp://<ip
 To upload pointclouds to a remote repository use:
 
 ```bash
-mapit execute_operator <checkout> load_pointcloud '{"filename":"<filename>", "target":"<name_of_new_entity>"}'
+mapit execute <checkout> load_pointcloud '{"filename":"<filename>", "target":"<name_of_new_entity>"}'
 ```
 
 ### Create an remote accesible Repository

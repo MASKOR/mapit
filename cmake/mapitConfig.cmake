@@ -12,13 +12,13 @@ set(MAPIT_CORE_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # not supported with find script or configuration at the moment
 # TODO: Export the exact build configuration to Config-Script.
-set(WITH_PCL TRUE CACHE BOOL "Enable pcl Layers")
-set(WITH_OPENVDB TRUE CACHE BOOL "Enable OpenVDB Layers")
-set(WITH_OCTOMAP TRUE CACHE BOOL "Enable Octomap Layers")
+set(MAPIT_ENABLE_PCL TRUE CACHE BOOL "Enable pcl Layers")
+set(MAPIT_ENABLE_OPENVDB TRUE CACHE BOOL "Enable OpenVDB Layers")
+set(MAPIT_ENABLE_OCTOMAP TRUE CACHE BOOL "Enable Octomap Layers")
 set(WITH_LAS TRUE CACHE BOOL "Enable LAS Layers")
-set(WITH_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
+set(MAPIT_ENABLE_TF TRUE CACHE BOOL "Enable Tf Layers, requiring Eigen2")
 
-set(WITH_LOG4CPLUS FALSE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
+set(MAPIT_ENABLE_LOG4CPLUS FALSE CACHE BOOL "Enable logging with log4cplus. Uses standard c out as an alternative")
 
 if(MAPIT_CMAKE_TARGETS_AVAILABLE)
   message("mapit found in cmake project. Using local targets, dependencies will recompile on demand.")
@@ -32,21 +32,21 @@ if(MAPIT_CMAKE_TARGETS_AVAILABLE)
   set(mapit_layertype_boundingbox layertype_boundingbox)
   set(mapit_layertype_pose_path layertype_pose_path)
   set(mapit_layertype_primitive layertype_primitive)
-  if(WITH_PCL)
+  if(MAPIT_ENABLE_PCL)
     set(mapit_layertype_pointcloud2 layertype_pointcloud2)
-  endif(WITH_PCL)
-  if(WITH_OPENVDB)
+  endif(MAPIT_ENABLE_PCL)
+  if(MAPIT_ENABLE_OPENVDB)
     set(mapit_layertype_openvdb layertype_openvdb)
-  endif(WITH_OPENVDB)
-  if(WITH_OCTOMAP)
+  endif(MAPIT_ENABLE_OPENVDB)
+  if(MAPIT_ENABLE_OCTOMAP)
     set(mapit_layertype_octomap layertype_octomap)
-  endif(WITH_OCTOMAP)
+  endif(MAPIT_ENABLE_OCTOMAP)
   if(WITH_LAS)
     set(mapit_layertype_las layertype_las)
   endif(WITH_LAS)
-  if(WITH_TF)
+  if(MAPIT_ENABLE_TF)
   set(mapit_layertype_tf layertype_tf)
-  endif(WITH_TF)
+  endif(MAPIT_ENABLE_TF)
 else(MAPIT_CMAKE_TARGETS_AVAILABLE)
   message("mapit targets are IMPORTED (installed or in build dir). Please use mapit::* or \${mapit_*} to refer to mapit targets.")
   # TODO: installed directory structure
@@ -77,30 +77,30 @@ else(MAPIT_CMAKE_TARGETS_AVAILABLE)
   set(mapit_layertype_boundingbox mapit::layertype_boundingbox)
   set(mapit_layertype_pose_path mapit::layertype_pose_path)
   set(mapit_layertype_primitive mapit::layertype_primitive)
-  if(WITH_PCL)
+  if(MAPIT_ENABLE_PCL)
     set(CMAKE_PREFIX_PATH
       ${CMAKE_CURRENT_LIST_DIR}/libs/layertypes_collection/pointcloud2
       ${CMAKE_PREFIX_PATH}
     )
     find_dependency(mapit_layertype_pointcloud2 REQUIRED)
     set(mapit_layertype_pointcloud2 mapit::layertype_pointcloud2)
-  endif(WITH_PCL)
-  if(WITH_OPENVDB)
+  endif(MAPIT_ENABLE_PCL)
+  if(MAPIT_ENABLE_OPENVDB)
     set(CMAKE_PREFIX_PATH
       ${CMAKE_CURRENT_LIST_DIR}/libs/layertypes_collection/openvdb
       ${CMAKE_PREFIX_PATH}
     )
     find_dependency(mapit_layertype_openvdb REQUIRED)
     set(mapit_layertype_openvdb mapit::layertype_openvdb)
-  endif(WITH_OPENVDB)
-  if(WITH_OCTOMAP)
+  endif(MAPIT_ENABLE_OPENVDB)
+  if(MAPIT_ENABLE_OCTOMAP)
     set(CMAKE_PREFIX_PATH
       ${CMAKE_CURRENT_LIST_DIR}/libs/layertypes_collection/octomap
       ${CMAKE_PREFIX_PATH}
     )
     find_dependency(mapit_layertype_octomap REQUIRED)
     set(mapit_layertype_octomap mapit::layertype_octomap)
-  endif(WITH_OCTOMAP)
+  endif(MAPIT_ENABLE_OCTOMAP)
   if(WITH_LAS)
     set(CMAKE_PREFIX_PATH
       ${CMAKE_CURRENT_LIST_DIR}/libs/layertypes_collection/las
@@ -109,14 +109,14 @@ else(MAPIT_CMAKE_TARGETS_AVAILABLE)
     find_dependency(mapit_layertype_las REQUIRED)
     set(mapit_layertype_las mapit::layertype_las)
   endif(WITH_LAS)
-  if(WITH_TF)
+  if(MAPIT_ENABLE_TF)
     set(CMAKE_PREFIX_PATH
       ${CMAKE_CURRENT_LIST_DIR}/libs/layertypes_collection/tf
       ${CMAKE_PREFIX_PATH}
     )
     find_dependency(mapit_layertype_tf REQUIRED)
     set(mapit_layertype_tf mapit::layertype_tf)
-  endif(WITH_TF)
+  endif(MAPIT_ENABLE_TF)
 endif(MAPIT_CMAKE_TARGETS_AVAILABLE)
 # Our library dependencies (contains definitions for IMPORTED targets)
 #if(NOT TARGET upns_core AND NOT upns_core_BINARY_DIR)

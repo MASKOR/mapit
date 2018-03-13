@@ -23,7 +23,7 @@ We also provide a docker container which takes care of the installation of the d
 ### Binaries:
 
 - bin/mapit: executable that servers for an entrypoint for other mapit-tools
-- bin/upns_tools: tools and aliases. This contains basically the first argument of the *mapit* command.
+- libexec/mapit_tools: tools and aliases. This contains basically the first argument of the *mapit* command.
 
 
 ### Libaries

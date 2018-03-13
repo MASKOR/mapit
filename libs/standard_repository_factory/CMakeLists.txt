@@ -56,9 +56,9 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} ${mapit_core} ${mapit_interface} ${mapit_interface_cpp} ${mapit_networking_node} ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAMLCPP_LIBRARY})
 
-if(WITH_LOG4CPLUS)
+if(MAPIT_ENABLE_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
-endif(WITH_LOG4CPLUS)
+endif(MAPIT_ENABLE_LOG4CPLUS)
 
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} dl)

@@ -20,13 +20,13 @@ find_dependency(mapit_core REQUIRED)
 # Reason: Variable evaluates to different values depending on where pcl is installed
 #target_include_directories(mapit::layertype_pointcloud2 ${PCL_INCLUDE_DIRS})
 
-# conditional compiling for different variables set/unset (like WITH_LOG4CPLUS) not supported.
-#if($<WITH_LOG4CPLUS>)
+# conditional compiling for different variables set/unset (like MAPIT_ENABLE_LOG4CPLUS) not supported.
+#if($<MAPIT_ENABLE_LOG4CPLUS>)
 #  include(FindLog4cplus)
 #  if(LOG4CPLUS_FOUND)
 #    add_definitions(-DLOG4CPLUS_FOUND)
 #  endif(LOG4CPLUS_FOUND)
-#endif($<WITH_LOG4CPLUS>)
+#endif($<MAPIT_ENABLE_LOG4CPLUS>)
 
 
 # Our library dependencies (contains definitions for IMPORTED targets)

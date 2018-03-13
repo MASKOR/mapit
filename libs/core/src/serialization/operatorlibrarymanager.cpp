@@ -69,7 +69,7 @@ std::string operatorLibraryName(const mapit::msgs::OperatorDescription &desc)
     std::string postfix = ".so";
 #endif
     std::stringstream filenam;
-    filenam << prefix << UPNS_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
+    filenam << prefix << MAPIT_INSTALL_OPERATORS << desc.operatorname() << debug << postfix;
     if(desc.operatorversion())
     {
         filenam << "." << desc.operatorversion();
@@ -208,7 +208,7 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
 
 void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string dirname, bool recursive = false)
 {
-    std::string prefix("lib" UPNS_INSTALL_OPERATORS);
+    std::string prefix("lib" MAPIT_INSTALL_OPERATORS);
 
     std::string path = dirname;
     if(path.length() != 0 && path[path.length()-1] != '/')

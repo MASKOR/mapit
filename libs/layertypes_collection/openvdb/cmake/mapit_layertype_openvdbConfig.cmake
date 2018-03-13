@@ -5,13 +5,13 @@ find_dependency(mapit_interface_cpp REQUIRED)
 find_dependency(mapit_core REQUIRED)
 find_dependency(OpenVDB REQUIRED)
 find_dependency(TBB REQUIRED)
-# conditional compiling for different variables set/unset (like WITH_LOG4CPLUS) not supported.
-#if($<WITH_LOG4CPLUS>)
+# conditional compiling for different variables set/unset (like MAPIT_ENABLE_LOG4CPLUS) not supported.
+#if($<MAPIT_ENABLE_LOG4CPLUS>)
 #  include(FindLog4cplus)
 #  if(LOG4CPLUS_FOUND)
 #    add_definitions(-DLOG4CPLUS_FOUND)
 #  endif(LOG4CPLUS_FOUND)
-#endif($<WITH_LOG4CPLUS>)
+#endif($<MAPIT_ENABLE_LOG4CPLUS>)
 
 
 # Our library dependencies (contains definitions for IMPORTED targets)

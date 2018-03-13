@@ -48,4 +48,4 @@ ENDFOREACH()
 
 add_custom_target(ToolBinaryInstall)
 
-add_dependencies(ToolBinaryInstall checkout2filesystem checkout_create commit execute_operator mapitd)
+add_dependencies(ToolBinaryInstall checkout2filesystem checkout commit execute mapitd)

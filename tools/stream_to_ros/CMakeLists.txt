@@ -99,9 +99,9 @@ if(NOT DISABLE_PCL)
       )
 
     # log4cplus
-    if(WITH_LOG4CPLUS)
+    if(MAPIT_ENABLE_LOG4CPLUS)
       target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
-    endif(WITH_LOG4CPLUS)
+    endif(MAPIT_ENABLE_LOG4CPLUS)
 
     # build structure
     execute_process(
@@ -123,6 +123,6 @@ if(NOT DISABLE_PCL)
       COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
       )
 
-    install(TARGETS ${PROJECT_NAME} DESTINATION bin/upns_tools)
+    install(TARGETS ${PROJECT_NAME} DESTINATION libexec/mapit_tools RENAME mapit-${PROJECT_NAME})
   endif()
 endif()

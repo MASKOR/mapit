@@ -31,8 +31,8 @@ import "../components"
 
 StyledButton {
     id: root
-    text: qsTr("Checkout")
-    tooltip: qsTr("Open Dialog to choose checkout to work on")
+    text: qsTr("Workspace")
+    tooltip: qsTr("Open Dialog to choose a workspace to work on")
     property string currentCheckoutName: appStyle.checkoutName
     onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
     Wnd.Window {
@@ -44,7 +44,7 @@ StyledButton {
         minimumWidth: width
         maximumWidth: width
         flags: Qt.Dialog
-        title: qsTr("Choose Checkout")
+        title: qsTr("Choose Workspace")
         color: appStyle.backgroundColor
         ColumnLayout {
             anchors.fill: parent
@@ -84,7 +84,7 @@ StyledButton {
                     minimumWidth: width
                     maximumWidth: width
                     flags: Qt.Dialog
-                    title: "Choose Checkout"
+                    title: "Create new workspace"
                     color: appStyle.backgroundColor
                     GridLayout {
                         StyledLabel {
@@ -99,7 +99,7 @@ StyledButton {
                             Layout.row: 0
                         }
                         StyledLabel {
-                            text: "Checkoutname"
+                            text: "Workspace name"
                             Layout.column: 0
                             Layout.row: 1
                         }

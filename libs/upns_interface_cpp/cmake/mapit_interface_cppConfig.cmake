@@ -16,8 +16,8 @@ if(NOT TARGET mapit::interface_cpp AND NOT mapit::interface_cpp_BINARY_DIR)
   include("${MAPIT_INTERFACE_CPP_CMAKE_DIR}/mapit_interface_cppTargets.cmake")
 endif()
  
-set(UPNS_INSTALL_LAYERTYPES "upns_layertypes_") # prefix for shared libraries
-set(UPNS_INSTALL_OPERATORS "upns_operators_") # prefix for shared libraries
+set(MAPIT_INSTALL_ENTITYTYPES "upns_layertypes_") # prefix for shared libraries
+set(MAPIT_INSTALL_OPERATORS "upns_operators_") # prefix for shared libraries
 
 # These are IMPORTED targets created by mapitInterfaceCppTargets.cmake
 #set(MAPIT_INTERFACE_CPP_LIBRARIES upns_interface_cpp)

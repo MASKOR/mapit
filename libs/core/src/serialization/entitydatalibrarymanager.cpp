@@ -59,7 +59,7 @@ std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,
     std::string postfix = ".so";
 #endif
     std::stringstream filenam;
-    filenam << prefix << UPNS_INSTALL_LAYERTYPES << layertypeName << debug << postfix;
+    filenam << prefix << MAPIT_INSTALL_ENTITYTYPES << layertypeName << debug << postfix;
     std::stringstream fixpathfilename;
     fixpathfilename << "./libs/" << filenam.str();
 #ifdef _WIN32
@@ -74,7 +74,7 @@ std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,
 #endif
     if (!handle) {
         //std::stringstream systempathfilename;
-        //systempathfilename << "upns_layertypes/" << filenam.str();
+        //systempathfilename << "mapit_entitytypes/" << filenam.str();
     #ifdef _WIN32
         handle = LoadLibrary(filenam.str().c_str());
     #else

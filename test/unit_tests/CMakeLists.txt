@@ -28,22 +28,22 @@ aux_source_directory(. SRC_LIST)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5Test ${UPNS_QTVERSION} REQUIRED)
+find_package(Qt5Test REQUIRED)
 
 include_directories( UPNS_ROOT_DIR )
 
 find_package(mapit REQUIRED)
 #find_package(assimp REQUIRED)
-if(WITH_OPENVDB)
+if(MAPIT_ENABLE_OPENVDB)
   find_package(OpenVDB REQUIRED)
-endif(WITH_OPENVDB)
-if(WITH_PCL)
+endif(MAPIT_ENABLE_OPENVDB)
+if(MAPIT_ENABLE_PCL)
   find_package(TBB REQUIRED)
   find_package(PCL QUIET REQUIRED COMPONENTS common io filters)
   include_directories(${PCL_INCLUDE_DIRS})
   link_directories(${PCL_LIBRARY_DIRS})
   add_definitions(${PCL_DEFINITIONS})
-endif(WITH_PCL)
+endif(MAPIT_ENABLE_PCL)
 
 FILE(GLOB TEST_MAIN ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
@@ -91,9 +91,9 @@ FOREACH(subdir ${SUBDIRS})
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                                   ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
-  if(WITH_OPENVDB)
+  if(MAPIT_ENABLE_OPENVDB)
     target_link_libraries(${subdir} layertype_openvdb)
-  endif(WITH_OPENVDB)
+  endif(MAPIT_ENABLE_OPENVDB)
   #custom_target_use_boost(${subdir})
   find_package(Boost COMPONENTS filesystem system date_time)
 
@@ -138,10 +138,10 @@ target_link_libraries(TestAll Qt5::Test
                               ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                               ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
-if(WITH_OPENVDB)
+if(MAPIT_ENABLE_OPENVDB)
 target_link_libraries(TestAll levelset_to_mesh layertype_openvdb)
-add_definitions(-DWITH_OPENVDB)
-endif(WITH_OPENVDB)
+add_definitions(-DMAPIT_ENABLE_OPENVDB)
+endif(MAPIT_ENABLE_OPENVDB)
 #if(WIN32)
 #target_link_libraries(TestAll
 #    C:/boost_1_56_0/lib64-msvc-12.0/libboost_system-vc120-mt-1_56.lib

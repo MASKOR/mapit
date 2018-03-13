@@ -22,7 +22,7 @@
 #  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(upns_visualization)
+project(visualization)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
@@ -59,15 +59,15 @@ else (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
 endif (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
 
 
-if(WITH_PCL)
+if(MAPIT_ENABLE_PCL)
     #find_package(PCL QUIET REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
     find_package(PCL QUIET REQUIRED COMPONENTS common io)
     include_directories(${PCL_INCLUDE_DIRS})
     link_directories(${PCL_LIBRARY_DIRS})
-else(WITH_PCL)
-endif(WITH_PCL)
+else(MAPIT_ENABLE_PCL)
+endif(MAPIT_ENABLE_PCL)
 
-set(UPNS_VISUALIZATION_INCLUDE ${PROJECT_SOURCE_DIR}/include)
+set(MAPIT_VISUALIZATION_INCLUDE ${PROJECT_SOURCE_DIR}/include)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 if(WIN32)
@@ -79,7 +79,7 @@ QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization.qrc)
 
 file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
-file(GLOB_RECURSE UPNS_VIZ_PUBLIC_HEADER ${UPNS_VISUALIZATION_INCLUDE}/**.h)
+file(GLOB_RECURSE UPNS_VIZ_PUBLIC_HEADER ${MAPIT_VISUALIZATION_INCLUDE}/**.h)
 
 set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/)
 file(GLOB FragmentShader ${ShaderPath}/*.frag)
@@ -132,13 +132,13 @@ target_link_libraries(${PROJECT_NAME}   ${mapit_core}
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)
-if(WITH_PCL)
+if(MAPIT_ENABLE_PCL)
     target_link_libraries(${PROJECT_NAME}
                                         Qt3DPointcloudRenderer
                                         layertype_pointcloud2
                                         ${PCL_LIBRARIES})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_PCL=1)
-endif(WITH_PCL)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC MAPIT_ENABLE_PCL=1)
+endif(MAPIT_ENABLE_PCL)
 
 if(WITH_LAS)
     target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_LAS=1)
@@ -147,7 +147,7 @@ if(WITH_LAS)
                                         layertype_las)
 endif(WITH_LAS)
 
-target_include_directories(${PROJECT_NAME} PUBLIC  ${UPNS_VISUALIZATION_INCLUDE}
+target_include_directories(${PROJECT_NAME} PUBLIC  ${MAPIT_VISUALIZATION_INCLUDE}
                                            PRIVATE ${PROJECT_SOURCE_DIR}/include/bindings
                                                    ${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include
                                                    ${PROJECT_SOURCE_DIR}/../Qt3DOpenVDBRenderer/include)

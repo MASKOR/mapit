@@ -37,9 +37,9 @@ add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES} stdc++)
 
-if(WITH_LOG4CPLUS)
+if(MAPIT_ENABLE_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
-endif(WITH_LOG4CPLUS)
+endif(MAPIT_ENABLE_LOG4CPLUS)
 
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
@@ -66,4 +66,4 @@ execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/tools/bin/${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin/upns_tools)
+install(TARGETS ${PROJECT_NAME} DESTINATION libexec/mapit_tools RENAME mapit-${PROJECT_NAME})

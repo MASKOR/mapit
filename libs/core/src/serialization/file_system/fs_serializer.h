@@ -124,7 +124,7 @@ namespace upns
     virtual bool exists(const ObjectId &oidOrName);
 
     virtual std::pair<StatusCode, ObjectId> persistTransientEntitydata(const PathInternal &pathInternal);
-#ifdef UPNS_DEBUG
+#ifdef MAPIT_DEBUG
     virtual void debugDump();
 #endif
   };

@@ -69,7 +69,7 @@ include_directories( ${Qt5Quick_PRIVATE_INCLUDE_DIRS} )
 set(QT_PRIVATE_HEADERS "/usr/include/qt" CACHE PATH "Point to qt installation dir where private headers can be found. This can not be done via find-script, e.g. /usr/include/qt")
 
 if(NOT EXISTS "${QT_PRIVATE_HEADERS}/Qt3DRender/5.10.1/Qt3DRender/private/qrenderaspect_p.h" )
-  message("Private Headers for virtual reality not found. Disable WITH_VIRTUALREALITY or set QT_PRIVATE_HEADERS")
+  message("Private Headers for virtual reality not found. Disable MAPIT_ENABLE_VIRTUALREALITY or set QT_PRIVATE_HEADERS")
 endif(NOT EXISTS "${QT_PRIVATE_HEADERS}/Qt3DRender/5.10.1/Qt3DRender/private/qrenderaspect_p.h")
 
 
@@ -82,7 +82,7 @@ add_definitions(-DQT3DVR_COMPILE_WITH_OPENVR=true)
 
 #set(QtPrivateHeaderRoot )
 
-#if(WITH_PCL)
+#if(MAPIT_ENABLE_PCL)
 #    #find_package(PCL QUIET REQUIRED COMPONENTS common io filters kdtree search features surface keypoints registration octree sample_consensus segmentation tracking) # apps visualization)
 #    find_package(PCL QUIET REQUIRED COMPONENTS common io) # apps visualization)
 
@@ -90,8 +90,8 @@ add_definitions(-DQT3DVR_COMPILE_WITH_OPENVR=true)
 #    include_directories(${PCL_INCLUDE_DIRS})
 #    link_directories(${PCL_LIBRARY_DIRS})
 #    add_definitions(${PCL_DEFINITIONS})
-#else(WITH_PCL)
-#endif(WITH_PCL)
+#else(MAPIT_ENABLE_PCL)
+#endif(MAPIT_ENABLE_PCL)
 
 QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization_vr.qrc)
 
@@ -152,7 +152,7 @@ endif(WIN32)
 
 qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRender 3DExtras 3DQuickInput 3DQuickRender)
 
-target_link_libraries(${PROJECT_NAME} upns_visualization
+target_link_libraries(${PROJECT_NAME} visualization
     ${mapit_core}
     ${mapit_interface_cpp}
     ${mapit_standard_repository_factory}
@@ -198,14 +198,14 @@ if(WIN32)
     # mklink logging.properties ..\..\..\upns_software\logging.properties
 
 #    STRING(REGEX REPLACE "/" "\\\\" BINARY_PATH_TMP_WINDOWS ${CMAKE_BINARY_DIR})
-#    STRING(REGEX REPLACE "/" "\\\\" UPNS_ROOT_DIR_TMP_WINDOWS ${UPNS_ROOT_DIR})
-#    execute_process(COMMAND CMD /c echo /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\data")
-#    execute_process(COMMAND CMD /c mklink /D "\"${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data\"" "\"${UPNS_ROOT_DIR_TMP_WINDOWS}\\data\"")
+#    STRING(REGEX REPLACE "/" "\\\\" MAPIT_ROOT_DIR_TMP_WINDOWS ${UPNS_ROOT_DIR})
+#    execute_process(COMMAND CMD /c echo /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data" "${MAPIT_ROOT_DIR_TMP_WINDOWS}\\data")
+#    execute_process(COMMAND CMD /c mklink /D "\"${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data\"" "\"${MAPIT_ROOT_DIR_TMP_WINDOWS}\\data\"")
 #    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\libs" "${BINARY_PATH_TMP_WINDOWS}\\libs")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\resources" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\resources")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\operator_modules" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\libs\\operator_modules")
-#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\layertypes_collection" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\libs\\layertypes_collection")
-#    execute_process(COMMAND CMD /c mklink    "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\logging.properties" "${UPNS_ROOT_DIR_TMP_WINDOWS}\\logging.properties")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\resources" "${MAPIT_ROOT_DIR_TMP_WINDOWS}\\resources")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\operator_modules" "${MAPIT_ROOT_DIR_TMP_WINDOWS}\\libs\\operator_modules")
+#    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\layertypes_collection" "${MAPIT_ROOT_DIR_TMP_WINDOWS}\\libs\\layertypes_collection")
+#    execute_process(COMMAND CMD /c mklink    "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\logging.properties" "${MAPIT_ROOT_DIR_TMP_WINDOWS}\\logging.properties")
 else(WIN32)
     #TODO: some are not needed anymore
     #Note: Thought CMake can do symlink platform independent? Well... this will only work for unix...
@@ -233,4 +233,4 @@ else(WIN32)
 
 endif(WIN32)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin/upns_tools)
+install(TARGETS ${PROJECT_NAME} DESTINATION libexec/mapit_tools RENAME mapit-${PROJECT_NAME})
