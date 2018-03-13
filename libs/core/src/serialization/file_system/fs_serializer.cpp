@@ -382,7 +382,7 @@ FSSerializer::removeEntityTransient(const PathInternal &transientId)
 std::shared_ptr<Commit>
 FSSerializer::getCommit(const ObjectId &oid)
 {
-    fs::path path = _PREFIX_COMMIT_ / fs::path(oid);
+    fs::path path = repo_ / _PREFIX_COMMIT_ / fs::path(oid);
 
     if ( ! fs::exists( path ) ) {
         return std::shared_ptr<Commit>(NULL);
@@ -406,9 +406,18 @@ FSSerializer::getCommit(const ObjectId &oid)
 std::pair<StatusCode, ObjectId>
 FSSerializer::createCommit(std::shared_ptr<Commit> &obj)
 {
-    //TODO
-    ObjectId oid;
-    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_ERR_DB_IO_ERROR, oid);
+    ObjectId oid = mapit::hash_toString(obj.get());
+
+    fs::path path = repo_ / _PREFIX_COMMIT_;
+    fs_check_create( path );
+
+    path /= fs::path(oid);
+
+    std::shared_ptr<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_commit()) = *obj;
+    fs_write( path, ge, MessageCommit);
+
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, oid);
 }
 
 StatusCode
