@@ -169,6 +169,8 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
 
 CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string msg)
 {
+    size_t logStatsFileChanged = 0;
+
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
     CommitId refID;
@@ -210,10 +212,10 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
             return true;
         },
         depthFirstSearchAll(Tree),
-        [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path)
+        [&](std::shared_ptr<Tree> tree, const ObjectReference &ref, const Path &path)
         {
-            assert(obj != NULL);
-            ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
+            assert(tree != NULL);
+            ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *tree->mutable_refs();
             ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
             while(iter != refs.end())
             {
@@ -229,10 +231,11 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
                 }
                 iter++;
             }
-            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
+            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(tree);
             if ( ! mapitIsOk(statusOid.first)) {
                 return false;
             }
+            m_p->m_serializer->removeTreeTransient( ref.path() );
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
@@ -263,8 +266,11 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
                 if ( ! mapitIsOk(statusOid.first) ) {
                     return false;
                 }
+                m_p->m_serializer->removeEntityTransient( ref.path() );
                 // save ID of entity for tree storage
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
+
+                logStatsFileChanged++;
             } else {
                 // save ID of entity for tree storage
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, ref.id()));
