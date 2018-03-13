@@ -727,38 +727,27 @@ FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
         offsetStep = offsetMax;
     }
 
-    // create temporarly file to write copy of transient file
-    fs::path tempPath = repo_ / "temp" / _PREFIX_ENTITY_DATA_ / pathInternal;
-    fs_check_create( tempPath.parent_path() );
-    std::ofstream tempStream(tempPath.string(), std::ios::out | std::ios::binary);
-
     // create buffer for hash TODO, use SHA update to not store in RAM
     std::string fileHash = "";
 
-    // read chunks, while storing temporarly and creating the hash
+    // read chunks, to create the hash
     std::ifstream transientStream(transientPath.string(), std::ifstream::in | std::ios_base::binary);
     bool writeIsDone = false;
     for (size_t offsetIterator = 0; ! writeIsDone; offsetIterator++) {
         char* buffer = new char[offsetStep];
 
         if ( transientStream.read(buffer, offsetStep) ) { // if the end is not reached
-            // write to temporarly file
-            tempStream.write(buffer, offsetStep);
             // and update hash
             fileHash += buffer; // TODO, use update of hash to be able to not have the whole file in RAM
         } else {
-            // write to temporarly file
-            size_t left = transientStream.gcount();
-            tempStream.write(buffer, left);  // write the left rest
             // and update hash
+            size_t left = transientStream.gcount();
             fileHash += buffer; // TODO, use update of hash to be able to not have the whole file in RAM
 
             writeIsDone = true; // stop writing with next loop
         }
         delete[] buffer;
     }
-    tempStream.flush();
-    tempStream.close();
     transientStream.close();
 
     // finish hash
@@ -767,7 +756,7 @@ FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
     // move temporarly file to correct position with hash
     fs::path persistentPath = repo_ / _PREFIX_ENTITY_DATA_ / persistentID;
     fs_check_create( persistentPath.parent_path() );
-    fs::rename(tempPath, persistentPath);
+    fs::rename(transientPath, persistentPath);
 
     return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, persistentID);
 }
