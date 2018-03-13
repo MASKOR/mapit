@@ -282,24 +282,32 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
     {
         log_error("error while commiting");
     }
-    //TODO: What to do with old ids?
-    ::mapit::msgs::Commit *ci = co->getCheckoutObj()->mutable_rollingcommit();
-    ci->clear_author();
-    ci->clear_commitmessage();
-    ci->clear_datetime();
-    ci->clear_detailedtransitions();
-    ci->clear_ops();
-    ci->clear_parentcommitids();
-    //ci->clear_root();
-    ci->clear_transitions();
-    ci->add_parentcommitids(ret);
-    std::shared_ptr<CheckoutObj> obj(co->getCheckoutObj());
-    s = m_p->m_serializer->storeCheckoutCommit(obj, co->getName());
-    if(!mapitIsOk(s))
-    {
-        log_error("Error during commit. Could not update current checkout.");
-    }
-    //m_p->m_serializer->debugDump();
+
+    // TODO: assert check if checkout is empty
+    // delete all folder of checkout
+    std::string coName = co->getName();
+    std::string branchName = co->getBranchName();
+    deleteCheckoutForced(coName);
+
+    checkout = createCheckout(refID, coName);
+    // TODO: update branchName to new refID
+
+//    // alternative version
+//    std::shared_ptr<CheckoutObj> coNew = std::shared_ptr<CheckoutObj>(new CheckoutObj());
+//    coNew->mutable_rollingcommit()->add_parentcommitids(ret);
+//    StatusCode status = m_p->m_serializer->createCheckoutCommit( coNew, coName );
+//    if ( ! upnsIsOk(status) ) {
+//        log_error("Could not create checkout.");
+//    }
+//    std::shared_ptr<Checkout>(new CheckoutImpl(m_p->m_serializer, coNew, coName, branchName));
+
+    log_info("");
+    log_info("[" << branchName << " " << refID.substr(0, 7) << "] " << msg.substr(0, msg.find_first_of("\n") ));
+    log_info("" << logStatsFileChanged << " entity changed");
+    log_info("");
+    log_info("\tCommited " << coName << " -> " << branchName);
+    log_info("");
+
     return refID;
 }
 
