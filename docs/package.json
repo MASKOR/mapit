@@ -14,5 +14,8 @@
     "gulp-shell": "^0.6.3",
     "highlight.js": "^9.10.0",
     "lodash": "^4.17.4"
+  },
+  "dependencies": {
+    "jekyll": "^3.0.0-beta1"
   }
 }

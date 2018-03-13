@@ -3,6 +3,7 @@ layout: page
 title: Installation
 permalink: /install/
 order: 100
+is_in_menu: true
 ---
 
 ## Setup

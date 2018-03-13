@@ -3,6 +3,7 @@ layout: page
 title: Architecture
 permalink: /architecture/
 order: 500
+is_in_menu: true
 ---
 
 Mapit is designed in a modular way. Complexity is hidden behind a handful of classes. These classes implement the facade design pattern and offer easy interfaces to multiple parts of mapit.

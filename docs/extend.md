@@ -3,6 +3,7 @@ layout: page
 title: Extending
 permalink: /extend/
 order: 600
+is_in_menu: true
 ---
 
 In architecture an overview is given which parts of the software can be extended.

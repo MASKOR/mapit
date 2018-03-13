@@ -3,6 +3,7 @@ layout: page
 title: Operators
 permalink: /ops/
 order: 300
+is_in_menu: true
 ---
 
 ## [load_pointcloud](../operator/load_pointcloud)

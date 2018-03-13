@@ -3,6 +3,7 @@ layout: page
 title: Quickstart
 permalink: /quickstart/
 order: 200
+is_in_menu: true
 ---
 ## Usage	(for non-developers)
 

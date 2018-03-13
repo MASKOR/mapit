@@ -1,4 +1,7 @@
 source "https://rubygems.org"
-gemspec
 
 gem "redcarpet"
+
+gem "minima"
+
+gem "github-pages", group: :jekyll_plugins

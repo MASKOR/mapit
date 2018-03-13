@@ -16,4 +16,4 @@ permalink: /operator/load_pointcloud
 loads a pointcloud
 
 #### Remark
-Algorithm: pcl::Pointcloud2 is used internally. This can represent all Pointtypes. However, operators will only work on specific point types (e.g. PointXYZNormal, PointXY). The type of Pointcloud that was read by the operator is not known by the system. 
+Algorithm: pcl::Pointcloud2 is used internally. This can represent all Pointtypes. However, operators will only work on specific point types (e.g. PointXYZNormal, PointXY). The type of Pointcloud that was read by the operator is not known by the system.

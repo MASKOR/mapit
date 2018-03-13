@@ -1,7 +1,7 @@
 <header class="site-header" role="banner">
 
   <div class="wrapper">
-    <a class="site-title" href="/"><b>mapit</b></a>
+    <a class="site-title" href="{% link index.md %}"><b>mapit</b></a>
 
     <!--a class="site-title" href="{{ "/" | relative_url}}">{{ site.title | escape }}</a-->
 
@@ -17,7 +17,7 @@
       <div class="trigger">
         {% assign sorted_pages = site.pages | sort:"order" %}
         {% for my_page in sorted_pages %}
-          {% if my_page.title %}
+          {% if my_page.title and my_page.is_in_menu %}
           <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
           {% endif %}
         {% endfor %}

@@ -3,6 +3,7 @@ layout: page
 title: Tools
 permalink: /tools/
 order: 450
+is_in_menu: true
 ---
 
 ## [ls](../tool/ls)
@@ -17,4 +18,3 @@ order: 450
 ## mapitd
 ## Qt3DPointcloudRenderer
 ## visualization
-
