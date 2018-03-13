@@ -237,34 +237,39 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             return true;
         },
         depthFirstSearchAll(Entity),
-        [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
+        [&](std::shared_ptr<Entity> entity, const ObjectReference &ref, const Path &path)
         {
-            std::pair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());
-            if(mapitIsOk(!statusEntitydataOid.first)) return false;
-            bool entityNeedsStore;
-            if(statusEntitydataOid.second != obj->dataid())
-            {
-                obj->set_dataid(statusEntitydataOid.second);
-                entityNeedsStore = true;
-            }
-            else
-            {
-                assert(ref.path().empty() != ref.id().empty()); //XOR
-                entityNeedsStore = !ref.path().empty();
+            // we have nothing todo when ref.path() is empty
+            bool entityExistsTransient     = (! ref.path().empty()) && (m_p->m_serializer->getEntityTransient( ref.path() ) != nullptr);
+            bool entitydataExistsTransient = (! ref.path().empty()) && m_p->m_serializer->existsStreamProviderTransient( ref.path() );
+
+            // first save the data (becase the ID to the new data needs to be in the entity)
+            if (entitydataExistsTransient) {
+                std::pair<StatusCode, ObjectId> edStatus = m_p->m_serializer->persistTransientEntitydata( ref.path() );
+                if ( ! mapitIsOk(edStatus.first) ) {
+                    log_error("Commit: error while saving \"" << path << "\" persistent. Code: " << edStatus.first);
+                    return false;
+                }
+                // check if the data ID changed for the entity
+                if ( ! edStatus.second.empty() && entity->dataid() != edStatus.second) {
+                    entity->set_dataid( edStatus.second );
+                    entityExistsTransient = true; // might has been true anyways, but now we need to update at least the new reference
+                }
             }
 
-            if(entityNeedsStore)
-            {
-                std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(obj);
-                if(mapitIsOk(!statusOid.first)) return false;
+            // afterwards save the entity
+            if (entityExistsTransient) {
+                std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(entity);
+                if ( ! mapitIsOk(statusOid.first) ) {
+                    return false;
+                }
+                // save ID of entity for tree storage
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
-            }
-            else
-            {
+            } else {
+                // save ID of entity for tree storage
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, ref.id()));
             }
-            //TODO: Put old->New for entitydata (How?!?)
-            //oldToNewIds.insert(oid, soid.second);
+
             return true;
         });
     if(!mapitIsOk(s))
