@@ -329,5 +329,6 @@
         <file>icon/material/ic_format_paint_black_24dp_2x.png</file>
         <file>icon/eye-16-ns.png</file>
         <file>icon/eye-24-ns.png</file>
+        <file>qml/CameraController.qml</file>
     </qresource>
 </RCC>

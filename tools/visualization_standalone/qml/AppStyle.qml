@@ -9,8 +9,10 @@ Item {
     function emitThemeChanged() {
         themeChanged()
     }
-    function emitClickedAction() {
-        clickedAction()
+
+    property bool captureMouse: true
+    function emitClickedAction(mouse) {
+        clickedAction(mouse)
     }
 
     property real backgroundLightness: lighness(backgroundColor)

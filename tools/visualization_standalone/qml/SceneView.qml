@@ -316,15 +316,17 @@ Item {
 
                         hoverEnabled: true
                         preventStealing: true
+                        propagateComposedEvents: true
 
                         onEntered: priv.mouseOver = true
                         onExited: priv.mouseOver = false
                         onWheel: {
                             cameraController.handleWheelScroll(wheel.angleDelta.y, Qt.point(wheel.x, wheel.y))
                         }
-                        acceptedButtons: Qt.LeftButton
+                        acceptedButtons: appStyle.captureMouse ? Qt.LeftButton : Qt.NoButton
                         onClicked: {
-                            appStyle.emitClickedAction()
+                            mouse.accepted = false
+                            appStyle.emitClickedAction(mouse)
                             appStyle.tmpFollowMouse = false
                         }
 
@@ -401,7 +403,8 @@ Item {
                     }
                     Scene3D {
                         anchors.fill: parent
-                        //hoverEnabled: true
+//                        hoverEnabled: true
+//                        focus: true
                         id: scene3d
                         aspects: ["render", "logic", "input"]
                         //focus: priv.mouseOver
@@ -425,6 +428,14 @@ Item {
                                     onRunningChanged: mapitScene.gizmoEntity.isVisible = running
                                 }
                             }
+                            // TODO: A Qml configured cameracontroller should be implemented. See "simple-qml" example. At the time of this writing,
+                            // the sample used "OrbitCameraController" instead of CameraController.
+//                          CameraController {
+//                                id: cameraController
+//                                camera: sceneView.camera
+//                                //viewportSize: Qt.size(scene3d.width, scene3d.height)
+//                            }
+
                             EditorCameraController {
                                 id: cameraController
                                 camera: sceneView.camera

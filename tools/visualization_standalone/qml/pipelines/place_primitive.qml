@@ -82,6 +82,7 @@ ColumnLayout {
     onShownChanged: {
         appStyle.tmpUsePreviewMatrix = false
         appStyle.tmpPlacePrimitive = shown
+        appStyle.captureMouse = shown
         if(shown) primitiveOption.checkCurrentType(appStyle.tmpPrimitiveType)
     }
 
