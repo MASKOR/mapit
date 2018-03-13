@@ -220,7 +220,8 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
             while(iter != refs.end())
             {
-                Path childPath(path + "/" + iter->second.path());
+                Path childPath(iter->second.path());
+                childPath = childPath.substr(childPath.find_first_of("/"), childPath.length());
                 assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
                 const ObjectId &newId = oldPathsToNewOids[childPath];
                 assert(!newId.empty());
@@ -232,7 +233,9 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
                 iter++;
             }
             std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
-            if(mapitIsOk(!statusOid.first)) return false;
+            if ( ! mapitIsOk(statusOid.first)) {
+                return false;
+            }
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
