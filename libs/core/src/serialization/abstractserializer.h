@@ -82,6 +82,8 @@ public:
     virtual StatusCode createBranch(std::shared_ptr<mapit::msgs::Branch> &obj, const std::string &name) = 0;
     virtual StatusCode removeBranch(const std::string &name) = 0;
 
+    virtual bool existsStreamProvider(const ObjectId &entityId) = 0;
+    virtual bool existsStreamProviderTransient(const Path &path) = 0;
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
 

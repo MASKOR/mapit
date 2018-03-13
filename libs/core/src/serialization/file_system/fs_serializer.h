@@ -110,6 +110,8 @@ namespace mapit
     virtual StatusCode createBranch(std::shared_ptr<Branch> &obj, const std::string &name);
     virtual StatusCode removeBranch(const std::string &name);
 
+    virtual bool existsStreamProvider(const ObjectId &entityId);
+    virtual bool existsStreamProviderTransient(const Path &path);
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite);
 

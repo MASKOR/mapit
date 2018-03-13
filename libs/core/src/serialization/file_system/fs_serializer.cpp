@@ -594,6 +594,20 @@ FSSerializer::removeBranch(const std::string &name)
     return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
+bool
+FSSerializer::existsStreamProvider(const ObjectId &entityId)
+{
+    fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(entityId);
+    return fs::exists(path);
+}
+
+bool
+FSSerializer::existsStreamProviderTransient(const Path &path)
+{
+    fs::path filePath = objectid_to_checkout_fs_path(path) / _CHECKOUT_ENTITY_DATA_;
+    return fs::exists(filePath);
+}
+
 std::shared_ptr<AbstractEntitydataProvider>
 FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
 {
