@@ -58,7 +58,6 @@ Item {
                 newPeers.push(hashIdentToNewState[worldPeerIdent])
             }
         }
-        //console.log("DBG: peers fin, new: " + newPeers.length + ", found: " + foundPeers.length + ", miss: " + missingPeers.length)
         // RealtimeObjects
 
         //Do not do the following, in order to have a full "missingRtos" list!
@@ -126,8 +125,6 @@ Item {
             }
         }
 
-        //console.log("DBG: rto fin, new: " + newRtos.length + ", found: " + foundRtos.length + ", miss: " + missingRtos.length)
-
         // Update Visible EntityInfos (use foundPeers for that)
         var newVisObjs =[] // CREATE
         var foundVisObjs = [] // UPDATE
@@ -188,8 +185,6 @@ Item {
             var peerIdentIndex = foundPeers[prsupd].ident
 
             //peerToPeerState[peerIdentIndex].sessionId = foundPeers[prsupd].sessionId
-            console.log("DBG: JSON.stringify(world): " + JSON.stringify(world))
-            console.log("DBG: foundPeers[x]: " + JSON.stringify(foundPeers[prsupd]))
             peerToPeerState[peerIdentIndex].ident = foundPeers[prsupd].ident
             peerToPeerState[peerIdentIndex].peername = foundPeers[prsupd].peername
             peerToPeerState[peerIdentIndex].additionalData = foundPeers[prsupd].additionalData
@@ -202,11 +197,9 @@ Item {
 
             if(peerToPeerState[peerIdentIndex].isHost) root.hostState = peerToPeerState[peerIdentIndex]
         }
-        console.log("DBG: newPeers: #" + newPeers.length)
         for( var prsnew=0 ; prsnew < newPeers.length ; ++prsnew) {
             var newPeerObj = newPeers[prsnew]
             if(!newPeerObj || newPeerObj.ident === "" || newPeerObj.ident === "pending") continue // peer
-            console.log("  DBG: newPeer: \"" + newPeerObj.peername + "\" (" + newPeerObj.ident + ")" )
             //VO BO mapping
             var blueprint = {
                 ident: newPeerObj.ident,
@@ -220,17 +213,13 @@ Item {
             peerToPeerState[newPeers[prsnew].ident] = peerStateComponent.createObject(null, blueprint)
             if(newPeerObj.isHost) root.hostState = peerToPeerState[newPeers[prsnew].ident]
         }
-
-        console.log("DBG: for(missingRtosModelIdx): #" + missingRtosModelIdx.length)
         // update rto model
         // remove
         missingRtosModelIdx.sort()
         for( var mrmi=missingRtosModelIdx.length-1 ; mrmi >= 0 ; --mrmi) {
             var idx = missingRtosModelIdx[mrmi]
-            console.log("  DBG: missingRtosModelIdx: " + idx)
             realtimeObjects.remove(idx, 1)
         }
-        console.log("DBG: update realtimeObjects for(...) #" + realtimeObjects.count)
         // update
         for( var rtoUpd=0 ; rtoUpd < realtimeObjects.count ; ++rtoUpd) {
             var theRto2 = realtimeObjects.get(rtoUpd)
@@ -243,7 +232,6 @@ Item {
             theRto2.type = newRtoState.type
             theRto2.additionalData = newRtoState.additionalData
         }
-        console.log("DBG: create realtimeObjects for(...) #" + newRtos.length)
         // create
         for( var rtoC=0 ; rtoC < newRtos.length ; ++rtoC) {
             var newRto = newRtos[rtoC]
@@ -258,7 +246,6 @@ Item {
             }
             realtimeObjects.append(realtimeObjectComponent.createObject(null, blueprintRto))
         }
-        console.log("DBG: Working on VisualObjectInfos for(...) #" + missingVisObjsModelIdx.length)
         // update visibleEntityInfos model
         // remove
         missingVisObjsModelIdx.sort()
@@ -268,20 +255,16 @@ Item {
             var arr = visibleEntityInfos
             arr.splice(idx2, 1)
             visibleEntityInfos = arr
-            console.log("DBG: Removed VisualObjectInfo " + visibleEntityInfosList.get(idx2).path)
             visibleEntityInfosList.remove(idx2)
         }
-        console.log("DBG: UPDATE VisualObjectInfos for(...) #" + visibleEntityInfosList.count)
         // update
         for( var visObjUpd=0 ; visObjUpd < visibleEntityInfosList.count/**/ ; ++visObjUpd) {
             var theVisObj2 = visibleEntityInfos[visObjUpd]
             var newVisObjState = foundVisObjsByIdent[theVisObj2.path]
             if(!newVisObjState) continue
-            console.log("  DBG: UPDATE VisualObjectInfos " + JSON.stringify(newVisObjState))
             theVisObj2.peerOwner = newVisObjState.peerOwner
             theVisObj2.additionalData = newRtoState.additionalData
         }
-        console.log("DBG: CREATE VisualObjectInfos:for(...) #" + newVisObjs.length)
         // create
         for( var visObjC=0 ; visObjC < newVisObjs.length ; ++visObjC) {
             var newVisObj = newVisObjs[visObjC]
@@ -290,13 +273,11 @@ Item {
                 peerOwner: newVisObj.peerOwner,
                 additionalData: newVisObj.additionalData
             }
-            console.log("  DBG: ADDING NETWORK newVisObj: " + JSON.stringify(newVisObj))
             var arr = visibleEntityInfos
             arr.push(visibleObjectComponent.createObject(null, blueprintVisObj))
             visibleEntityInfos = arr
             visibleEntityInfosList.append({path: newVisObj.path})
         }
-        console.log("DBG: Working on VisualObjectInfos DONE ")
     }
     Component {
         id: realtimeObjectComponent

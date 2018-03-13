@@ -72,7 +72,6 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
 
 void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 {
-    log_info("Server DBG: handleRequestCheckout");
     std::unique_ptr<ReplyCheckout> ptr(new ReplyCheckout());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
@@ -107,14 +106,12 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
         }
         ptr->set_status( ReplyCheckout::EXISTED );
     }
-    log_info("Server DBG: send(ReplyCheckout)");
     send( std::move( ptr ) );
 }
 
 void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 {
     try {
-        log_info("Server DBG: handleRequestEntitydata");
         std::unique_ptr<ReplyEntitydata> ptr(new ReplyEntitydata());
 
         // Validate input
@@ -206,7 +203,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
         }
         catch(zmq::error_t err )
         {
-            log_error("Zmq Responder could not reply with entitydata (handleRequestEntitydata (2)): " + err.what());
+            log_error("Zmq Responder could not reply with entitydata (handleRequestEntitydata (zmq error)): " + err.what());
             ed->endRead(strm);
             unsigned char buffer[0];
             send_raw_body( buffer, 0 );
@@ -229,89 +226,10 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 
 void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 {
-    //TODO: can not handle this! Remove from service definition
-//    // TODO: Can only use paths/transient data at the moment
-//    // This is TODO: Write test and make it pass. Note that everything this message does can be done using internal messages "getTree" and "getEntity".
-//    // Note: At the moment this is the only place, where "/map/layer/entity" structure is hardcoded.
+    //TODO: Remove from service definition
+    //Note that everything this message does can be done using internal messages "getTree" and "getEntity".
     std::unique_ptr<ReplyHierarchy> rep(new ReplyHierarchy());
-//    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-//    if(co == NULL)
-//    {
-//        // TODO: Introduce Error-type
-//        //ptr->set_status( upns::ReplyHierarchy::CHECKOUT_NOT_FOUND );
-//        send( std::move( rep ) );
-//    }
-//    else
-//    {
-//        //ptr->set_status( upns::ReplyHierarchy::SUCCESS );
-
-
-//        std::shared_ptr<Tree> root = co->getRoot();
-
-//        for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cmap( root->refs().cbegin() );
-//            cmap != root->refs().cend();
-//            ++cmap)
-//        {
-//            upns::ReplyHierarchyMap treeLevel0;
-//            std::shared_ptr<Tree> map = co->getTree(cmap->first);
-//            for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator clayer( map->refs().cbegin() );
-//                clayer != map->refs().cend();
-//                ++clayer)
-//            {
-//                upns::ReplyHierarchyLayer treeLevel1;
-//                //Path layerPath( cmap->first + "/" + clayer->first );
-//                std::shared_ptr<Tree> layer = co->getTree( clayer->second.path() );
-//                assert(layer); //TODO? Just reimplement request hierechy and interface
-//                for(google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator cent( layer->refs().cbegin() );
-//                    cent != layer->refs().cend();
-//                    ++cent)
-//                {
-//                    std::shared_ptr<Entity> ent = co->getEntity( cent->second.path() );
-//                    if(ent)
-//                    {
-//                        treeLevel1.mutable_entities()->insert(::google::protobuf::MapPair< ::std::string, ::std::string>( cent->first, ent->type()));
-//                    }
-//                    else
-//                    {
-//                        log_warn("Repository malformed. (/map/layer/entity)");
-//                    }
-//                }
-//                treeLevel0.mutable_layers()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ReplyHierarchyLayer>( clayer->first, treeLevel1));
-//            }
-//            rep->mutable_maps()->insert(::google::protobuf::MapPair< ::std::string, ::upns::ReplyHierarchyMap>( cmap->first, treeLevel0));
-//        }
-        send(std::move(rep));
-//        upns::StatusCode s = co->depthFirstSearch([&](
-//            std::shared_ptr<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
-//            {
-//                //before commit
-//                return true;
-//            },
-//            [&](std::shared_ptr<upns::Commit> obj, const upns::ObjectId& oid, const upns::Path &path)
-//            {
-//                //after commit
-//                return true;
-//            },
-//            [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
-//            {
-//                //before tree
-//                return true;
-//            }, [&](std::shared_ptr<upns::Tree> obj, const upns::ObjectId& oid, const upns::Path &path)
-//            {
-//                //after tree
-//                return true;
-//            },
-//            [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
-//            {
-//                //before entity
-//                return true;
-//            },
-//            [&](std::shared_ptr<upns::Entity> obj, const upns::ObjectId& oid, const upns::Path &path)
-//            {
-//                //after entity
-//                return true;
-//            });
-//    }
+    send(std::move(rep));
 }
 
 void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
@@ -344,7 +262,6 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
 
 void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
 {
-    log_info("Server DBG: handleRequestListCheckouts");
     std::unique_ptr<ReplyListCheckouts> rep(new ReplyListCheckouts());
     std::vector<std::string> cos = m_repo->listCheckoutNames();
     for(std::vector<std::string>::const_iterator iter(cos.cbegin()) ; iter != cos.cend() ; ++iter)
@@ -613,7 +530,6 @@ upns::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
 
 void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
 {
-    log_info("Server DBG: handleRequestGenericEntry");
     Replier<ReplyGenericEntry> rep(new ReplyGenericEntry(), this);
     //std::unique_ptr<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());

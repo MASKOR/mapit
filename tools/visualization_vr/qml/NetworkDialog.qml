@@ -52,8 +52,6 @@ ApplicationWindow {
             onClicked: {
                 activator.activat = true
                 //connectRealtimeMultiviewDialog.mapitClient.active = true
-
-                //DBG: disabled for debugging connectRealtimeMultiviewDialog.visible = false
             }
             Layout.column: 1
             Layout.row: 2

@@ -108,15 +108,10 @@ std::shared_ptr<upns::Checkout> upns::ZmqRequester::createCheckout(const upns::C
     req->set_createifnotexists(true);
     try
     {
-        log_info("DBG: REQ: create checkout m_d->prepareForwardComChannel()");
         m_d->prepareForwardComChannel();
-        log_info("DBG: REQ: create checkout m_d->send(std::move(req))");
         m_d->send(std::move(req));
-        log_info("DBG: REQ: create checkout m_d->prepareBackComChannel()");
         m_d->prepareBackComChannel();
-        log_info("DBG: REQ: create checkout m_d->receive<ReplyCheckout>()");
         std::shared_ptr<ReplyCheckout> rep(m_d->receive<ReplyCheckout>());
-        log_info("DBG: REQ: create checkout Done");
         if(rep && (rep->status() == ReplyCheckout::SUCCESS ||
            rep->status() == ReplyCheckout::EXISTED))
         {

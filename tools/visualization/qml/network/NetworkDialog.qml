@@ -73,8 +73,7 @@ Window {
                      && clientUrl.text.trim().length !== 0
             onClicked: {
                 if(isServerCheckbox.checked) {
-                    console.log("DBG: tmp: override repository")
-                    globalRepository.url = "." //TODO: temp, DBG
+                    //globalRepository.url = "." //TODO: temp, DBG
                     webServer.listen = true
                     webServer.accept = true
                     mapitClient.active = true
@@ -82,7 +81,7 @@ Window {
                     mapitClient.active = true
                 }
 
-                //DBG: disabled for debugging connectRealtimeMultiviewDialog.visible = false
+                //connectRealtimeMultiviewDialog.visible = false
             }
             Layout.column: 1
             Layout.row: 2

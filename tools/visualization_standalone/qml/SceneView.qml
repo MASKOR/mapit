@@ -46,9 +46,6 @@ Item {
     property alias camera: mainCamera
     property alias currentFrameId: frameIdChooser.currentText
     property MapitClient mapitClient: globalApplicationState.mapitClient
-    onVisibleEntityModelChanged: {
-        console.log("DBG: Visible Entities len: " + root.visibleEntityModel.count)
-    }
 
     ColumnLayout {
         anchors.fill: parent

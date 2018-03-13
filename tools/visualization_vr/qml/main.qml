@@ -99,7 +99,6 @@ Q3D.Entity {
             mapitClient.sendOwnState()
             var dir = realtimeRightHand.tf.row(2)
             worldDir = Qt.vector3d(dir.x, dir.y, dir.z)
-            console.log("DBG: Raycast: " + worldDir)
             if(vrCam.isTriggerTmp() && !teleportTimer.running) {
                 teleportTimer.start();
                 vrCam.offset = teleportRaycast.worldPosition

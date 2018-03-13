@@ -46,7 +46,6 @@ Item {
                 noWait = false
             }
         }
-        console.log("DBG: NUMBER of Callbacks: " + numberOfCallbacks)
         // request ident from server an defer futher processing
         for(var r2=0 ; r2 < ownState.realtimeObjects.length ; ++r2) {
             var currentRto = ownState.realtimeObjects[r2]
@@ -54,7 +53,6 @@ Item {
                 currentRto.ident = "pending"
                 getUniqueIdentifier(function(newIdent, data) {
                     ownState.realtimeObjects[data.idx].ident = newIdent
-                    console.log("DBG: set ident: " + newIdent + " to " + data.idx + " noc: " + numberOfCallbacks + "-1")
                     numberOfCallbacks--
                     if(numberOfCallbacks == 0) {
                         root._proceedSendingOwnState(ownState)
@@ -126,7 +124,6 @@ Item {
         var hashValue = "data_" + (++priv.uidCounter) + Date.now()
         priv.callbackHash[hashValue] = {cb: callback, cbData: callbackData }
         var message = {messagetype: "get_uid", message: { ident: root.ident, sessionId: root.sessionId, data: hashValue }}
-        console.log("DBG: Requested IDENT for: " + JSON.stringify(message.message))
         socket.sendTextMessage(JSON.stringify(message))
     }
 
@@ -136,7 +133,6 @@ Item {
         property string givenSessionId
         property var callbackHash: ({})
         property int uidCounter: 234
-        onGivenIdentChanged: console.log("DBG: my ident is: " + givenIdent)
     }
     Timer {
         repeat: true
@@ -147,7 +143,6 @@ Item {
     function processMessages() {
         var msgCpy = socket.messages.slice()
         socket.messages = []
-        //console.log("DBG: 2 len " + msgCpy.length)
         for(var i=0 ; i < msgCpy.length ; ++i) {
             var msg = msgCpy[i]
             var msgData = msg.message

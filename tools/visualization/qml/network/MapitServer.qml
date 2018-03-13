@@ -90,7 +90,6 @@ Item {
         function processMessages() {
             var lenBefore = webServer.messages.length
             var msgCpy = webServer.messages.slice() //TODO: block between copy an clear
-            if(msgCpy.length !== lenBefore) console.log("DBG: LEN err: " + lenBefore + " != " + msgCpy.length)
             webServer.messages = []
             for(var i=0 ; i < msgCpy.length ; ++i) {
                 var msg = msgCpy[i].msg
