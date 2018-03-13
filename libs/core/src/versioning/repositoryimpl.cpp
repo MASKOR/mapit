@@ -164,7 +164,7 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
         return MAPIT_STATUS_ENTITY_NOT_FOUND;
     }
     //TODO: Get Checkout, remove its inner Commit and objects (objects only if not referenced)!
-    return m_p->m_serializer->removeCheckoutCommit(checkoutName);
+    return m_p->m_serializer->removeCheckout(checkoutName);
 }
 
 CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg)

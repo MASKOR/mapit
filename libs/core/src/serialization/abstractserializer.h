@@ -74,7 +74,7 @@ public:
     virtual std::shared_ptr<mapit::msgs::CheckoutObj> getCheckoutCommit(const std::string &name) = 0;
     virtual StatusCode storeCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> &obj, const std::string &name) = 0;
     virtual StatusCode createCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> &obj, const std::string &name) = 0;
-    virtual StatusCode removeCheckoutCommit(const std::string &name) = 0;
+    virtual StatusCode removeCheckout(const std::string &name) = 0;
 
     virtual std::vector< std::shared_ptr<mapit::msgs::Branch> > listBranches() = 0;
     virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;

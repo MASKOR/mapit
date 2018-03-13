@@ -501,10 +501,12 @@ FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std:
 }
 
 StatusCode
-FSSerializer::removeCheckoutCommit(const ObjectId &oid)
+FSSerializer::removeCheckout(const ObjectId &oid)
 {
-    //TODO
-    return MAPIT_STATUS_ERR_DB_IO_ERROR;
+    fs::path path = objectid_to_checkout_fs_path( oid ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs_delete( path );
+
+    return MAPIT_STATUS_OK;
 }
 
 std::vector< std::shared_ptr<Branch> >

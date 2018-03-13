@@ -103,7 +103,7 @@ namespace mapit
     virtual std::shared_ptr<CheckoutObj> getCheckoutCommit(const std::string &name);
     virtual StatusCode storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name);
     virtual StatusCode createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name);
-    virtual StatusCode removeCheckoutCommit(const std::string &name);
+    virtual StatusCode removeCheckout(const std::string &name);
 
     virtual std::vector< std::shared_ptr<Branch> > listBranches();
     virtual std::shared_ptr<Branch> getBranch(const std::string &name);
