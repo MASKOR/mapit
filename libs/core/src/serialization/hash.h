@@ -58,6 +58,26 @@ inline ObjectId hash_toString(const std::string &t)
 //    SHA256_Final(reinterpret_cast<unsigned char*>(szBuff), &shaCtx);
 //    return std::string(szBuff);
 }
+
+/**
+ * @brief hash_toString for protobuf msgs with a map, the normal serialization is not possible, since the map is not sorted and not even deterministic
+ * @param tree
+ * @return
+ */
+inline ObjectId hash_toString(const mapit::msgs::Tree *tree)
+{
+    std::map<std::string, mapit::msgs::ObjectReference> sortedMap;
+    for (auto unsortedEntry : tree->refs()) {
+        sortedMap.insert( std::pair<std::string, mapit::msgs::ObjectReference>( unsortedEntry.first, unsortedEntry.second ) );
+    }
+    std::string manualSerializeAsString = "";
+    for (auto sortedEntry : sortedMap) {
+        manualSerializeAsString += sortedEntry.first + sortedEntry.second.SerializeAsString() + "\n";
+    }
+
+    return sha256(manualSerializeAsString);
+}
+
 template<typename T>
 ObjectId hash_toString(const T *t)
 {
