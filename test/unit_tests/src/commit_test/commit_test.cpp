@@ -94,13 +94,83 @@ void CommitTest::test_commit_of_single_entity()
     repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
-    std::string rootTreeName   = "local.mapit/.mapit/trees/ae24c810976196461762b56addaba892514464ab406bf258374148885ce3dc26";
+    std::string rootTreeName   = "local.mapit/.mapit/trees/48aded3491401756a9894909c068326e88c4a82abfbb4889bcda27de5c9940c4";
     std::string entityName     = "local.mapit/.mapit/entities/0c30127d58aff7f988b894ec79f3fce87084c25e8296c759584f2eba6858cd14";
     std::string entitydataName = "local.mapit/.mapit/entities_data/9eba34864de5a749476dafb21ecf0acdbc28224aa79ed559beac48f5981fcaf1";
 
     QVERIFY( fs::exists(rootTreeName) );
     QVERIFY( fs::exists(entityName) );
     QVERIFY( fs::exists(entitydataName) );
+}
+
+void CommitTest::test_commit_of_trees_and_entities_data() { createTestdata(false, false); }
+
+void CommitTest::test_commit_of_trees_and_entities()
+{
+    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+
+    OperationDescription desc_bunny;
+    upns::OperationResult ret;
+    desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"/data/bunny_1\","
+                "  \"sec\"      : 1, "
+                "  \"nsec\"     : 0 "
+                "}"
+                );
+    ret = checkout->doOperation( desc_bunny );
+    QVERIFY( upnsIsOk(ret.first) );
+    desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"/data/bunny_2\","
+                "  \"sec\"      : 1, "
+                "  \"nsec\"     : 3 "
+                "}"
+                );
+    ret = checkout->doOperation( desc_bunny );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"bunny\","
+                "  \"sec\"      : 1, "
+                "  \"nsec\"     : 0 "
+                "}"
+                );
+    ret = checkout->doOperation( desc_bunny );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
+
+    // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
+    fs::path entitydataName = "local.mapit/.mapit/entities_data/9eba34864de5a749476dafb21ecf0acdbc28224aa79ed559beac48f5981fcaf1";
+
+    QVERIFY( fs::exists(entitydataName) );
+
+    // check if the data is only stored once
+    for( fs::directory_iterator file( entitydataName.parent_path() );
+         file != fs::directory_iterator();
+         ++file ) {
+        QVERIFY( 0 == entitydataName.compare(*file) );
+    }
+
+    fs::path rootTreeName      = "local.mapit/.mapit/trees/7ad50df13b7c5c2577b6ce6dbd2342bb1f16b363694ebe96e9aca95987c0aab0";
+    fs::path dataTreeName      = "local.mapit/.mapit/trees/afe677748a3dbe8c9ea58a2d8eb1678313f14802dfa23021d60d642be2ec3135";
+    fs::path bunnyEntityName   = "local.mapit/.mapit/entities/0c30127d58aff7f988b894ec79f3fce87084c25e8296c759584f2eba6858cd14";
+    fs::path bunny_1EntityName = bunnyEntityName;
+    fs::path bunny_2EntityName = "local.mapit/.mapit/entities/885c3f4451b8ad917b0bab9f9b98414b31db56b56e9fff029efb73a612b19c9a";
+    QVERIFY( fs::exists(rootTreeName) );
+    QVERIFY( fs::exists(dataTreeName) );
+    QVERIFY( fs::exists(bunnyEntityName) );
+    QVERIFY( fs::exists(bunny_1EntityName) );
+    QVERIFY( fs::exists(bunny_2EntityName) );
 }
 
 DECLARE_TEST(CommitTest)
