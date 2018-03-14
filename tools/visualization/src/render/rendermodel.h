@@ -29,9 +29,9 @@
 #include <QOpenGLBuffer>
 #include <QVector>
 
-#include <upns/abstractentitydata.h>
-#include <upns/ui/bindings/qmlentitydata.h>
-#include <upns/ui/bindings/renderdata.h>
+#include <mapit/abstractentitydata.h>
+#include <mapit/ui/bindings/qmlentitydata.h>
+#include <mapit/ui/bindings/renderdata.h>
 
 #include <pcl/PCLPointCloud2.h> //< Note: Only for workaround boost::serialization
 #include <pcl/point_types.h> //< Note: Only for workaround boost::serialization

@@ -30,7 +30,7 @@
 
 #include <Eigen/Geometry>
 
-#include <upns/typedefs.h>
+#include <mapit/typedefs.h>
 #include <mapit/time/time.h>
 
 class QJsonDocument;
@@ -44,7 +44,7 @@ struct PointXYZ;
 struct PCLHeader;
 }
 
-namespace upns {
+namespace mapit {
 class OperationEnvironment;
 class CheckoutRaw;
 }
@@ -57,26 +57,26 @@ class BufferCore;
 class RegLocal
 {
 public:
-    RegLocal(upns::OperationEnvironment* env, upns::StatusCode& status);
+    RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode& status);
 
-    upns::StatusCode operate();
+    mapit::StatusCode operate();
 private:
     boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> get_pointcloud(  std::string path
-                                                                     , upns::StatusCode& status
+                                                                     , mapit::StatusCode& status
                                                                      , mapit::time::Stamp &stamp
                                                                      , pcl::PCLHeader& header
                                                                      , std::shared_ptr<PointcloudEntitydata> entitydata
                                                                     );
 
-    upns::StatusCode mapit_add_tf(  const time::Stamp &input_stamp
+    mapit::StatusCode mapit_add_tf(  const time::Stamp &input_stamp
                                   , const Eigen::Affine3f &transform
                                  );
-    upns::StatusCode mapit_remove_tfs(  const time::Stamp &stamp_start
+    mapit::StatusCode mapit_remove_tfs(  const time::Stamp &stamp_start
                                       , const time::Stamp &stamp_end
                                      );
 
     // general setup
-    upns::CheckoutRaw* checkout_;
+    mapit::CheckoutRaw* checkout_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
 
     std::string cfg_tf_prefix_;
@@ -98,7 +98,7 @@ private:
     enum class MatchingAlgorithm {ICP};
     MatchingAlgorithm cfg_matching_algorithm_;
     // ICP
-    upns::StatusCode get_cfg_icp(const QJsonObject& params);
+    mapit::StatusCode get_cfg_icp(const QJsonObject& params);
     void icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
                      , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
                      , pcl::PointCloud<pcl::PointXYZ>& result_pc

@@ -21,7 +21,7 @@
  */
 
 #include <tf2_msgs/TFMessage.h>
-#include <upns/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer.h>
 
 #include "publishtfs.h"
 
@@ -29,21 +29,21 @@ void
 PublishTFs::publish_entity(const std::string& entity_name, const std::shared_ptr<::Entity>& entity)
 {
   // get data
-  std::shared_ptr<upns::AbstractEntitydata> entity_data_abstract = checkout_->getEntitydataReadOnly(entity_name);
+  std::shared_ptr<mapit::AbstractEntitydata> entity_data_abstract = checkout_->getEntitydataReadOnly(entity_name);
   if ( entity_data_abstract == nullptr || 0 != std::strcmp(entity_data_abstract->type(), TfEntitydata::TYPENAME()) ) {
     log_error("stream_to_ros: can't publish " + entity_name + " since the type is wrongly given\n"
               "type is: " + entity_data_abstract->type() + " but we need: " + TfEntitydata::TYPENAME());
     return;
   }
-  std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfs =
+  std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> tfs =
       std::static_pointer_cast<TfEntitydata>(
         entity_data_abstract
         )->getData()->dispose();
 
   type_data new_tf_map;
-  for (std::unique_ptr<upns::tf::TransformStamped>& tf : *tfs) {
+  for (std::unique_ptr<mapit::tf::TransformStamped>& tf : *tfs) {
     double time = mapit::time::to_sec( tf->stamp );
-    new_tf_map.insert(std::pair<double, std::unique_ptr<upns::tf::TransformStamped>>( time, std::move(tf) ));
+    new_tf_map.insert(std::pair<double, std::unique_ptr<mapit::tf::TransformStamped>>( time, std::move(tf) ));
   }
 
   std::pair<type_data::iterator, type_data> tmp;
@@ -58,7 +58,7 @@ PublishTFs::publish_entity(const std::string& entity_name, const std::shared_ptr
 }
 
 void
-PublishTFs::publish_one_tf_entity(std::unique_ptr<upns::tf::TransformStamped> tf_stamped)
+PublishTFs::publish_one_tf_entity(std::unique_ptr<mapit::tf::TransformStamped> tf_stamped)
 {
   // convert data
   tf2_msgs::TFMessage entity_data_publishable;
@@ -104,13 +104,13 @@ PublishTFs::tf_timer_callback(const ros::TimerEvent&)
          ;    tf_entity.first != tf_entity.second.end()
            && tf_entity.first->first <= time_ros - offset_
          ; ++tf_entity.first) {
-      std::unique_ptr<upns::tf::TransformStamped> tmp;
+      std::unique_ptr<mapit::tf::TransformStamped> tmp;
       if (tf_entity.first->second == nullptr) {
         tmp = nullptr;
       } else {
         tmp = std::move( tf_entity.first->second );
       }
-  //    std::unique_ptr<upns::tf::TransformStamped> tmp = std::move( tf_entity_next_->second );
+  //    std::unique_ptr<mapit::tf::TransformStamped> tmp = std::move( tf_entity_next_->second );
       publish_one_tf_entity( std::move( tmp ) );
     }
   }

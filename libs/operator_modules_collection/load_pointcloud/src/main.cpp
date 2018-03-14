@@ -21,17 +21,17 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 //#include "param.pb.h"
 #include "json11.hpp"
 
@@ -58,7 +58,7 @@ void chooseDefaultRepresentation ( const std::vector<pcl::PCLPointField>& flist 
     //return new PointCloudCRangeFactory<>("z");
 }
 
-upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
+mapit::StatusCode operate_load_pointcloud(mapit::OperationEnvironment* env)
 {
     upnsPointcloud2Ptr pc2( new pcl::PCLPointCloud2);
 
@@ -68,7 +68,7 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     if ( ! jsonErr.empty() ) {
         // can't parse json
         // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
     pcl::PCDReader reader;
@@ -76,12 +76,12 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     if(filename.empty())
     {
         log_error("parameter \"filename\" missing");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     if ( reader.read(filename, *pc2) < 0 )
     {
         log_error("Couldn't read file" + filename);
-        return UPNS_STATUS_FILE_NOT_FOUND;
+        return MAPIT_STATUS_FILE_NOT_FOUND;
     }
 
     std::string target = params["target"].string_value();
@@ -93,18 +93,18 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
     pclEntity->set_frame_id( params["frame_id"].string_value() );
     pclEntity->mutable_stamp()->set_sec( sec );
     pclEntity->mutable_stamp()->set_nsec( nsec );
-    StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
     if(entityData == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     entityData->setData( pc2 );
 
@@ -120,7 +120,7 @@ upns::StatusCode operate_load_pointcloud(upns::OperationEnvironment* env)
 //    outMapname->set_key("mapname");
 //    outMapname->set_strval( map->name() );
 //    env->setOutputDescription( out.SerializeAsString() );
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_load_pointcloud)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_load_pointcloud)

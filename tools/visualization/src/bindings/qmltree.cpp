@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmltree.h"
+#include "mapit/ui/bindings/qmltree.h"
 
 QmlTree::QmlTree(QObject *parent)
     :QObject(parent), m_tree( nullptr )

@@ -29,4 +29,4 @@ if(NOT TARGET mapit::core AND NOT mapit::core_BINARY_DIR)
 endif()
  
 # These are IMPORTED targets created by mapitCoreTargets.cmake
-#set(MAPIT_CORE_LIBRARIES upns_core)
+#set(MAPIT_CORE_LIBRARIES mapit_core)

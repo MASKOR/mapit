@@ -24,7 +24,7 @@
 #ifndef UPNS_HASH_H
 #define UPNS_HASH_H
 
-#include <upns/typedefs.h>
+#include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
 #include <google/protobuf/message.h>
 #include <string>
@@ -33,7 +33,7 @@
 //#include <openssl/sha.h>
 #include "../sha/sha256.h"
 
-namespace upns {
+namespace mapit {
 
 //template<typename T>
 //void hash(SHA256_CTX *ctx, const T &t);
@@ -81,7 +81,7 @@ ObjectId hash_toString(const T *t)
 
 //void hash(SHA256_CTX *ctx, const Tree &t)
 //{
-//    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::const_iterator iter(t.refs().cbegin());
+//    ::google::protobuf::Map< ::std::string, ::mapit::ObjectReference >::const_iterator iter(t.refs().cbegin());
 //    while(iter != t.refs().cend())
 //    {
 //        SHA256_Update(ctx, iter->first.data(), iter->first.length());

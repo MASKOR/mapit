@@ -47,9 +47,6 @@ if(NOT DISABLE_PCL)
     # mapit
     find_package(mapit REQUIRED)
 
-    # Qt
-    find_package(Qt5Core REQUIRED)
-
     # describe target
     file(GLOB_RECURSE SOURCES
         ${PROJECT_SOURCE_DIR}/src/*.cpp)
@@ -63,8 +60,6 @@ if(NOT DISABLE_PCL)
         SOVERSION ${OPERATOR_VERSION}
         PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX}${MAPIT_INSTALL_OPERATORS})
 
-    qt5_use_modules(${PROJECT_NAME} Core Gui)
-
     # linker
     target_link_libraries(${PROJECT_NAME}
         ${PCL_FILTERS_LIBRARIES}
@@ -73,6 +68,14 @@ if(NOT DISABLE_PCL)
         layertype_pointcloud2)
 
     qt5_use_modules(${PROJECT_NAME} Core)
+
+    # ensure mapit-prefix for installation
+    if(UNIX)
+        # tell CMake Prefix is "lib" otherwise it can not be queried
+        set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
+    endif(UNIX)
+    get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${MAPIT_INSTALL_OPERATORS})
 
     install(TARGETS ${PROJECT_NAME}
         DESTINATION lib)

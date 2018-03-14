@@ -29,17 +29,9 @@ set(OPERATOR_VERSION 1)
 
 find_package(mapit REQUIRED)
 
-aux_source_directory(. SRC_LIST)
-
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
-
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
-
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
@@ -63,15 +55,23 @@ find_package(PCL QUIET REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_FILTERS_LIBRARIES})
+set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} )
 
-file(GLOB_RECURSE UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 message("PCL COMMON AND IO" ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
 message("PCL FILTER" ${PCL_FILTER_LIBRARIES})
 message("PCL FILTERS" ${PCL_FILTERS_LIBRARIES})
 message("PCL PCL_LIBRARIES" ${PCL_LIBRARIES})
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${PCL_REALLY_ALL_LIBRARIES} ${mapit_interface} ${mapit_core} layertype_pointcloud2 layertype_tf)
+add_library(${PROJECT_NAME} SHARED ${OPERATOR_VOXELGRIDFILTER_SOURCES} )
+target_link_libraries( ${PROJECT_NAME}
+    ${PCL_LIBRARIES}
+    ${PCL_COMMON_LIBRARIES}
+    ${PCL_IO_LIBRARIES}
+    ${PCL_FILTERS_LIBRARIES}
+    ${mapit_interface}
+    ${mapit_core}
+    layertype_pointcloud2
+    layertype_tf)
 
 qt5_use_modules(${PROJECT_NAME} Core Gui)
 
@@ -82,24 +82,6 @@ SET_TARGET_PROPERTIES(
     SOVERSION ${OPERATOR_VERSION}
 )
 
-#get_property(lib_location TARGET ${PROJECT_NAME} PROPERTY LOCATION)
-
-if (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "lib")
-    set(FILENAME_POSTFIX ".so")
-else (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "")
-    set(FILENAME_POSTFIX ".dll")
-endif (CMAKE_HOST_UNIX)
-
-#set(LIB_FILENAME ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX})
-#set(LIB_FILENAME_VERSION ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX}.${OPERATOR_VERSION})
-
-#add_custom_command(
-#    TARGET ${PROJECT_NAME} POST_BUILD
-#    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
-#    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
-#)
 if(UNIX)
     # tell CMake Prefix is "lib" otherwise it can not be queried
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")

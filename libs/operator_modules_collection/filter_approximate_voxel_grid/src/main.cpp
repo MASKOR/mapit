@@ -20,12 +20,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <pcl/filters/approximate_voxel_grid.h>
@@ -65,7 +65,7 @@ void approximateVoxelGrid(pcl::PCLPointCloud2 const &original,
     return;
 }
 
-upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environment)
+mapit::StatusCode operateApproximateVoxelGrid(mapit::OperationEnvironment* environment)
 {
     log_info("┌filter: approximate voxel grid");
     QByteArray parametersRaw(environment->getParameters().c_str(),
@@ -76,21 +76,21 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
     std::string source = parameters["source"].toString().toStdString();
     if (source.empty()) {
         log_error("└─┴─source entity string is empty");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ ├─source: '" << source << "'");
 
     std::string target = parameters["target"].toString().toStdString();
     if (source.empty()) {
         log_error("└─┴─target entity string is empty");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ ├─target: '" << target << "'");
 
     std::double_t leafSize = parameters["leafSize"].toDouble();
     if (!std::isfinite(leafSize) || leafSize <= 0.0) {
         log_error("└─┴─leaf size is smaller than or equal to zero");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ ├─leaf size: " << leafSize);
 
@@ -102,7 +102,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
             std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(source));
     if (sourceData == nullptr) {
         log_error("└─┴─source entity is no point cloud");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::shared_ptr<pcl::PCLPointCloud2> original = sourceData->getData();
     log_info("│ ├─fields:");
@@ -153,7 +153,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
         func = &approximateVoxelGrid<pcl::InterestPoint>;
     } else {
         log_error("└─┴─unknown point cloud type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
 
     log_info("├─┬start filtering point cloud...");
@@ -162,7 +162,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
         func(*original, *filtered, leafSize, downsampleAllData);
     } catch(...) {
         log_error("└─┴─filtering failed");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     log_info("│ └─size: " << filtered->height * filtered->width);
 
@@ -173,7 +173,7 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
         targetEntity->set_type(PointcloudEntitydata::TYPENAME());
         if (!upnsIsOk(environment->getCheckout()->storeEntity(target, targetEntity))) {
             log_error("  └─failed to create target entity");
-            return UPNS_STATUS_ERR_UNKNOWN;
+            return MAPIT_STATUS_ERR_UNKNOWN;
         }
         log_info("  ├─created new entity '" << target << "'");
     }
@@ -181,15 +181,15 @@ upns::StatusCode operateApproximateVoxelGrid(upns::OperationEnvironment* environ
             std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(target));
     if (targetData == NULL) {
         log_error("  └─target entity is no point cloud");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     targetData->setData(filtered);
     log_info("  └─complete");
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME,
+MAPIT_MODULE(OPERATOR_NAME,
             "filter: approximate voxel grid",
             "Marcus Meeßen",
             OPERATOR_VERSION,

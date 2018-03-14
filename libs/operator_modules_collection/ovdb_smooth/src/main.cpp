@@ -20,16 +20,16 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/layertypes/openvdblayer.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/layertypes/openvdblayer.h>
 #include "openvdb/tools/LevelSetFilter.h"
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 #include "json11.hpp"
 
 using namespace mapit::msgs;
@@ -57,14 +57,14 @@ struct PrintInterrupter
     }
 };
 
-upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
+mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
 {
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
     if ( ! jsonErr.empty() ) {
         // can't parth json
         // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     double dilateerode = params["radius"].number_value();
 
@@ -90,7 +90,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
         if(input.empty())
         {
             log_error("no input specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
     if(output.empty())
@@ -99,50 +99,50 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
         if(output.empty())
         {
             log_error("no output specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<FloatGridEntitydata> entityDataInput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
     if(entityDataInput == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsFloatGridPtr inputGrid = entityDataInput->getData();
+    FloatGridPtr inputGrid = entityDataInput->getData();
 
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
     if(ent)
     {
         log_info("Output grid already exists. ignoring voxelsize.");
-        std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)
         {
             log_error("could not read output grid");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
         std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
     else
     {
         ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
-        StatusCode s = env->getCheckout()->storeEntity(output, ent);
+        mapit::StatusCode s = env->getCheckout()->storeEntity(output, ent);
         if(!upnsIsOk(s))
         {
             log_error("Failed to create entity.");
-            return UPNS_STATUS_ERR_DB_IO_ERROR;
+            return MAPIT_STATUS_ERR_DB_IO_ERROR;
         }
     }
     PrintInterrupter interr;
@@ -154,17 +154,17 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
     filter.offset(dilateerode);
     std::cout << "Erosion finished";
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output asset");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     entityDataOutput->setData(inputGrid);
 
@@ -180,7 +180,7 @@ upns::StatusCode operate_ovdb_smooth(upns::OperationEnvironment* env)
 //    outMapname->set_key("mapname");
 //    outMapname->set_strval( map->name() );
 //    env->setOutputDescription( out.SerializeAsString() );
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdb_smooth)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdb_smooth)

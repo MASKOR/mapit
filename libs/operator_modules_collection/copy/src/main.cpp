@@ -21,22 +21,22 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/depthfirstsearch.h>
 #include "json11.hpp"
 
-upns::StatusCode copyEntity(upns::OperationEnvironment* env, std::string source, std::string target, std::shared_ptr<mapit::msgs::Entity> srcEnt)
+mapit::StatusCode copyEntity(mapit::OperationEnvironment* env, std::string source, std::string target, std::shared_ptr<mapit::msgs::Entity> srcEnt)
 {
     if ( ! srcEnt ) {
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
     }
     // Note: Only the entity is copied, it's new data is empty (because transient path is used to identify entities data)
-    upns::StatusCode s = env->getCheckout()->storeEntity(target, srcEnt);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(target, srcEnt);
 
     if(!upnsIsOk(s))
     {
@@ -45,10 +45,10 @@ upns::StatusCode copyEntity(upns::OperationEnvironment* env, std::string source,
     }
     else
     {
-        std::shared_ptr<upns::AbstractEntitydata> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
-        std::shared_ptr<upns::AbstractEntitydata> aedTarget = env->getCheckout()->getEntitydataForReadWrite(target);
-        upns::upnsIStream *is = aedSource->startReadBytes();
-        upns::upnsOStream *os = aedTarget->startWriteBytes();
+        std::shared_ptr<mapit::AbstractEntitydata> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
+        std::shared_ptr<mapit::AbstractEntitydata> aedTarget = env->getCheckout()->getEntitydataForReadWrite(target);
+        mapit::istream *is = aedSource->startReadBytes();
+        mapit::ostream *os = aedTarget->startWriteBytes();
 
         os->seekp(std::ios::beg);
         char buffer[1024];
@@ -64,10 +64,10 @@ upns::StatusCode copyEntity(upns::OperationEnvironment* env, std::string source,
         aedTarget->endWrite(os);
         aedSource->endRead(is);
     }
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode operate(upns::OperationEnvironment* env)
+mapit::StatusCode operate(mapit::OperationEnvironment* env)
 {
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
@@ -75,7 +75,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     if ( ! jsonErr.empty() ) {
         // can't parth json
         // TODO: good error msg
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::string source = params["source"].string_value();
     std::string target = params["target"].string_value();
@@ -90,7 +90,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
     }
 
     std::shared_ptr< mapit::msgs::Entity > srcEnt( env->getCheckout()->getEntity(source) );
-    upns::StatusCode s;
+    mapit::StatusCode s;
     if(srcEnt)
     {
         s = copyEntity(env, source, target, srcEnt);
@@ -101,7 +101,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         if(srcTree)
         {
             ObjectReference nullRef;
-            upns::depthFirstSearch(
+            mapit::depthFirstSearch(
                         env->getCheckout(),
                         srcTree,
                         nullRef,
@@ -110,7 +110,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                         depthFirstSearchAll(Commit),
                         depthFirstSearchAll(mapit::msgs::Tree),
                         depthFirstSearchAll(mapit::msgs::Tree),
-                        [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                        [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             // create path for new entity => replace source with target in path
                             std::string pathNew = path;
@@ -119,7 +119,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
                                 pathNew.replace(f, source.length(), target);
                             } else {
                                 log_error("error...");
-                                s = UPNS_STATUS_ERROR;
+                                s = MAPIT_STATUS_ERROR;
                                 return false;
                             }
 
@@ -135,7 +135,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
         }
         else
         {
-            s = UPNS_STATUS_ERR_DB_NOT_FOUND;
+            s = MAPIT_STATUS_ERR_DB_NOT_FOUND;
             log_error("Path not found " + source);
         }
     }
@@ -160,7 +160,7 @@ upns::StatusCode operate(upns::OperationEnvironment* env)
 //    outMapname->set_key("leafsize");
 //    outMapname->set_realval( leafSize );
 //    env->setOutputDescription( out.SerializeAsString() );
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "copy tree or entity", "fhac", OPERATOR_VERSION, "any", &operate)
+MAPIT_MODULE(OPERATOR_NAME, "copy tree or entity", "fhac", OPERATOR_VERSION, "any", &operate)

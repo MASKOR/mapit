@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlentity.h"
-#include <upns/typedefs.h>
+#include "mapit/ui/bindings/qmlentity.h"
+#include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
 
 QmlEntity::QmlEntity(QObject *parent)

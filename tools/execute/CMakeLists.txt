@@ -51,7 +51,7 @@ execute_process(
 )
 
 execute_process(
-  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/data
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/data
 )
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
@@ -61,7 +61,7 @@ execute_process(
 )
 
 execute_process(
-  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/bin/data
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/bin/data
 )
 execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/bin/libs

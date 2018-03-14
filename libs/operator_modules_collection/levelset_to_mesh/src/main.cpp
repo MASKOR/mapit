@@ -20,21 +20,21 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/assettype.h>
-#include <upns/layertypes/openvdblayer.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/assettype.h>
+#include <mapit/layertypes/openvdblayer.h>
 #include <openvdb/openvdb.h>
 #include <openvdb/Grid.h>
 #include <openvdb/tools/VolumeToMesh.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include "tinyply.h"
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
@@ -193,7 +193,7 @@ void generateAiSceneWithTinyPly(std::unique_ptr<openvdb::tools::VolumeToMesh> me
 // - input: input openvdb
 // - output: output asset
 // - target: input and output at the same time
-upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
+mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -207,7 +207,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         if(input.empty())
         {
             log_error("no input specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
     if(output.empty())
@@ -216,7 +216,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
         if(output.empty())
         {
             log_error("no output specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
 
@@ -228,19 +228,19 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 //        detail = 1.0;
 //    }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<FloatGridEntitydata> entityDataInput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataInput );
     if(entityDataInput == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsFloatGridPtr inputGrid = entityDataInput->getData();
+    FloatGridPtr inputGrid = entityDataInput->getData();
 
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
     if(ent)
@@ -250,11 +250,11 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 
     std::shared_ptr<Entity> assetEntity(new Entity);
     assetEntity->set_type(AssetEntitydata::TYPENAME());
-    StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
-        return UPNS_STATUS_ERR_DB_IO_ERROR;
+        return MAPIT_STATUS_ERR_DB_IO_ERROR;
     }
 
     /// Input validation finished
@@ -269,7 +269,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 
     if(vertexCount == 0)
     {
-        return UPNS_STATUS_ERR_DB_IO_ERROR;
+        return MAPIT_STATUS_ERR_DB_IO_ERROR;
     }
 
 //    openvdb::FloatGrid::ConstPtr levelSetGrid = openvdb::gridConstPtrCast<openvdb::FloatGrid>(inputGrid);
@@ -395,17 +395,17 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 //        m_mesh->setPrimitiveCount( vertexCount );
 //    }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output asset");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<AssetEntitydata> entityDataOutput = std::dynamic_pointer_cast<AssetEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     generateAiSceneWithTinyPly(std::move(mesher), entityDataOutput);
 
@@ -413,7 +413,7 @@ upns::StatusCode operate_ovdbtomesh(upns::OperationEnvironment* env)
 //    out.set_operatorname(OPERATOR_NAME);
 //    out.set_operatorversion(OPERATOR_VERSION);
 //    env->setOutputDescription( out.SerializeAsString() );
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdbtomesh)
+MAPIT_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdbtomesh)

@@ -20,11 +20,11 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
 #include <string>
 
 #include <QtCore/QJsonDocument>
@@ -37,13 +37,13 @@
 #include <mapit/time/time.h>
 
 #include <tf2_msgs/TFMessage.h>
-#include <upns/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer.h>
 
 #include <sensor_msgs/PointCloud2.h>
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-upns::StatusCode get_or_create_entity(  CheckoutRaw* checkout
+mapit::StatusCode get_or_create_entity(  CheckoutRaw* checkout
                                       , const std::string& entity_name
                                       , const std::string& entity_type
                                       , std::shared_ptr<mapit::msgs::Entity>& entity)
@@ -55,9 +55,9 @@ upns::StatusCode get_or_create_entity(  CheckoutRaw* checkout
         checkout->storeEntity(entity_name, entity);
     }
     if ( 0 == entity->type().compare( entity_type ) ) {
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     } else {
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
     }
 }
 
@@ -68,7 +68,7 @@ std::string escape_slashes(const std::string& in)
    return out;
 }
 
-upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
+mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
 {
     /** structure:
      * {
@@ -113,7 +113,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
           mapit_type = TfEntitydata::TYPENAME();
         } else {
           log_error("load_bags: unknown type specified");
-          return UPNS_STATUS_ERROR;
+          return MAPIT_STATUS_ERROR;
         }
 
         log_info("load_bags: Import [" + bag_name + "] : \"" + topic_name + "\"\t=> \"" + prefix_name + "/*\"\t(type: " + mapit_type + ")");
@@ -123,7 +123,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
         rosbag::View view(bag, rosbag::TopicQuery(topics));
 
         // for tf
-        upns::tf::store::TransformStampedListGatherer tfs_map;
+        mapit::tf::store::TransformStampedListGatherer tfs_map;
 
         // for all msgs
         for (const rosbag::MessageInstance msg : view) {
@@ -133,7 +133,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
               std::string entity_name = prefix_name + "/" + escape_slashes(pc2->header.frame_id + std::to_string(pc2->header.stamp.sec) + "." + std::to_string(pc2->header.stamp.nsec));
 
               std::shared_ptr<mapit::msgs::Entity> entity;
-              upns::StatusCode get_entity_status = get_or_create_entity(checkout, entity_name, PointcloudEntitydata::TYPENAME(), entity);
+              mapit::StatusCode get_entity_status = get_or_create_entity(checkout, entity_name, PointcloudEntitydata::TYPENAME(), entity);
               if ( ! upnsIsOk(get_entity_status) ) {
                   log_error("load_bags: Can't get entity \"" + entity_name + "\" of type \"" + PointcloudEntitydata::TYPENAME() + "\"");
                   return get_entity_status;
@@ -150,7 +150,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
               std::static_pointer_cast<PointcloudEntitydata>(checkout->getEntitydataForReadWrite(entity_name))->setData(entity_data);
             } else {
               log_error("load_bags: Data [" + bag_name + "] : \"" + topic_name + "\" is not of type \"sensor_msgs::PointCloud2\"");
-              return UPNS_STATUS_ERROR;
+              return MAPIT_STATUS_ERROR;
             }
           } else if ( 0 == mapit_type.compare( TfEntitydata::TYPENAME() ) ) {
             tf2_msgs::TFMessage::ConstPtr tf2 = msg.instantiate<tf2_msgs::TFMessage>();
@@ -180,7 +180,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
               }
             } else {
               log_error("load_bags: Data [" + bag_name + "] : \"" + topic_name + "\" is not of type \"tf2_msgs::TFMessage\"");
-              return UPNS_STATUS_ERROR;
+              return MAPIT_STATUS_ERROR;
             }
           }
         }
@@ -188,7 +188,7 @@ upns::StatusCode operate_load_bags(upns::OperationEnvironment* env)
       }
     }
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "load bagfiles in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_bags)
+MAPIT_MODULE(OPERATOR_NAME, "load bagfiles in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_bags)

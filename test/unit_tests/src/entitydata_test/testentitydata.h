@@ -29,7 +29,7 @@
 #include "versioning/repository.h"
 #include "../repositorycommon.h"
 
-namespace upns {
+namespace mapit {
 class AbstractEntityData;
 class AbstractMapSerializer;
 class AbstractEntityDataStreamProvider;
@@ -49,8 +49,8 @@ private slots:
     void testCreateLayer();
 private:
     void createTestdata();
-    upns::upnsSharedPointer<upns::AbstractMapSerializer> m_ed[2];
-    upns::upnsSharedPointer<upns::AbstractEntityDataStreamProvider> m_edsp[2];
+    mapit::upnsSharedPointer<mapit::AbstractMapSerializer> m_ed[2];
+    mapit::upnsSharedPointer<mapit::AbstractEntityDataStreamProvider> m_edsp[2];
 
 };
 

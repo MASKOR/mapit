@@ -26,12 +26,12 @@
 //#include <pcl/PCLPointCloud2.h>
 //#include <pcl/io/pcd_io.h>
 //#include <pcl/io/ply_io.h>
-//#include <upns/layertypes/pointcloud2/src/pointcloudhelper.h"
+//#include <mapit/layertypes/pointcloud2/src/pointcloudhelper.h"
 //#include <boost/archive/text_oarchive.hpp>
 //#include <boost/archive/text_iarchive.hpp>
 //#include <boost/serialization/vector.hpp>
 
-//namespace upns
+//namespace mapit
 //{
 //struct membuf: std::streambuf {
 //    membuf(char* base, std::ptrdiff_t n) {
@@ -47,7 +47,7 @@
 //    { }
 //    bool isCached() { return true; }
 //    bool isReadWriteSame() { return true; }
-//    upnsIStream *startRead(upnsuint64 start, upnsuint64 len)
+//    mapit::istream *startRead(mapit::uint64_t start, mapit::uint64_t len)
 //    {
 //        //Note: Usually this is not the place meant to contain pointcloud logic.
 //        pcl::PCLPointCloud2 pc2;
@@ -84,24 +84,24 @@
 //            return is;
 //        }
 //    }
-//    void endRead(upnsIStream *&strm)
+//    void endRead(mapit::istream *&strm)
 //    {
 //        //std::ifstream *is = static_cast<std::ifstream*>(strm);
 //        //is->close();
 //        delete strm;
 //    }
-//    upnsOStream *startWrite(upnsuint64 start, upnsuint64 len)
+//    mapit::ostream *startWrite(mapit::uint64_t start, mapit::uint64_t len)
 //    {
 //        std::ofstream *os = new std::ofstream(m_filename.c_str(), std::ifstream::binary);
 //        return os;
 //    }
-//    void endWrite(upnsOStream *&strm)
+//    void endWrite(mapit::ostream *&strm)
 //    {
 //        std::ofstream *os = static_cast<std::ofstream*>(strm);
 //        os->close();
 //        delete os;
 //    }
-//    upnsuint64 getStreamSize() const
+//    mapit::uint64_t getStreamSize() const
 //    {
 //        std::fstream s(m_filename.c_str(), std::fstream::binary);
 //        s.seekg (0, s.end);
@@ -109,7 +109,7 @@
 //        s.seekg (0, s.beg);
 //        return length;
 //    }
-//    void setStreamSize(upnsuint64)
+//    void setStreamSize(mapit::uint64_t)
 //    {
 //        assert(true);
 //    }

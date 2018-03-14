@@ -23,12 +23,12 @@
 #ifndef ZMQENTITYDATASTREAMPROVIDER_H
 #define ZMQENTITYDATASTREAMPROVIDER_H
 
-#include <upns/typedefs.h>
-#include <upns/versioning/repository.h>
+#include <mapit/typedefs.h>
+#include <mapit/versioning/repository.h>
 #include "zmqprotobufnode.h"
-#include <upns/operators/serialization/abstractentitydataprovider.h>
+#include <mapit/operators/serialization/abstractentitydataprovider.h>
 
-namespace upns
+namespace mapit
 {
 
 /**
@@ -42,22 +42,22 @@ public:
     ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node);
     bool isCached();
     bool isReadWriteSame();
-    upnsIStream *startRead(upnsuint64 start, upnsuint64 length);
-    void endRead(upnsIStream *&strm);
-    upnsOStream *startWrite(upnsuint64 start, upnsuint64 len);
-    void endWrite(upnsOStream *&strm);
-    upnsuint64 getStreamSize() const;
-    void setStreamSize(upnsuint64 entitylength);
+    mapit::istream *startRead(mapit::uint64_t start, mapit::uint64_t length);
+    void endRead(mapit::istream *&strm);
+    mapit::ostream *startWrite(mapit::uint64_t start, mapit::uint64_t len);
+    void endWrite(mapit::ostream *&strm);
+    mapit::uint64_t getStreamSize() const;
+    void setStreamSize(mapit::uint64_t entitylength);
     LockHandle lock();
     void unlock(LockHandle);
 
-    const void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    const void *startReadPointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len);
     void endReadPointer(const void *ptr, ReadWriteHandle &handle);
-    void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void *startWritePointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len);
     void endWritePointer(void *ptr, ReadWriteHandle &handle);
-    char *startRead(upnsuint64 start, upnsuint64 length, upnsuint64 &outLength);
+    char *startRead(mapit::uint64_t start, mapit::uint64_t length, mapit::uint64_t &outLength);
     //void endRead();
-    void endWrite(const char *memory, const upns::upnsuint64 &length, const upnsuint64 &offset);
+    void endWrite(const char *memory, const mapit::uint64_t &length, const mapit::uint64_t &offset);
 
     std::string startReadFile(ReadWriteHandle &handle);
     void endReadFile(ReadWriteHandle &handle);
@@ -70,7 +70,7 @@ private:
     std::string m_checkoutName;
     std::string m_pathOrOid;
     ZmqProtobufNode *m_node;
-    mutable upnsuint64 m_entityLength;
+    mutable mapit::uint64_t m_entityLength;
 };
 
 }

@@ -20,13 +20,13 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlplymeshgeometry.h"
+#include "mapit/ui/bindings/qmlplymeshgeometry.h"
 #include <Qt3DRender/QBuffer>
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/qbufferdatagenerator.h>
 #include <QHash>
 #include <iomanip>
-#include <upns/layertypes/assettype.h>
+#include <mapit/layertypes/assettype.h>
 #include <QSharedPointer>
 
 class PlyVertexDataGenerator : public Qt3DRender::QBufferDataGenerator

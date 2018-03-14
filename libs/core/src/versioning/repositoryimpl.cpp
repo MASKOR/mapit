@@ -24,11 +24,11 @@
 #include "repositoryimpl.h"
 #include "serialization/abstractserializer.h"
 #include "versioning/checkoutimpl.h"
-#include <upns/depthfirstsearch.h>
-#include <upns/serialization/entitydatalibrarymanager.h>
+#include <mapit/depthfirstsearch.h>
+#include <mapit/serialization/entitydatalibrarymanager.h>
 #include <chrono>
 
-namespace upns
+namespace mapit
 {
 class RepositoryPrivate
 {
@@ -161,7 +161,7 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
     if(co == NULL)
     {
         log_info("Checkout with this name does not exist: " + checkoutName);
-        return UPNS_STATUS_ENTITY_NOT_FOUND;
+        return MAPIT_STATUS_ENTITY_NOT_FOUND;
     }
     //TODO: Get Checkout, remove its inner Commit and objects (objects only if not referenced)!
     return m_p->m_serializer->removeCheckoutCommit(checkoutName);
@@ -174,7 +174,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     CommitId ret;
     std::shared_ptr<Commit> rootCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
     ObjectReference nullRef;
-    StatusCode s = upns::depthFirstSearch(
+    StatusCode s = mapit::depthFirstSearch(
                 co,
                 rootCommit,
                 nullRef,
@@ -299,12 +299,12 @@ std::vector<std::shared_ptr<Branch> > RepositoryImpl::getBranches()
 
 StatusCode RepositoryImpl::push(Repository &repo)
 {
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode RepositoryImpl::pull(Repository &repo)
 {
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 CommitId RepositoryImpl::parseCommitRef(const std::string &commitRef)

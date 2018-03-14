@@ -77,20 +77,10 @@ if(NOT DISABLE_PCL)
   add_definitions(${PCL_DEFINITIONS})
   target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
 
-
   # Qt
   set(CMAKE_AUTOMOC ON)
   find_package(Qt5Core REQUIRED)
   qt5_use_modules(${PROJECT_NAME} Core)
-
-  # naming and installing
-  if (CMAKE_HOST_UNIX)
-      set(FILENAME_PREFIX "lib")
-      set(FILENAME_POSTFIX ".so")
-  else (CMAKE_HOST_UNIX)
-      set(FILENAME_PREFIX "")
-      set(FILENAME_POSTFIX ".dll")
-  endif (CMAKE_HOST_UNIX)
 
   if(UNIX)
       # tell CMake Prefix is "lib" otherwise it can not be queried

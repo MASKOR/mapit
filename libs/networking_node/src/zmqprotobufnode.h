@@ -24,8 +24,8 @@
 #ifndef ZMQNODE_H
 #define ZMQNODE_H
 
-#include <upns/typedefs.h>
-#include <upns/logging.h>
+#include <mapit/typedefs.h>
+#include <mapit/logging.h>
 #include <google/protobuf/message.h>
 #include <mapit/msgs/transport.pb.h>
 #include <zmq.hpp>

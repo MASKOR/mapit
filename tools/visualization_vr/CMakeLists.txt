@@ -198,7 +198,7 @@ if(WIN32)
     # mklink logging.properties ..\..\..\upns_software\logging.properties
 
 #    STRING(REGEX REPLACE "/" "\\\\" BINARY_PATH_TMP_WINDOWS ${CMAKE_BINARY_DIR})
-#    STRING(REGEX REPLACE "/" "\\\\" MAPIT_ROOT_DIR_TMP_WINDOWS ${UPNS_ROOT_DIR})
+#    STRING(REGEX REPLACE "/" "\\\\" MAPIT_ROOT_DIR_TMP_WINDOWS ${MAPIT_ROOT_DIR})
 #    execute_process(COMMAND CMD /c echo /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data" "${MAPIT_ROOT_DIR_TMP_WINDOWS}\\data")
 #    execute_process(COMMAND CMD /c mklink /D "\"${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\data\"" "\"${MAPIT_ROOT_DIR_TMP_WINDOWS}\\data\"")
 #    execute_process(COMMAND CMD /c mklink /D "${BINARY_PATH_TMP_WINDOWS}\\tools\\visualization_standalone\\libs" "${BINARY_PATH_TMP_WINDOWS}\\libs")

@@ -13,53 +13,53 @@ In architecture an overview is given which parts of the software can be extended
 Start by including
 
 ```cpp
-#include <upns/operators/module.h>
+#include <mapit/operators/module.h>
 ```
 
 in you main cpp, you can define a method with a name of your choice and this signature:
 
 ```cpp
-upns::StatusCode <name_of_entry_function>(upns::OperationEnvironment* env)
+mapit::StatusCode <name_of_entry_function>(mapit::OperationEnvironment* env)
 ```
 
 At the end of you code, use this macro to make the library usable for mapit_core/tools:
 
 ```cpp
-UPNS_MODULE(<OPERATOR_NAME>, "description of your operator",
-                             "author",
-                             <OPERATOR_VERSION>,
-                             "reserved",
-                             &<name_of_entry_function>)
+MAPIT_MODULE(<OPERATOR_NAME>, "description of your operator",
+                              "author",
+                              <OPERATOR_VERSION>,
+                              "reserved",
+                              &<name_of_entry_function>)
 ```
 
-The parameter of the function is upns::OperationEnvironment, which exposes all data you need.
+The parameter of the function is mapit::OperationEnvironment, which exposes all data you need.
 
-- upns::OperationEnvironment::getParameters(): Returns a string that is the data given as paramters. This may be a string, the user entered in the command line. Currently all our operators use Json (json11 library) for encoding parameters.
-- upns::OperationEnvironment::getCheckout(): Gives you an interface for manipulating data (CheckoutRaw).
+- mapit::OperationEnvironment::getParameters(): Returns a string that is the data given as paramters. This may be a string, the user entered in the command line. Currently all our operators use Json (json11 library) for encoding parameters.
+- mapit::OperationEnvironment::getCheckout(): Gives you an interface for manipulating data (CheckoutRaw).
 
 A simple voxelgridfilter using pcl looks like this:
 
 ```cpp
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include "json11.hpp"
 
-upns::StatusCode operate_voxelgrid(upns::OperationEnvironment* env)
+mapit::StatusCode operate_voxelgrid(mapit::OperationEnvironment* env)
 {
     //// Read Input ////
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
     if ( ! jsonErr.empty() ) {
         log_error("could not parse operator parameters as json");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     double leafSize = params["leafsize"].number_value();
     std::string target = params["target"].string_value();
@@ -72,27 +72,27 @@ upns::StatusCode operate_voxelgrid(upns::OperationEnvironment* env)
     if(target.empty())
     {
         log_error("target not set");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     if( ! abstractEntitydata)
     {
         log_error("target does not exist");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<PointcloudEntitydata> entityData = std::static_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if( ! entityData)
     {
         log_error("target is not a pcl pointcloud");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
     std::shared_ptr<pcl::PCLPointCloud2> pc2 = entityData->getData();
     if( ! pc2)
     {
         log_error("target pointcloud is empty");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
     //// execute voxelgrid filter ////
@@ -109,10 +109,10 @@ upns::StatusCode operate_voxelgrid(upns::OperationEnvironment* env)
     //// set output ////
     entityData->setData(cloud_filtered);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME,
+MAPIT_MODULE(OPERATOR_NAME,
             "use pcl voxelgrid filter on a pointcloud",
             "fhac",
             OPERATOR_VERSION,
@@ -143,10 +143,8 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_library(${PROJECT_NAME} SHARED main.cpp)
 target_link_libraries( ${PROJECT_NAME} ${PCL_LIBRARIES}
-                                       ${PROTOBUF_LIBRARIES}
-                                       json11
-                                       mapit-msgs
-                                       upns_core
+                                       ${mapit_interface_cpp}
+                                       ${mapit_core}
                                        layertype_pointcloud2)
 
 SET_TARGET_PROPERTIES(
@@ -155,8 +153,8 @@ SET_TARGET_PROPERTIES(
     VERSION ${OPERATOR_VERSION}
     SOVERSION ${OPERATOR_VERSION}
 )
-# for 'make install' to create .../lib/libupns_operators_voxelgridfilter.so
-# mapit installation searches in LD_LIBRARY_PATH for a lib with name "libupns_operators_<operatorname>.so"
+# for 'make install' to create .../lib/libmapit_operators_voxelgridfilter.so
+# mapit installation searches in LD_LIBRARY_PATH for a lib with name "libmapit_operators_<operatorname>.so"
 # TODO: tested only for linux.
 if(UNIX)
     # tell CMake Prefix is "lib" otherwise it can not be queried
@@ -177,8 +175,8 @@ The code needs to publish a method for creating an object of the layertype out o
 ```cpp
 extern "C"
 {
-    MODULE_EXPORT void createEntitydata(std::shared_ptr<AbstractEntitydata> *out,
-                                        std::shared_ptr<AbstractEntitydataProvider> streamProvider);
+    MODULE_EXPORT void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out,
+                                        std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
 }
 ```
 
@@ -190,9 +188,9 @@ void deleteEntitydata(AbstractEntitydata *ld)
     PointcloudEntitydata *p = static_cast<PointcloudEntitydata*>(ld);
     delete p;
 }
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ),
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new PointcloudEntitydata( streamProvider ),
                                                deleteEntitydata);
 }
 ```

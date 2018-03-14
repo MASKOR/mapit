@@ -21,10 +21,10 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/depthfirstsearch.h>
-#include <upns/errorcodes.h>
+#include <mapit/depthfirstsearch.h>
+#include <mapit/errorcodes.h>
 
-namespace upns
+namespace mapit
 {
 
 using namespace mapit::msgs;
@@ -38,11 +38,11 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Entity> ob
     if(!beforeEntity(obj, ref, path))
     {
         afterEntity(obj, ref, path);
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     }
     //TODO: Entitydata!
-    if(!afterEntity(obj, ref, path)) return UPNS_STATUS_OK;
-    return UPNS_STATUS_OK;
+    if(!afterEntity(obj, ref, path)) return MAPIT_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path& path,
@@ -50,12 +50,12 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
                                                 std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
                                                 std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    if(obj == nullptr) return UPNS_STATUS_ERROR;
+    if(obj == nullptr) return MAPIT_STATUS_ERROR;
     //assert(obj != NULL);
     if(!beforeTree(obj, ref, path))
     {
         afterTree(obj, ref, path);
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     }
     ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
     std::map<std::string, ::mapit::msgs::ObjectReference> refsSorted;
@@ -73,7 +73,7 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
         {
             assert(false);
             log_error("Commit found in tree. Commit must be root");
-            return UPNS_STATUS_ERR_DB_CORRUPTION;
+            return MAPIT_STATUS_ERR_DB_CORRUPTION;
 //            std::shared_ptr<Commit> commit(checkout->getCommit(childoid));
 //            StatusCode s = depthFirstSearch(checkout, commit, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
 //            if(!upnsIsOk(s)) return s;
@@ -96,8 +96,8 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
         }
         iter++;
     }
-    if(!afterTree(obj, ref, path)) return UPNS_STATUS_OK; //TODO: return error code.
-    return UPNS_STATUS_OK;
+    if(!afterTree(obj, ref, path)) return MAPIT_STATUS_OK; //TODO: return error code.
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path& path,
@@ -109,7 +109,7 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Commit> ob
     if(!beforeCommit(obj, ref, path))
     {
         afterCommit(obj, ref, path);
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     }
 
     std::shared_ptr<Tree> tree(checkout->getRoot());
@@ -118,11 +118,11 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Commit> ob
         StatusCode s = depthFirstSearch(checkout, tree, obj->root(), "/", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
         if(!upnsIsOk(s)) return s;
     }
-    if(!afterCommit(obj, ref, path)) return UPNS_STATUS_OK;
-    return UPNS_STATUS_OK;
+    if(!afterCommit(obj, ref, path)) return MAPIT_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearch(  upns::CheckoutCommon *checkout
+StatusCode depthFirstSearch(  mapit::CheckoutCommon *checkout
                             , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit
                             , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit
                             , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
@@ -134,7 +134,7 @@ StatusCode depthFirstSearch(  upns::CheckoutCommon *checkout
     return depthFirstSearch(checkout, checkout->getRoot(), nullRef, "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-StatusCode depthFirstSearch(  upns::CheckoutCommon *checkout
+StatusCode depthFirstSearch(  mapit::CheckoutCommon *checkout
                             , const Path& path
                             , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit
                             , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit
@@ -148,7 +148,7 @@ StatusCode depthFirstSearch(  upns::CheckoutCommon *checkout
     } else {
         std::shared_ptr<Tree> tree = checkout->getTree(path);
         if ( ! tree ) {
-            return UPNS_STATUS_ENTITY_NOT_FOUND; // TODO: actuly tree not found
+            return MAPIT_STATUS_ENTITY_NOT_FOUND; // TODO: actuly tree not found
         }
         ObjectReference nullRef;
         return depthFirstSearch(checkout, tree, nullRef, path, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);

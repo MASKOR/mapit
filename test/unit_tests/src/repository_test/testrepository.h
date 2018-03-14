@@ -26,10 +26,10 @@
 
 #include <QTest>
 
-#include <upns/versioning/repository.h>
+#include <mapit/versioning/repository.h>
 #include "../repositorycommon.h"
 
-namespace upns {
+namespace mapit {
 class RepositoryServer;
 }
 

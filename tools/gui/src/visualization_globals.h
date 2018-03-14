@@ -26,7 +26,7 @@
 
 
 
-namespace upns {
+namespace mapit {
 
 #ifdef USE_QT_STRUCTURES
 #define upnsToQVector(vec) (vec)
@@ -36,14 +36,14 @@ namespace upns {
 #include <QVector>
 }
 
-// Not in namespace upns so this can be replaced by a macro when qt types are used.
+// Not in namespace mapit so this can be replaced by a macro when qt types are used.
 template<class T>
 QVector<T> upnsToQVector(std::vector<T> vec)
 {
     return QVector<T>::fromStdVector(vec);
 }
 
-namespace upns {
+namespace mapit {
 #endif // QT_CORE_LIB
 
 #ifdef USE_BOOST_STRUCTURES

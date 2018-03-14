@@ -25,7 +25,7 @@
 
 #include <QtCore>
 #include <QtCore/QJsonObject>
-#include <upns/versioning/checkout.h>
+#include <mapit/versioning/checkout.h>
 
 class QmlCheckoutInfo : public QObject
 {

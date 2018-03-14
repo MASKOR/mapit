@@ -30,13 +30,13 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <upns/operators/module.h>
+#include <mapit/operators/module.h>
 #include "operationenvironmentimpl.h"
-#include <upns/serialization/entitydatalibrarymanager.h>
-#include <upns/depthfirstsearch.h>
-#include <upns/serialization/operatorlibrarymanager.h>
+#include <mapit/serialization/entitydatalibrarymanager.h>
+#include <mapit/depthfirstsearch.h>
+#include <mapit/serialization/operatorlibrarymanager.h>
 
-namespace upns
+namespace mapit
 {
 typedef ModuleInfo* (*GetModuleInfo)();
 
@@ -162,11 +162,11 @@ OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
     return OperatorLibraryManager::doOperation(desc, this);
 }
 
-OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate)
+OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate)
 {
     OperationEnvironmentImpl env(desc);
     env.setCheckout( this );
-    upns::StatusCode result = operate( &env );
+    mapit::StatusCode result = operate( &env );
     return OperationResult(result, env.outputDescription());
 }
 
@@ -238,22 +238,22 @@ StatusCode CheckoutImpl::deleteTree(const Path &path)
 {
     Path p(preparePath(path));
     if (p.empty()) {
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
     }
 
     createPath<Tree>(path, nullptr, true);
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode CheckoutImpl::deleteEntity(const Path &path)
 {
     Path p(preparePath(path));
     if (p.empty()) {
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
     }
 
     createPath<Entity>(path, nullptr, true);
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
@@ -266,7 +266,7 @@ StatusCode CheckoutImpl::depthFirstSearch(  std::function<bool(std::shared_ptr<T
                                           , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                           , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    return upns::depthFirstSearch(this, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
+    return mapit::depthFirstSearch(this, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
@@ -275,7 +275,7 @@ StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity)
 {
-    return upns::depthFirstSearch(this, path, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
+    return mapit::depthFirstSearch(this, path, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 std::shared_ptr<CheckoutObj> CheckoutImpl::getCheckoutObj()
@@ -471,9 +471,9 @@ std::pair<StatusCode, PathInternal> CheckoutImpl::storeObject<Entity>(std::share
 template <>
 StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
 {
-    StatusCode status_search = UPNS_STATUS_OK;
+    StatusCode status_search = MAPIT_STATUS_OK;
     ObjectReference nullRef;
-    upns::depthFirstSearch(
+    mapit::depthFirstSearch(
                 this,
                 getTree(path), // we just need to delete trees that are actualy transient
                 nullRef,
@@ -481,11 +481,11 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
                 depthFirstSearchAll(Commit),
                 depthFirstSearchAll(Commit),
                 depthFirstSearchAll(Tree),
-                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &pathInt)
+                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &pathInt)
                 {
                     Path p(preparePath(pathInt));
                     if (p.empty()) {
-                        status_search = UPNS_STATUS_ERROR;
+                        status_search = MAPIT_STATUS_ERROR;
                         return false;
                     }
 
@@ -498,7 +498,7 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
                     return true;
                },
                 depthFirstSearchAll(Entity),
-                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &pathInt)
+                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &pathInt)
                 {
                     StatusCode s = deleteEntity(pathInt);
                     if ( ! upnsIsOk(s) ) {
@@ -529,11 +529,11 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    if(!beforeEntity(obj, oid, path))
 //    {
 //        afterEntity(obj, oid, path);
-//        return UPNS_STATUS_OK;
+//        return MAPIT_STATUS_OK;
 //    }
 //    //TODO: Entitydata!
-//    if(!afterEntity(obj, oid, path)) return UPNS_STATUS_OK;
-//    return UPNS_STATUS_OK;
+//    if(!afterEntity(obj, oid, path)) return MAPIT_STATUS_OK;
+//    return MAPIT_STATUS_OK;
 //}
 
 //StatusCode CheckoutImpl::depthFirstSearch(std::shared_ptr<Tree> obj, const ObjectId& oid, const Path &path,
@@ -545,10 +545,10 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    if(!beforeTree(obj, oid, path))
 //    {
 //        afterTree(obj, oid, path);
-//        return UPNS_STATUS_OK;
+//        return MAPIT_STATUS_OK;
 //    }
-//    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference > &refs = *obj->mutable_refs();
-//    ::google::protobuf::Map< ::std::string, ::upns::ObjectReference >::iterator iter(refs.begin());
+//    ::google::protobuf::Map< ::std::string, ::mapit::ObjectReference > &refs = *obj->mutable_refs();
+//    ::google::protobuf::Map< ::std::string, ::mapit::ObjectReference >::iterator iter(refs.begin());
 //    while(iter != refs.cend())
 //    {
 //        const ObjectId &childoid = iter->second.id();
@@ -578,8 +578,8 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //        }
 //        iter++;
 //    }
-//    if(!afterTree(obj, oid, path)) return UPNS_STATUS_OK; //TODO: what is happening here?
-//    return UPNS_STATUS_OK;
+//    if(!afterTree(obj, oid, path)) return MAPIT_STATUS_OK; //TODO: what is happening here?
+//    return MAPIT_STATUS_OK;
 //}
 
 //StatusCode CheckoutImpl::depthFirstSearch(std::shared_ptr<Commit> obj, const ObjectId& oid, const Path &path,
@@ -591,7 +591,7 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    if(!beforeCommit(obj, oid, path))
 //    {
 //        afterCommit(obj, oid, path);
-//        return UPNS_STATUS_OK;
+//        return MAPIT_STATUS_OK;
 //    }
 //    std::shared_ptr<Tree> tree(this->getTree(obj->root()));
 //    if( !obj->root().empty() )
@@ -599,11 +599,11 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //        StatusCode s = depthFirstSearch(tree, obj->root(), "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
 //        if(!upnsIsOk(s)) return s;
 //    }
-//    if(!afterCommit(obj, oid, path)) return UPNS_STATUS_OK;
-//    return UPNS_STATUS_OK;
+//    if(!afterCommit(obj, oid, path)) return MAPIT_STATUS_OK;
+//    return MAPIT_STATUS_OK;
 //}
 
-std::shared_ptr<mapit::msgs::Branch> upns::CheckoutImpl::getParentBranch()
+std::shared_ptr<mapit::msgs::Branch> mapit::CheckoutImpl::getParentBranch()
 {
     std::shared_ptr<mapit::msgs::Branch> branch;
     if(!m_branchname.empty())

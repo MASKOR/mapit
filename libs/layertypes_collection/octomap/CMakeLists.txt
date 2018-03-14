@@ -23,11 +23,10 @@
 
 project(layertype_octomap)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
 file(GLOB_RECURSE LAYERTYPE_OCTOMAP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_OCTOMAP_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_OCTOMAP_SOURCES} )
 
 target_include_directories(${PROJECT_NAME} PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                                    $<INSTALL_INTERFACE:include>
@@ -43,14 +42,10 @@ endif(UNIX)
 get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${MAPIT_INSTALL_ENTITYTYPES})
 
-#install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-#install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
-
 include(GenerateExportHeader)
 
 generate_export_header(${PROJECT_NAME})
-#set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${MAPIT_VERSION})
-#set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${MAPIT_VERSION})
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY
   INTERFACE_mapit_layertype_octomap_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
@@ -63,8 +58,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_octomap_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

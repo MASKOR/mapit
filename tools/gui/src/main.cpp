@@ -28,9 +28,9 @@
 #include <QQmlContext>
 #include <QResource>
 #include <QDebug>
-#include <upns/ui/bindings/qmlmapsrenderviewport.h>
-#include <upns/ui/bindings/qmlentitydata.h>
-#include <upns/logging.h>
+#include <mapit/ui/bindings/qmlmapsrenderviewport.h>
+#include <mapit/ui/bindings/qmlentitydata.h>
+#include <mapit/logging.h>
 #include "stubs/qmlstubentitydatapointcloud2.h"
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
@@ -47,27 +47,27 @@
 #include <pcl/octree/octree_impl.h>
 #include <QDir>
 #include "controls/xboxcontroller.h"
-#include <upns/ui/bindings/renderdata.h>
-#include <upns/ui/bindings/qmlrepository.h>
-#include <upns/ui/bindings/qmlcheckout.h>
-#include <upns/ui/bindings/qmlcommit.h>
-#include <upns/ui/bindings/qmltree.h>
-#include <upns/ui/bindings/qmlentity.h>
-#include <upns/ui/bindings/qmlentitydata.h>
-#include <upns/ui/bindings/qmltransform.h>
-#include <upns/ui/bindings/qmlbranch.h>
-#include <upns/ui/bindings/qmlrepositoryserver.h>
+#include <mapit/ui/bindings/renderdata.h>
+#include <mapit/ui/bindings/qmlrepository.h>
+#include <mapit/ui/bindings/qmlcheckout.h>
+#include <mapit/ui/bindings/qmlcommit.h>
+#include <mapit/ui/bindings/qmltree.h>
+#include <mapit/ui/bindings/qmlentity.h>
+#include <mapit/ui/bindings/qmlentitydata.h>
+#include <mapit/ui/bindings/qmltransform.h>
+#include <mapit/ui/bindings/qmlbranch.h>
+#include <mapit/ui/bindings/qmlrepositoryserver.h>
 #include "qpointcloud.h"
 #include "qpointcloudgeometry.h"
 #include "qpointfield.h"
-#include <upns/ui/bindings/qmlentitydatarenderer.h>
-#include <upns/ui/models/qmlroottreemodel.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/ui/bindings/qmlpointcloudcoordinatesystem.h>
+#include <mapit/ui/bindings/qmlentitydatarenderer.h>
+#include <mapit/ui/models/qmlroottreemodel.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/ui/bindings/qmlpointcloudcoordinatesystem.h>
 #include <qmlraycast.h>
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 
 #include "inputcontrols/editorcameracontroller.h"
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     program_options_desc.add_options()
             ("help,h", "print usage");
 
-    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
     po::variables_map vars;
     po::store(po::command_line_parser(argc, argv).options(program_options_desc).run(), vars);
     if(vars.count("help"))
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     }
     po::notify(vars);
     bool specified;
-    std::shared_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars, &specified ) );
+    std::shared_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars, &specified ) );
 
     if(repo == nullptr)
     {

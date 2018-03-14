@@ -25,67 +25,67 @@
 #include "upnszmqresponder_p.h"
 #include <mapit/msgs/services.pb.h>
 #include <functional>
-#include <upns/versioning/repository.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/errorcodes.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
 
-template < typename T, void (upns::ZmqResponderPrivate::*func)(T*) >
-void upns::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)
+template < typename T, void (mapit::ZmqResponderPrivate::*func)(T*) >
+void mapit::ZmqResponderPrivate::toDelegate(google::protobuf::Message* msg)
 {
     (this->*func)(static_cast<T*>(msg));
 }
 
-upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Repository *repo, std::string urlOutgoingRequests)
+mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Repository *repo, std::string urlOutgoingRequests)
     :ZmqProtobufNode( true ),
       m_repo( repo ),
       m_urlOutgoing( urlOutgoingRequests ),
       m_portIncoming( portIncomingRequests )
 {
-    void (upns::ZmqResponderPrivate::*member)(google::protobuf::Message*);
+    void (mapit::ZmqResponderPrivate::*member)(google::protobuf::Message*);
     std::function<void(google::protobuf::Message*)> fn;
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestCheckout, &upns::ZmqResponderPrivate::handleRequestCheckout>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestCheckout, &mapit::ZmqResponderPrivate::handleRequestCheckout>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestCheckout>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestEntitydata, &upns::ZmqResponderPrivate::handleRequestEntitydata>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestEntitydata, &mapit::ZmqResponderPrivate::handleRequestEntitydata>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestEntitydata>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestHierarchy, &upns::ZmqResponderPrivate::handleRequestHierarchy>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestHierarchy, &mapit::ZmqResponderPrivate::handleRequestHierarchy>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestHierarchy>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestHierarchyPlain, &upns::ZmqResponderPrivate::handleRequestHierarchyPlain>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestHierarchyPlain, &mapit::ZmqResponderPrivate::handleRequestHierarchyPlain>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestHierarchyPlain>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestListCheckouts, &upns::ZmqResponderPrivate::handleRequestListCheckouts>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestListCheckouts, &mapit::ZmqResponderPrivate::handleRequestListCheckouts>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestListCheckouts>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestOperatorExecution, &upns::ZmqResponderPrivate::handleRequestOperatorExecution>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestOperatorExecution, &mapit::ZmqResponderPrivate::handleRequestOperatorExecution>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestOperatorExecution>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestGenericEntry, &upns::ZmqResponderPrivate::handleRequestGenericEntry>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestGenericEntry, &mapit::ZmqResponderPrivate::handleRequestGenericEntry>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestGenericEntry>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreEntity, &upns::ZmqResponderPrivate::handleRequestStoreEntity>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestStoreEntity, &mapit::ZmqResponderPrivate::handleRequestStoreEntity>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreEntity>( fn );
 
-//    member = &upns::ZmqResponderPrivate::toDelegate<RequestStoreTree, &upns::ZmqResponderPrivate::handleRequestStoreTree>;
+//    member = &mapit::ZmqResponderPrivate::toDelegate<RequestStoreTree, &mapit::ZmqResponderPrivate::handleRequestStoreTree>;
 //    fn = std::bind(member, this, std::placeholders::_1);
 //    add_receivable_message_type<RequestStoreTree>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestDeleteEntity, &upns::ZmqResponderPrivate::handleRequestDeleteEntity>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestDeleteEntity, &mapit::ZmqResponderPrivate::handleRequestDeleteEntity>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestDeleteEntity>( fn );
 
-    member = &upns::ZmqResponderPrivate::toDelegate<RequestDeleteTree, &upns::ZmqResponderPrivate::handleRequestDeleteTree>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestDeleteTree, &mapit::ZmqResponderPrivate::handleRequestDeleteTree>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestDeleteTree>( fn );
 
@@ -93,7 +93,7 @@ upns::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposit
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
+void mapit::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
 {
     std::unique_ptr<ReplyCheckout> ptr(new ReplyCheckout());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
@@ -132,7 +132,7 @@ void upns::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
     send( std::move( ptr ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
+void mapit::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
 {
     try {
         std::unique_ptr<ReplyEntitydata> ptr(new ReplyEntitydata());
@@ -166,7 +166,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
     //        {
                   // This is absolutly okay
     //            log_warn("Server got request trying to read across entitydata size boundary.");
-    //            status = upns::ReplyEntitydata::EXCEEDED_BOUNDARY;
+    //            status = mapit::ReplyEntitydata::EXCEEDED_BOUNDARY;
     //        }
             else
             {
@@ -185,7 +185,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
             return;
         }
 
-        upnsuint64 offset = msg->offset(), len = msg->maxlength();
+        mapit::uint64_t offset = msg->offset(), len = msg->maxlength();
         if(len == 0)
         {
             len = ed->size()-offset;
@@ -213,7 +213,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
             return;
         }
         // binary frames
-        upnsIStream *strm = ed->startReadBytes( offset, len);
+        mapit::istream *strm = ed->startReadBytes( offset, len);
         try
         {
             unsigned char buffer[4096];
@@ -247,7 +247,7 @@ void upns::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
     }
 }
 
-void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
+void mapit::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 {
     //TODO: Remove from service definition
     //Note that everything this message does can be done using internal messages "getTree" and "getEntity".
@@ -255,7 +255,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
     send(std::move(rep));
 }
 
-void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
+void mapit::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
 {
     std::unique_ptr<ReplyHierarchyPlain> rep(new ReplyHierarchyPlain());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
@@ -283,7 +283,7 @@ void upns::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlai
     }
 }
 
-void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
+void mapit::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
 {
     std::unique_ptr<ReplyListCheckouts> rep(new ReplyListCheckouts());
     std::vector<std::string> cos = m_repo->listCheckoutNames();
@@ -294,24 +294,24 @@ void upns::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts 
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorExecution *msg)
+void mapit::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorExecution *msg)
 {
     std::unique_ptr<ReplyOperatorExecution> rep(new ReplyOperatorExecution());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == NULL)
     {
-        rep->set_status_code( UPNS_STATUS_ERR_DB_NOT_FOUND );
+        rep->set_status_code( MAPIT_STATUS_ERR_DB_NOT_FOUND );
         rep->set_error_msg( "Checkout does not exist" );
         send( std::move( rep ) );
         return;
     }
-    upns::OperationResult result = co->doOperation(msg->param());
+    mapit::OperationResult result = co->doOperation(msg->param());
     rep->set_status_code(result.first);
     rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
+void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg)
 {
     // This method handles two cases: "storeEntity" and "writeEntityData"
     std::unique_ptr<ReplyStoreEntity> rep(new ReplyStoreEntity());
@@ -346,8 +346,8 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     desc.mutable_operator_()->set_operatorname("StoreEntity");
     desc.set_params("{source:\"network\"}");
 
-    upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
-        upns::CheckoutRaw* coraw = env->getCheckout();
+    mapit::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+        mapit::CheckoutRaw* coraw = env->getCheckout();
 
         // if offset is not 0, we assume the entity already exists.
         if(msg->offset() == 0)
@@ -376,12 +376,12 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             {
                 // No layertype at all (error)
                 log_info("Tried to write entitydata, but there was no type information in this or previous communication.");
-                return UPNS_STATUS_INVALID_ARGUMENT;
+                return MAPIT_STATUS_INVALID_ARGUMENT;
             }
             else
             {
                 // Other cases: There was a layertype and none is set now (just leave it as is).
-                upns::StatusCode status = coraw->storeEntity(msg->path(), entity);
+                mapit::StatusCode status = coraw->storeEntity(msg->path(), entity);
                 if(!upnsIsOk(status))
                 {
                     log_info("Could not store entity: \"" + msg->path() + "\"");
@@ -391,21 +391,21 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         }
         if(msg->sendlength() == 0)
         {
-            return UPNS_STATUS_OK;
+            return MAPIT_STATUS_OK;
         }
         if(!has_more())
         {
             log_info("Server expected raw data (" + std::to_string(msg->sendlength()) + " bytes for entity \"" + msg->path() + "\"), but nothing was received.");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
         // write entitydata
         std::shared_ptr<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
         if(ed == nullptr)
         {
             log_info("Entitydata of type could not be created.");
-            return UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND;
+            return MAPIT_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND;
         }
-        upns::upnsOStream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
+        mapit::ostream *stream = ed->startWriteBytes(msg->offset(), msg->sendlength());
         size_t offset = 0;
         while(has_more())
         {
@@ -414,7 +414,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
             {
                 log_info("Tried to store entitydata with sendlength smaller than received datasize.");
                 ed->endWrite(stream);
-                return UPNS_STATUS_INVALID_ARGUMENT;
+                return MAPIT_STATUS_INVALID_ARGUMENT;
             }
             stream->write(static_cast<char*>(buf->data()), buf->size());
             offset += buf->size();
@@ -423,10 +423,10 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
         {
             log_info("Received entitydata of wrong length: should: " + std::to_string(msg->sendlength()) + ", is: " + std::to_string(offset) + "." );
             ed->endWrite(stream);
-            return UPNS_STATUS_INVALID_DATA;
+            return MAPIT_STATUS_INVALID_DATA;
         }
         ed->endWrite(stream);
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     });
     if(upnsIsOk(res.first))
     {
@@ -441,7 +441,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
     send( std::move( rep ) );
 }
 
-//void upns::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
+//void mapit::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
 //{
 //    std::unique_ptr<ReplyStoreTree> rep(new ReplyStoreTree());
 
@@ -463,8 +463,8 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
 //    OperationDescription desc;
 //    desc.mutable_operator_()->set_operatorname("StoreTree");
 //    desc.set_params("{source:\"network\"}");
-//    upns::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
-//        upns::CheckoutRaw* coraw = env->getCheckout();
+//    mapit::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+//        mapit::CheckoutRaw* coraw = env->getCheckout();
 //        std::shared_ptr<Tree> tree;
 //        StatusCode s = coraw->storeTree(msg->path(), tree);
 //        return s;
@@ -483,7 +483,7 @@ void upns::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *msg
 //}
 
 void
-upns::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
+mapit::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
 {
     std::unique_ptr<ReplyDeleteEntity> rep = std::make_unique<ReplyDeleteEntity>();
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
@@ -499,8 +499,8 @@ upns::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
     desc.mutable_operator_()->set_operatorname("DeleteEntity");
     desc.set_params("{source:\"network\"}");
 
-    upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
-        upns::CheckoutRaw* coraw = env->getCheckout();
+    mapit::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+        mapit::CheckoutRaw* coraw = env->getCheckout();
 
         return coraw->deleteEntity(msg->path());
     });
@@ -518,7 +518,7 @@ upns::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
 
 
 void
-upns::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
+mapit::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
 {
     std::unique_ptr<ReplyDeleteTree> rep = std::make_unique<ReplyDeleteTree>();
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
@@ -534,8 +534,8 @@ upns::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
     desc.mutable_operator_()->set_operatorname("DeleteTree");
     desc.set_params("{source:\"network\"}");
 
-    upns::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](upns::OperationEnvironment *env){
-        upns::CheckoutRaw* coraw = env->getCheckout();
+    mapit::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+        mapit::CheckoutRaw* coraw = env->getCheckout();
 
         return coraw->deleteTree(msg->path());
     });
@@ -551,10 +551,10 @@ upns::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
     send( std::move( rep ) );
 }
 
-void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
+void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *msg)
 {
     Replier<ReplyGenericEntry> rep(new ReplyGenericEntry(), this);
-    //std::unique_ptr<upns::ReplyGenericEntry> rep(new upns::ReplyGenericEntry());
+    //std::unique_ptr<mapit::ReplyGenericEntry> rep(new mapit::ReplyGenericEntry());
     std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
     if(co == nullptr)
     {
@@ -595,19 +595,19 @@ void upns::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *m
     rep.send();
 }
 
-//void upns::ZmqResponderPrivate::handleRequestTree(upns::RequestTree *msg)
+//void mapit::ZmqResponderPrivate::handleRequestTree(mapit::RequestTree *msg)
 //{
-//    std::unique_ptr<upns::ReplyTree> rep(new upns::ReplyTree());
+//    std::unique_ptr<mapit::ReplyTree> rep(new mapit::ReplyTree());
 //    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
 //    std::shared_ptr<Tree> t = co->getTree(msg->path());
 //    if(t)
 //    {
-//        rep->set_status( upns::ReplyTree::SUCCESS );
+//        rep->set_status( mapit::ReplyTree::SUCCESS );
 //        rep->set_allocated_tree( new Tree(*t) );
 //    }
 //    else
 //    {
-//        rep->set_status( upns::ReplyTree::NOT_FOUND );
+//        rep->set_status( mapit::ReplyTree::NOT_FOUND );
 //    }
 //    send( std::move( rep ) );
 //}

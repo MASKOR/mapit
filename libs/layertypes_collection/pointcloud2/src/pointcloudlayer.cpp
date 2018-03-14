@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/pointcloudlayer.h"
-#include <upns/logging.h>
+#include "mapit/layertypes/pointcloudlayer.h"
+#include <mapit/logging.h>
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -36,7 +36,7 @@ const char *PointcloudEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-PointcloudEntitydata::PointcloudEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+PointcloudEntitydata::PointcloudEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_pointcloud( NULL )
 {
@@ -57,15 +57,15 @@ bool PointcloudEntitydata::canSaveRegions() const
     return false;
 }
 
-upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                                upnsReal x2, upnsReal y2, upnsReal z2,
+upnsPointcloud2Ptr PointcloudEntitydata::getData(float x1, float y1, float z1,
+                                                float x2, float y2, float z2,
                                                 bool clipMode,
                                                 int lod)
 {
     if(m_pointcloud == NULL)
     {
         m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
-        ReadWriteHandle handle;
+        mapit::ReadWriteHandle handle;
         std::string filename = m_streamProvider->startReadFile(handle);
         {
             pcl::PCDReader reader;
@@ -76,13 +76,13 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(upnsReal x1, upnsReal y1, upnsR
     return m_pointcloud;
 }
 
-int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                 upnsReal x2, upnsReal y2, upnsReal z2,
+int PointcloudEntitydata::setData(float x1, float y1, float z1,
+                                 float x2, float y2, float z2,
                                  upnsPointcloud2Ptr &data,
                                  int lod)
 {
     int result = -1;
-    ReadWriteHandle handle;
+    mapit::ReadWriteHandle handle;
     std::string filename = m_streamProvider->startWriteFile(handle);
     {
         m_pointcloud = data;
@@ -95,40 +95,40 @@ int PointcloudEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 
 upnsPointcloud2Ptr PointcloudEntitydata::getData(int lod)
 {
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return getData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    false, lod);
 }
 
 int PointcloudEntitydata::setData(upnsPointcloud2Ptr &data, int lod)
 {
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return setData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    data, lod);
 }
 
-void PointcloudEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                     upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+void PointcloudEntitydata::gridCellAt(float   x, float   y, float   z,
+                                     float &x1, float &y1, float &z1,
+                                     float &x2, float &y2, float &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<float>::infinity();
+    y1 = -std::numeric_limits<float>::infinity();
+    z1 = -std::numeric_limits<float>::infinity();
+    x2 = +std::numeric_limits<float>::infinity();
+    y2 = +std::numeric_limits<float>::infinity();
+    z2 = +std::numeric_limits<float>::infinity();
 }
 
-int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                              upnsReal &x2, upnsReal &y2, upnsReal &z2)
+int PointcloudEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
+                                              float &x2, float &y2, float &z2)
 {
     pcl::PointXYZ min;
     pcl::PointXYZ max;
@@ -144,22 +144,22 @@ int PointcloudEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsR
     return 0;
 }
 
-upnsIStream *PointcloudEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+mapit::istream *PointcloudEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void PointcloudEntitydata::endRead(upnsIStream *&strm)
+void PointcloudEntitydata::endRead(mapit::istream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *PointcloudEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+mapit::ostream *PointcloudEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void PointcloudEntitydata::endWrite(upnsOStream *&strm)
+void PointcloudEntitydata::endWrite(mapit::ostream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -172,9 +172,9 @@ size_t PointcloudEntitydata::size() const
 // Win32 does not like anything but void pointers handled between libraries
 // For Unix there would be a hack to use a "custom deleter" which is given to the library to clean up the created memory
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
-//std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-//void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydataPcd(AbstractEntitydata *ld)
+//std::shared_ptr<mapit::AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+//void* createEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
+void deleteEntitydataPcd(mapit::AbstractEntitydata *ld)
 {
     PointcloudEntitydata *p = dynamic_cast<PointcloudEntitydata*>(ld);
     if(p)
@@ -186,9 +186,9 @@ void deleteEntitydataPcd(AbstractEntitydata *ld)
         log_error("Wrong entitytype");
     }
 }
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
     //return std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = std::shared_ptr<AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydataPcd);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new PointcloudEntitydata( streamProvider ), deleteEntitydataPcd);
 }
 

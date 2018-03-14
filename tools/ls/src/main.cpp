@@ -21,11 +21,11 @@
  */
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/logging.h>
 #include <boost/program_options.hpp>
-#include <upns/depthfirstsearch.h>
+#include <mapit/depthfirstsearch.h>
 
 namespace po = boost::program_options;
 
@@ -41,7 +41,7 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
     po::positional_options_description pos_options;
     pos_options.add("workspace",  1);
 
-    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
     try {
         po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
     } catch(...) {
@@ -62,18 +62,18 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
     return 0;
 }
 
-void display_checkout(std::shared_ptr<upns::Checkout> co, bool use_recursive = false, std::string search_prefix = "")
+void display_checkout(std::shared_ptr<mapit::Checkout> co, bool use_recursive = false, std::string search_prefix = "")
 {
     int depth = 1;
     ObjectReference nullRef;
-    upns::StatusCode s = upns::depthFirstSearch(
+    mapit::StatusCode s = mapit::depthFirstSearch(
                 co.get(),
                 search_prefix.empty() ? co->getRoot() : co->getTree(search_prefix),
                 nullRef,
                 search_prefix,
                 depthFirstSearchAll(Commit),
                 depthFirstSearchAll(Commit),
-                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &path)
+                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
                     std::string prefix = "  ";
                     for (int t = 0; t < depth-1; ++t) {
@@ -94,7 +94,7 @@ void display_checkout(std::shared_ptr<upns::Checkout> co, bool use_recursive = f
                         return false;
                     }
                 },
-                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const upns::Path &path)
+                [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
                     if ( ! path.empty() ) {
                         --depth;
@@ -102,7 +102,7 @@ void display_checkout(std::shared_ptr<upns::Checkout> co, bool use_recursive = f
 
                     return true;
                 },
-                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
                     std::string prefix = "  ";
                     for (int t = 0; t < depth-1; ++t) {
@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
     }
 
     // connect to repo and workspace
-    std::shared_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+    std::shared_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
     if (use_workspace) {
-      std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["workspace"].as<std::string>() );
+      std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["workspace"].as<std::string>() );
       if(co == nullptr)
       {
           log_error("Checkout \"" + vars["workspace"].as<std::string>() + "\" not found");
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
         for (auto co_name : co_names) {
           log_info("- " + co_name);
           if (use_recursive) {
-            std::shared_ptr<upns::Checkout> co = repo->getCheckout( co_name );
+            std::shared_ptr<mapit::Checkout> co = repo->getCheckout( co_name );
             display_checkout(co, use_recursive);
           }
         }

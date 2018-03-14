@@ -25,20 +25,20 @@
 #include "upnszmqrequester_p.h"
 #include "upnszmqrequestercheckout.h"
 #include <zmq.hpp>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 
-upns::ZmqRequester::ZmqRequester(Repository *cache, std::string urlOutgoingRequests, bool operationsLocal)
-    :m_d( new upns::ZmqRequesterPrivate( cache, urlOutgoingRequests, operationsLocal ) )
+mapit::ZmqRequester::ZmqRequester(Repository *cache, std::string urlOutgoingRequests, bool operationsLocal)
+    :m_d( new mapit::ZmqRequesterPrivate( cache, urlOutgoingRequests, operationsLocal ) )
 {
 
 }
 
-upns::ZmqRequester::~ZmqRequester()
+mapit::ZmqRequester::~ZmqRequester()
 {
     delete m_d;
 }
 
-std::vector<std::string> upns::ZmqRequester::listCheckoutNames()
+std::vector<std::string> mapit::ZmqRequester::listCheckoutNames()
 {
     std::unique_ptr<RequestListCheckouts> req(new RequestListCheckouts);
     try
@@ -68,42 +68,42 @@ std::vector<std::string> upns::ZmqRequester::listCheckoutNames()
     }
 }
 
-std::shared_ptr<Tree> upns::ZmqRequester::getTree(const upns::ObjectId &oid)
+std::shared_ptr<Tree> mapit::ZmqRequester::getTree(const mapit::ObjectId &oid)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<Entity> upns::ZmqRequester::getEntity(const upns::ObjectId &oid)
+std::shared_ptr<Entity> mapit::ZmqRequester::getEntity(const mapit::ObjectId &oid)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<Commit> upns::ZmqRequester::getCommit(const upns::ObjectId &oid)
+std::shared_ptr<Commit> mapit::ZmqRequester::getCommit(const mapit::ObjectId &oid)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<CheckoutObj> upns::ZmqRequester::getCheckoutObj(const std::string &name)
+std::shared_ptr<CheckoutObj> mapit::ZmqRequester::getCheckoutObj(const std::string &name)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-std::shared_ptr<Branch> upns::ZmqRequester::getBranch(const std::string &name)
+std::shared_ptr<Branch> mapit::ZmqRequester::getBranch(const std::string &name)
 {
     //TODO: Define network message
     assert(false);
     return nullptr;
 }
 
-MessageType upns::ZmqRequester::typeOfObject(const upns::ObjectId &oid)
+MessageType mapit::ZmqRequester::typeOfObject(const mapit::ObjectId &oid)
 {
     //TODO: Define network message or use RequestGenericEntry
     if(this->getTree(oid) != nullptr) return MessageTree;
@@ -115,7 +115,7 @@ MessageType upns::ZmqRequester::typeOfObject(const upns::ObjectId &oid)
     return MessageEmpty;
 }
 
-std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequester::getEntitydataReadOnly(const upns::ObjectId &oid)
+std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequester::getEntitydataReadOnly(const mapit::ObjectId &oid)
 {
     //TODO: Define network message
     //Locally cache whole object
@@ -123,7 +123,7 @@ std::shared_ptr<upns::AbstractEntitydata> upns::ZmqRequester::getEntitydataReadO
     return nullptr;
 }
 
-std::shared_ptr<upns::Checkout> upns::ZmqRequester::createCheckout(const upns::CommitId &commitIdOrBranchname, const std::string &name)
+std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::createCheckout(const mapit::CommitId &commitIdOrBranchname, const std::string &name)
 {
     std::unique_ptr<RequestCheckout> req(new RequestCheckout);
     req->set_checkout(name);
@@ -138,22 +138,22 @@ std::shared_ptr<upns::Checkout> upns::ZmqRequester::createCheckout(const upns::C
         if(rep && (rep->status() == ReplyCheckout::SUCCESS ||
            rep->status() == ReplyCheckout::EXISTED))
         {
-            return std::shared_ptr<upns::Checkout>(new upns::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
+            return std::shared_ptr<mapit::Checkout>(new mapit::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
         }
         else
         {
             log_error("Could not create checkout \"" + name + "\"");
-            return std::shared_ptr<upns::Checkout>(nullptr);
+            return std::shared_ptr<mapit::Checkout>(nullptr);
         }
     }
     catch(zmq::error_t err)
     {
         log_error("ZmqRequester: Error in createCheckout: " + err.what());
-        return std::shared_ptr<upns::Checkout>(nullptr);
+        return std::shared_ptr<mapit::Checkout>(nullptr);
     }
 }
 
-std::shared_ptr<upns::Checkout> upns::ZmqRequester::getCheckout(const std::string &checkoutName)
+std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::getCheckout(const std::string &checkoutName)
 {
     //TODO: No error checking here at the time. It is possible, that the returned checkout does simply not exist.
     if(!m_d->m_operationsLocal)
@@ -162,71 +162,71 @@ std::shared_ptr<upns::Checkout> upns::ZmqRequester::getCheckout(const std::strin
         // operator later must be able to compute locally without requests to client
         // TODO:
     }
-    return std::shared_ptr<upns::Checkout>(new upns::ZmqRequesterCheckout( checkoutName, m_d, nullptr, m_d->m_operationsLocal ));
+    return std::shared_ptr<mapit::Checkout>(new mapit::ZmqRequesterCheckout( checkoutName, m_d, nullptr, m_d->m_operationsLocal ));
 }
 
-upns::StatusCode upns::ZmqRequester::deleteCheckoutForced(const std::string &checkoutName)
+mapit::StatusCode mapit::ZmqRequester::deleteCheckoutForced(const std::string &checkoutName)
 {
     //TODO: nyi
     assert(false);
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    return MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-upns::CommitId upns::ZmqRequester::commit(const std::shared_ptr<upns::Checkout> checkout, std::string msg)
+mapit::CommitId mapit::ZmqRequester::commit(const std::shared_ptr<mapit::Checkout> checkout, std::string msg)
 {
     //TODO: nyi
     assert(false);
     return "nyi";
 }
 
-std::vector<std::shared_ptr<Branch> > upns::ZmqRequester::getBranches()
+std::vector<std::shared_ptr<Branch> > mapit::ZmqRequester::getBranches()
 {
     //TODO: nyi
     assert(false);
     return std::vector<std::shared_ptr<Branch> >();
 }
 
-upns::StatusCode upns::ZmqRequester::push(upns::Repository &repo)
+mapit::StatusCode mapit::ZmqRequester::push(mapit::Repository &repo)
 {
     //TODO: nyi
     assert(false);
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    return MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-upns::StatusCode upns::ZmqRequester::pull(upns::Repository &repo)
+mapit::StatusCode mapit::ZmqRequester::pull(mapit::Repository &repo)
 {
     //TODO: nyi
     assert(false);
-    return UPNS_STATUS_ERR_NOT_YET_IMPLEMENTED;
+    return MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-upns::CommitId upns::ZmqRequester::parseCommitRef(const std::string &commitRef)
+mapit::CommitId mapit::ZmqRequester::parseCommitRef(const std::string &commitRef)
 {
     //TODO: nyi
     assert(false);
     return commitRef;
 }
 
-std::shared_ptr<upns::Checkout> upns::ZmqRequester::merge(const upns::CommitId mine, const upns::CommitId theirs, const upns::CommitId base)
+std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::merge(const mapit::CommitId mine, const mapit::CommitId theirs, const mapit::CommitId base)
 {
     //TODO: nyi
     assert(false);
-    return std::shared_ptr<upns::Checkout>(nullptr);
+    return std::shared_ptr<mapit::Checkout>(nullptr);
 }
 
-std::vector<std::pair<upns::CommitId, upns::ObjectId> > upns::ZmqRequester::ancestors(const upns::CommitId &commitId, const upns::ObjectId &objectId, const int level)
+std::vector<std::pair<mapit::CommitId, mapit::ObjectId> > mapit::ZmqRequester::ancestors(const mapit::CommitId &commitId, const mapit::ObjectId &objectId, const int level)
 {
     //TODO: nyi
     assert(false);
-    return std::vector<std::pair<upns::CommitId, upns::ObjectId> >();
+    return std::vector<std::pair<mapit::CommitId, mapit::ObjectId> >();
 }
 
-bool upns::ZmqRequester::canRead()
+bool mapit::ZmqRequester::canRead()
 {
     return true;
 }
 
-bool upns::ZmqRequester::canWrite()
+bool mapit::ZmqRequester::canWrite()
 {
     return true;
 }

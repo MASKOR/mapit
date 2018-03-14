@@ -21,14 +21,14 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/serialization/entitydatalibrarymanager.h>
-#include <upns/errorcodes.h>
+#include <mapit/operators/module.h>
+#include <mapit/serialization/entitydatalibrarymanager.h>
+#include <mapit/errorcodes.h>
 #include "operationenvironmentimpl.h"
 #include <sstream>
 #include <algorithm>
-#include <upns/logging.h>
-#include <upns/serialization/operatorlibrarymanager.h>
+#include <mapit/logging.h>
+#include <mapit/serialization/operatorlibrarymanager.h>
 
 #include <dirent.h>
 
@@ -44,7 +44,7 @@
 
 #define MAPIT_LOCAL_OPERATOR_DIR "./libs/"
 
-namespace upns
+namespace mapit
 {
 
 #ifdef _WIN32
@@ -131,7 +131,7 @@ ModuleInfo* getModuleInfo(HandleOpModule &handle)
     return getModInfo();
 }
 
-upns::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout)
+mapit::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout)
 {
 //    OperationDescription opdesc;
 //    // protobuf has no methods to handle members as const. We won't change opdesc.operator()
@@ -157,18 +157,18 @@ StatusCode closeOperatorModule(HandleOpModule handle)
 #ifdef _WIN32
     bool success = FreeLibrary(handle);
     if(success) {
-        result = UPNS_STATUS_OK;
+        result = MAPIT_STATUS_OK;
     } else {
         //TODO: GetLastError()...
-        result = UPNS_STATUS_ERR_UNKNOWN;
+        result = MAPIT_STATUS_ERR_UNKNOWN;
         log_warn("could not close library");
     }
 #else
     int status = dlclose(handle);
     if(status == 0) {
-        result = UPNS_STATUS_OK;
+        result = MAPIT_STATUS_OK;
     } else {
-        result = UPNS_STATUS_ERR_UNKNOWN;
+        result = MAPIT_STATUS_ERR_UNKNOWN;
         log_warn("could not close library");
     }
 #endif
@@ -180,13 +180,13 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
     HandleOpModule handle = loadOperatorModule(desc.operator_());
     if(!handle)
     {
-        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
+        return OperationResult(MAPIT_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
     }
     log_info("open library: " + desc.operator_().operatorname());
     ModuleInfo* modInfo = getModuleInfo(handle);
     if(!modInfo)
     {
-        return OperationResult(UPNS_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
+        return OperationResult(MAPIT_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
     }
     OperationResult result = _doOperation(modInfo, desc, checkout);
     if(!upnsIsOk(result.first))

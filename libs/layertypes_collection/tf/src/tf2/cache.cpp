@@ -29,8 +29,8 @@
 
 /** \author Tully Foote */
 
-#include <upns/layertypes/tflayer/tf2/time_cache.h>
-#include <upns/layertypes/tflayer/tf2/exceptions.h>
+#include <mapit/layertypes/tflayer/tf2/time_cache.h>
+#include <mapit/layertypes/tflayer/tf2/exceptions.h>
 
 Eigen::Translation3f
 interpolate3(const Eigen::Translation3f& v0, const Eigen::Translation3f& v1, float rt);
@@ -54,7 +54,7 @@ TransformStorage::TransformStorage()
 {
 }
 
-TransformStorage::TransformStorage(const ::tf::TransformStamped& data, CompactFrameID frame_id,
+TransformStorage::TransformStorage(const mapit::tf::TransformStamped& data, CompactFrameID frame_id,
                                    CompactFrameID child_frame_id)
 : stamp_(data.stamp)
 , frame_id_(frame_id)

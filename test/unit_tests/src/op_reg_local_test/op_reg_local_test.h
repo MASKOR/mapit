@@ -41,8 +41,8 @@ private slots:
     void test_icp_tf_combine();
 private:
     std::string fileSystemName_;
-    std::shared_ptr<upns::Repository> repo_;
-    std::shared_ptr<upns::Checkout> checkout_;
+    std::shared_ptr<mapit::Repository> repo_;
+    std::shared_ptr<mapit::Checkout> checkout_;
 
     void createTestdata();
 };

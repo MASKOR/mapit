@@ -24,11 +24,10 @@
 
 project(core)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
 find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
 
-file(GLOB_RECURSE UPNS_MM_SOURCES src/*.cpp
+file(GLOB_RECURSE CORE_SOURCES src/*.cpp
                                   src/*.h
                                   src/serialization/file_system/*.cpp
                                   src/serialization/file_system/*.h
@@ -36,7 +35,7 @@ file(GLOB_RECURSE UPNS_MM_SOURCES src/*.cpp
                                   src/sha/*.cpp
                                   src/sha/*.h)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_MM_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${CORE_SOURCES} )
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 #Note: Windows (and also linux in some cases?):

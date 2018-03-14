@@ -20,16 +20,16 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/lastype.h>
-#include <upns/layertypes/lasentitydatawriter.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/lastype.h>
+#include <mapit/layertypes/lasentitydatawriter.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 #include "liblas/liblas.hpp"
 #include <fstream>
 
@@ -205,7 +205,7 @@ public:
     }
 };
 
-upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
+mapit::StatusCode operate_load_las_csv(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -217,23 +217,23 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
     if(filename.empty())
     {
         log_error("parameter \"filename\" missing");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(LASEntitydata::TYPENAME());
-    StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>(abstractEntitydata);
     if(entityData == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     QString file = QString::fromStdString(filename);
 
@@ -271,7 +271,7 @@ upns::StatusCode operate_load_las_csv(upns::OperationEnvironment* env)
                               doubles.data()[i+2]);
         writer->WritePoint(pointl);
     }
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Las File", "fhac", OPERATOR_VERSION, LASEntitydata_TYPENAME, &operate_load_las_csv)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Las File", "fhac", OPERATOR_VERSION, LASEntitydata_TYPENAME, &operate_load_las_csv)

@@ -24,7 +24,6 @@
 project(layertype_pointcloud2)
 
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 #find_package(PCL QUIET REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
 
 find_package(mapit REQUIRED)
@@ -40,11 +39,6 @@ find_package(PCL QUIET REQUIRED COMPONENTS common io)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-include_directories(${CMAKE_SOURCE_DIR}/externals/log4cplus/include/)
-if(WIN32)
-  include_directories(${CMAKE_SOURCE_DIR}/externals/windows/include/)
-endif(WIN32)
-
 # Eigen3 Will just not be found on windows
 if(WIN32)
     find_package(Eigen3)
@@ -57,7 +51,7 @@ endif(WIN32)
 file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_POINTCLOUD2_SOURCES} )
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
 
 # About dependency to pcl
@@ -77,7 +71,7 @@ target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapi
 #      ln -s /usr/include /usr/local/include
 #      ln -s /usr/lib/libpcl_* /usr/local/
 #      (2) is current workaround)
-#    Note: just putting the below "private" varibale to "public" will not do the job (tested after installation on other system with upns_samples).
+#    Note: just putting the below "private" varibale to "public" will not do the job (tested after installation on other system with mapit_samples).
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
                                                   #$<BUILD_INTERFACE:${PCL_INCLUDE_DIRS}>
@@ -116,8 +110,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_pointcloud2_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

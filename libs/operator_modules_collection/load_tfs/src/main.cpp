@@ -21,20 +21,20 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/tflayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
+mapit::StatusCode operate_load_tfs(mapit::OperationEnvironment* env)
 {
     /** structure:
      * {
@@ -77,10 +77,10 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
 
     std::string prefix = params["prefix"].toString().toStdString();
 
-    CheckoutRaw* checkout = env->getCheckout();
+    mapit::CheckoutRaw* checkout = env->getCheckout();
 
-    std::shared_ptr<upns::tf::store::TransformStampedListGatherer> tfs_map
-        = std::make_shared<upns::tf::store::TransformStampedListGatherer>();
+    std::shared_ptr<mapit::tf::store::TransformStampedListGatherer> tfs_map
+        = std::make_shared<mapit::tf::store::TransformStampedListGatherer>();
 
     // TODO check if data is available
     QJsonArray json_transforms( params["transforms"].toArray() );
@@ -90,7 +90,7 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
         bool is_static = json_tf["static"].toBool();
 
         // get data from json
-        std::unique_ptr<tf::TransformStamped> tf_loaded = std::unique_ptr<tf::TransformStamped>(new tf::TransformStamped);
+        std::unique_ptr<mapit::tf::TransformStamped> tf_loaded = std::unique_ptr<mapit::tf::TransformStamped>(new mapit::tf::TransformStamped);
 
         // get header
         QJsonObject header( json_tf["header"].toObject() );
@@ -131,21 +131,21 @@ upns::StatusCode operate_load_tfs(upns::OperationEnvironment* env)
         if(!valid)
         {
             log_warn("Invalid Quaternion 0.");
-            return UPNS_STATUS_ERROR;
+            return MAPIT_STATUS_ERROR;
         }
 
         // add data to map
         tfs_map->add_transform( std::move( tf_loaded ), is_static );
     }
 
-    upns::StatusCode usc_static = tfs_map->store_entities(checkout, prefix);
+    mapit::StatusCode usc_static = tfs_map->store_entities(checkout, prefix);
 
-    if (   usc_static == UPNS_STATUS_OK) {
-      return UPNS_STATUS_OK;
+    if (   usc_static == MAPIT_STATUS_OK) {
+      return MAPIT_STATUS_OK;
     } else {
       return usc_static;
     }
 
 }
 
-UPNS_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_tfs)
+MAPIT_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_tfs)

@@ -24,18 +24,18 @@
 #define UPNSZMQREQUESTER_H
 
 #include <string>
-#include <upns/versioning/repository.h>
+#include <mapit/versioning/repository.h>
 
-namespace upns {
+namespace mapit {
 
 class ZmqRequesterPrivate;
 
 ///
-/// \brief The upns::ZmqRequester class
+/// \brief The mapit::ZmqRequester class
 /// Implements the basic Repository Interface and will send requests over network
 ///
 
-class ZmqRequester : public upns::Repository
+class ZmqRequester : public mapit::Repository
 {
 public:
     ZmqRequester(Repository* cache, std::string urlOutgoingRequests = std::string(), bool operationsLocal = false);

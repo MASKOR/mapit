@@ -20,13 +20,13 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlpathgeometry.h"
+#include "mapit/ui/bindings/qmlpathgeometry.h"
 #include <Qt3DRender/QBuffer>
 #include <Qt3DRender/QAttribute>
 #include <Qt3DRender/qbufferdatagenerator.h>
 #include <QHash>
 #include <iomanip>
-#include <upns/layertypes/pose_path.h>
+#include <mapit/layertypes/pose_path.h>
 #include <QSharedPointer>
 
 class PathVertexDataGenerator : public Qt3DRender::QBufferDataGenerator

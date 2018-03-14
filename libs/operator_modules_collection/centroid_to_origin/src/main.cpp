@@ -21,28 +21,28 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/logging.h>
-#include <upns/operators/module.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/layertypes/tflayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/logging.h>
+#include <mapit/operators/module.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/common/centroid.h>
 #include <pcl/common/transforms.h>
 #include <pcl/common/common.h>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 
 using namespace mapit::msgs;
 
 template <typename PointT>
-StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, upns::OperationEnvironment* env);
+mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env);
 
-StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, upns::OperationEnvironment* env)
+mapit::StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     bool hasX = false;
     bool hasY = false;
@@ -196,7 +196,7 @@ StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydat
     {
         log_error("Pointcloud2 has no fields.");
     }
-    return UPNS_STATUS_ERROR;
+    return MAPIT_STATUS_ERROR;
 }
 
 //StatusCode demean(upnsPointcloud2Ptr cloud, Eigen::Vector4f ctr, pcl::PointCloud<pcl::PointXYZ> *pcCtr)
@@ -211,7 +211,7 @@ StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydat
 //}
 
 template <typename PointT>
-StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, upns::OperationEnvironment* env)
+mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -283,44 +283,44 @@ StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<Pointcl
 //            if(!upnsIsOk(s))
 //            {
 //                log_error("Failed to create transform entity.");
-//                return UPNS_STATUS_ERR_UNKNOWN;
+//                return MAPIT_STATUS_ERR_UNKNOWN;
 //            }
 //        }
 //        std::shared_ptr<AbstractEntitydata> abstractEntitydataTf = env->getCheckout()->getEntitydataForReadWrite( tfEntityName );
 //        if(abstractEntitydataTf == NULL)
 //        {
-//            return UPNS_STATUS_ERR_UNKNOWN;
+//            return MAPIT_STATUS_ERR_UNKNOWN;
 //        }
 //        std::shared_ptr<TfEntitydata> entityDataTf = std::dynamic_pointer_cast<TfEntitydata>( abstractEntitydataTf );
 //        if(entityDataTf == NULL)
 //        {
 //            log_error("Tf Transform has wrong type.");
-//            return UPNS_STATUS_ERR_UNKNOWN;
+//            return MAPIT_STATUS_ERR_UNKNOWN;
 //        }
-//        upns::tf::TransformPtr tf = upns::tf::TransformPtr(new upns::tf::Transform);
+//        mapit::tf::TransformPtr tf = mapit::tf::TransformPtr(new mapit::tf::Transform);
 //        tf->translation = Eigen::Translation3f(-ctr[0], -ctr[1], -ctr[2]);
 //        entityDataTf->setData(tf);
 //    }
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode operate_ctr(upns::OperationEnvironment* env)
+mapit::StatusCode operate_ctr(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
     std::string target = params["target"].toString().toStdString();
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     return operate(pc2, entityData, env);
 }
 
-UPNS_MODULE(OPERATOR_NAME, "use point of mass as origin of the pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_ctr)
+MAPIT_MODULE(OPERATOR_NAME, "use point of mass as origin of the pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_ctr)

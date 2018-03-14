@@ -24,13 +24,13 @@
 #ifndef ABSTRACTSERIALIZER_H
 #define ABSTRACTSERIALIZER_H
 
-#include <upns/typedefs.h>
+#include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
-#include <upns/operators/serialization/abstractentitydataprovider.h>
-#include <upns/entitydata.h>
-#include <upns/errorcodes.h>
+#include <mapit/operators/serialization/abstractentitydataprovider.h>
+#include <mapit/entitydata.h>
+#include <mapit/errorcodes.h>
 
-namespace upns
+namespace mapit
 {
 // Path with leading checkout name
 typedef Path PathInternal;

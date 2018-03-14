@@ -46,10 +46,10 @@
 //#include <fcntl.h>
 ////#include <unistd.h>
 
-#include <upns/logging.h>
+#include <mapit/logging.h>
 #define FILEMODE S_IRWXU | S_IRGRP | S_IROTH
 
-namespace upns {
+namespace mapit {
 
 struct FileSystemReadWriteHandle {
     boost::iostreams::mapped_file_source file;
@@ -77,14 +77,14 @@ bool FileSystemEntitydataStreamProvider::isReadWriteSame()
     return true;
 }
 
-upnsIStream* upns::FileSystemEntitydataStreamProvider::startRead(upnsuint64 start, upnsuint64 len)
+mapit::istream* mapit::FileSystemEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit::uint64_t len)
 {
     std::ifstream *is = new std::ifstream(m_filenameRead, std::ifstream::in | std::ios_base::binary);
     is->seekg(start, std::ios::beg);
     return is;
 }
 
-void FileSystemEntitydataStreamProvider::endRead(upnsIStream *&strm)
+void FileSystemEntitydataStreamProvider::endRead(mapit::istream *&strm)
 {
     if(strm != nullptr)
     {
@@ -98,7 +98,7 @@ void FileSystemEntitydataStreamProvider::endRead(upnsIStream *&strm)
     }
 }
 
-upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 start, upnsuint64 len)
+mapit::ostream *mapit::FileSystemEntitydataStreamProvider::startWrite(mapit::uint64_t start, mapit::uint64_t len)
 {
     //TODO: seek, overwrite
     if( m_filenameWrite.empty() )
@@ -111,7 +111,7 @@ upnsOStream *upns::FileSystemEntitydataStreamProvider::startWrite(upnsuint64 sta
     return ofstr;
 }
 
-void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *&strm)
+void FileSystemEntitydataStreamProvider::endWrite(mapit::ostream *&strm)
 {
     assert(strm);
     assert(static_cast<std::ofstream*>(strm)->is_open());
@@ -120,7 +120,7 @@ void FileSystemEntitydataStreamProvider::endWrite(upnsOStream *&strm)
     delete strm;
 }
 
-upnsuint64 FileSystemEntitydataStreamProvider::getStreamSize() const
+mapit::uint64_t FileSystemEntitydataStreamProvider::getStreamSize() const
 {
     std::ifstream is(m_filenameRead);
     is.seekg(0, std::ios::beg);
@@ -129,7 +129,7 @@ upnsuint64 FileSystemEntitydataStreamProvider::getStreamSize() const
     return size;
 }
 
-void FileSystemEntitydataStreamProvider::setStreamSize(upnsuint64 streamSize)
+void FileSystemEntitydataStreamProvider::setStreamSize(mapit::uint64_t streamSize)
 {
     if( m_filenameWrite.empty() )
     {
@@ -151,7 +151,7 @@ void FileSystemEntitydataStreamProvider::unlock(LockHandle)
     //TODO: impl
 }
 
-const void *FileSystemEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
+const void *FileSystemEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len)
 {
     FileSystemReadWriteHandle *fsHandle = new FileSystemReadWriteHandle;
     handle = static_cast<ReadWriteHandle>(fsHandle);
@@ -184,7 +184,7 @@ void FileSystemEntitydataStreamProvider::endReadPointer(const void *ptr, ReadWri
     delete fsHandle;
 }
 
-void *FileSystemEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len)
+void *FileSystemEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len)
 {
     if( m_filenameWrite.empty() ) {
         log_error("writing not allowed");

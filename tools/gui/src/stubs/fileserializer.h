@@ -24,10 +24,10 @@
 //#define FILESERIALIZER_H
 
 //#include "serialization/abstractmapserializer.h"
-//namespace upns
+//namespace mapit
 //{
 
-//class FileSerializer : public upns::AbstractSerializer
+//class FileSerializer : public mapit::AbstractSerializer
 //{
 
 

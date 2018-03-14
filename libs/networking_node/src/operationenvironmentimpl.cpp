@@ -22,12 +22,12 @@
  */
 
 #include "operationenvironmentimpl.h"
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 
 using namespace mapit::msgs;
 
-namespace upns
+namespace mapit
 {
 
 OperationEnvironmentImpl::OperationEnvironmentImpl(const OperationDescription &desc)

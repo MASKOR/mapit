@@ -25,9 +25,9 @@
 
 #include <QTest>
 
-#include <upns/versioning/repository.h>
+#include <mapit/versioning/repository.h>
 
-namespace upns {
+namespace mapit {
 class RepositoryServer;
 }
 
@@ -48,13 +48,13 @@ private slots:
     void testReadRemoteComputeLocalWriteRemote();
     void testReadRemoteComputeRemoteWriteLocal();
 private:
-    std::shared_ptr<upns::Repository> initEmptyLocal();
-    std::shared_ptr<upns::Repository> initNetwork(bool computeLocal);
+    std::shared_ptr<mapit::Repository> initEmptyLocal();
+    std::shared_ptr<mapit::Repository> initNetwork(bool computeLocal);
 
     //// functions to execute on the repositories
-    void readPcd(upns::Checkout *checkout);
-    void voxelgrid(upns::Checkout* checkout);
-    void writePcdLocalOnly(upns::Checkout* checkout, std::string filename);
+    void readPcd(mapit::Checkout *checkout);
+    void voxelgrid(mapit::Checkout* checkout);
+    void writePcdLocalOnly(mapit::Checkout* checkout, std::string filename);
     void compareFileToExpected(const char* filename);
 
 

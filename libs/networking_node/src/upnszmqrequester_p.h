@@ -27,9 +27,9 @@
 #include <string>
 #include "zmqprotobufnode.h"
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
+#include <mapit/versioning/repository.h>
 
-namespace upns {
+namespace mapit {
 
 class ZmqRequesterPrivate : public ZmqProtobufNode
 {
@@ -42,5 +42,5 @@ private:
     friend class UpnsZmqNode;
 };
 
-} // namespace upns
+} // namespace mapit
 #endif // UPNSZMQREQUESTER_P_H

@@ -26,7 +26,7 @@
 #include <QTest>
 #include "../repositorycommon.h"
 
-namespace upns {
+namespace mapit {
 namespace tf {
     struct TransformStamped;
 }
@@ -49,12 +49,12 @@ private slots:
     void test_layertype_to_buffer();
 private:
     std::string fileSystemName_;
-    std::shared_ptr<upns::Repository> repo_;
-    std::shared_ptr<upns::Checkout> checkout_;
+    std::shared_ptr<mapit::Repository> repo_;
+    std::shared_ptr<mapit::Checkout> checkout_;
 
     void createTestdata();
 
-    void compareTfs(upns::tf::TransformStamped a, upns::tf::TransformStamped b);
+    void compareTfs(mapit::tf::TransformStamped a, mapit::tf::TransformStamped b);
 };
 
 #endif

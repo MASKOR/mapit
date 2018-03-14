@@ -68,6 +68,13 @@ if(NOT DISABLE_PCL)
         ${mapit_core}
         layertype_pointcloud2)
 
+    if(UNIX)
+        # tell CMake Prefix is "lib" otherwise it can not be queried
+        set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
+    endif(UNIX)
+    get_target_property(OLD_PREFIX ${PROJECT_NAME} PREFIX)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX ${OLD_PREFIX}${MAPIT_INSTALL_OPERATORS})
+
     install(TARGETS ${PROJECT_NAME}
         DESTINATION lib)
 endif(NOT DISABLE_PCL)

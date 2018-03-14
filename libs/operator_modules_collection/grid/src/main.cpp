@@ -20,12 +20,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/errorcodes.h>
-#include <upns/operators/module.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/logging.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/module.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/logging.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -50,7 +50,7 @@ pcl::PCLPointCloud2::Ptr extractIndices(pcl::PointCloud<PointType> &cloudIn, std
 
 void notDeleter(pcl::PCLPointCloud2* d) {}
 
-upns::StatusCode operate_grid(upns::OperationEnvironment* env)
+mapit::StatusCode operate_grid(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -74,12 +74,12 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {
         log_error("Wrong type (not a pointcloud)");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
@@ -121,7 +121,7 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
 //        if(entityData == nullptr)
 //        {
 //            log_error("Wrong type");
-//            return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+//            return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
 //        }
 //        entityData->setData(p2);
     }
@@ -130,7 +130,7 @@ upns::StatusCode operate_grid(upns::OperationEnvironment* env)
 //    out.set_operatorname(OPERATOR_NAME);
 //    out.set_operatorversion(OPERATOR_VERSION);
 //    env->setOutputDescription( out.SerializeAsString() );
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "slice a pointcloud into multiple pointclouds using a grid", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_grid)
+MAPIT_MODULE(OPERATOR_NAME, "slice a pointcloud into multiple pointclouds using a grid", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_grid)

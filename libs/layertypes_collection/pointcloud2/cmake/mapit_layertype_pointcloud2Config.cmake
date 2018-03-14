@@ -36,4 +36,4 @@ if(NOT TARGET mapit::layertype_pointcloud2 AND NOT mapit::layertype_pointcloud2_
 endif()
  
 # These are IMPORTED targets created by mapitCoreTargets.cmake
-#set(MAPIT_CORE_LIBRARIES upns_core)
+#set(MAPIT_CORE_LIBRARIES mapit_core)

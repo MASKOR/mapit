@@ -36,9 +36,9 @@ include_directories(${ZMQ_INCLUDE_DIR})
 find_package(CPPZMQ REQUIRED)
 include_directories(${CPPZMQ_INCLUDE_DIR})
 
-file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h )
+file(GLOB_RECURSE MAPIT_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h )
 
-add_library(${PROJECT_NAME} SHARED ${UPNS_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${MAPIT_SOURCES})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
@@ -82,8 +82,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_networking_node_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

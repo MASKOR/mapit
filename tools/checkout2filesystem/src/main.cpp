@@ -24,9 +24,9 @@
 #include <iostream>
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/logging.h>
 #include <boost/filesystem.hpp>
 //#include <boost/iostreams/device/mapped_file.hpp>
 #include <fstream>
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     pos_options.add("checkout",  1)
                .add("destination",  1);
 
-    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
     po::variables_map vars;
     po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
     if(vars.count("help"))
@@ -61,9 +61,9 @@ int main(int argc, char *argv[])
     }
     po::notify(vars);
 
-    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+    std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
     if(co == nullptr)
     {
         log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
         rootPath /= fs::path( vars["checkout"].as<std::string>() );
     }
 
-    upns::StatusCode s = co->depthFirstSearch(
-        [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+    mapit::StatusCode s = co->depthFirstSearch(
+        [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             fs::path current( rootPath );
             fs::path path_new = rootPath / fs::path(path);
@@ -96,11 +96,11 @@ int main(int argc, char *argv[])
                 }
             }
             return true;
-        }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+        }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             return true;
         },
-        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             fs::path current(rootPath / fs::path(path));
             if ( fs::exists( current ) ) {
@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
             }
 
             // get the stream to write into a file
-            std::shared_ptr<upns::AbstractEntitydata> reader = co->getEntitydataReadOnly(path);
-            upns::upnsIStream *entityStream = reader->startReadBytes();
+            std::shared_ptr<mapit::AbstractEntitydata> reader = co->getEntitydataReadOnly(path);
+            mapit::istream *entityStream = reader->startReadBytes();
 
             // calculate the step size to write into the file
             size_t entitySize = reader->size();
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 
             return true;
         },
-        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             return true;
         });

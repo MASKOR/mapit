@@ -22,7 +22,7 @@
  */
 
 #include "testrepository.h"
-#include <upns/typedefs.h>
+#include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
 #include "../../src/autotest.h"
 #include <QDir>
@@ -30,21 +30,21 @@
 #include <QString>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactory.h>
-#include <upns/versioning/repositorynetworkingfactory.h>
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactory.h>
+#include <mapit/versioning/repositorynetworkingfactory.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #include <functional>
 #include <pcl/io/pcd_io.h>
 #include <iostream>
 
 //TODO: Why must this be redeclared here ( @sa repositorycommon.cpp)
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 using namespace mapit::msgs;
-using namespace upns;
+using namespace mapit;
 
 void TestRepository::init()
 {
@@ -71,7 +71,7 @@ void TestRepository::cleanupTestCase()
 void TestRepository::testCreateCheckout_data() { createTestdata(); }
 void TestRepository::testCreateCheckout()
 {
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
     std::shared_ptr<Checkout> co(repo->createCheckout("master", "testcheckout_created_new"));
     QVERIFY(co != nullptr);
     OperationDescription operationCreateTree;
@@ -108,7 +108,7 @@ void TestRepository::testCreateCheckout()
 void TestRepository::testGetCheckout_data() { createTestdata(); }
 void TestRepository::testGetCheckout()
 {
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
     std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
 
@@ -129,18 +129,18 @@ void TestRepository::testGetCheckout()
 void TestRepository::testReadCheckout_data() { createTestdata(); }
 void TestRepository::testReadCheckout()
 {
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
     QVERIFY2( repo->listCheckoutNames().size() > 0, "Can't find checkouts in repo");
 
     std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
 
-    upns::Path path = checkoutPath_;
+    mapit::Path path = checkoutPath_;
     std::shared_ptr<Entity> entity = co->getEntity(path);
 
     QVERIFY(entity != nullptr);
 
-    std::shared_ptr<AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
+    std::shared_ptr<mapit::AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
     QVERIFY(strcmp(entityDataAbstract->type(), PointcloudEntitydata::TYPENAME()) == 0);
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>(entityDataAbstract);
     QVERIFY(entityData != nullptr);
@@ -176,7 +176,7 @@ void TestRepository::testCommit_data() { createTestdata(); }
 void TestRepository::testCommit()
 {
     return; // skip for now due to network test
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
     std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
     repo->commit( co, "This is the commit message of a TestCommit");
@@ -185,7 +185,7 @@ void TestRepository::testCommit()
 void TestRepository::testVoxelgridfilter_data() { createTestdata(); }
 void TestRepository::testVoxelgridfilter()
 {
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
     std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
     OperationDescription operation;

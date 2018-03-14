@@ -26,11 +26,11 @@
 #include <QtMath>
 #include <QOpenGLFunctions_3_0>
 
-#include "upns/ui/bindings/qmlentitydata.h"
-#include <upns/logging.h>
+#include "mapit/ui/bindings/qmlentitydata.h"
+#include <mapit/logging.h>
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/checkout.h>
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
@@ -142,7 +142,7 @@ bool MapsRenderer::isInitialized()
     return m_initialized;
 }
 
-//void MapsRenderer::setEntitydata(std::shared_ptr<upns::AbstractEntitydata> entityData)
+//void MapsRenderer::setEntitydata(std::shared_ptr<mapit::AbstractEntitydata> entityData)
 //{
 //    m_entitydata = entityData;
 //    if(m_initialized && m_entitydata != NULL)

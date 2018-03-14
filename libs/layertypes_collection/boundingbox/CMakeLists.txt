@@ -23,24 +23,14 @@
 
 project(boundingbox)
 cmake_minimum_required(VERSION 3.0.2)
-aux_source_directory(. SRC_LIST)
 
-if(MAPIT_ENABLE_LOG4CPLUS)
-  include_directories(${PROJECT_SOURCE_DIR}/../../../externals/log4cplus/include/)
-endif(MAPIT_ENABLE_LOG4CPLUS)
-if(WIN32)
-  include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
-endif(WIN32)
-
-
-# TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
-file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
+# TODO: If language could not be determined: There are Additional cmake variable for boost that must be set. Fix this
+file(GLOB_RECURSE BOUNDINGBOX_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_POINTCLOUD2_SOURCES}  )
+add_library(${PROJECT_NAME} SHARED ${BOUNDINGBOX_SOURCES})
 target_link_libraries( ${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} interface interface_cpp)
 
-target_link_libraries(${PROJECT_NAME} )
 target_include_directories(${PROJECT_NAME} PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                                                    $<INSTALL_INTERFACE:include>
                                            PRIVATE ${PROJECT_SOURCE_DIR}/src/)
@@ -75,8 +65,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_boundingbox_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

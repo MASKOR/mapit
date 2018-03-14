@@ -20,20 +20,20 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/tflayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/depthfirstsearch.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 #include <mapit/time/time.h>
-#include <upns/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer.h>
 
 struct RandomStorage {
     double xMin;
@@ -62,7 +62,7 @@ double getRandom(const double& min, const double& max)
     return min + randomFloat * (max - min);
 }
 
-upns::StatusCode saveRandomTFForEntity(  upns::OperationEnvironment* env
+mapit::StatusCode saveRandomTFForEntity(  mapit::OperationEnvironment* env
                                        , std::shared_ptr<mapit::msgs::Entity> entity
                                        , const std::string& target
                                        , const std::string& frame_id
@@ -71,12 +71,12 @@ upns::StatusCode saveRandomTFForEntity(  upns::OperationEnvironment* env
 {
     if(entity == nullptr) {
         log_error("Can't acces entity: " + target);
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::string child_frame_id = entity->frame_id();
     if (child_frame_id.empty()) {
         log_error("Entity " + target + " does not have a frame_id set");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     mapit::time::Stamp stamp = mapit::time::from_msg( entity->stamp() );
 
@@ -95,7 +95,7 @@ upns::StatusCode saveRandomTFForEntity(  upns::OperationEnvironment* env
     tfRot =   Eigen::AngleAxisf(randomStorage.roll, Eigen::Vector3f::UnitX())
             * Eigen::AngleAxisf(randomStorage.pitch, Eigen::Vector3f::UnitY())
             * Eigen::AngleAxisf(randomStorage.yaw, Eigen::Vector3f::UnitZ());
-    std::unique_ptr<upns::tf::TransformStamped> tfStamped = std::make_unique<upns::tf::TransformStamped>();
+    std::unique_ptr<mapit::tf::TransformStamped> tfStamped = std::make_unique<mapit::tf::TransformStamped>();
     tfStamped->frame_id = frame_id;
     tfStamped->child_frame_id = child_frame_id;
     tfStamped->stamp = stamp;
@@ -107,19 +107,19 @@ upns::StatusCode saveRandomTFForEntity(  upns::OperationEnvironment* env
     // get or create tf entity
     std::shared_ptr<mapit::msgs::Entity> e;
     std::shared_ptr<TfEntitydata> ed;
-    std::shared_ptr<tf::store::TransformStampedList> edTFList;
-    StatusCode s = upns::tf::store::getOrCreateTransformStampedList(env->getCheckout(), frame_id, child_frame_id, tfStoragePrefix, e, ed, edTFList, false);
+    std::shared_ptr<mapit::tf::store::TransformStampedList> edTFList;
+    mapit::StatusCode s = mapit::tf::store::getOrCreateTransformStampedList(env->getCheckout(), frame_id, child_frame_id, tfStoragePrefix, e, ed, edTFList, false);
     if( ! upnsIsOk(s) ) {
       return s;
     }
     edTFList->add_TransformStamped(std::move(tfStamped), false);
     ed->setData(edTFList);
-    std::string eName = tfStoragePrefix + "/" + upns::tf::store::TransformStampedList::get_entity_name(frame_id, child_frame_id);
+    std::string eName = tfStoragePrefix + "/" + mapit::tf::store::TransformStampedList::get_entity_name(frame_id, child_frame_id);
     e->set_frame_id(frame_id);
     *e->mutable_stamp() = mapit::time::to_msg(edTFList->get_stamp_earliest());
     env->getCheckout()->storeEntity(eName, e);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 double getParam(QJsonObject params, std::string name)
@@ -132,7 +132,7 @@ double getParam(QJsonObject params, std::string name)
     }
 }
 
-upns::StatusCode operate_tf_add_noise(upns::OperationEnvironment* env)
+mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     log_info( "tf_add_noise params:" + env->getParameters() );
@@ -156,7 +156,7 @@ upns::StatusCode operate_tf_add_noise(upns::OperationEnvironment* env)
         randomStorage.yawMin = getParam(params, "yaw-min");
         randomStorage.yawMax = getParam(params, "yaw-max");
     } catch (...) {
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
 
 
@@ -166,12 +166,12 @@ upns::StatusCode operate_tf_add_noise(upns::OperationEnvironment* env)
         return saveRandomTFForEntity(env, entity, target, frame_id, tfStoragePrefix, randomStorage);
     } else if ( env->getCheckout()->getTree(target) ) {
         // execute on tree
-        upns::StatusCode status = UPNS_STATUS_OK;
+        mapit::StatusCode status = MAPIT_STATUS_OK;
         env->getCheckout()->depthFirstSearch(
                       target
                     , depthFirstSearchAll(mapit::msgs::Tree)
                     , depthFirstSearchAll(mapit::msgs::Tree)
-                    , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                    , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             status = saveRandomTFForEntity(env, obj, path, frame_id, tfStoragePrefix, randomStorage);
                             if ( ! upnsIsOk(status) ) {
@@ -184,8 +184,8 @@ upns::StatusCode operate_tf_add_noise(upns::OperationEnvironment* env)
         return status;
     } else {
         log_error("operator voxelgrid: target is neither a tree nor entity");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
 }
 
-UPNS_MODULE(OPERATOR_NAME, "add noise to transforms", "fhac", OPERATOR_VERSION, TfEntitydata_TYPENAME, &operate_tf_add_noise)
+MAPIT_MODULE(OPERATOR_NAME, "add noise to transforms", "fhac", OPERATOR_VERSION, TfEntitydata_TYPENAME, &operate_tf_add_noise)

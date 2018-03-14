@@ -28,40 +28,40 @@ We also provide a docker container which takes care of the installation of the d
 
 ### Libaries
 
-- lib/libupns_core.so: shared library containing symbols for all extensions. This is the core of mapit.
-- lib/libstandard_repository_factory.so: library used by tools to create C++-Classes to access and manipulate *Repositories* and *Checkouts*.
-- lib/upns_layertypes/\*: types of sensordata the system can work with. For example Pointclouds (PCL).
-- lib/upns_operators/\*: each shared library represents an algorithm that can be executed on the data.
+- lib/libmapit_core.so: shared library containing symbols for all extensions. This is the core of mapit.
+- lib/libmapitstandard_repository_factory.so: library used by tools to create C++-Classes to access and manipulate *Repositories* and *Checkouts*.
+- lib/mapit_layertype_\*: types of sensordata the system can work with. For example Pointclouds (PCL).
+- lib/mapit_operator_\*: each shared library represents an algorithm that can be executed on the data.
 
 ### Headers
 
 **common headers**
 
-- include/upns/versioning/repository.h: Used to navigate through history. This must be used to obtain a Checkout.
-- include/upns/versioning/checkoutcommon.h: Used to read data from a checkout. Checkouts (at this point) are immutable (may already be commited). The class is extended by CheckoutCommon (see tools) or CheckoutRaw (see operators).
+- include/mapit/versioning/repository.h: Used to navigate through history. This must be used to obtain a Checkout.
+- include/mapit/versioning/checkoutcommon.h: Used to read data from a checkout. Checkouts (at this point) are immutable (may already be commited). The class is extended by CheckoutCommon (see tools) or CheckoutRaw (see operators).
 
 **for implementing new operators**
 
-- include/upns/versioning/checkoutraw.h: Extends CheckoutCommon with the ability to write and change a checkout. Changes can be tracked implicitly by this class (which entities were changed?).
-- include/upns/serialization/abstractentitydataprovider.h: Access bits and bytes of entities. Usually this is not needed and a concrete implementation of a layertype will be used. This is only needed for typeless / data agnostic calculations (like *delete*, *copy*, *rename*, calculate data size, lossless compression, ...). In almost all usecases it is wrong to use this class directly.
-- include/upns/operators/module.h: Used to create a shared library for mapit. This defines entrypoint of the operator and data like *version*, *author*, ...
+- include/mapit/versioning/checkoutraw.h: Extends CheckoutCommon with the ability to write and change a checkout. Changes can be tracked implicitly by this class (which entities were changed?).
+- include/mapit/serialization/abstractentitydataprovider.h: Access bits and bytes of entities. Usually this is not needed and a concrete implementation of a layertype will be used. This is only needed for typeless / data agnostic calculations (like *delete*, *copy*, *rename*, calculate data size, lossless compression, ...). In almost all usecases it is wrong to use this class directly.
+- include/mapit/operators/module.h: Used to create a shared library for mapit. This defines entrypoint of the operator and data like *version*, *author*, ...
 
 **for implementing new layertypes**
 
-- include/upns/upns_layertypes/\*: Headers for concrete layertypes (e.g. PCLPointcloudLayertype, LASLayertype, OpenVDBLayertype). The shared library of a concrete layertype must be linked. Note that moreover, most layertypes come with dependencies to third party libraries which must also be satisfied (e.g. PCL). Only needed layertypes should be included into a project. Concrete layertypes are needed for **operators** (which need to handle and calculate the concrete layertypes) and special **tools**, but very unlikely for other layertypes.
+- include/mapit/mapit_layertypes/\*: Headers for concrete layertypes (e.g. PCLPointcloudLayertype, LASLayertype, OpenVDBLayertype). The shared library of a concrete layertype must be linked. Note that moreover, most layertypes come with dependencies to third party libraries which must also be satisfied (e.g. PCL). Only needed layertypes should be included into a project. Concrete layertypes are needed for **operators** (which need to handle and calculate the concrete layertypes) and special **tools**, but very unlikely for other layertypes.
 
 
 **for implementing new tools**
 
-- include/upns/versioning/checkout.h: Extends CheckoutCommon with the ability to execute operations on the checkout.
+- include/mapit/versioning/checkout.h: Extends CheckoutCommon with the ability to execute operations on the checkout.
 
 - Repository Factories:
-    - include/upns/versioning/repositoryfactorystandard.h: Header for commandline tools. This is only needed for new *tools*.
-    - include/upns/versioning/repositoryfactory.h: Header to create a local directory repository. This is only needed for new *tools*.
+    - include/mapit/versioning/repositoryfactorystandard.h: Header for commandline tools. This is only needed for new *tools*.
+    - include/mapit/versioning/repositoryfactory.h: Header to create a local directory repository. This is only needed for new *tools*.
     - include/versioning/repositorynetworkingfactory.h: Header to create a remote repository that always uses network. This is only needed for new *tools*.
 
 
-- include/upns/upns_operators/*: Headers for new algorithms. This is only needed for new *operators*.
+- include/mapit/mapit_operators/*: Headers for new algorithms. This is only needed for new *operators*.
 
 **Docker Container**
 

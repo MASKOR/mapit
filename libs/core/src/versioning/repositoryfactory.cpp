@@ -21,14 +21,14 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/versioning/repositoryfactory.h"
+#include "mapit/versioning/repositoryfactory.h"
 #include "serialization/abstractserializer.h"
 #include "serialization/file_system/fs_serializer.h"
 #include "repositoryimpl.h"
 
-static upns::AbstractSerializer *initializeSerializer(std::string directory)
+static mapit::AbstractSerializer *initializeSerializer(std::string directory)
 {
-    upns::AbstractSerializer *mser = new upns::FSSerializer(directory);
+    mapit::AbstractSerializer *mser = new mapit::FSSerializer(directory);
 
     // Check if anything exists in the database
     // Note: There might be commits or objects which are not recognized here.
@@ -45,8 +45,8 @@ static upns::AbstractSerializer *initializeSerializer(std::string directory)
     return mser;
 }
 
-upns::Repository *upns::RepositoryFactory::openLocalRepository(std::string directory)
+mapit::Repository *mapit::RepositoryFactory::openLocalRepository(std::string directory)
 {
     std::shared_ptr<AbstractSerializer> mser( initializeSerializer( directory ) );
-    return new upns::RepositoryImpl( mser );
+    return new mapit::RepositoryImpl( mser );
 }

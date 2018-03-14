@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/pose_path.h"
-#include <upns/logging.h>
+#include "mapit/layertypes/pose_path.h"
+#include <mapit/logging.h>
 
 template <typename T>
 class not_deleter {
@@ -35,7 +35,7 @@ const char *PosePathEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-PosePathEntitydata::PosePathEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+PosePathEntitydata::PosePathEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_posePath( nullptr )
 {
@@ -56,15 +56,15 @@ bool PosePathEntitydata::canSaveRegions() const
     return false;
 }
 
-PosePathPtr PosePathEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                                upnsReal x2, upnsReal y2, upnsReal z2,
+PosePathPtr PosePathEntitydata::getData(float x1, float y1, float z1,
+                                                float x2, float y2, float z2,
                                                 bool clipMode,
                                                 int lod)
 {
     if(m_posePath == NULL)
     {
         m_posePath = PosePathPtr(new mapit::msgs::PosePath);
-        upnsIStream *in = m_streamProvider->startRead();
+        mapit::istream *in = m_streamProvider->startRead();
         {
             if(!m_posePath->ParseFromIstream(in))
             {
@@ -76,12 +76,12 @@ PosePathPtr PosePathEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
     return m_posePath;
 }
 
-int PosePathEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                 upnsReal x2, upnsReal y2, upnsReal z2,
+int PosePathEntitydata::setData(float x1, float y1, float z1,
+                                 float x2, float y2, float z2,
                                  PosePathPtr &data,
                                  int lod)
 {
-    upnsOStream *out = m_streamProvider->startWrite();
+    mapit::ostream *out = m_streamProvider->startWrite();
     {
         data->SerializePartialToOstream(out);
     }
@@ -91,61 +91,61 @@ int PosePathEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 
 PosePathPtr PosePathEntitydata::getData(int lod)
 {
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return getData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    false, lod);
 }
 
 int PosePathEntitydata::setData(PosePathPtr &data, int lod)
 {
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return setData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    data, lod);
 }
 
-void PosePathEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                     upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+void PosePathEntitydata::gridCellAt(float   x, float   y, float   z,
+                                     float &x1, float &y1, float &z1,
+                                     float &x2, float &y2, float &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<float>::infinity();
+    y1 = -std::numeric_limits<float>::infinity();
+    z1 = -std::numeric_limits<float>::infinity();
+    x2 = +std::numeric_limits<float>::infinity();
+    y2 = +std::numeric_limits<float>::infinity();
+    z2 = +std::numeric_limits<float>::infinity();
 }
 
-int PosePathEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                              upnsReal &x2, upnsReal &y2, upnsReal &z2)
+int PosePathEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
+                                              float &x2, float &y2, float &z2)
 {
     // TODO
     return 1;
 }
 
-upnsIStream *PosePathEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+mapit::istream *PosePathEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void PosePathEntitydata::endRead(upnsIStream *&strm)
+void PosePathEntitydata::endRead(mapit::istream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *PosePathEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+mapit::ostream *PosePathEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void PosePathEntitydata::endWrite(upnsOStream *&strm)
+void PosePathEntitydata::endWrite(mapit::ostream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -160,7 +160,7 @@ size_t PosePathEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydataPosePath(AbstractEntitydata *ld)
+void deleteEntitydataPosePath(mapit::AbstractEntitydata *ld)
 {
     PosePathEntitydata *p = dynamic_cast<PosePathEntitydata*>(ld);
     if(p)
@@ -172,8 +172,8 @@ void deleteEntitydataPosePath(AbstractEntitydata *ld)
         log_error("Wrong entitytype");
     }
 }
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new PosePathEntitydata( streamProvider ), deleteEntitydataPosePath);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new PosePathEntitydata( streamProvider ), deleteEntitydataPosePath);
 }
 

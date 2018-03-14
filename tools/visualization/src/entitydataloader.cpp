@@ -23,20 +23,20 @@
 #include "entitydataloader.h"
 #include <QJsonObject>
 #include <QJsonArray>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/checkout.h>
-#include <upns/abstractentitydata.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/abstractentitydata.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/logging.h>
 
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #if WITH_LAS
-#include <upns/layertypes/lastype.h>
+#include <mapit/layertypes/lastype.h>
 #endif // WITH_LAS
-#include <upns/layertypes/openvdblayer.h>
-#include <upns/layertypes/tflayer.h>
-#include <upns/layertypes/pose_path.h>
-#include <upns/layertypes/primitive.h>
+#include <mapit/layertypes/openvdblayer.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/layertypes/pose_path.h>
+#include <mapit/layertypes/primitive.h>
 
 
 QString typeToString(mapit::msgs::Primitive::PrimitiveType type)
@@ -59,7 +59,7 @@ QString typeToString(mapit::msgs::Primitive::PrimitiveType type)
     }
 }
 
-QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> entitydata)
+QJsonObject extractInfoFromEntitydata(std::shared_ptr<mapit::AbstractEntitydata> entitydata)
 {
     QJsonObject result;
     if(entitydata == nullptr) return result;
@@ -234,9 +234,9 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<upns::AbstractEntitydata> 
 
 void EntitydataLoader::run()
 {
-    std::shared_ptr<upns::Checkout> co = m_checkout;
+    std::shared_ptr<mapit::Checkout> co = m_checkout;
 //    if(co == nullptr) {
-//        std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepositorySimple( m_repository.toStdString(), false) );
+//        std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepositorySimple( m_repository.toStdString(), false) );
 //        if(repo == nullptr) {
 //            log_error("AsyncEntitydataLoader: could not load entitydata. Repository invalid");
 //            return;
@@ -251,7 +251,7 @@ void EntitydataLoader::run()
         log_error("AsyncEntitydataLoader: could not load entitydata. No Checkout specified");
         return;
     }
-    std::shared_ptr<upns::AbstractEntitydata> ed = co->getEntitydataReadOnly(m_path.toStdString());
+    std::shared_ptr<mapit::AbstractEntitydata> ed = co->getEntitydataReadOnly(m_path.toStdString());
     if(ed == nullptr) {
         log_error("AsyncEntitydataLoader: could not load entitydata. Entitydata could not be read");
         return;
@@ -269,7 +269,7 @@ void EntitydataLoader::run()
 //    , m_checkout( nullptr )
 //{}
 
-EntitydataLoader::EntitydataLoader(QObject *parent, std::shared_ptr<upns::Checkout> co, QString path)
+EntitydataLoader::EntitydataLoader(QObject *parent, std::shared_ptr<mapit::Checkout> co, QString path)
     : QThread(parent)
     , m_repository( "" )
     , m_checkoutname( "" )

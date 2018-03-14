@@ -20,18 +20,18 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/versioning/repositorynetworkingfactory.h"
+#include "mapit/versioning/repositorynetworkingfactory.h"
 #include "upnszmqrequester.h"
 #include "upnszmqresponder.h"
-#include "upns/repositoryserver.h"
+#include "mapit/repositoryserver.h"
 
-upns::RepositoryServer* upns::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, upns::Repository *repo, std::string urlNext)
+mapit::RepositoryServer* mapit::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, mapit::Repository *repo, std::string urlNext)
 {
     ZmqResponder* resp = new ZmqResponder(port, repo, urlNext);
     return resp;
 }
 
-upns::Repository *upns::RepositoryNetworkingFactory::connectToRemoteRepository(std::string url, Repository *cache, bool operationsLocal)
+mapit::Repository *mapit::RepositoryNetworkingFactory::connectToRemoteRepository(std::string url, Repository *cache, bool operationsLocal)
 {
     //requester
     ZmqRequester* req = new ZmqRequester( cache, url, operationsLocal );

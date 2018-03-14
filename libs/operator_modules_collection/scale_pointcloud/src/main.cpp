@@ -20,19 +20,19 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
+#include <mapit/depthfirstsearch.h>
 #include <string>
 
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 
 double factorX_ = 0.0;
 double factorY_ = 0.0;
@@ -57,14 +57,14 @@ void scalePoint(std::vector<pcl::uint8_t>& data, const size_t& offset, const ::p
     }
 }
 
-upns::StatusCode scalePointcloud(CheckoutRaw* checkout, std::string path, std::shared_ptr<mapit::msgs::Entity> entity)
+mapit::StatusCode scalePointcloud(mapit::CheckoutRaw* checkout, std::string path, std::shared_ptr<mapit::msgs::Entity> entity)
 {
-    std::shared_ptr<AbstractEntitydata> edA = checkout->getEntitydataForReadWrite(path);
+    std::shared_ptr<mapit::AbstractEntitydata> edA = checkout->getEntitydataForReadWrite(path);
     if ( 0 != std::strcmp(edA->type(), PointcloudEntitydata::TYPENAME()) ) {
         log_error("scale_pointcloud: entity \"" + path
                 + "\" is of type \"" + edA->type()
                 + "\", but type \"" + PointcloudEntitydata::TYPENAME() + "\" is needed for this operator");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::shared_ptr<PointcloudEntitydata> ed = std::static_pointer_cast<PointcloudEntitydata>(edA);
     std::shared_ptr<pcl::PCLPointCloud2> edPointcloud = ed->getData();
@@ -91,7 +91,7 @@ upns::StatusCode scalePointcloud(CheckoutRaw* checkout, std::string path, std::s
     }
     if (offsetX == -1 || offsetY == -1 || offsetZ == -1) {
         log_error("scale_pointcloud: can not extract offset of x, y, or z of pointcloud \"" + path + "\"");
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
     }
     for (  int pointBegin = 0
          ; pointBegin < edPointcloud->data.size()
@@ -103,10 +103,10 @@ upns::StatusCode scalePointcloud(CheckoutRaw* checkout, std::string path, std::s
 
     ed->setData(edPointcloud);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode operateScalePointclouds(upns::OperationEnvironment* env)
+mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
 {
     /** structure:
      * {
@@ -119,26 +119,26 @@ upns::StatusCode operateScalePointclouds(upns::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    CheckoutRaw* checkout = env->getCheckout();
+    mapit::CheckoutRaw* checkout = env->getCheckout();
 
     if ( ! params.contains("target") || ! params["target"].isString() ) {
         log_error("scale_pointcloud: parameter \"target\" is not set or not a string");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::string target = params["target"].toString().toStdString();
     if ( ! params.contains("factor-x") || ! params["factor-x"].isDouble() ) {
         log_error("scale_pointcloud: parameter \"factor-x\" is not set or not a float");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     factorX_ = params["factor-x"].toDouble();
     if ( ! params.contains("factor-y") || ! params["factor-y"].isDouble() ) {
         log_error("scale_pointcloud: parameter \"factor-y\" is not set or not a float");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     factorY_ = params["factor-y"].toDouble();
     if ( ! params.contains("factor-z") || ! params["factor-z"].isDouble() ) {
         log_error("scale_pointcloud: parameter \"factor-z\" is not set or not a float");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     factorZ_ = params["factor-z"].toDouble();
 
@@ -151,14 +151,14 @@ upns::StatusCode operateScalePointclouds(upns::OperationEnvironment* env)
     } else {
         std::shared_ptr<mapit::msgs::Tree> tree = checkout->getTree(target);
         if (tree != nullptr) {
-            upns::StatusCode statusSearch = UPNS_STATUS_OK;
+            mapit::StatusCode statusSearch = MAPIT_STATUS_OK;
             checkout->depthFirstSearch(
                         target
                         , depthFirstSearchAll(mapit::msgs::Tree)
                         , depthFirstSearchAll(mapit::msgs::Tree)
-                        , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                        , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                           {
-                              upns::StatusCode s = scalePointcloud(checkout, path, obj);
+                              mapit::StatusCode s = scalePointcloud(checkout, path, obj);
                               if ( upnsIsOk(s) ) {
                                   return true;
                               } else {
@@ -170,11 +170,11 @@ upns::StatusCode operateScalePointclouds(upns::OperationEnvironment* env)
                         );
         } else {
             log_error("scale_pointcloud: \"target\" is neither a entity nor a tree");
-            return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+            return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
         }
     }
 
-    return UPNS_STATUS_ERROR; // this shouldn't be reached
+    return MAPIT_STATUS_ERROR; // this shouldn't be reached
 }
 
-UPNS_MODULE(OPERATOR_NAME, "scale pointclouds by a factor in x, y and z", "fhac", OPERATOR_VERSION, "any", &operateScalePointclouds)
+MAPIT_MODULE(OPERATOR_NAME, "scale pointclouds by a factor in x, y and z", "fhac", OPERATOR_VERSION, "any", &operateScalePointclouds)

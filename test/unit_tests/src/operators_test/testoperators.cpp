@@ -23,30 +23,30 @@
  */
 
 #include "testoperators.h"
-#include <upns/typedefs.h>
-#include <upns/logging.h>
-#include <upns/errorcodes.h>
+#include <mapit/typedefs.h>
+#include <mapit/logging.h>
+#include <mapit/errorcodes.h>
 #include "../../src/autotest.h"
 #include <QDir>
 #include <QVector>
 #include <QString>
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
 #include <mapit/msgs/datastructs.pb.h>
 
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 
-using namespace upns;
+using namespace mapit;
 
 //TODO: Why must this be redeclared here ( @sa repositorycommon.cpp)
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 void TestOperators::init()
@@ -72,7 +72,7 @@ void TestOperators::cleanupTestCase()
 void TestOperators::testOperatorLoadPointcloud_data() { createTestdata(); }
 void TestOperators::testOperatorLoadPointcloud()
 {
-    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
     OperationDescription desc;
     desc.mutable_operator_()->set_operatorname("load_pointcloud");
     //desc.set_params("{\"filename\":\"data/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}");
@@ -85,7 +85,7 @@ void TestOperators::testOperatorLoadPointcloud()
     std::shared_ptr<Tree> parent = checkout->getTree("corridor/laser");
     QVERIFY( parent != nullptr );
     QVERIFY( !(*parent->mutable_refs())["eins"].path().empty() );
-    std::shared_ptr<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
+    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly("corridor/laser/eins");
     //std::shared_ptr<AbstractEntitydata> abstractentitydataByRef = checkout->getEntitydataReadOnly( (*parent->mutable_refs())["eins"].id() );
     std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     QVERIFY( entitydataPC2ByPath != nullptr );
@@ -127,34 +127,34 @@ void TestOperators::testInlineOperator()
     cloud.push_back(pcl::PointXYZ(0.f,  0.f,  0.f));
     cloud.push_back(pcl::PointXYZ(7.5f, 8.5f, 9.5f));
 
-    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
     OperationDescription desc;
     desc.mutable_operator_()->set_operatorname("myUntraceable");
     desc.set_params("{\"source:\":\"testInlineOperator\"}");
-    upns::OperationResult res = checkout->doUntraceableOperation(desc, [&cloud, &epath](upns::OperationEnvironment* env)
+    mapit::OperationResult res = checkout->doUntraceableOperation(desc, [&cloud, &epath](mapit::OperationEnvironment* env)
     {
-        upns::CheckoutRaw *coraw = env->getCheckout();
+        mapit::CheckoutRaw *coraw = env->getCheckout();
         std::shared_ptr<Entity> e(new Entity);
         e->set_type(PointcloudEntitydata::TYPENAME());
-        upns::StatusCode status = coraw->storeEntity(epath, e);
+        mapit::StatusCode status = coraw->storeEntity(epath, e);
         if(!upnsIsOk(status))
         {
-            return UPNS_STATUS_ERROR;
+            return MAPIT_STATUS_ERROR;
         }
-        std::shared_ptr<AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
         std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
         if(entityData == nullptr)
         {
-            return UPNS_STATUS_ERROR;
+            return MAPIT_STATUS_ERROR;
         }
         std::shared_ptr<pcl::PCLPointCloud2> cloud2(new pcl::PCLPointCloud2);
         pcl::toPCLPointCloud2(cloud, *cloud2);
         entityData->setData(cloud2);
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     });
     QVERIFY(upnsIsOk(res.first));
 
-    std::shared_ptr<AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly(epath);
+    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly(epath);
     std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     QVERIFY( entitydataPC2ByPath != nullptr );
     upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
@@ -171,7 +171,7 @@ void TestOperators::testInlineOperator()
 void TestOperators::testPointcloudToMesh_data() { createTestdata(); }
 void TestOperators::testPointcloudToMesh()
 {
-    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
     OperationDescription desc;
     desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
@@ -195,7 +195,7 @@ void TestOperators::testPointcloudToMesh()
 //void TestOperators::testOperatorGrid_data() { createTestdata(); }
 //void TestOperators::testOperatorGrid()
 //{
-//    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+//    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
 
 //    OperationDescription desc;
 //    desc.set_operatorname("load_pointcloud");
@@ -208,7 +208,7 @@ void TestOperators::testPointcloudToMesh()
 //    QVERIFY( upnsIsOk(ret.first) );
 //    std::shared_ptr<Entity> ent = checkout->getEntity("corridor/laser/eins");
 //    QVERIFY( ent != nullptr );
-//    QVERIFY( ent->type() == upns::POINTCLOUD2 );
+//    QVERIFY( ent->type() == mapit::POINTCLOUD2 );
 //    std::shared_ptr<Tree> parent = checkout->getTree("corridor/laser/eins");
 //    QVERIFY( parent != nullptr );
 //    QVERIFY( !(*parent->mutable_refs())["eins"].id().empty() );

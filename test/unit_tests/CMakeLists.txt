@@ -30,7 +30,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Test REQUIRED)
 
-include_directories( UPNS_ROOT_DIR )
+include_directories( MAPIT_ROOT_DIR )
 
 find_package(mapit REQUIRED)
 #find_package(assimp REQUIRED)
@@ -61,8 +61,6 @@ SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
 #TODO: include these again!
 list(REMOVE_ITEM SUBDIRS "entitydata_test")
 list(REMOVE_ITEM SUBDIRS "interface_test")
-list(REMOVE_ITEM SUBDIRS "mapfileservice_test")
-list(REMOVE_ITEM SUBDIRS "mapmanager_test")
 #list(REMOVE_ITEM SUBDIRS "operators_test")
 #list(REMOVE_ITEM SUBDIRS "messages_test")
 #FILE(GLOB_RECURSE ALL_TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.h )
@@ -98,17 +96,17 @@ FOREACH(subdir ${SUBDIRS})
   find_package(Boost COMPONENTS filesystem system date_time)
 
   execute_process(
-    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
   )
   execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/test/unit_tests/libs
   )
   execute_process(
-    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
+    COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
   )
 #add_custom_command(
 #    TARGET ${subdir} POST_BUILD
-#    COMMAND ln -sfT ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
+#    COMMAND ln -sfT ${MAPIT_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/test/unit_tests/data
 #)
 
 #add_custom_command(
@@ -118,7 +116,7 @@ FOREACH(subdir ${SUBDIRS})
 
 #add_custom_command(
 #    TARGET ${subdir} POST_BUILD
-#    COMMAND ln -sfT ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
+#    COMMAND ln -sfT ${MAPIT_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
 #)
 ENDFOREACH()
 

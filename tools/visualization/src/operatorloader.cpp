@@ -21,11 +21,11 @@
  */
 
 #include "operatorloader.h"
-#include <upns/serialization/operatorlibrarymanager.h>
+#include <mapit/serialization/operatorlibrarymanager.h>
 void OperatorLoader::run()
 {
     QList<QVariant> result;
-    std::vector<upns::OperatorInfo> moduleInfos = upns::OperatorLibraryManager::listOperators();
+    std::vector<mapit::OperatorInfo> moduleInfos = mapit::OperatorLibraryManager::listOperators();
     for(auto iter = moduleInfos.cbegin(); iter != moduleInfos.cend() ; ++iter)
     {
         bool any = false;

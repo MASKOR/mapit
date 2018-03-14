@@ -20,14 +20,14 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/lasentitydatawriter.h"
-#include <upns/logging.h>
+#include "mapit/layertypes/lasentitydatawriter.h"
+#include <mapit/logging.h>
 #include <memory>
 
 class LASEntitydataWriterPrivate
 {
 public:
-    LASEntitydataWriterPrivate(std::shared_ptr<AbstractEntitydataProvider> prov, const liblas::Header& header)
+    LASEntitydataWriterPrivate(std::shared_ptr<mapit::AbstractEntitydataProvider> prov, const liblas::Header& header)
         : m_streamProvider(prov)
     {
         liblas::WriterFactory f;
@@ -52,9 +52,9 @@ public:
         m_streamProvider->endWrite(m_ostream);
         m_ostream = nullptr;
     }
-    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
     liblas::Writer *m_writer;
-    upnsOStream    *m_ostream;
+    mapit::ostream    *m_ostream;
     // a copy of the header is needed so it does not need to be set multiple times from outside
     // header must be Set at beginning of writing (for point format) and at the end (to communicate point size).
     //std::shared_ptr<liblas::Header> m_header;
@@ -102,7 +102,7 @@ std::vector<liblas::TransformPtr> LASEntitydataWriter::GetTransforms() const
     return m_pimpl->m_writer->GetTransforms();
 }
 
-LASEntitydataWriter::LASEntitydataWriter(std::shared_ptr<AbstractEntitydataProvider> prov, const liblas::Header &header)
+LASEntitydataWriter::LASEntitydataWriter(std::shared_ptr<mapit::AbstractEntitydataProvider> prov, const liblas::Header &header)
     :m_pimpl(new LASEntitydataWriterPrivate(prov, header))
 {
 }

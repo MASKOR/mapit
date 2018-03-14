@@ -20,7 +20,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlstamp.h"
+#include "mapit/ui/bindings/qmlstamp.h"
 
 QmlStamp::QmlStamp(mapit::msgs::Time* s, QObject *parent)
     : QObject(parent)

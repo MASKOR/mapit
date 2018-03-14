@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlmapsrenderviewport.h"
+#include "mapit/ui/bindings/qmlmapsrenderviewport.h"
 
 #include <QMutex>
 #include <QThread>

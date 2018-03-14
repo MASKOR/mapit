@@ -20,15 +20,15 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/lastype.h"
-#include <upns/logging.h>
-#include <upns/errorcodes.h>
+#include "mapit/layertypes/lastype.h"
+#include <mapit/logging.h>
+#include <mapit/errorcodes.h>
 
 class LASEntitydataPrivate
 {
 public:
-    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
-    LASEntitydataPrivate(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+    std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
+    LASEntitydataPrivate(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
         :m_streamProvider( streamProvider ) {}
 };
 
@@ -37,7 +37,7 @@ const char *LASEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-LASEntitydata::LASEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+LASEntitydata::LASEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_pimpl(new LASEntitydataPrivate(streamProvider))
 {
 }
@@ -62,16 +62,16 @@ bool LASEntitydata::canSaveRegions() const
     return false;
 }
 
-void LASEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                     upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+void LASEntitydata::gridCellAt(float   x, float   y, float   z,
+                                     float &x1, float &y1, float &z1,
+                                     float &x2, float &y2, float &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<float>::infinity();
+    y1 = -std::numeric_limits<float>::infinity();
+    z1 = -std::numeric_limits<float>::infinity();
+    x2 = +std::numeric_limits<float>::infinity();
+    y2 = +std::numeric_limits<float>::infinity();
+    z2 = +std::numeric_limits<float>::infinity();
 }
 
 std::unique_ptr<LASEntitydataReader> LASEntitydata::getReader()
@@ -84,22 +84,22 @@ std::unique_ptr<LASEntitydataWriter> LASEntitydata::getWriter(const liblas::Head
     return std::unique_ptr<LASEntitydataWriter>(new LASEntitydataWriter(m_pimpl->m_streamProvider, header));
 }
 
-upnsIStream *LASEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+mapit::istream *LASEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_pimpl->m_streamProvider->startRead(start, len);
 }
 
-void LASEntitydata::endRead(upnsIStream *&strm)
+void LASEntitydata::endRead(mapit::istream *&strm)
 {
     m_pimpl->m_streamProvider->endRead(strm);
 }
 
-upnsOStream *LASEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+mapit::ostream *LASEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_pimpl->m_streamProvider->startWrite(start, len);
 }
 
-void LASEntitydata::endWrite(upnsOStream *&strm)
+void LASEntitydata::endWrite(mapit::ostream *&strm)
 {
     m_pimpl->m_streamProvider->endWrite(strm);
 }
@@ -236,7 +236,7 @@ size_t LASEntitydata::size() const
 //    m_ostream = nullptr;
 //}
 
-void deleteEntitydataLAS(AbstractEntitydata *ld)
+void deleteEntitydataLAS(mapit::AbstractEntitydata *ld)
 {
     LASEntitydata *p = dynamic_cast<LASEntitydata*>(ld);
     if(p)
@@ -248,8 +248,7 @@ void deleteEntitydataLAS(AbstractEntitydata *ld)
         log_error("Wrong entitytype");
     }
 }
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydataLAS);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new LASEntitydata( streamProvider ), deleteEntitydataLAS);
 }
-

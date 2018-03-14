@@ -21,12 +21,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlrepository.h"
-#include <upns/versioning/repositoryfactory.h>
-#include <upns/errorcodes.h>
-#include <upns/serialization/operatorlibrarymanager.h>
+#include "mapit/ui/bindings/qmlrepository.h"
+#include <mapit/versioning/repositoryfactory.h>
+#include <mapit/errorcodes.h>
+#include <mapit/serialization/operatorlibrarymanager.h>
 #include "operatorloader.h"
-#include <upns/versioning/repositoryfactorystandard.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
 
 QmlRepository::QmlRepository(QObject *parent)
     :QmlRepository(nullptr, nullptr)
@@ -34,13 +34,13 @@ QmlRepository::QmlRepository(QObject *parent)
 
 }
 
-QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo)
+QmlRepository::QmlRepository(std::shared_ptr<mapit::Repository> repo)
     :QmlRepository(repo, nullptr)
 {
 
 }
 
-QmlRepository::QmlRepository(std::shared_ptr<upns::Repository> repo, QObject *parent)
+QmlRepository::QmlRepository(std::shared_ptr<mapit::Repository> repo, QObject *parent)
     :QObject( parent )
     , m_repository( repo )
     , m_opLoaderWorker( nullptr )
@@ -197,7 +197,7 @@ QmlEntitydata *QmlRepository::getEntitydataReadOnly(QString oid)
 {
     if(!m_repository) return nullptr;
     std::string o = oid.toStdString();
-    std::shared_ptr<upns::AbstractEntitydata> obj( m_repository->getEntitydataReadOnly( o ) );
+    std::shared_ptr<mapit::AbstractEntitydata> obj( m_repository->getEntitydataReadOnly( o ) );
     if(!obj) return nullptr;
     return new QmlEntitydata( obj, NULL );
 }
@@ -212,7 +212,7 @@ QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString
     if(!m_repository) return nullptr;
     std::string o = commitIdOrBranchname.toStdString(),
                      n = name.toStdString();
-    std::shared_ptr<upns::Checkout> obj( m_repository->createCheckout( o, n ) );
+    std::shared_ptr<mapit::Checkout> obj( m_repository->createCheckout( o, n ) );
     if(!obj) return nullptr;
     m_checkoutNames.append( name );
     Q_EMIT checkoutNamesChanged(m_checkoutNames);
@@ -223,7 +223,7 @@ QmlCheckout *QmlRepository::getCheckout(QString checkoutName)
 {
     if(!m_repository) return nullptr;
     std::string o = checkoutName.toStdString();
-    std::shared_ptr<upns::Checkout> obj( m_repository->getCheckout( o ) );
+    std::shared_ptr<mapit::Checkout> obj( m_repository->getCheckout( o ) );
     if(!obj) return nullptr;
     return new QmlCheckout( obj, this, checkoutName );
 }
@@ -232,7 +232,7 @@ bool QmlRepository::deleteCheckoutForced(QString checkoutName)
 {
     if(!m_repository) return false;
     std::string o = checkoutName.toStdString();
-    upns::StatusCode s = m_repository->deleteCheckoutForced( o );
+    mapit::StatusCode s = m_repository->deleteCheckoutForced( o );
     return upnsIsOk( s );
 }
 
@@ -240,7 +240,7 @@ QString QmlRepository::commit(QmlCheckout *checkout, QString msg)
 {
     if(!m_repository) return nullptr;
     std::string m = msg.toStdString();
-    upns::CommitId cid = m_repository->commit( checkout->getCheckoutObj(), m );
+    mapit::CommitId cid = m_repository->commit( checkout->getCheckoutObj(), m );
     return QString::fromStdString(cid);
 }
 
@@ -282,7 +282,7 @@ QmlCheckout *QmlRepository::merge(QString mine, QString theirs, QString base)
     std::string m = mine.toStdString();
     std::string t = theirs.toStdString();
     std::string b = base.toStdString();
-    std::shared_ptr<upns::Checkout> co(m_repository->merge( m, t, b ));
+    std::shared_ptr<mapit::Checkout> co(m_repository->merge( m, t, b ));
     return new QmlCheckout( co, this );
 }
 
@@ -302,7 +302,7 @@ bool QmlRepository::canWrite()
     return true;
 }
 
-std::shared_ptr<upns::Repository> QmlRepository::getRepository()
+std::shared_ptr<mapit::Repository> QmlRepository::getRepository()
 {
     return m_repository;
 }
@@ -311,7 +311,7 @@ void QmlRepository::setUrl(QString url)
 {
     if (m_url == url)
         return;
-    m_repository = std::shared_ptr<upns::Repository>(upns::RepositoryFactoryStandard::openRepositorySimple(url.toStdString(), true));
+    m_repository = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactoryStandard::openRepositorySimple(url.toStdString(), true));
 
     m_url = url;
     reload();

@@ -24,10 +24,10 @@
 #include <iostream>
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/errorcodes.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/errorcodes.h>
+#include <mapit/logging.h>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
                .add("parameters",1);// followed by the parameter string
 
     // Let mapit RepositoryFactoryStandard add it's own options (direcory or port where repo can be found, ...)
-    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
 
     // Fianlly parse/get/store the parameters from commandline
     po::variables_map vars;
@@ -68,9 +68,9 @@ int main(int argc, char *argv[])
 
     ///// end of parameter input /////
 
-    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+    std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<upns::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
     if(co == nullptr)
     {
         log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     desc.mutable_operator_()->set_operatorname(vars["operator"].as<std::string>());
     desc.set_params(vars["parameters"].as<std::string>());
     log_info("Executing: " + vars["operator"].as<std::string>() + ", with params: " + vars["parameters"].as<std::string>());
-    upns::OperationResult res = co->doOperation(desc);
+    mapit::OperationResult res = co->doOperation(desc);
     if(upnsIsOk(res.first))
     {
         std::cout << "success" << std::endl;

@@ -24,10 +24,10 @@
 #ifndef FS_SERIALIZER_H
 #define FS_SERIALIZER_H
 
-#include <upns/typedefs.h>
-#include <upns/logging.h>
+#include <mapit/typedefs.h>
+#include <mapit/logging.h>
 #include "serialization/abstractserializer.h"
-#include <upns/operators/serialization/abstractentitydataprovider.h>
+#include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -37,7 +37,7 @@ namespace fs = boost::filesystem;
 
 using namespace mapit::msgs;
 
-namespace upns
+namespace mapit
 {
 
 

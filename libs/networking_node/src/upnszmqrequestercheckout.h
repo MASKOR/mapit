@@ -25,11 +25,11 @@
 #define UPNSZMQREQUESTERCHECKOUT_H
 
 #include <string>
-#include <upns/versioning/repository.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include "zmqprotobufnode.h"
 
-namespace upns {
+namespace mapit {
 
 ///
 /// \brief The ZmqRequesterCheckout class
@@ -39,10 +39,10 @@ namespace upns {
 /// - false: makes it possible to read from remote filesystem to remote repo
 ///
 
-class ZmqRequesterCheckout : public upns::Checkout, public upns::CheckoutRaw
+class ZmqRequesterCheckout : public mapit::Checkout, public mapit::CheckoutRaw
 {
 public:
-    ZmqRequesterCheckout(std::string name, ZmqProtobufNode *node, upns::Checkout *cache = NULL, bool operationsLocal = false);
+    ZmqRequesterCheckout(std::string name, ZmqProtobufNode *node, mapit::Checkout *cache = NULL, bool operationsLocal = false);
 
     // CheckoutCommon interface
 public:
@@ -71,7 +71,7 @@ public:
     // Checkout interface
 public:
     OperationResult doOperation(const OperationDescription &desc);
-    OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(upns::OperationEnvironment*)> operate);
+    OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate);
 
     // CheckoutRaw interface
 public:
@@ -84,7 +84,7 @@ public:
 private:
     std::string m_checkoutName;
     ZmqProtobufNode *m_node;
-    upns::Checkout *m_cache;
+    mapit::Checkout *m_cache;
     bool m_operationsLocal;
 
     //void syncHierarchy();

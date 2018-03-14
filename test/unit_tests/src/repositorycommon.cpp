@@ -22,23 +22,23 @@
  */
 
 #include "repositorycommon.h"
-#include <upns/repositoryserver.h>
-#include <upns/versioning/repositoryfactory.h>
-#include <upns/versioning/repositorynetworkingfactory.h>
-#include <upns/versioning/checkout.h>
+#include <mapit/repositoryserver.h>
+#include <mapit/versioning/repositoryfactory.h>
+#include <mapit/versioning/repositorynetworkingfactory.h>
+#include <mapit/versioning/checkout.h>
 #include <QThread>
 #include "serverthread.h"
 
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalculated)
 {
     const bool testLevelDB = false;
     const bool testRemote = withServer;
-    QTest::addColumn< std::shared_ptr<upns::Repository> >("repo");
-    QTest::addColumn< std::shared_ptr<upns::Checkout> >("checkout");
+    QTest::addColumn< std::shared_ptr<mapit::Repository> >("repo");
+    QTest::addColumn< std::shared_ptr<mapit::Checkout> >("checkout");
     QTest::addColumn< std::function<void()> >("startServer");
     QTest::addColumn< std::function<void()> >("stopServer");
 
@@ -86,8 +86,8 @@ void RepositoryCommon::initTestdata()
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        m_repo[0] = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName));
-        m_checkout[0] = std::shared_ptr<upns::Checkout>(m_repo[0]->createCheckout("master", "testcheckout"));
+        m_repo[0] = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName));
+        m_checkout[0] = std::shared_ptr<mapit::Checkout>(m_repo[0]->createCheckout("master", "testcheckout"));
     }
 //    {
 //        //// Setup Repository as Database
@@ -104,8 +104,8 @@ void RepositoryCommon::initTestdata()
 //        mapsource["filename"] = databaseName;
 //        conf["mapsource"] = mapsource;
 
-//        m_repo[1] = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(conf));
-//        m_checkout[1] = std::shared_ptr<upns::Checkout>(m_repo[1]->createCheckout("master", "testcheckout"));
+//        m_repo[1] = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(conf));
+//        m_checkout[1] = std::shared_ptr<mapit::Checkout>(m_repo[1]->createCheckout("master", "testcheckout"));
 //    }
     {
         //// Setup Repository as Network connection
@@ -116,14 +116,14 @@ void RepositoryCommon::initTestdata()
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        m_networkRepo[0] = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName2));
+        m_networkRepo[0] = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName2));
 
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
-        std::shared_ptr<upns::RepositoryServer> srv = std::shared_ptr<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo[0].get()));
-        m_repo[2] = std::shared_ptr<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
+        std::shared_ptr<mapit::RepositoryServer> srv = std::shared_ptr<mapit::RepositoryServer>(mapit::RepositoryNetworkingFactory::openRepositoryAsServer(5555, m_networkRepo[0].get()));
+        m_repo[2] = std::shared_ptr<mapit::Repository>(mapit::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
         m_serverThread[0] = std::shared_ptr<ServerThread>(new ServerThread(srv));
         m_serverThread[0]->start();
-        m_checkout[2] = std::shared_ptr<upns::Checkout>(m_repo[2]->createCheckout("master", "testcheckout"));
+        m_checkout[2] = std::shared_ptr<mapit::Checkout>(m_repo[2]->createCheckout("master", "testcheckout"));
         m_serverThread[0]->stop();
     }
     {
@@ -135,14 +135,14 @@ void RepositoryCommon::initTestdata()
             bool result = dir.removeRecursively();
             QVERIFY( result );
         }
-        m_networkRepo[1] = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName2));
+        m_networkRepo[1] = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName2));
 
         // get is okay here, m_srv and m_repo[1] have same lifecycle. Don't copy/paste this.
-        std::shared_ptr<upns::RepositoryServer> srv = std::shared_ptr<upns::RepositoryServer>(upns::RepositoryNetworkingFactory::openRepositoryAsServer(5655, m_networkRepo[1].get()));
-        m_repo[3] = std::shared_ptr<upns::Repository>(upns::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5655", NULL, true));
+        std::shared_ptr<mapit::RepositoryServer> srv = std::shared_ptr<mapit::RepositoryServer>(mapit::RepositoryNetworkingFactory::openRepositoryAsServer(5655, m_networkRepo[1].get()));
+        m_repo[3] = std::shared_ptr<mapit::Repository>(mapit::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5655", NULL, true));
         m_serverThread[1] = std::shared_ptr<ServerThread>(new ServerThread(srv));
         m_serverThread[1]->start();
-        m_checkout[3] = std::shared_ptr<upns::Checkout>(m_repo[3]->createCheckout("master", "testcheckout"));
+        m_checkout[3] = std::shared_ptr<mapit::Checkout>(m_repo[3]->createCheckout("master", "testcheckout"));
         m_serverThread[1]->stop();
     }
 }

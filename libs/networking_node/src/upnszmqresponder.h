@@ -24,15 +24,15 @@
 #define UPNSZMQRESPONDER_H
 
 #include <string>
-#include "upns/repositoryserver.h"
+#include "mapit/repositoryserver.h"
 
-namespace upns {
+namespace mapit {
 
 class ZmqResponderPrivate;
 class Repository;
 
 ///
-/// \brief The upns::ZmqResponder class
+/// \brief The mapit::ZmqResponder class
 /// Acts as a server and tries to answer requests to a map-repository.
 /// If a request can not be answered by this repository, the request may be forwarded to another node.
 ///

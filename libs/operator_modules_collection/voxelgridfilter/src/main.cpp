@@ -21,29 +21,29 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/depthfirstsearch.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-upns::StatusCode executeVoxelgrid(upns::OperationEnvironment* env, const std::string& target, const double& leafSize)
+mapit::StatusCode executeVoxelgrid(mapit::OperationEnvironment* env, const std::string& target, const double& leafSize)
 {
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
@@ -60,10 +60,10 @@ upns::StatusCode executeVoxelgrid(upns::OperationEnvironment* env, const std::st
 
     entityData->setData(cloud_filtered);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
+mapit::StatusCode operate_vxg(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     log_info( "Voxelgrid params:" + env->getParameters() );
@@ -83,12 +83,12 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
         return executeVoxelgrid(env, target, leafSize);
     } else if ( env->getCheckout()->getTree(target) ) {
         // execute on tree
-        upns::StatusCode status = UPNS_STATUS_OK;
+        mapit::StatusCode status = MAPIT_STATUS_OK;
         env->getCheckout()->depthFirstSearch(
                       target
                     , depthFirstSearchAll(mapit::msgs::Tree)
                     , depthFirstSearchAll(mapit::msgs::Tree)
-                    , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                    , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             status = executeVoxelgrid(env, path, leafSize);
                             if ( ! upnsIsOk(status) ) {
@@ -101,8 +101,8 @@ upns::StatusCode operate_vxg(upns::OperationEnvironment* env)
         return status;
     } else {
         log_error("operator voxelgrid: target is neither a tree nor entity");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
 }
 
-UPNS_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_vxg)
+MAPIT_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_vxg)

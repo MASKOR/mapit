@@ -23,8 +23,8 @@
 #ifndef PUBLISHTOROS_H
 #define PUBLISHTOROS_H
 
-#include <upns/versioning/checkout.h>
-#include <upns/logging.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/logging.h>
 #include <mapit/time/time.h>
 
 #include <ros/ros.h>
@@ -39,7 +39,7 @@ struct Entity {
 class PublishToROS
 {
 public:
-  PublishToROS(std::shared_ptr<upns::Checkout> checkout, std::shared_ptr<ros::NodeHandle> node_handle, std::unique_ptr<ros::Publisher> publisher)
+  PublishToROS(std::shared_ptr<mapit::Checkout> checkout, std::shared_ptr<ros::NodeHandle> node_handle, std::unique_ptr<ros::Publisher> publisher)
     : checkout_(checkout)
     , node_handle_(node_handle)
     , publisher_( std::move(publisher) )
@@ -116,7 +116,7 @@ protected:
   }
 
   const std::string _DEFAULT_FRAME_ID_ = "world";
-  std::shared_ptr<upns::Checkout> checkout_;
+  std::shared_ptr<mapit::Checkout> checkout_;
   std::unique_ptr<ros::Publisher> publisher_;
 
   std::shared_ptr<ros::NodeHandle> node_handle_;

@@ -23,10 +23,10 @@
 
 #ifndef __OPERATIONENVIRONMENTIMPL_H
 #define __OPERATIONENVIRONMENTIMPL_H
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/operationenvironment.h>
 #include <mapit/msgs/services.pb.h>
 
-namespace upns
+namespace mapit
 {
 class CheckoutRaw;
 

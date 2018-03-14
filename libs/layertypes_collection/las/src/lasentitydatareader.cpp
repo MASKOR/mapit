@@ -20,13 +20,13 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/lasentitydatareader.h"
-#include <upns/logging.h>
+#include "mapit/layertypes/lasentitydatareader.h"
+#include <mapit/logging.h>
 
 class LASEntitydataReaderPrivate
 {
 public:
-    LASEntitydataReaderPrivate(std::shared_ptr<AbstractEntitydataProvider> prov)
+    LASEntitydataReaderPrivate(std::shared_ptr<mapit::AbstractEntitydataProvider> prov)
         :m_streamProvider(prov)
     {
         liblas::ReaderFactory f;
@@ -43,9 +43,9 @@ public:
         m_streamProvider->endRead(m_istream);
         m_istream = nullptr;
     }
-    std::shared_ptr<AbstractEntitydataProvider> m_streamProvider;
+    std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
     liblas::Reader *m_reader;
-    upnsIStream    *m_istream;
+    mapit::istream    *m_istream;
 };
 
 const liblas::Header &LASEntitydataReader::GetHeader() const
@@ -108,7 +108,7 @@ liblas::Reader *LASEntitydataReader::getReaderRaw()
     return m_pimpl->m_reader;
 }
 
-LASEntitydataReader::LASEntitydataReader(std::shared_ptr<AbstractEntitydataProvider> prov)
+LASEntitydataReader::LASEntitydataReader(std::shared_ptr<mapit::AbstractEntitydataProvider> prov)
     :m_pimpl(new LASEntitydataReaderPrivate(prov))
 {
 }

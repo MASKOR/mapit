@@ -24,14 +24,14 @@
 #include <iostream>
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/errorcodes.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/errorcodes.h>
+#include <mapit/logging.h>
 #include <zmq.hpp>
 #include <boost/program_options.hpp>
 
-#include <upns/versioning/repositorynetworkingfactory.h>
+#include <mapit/versioning/repositorynetworkingfactory.h>
 
 namespace po = boost::program_options;
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     po::positional_options_description pos_options;
     pos_options.add("port",  1);
 
-    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
     po::variables_map vars;
     po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
     if(vars.count("help"))
@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    upns::Repository *repo = upns::RepositoryFactoryStandard::openRepository( vars );
+    mapit::Repository *repo = mapit::RepositoryFactoryStandard::openRepository( vars );
 
-    upns::RepositoryServer *node = upns::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo);
+    mapit::RepositoryServer *node = mapit::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo);
 
     while(true)
     {

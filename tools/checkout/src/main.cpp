@@ -24,10 +24,10 @@
 #include <iostream>
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/errorcodes.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/errorcodes.h>
+#include <mapit/logging.h>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     pos_options.add("checkout",  1)
                .add("commitref",  1);
 
-    upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
     po::variables_map vars;
     po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
     if(vars.count("help"))
@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
     }
     po::notify(vars);
 
-    std::unique_ptr<upns::Repository> repo( upns::RepositoryFactoryStandard::openRepository( vars ) );
+    std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<upns::Checkout> co = repo->createCheckout( vars["commitref"].as<std::string>(), vars["checkout"].as<std::string>() );
+    std::shared_ptr<mapit::Checkout> co = repo->createCheckout( vars["commitref"].as<std::string>(), vars["checkout"].as<std::string>() );
     if(co != nullptr)
     {
         std::cout << "checkout " << vars["checkout"].as<std::string>() << " successfully created" << std::endl;

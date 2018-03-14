@@ -24,7 +24,6 @@
 project(layertype_openvdb)
 
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
 find_package(OpenVDB REQUIRED)
 find_package(TBB REQUIRED)
@@ -36,7 +35,7 @@ file(COPY ${PROJECT_SOURCE_DIR}/cmake DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB_RECURSE LAYERTYPE_OPENVDB_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_OPENVDB_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_OPENVDB_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} ${mapit_interface_cpp})
 
@@ -74,8 +73,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_openvdb_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

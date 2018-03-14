@@ -65,6 +65,7 @@ ApplicationWindow {
     }
     NetworkDialog {
         id: connectRealtimeMultiviewDialog
+        visible: false
     }
 
     MapitClient {

@@ -27,7 +27,7 @@
 //#include <QtCore>
 //#include <QtCore/QJsonObject>
 //#include <mapit/msgs/services.pb.h>
-//#include <upns/ui/bindings/qmlmapsrenderviewport.h"
+//#include <mapit/ui/bindings/qmlmapsrenderviewport.h"
 //#include "stubs/fileserializer.h"
 
 //class QmlEntitydataPointcloud2 : public QmlEntitydata
@@ -48,7 +48,7 @@
 
 //private:
 //    QString m_filename;
-//    upns::FileSerializer m_fileSerializer;
+//    mapit::FileSerializer m_fileSerializer;
 //};
 
 //#endif

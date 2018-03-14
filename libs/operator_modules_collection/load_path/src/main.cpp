@@ -20,15 +20,15 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pose_path.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pose_path.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -36,7 +36,7 @@
 
 using namespace mapit::msgs;
 
-upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
+mapit::StatusCode operate_load_posepath(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -48,28 +48,28 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
     if(filename.empty())
     {
         log_error("parameter \"filename\" missing");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
     std::shared_ptr<Entity> entity(new Entity);
     entity->set_type(PosePathEntitydata::TYPENAME());
-    StatusCode s = env->getCheckout()->storeEntity(target, entity);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(target, entity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     if(abstractEntitydata == NULL)
     {
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     std::shared_ptr<PosePathEntitydata> entityData = std::dynamic_pointer_cast<PosePathEntitydata>( abstractEntitydata );
     if(entityData == NULL)
     {
          // Because the Entity is stored (above) with the correct entity type, this should never happen!
         log_error("Asset has wrong type. (This should never happen)");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     PosePathPtr posePath(new mapit::msgs::PosePath);
 
@@ -78,18 +78,18 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
     if(!file.exists())
     {
         log_error("No such file");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     if(!file.isOpen())
     {
         log_error("Could not open file");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     if(!file.isReadable())
     {
         log_error("File not readable");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     jsonString = file.readAll();
     file.close();
@@ -99,7 +99,7 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
     if(parseError.error != QJsonParseError::NoError)
     {
         log_error("Could not parse JSON: " + parseError.errorString().toStdString());
-        return UPNS_STATUS_INVALID_DATA;
+        return MAPIT_STATUS_INVALID_DATA;
     }
     QJsonObject json(jsonDoc.object());
     if(json["points"].isArray())
@@ -142,11 +142,11 @@ upns::StatusCode operate_load_posepath(upns::OperationEnvironment* env)
     else
     {
         log_error("wrong json format: there must be a \"points\" member of type Array");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     entityData->setData(posePath);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, PosePathEntitydata_TYPENAME, &operate_load_posepath)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, PosePathEntitydata_TYPENAME, &operate_load_posepath)

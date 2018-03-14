@@ -20,20 +20,20 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
 #include <string>
 
-#include <upns/layertypes/tflayer.h>
-#include <upns/layertypes/tflayer/utils.h>
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer/utils.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 
 #include "reg_local.h"
 
-upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
+mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
 {
     /** structure:
      * {
@@ -83,7 +83,7 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
      * - data-change: will change the data of the "input" clouds, tfs are not changed.
      */
 
-    upns::StatusCode status;
+    mapit::StatusCode status;
     mapit::RegLocal reg_local(env, status);
     if ( ! upnsIsOk( status ) ) {
         return status;
@@ -91,4 +91,4 @@ upns::StatusCode operate_reg_local_icp(upns::OperationEnvironment* env)
     return reg_local.operate();
 }
 
-UPNS_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", &operate_reg_local_icp)
+MAPIT_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", &operate_reg_local_icp)

@@ -22,20 +22,20 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlentitydatarenderer.h"
-#include <upns/abstractentitydata.h>
-#include <upns/layertypes/pointcloudlayer.h>
+#include "mapit/ui/bindings/qmlentitydatarenderer.h"
+#include <mapit/abstractentitydata.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #if WITH_LAS
-#include <upns/layertypes/lastype.h>
+#include <mapit/layertypes/lastype.h>
 #endif // WITH_LAS
 //#if MAPIT_ENABLE_OPENVDB
-#include <upns/layertypes/openvdblayer.h>
+#include <mapit/layertypes/openvdblayer.h>
 #include <qopenvdbgridpointsurfacegeometry.h>
 //#endif // MAPIT_ENABLE_OPENVDB
-#include <upns/layertypes/tflayer.h>
-#include <upns/layertypes/pose_path.h>
-#include <upns/layertypes/assettype.h>
-#include <upns/layertypes/primitive.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/layertypes/pose_path.h>
+#include <mapit/layertypes/assettype.h>
+#include <mapit/layertypes/primitive.h>
 #include <Qt3DExtras/QSphereGeometry>
 #include <Qt3DExtras/QPlaneGeometry>
 #include <Qt3DExtras/QCylinderGeometry>
@@ -44,9 +44,9 @@
 #include <Qt3DExtras/QCuboidGeometry>
 #include "qpointcloudgeometry.h"
 #include "qpointcloud.h"
-#include "upns/ui/bindings/qmlpathgeometry.h"
-#include "upns/ui/bindings/qmlplymeshgeometry.h"
-#include <upns/logging.h>
+#include "mapit/ui/bindings/qmlpathgeometry.h"
+#include "mapit/ui/bindings/qmlplymeshgeometry.h"
+#include <mapit/logging.h>
 #include <QMatrix4x4>
 
 QmlEntitydataRenderer::QmlEntitydataRenderer(Qt3DCore::QNode *parent)
@@ -95,7 +95,7 @@ void QmlEntitydataRenderer::setCoordinateSystem(QmlPointcloudCoordinatesystem *c
 
 void QmlEntitydataRenderer::updateGeometry()
 {
-    std::shared_ptr<upns::AbstractEntitydata> ed = m_entitydata->getEntitydata();
+    std::shared_ptr<mapit::AbstractEntitydata> ed = m_entitydata->getEntitydata();
 
     if(geometry() != NULL)
     {
@@ -169,8 +169,8 @@ void QmlEntitydataRenderer::updateGeometry()
             qWarning() << "FATAL: Corrupt entitydata. Wrong type (not a tf)";
             return;
         }
-        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfList = tfEd->getData()->dispose();
-        for (const std::unique_ptr<upns::tf::TransformStamped>& tf : *tfList) {
+        std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> tfList = tfEd->getData()->dispose();
+        for (const std::unique_ptr<mapit::tf::TransformStamped>& tf : *tfList) {
           Eigen::Affine3f tfMat = Eigen::Affine3f(
                                       tf->transform.translation
                                     * tf->transform.rotation

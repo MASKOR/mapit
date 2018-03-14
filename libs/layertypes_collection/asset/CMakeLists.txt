@@ -23,7 +23,6 @@
 
 project(layertype_asset)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
 find_package(Protobuf)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
@@ -36,7 +35,7 @@ file(GLOB_RECURSE TINYPLY_SOURCES ${PROJECT_SOURCE_DIR}/tinyply/source/tinyply.c
 
 file(GLOB_RECURSE LAYERTYPE_ASSET_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${TINYPLY_SOURCES} ${LAYERTYPE_ASSET_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${TINYPLY_SOURCES} ${LAYERTYPE_ASSET_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp})# ${assimp_LIBRARIES})
 
@@ -77,8 +76,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_asset_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

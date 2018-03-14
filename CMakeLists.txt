@@ -45,7 +45,6 @@
 
 project(mapit)
 cmake_minimum_required(VERSION 3.0.2) # for target_include_directories
-aux_source_directory(. SRC_LIST)
 
 function(message)
   list(GET ARGV 0 MessageType)
@@ -73,7 +72,7 @@ set(MAPIT_VERSION
 #set(GLOBAL MAPIT_CMAKE_TARGETS_AVAILABLE TRUE)
 set(MAPIT_CMAKE_TARGETS_AVAILABLE ON CACHE INTERNAL "Do not use, always true")
 
-set(MAPIT_INSTALL_INCLUDE "mapit") # TODO: replace UPNS_* with MAPIT
+set(MAPIT_INSTALL_INCLUDE "mapit")
 # include directory as subfolder. final form: #include <${MAPIT_INSTALL_INCLUDE}/${MAPIT_INSTALL_INCLUDE_LAYERTYPES}/*.h>
 set(MAPIT_INSTALL_INCLUDE_ENTITYTYPES "entitytypes")
 set(MAPIT_INSTALL_LAYERTYPES "mapit_entitytypes_") # prefix for shared libraries
@@ -87,7 +86,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 # TODO: This is maybe not needed anymore
-set(UPNS_ROOT_DIR ${PROJECT_SOURCE_DIR})
+set(MAPIT_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
 # add custom cmake scripts. i.e. FindProcessorCount...
 set(CMAKE_MODULE_PATH
@@ -152,7 +151,7 @@ endif(MAPIT_ENABLE_LOG4CPLUS)
 add_subdirectory(libs/core)
 add_subdirectory(libs/operator_modules_collection)
 add_subdirectory(libs/mapit-msgs)
-add_subdirectory(libs/upns_interface_cpp)
+add_subdirectory(libs/interface_cpp)
 add_subdirectory(libs/layertypes_collection)
 add_subdirectory(libs/networking_node)
 #add_subdirectory(libs/multi_repository)

@@ -21,17 +21,17 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/serialization/entitydatalibrarymanager.h>
+#include <mapit/serialization/entitydatalibrarymanager.h>
 #include <sstream>
 #include <algorithm>
-#include <upns/logging.h>
+#include <mapit/logging.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <dlfcn.h>
 #endif
 
-namespace upns
+namespace mapit
 {
 
 std::shared_ptr<AbstractEntitydata> wrapEntityOfType(const std::string &type,

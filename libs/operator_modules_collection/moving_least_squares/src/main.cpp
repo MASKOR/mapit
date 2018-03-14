@@ -21,28 +21,28 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/kdtree/kdtree_flann.h>
 //#include <pcl/surface/mls.h>
 #include <pcl/point_types.h>
 #include <pcl/surface/impl/mls.hpp> //error when loading libpcl_surface.so. So just include implementation here
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
 
 template <typename PointT>
-StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, upns::OperationEnvironment* env);
+mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env);
 
-StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, upns::OperationEnvironment* env)
+mapit::StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     bool hasX = false;
     bool hasY = false;
@@ -196,11 +196,11 @@ StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydat
     {
         log_error("Pointcloud2 has no fields.");
     }
-    return UPNS_STATUS_ERROR;
+    return MAPIT_STATUS_ERROR;
 }
 
 template <typename PointT>
-StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, upns::OperationEnvironment* env)
+mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     log_info( "moving least squares params:" + env->getParameters() );
@@ -246,11 +246,11 @@ StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<Pointcl
     pcl::toPCLPointCloud2(mls_points, *cloudOut);
     entityData->setData(cloudOut);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 
-upns::StatusCode operate_mls(upns::OperationEnvironment* env)
+mapit::StatusCode operate_mls(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     log_info( "moving least squares params:" + env->getParameters() );
@@ -258,16 +258,16 @@ upns::StatusCode operate_mls(upns::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     upnsPointcloud2Ptr pc2 = entityData->getData();
 
     return operate(pc2, entityData, env);
 }
 
-UPNS_MODULE(OPERATOR_NAME, "resample data using moving least squares. Smooths normals or color", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_mls)
+MAPIT_MODULE(OPERATOR_NAME, "resample data using moving least squares. Smooths normals or color", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_mls)

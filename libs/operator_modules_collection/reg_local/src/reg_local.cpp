@@ -26,21 +26,21 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
-#include <upns/depthfirstsearch.h>
-#include <upns/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
+#include <mapit/depthfirstsearch.h>
+#include <mapit/logging.h>
 
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #include <pcl/conversions.h>
 
 #include <pcl/registration/icp.h>
 
-mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &status)
+mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &status)
 {
-    status = UPNS_STATUS_OK;
+    status = MAPIT_STATUS_OK;
 
     // pointcloud parameter
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
@@ -52,14 +52,14 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
         for (QJsonValue input : params["input"].toArray() ) {
             if ( ! input.isString() ) {
                 log_error("reg_local: cfg \"input\" does not is a string or array of strings");
-                status = UPNS_STATUS_INVALID_ARGUMENT;
+                status = MAPIT_STATUS_INVALID_ARGUMENT;
                 return;
             }
             input_list.push_back( input.toString().toStdString() );
         }
     } else {
         log_error("reg_local: cfg \"input\" does not is a string or array of strings");
-        status = UPNS_STATUS_INVALID_ARGUMENT;
+        status = MAPIT_STATUS_INVALID_ARGUMENT;
         return;
     }
 
@@ -76,7 +76,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
                               input_name
                             , depthFirstSearchAll(mapit::msgs::Tree)
                             , depthFirstSearchAll(mapit::msgs::Tree)
-                            , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                            , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                               {
                                   cfg_input_.push_back(path);
                                   return true;
@@ -85,7 +85,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
                             );
             } else {
                 log_error("reg_local: pointcloud name \"" + input_name + "\" given in param \"input\", is neither a entity nor a tree");
-                status = UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+                status = MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
                 return;
             }
         }
@@ -126,7 +126,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
         cfg_handle_result_ = HandleResult::data_change;
     } else {
         log_error("reg_local: can't handle parameter \"handle-result\" = \"" + cfg_handle_result_str + "\"");
-        status = UPNS_STATUS_INVALID_ARGUMENT;
+        status = MAPIT_STATUS_INVALID_ARGUMENT;
         return;
     }
 
@@ -144,7 +144,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     // sanity check
     if ( cfg_tf_is_static_ && cfg_input_.size() != 1) {
         log_error("reg_local: \"tf-is_static\" := true is only allowed for one \"input\" cloud specified");
-        status = UPNS_STATUS_INVALID_ARGUMENT;
+        status = MAPIT_STATUS_INVALID_ARGUMENT;
         return;
     }
 
@@ -159,7 +159,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     if ( 0 == cfg_matching_algorithm_str.compare("icp")) {
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
         log_info("reg_local: \"matching-algorithm\" is ICP");
-        upns::StatusCode status_icp = get_cfg_icp(params);
+        mapit::StatusCode status_icp = get_cfg_icp(params);
         if ( ! upnsIsOk(status_icp) ) {
             status = status_icp;
             return;
@@ -167,7 +167,7 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
     } else {
         log_error("reg_local: \"matching-algorithm\" not specified, going to use ICP");
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
-        upns::StatusCode status_icp = get_cfg_icp(params);
+        mapit::StatusCode status_icp = get_cfg_icp(params);
         if ( ! upnsIsOk(status_icp) ) {
             status = status_icp;
             return;
@@ -176,19 +176,19 @@ mapit::RegLocal::RegLocal(upns::OperationEnvironment* env, upns::StatusCode &sta
 }
 
 boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
-mapit::RegLocal::get_pointcloud(std::string path, upns::StatusCode &status, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
+mapit::RegLocal::get_pointcloud(std::string path, mapit::StatusCode &status, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
 {
-    status = UPNS_STATUS_OK;
+    status = MAPIT_STATUS_OK;
     std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( path );
     if (entity == nullptr) {
-        status = UPNS_STATUS_INVALID_ARGUMENT;
+        status = MAPIT_STATUS_INVALID_ARGUMENT;
         return nullptr;
     }
     std::string frame_id = entity->frame_id();
     stamp = mapit::time::from_msg(entity->stamp());
-    std::shared_ptr<AbstractEntitydata> abstract_entitydata = checkout_->getEntitydataForReadWrite( path );
+    std::shared_ptr<mapit::AbstractEntitydata> abstract_entitydata = checkout_->getEntitydataForReadWrite( path );
     if ( 0 != std::strcmp( abstract_entitydata->type(), PointcloudEntitydata::TYPENAME() )) {
-        status = UPNS_STATUS_INVALID_ARGUMENT;
+        status = MAPIT_STATUS_INVALID_ARGUMENT;
         return nullptr;
     }
     entitydata = std::static_pointer_cast<PointcloudEntitydata>( abstract_entitydata );
@@ -198,7 +198,7 @@ mapit::RegLocal::get_pointcloud(std::string path, upns::StatusCode &status, mapi
     pcl::fromPCLPointCloud2(*pc2, *pc);
     boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
     if (cfg_use_frame_id_) {
-        upns::tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_frame_id_, frame_id, stamp);
+        mapit::tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_frame_id_, frame_id, stamp);
         pcl::transformPointCloud(*pc, *pc_transformed, tf.transform.translation.vector(), tf.transform.rotation);
     } else {
         *pc_transformed = *pc;
@@ -207,7 +207,7 @@ mapit::RegLocal::get_pointcloud(std::string path, upns::StatusCode &status, mapi
     return pc_transformed;
 }
 
-upns::StatusCode
+mapit::StatusCode
 mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen::Affine3f& transform)
 {
     log_info("reg_local: add "
@@ -220,11 +220,11 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
     std::shared_ptr<mapit::msgs::Entity> entity;
     std::shared_ptr<TfEntitydata> ed_tf;
     std::shared_ptr<tf::store::TransformStampedList> ed_d;
-    if ( ! upnsIsOk( upns::tf::store::getOrCreateTransformStampedList(checkout_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
-        return UPNS_STATUS_ERROR;
+    if ( ! upnsIsOk( mapit::tf::store::getOrCreateTransformStampedList(checkout_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
+        return MAPIT_STATUS_ERROR;
     }
 
-    std::unique_ptr<upns::tf::TransformStamped> tfs = std::make_unique<upns::tf::TransformStamped>();
+    std::unique_ptr<mapit::tf::TransformStamped> tfs = std::make_unique<mapit::tf::TransformStamped>();
 
     // add data
     tfs->frame_id = cfg_tf_frame_id_;
@@ -241,14 +241,14 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
     entity->mutable_stamp()->set_nsec( nsec );
 
     // write data
-    std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
+    std::string entity_name = cfg_tf_prefix_ + "/" + mapit::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
     checkout_->storeEntity(entity_name, entity);
     ed_tf->setData(ed_d);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode
+mapit::StatusCode
 mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::Stamp &stamp_end)
 {
     log_info("reg_local: remove "
@@ -257,23 +257,23 @@ mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::St
            + "\" and " + mapit::time::to_string(stamp_end)
             );
     // get entity and entitydata
-    std::string entity_name = cfg_tf_prefix_ + "/" + upns::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
+    std::string entity_name = cfg_tf_prefix_ + "/" + mapit::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
     // get entity and data
     std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( entity_name );
     if (entity == nullptr) {
         log_warn("reg_local: transform entity \"" + entity_name + "\" does not exists, do not remove anything");
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     }
-    std::shared_ptr<upns::AbstractEntitydata> ed_a = checkout_->getEntitydataForReadWrite(entity_name);
+    std::shared_ptr<mapit::AbstractEntitydata> ed_a = checkout_->getEntitydataForReadWrite(entity_name);
     if ( 0 != std::strcmp(ed_a->type(), TfEntitydata::TYPENAME()) ) {
       log_error("reg_local: can't add tf, retrieved entity is not of type TfEntitydata");
-      return UPNS_STATUS_ERROR;
+      return MAPIT_STATUS_ERROR;
     }
     std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>(ed_a);
     std::shared_ptr<tf::store::TransformStampedList> ed_d = ed_tf->getData();
     if (ed_d == nullptr) {
         log_warn("reg_local: transforms in entity are empty, do not remove anything");
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     }
 
     // delete transforms
@@ -282,14 +282,14 @@ mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::St
     // store to mapit
     ed_tf->setData(ed_d);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode
+mapit::StatusCode
 mapit::RegLocal::operate()
 {
     // get target cloud
-    upns::StatusCode status;
+    mapit::StatusCode status;
     mapit::time::Stamp target_stamp;
     pcl::PCLHeader target_header;
     std::shared_ptr<PointcloudEntitydata> entitydata_target;
@@ -323,13 +323,13 @@ mapit::RegLocal::operate()
             }
             default: {
                 log_error("reg_local: can't select algorithm for matching");
-                return UPNS_STATUS_ERROR;
+                return MAPIT_STATUS_ERROR;
             }
         }
 
         if ( ! has_converged ) {
           log_error("reg_local: algorithm didn't converged");
-          return UPNS_STATUS_ERROR;
+          return MAPIT_STATUS_ERROR;
         } else {
             log_info("reg_local: ICP for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
                    + "\" finished with fitness score " + std::to_string( fitness_score ));
@@ -353,7 +353,7 @@ mapit::RegLocal::operate()
                 break;
             }
             case HandleResult::tf_add: {
-                upns::StatusCode status = mapit_add_tf(input_stamp, result_transform);
+                mapit::StatusCode status = mapit_add_tf(input_stamp, result_transform);
                 if ( ! upnsIsOk(status)) {
                     return status;
                 }
@@ -432,7 +432,7 @@ mapit::RegLocal::operate()
         }
 
         // delete tfs between time of clouds
-        upns::StatusCode status = mapit_remove_tfs(earliest, latest);
+        mapit::StatusCode status = mapit_remove_tfs(earliest, latest);
         if ( ! upnsIsOk(status)) {
             return status;
         }
@@ -442,10 +442,10 @@ mapit::RegLocal::operate()
         }
     }
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode
+mapit::StatusCode
 mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
 {
     cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations") && params["icp-maximum-iterations"].toInt() != 0;
@@ -469,7 +469,7 @@ mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
         log_info("reg_local/ICP: use cfg \"icp-euclidean-fitness-epsilon\": " << cfg_icp_euclidean_fitness_epsilon_);
     }
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 void

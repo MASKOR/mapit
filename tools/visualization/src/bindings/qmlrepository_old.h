@@ -48,7 +48,7 @@
 //    Q_INVOKABLE QmlBranch *getBranch(QString name);
 //    //MessageType typeOfObject(const ObjectId &oid);
 
-//    // std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
+//    // std::shared_ptr<mapit::AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid);
 //    QmlCheckout *checkout(QString commitIdOrBranchname, QString name);
 //    QmlCheckout *checkout(QString checkoutName);
 //    // StatusCode deleteCheckoutForced(const std::string &checkoutName);

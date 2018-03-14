@@ -20,12 +20,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/errorcodes.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/errorcodes.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <pcl/filters/statistical_outlier_removal.h>
@@ -43,7 +43,7 @@ void statisticalOutlierRemoval(pcl::PCLPointCloud2 const &original,
     return;
 }
 
-upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* environment)
+mapit::StatusCode operateStatisticalOutlierRemoval(mapit::OperationEnvironment* environment)
 {
     log_info("┌filter: statistical outlier removal");
     QByteArray parametersRaw(environment->getParameters().c_str(),
@@ -54,28 +54,28 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
     std::string source = parameters["source"].toString().toStdString();
     if (source.empty()) {
         log_error("└─┴─source entity string is empty");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ ├─source: '" << source << "'");
 
     std::string target = parameters["target"].toString().toStdString();
     if (source.empty()) {
         log_error("└─┴─target entity string is empty");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ ├─target: '" << target << "'");
 
     std::double_t deviation = parameters["deviation"].toDouble();
     if (std::isnan(deviation) || std::isinf(deviation)) {
         log_error("└─┴─deviation has no valid value");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ ├─deviation: " << deviation << "σ");
 
     std::int32_t neighbors = parameters["neighbors"].toInt();
     if (neighbors <= 0) {
         log_error("└─┴─neighbors is smaller than or equal to zero");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     log_info("│ └─neighbors: " << neighbors);
 
@@ -84,7 +84,7 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
             std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(source));
     if (sourceData == nullptr) {
         log_error("└─┴─source entity is no point cloud");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::shared_ptr<pcl::PCLPointCloud2> original = sourceData->getData();
     log_info("│ ├─fields:");
@@ -103,7 +103,7 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
         statisticalOutlierRemoval(*original, *filtered, deviation, neighbors);
     } catch(...) {
         log_error("└─┴─filtering failed");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     log_info("│ └─size: " << filtered->height * filtered->width);
 
@@ -114,7 +114,7 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
         targetEntity->set_type(PointcloudEntitydata::TYPENAME());
         if (!upnsIsOk(environment->getCheckout()->storeEntity(target, targetEntity))) {
             log_error("  └─failed to create target entity");
-            return UPNS_STATUS_ERR_UNKNOWN;
+            return MAPIT_STATUS_ERR_UNKNOWN;
         }
         log_info("  ├─created new entity '" << target << "'");
     }
@@ -122,15 +122,15 @@ upns::StatusCode operateStatisticalOutlierRemoval(upns::OperationEnvironment* en
             std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(target));
     if (targetData == NULL) {
         log_error("  └─target entity is no point cloud");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     targetData->setData(filtered);
     log_info("  └─complete");
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME,
+MAPIT_MODULE(OPERATOR_NAME,
             "filter: statistical outlier removal",
             "Marcus Meeßen",
             OPERATOR_VERSION,

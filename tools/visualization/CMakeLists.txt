@@ -53,9 +53,9 @@ find_package(Qt5Quick REQUIRED)
 
 string( TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_CMAKE_BUILD_TYPE )
 if (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
-    set(OCULUSVR_LIBRARIES ${UPNS_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVR_debug.lib ${UPNS_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVRKernel_debug.lib)
+    set(OCULUSVR_LIBRARIES ${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVR_debug.lib ${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVRKernel_debug.lib)
 else (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
-    set(OCULUSVR_LIBRARIES ${UPNS_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVR_release.lib ${UPNS_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVRKernel_release.lib)
+    set(OCULUSVR_LIBRARIES ${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVR_release.lib ${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64/LibOVRKernel_release.lib)
 endif (LOWER_CMAKE_BUILD_TYPE STREQUAL "debug")
 
 
@@ -71,8 +71,8 @@ set(MAPIT_VISUALIZATION_INCLUDE ${PROJECT_SOURCE_DIR}/include)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 if(WIN32)
-    include_directories(${UPNS_ROOT_DIR}/externals/windows/include_ovr)
-    link_directories(${UPNS_ROOT_DIR}/externals/windows/lib-msvc2013-md-64)
+    include_directories(${MAPIT_ROOT_DIR}/externals/windows/include_ovr)
+    link_directories(${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64)
 endif()
 
 QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization.qrc)
@@ -167,21 +167,21 @@ qt5_use_modules(${PROJECT_NAME} Qml Quick 3DCore 3DInput 3DLogic 3DQuick 3DRende
 if(WIN32)
 else()
 #execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/visualization/data
+#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/data ${CMAKE_BINARY_DIR}/tools/visualization/data
 #)
 #execute_process(
 #  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/test/unit_tests/libs
 #)
 #execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/resources ${CMAKE_BINARY_DIR}/tools/visualization/resources
+#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/resources ${CMAKE_BINARY_DIR}/tools/visualization/resources
 #)
 #execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/libs/operator_modules ${CMAKE_BINARY_DIR}/tools/visualization/operator_modules
+#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/libs/operator_modules ${CMAKE_BINARY_DIR}/tools/visualization/operator_modules
 #)
 #execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/libs/layertypes_collection ${CMAKE_BINARY_DIR}/tools/visualization/layertypes_collection
+#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/libs/layertypes_collection ${CMAKE_BINARY_DIR}/tools/visualization/layertypes_collection
 #)
 #execute_process(
-#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${UPNS_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
+#  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${MAPIT_ROOT_DIR}/logging.properties ${CMAKE_BINARY_DIR}/test/unit_tests/logging.properties
 #)
 endif()

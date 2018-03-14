@@ -21,13 +21,13 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/openvdblayer.h"
+#include "mapit/layertypes/openvdblayer.h"
 #include <sstream>
 #include <openvdb/openvdb.h>
 #include <openvdb/Grid.h>
 #include <openvdb/io/io.h>
 #include <openvdb/io/Stream.h>
-#include <upns/logging.h>
+#include <mapit/logging.h>
 
 const char *FloatGridEntitydata::TYPENAME()
 {
@@ -62,7 +62,7 @@ void writeFloatGridToStream(std::ostream &os, openvdb::FloatGrid::Ptr grid)
 }
 
 
-FloatGridEntitydata::FloatGridEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+FloatGridEntitydata::FloatGridEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_floatGrid( NULL )
 {
@@ -83,14 +83,14 @@ bool FloatGridEntitydata::canSaveRegions() const
     return false;
 }
 
-upnsFloatGridPtr FloatGridEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                                upnsReal x2, upnsReal y2, upnsReal z2,
+FloatGridPtr FloatGridEntitydata::getData(float x1, float y1, float z1,
+                                                float x2, float y2, float z2,
                                                 bool clipMode,
                                                 int lod)
 {
     if(m_floatGrid == NULL)
     {
-        upnsIStream *in = m_streamProvider->startRead();
+        mapit::istream *in = m_streamProvider->startRead();
         {
             readFloatGridFromStream( *in, m_floatGrid );
         }
@@ -99,12 +99,12 @@ upnsFloatGridPtr FloatGridEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal
     return m_floatGrid;
 }
 
-int FloatGridEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                 upnsReal x2, upnsReal y2, upnsReal z2,
-                                 upnsFloatGridPtr &data,
+int FloatGridEntitydata::setData(float x1, float y1, float z1,
+                                 float x2, float y2, float z2,
+                                 FloatGridPtr &data,
                                  int lod)
 {
-    upnsOStream *out = m_streamProvider->startWrite();
+    mapit::ostream *out = m_streamProvider->startWrite();
     {
         writeFloatGridToStream( *out, data );
     }
@@ -112,42 +112,42 @@ int FloatGridEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
     return 0;
 }
 
-upnsFloatGridPtr FloatGridEntitydata::getData(int lod)
+FloatGridPtr FloatGridEntitydata::getData(int lod)
 {
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return getData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    false, lod);
 }
 
-int FloatGridEntitydata::setData(upnsFloatGridPtr &data, int lod)
+int FloatGridEntitydata::setData(FloatGridPtr &data, int lod)
 {
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return setData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    data, lod);
 }
 
-void FloatGridEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                     upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+void FloatGridEntitydata::gridCellAt(float   x, float   y, float   z,
+                                     float &x1, float &y1, float &z1,
+                                     float &x2, float &y2, float &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<float>::infinity();
+    y1 = -std::numeric_limits<float>::infinity();
+    z1 = -std::numeric_limits<float>::infinity();
+    x2 = +std::numeric_limits<float>::infinity();
+    y2 = +std::numeric_limits<float>::infinity();
+    z2 = +std::numeric_limits<float>::infinity();
 }
 
-int FloatGridEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                              upnsReal &x2, upnsReal &y2, upnsReal &z2)
+int FloatGridEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
+                                              float &x2, float &y2, float &z2)
 {
     openvdb::CoordBBox bbox = getData()->evalActiveVoxelBoundingBox();
     x1 = bbox.min().x();
@@ -159,22 +159,22 @@ int FloatGridEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsRe
     return 0;
 }
 
-upnsIStream *FloatGridEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+mapit::istream *FloatGridEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void FloatGridEntitydata::endRead(upnsIStream *&strm)
+void FloatGridEntitydata::endRead(mapit::istream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *FloatGridEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+mapit::ostream *FloatGridEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void FloatGridEntitydata::endWrite(upnsOStream *&strm)
+void FloatGridEntitydata::endWrite(mapit::ostream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -184,7 +184,7 @@ size_t FloatGridEntitydata::size() const
     m_streamProvider->getStreamSize();
 }
 
-void deleteEntitydataGrid(AbstractEntitydata *ld)
+void deleteEntitydataGrid(mapit::AbstractEntitydata *ld)
 {
     FloatGridEntitydata *p = dynamic_cast<FloatGridEntitydata*>(ld);
     if(p)
@@ -197,8 +197,7 @@ void deleteEntitydataGrid(AbstractEntitydata *ld)
     }
 }
 
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydataGrid);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new FloatGridEntitydata( streamProvider ), deleteEntitydataGrid);
 }
-

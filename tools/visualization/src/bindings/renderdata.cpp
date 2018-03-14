@@ -20,7 +20,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/renderdata.h"
+#include "mapit/ui/bindings/renderdata.h"
 #include <QQuickItem>
 #include <QMetaObject>
 

@@ -19,4 +19,4 @@ if(NOT TARGET mapit::standard_repository_factory AND NOT mapit::standard_reposit
 endif()
 
 # These are IMPORTED targets created by mapitInterfaceCppTargets.cmake
-#set(MAPIT_INTERFACE_CPP_LIBRARIES upns_interface_cpp)
+#set(MAPIT_INTERFACE_CPP_LIBRARIES interface_cpp)

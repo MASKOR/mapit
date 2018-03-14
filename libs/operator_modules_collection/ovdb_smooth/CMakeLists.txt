@@ -31,9 +31,6 @@ find_package(mapit REQUIRED)
 
 aux_source_directory(. SRC_LIST)
 
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/../../mapmanager/include/)
-
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
@@ -52,24 +49,6 @@ SET_TARGET_PROPERTIES(
     SOVERSION ${OPERATOR_VERSION}
 )
 
-#get_property(lib_location TARGET ${PROJECT_NAME} PROPERTY LOCATION)
-
-if (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "lib")
-    set(FILENAME_POSTFIX ".so")
-else (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "")
-    set(FILENAME_POSTFIX ".dll")
-endif (CMAKE_HOST_UNIX)
-
-#set(LIB_FILENAME ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX})
-#set(LIB_FILENAME_VERSION ${FILENAME_PREFIX}${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX}${FILENAME_POSTFIX}.${OPERATOR_VERSION})
-
-#add_custom_command(
-#    TARGET ${PROJECT_NAME} POST_BUILD
-#    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
-#    COMMAND ln -sf ${LIB_FILENAME} ${LIB_FILENAME_VERSION} WORKING_DIRECTORY ${LIBRARY_OUTPUT_PATH}
-#)
 if(UNIX)
     # tell CMake Prefix is "lib" otherwise it can not be queried
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")

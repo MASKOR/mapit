@@ -43,10 +43,10 @@
 
 #include "../src/serialization/file_system/fs_serializer.h"
 #include "../src/serialization/leveldb/leveldbserializer.h"
-using namespace upns;
+using namespace mapit;
 
-Q_DECLARE_METATYPE(upns::upnsSharedPointer<upns::AbstractMapSerializer>)
-Q_DECLARE_METATYPE(upns::upnsSharedPointer<upns::AbstractEntityDataStreamProvider>)
+Q_DECLARE_METATYPE(mapit::upnsSharedPointer<mapit::AbstractMapSerializer>)
+Q_DECLARE_METATYPE(mapit::upnsSharedPointer<mapit::AbstractEntityDataStreamProvider>)
 
 void TestEntitydata::init()
 {
@@ -61,11 +61,11 @@ void TestEntitydata::initTestCase()
     YAML::Node mapsource;
     mapsource["name"] = "FileSystem";
     mapsource["filename"] = "test_filesystem";
-    m_ed[0] = upns::upnsSharedPointer<upns::AbstractMapSerializer>( new upns::FSSerializer( mapsource ));
+    m_ed[0] = mapit::upnsSharedPointer<mapit::AbstractMapSerializer>( new mapit::FSSerializer( mapsource ));
     YAML::Node mapsource2;
     mapsource2["name"] = "leveldb";
     mapsource2["filename"] = "test_leveldb";
-    m_ed[1] = upns::upnsSharedPointer<upns::AbstractMapSerializer>( new upns::LevelDBSerializer( mapsource2 ));
+    m_ed[1] = mapit::upnsSharedPointer<mapit::AbstractMapSerializer>( new mapit::LevelDBSerializer( mapsource2 ));
 }
 
 void TestEntitydata::cleanupTestCase()
@@ -75,8 +75,8 @@ void TestEntitydata::cleanupTestCase()
 void TestEntitydata::testCreateLayer_data() { createTestdata(); }
 void TestEntitydata::testCreateLayer()
 {
-    QFETCH(upns::upnsSharedPointer<upns::AbstractMapSerializer>, serializer);
-    QFETCH(upns::upnsSharedPointer<upns::AbstractEntityDataStreamProvider>, streamprovider);
+    QFETCH(mapit::upnsSharedPointer<mapit::AbstractMapSerializer>, serializer);
+    QFETCH(mapit::upnsSharedPointer<mapit::AbstractEntityDataStreamProvider>, streamprovider);
     QVERIFY(serializer->canRead());
     QVERIFY(serializer->canWrite());
     // TODO: Call every method once. The class changed quite a lot.
@@ -97,7 +97,7 @@ void TestEntitydata::testCreateLayer()
 //    upnsSharedPointer<AbstractEntityData> abstractData = m_mapService->getEntitydata( map->id(), layer->id(), entity->id() );
 //    QCOMPARE(abstractData->layerType(), LayerType::POINTCLOUD2);
 //    upnsSharedPointer<PointcloudEntitydata> pointclouddata;
-//    pointclouddata = upns::static_pointer_cast<PointcloudEntitydata>(abstractData);
+//    pointclouddata = mapit::static_pointer_cast<PointcloudEntitydata>(abstractData);
 //    pcl::PointCloud<pcl::PointXYZ> cloud;
 //    cloud.push_back(pcl::PointXYZ(-1.0, 0.0, 1.0));
 //    cloud.push_back(pcl::PointXYZ(-2.0, 3.0, 4.5));
@@ -109,7 +109,7 @@ void TestEntitydata::testCreateLayer()
 //    upnsSharedPointer<AbstractEntityData> abstractData2 = m_mapService->getEntitydata( map->id(), layer->id(), entity->id() );
 //    QCOMPARE(abstractData2->layerType(), LayerType::POINTCLOUD2);
 //    upnsSharedPointer<PointcloudEntitydata> pointclouddata2;
-//    pointclouddata2 = upns::static_pointer_cast<PointcloudEntitydata>(abstractData2);
+//    pointclouddata2 = mapit::static_pointer_cast<PointcloudEntitydata>(abstractData2);
 
 //    upnsPointcloud2Ptr pclpc22 = pointclouddata2->getData();
 //    QCOMPARE(pclpc22->height, pclpc2->height);
@@ -126,8 +126,8 @@ void TestEntitydata::testCreateLayer()
 
 void TestEntitydata::createTestdata()
 {
-    QTest::addColumn< upns::upnsSharedPointer<upns::AbstractMapSerializer> >("serializer");
-    QTest::addColumn< upns::upnsSharedPointer<upns::AbstractEntityDataStreamProvider> >("streamprovider");
+    QTest::addColumn< mapit::upnsSharedPointer<mapit::AbstractMapSerializer> >("serializer");
+    QTest::addColumn< mapit::upnsSharedPointer<mapit::AbstractEntityDataStreamProvider> >("streamprovider");
 
     QTest::newRow("filesystem")       << m_ed[0] << m_edsp[0];
     QTest::newRow("leveldb database") << m_ed[1] << m_edsp[1];

@@ -21,12 +21,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlcheckout.h"
-#include <upns/errorcodes.h>
-#include "upns/depthfirstsearch.h"
-#include <upns/layertypes/tflayer.h> //< TODO: remove this dependecy and put dependet code to it to new "QmlTransformLayer"
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
-#include <upns/layertypes/tflayer/tf2/exceptions.h>
+#include "mapit/ui/bindings/qmlcheckout.h"
+#include <mapit/errorcodes.h>
+#include <mapit/depthfirstsearch.h>
+#include <mapit/layertypes/tflayer.h> //< TODO: remove this dependecy and put dependet code to it to new "QmlTransformLayer"
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/tflayer/tf2/exceptions.h>
 #include <QStringList>
 #include <QSet>
 #include "operationexecutor.h"
@@ -41,7 +41,7 @@ QmlCheckout::QmlCheckout()
 }
 
 // If name is not given, this must be a result of a merge.
-QmlCheckout::QmlCheckout(std::shared_ptr<upns::Checkout> &co, QmlRepository* repo, QString name)
+QmlCheckout::QmlCheckout(std::shared_ptr<mapit::Checkout> &co, QmlRepository* repo, QString name)
     : m_checkout( co )
     , m_repository( repo )
     , m_isInConflictMode( false )
@@ -82,7 +82,7 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     Q_EMIT isBusyExecutingChanged(m_isBusyExecuting);
 
     m_executor->start();
-//    upns::OperationResult res = m_checkout->doOperation(descript);
+//    mapit::OperationResult res = m_checkout->doOperation(descript);
 //    reloadEntities();
 //    Q_EMIT internalCheckoutChanged(this);
 //    //TODO Q_EMIT something changed()
@@ -150,9 +150,9 @@ QmlBranch *QmlCheckout::getParentBranch()
 QStringList QmlCheckout::getParentCommitIds()
 {
     if(!m_checkout) return QStringList();
-    std::vector<upns::CommitId> ids(m_checkout->getParentCommitIds());
+    std::vector<mapit::CommitId> ids(m_checkout->getParentCommitIds());
     QStringList allIds;
-    std::for_each(ids.begin(), ids.end(), [&allIds](const upns::CommitId &id)
+    std::for_each(ids.begin(), ids.end(), [&allIds](const mapit::CommitId &id)
     {
         allIds.append(QString::fromStdString(id));
     });
@@ -164,7 +164,7 @@ QmlEntitydata *QmlCheckout::getEntitydataReadOnly(QString path)
 {
     if(!m_checkout) return new QmlEntitydata(this);
     std::string p = path.toStdString();
-    std::shared_ptr<upns::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnly(p));
+    std::shared_ptr<mapit::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnly(p));
     return new QmlEntitydata(ent, this, path);
 }
 
@@ -172,7 +172,7 @@ QmlEntitydata *QmlCheckout::getEntitydataReadOnlyConflict(QString entityId)
 {
     if(!m_checkout) return new QmlEntitydata(this);
     std::string oid = entityId.toStdString();
-    std::shared_ptr<upns::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
+    std::shared_ptr<mapit::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
     return new QmlEntitydata(ent, this);
 }
 
@@ -181,7 +181,7 @@ bool QmlCheckout::isInConflictMode() const
     return m_isInConflictMode;
 }
 
-std::shared_ptr<Checkout> QmlCheckout::getCheckoutObj() { return m_checkout; }
+std::shared_ptr<mapit::Checkout> QmlCheckout::getCheckoutObj() { return m_checkout; }
 
 QmlRepository *QmlCheckout::repository() const
 {
@@ -203,12 +203,12 @@ QStringList QmlCheckout::getFrameIds()
     if(this->m_checkout == nullptr) return QStringList();
     QSet<QString> frameIdSet;
 
-    upns::StatusCode s = this->m_checkout->depthFirstSearch(
+    mapit::StatusCode s = this->m_checkout->depthFirstSearch(
         depthFirstSearchAll(Tree), depthFirstSearchAll(Tree),
-        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             // get the stream to write into a file
-            std::shared_ptr<upns::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly(path);
+            std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly(path);
 
             std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
             assert(ent);
@@ -216,11 +216,11 @@ QStringList QmlCheckout::getFrameIds()
 
             if(ed && strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
             {
-                std::shared_ptr<upns::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly( path );
+                std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly( path );
                 if( ed == nullptr ) return true;
                 std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
                 if( tfEd == nullptr ) return true;
-                std::shared_ptr<tf::store::TransformStampedList> tfStore = tfEd->getData();
+                std::shared_ptr<mapit::tf::store::TransformStampedList> tfStore = tfEd->getData();
                 if(tfStore == nullptr ) return true;
                 frameIdSet.insert(QString::fromStdString( tfStore->get_child_frame_id() ));
             }
@@ -303,20 +303,20 @@ void QmlCheckout::reloadEntities()
     m_entities.clear();
     if(m_checkout)
     {
-        upns::StatusCode s = m_checkout->depthFirstSearch(
-            [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+        mapit::StatusCode s = m_checkout->depthFirstSearch(
+            [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const mapit::Path &path)
             {
                 return true;
-            }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const upns::Path &path)
+            }, [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const mapit::Path &path)
             {
                 return true;
             },
-            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
             {
                 m_entities.append(QString::fromStdString(path));
                 return true;
             },
-            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const upns::Path &path)
+            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
             {
                 return true;
             });

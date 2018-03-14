@@ -29,19 +29,19 @@
 
 /** \author Tully Foote */
 
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
-#include <upns/layertypes/tflayer/tf2/time_cache.h>
-#include <upns/layertypes/tflayer/tf2/exceptions.h>
-#include <upns/layertypes/tflayer/tf2/linear_math.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/tflayer/tf2/time_cache.h>
+#include <mapit/layertypes/tflayer/tf2/exceptions.h>
+#include <mapit/layertypes/tflayer/tf2/linear_math.h>
 
-#include <upns/versioning/checkout.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/depthfirstsearch.h>
 
 #include <assert.h>
 //#include "tf2/LinearMath/Transform.h"
-#include <upns/logging.h>
-#include <upns/layertypes/tflayer.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/tflayer.h>
 
 Eigen::Translation3f
 interpolate3(const Eigen::Translation3f& v0, const Eigen::Translation3f& v1, float rt);
@@ -59,21 +59,21 @@ namespace tf2
 #endif
 
 /** \brief convert Transform msg to Transform */
-void transformMsgToTF2(const ::tf::Transform& msg, Transform& tf2)
+void transformMsgToTF2(const mapit::tf::Transform& msg, Transform& tf2)
 {
 
   tf2 = msg.translation * msg.rotation;
 }
 
 /** \brief convert Transform to Transform msg*/
-void transformTF2ToMsg(const Transform& tf2, ::tf::Transform& msg)
+void transformTF2ToMsg(const Transform& tf2, mapit::tf::Transform& msg)
 {
   msg.translation = Eigen::Translation3f( tf2.translation() );
   msg.rotation = Eigen::Quaternionf( tf2.rotation() );
 }
 
 /** \brief convert Transform to Transform msg*/
-void transformTF2ToMsg(const Transform& tf2, ::tf::TransformStamped& msg, mapit::time::Stamp stamp, const std::string& frame_id, const std::string& child_frame_id)
+void transformTF2ToMsg(const Transform& tf2, mapit::tf::TransformStamped& msg, mapit::time::Stamp stamp, const std::string& frame_id, const std::string& child_frame_id)
 {
   transformTF2ToMsg(tf2, msg.transform);
   msg.stamp = stamp;
@@ -81,13 +81,13 @@ void transformTF2ToMsg(const Transform& tf2, ::tf::TransformStamped& msg, mapit:
   msg.child_frame_id = child_frame_id;
 }
 
-void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translation3f& pos, ::tf::Transform& msg)
+void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translation3f& pos, mapit::tf::Transform& msg)
 {
   msg.translation = pos;
   msg.rotation = orient;
 }
 
-void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translation3f& pos, ::tf::TransformStamped& msg, mapit::time::Stamp stamp, const std::string& frame_id, const std::string& child_frame_id)
+void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translation3f& pos, mapit::tf::TransformStamped& msg, mapit::time::Stamp stamp, const std::string& frame_id, const std::string& child_frame_id)
 {
   transformTF2ToMsg(orient, pos, msg.transform);
   msg.stamp = stamp;
@@ -95,7 +95,7 @@ void transformTF2ToMsg(const Eigen::Quaternionf& orient, const Eigen::Translatio
   msg.child_frame_id = child_frame_id;
 }
 
-void setIdentity(::tf::Transform& tx)
+void setIdentity(mapit::tf::Transform& tx)
 {
   tx.translation = tx.translation.Identity();
   tx.rotation.setIdentity();
@@ -182,7 +182,7 @@ BufferCore::BufferCore(CheckoutCommon* checkout
         ) : BufferCore()
 {
     ObjectReference nullRef;
-    StatusCode s = upns::depthFirstSearch(
+    StatusCode s = mapit::depthFirstSearch(
                 checkout,
                 tf_prefix.empty() ? checkout->getRoot(): checkout->getTree(tf_prefix),
                 nullRef,
@@ -191,18 +191,18 @@ BufferCore::BufferCore(CheckoutCommon* checkout
                 depthFirstSearchAll(Commit),
                 depthFirstSearchAll(Tree),
                 depthFirstSearchAll(Tree),
-                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
-                    std::shared_ptr<upns::AbstractEntitydata> ed = checkout->getEntitydataReadOnly(path);
+                    std::shared_ptr<mapit::AbstractEntitydata> ed = checkout->getEntitydataReadOnly(path);
                     if( ed && 0 == strcmp(ed->type(), TfEntitydata::TYPENAME()) ) {
         //                std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
         //                assert(ent);
                         assert(obj);
                         std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>( ed );
                         std::shared_ptr<tf::store::TransformStampedList> ed_tf_data = ed_tf->getData();
-                        std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list = ed_tf_data->dispose();
+                        std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> tf_list = ed_tf_data->dispose();
 
-                        for (const std::unique_ptr<upns::tf::TransformStamped>& tfs : *tf_list) {
+                        for (const std::unique_ptr<mapit::tf::TransformStamped>& tfs : *tf_list) {
                           setTransform(*tfs, path, ed_tf_data->get_is_static());
                         }
                     }
@@ -234,7 +234,7 @@ void BufferCore::clear()
   
 }
 
-bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const std::string& authority, bool is_static)
+bool BufferCore::setTransform(const mapit::tf::TransformStamped& transform_in, const std::string& authority, bool is_static)
 {
 
   /////BACKWARDS COMPATABILITY
@@ -246,7 +246,7 @@ bool BufferCore::setTransform(const ::tf::TransformStamped& transform_in, const 
     }*/
 
   /////// New implementation
-  ::tf::TransformStamped stripped = transform_in;
+  mapit::tf::TransformStamped stripped = transform_in;
   stripped.frame_id = stripSlash(stripped.frame_id);
   stripped.child_frame_id = stripSlash(stripped.child_frame_id);
 
@@ -614,14 +614,14 @@ struct TransformAccum
   Eigen::Vector3f result_vec;
 };
 
-::tf::TransformStamped BufferCore::lookupTransform(const std::string& target_frame,
+mapit::tf::TransformStamped BufferCore::lookupTransform(const std::string& target_frame,
                                                    const std::string& source_frame,
                                                    const mapit::time::Stamp& time) const
 {
   boost::mutex::scoped_lock lock(frame_mutex_);
 
   if (target_frame == source_frame) {
-    ::tf::TransformStamped identity;
+    mapit::tf::TransformStamped identity;
     identity.frame_id = target_frame;
     identity.child_frame_id = source_frame;
     identity.transform.rotation.setIdentity();
@@ -665,13 +665,13 @@ struct TransformAccum
     }
   }
 
-  ::tf::TransformStamped output_transform;
+  mapit::tf::TransformStamped output_transform;
   transformTF2ToMsg(accum.result_quat, Eigen::Translation3f( accum.result_vec ), output_transform, accum.time, target_frame, source_frame);
   return output_transform;
 }
 
                                                        
-::tf::TransformStamped BufferCore::lookupTransform(const std::string& target_frame,
+mapit::tf::TransformStamped BufferCore::lookupTransform(const std::string& target_frame,
                                                         const mapit::time::Stamp& target_time,
                                                         const std::string& source_frame,
                                                         const mapit::time::Stamp& source_time,
@@ -681,9 +681,9 @@ struct TransformAccum
   validateFrameId("lookupTransform argument source_frame", source_frame);
   validateFrameId("lookupTransform argument fixed_frame", fixed_frame);
 
-  ::tf::TransformStamped output;
-  ::tf::TransformStamped temp1 =  lookupTransform(fixed_frame, source_frame, source_time);
-  ::tf::TransformStamped temp2 =  lookupTransform(target_frame, fixed_frame, target_time);
+  mapit::tf::TransformStamped output;
+  mapit::tf::TransformStamped temp1 =  lookupTransform(fixed_frame, source_frame, source_time);
+  mapit::tf::TransformStamped temp2 =  lookupTransform(target_frame, fixed_frame, target_time);
   
   Transform tf1, tf2;
   transformMsgToTF2(temp1.transform, tf1);

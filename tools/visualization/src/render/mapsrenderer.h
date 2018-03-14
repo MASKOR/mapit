@@ -30,9 +30,9 @@
 #include <QOpenGLBuffer>
 #include <QVector>
 
-#include <upns/abstractentitydata.h>
-#include "upns/ui/bindings/qmlentitydata.h"
-#include "upns/ui/bindings/renderdata.h"
+#include <mapit/abstractentitydata.h>
+#include "mapit/ui/bindings/qmlentitydata.h"
+#include "mapit/ui/bindings/renderdata.h"
 
 #include <pcl/PCLPointCloud2.h> //< Note: Only for workaround boost::serialization
 
@@ -46,7 +46,7 @@ public:
     void initialize();
     bool isInitialized();
 
-//    void setEntitydata(std::shared_ptr<upns::AbstractEntitydata> entityData);
+//    void setEntitydata(std::shared_ptr<mapit::AbstractEntitydata> entityData);
 //    void setMatrix( const QMatrix4x4 &mat );
     void reload();
 //    void setScreenSize(const QSizeF &size);
@@ -84,7 +84,7 @@ private:
     int distanceDetailUniform;
 
     bool m_initialized;
-    std::shared_ptr<upns::AbstractEntitydata> m_entitydata;
+    std::shared_ptr<mapit::AbstractEntitydata> m_entitydata;
 //    //Note: Filenames are a workaround, as long as stubs are used and as long as boost::serialization is used and too slow
 //    QString m_filename;
 //    QSizeF m_screenSize;

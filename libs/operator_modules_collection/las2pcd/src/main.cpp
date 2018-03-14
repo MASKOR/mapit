@@ -20,26 +20,26 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/lastype.h>
-#include <upns/layertypes/lasentitydatawriter.h>
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/lastype.h>
+#include <mapit/layertypes/lasentitydatawriter.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #include <pcl/point_cloud.h>
 #include <pcl/conversions.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 #include "liblas/liblas.hpp"
 #include <fstream>
 #include <iomanip>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 
-upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
+mapit::StatusCode operate_pcd2las(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -52,7 +52,7 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
         if(input.empty())
         {
             log_error("no input specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
     if(output.empty())
@@ -61,7 +61,7 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
         if(output.empty())
         {
             log_error("no output specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
 
@@ -81,18 +81,18 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
         if(normalizeScale < 0.0)
         {
             log_error("normalizeScale was negative");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
         normalizeScale = 10.0; // 10m is default
     }
 
     std::cout << "normalize: " << normalizeScale << std::endl;
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     pcl::PointCloud<pcl::PointXYZINormal> pc;
     {
@@ -100,7 +100,7 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
         if(entityDataLASInput == nullptr)
         {
             log_error("Wrong type");
-            return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+            return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
         }
         std::unique_ptr<LASEntitydataReader> reader = entityDataLASInput->getReader();
 
@@ -170,24 +170,24 @@ upns::StatusCode operate_pcd2las(upns::OperationEnvironment* env)
     }
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
-    StatusCode s = env->getCheckout()->storeEntity(output, pclEntity);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(output, pclEntity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     std::shared_ptr<PointcloudEntitydata> entityDataPCLOutput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataOutput );
     if(entityDataPCLOutput == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::shared_ptr<pcl::PCLPointCloud2> cloud(new pcl::PCLPointCloud2);
     pcl::toPCLPointCloud2(pc, *cloud);
 
     entityDataPCLOutput->setData(cloud);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Las File", "fhac", OPERATOR_VERSION, LASEntitydata_TYPENAME, &operate_pcd2las)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Las File", "fhac", OPERATOR_VERSION, LASEntitydata_TYPENAME, &operate_pcd2las)

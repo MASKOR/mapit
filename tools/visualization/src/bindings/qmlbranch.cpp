@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlbranch.h"
+#include "mapit/ui/bindings/qmlbranch.h"
 
 QmlBranch::QmlBranch(QObject *parent)
     :QObject(parent), m_branch( nullptr )

@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/primitive.h"
-#include <upns/logging.h>
+#include "mapit/layertypes/primitive.h"
+#include <mapit/logging.h>
 
 template <typename T>
 class not_deleter {
@@ -35,7 +35,7 @@ const char *PrimitiveEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-PrimitiveEntitydata::PrimitiveEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+PrimitiveEntitydata::PrimitiveEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_primitive( nullptr )
 {
@@ -56,15 +56,15 @@ bool PrimitiveEntitydata::canSaveRegions() const
     return false;
 }
 
-PrimitivePtr PrimitiveEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                                upnsReal x2, upnsReal y2, upnsReal z2,
+PrimitivePtr PrimitiveEntitydata::getData(float x1, float y1, float z1,
+                                                float x2, float y2, float z2,
                                                 bool clipMode,
                                                 int lod)
 {
     if(m_primitive == NULL)
     {
         m_primitive = PrimitivePtr(new mapit::msgs::Primitive);
-        upnsIStream *in = m_streamProvider->startRead();
+        mapit::istream *in = m_streamProvider->startRead();
         {
             if(!m_primitive->ParseFromIstream(in))
             {
@@ -76,12 +76,12 @@ PrimitivePtr PrimitiveEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
     return m_primitive;
 }
 
-int PrimitiveEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                 upnsReal x2, upnsReal y2, upnsReal z2,
+int PrimitiveEntitydata::setData(float x1, float y1, float z1,
+                                 float x2, float y2, float z2,
                                  PrimitivePtr &data,
                                  int lod)
 {
-    upnsOStream *out = m_streamProvider->startWrite();
+    mapit::ostream *out = m_streamProvider->startWrite();
     {
         data->SerializePartialToOstream(out);
     }
@@ -91,40 +91,40 @@ int PrimitiveEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
 
 PrimitivePtr PrimitiveEntitydata::getData(int lod)
 {
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return getData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    false, lod);
 }
 
 int PrimitiveEntitydata::setData(PrimitivePtr &data, int lod)
 {
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
-                    std::numeric_limits<upnsReal>::infinity(),
+    return setData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
                    data, lod);
 }
 
-void PrimitiveEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                                     upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                     upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+void PrimitiveEntitydata::gridCellAt(float   x, float   y, float   z,
+                                     float &x1, float &y1, float &z1,
+                                     float &x2, float &y2, float &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<float>::infinity();
+    y1 = -std::numeric_limits<float>::infinity();
+    z1 = -std::numeric_limits<float>::infinity();
+    x2 = +std::numeric_limits<float>::infinity();
+    y2 = +std::numeric_limits<float>::infinity();
+    z2 = +std::numeric_limits<float>::infinity();
 }
 
-int PrimitiveEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                              upnsReal &x2, upnsReal &y2, upnsReal &z2)
+int PrimitiveEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
+                                              float &x2, float &y2, float &z2)
 {
     float size = 1.0;
     x1 = -size;
@@ -136,22 +136,22 @@ int PrimitiveEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsRe
     return 0;
 }
 
-upnsIStream *PrimitiveEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+mapit::istream *PrimitiveEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void PrimitiveEntitydata::endRead(upnsIStream *&strm)
+void PrimitiveEntitydata::endRead(mapit::istream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *PrimitiveEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+mapit::ostream *PrimitiveEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void PrimitiveEntitydata::endWrite(upnsOStream *&strm)
+void PrimitiveEntitydata::endWrite(mapit::ostream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -166,7 +166,7 @@ size_t PrimitiveEntitydata::size() const
 // the common denominator is to build pointer with custom deleter in our main programm and just exchange void pointers and call delete when we are done
 //std::shared_ptr<AbstractEntitydata> createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
-void deleteEntitydataPrimitive(AbstractEntitydata *ld)
+void deleteEntitydataPrimitive(mapit::AbstractEntitydata *ld)
 {
     PrimitiveEntitydata *p = dynamic_cast<PrimitiveEntitydata*>(ld);
     if(p)
@@ -178,8 +178,8 @@ void deleteEntitydataPrimitive(AbstractEntitydata *ld)
         log_error("Wrong entitytype");
     }
 }
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new PrimitiveEntitydata( streamProvider ), deleteEntitydataPrimitive);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new PrimitiveEntitydata( streamProvider ), deleteEntitydataPrimitive);
 }
 

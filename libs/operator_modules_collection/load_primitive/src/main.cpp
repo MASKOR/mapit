@@ -20,15 +20,15 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/primitive.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/primitive.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -70,7 +70,7 @@ mapit::msgs::Primitive::PrimitiveType stringToType(std::string &type)
 }
 
 
-upns::StatusCode operate_load_primitive(upns::OperationEnvironment* env)
+mapit::StatusCode operate_load_primitive(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -86,41 +86,41 @@ upns::StatusCode operate_load_primitive(upns::OperationEnvironment* env)
     if(target.empty())
     {
         log_warn("no target given");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     if(type.empty())
     {
         log_warn("no type given");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
 
     std::shared_ptr<Entity> entity(new Entity);
     entity->set_type(PrimitiveEntitydata::TYPENAME());
     entity->set_frame_id(frameId);
-    StatusCode s = env->getCheckout()->storeEntity(target, entity);
+    mapit::StatusCode s = env->getCheckout()->storeEntity(target, entity);
     if(!upnsIsOk(s))
     {
         log_error("Failed to create entity.");
     }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
     if(abstractEntitydata == NULL)
     {
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     std::shared_ptr<PrimitiveEntitydata> entityData = std::dynamic_pointer_cast<PrimitiveEntitydata>( abstractEntitydata );
     if(entityData == NULL)
     {
          // Because the Entity is stored (above) with the correct entity type, this should never happen!
         log_error("Primitive has wrong type. (This should never happen)");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     PrimitivePtr primitiveMsg(new mapit::msgs::Primitive);
 
     primitiveMsg->set_type(stringToType(type));
     entityData->setData(primitiveMsg);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a primitive from JSON File", "fhac", OPERATOR_VERSION, PrimitiveEntitydata_TYPENAME, &operate_load_primitive)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a primitive from JSON File", "fhac", OPERATOR_VERSION, PrimitiveEntitydata_TYPENAME, &operate_load_primitive)

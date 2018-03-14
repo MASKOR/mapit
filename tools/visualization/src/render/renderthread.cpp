@@ -45,7 +45,7 @@
 
 #include <numeric>
 #include "mapsrenderer.h"
-#include "upns/ui/bindings/qmlmapsrenderviewport.h"
+#include "mapit/ui/bindings/qmlmapsrenderviewport.h"
 
 #ifdef VRMODE
 //GLfloat viewports[4*4] = {

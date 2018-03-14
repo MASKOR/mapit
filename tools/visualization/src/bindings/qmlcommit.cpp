@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlcommit.h"
-#include <upns/typedefs.h>
+#include "mapit/ui/bindings/qmlcommit.h"
+#include <mapit/typedefs.h>
 
 QmlCommit::QmlCommit()
     :m_commit( nullptr )

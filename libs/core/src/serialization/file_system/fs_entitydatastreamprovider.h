@@ -24,9 +24,9 @@
 #ifndef FS_ENTITYDATASTREAMPROVIDER_H
 #define FS_ENTITYDATASTREAMPROVIDER_H
 
-#include <upns/operators/serialization/abstractentitydataprovider.h>
+#include <mapit/operators/serialization/abstractentitydataprovider.h>
 
-namespace upns
+namespace mapit
 {
 
 class FileSystemEntitydataStreamProvider : public AbstractEntitydataProvider
@@ -35,18 +35,18 @@ public:
     FileSystemEntitydataStreamProvider(const std::string &filenameRead, const std::string &filenameWrite);
     bool isCached();
     bool isReadWriteSame();
-    upnsIStream *startRead(upnsuint64 start, upnsuint64 len);
-    void endRead(upnsIStream *&strm);
-    upnsOStream *startWrite(upnsuint64 start, upnsuint64 len);
-    void endWrite(upnsOStream *&strm);
-    upnsuint64 getStreamSize() const;
-    void setStreamSize(upnsuint64 streamSize);
+    mapit::istream *startRead(mapit::uint64_t start, mapit::uint64_t len);
+    void endRead(mapit::istream *&strm);
+    mapit::ostream *startWrite(mapit::uint64_t start, mapit::uint64_t len);
+    void endWrite(mapit::ostream *&strm);
+    mapit::uint64_t getStreamSize() const;
+    void setStreamSize(mapit::uint64_t streamSize);
     LockHandle lock();
     void unlock(LockHandle);
 
-    const void *startReadPointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    const void *startReadPointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len);
     void endReadPointer(const void *ptr, ReadWriteHandle &handle);
-    void *startWritePointer(ReadWriteHandle &handle, upnsuint64 start, upnsuint64 len);
+    void *startWritePointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len);
     void endWritePointer(void* ptr, ReadWriteHandle &handle);
     std::string startReadFile(ReadWriteHandle &handle);
     void endReadFile(ReadWriteHandle &handle);

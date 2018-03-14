@@ -24,12 +24,12 @@
 #ifndef __UPNS_UTIL_H
 #define __UPNS_UTIL_H
 
-#include <upns/typedefs.h>
+#include <mapit/typedefs.h>
 #include <string>
 #include <algorithm>
 #include <google/protobuf/repeated_field.h>
 
-namespace upns
+namespace mapit
 {
 
     bool protobufContains(::google::protobuf::RepeatedPtrField<std::string> *field, const ::std::string &str);

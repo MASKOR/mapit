@@ -8,12 +8,12 @@ permalink: /layertype/tf
 ### Stores
 
 ```cpp
-upns::tf::Transform
+mapit::tf::Transform
 ```
 
 ### defaults
 
 ```cpp
-upns::tf::_DEFAULT_LAYER_NAME_STATIC_
-upns::tf::_DEFAULT_LAYER_NAME_DYNAMIC_
+mapit::tf::_DEFAULT_LAYER_NAME_STATIC_
+mapit::tf::_DEFAULT_LAYER_NAME_DYNAMIC_
 ```

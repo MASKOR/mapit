@@ -22,15 +22,10 @@
 
 project(layertype_las)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
 find_package(Boost COMPONENTS program_options thread system iostreams filesystem REQUIRED)
 
 find_package(mapit)
-
-if(WIN32)
-  include_directories(${PROJECT_SOURCE_DIR}/../../../externals/windows/include/)
-endif(WIN32)
 
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
 
@@ -62,7 +57,7 @@ if(HAVE_LASZIP)
   file(GLOB_RECURSE LASZIP_SRC ${PROJECT_SOURCE_DIR}/LASzip/src/* ${PROJECT_SOURCE_DIR}/LASzip/include/*)
 endif(HAVE_LASZIP)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${LAYERTYPE_SOURCES} ${LASZIP_SRC})
+add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_SOURCES} ${LASZIP_SRC})
 target_link_libraries( ${PROJECT_NAME} ${mapit_interface_cpp} ${BOOST_LIBRARIES} ${Boost_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -110,8 +105,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_las_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

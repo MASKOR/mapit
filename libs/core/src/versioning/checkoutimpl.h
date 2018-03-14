@@ -24,20 +24,20 @@
 #ifndef CHECKOUTIMPL_H
 #define CHECKOUTIMPL_H
 
-#include <upns/typedefs.h>
-#include <upns/logging.h>
+#include <mapit/typedefs.h>
+#include <mapit/logging.h>
 #include <mapit/msgs/services.pb.h>
-#include <upns/operators/serialization/abstractentitydataprovider.h>
+#include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include "serialization/abstractserializer.h"
-#include <upns/entitydata.h>
-#include <upns/versioning/checkout.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/entitydata.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include "util.h"
 #include <functional>
 
 using namespace mapit::msgs;
 
-namespace upns
+namespace mapit
 {
 
 // PathInternal contains the checkout name at the beginning
@@ -80,7 +80,7 @@ public:
     virtual std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId);
     virtual std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
-    virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<upns::StatusCode(OperationEnvironment *)> operate);
+    virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(OperationEnvironment *)> operate);
 
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);

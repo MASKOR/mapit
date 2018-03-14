@@ -38,8 +38,8 @@
 
 struct ZmqReadWriteHandle
 {
-    upns::upnsuint64 offset;
-    upns::upnsuint64 length;
+    mapit::uint64_t offset;
+    mapit::uint64_t length;
 };
 
 class MemoryReaderDeleter : public std::istringstream
@@ -77,7 +77,7 @@ public:
     }
 };
 
-upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node)
+mapit::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node)
     :m_checkoutName(checkoutName),
      m_pathOrOid(pathOrOid),
      m_node(node),
@@ -86,12 +86,12 @@ upns::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string check
 
 }
 
-bool upns::ZmqEntitydataStreamProvider::isCached()
+bool mapit::ZmqEntitydataStreamProvider::isCached()
 {
     return false; // such uncached. much network. latency intensified.
 }
 
-bool upns::ZmqEntitydataStreamProvider::isReadWriteSame()
+bool mapit::ZmqEntitydataStreamProvider::isReadWriteSame()
 {
     // different memory adresses to send and receive
     return false;
@@ -99,31 +99,31 @@ bool upns::ZmqEntitydataStreamProvider::isReadWriteSame()
 
 #include <iomanip>
 
-upns::upnsIStream *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns::upnsuint64 length)
+mapit::istream *mapit::ZmqEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit::uint64_t length)
 {
-    upns::upnsuint64 outLength;
+    mapit::uint64_t outLength;
     return new MemoryReaderDeleter(startRead(start, length, outLength), outLength);
 }
 
-void upns::ZmqEntitydataStreamProvider::endRead(upns::upnsIStream *&strm)
+void mapit::ZmqEntitydataStreamProvider::endRead(mapit::istream *&strm)
 {
     delete strm;
 }
 
-upns::upnsOStream *upns::ZmqEntitydataStreamProvider::startWrite(upns::upnsuint64 start, upns::upnsuint64 len)
+mapit::ostream *mapit::ZmqEntitydataStreamProvider::startWrite(mapit::uint64_t start, mapit::uint64_t len)
 {
     // Note: len is absolutely not used here
     return new MyWriter(start);
 }
 
-void upns::ZmqEntitydataStreamProvider::endWrite(upns::upnsOStream *&strm)
+void mapit::ZmqEntitydataStreamProvider::endWrite(mapit::ostream *&strm)
 {
     MyWriter *ostrm(static_cast<MyWriter*>(strm));
     std::string buf(ostrm->str());
     endWrite(buf.data(), buf.length(), ostrm->getOffset());
 }
 
-upns::upnsuint64 upns::ZmqEntitydataStreamProvider::getStreamSize() const
+mapit::uint64_t mapit::ZmqEntitydataStreamProvider::getStreamSize() const
 {
     if(m_entityLength == 0)
     {
@@ -156,7 +156,7 @@ upns::upnsuint64 upns::ZmqEntitydataStreamProvider::getStreamSize() const
     return m_entityLength;
 }
 
-void upns::ZmqEntitydataStreamProvider::setStreamSize(upns::upnsuint64 entitylength)
+void mapit::ZmqEntitydataStreamProvider::setStreamSize(mapit::uint64_t entitylength)
 {
     m_entityLength = entitylength;
     std::unique_ptr<RequestStoreEntity> req(new RequestStoreEntity);
@@ -182,29 +182,29 @@ void upns::ZmqEntitydataStreamProvider::setStreamSize(upns::upnsuint64 entitylen
     }
 }
 
-upns::LockHandle upns::ZmqEntitydataStreamProvider::lock()
+mapit::LockHandle mapit::ZmqEntitydataStreamProvider::lock()
 {
     return 0;
 }
 
-void upns::ZmqEntitydataStreamProvider::unlock(upns::LockHandle)
+void mapit::ZmqEntitydataStreamProvider::unlock(mapit::LockHandle)
 {
 
 }
 
-const void *upns::ZmqEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, upns::upnsuint64 start, upns::upnsuint64 len)
+const void *mapit::ZmqEntitydataStreamProvider::startReadPointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len)
 {
-    upnsuint64 outLen;
+    mapit::uint64_t outLen;
     char* ptr = startRead(start, len, outLen);
     return static_cast<void *>(ptr);
 }
 
-void upns::ZmqEntitydataStreamProvider::endReadPointer(const void *ptr, ReadWriteHandle &handle)
+void mapit::ZmqEntitydataStreamProvider::endReadPointer(const void *ptr, ReadWriteHandle &handle)
 {
     delete [] static_cast<const char*>(ptr);
 }
 
-void *upns::ZmqEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, upns::upnsuint64 start, upns::upnsuint64 len)
+void *mapit::ZmqEntitydataStreamProvider::startWritePointer(ReadWriteHandle &handle, mapit::uint64_t start, mapit::uint64_t len)
 {
     ZmqReadWriteHandle *zHandle(new ZmqReadWriteHandle);
     zHandle->offset = start;
@@ -212,7 +212,7 @@ void *upns::ZmqEntitydataStreamProvider::startWritePointer(ReadWriteHandle &hand
     return new char[len];
 }
 
-void upns::ZmqEntitydataStreamProvider::endWritePointer(void *ptr, ReadWriteHandle &handle)
+void mapit::ZmqEntitydataStreamProvider::endWritePointer(void *ptr, ReadWriteHandle &handle)
 {
     ZmqReadWriteHandle *zHandle(static_cast<ZmqReadWriteHandle*>(handle));
     endWrite(static_cast<const char*>(ptr), zHandle->length, zHandle->offset);
@@ -220,7 +220,7 @@ void upns::ZmqEntitydataStreamProvider::endWritePointer(void *ptr, ReadWriteHand
     delete zHandle;
 }
 
-char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns::upnsuint64 length, upns::upnsuint64 &outLength)
+char *mapit::ZmqEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit::uint64_t length, mapit::uint64_t &outLength)
 {
     const uint64_t defaultBufferSize =  500ul*1024ul*1024ul; // 500 MB
     const uint64_t maxBufferSize = 2ul*1024ul*1024ul*1024ul; // 2 GB
@@ -299,7 +299,7 @@ char *upns::ZmqEntitydataStreamProvider::startRead(upns::upnsuint64 start, upns:
     return buf;
 }
 
-void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsuint64 &length, const upnsuint64 &offset)
+void mapit::ZmqEntitydataStreamProvider::endWrite(const char *memory, const mapit::uint64_t &length, const mapit::uint64_t &offset)
 {
     if(length > m_entityLength)
     {
@@ -331,7 +331,7 @@ void upns::ZmqEntitydataStreamProvider::endWrite(const char *memory, const upnsu
     }
 }
 
-std::string upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHandle &handle)
+std::string mapit::ZmqEntitydataStreamProvider::startReadFile(mapit::ReadWriteHandle &handle)
 {
     // tmpnam is cross platform but has the chance of returning an invalid temp filename:
     // if another process also requested a tmpfile but has not yet created it.
@@ -345,20 +345,20 @@ std::string upns::ZmqEntitydataStreamProvider::startReadFile(upns::ReadWriteHand
     handle = static_cast<ReadWriteHandle>(filename);
     std::ofstream outfile (tmpfilename, std::ofstream::binary);
 
-    upnsuint64 outLen;
+    mapit::uint64_t outLen;
     char* ptr = startRead(0, 0, outLen);
     outfile.write(ptr, outLen);
     delete [] ptr;
     return tmpfilename;
 }
 
-void upns::ZmqEntitydataStreamProvider::endReadFile(upns::ReadWriteHandle &handle)
+void mapit::ZmqEntitydataStreamProvider::endReadFile(mapit::ReadWriteHandle &handle)
 {
     char *filename = static_cast<char*>(handle);
     std::remove(filename);
 }
 
-std::string upns::ZmqEntitydataStreamProvider::startWriteFile(upns::ReadWriteHandle &handle)
+std::string mapit::ZmqEntitydataStreamProvider::startWriteFile(mapit::ReadWriteHandle &handle)
 {
     // tmpnam is cross platform but has the chance of returning a temp filename,
     // if another process also requested a tmpfile but has not yet created it.
@@ -369,7 +369,7 @@ std::string upns::ZmqEntitydataStreamProvider::startWriteFile(upns::ReadWriteHan
     return tmpfilename;
 }
 
-void upns::ZmqEntitydataStreamProvider::endWriteFile(upns::ReadWriteHandle &handle)
+void mapit::ZmqEntitydataStreamProvider::endWriteFile(mapit::ReadWriteHandle &handle)
 {
     char *filename = static_cast<char*>(handle);
     int filedescriptor;
@@ -395,12 +395,12 @@ void upns::ZmqEntitydataStreamProvider::endWriteFile(upns::ReadWriteHandle &hand
     std::remove(filename);
 }
 
-upns::AbstractEntitydataProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredReadType()
+mapit::AbstractEntitydataProvider::ReadWriteType mapit::ZmqEntitydataStreamProvider::preferredReadType()
 {
     return ReadWritePointer;
 }
 
-upns::AbstractEntitydataProvider::ReadWriteType upns::ZmqEntitydataStreamProvider::preferredWriteType()
+mapit::AbstractEntitydataProvider::ReadWriteType mapit::ZmqEntitydataStreamProvider::preferredWriteType()
 {
     return ReadWritePointer;
 }

@@ -20,8 +20,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
@@ -29,17 +29,17 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/surface/gp3.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/layertypes/openvdblayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/openvdblayer.h>
 #include <openvdb/Grid.h>
 #include <openvdb/tools/ParticlesToLevelSet.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -88,7 +88,7 @@ public:
 // - input: input pointcloud
 // - output: output openvdb
 // - target: input and output at the same time
-upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
+mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
 {
     const char* szParams = env->getParameters().c_str();
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(szParams, env->getParameters().length()) );
@@ -102,7 +102,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         if(input.empty())
         {
             log_error("no input specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
     if(output.empty())
@@ -111,7 +111,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
         if(output.empty())
         {
             log_error("no output specified");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
     }
 
@@ -128,40 +128,40 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     if(voxelsize >= spheresize*2.1)
     {
         log_warn("radius of spheres is too small for given voxel resolution. Please try a higher \"radius\" or smaller \"voxelsize\".");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<PointcloudEntitydata> entityDataInput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataInput );
     if(entityDataInput == nullptr)
     {
         log_error("Wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     upnsPointcloud2Ptr inputPcd = entityDataInput->getData();
 
-    upnsFloatGridPtr outputFloatGrid;
+    FloatGridPtr outputFloatGrid;
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
     if(ent && false)
     {
         //TODO: at the moment always a new grid should be created
         log_info("Output grid already exists. ignoring voxelsize.");
-        std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)
         {
             log_error("could not read output grid");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
         std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
         if(!entityDataOutput)
         {
             log_error("could not cast output to FloatGrid");
-            return UPNS_STATUS_INVALID_ARGUMENT;
+            return MAPIT_STATUS_INVALID_ARGUMENT;
         }
         outputFloatGrid = entityDataOutput->getData();
     }
@@ -169,11 +169,11 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     {
         ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
-        StatusCode s = env->getCheckout()->storeEntity(output, ent);
+        mapit::StatusCode s = env->getCheckout()->storeEntity(output, ent);
         if(!upnsIsOk(s))
         {
             log_error("Failed to create entity.");
-            return UPNS_STATUS_ERR_DB_IO_ERROR;
+            return MAPIT_STATUS_ERR_DB_IO_ERROR;
         }
         outputFloatGrid = openvdb::createLevelSet<openvdb::FloatGrid>( voxelsize );
     }
@@ -188,17 +188,17 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
     log_info("Voxelize " + std::to_string(spheres.size()) + " Points as Spheres.");
     particlesToLevelset.rasterizeSpheres( spheres, spheresize );
 
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output grid");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     std::shared_ptr<FloatGridEntitydata> entityDataOutput = std::dynamic_pointer_cast<FloatGridEntitydata>( abstractEntitydataOutput );
     if(!entityDataOutput)
     {
         log_error("could not cast output to FloatGrid");
-        return UPNS_STATUS_INVALID_ARGUMENT;
+        return MAPIT_STATUS_INVALID_ARGUMENT;
     }
     entityDataOutput->setData(outputFloatGrid);
 
@@ -206,7 +206,7 @@ upns::StatusCode operate_tolevelset(upns::OperationEnvironment* env)
 //    out.set_operatorname(OPERATOR_NAME);
 //    out.set_operatorversion(OPERATOR_VERSION);
 //    env->setOutputDescription( out.SerializeAsString() );
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "make a levelset out of a pointcloud using pcl and openvdb", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_tolevelset)
+MAPIT_MODULE(OPERATOR_NAME, "make a levelset out of a pointcloud using pcl and openvdb", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_tolevelset)

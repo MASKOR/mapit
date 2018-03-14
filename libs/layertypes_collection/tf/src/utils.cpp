@@ -21,10 +21,10 @@
  */
 
 #include <mapit/time/time.h>
-#include <upns/layertypes/tflayer/utils.h>
-#include <upns/logging.h>
+#include <mapit/layertypes/tflayer/utils.h>
+#include <mapit/logging.h>
 
-using namespace upns::tf::store;
+using namespace mapit::tf::store;
 
 
 ///////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ TransformStampedList::TransformStampedList(std::string frame_id, std::string chi
   , child_frame_id_(child_frame_id)
   , is_static_(is_static)
 {
-  transforms_ = std::make_unique<std::list<std::unique_ptr<upns::tf::TransformStamped>>>( );
+  transforms_ = std::make_unique<std::list<std::unique_ptr<mapit::tf::TransformStamped>>>( );
 }
 
 std::string
@@ -70,7 +70,7 @@ TransformStampedList::get_stamp_earliest()
 }
 
 int
-TransformStampedList::add_TransformStamped(std::unique_ptr<upns::tf::TransformStamped> in, bool is_static)
+TransformStampedList::add_TransformStamped(std::unique_ptr<mapit::tf::TransformStamped> in, bool is_static)
 {
   // check pre conditions
   if (transforms_ == nullptr) { return 1; }
@@ -102,8 +102,8 @@ TransformStampedList::add_TransformStamped(std::unique_ptr<upns::tf::TransformSt
 int
 TransformStampedList::delete_TransformStamped(const mapit::time::Stamp& start, const mapit::time::Stamp& end)
 {
-    std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> transforms_clean = std::make_unique<std::list<std::unique_ptr<upns::tf::TransformStamped>>>();
-    for (std::unique_ptr<upns::tf::TransformStamped>& element : *transforms_) {
+    std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> transforms_clean = std::make_unique<std::list<std::unique_ptr<mapit::tf::TransformStamped>>>();
+    for (std::unique_ptr<mapit::tf::TransformStamped>& element : *transforms_) {
         if ( ! (   element->stamp >= start
                 && element->stamp <= end
                )
@@ -116,11 +116,11 @@ TransformStampedList::delete_TransformStamped(const mapit::time::Stamp& start, c
     return 0;
 }
 
-std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>>
+std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>>
 TransformStampedList::dispose()
 {
   if (transforms_ == nullptr) { return nullptr; }
-  std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tmp
+  std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> tmp
       = std::move( transforms_ );
   transforms_ = nullptr;
   return std::move( tmp );
@@ -149,7 +149,7 @@ TransformStampedListGatherer::add_transform( std::unique_ptr<TransformStamped> t
   tfs_store_it->second->add_TransformStamped(std::move(tf), is_static);
 }
 
-upns::StatusCode
+mapit::StatusCode
 TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::string& prefix)
 {
   for (std::pair<std::string, std::shared_ptr<TransformStampedList>> tf_list : *tfs_map_) {
@@ -158,7 +158,7 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
     if (entity == nullptr) {
         entity = std::make_shared<mapit::msgs::Entity>();
         entity->set_type( TfEntitydata::TYPENAME() );
-        upns::StatusCode status = checkout->storeEntity(entity_name, entity);
+        mapit::StatusCode status = checkout->storeEntity(entity_name, entity);
         if ( ! upnsIsOk(status) ) {
             log_error("tflayer: can't store entity");
             return status;
@@ -172,17 +172,17 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
 
     if ( 0 != entity->type().compare( TfEntitydata::TYPENAME() ) ) {
         log_error("tflayer: internal error, entity for tf with name " + entity_name + " has entity date of other type then tf is: " + entity->type());
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
     }
 
-    std::shared_ptr<upns::tf::store::TransformStampedList> ed_list;
+    std::shared_ptr<mapit::tf::store::TransformStampedList> ed_list;
     std::shared_ptr<TfEntitydata> ed = std::static_pointer_cast<TfEntitydata>(checkout->getEntitydataForReadWrite(entity_name));
     ed_list = ed->getData();
     if (ed_list == nullptr) {
-        ed_list = std::make_shared<upns::tf::store::TransformStampedList>(tf_list.second->get_frame_id(), tf_list.second->get_child_frame_id(), tf_list.second->get_is_static());
+        ed_list = std::make_shared<mapit::tf::store::TransformStampedList>(tf_list.second->get_frame_id(), tf_list.second->get_child_frame_id(), tf_list.second->get_is_static());
     }
 
-    std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tf_list_tmp = tf_list.second->dispose();
+    std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> tf_list_tmp = tf_list.second->dispose();
     for (auto &tf : *tf_list_tmp) {
       ed_list->add_TransformStamped(std::move( tf ), tf_list.second->get_is_static());
     }
@@ -190,10 +190,10 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
     ed->setData(ed_list);
   }
 
-  return UPNS_STATUS_OK;
+  return MAPIT_STATUS_OK;
 }
 
-upns::StatusCode upns::tf::store::getOrCreateTransformStampedList(  CheckoutRaw* workspace
+mapit::StatusCode mapit::tf::store::getOrCreateTransformStampedList(  CheckoutRaw* workspace
                                                                   , const std::string& frame_id
                                                                   , const std::string& child_frame_id
                                                                   , const std::string& tfStoragePrefix
@@ -202,7 +202,7 @@ upns::StatusCode upns::tf::store::getOrCreateTransformStampedList(  CheckoutRaw*
                                                                   , std::shared_ptr<tf::store::TransformStampedList>& tfList
                                                                   , const bool& is_static)
 {
-    std::string entityTFName = tfStoragePrefix + "/" + upns::tf::store::TransformStampedList::get_entity_name(frame_id, child_frame_id);
+    std::string entityTFName = tfStoragePrefix + "/" + mapit::tf::store::TransformStampedList::get_entity_name(frame_id, child_frame_id);
     entity = workspace->getEntity( entityTFName );
     if (entity == nullptr) {
       entity = std::make_shared<mapit::msgs::Entity>();
@@ -210,13 +210,13 @@ upns::StatusCode upns::tf::store::getOrCreateTransformStampedList(  CheckoutRaw*
       StatusCode s = workspace->storeEntity(entityTFName, entity);
       if( ! upnsIsOk(s) ) {
           log_error("tf utils: Failed to create entity " + entityTFName + ".");
-        return UPNS_STATUS_ERROR;
+        return MAPIT_STATUS_ERROR;
       }
     }
-    std::shared_ptr<upns::AbstractEntitydata> edAbstract = workspace->getEntitydataForReadWrite(entityTFName);
+    std::shared_ptr<mapit::AbstractEntitydata> edAbstract = workspace->getEntitydataForReadWrite(entityTFName);
     if ( 0 != std::strcmp(edAbstract->type(), TfEntitydata::TYPENAME()) ) {
         log_error("tf utils: can't add tf, retrieved entity is not of type TfEntitydata");
-      return UPNS_STATUS_ERROR;
+      return MAPIT_STATUS_ERROR;
     }
     ed = std::static_pointer_cast<TfEntitydata>(edAbstract);
     tfList = ed->getData();
@@ -224,5 +224,5 @@ upns::StatusCode upns::tf::store::getOrCreateTransformStampedList(  CheckoutRaw*
         tfList = std::make_shared<tf::store::TransformStampedList>(frame_id, child_frame_id, is_static);
     }
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }

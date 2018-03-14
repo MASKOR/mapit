@@ -57,8 +57,6 @@ if(NOT DISABLE_PCL)
   target_include_directories(${PROJECT_NAME}
     PRIVATE
       ${PROJECT_SOURCE_DIR}/src/
-    PUBLIC
-      ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
     )
 
   # mapit
@@ -74,15 +72,6 @@ if(NOT DISABLE_PCL)
   set(CMAKE_AUTOMOC ON)
   find_package(Qt5Core REQUIRED)
   qt5_use_modules(${PROJECT_NAME} Core)
-
-  # naming and installing
-  if (CMAKE_HOST_UNIX)
-      set(FILENAME_PREFIX "lib")
-      set(FILENAME_POSTFIX ".so")
-  else (CMAKE_HOST_UNIX)
-      set(FILENAME_PREFIX "")
-      set(FILENAME_POSTFIX ".dll")
-  endif (CMAKE_HOST_UNIX)
 
   if(UNIX)
       # tell CMake Prefix is "lib" otherwise it can not be queried

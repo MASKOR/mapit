@@ -24,21 +24,21 @@
 #ifndef REPOSITORYIMPL_H
 #define REPOSITORYIMPL_H
 
-#include <upns/typedefs.h>
+#include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
-#include <upns/operators/serialization/abstractentitydataprovider.h>
-#include <upns/entitydata.h>
-#include <upns/versioning/checkout.h>
-#include <upns/versioning/repository.h>
+#include <mapit/operators/serialization/abstractentitydataprovider.h>
+#include <mapit/entitydata.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/repository.h>
 
-namespace upns
+namespace mapit
 {
 class RepositoryPrivate;
 class AbstractSerializer;
 class RepositoryImpl : public Repository
 {
 public:
-    RepositoryImpl(std::shared_ptr<upns::AbstractSerializer> serializer);
+    RepositoryImpl(std::shared_ptr<mapit::AbstractSerializer> serializer);
     virtual ~RepositoryImpl();
 
     std::vector<std::string> listCheckoutNames();

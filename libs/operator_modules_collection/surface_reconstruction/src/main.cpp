@@ -20,17 +20,17 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/layertypes/pointcloudlayer.h>
-#include <upns/layertypes/assettype.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/assettype.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
-#include <upns/errorcodes.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/errorcodes.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -488,7 +488,7 @@ void pcl2tinyply(pcl::PointCloud<pcl::PointNormal>::Ptr const points,
     file.write(stream, true);
 }
 
-upns::StatusCode operate_surface_reconstruction(upns::OperationEnvironment* environment)
+mapit::StatusCode operate_surface_reconstruction(mapit::OperationEnvironment* environment)
 {
     QByteArray parametersRaw(environment->getParameters().c_str(),
                              environment->getParameters().length());
@@ -505,7 +505,7 @@ upns::StatusCode operate_surface_reconstruction(upns::OperationEnvironment* envi
     if(entity_data == nullptr)
     {
         log_error("wrong type");
-        return UPNS_STATUS_ERR_DB_INVALID_ARGUMENT;
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
 
     std::shared_ptr<pcl::PCLPointCloud2> pointCloud2In = entity_data->getData();
@@ -534,17 +534,17 @@ upns::StatusCode operate_surface_reconstruction(upns::OperationEnvironment* envi
         pointsEntity->set_type(PointcloudEntitydata::TYPENAME());
         if (!upnsIsOk(environment->getCheckout()->storeEntity(target + "_flt", pointsEntity))) {
             log_error("Failed to create transform entity.");
-            return UPNS_STATUS_ERR_UNKNOWN;
+            return MAPIT_STATUS_ERR_UNKNOWN;
         }
     }
-    std::shared_ptr<AbstractEntitydata> abstractEntityDataPoints = environment->getCheckout()->getEntitydataForReadWrite( target + "_flt" );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntityDataPoints = environment->getCheckout()->getEntitydataForReadWrite( target + "_flt" );
     if (abstractEntityDataPoints == NULL) {
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     std::shared_ptr<PointcloudEntitydata> entityDataPoints = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntityDataPoints );
     if (entityDataPoints == NULL) {
         log_error("Tf Transform has wrong type.");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     entityDataPoints->setData(pointCloud2Out);
 
@@ -582,25 +582,25 @@ upns::StatusCode operate_surface_reconstruction(upns::OperationEnvironment* envi
         meshEntity->set_type(AssetEntitydata::TYPENAME());
         if (!upnsIsOk(environment->getCheckout()->storeEntity(target + "_msh", meshEntity))) {
             log_error("Failed to create transform entity.");
-            return UPNS_STATUS_ERR_UNKNOWN;
+            return MAPIT_STATUS_ERR_UNKNOWN;
         }
     }
-    std::shared_ptr<AbstractEntitydata> abstractEntitydataMesh = environment->getCheckout()->getEntitydataForReadWrite( target + "_msh" );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataMesh = environment->getCheckout()->getEntitydataForReadWrite( target + "_msh" );
     if (abstractEntitydataMesh == NULL) {
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     std::shared_ptr<AssetEntitydata> entityDataMesh = std::dynamic_pointer_cast<AssetEntitydata>( abstractEntitydataMesh );
     if (entityDataMesh == NULL) {
         log_error("Tf Transform has wrong type.");
-        return UPNS_STATUS_ERR_UNKNOWN;
+        return MAPIT_STATUS_ERR_UNKNOWN;
     }
     AssetPtr tmp2(new AssetDataPair(file, nullptr));
     entityDataMesh->setData(tmp2);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME,
+MAPIT_MODULE(OPERATOR_NAME,
             "surface reconstruction",
             "Marcus Meeßen",
             OPERATOR_VERSION,

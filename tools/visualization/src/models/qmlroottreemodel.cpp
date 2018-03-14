@@ -20,7 +20,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/models/qmlroottreemodel.h"
+#include "mapit/ui/models/qmlroottreemodel.h"
 
 QmlRootTreeModel::QmlRootTreeModel()
     :m_root( NULL )

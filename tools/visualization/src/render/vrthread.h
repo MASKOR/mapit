@@ -27,7 +27,7 @@
 #include <QOffscreenSurface>
 #include <QMatrix4x4>
 #include <QThread>
-#include "upns/ui/bindings/qmlentitydata.h"
+#include "mapit/ui/bindings/qmlentitydata.h"
 #include <QOpenGLDebugMessage>
 
 #ifdef VRMODE

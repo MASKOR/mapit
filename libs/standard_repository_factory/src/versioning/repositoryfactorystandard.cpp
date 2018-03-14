@@ -21,16 +21,16 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/versioning/repositoryfactorystandard.h"
+#include "mapit/versioning/repositoryfactorystandard.h"
 #include <algorithm>
 #ifdef WITH_YAML
 #  include <yaml-cpp/yaml.h>
 #endif
-#include <upns/versioning/repositoryfactory.h>
-#include <upns/versioning/repositorynetworkingfactory.h>
-#include <upns/logging.h>
+#include <mapit/versioning/repositoryfactory.h>
+#include <mapit/versioning/repositorynetworkingfactory.h>
+#include <mapit/logging.h>
 
-void upns::RepositoryFactoryStandard::addProgramOptions(boost::program_options::options_description &desc)
+void mapit::RepositoryFactoryStandard::addProgramOptions(boost::program_options::options_description &desc)
 {
     desc.add_options()
 #ifdef WITH_YAML
@@ -42,7 +42,7 @@ void upns::RepositoryFactoryStandard::addProgramOptions(boost::program_options::
             ("compute-local", boost::program_options::bool_switch(), "only if remote repository with option \"--url\" is used");
 }
 
-upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program_options::variables_map &vars, bool *specified)
+mapit::Repository *mapit::RepositoryFactoryStandard::openRepository(boost::program_options::variables_map &vars, bool *specified)
 {
 #ifdef WITH_YAML
     //TODO: remove yaml, it conflicts with program options and generates too complex
@@ -96,7 +96,7 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepository(boost::program
     }
 }
 
-upns::Repository *upns::RepositoryFactoryStandard::openRepositorySimple(std::string url, bool computeLocal)
+mapit::Repository *mapit::RepositoryFactoryStandard::openRepositorySimple(std::string url, bool computeLocal)
 {
     std::string urlPrefix("tcp://");
     if(!url.compare(0, urlPrefix.length(), urlPrefix))
@@ -109,7 +109,7 @@ upns::Repository *upns::RepositoryFactoryStandard::openRepositorySimple(std::str
     }
 }
 
-const char* upns::RepositoryFactoryStandard::usage()
+const char* mapit::RepositoryFactoryStandard::usage()
 {
     return  "mapit tool usage:"
 #ifdef WITH_YAML

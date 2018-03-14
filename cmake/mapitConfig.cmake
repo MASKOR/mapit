@@ -54,7 +54,7 @@ else(MAPIT_CMAKE_TARGETS_AVAILABLE)
   set(CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_LIST_DIR}/libs/core
     ${CMAKE_CURRENT_LIST_DIR}/libs/mapit-msgs
-    ${CMAKE_CURRENT_LIST_DIR}/libs/upns_interface_cpp
+    ${CMAKE_CURRENT_LIST_DIR}/libs/interface_cpp
     ${CMAKE_CURRENT_LIST_DIR}/libs/standard_repository_factory
     ${CMAKE_PREFIX_PATH}
   )
@@ -119,10 +119,10 @@ else(MAPIT_CMAKE_TARGETS_AVAILABLE)
   endif(MAPIT_ENABLE_TF)
 endif(MAPIT_CMAKE_TARGETS_AVAILABLE)
 # Our library dependencies (contains definitions for IMPORTED targets)
-#if(NOT TARGET upns_core AND NOT upns_core_BINARY_DIR)
+#if(NOT TARGET mapit_core AND NOT mapit_core_BINARY_DIR)
 #  include("${MAPIT_CORE_CMAKE_DIR}/mapitCoreTargets.cmake")
   #include("${MAPIT_CORE_CMAKE_DIR}/mapitCoreMacros.cmake")
 #endif()
  
 # These are IMPORTED targets created by mapitCoreTargets.cmake
-#set(MAPIT_CORE_LIBRARIES upns_core)
+#set(MAPIT_CORE_LIBRARIES mapit_core)

@@ -21,10 +21,10 @@
  */
 
 #include <mapit/msgs/services.pb.h>
-#include <upns/versioning/repository.h>
-#include <upns/versioning/repositoryfactorystandard.h>
-#include <upns/logging.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/versioning/repository.h>
+#include <mapit/versioning/repositoryfactorystandard.h>
+#include <mapit/logging.h>
+#include <mapit/depthfirstsearch.h>
 #include <boost/program_options.hpp>
 
 #include <ros/ros.h>
@@ -34,9 +34,9 @@
 #include "publishclock.h"
 #include <rosgraph_msgs/Clock.h>
 
-#include <upns/layertypes/pointcloudlayer.h>
+#include <mapit/layertypes/pointcloudlayer.h>
 #include "publishpointclouds.h"
-#include <upns/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer.h>
 #include "publishtfs.h"
 
 namespace po = boost::program_options;
@@ -65,10 +65,10 @@ get_substrings(std::string row)
 }
 
 std::string
-get_publisher_name(const std::shared_ptr<upns::Checkout>& co, const ::Entity& entity)
+get_publisher_name(const std::shared_ptr<mapit::Checkout>& co, const ::Entity& entity)
 {
     if ( 0 == entity.entity->type().compare( TfEntitydata::TYPENAME() ) ) {
-        std::shared_ptr<upns::AbstractEntitydata> ed_a = co->getEntitydataReadOnly(entity.entity_name);
+        std::shared_ptr<mapit::AbstractEntitydata> ed_a = co->getEntitydataReadOnly(entity.entity_name);
         std::shared_ptr<TfEntitydata> ed = std::static_pointer_cast<TfEntitydata>(ed_a);
         if ( ed->getData()->get_is_static() ) {
             return "/tf_static";
@@ -98,7 +98,7 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
   po::positional_options_description pos_options;
   pos_options.add("checkout",  1);
 
-  upns::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+  mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
   try {
     po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
   } catch(...) {
@@ -121,10 +121,10 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
 
 int
 get_mapit_data(  po::variables_map& vars
-               , std::shared_ptr<upns::Repository>& repo
-               , std::shared_ptr<upns::Checkout>& co)
+               , std::shared_ptr<mapit::Repository>& repo
+               , std::shared_ptr<mapit::Checkout>& co)
 {
-  repo = std::shared_ptr<upns::Repository>( upns::RepositoryFactoryStandard::openRepository( vars ) );
+  repo = std::shared_ptr<mapit::Repository>( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
   co = repo->getCheckout( vars["workspace"].as<std::string>() );
   if(co == nullptr)
@@ -151,7 +151,7 @@ get_mapit_data(  po::variables_map& vars
 
 int
 load_entities( const po::variables_map& vars
-             , const std::shared_ptr<upns::Checkout> co
+             , const std::shared_ptr<mapit::Checkout> co
              , std::list<::Entity>& entities)
 {
     std::vector<std::string> data_names = vars["data"].as<std::vector<std::string>>();
@@ -169,7 +169,7 @@ load_entities( const po::variables_map& vars
             // is tree => depth first search for all entities
             if (tree != nullptr) {
                 ObjectReference nullRef;
-                upns::depthFirstSearch(
+                mapit::depthFirstSearch(
                             co.get(),
                             tree,
                             nullRef,
@@ -178,7 +178,7 @@ load_entities( const po::variables_map& vars
                             depthFirstSearchAll(mapit::msgs::Commit),
                             depthFirstSearchAll(mapit::msgs::Tree),
                             depthFirstSearchAll(mapit::msgs::Tree),
-                            [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const upns::Path &path)
+                            [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                             {
                                 ::Entity entity_struct;
                                 entity_struct.entity = obj;
@@ -200,7 +200,7 @@ load_entities( const po::variables_map& vars
 
 int
 start_publishing_in_playback_mode_and_clock(  const po::variables_map& vars
-                                  , const std::shared_ptr<upns::Checkout> co
+                                  , const std::shared_ptr<mapit::Checkout> co
                                   , const std::shared_ptr<ros::NodeHandle>& node_handle
                                   , const std::string& pub_name
                                   , const std::list<::Entity>& entities
@@ -283,7 +283,7 @@ start_publishing_in_playback_mode_and_clock(  const po::variables_map& vars
 }
 
 int
-start_publishing_all_entities_at_once(  const std::shared_ptr<upns::Checkout> co
+start_publishing_all_entities_at_once(  const std::shared_ptr<mapit::Checkout> co
                           , const std::shared_ptr<ros::NodeHandle>& node_handle
                           , const std::string& pub_name
                           , const std::list<::Entity>& entities
@@ -329,8 +329,8 @@ int main(int argc, char *argv[])
     }
 
     // get mapit data
-    std::shared_ptr<upns::Repository> repo( nullptr );
-    std::shared_ptr<upns::Checkout> co( nullptr );
+    std::shared_ptr<mapit::Repository> repo( nullptr );
+    std::shared_ptr<mapit::Checkout> co( nullptr );
     ret = get_mapit_data(vars, repo, co);
     if (ret != 0) {
       return ret;

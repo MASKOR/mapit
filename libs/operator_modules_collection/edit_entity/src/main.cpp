@@ -21,14 +21,14 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <upns/operators/module.h>
-#include <upns/logging.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
-#include <upns/operators/versioning/checkoutraw.h>
+#include <mapit/operators/module.h>
+#include <mapit/logging.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
 #include <iostream>
 #include <memory>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -36,7 +36,7 @@
 
 using namespace mapit::msgs;
 
-upns::StatusCode operate_edit_entity(upns::OperationEnvironment* env)
+mapit::StatusCode operate_edit_entity(mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -66,14 +66,14 @@ upns::StatusCode operate_edit_entity(upns::OperationEnvironment* env)
     if(!frameIdExists && !stampExists)
     {
         log_info("No frame_id and no stamp. Nothing to edit.");
-        return UPNS_STATUS_OK;
+        return MAPIT_STATUS_OK;
     }
 
     std::shared_ptr<mapit::msgs::Entity> entity = env->getCheckout()->getEntity(target);
     if(entity == nullptr)
     {
         log_error("Entity not found.");
-        return UPNS_STATUS_ERR_DB_NOT_FOUND;
+        return MAPIT_STATUS_ERR_DB_NOT_FOUND;
     }
     if(frameIdExists)
     {
@@ -87,7 +87,7 @@ upns::StatusCode operate_edit_entity(upns::OperationEnvironment* env)
     }
     env->getCheckout()->storeEntity(target, entity);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
-UPNS_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, "*", &operate_edit_entity)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, "*", &operate_edit_entity)

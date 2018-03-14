@@ -21,9 +21,9 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/layertypes/tflayer.h"
-#include <upns/logging.h>
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
+#include "mapit/layertypes/tflayer.h"
+#include <mapit/logging.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 
 #include <fstream>
 template <typename T>
@@ -32,7 +32,7 @@ public:
     void operator()(T* ptr){}
 };
 
-void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStampedList> &tfsout )
+void readTfFromStream(mapit::istream &in, std::shared_ptr<mapit::tf::store::TransformStampedList> &tfsout )
 {
   mapit::msgs::TransformStampedList tfs;
   if(!tfs.ParseFromIstream(&in)) {
@@ -43,10 +43,10 @@ void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStamp
     std::string frame_id = tfs.frame_id();
     std::string child_frame_id = tfs.child_frame_id();
 
-    tfsout = std::make_shared<tf::store::TransformStampedList>( std::move(tf::store::TransformStampedList(frame_id, child_frame_id, tfs.is_static())) );
+    tfsout = std::make_shared<mapit::tf::store::TransformStampedList>( std::move(mapit::tf::store::TransformStampedList(frame_id, child_frame_id, tfs.is_static())) );
 
     for (auto tf : tfs.transforms()) {
-      std::unique_ptr<upns::tf::TransformStamped> tfout = std::make_unique<upns::tf::TransformStamped>();
+      std::unique_ptr<mapit::tf::TransformStamped> tfout = std::make_unique<mapit::tf::TransformStamped>();
       tfout->frame_id = frame_id;
       tfout->child_frame_id = child_frame_id;
 
@@ -65,16 +65,16 @@ void readTfFromStream(upnsIStream &in, std::shared_ptr<tf::store::TransformStamp
     }
   }
 }
-void writeTfToStream(upnsOStream &out, tf::store::TransformStampedList &data )
+void writeTfToStream(mapit::ostream &out, mapit::tf::store::TransformStampedList &data )
 {
   mapit::msgs::TransformStampedList tfs_to_write;
   tfs_to_write.set_is_static( data.get_is_static() );
 
-  std::unique_ptr<std::list<std::unique_ptr<upns::tf::TransformStamped>>> tfs_in = data.dispose();
+  std::unique_ptr<std::list<std::unique_ptr<mapit::tf::TransformStamped>>> tfs_in = data.dispose();
 
   bool at_least_one_data = false;
 
-  for (const std::unique_ptr<upns::tf::TransformStamped>& tf_in : *tfs_in) {
+  for (const std::unique_ptr<mapit::tf::TransformStamped>& tf_in : *tfs_in) {
     if ( ! at_least_one_data ) {
       tfs_to_write.set_child_frame_id( tf_in->child_frame_id );
       tfs_to_write.set_frame_id( tf_in->frame_id );
@@ -110,7 +110,7 @@ const char *TfEntitydata::TYPENAME()
     return PROJECT_NAME;
 }
 
-TfEntitydata::TfEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+TfEntitydata::TfEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_transforms( NULL )
 {
@@ -131,13 +131,13 @@ bool TfEntitydata::canSaveRegions() const
     return false;
 }
 
-std::shared_ptr<tf::store::TransformStampedList> TfEntitydata::getData(upnsReal x1, upnsReal y1, upnsReal z1,
-                                       upnsReal x2, upnsReal y2, upnsReal z2,
+std::shared_ptr<mapit::tf::store::TransformStampedList> TfEntitydata::getData(float x1, float y1, float z1,
+                                       float x2, float y2, float z2,
                                        bool clipMode,
                                        int lod)
 {
   if(m_transforms == nullptr) {
-    upnsIStream *in = m_streamProvider->startRead();
+    mapit::istream *in = m_streamProvider->startRead();
     {
       readTfFromStream( *in, m_transforms );
     }
@@ -146,12 +146,12 @@ std::shared_ptr<tf::store::TransformStampedList> TfEntitydata::getData(upnsReal 
   return m_transforms;
 }
 
-int TfEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
-                          upnsReal x2, upnsReal y2, upnsReal z2,
-                          std::shared_ptr<tf::store::TransformStampedList> &data,
+int TfEntitydata::setData(float x1, float y1, float z1,
+                          float x2, float y2, float z2,
+                          std::shared_ptr<mapit::tf::store::TransformStampedList> &data,
                           int lod)
 {
-    upnsOStream *out = m_streamProvider->startWrite();
+    mapit::ostream *out = m_streamProvider->startWrite();
     {
         writeTfToStream( *out, *data );
     }
@@ -159,62 +159,62 @@ int TfEntitydata::setData(upnsReal x1, upnsReal y1, upnsReal z1,
     return 0; //TODO: MSVC: What to return here?
 }
 
-std::shared_ptr<tf::store::TransformStampedList> TfEntitydata::getData(int lod)
+std::shared_ptr<mapit::tf::store::TransformStampedList> TfEntitydata::getData(int lod)
 {
-    return getData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   std::numeric_limits<upnsReal>::infinity(),
-                   std::numeric_limits<upnsReal>::infinity(),
-                   std::numeric_limits<upnsReal>::infinity(),
+    return getData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   std::numeric_limits<float>::infinity(),
+                   std::numeric_limits<float>::infinity(),
+                   std::numeric_limits<float>::infinity(),
                    false, lod);
 }
 
-int TfEntitydata::setData(std::shared_ptr<tf::store::TransformStampedList> &data, int lod)
+int TfEntitydata::setData(std::shared_ptr<mapit::tf::store::TransformStampedList> &data, int lod)
 {
-    return setData(-std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   -std::numeric_limits<upnsReal>::infinity(),
-                   std::numeric_limits<upnsReal>::infinity(),
-                   std::numeric_limits<upnsReal>::infinity(),
-                   std::numeric_limits<upnsReal>::infinity(),
+    return setData(-std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   -std::numeric_limits<float>::infinity(),
+                   std::numeric_limits<float>::infinity(),
+                   std::numeric_limits<float>::infinity(),
+                   std::numeric_limits<float>::infinity(),
                    data, lod);
 }
 
-void TfEntitydata::gridCellAt(upnsReal   x, upnsReal   y, upnsReal   z,
-                              upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                              upnsReal &x2, upnsReal &y2, upnsReal &z2) const
+void TfEntitydata::gridCellAt(float   x, float   y, float   z,
+                              float &x1, float &y1, float &z1,
+                              float &x2, float &y2, float &z2) const
 {
-    x1 = -std::numeric_limits<upnsReal>::infinity();
-    y1 = -std::numeric_limits<upnsReal>::infinity();
-    z1 = -std::numeric_limits<upnsReal>::infinity();
-    x2 = +std::numeric_limits<upnsReal>::infinity();
-    y2 = +std::numeric_limits<upnsReal>::infinity();
-    z2 = +std::numeric_limits<upnsReal>::infinity();
+    x1 = -std::numeric_limits<float>::infinity();
+    y1 = -std::numeric_limits<float>::infinity();
+    z1 = -std::numeric_limits<float>::infinity();
+    x2 = +std::numeric_limits<float>::infinity();
+    y2 = +std::numeric_limits<float>::infinity();
+    z2 = +std::numeric_limits<float>::infinity();
 }
 
-int TfEntitydata::getEntityBoundingBox(upnsReal &x1, upnsReal &y1, upnsReal &z1,
-                                       upnsReal &x2, upnsReal &y2, upnsReal &z2)
+int TfEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
+                                       float &x2, float &y2, float &z2)
 {
     return 1;
 }
 
-upnsIStream *TfEntitydata::startReadBytes(upnsuint64 start, upnsuint64 len)
+mapit::istream *TfEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void TfEntitydata::endRead(upnsIStream *&strm)
+void TfEntitydata::endRead(mapit::istream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-upnsOStream *TfEntitydata::startWriteBytes(upnsuint64 start, upnsuint64 len)
+mapit::ostream *TfEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void TfEntitydata::endWrite(upnsOStream *&strm)
+void TfEntitydata::endWrite(mapit::ostream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
@@ -231,7 +231,7 @@ size_t TfEntitydata::size() const
 //void* createEntitydata(std::shared_ptr<AbstractEntitydataProvider> streamProvider)
 //TODO: BIG TODO: Make libraries have a deleteEntitydata function and do not use shared pointers between libraries.
 // TfEntitydata was deleted here although it was a plymesh
-void deleteEntitydataTf(AbstractEntitydata *ld)
+void deleteEntitydataTf(mapit::AbstractEntitydata *ld)
 {
     TfEntitydata *p = dynamic_cast<TfEntitydata*>(ld);
     if(p)
@@ -243,8 +243,8 @@ void deleteEntitydataTf(AbstractEntitydata *ld)
         log_error("Wrong entitytype");
     }
 }
-void createEntitydata(std::shared_ptr<AbstractEntitydata> *out, std::shared_ptr<AbstractEntitydataProvider> streamProvider)
+void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    *out = std::shared_ptr<AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydataTf);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new TfEntitydata( streamProvider ), deleteEntitydataTf);
 }
 

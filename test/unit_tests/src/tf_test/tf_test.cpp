@@ -23,16 +23,16 @@
 #include "tf_test.h"
 #include "../../src/autotest.h"
 
-#include <upns/errorcodes.h>
-#include <upns/versioning/checkout.h>
-#include <upns/versioning/repositoryfactory.h>
+#include <mapit/errorcodes.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/repositoryfactory.h>
 
 #include <mapit/msgs/datastructs.pb.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 
-#include <upns/layertypes/tflayer.h>
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 #include <mapit/time/time.h>
 
 #include <typeinfo>
@@ -42,8 +42,8 @@ void TFTest::init()
 {
     fileSystemName_ = std::string("tf_test.mapit");
     cleanup();
-    repo_ = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(fileSystemName_));
-    checkout_ = std::shared_ptr<upns::Checkout>(repo_->createCheckout("master", "tftest"));
+    repo_ = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName_));
+    checkout_ = std::shared_ptr<mapit::Checkout>(repo_->createCheckout("master", "tftest"));
 }
 
 void TFTest::cleanup()
@@ -64,7 +64,7 @@ void TFTest::cleanupTestCase()
 {
 }
 
-void TFTest::compareTfs(upns::tf::TransformStamped a, upns::tf::TransformStamped b)
+void TFTest::compareTfs(mapit::tf::TransformStamped a, mapit::tf::TransformStamped b)
 {
     QVERIFY(a.frame_id == b.frame_id);
     QVERIFY(a.stamp == b.stamp);
@@ -84,7 +84,7 @@ void TFTest::test_input_output()
     std::shared_ptr<mapit::tf2::BufferCore> buffer;
     buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
 
-    upns::tf::TransformStamped in_out;
+    mapit::tf::TransformStamped in_out;
     in_out.frame_id  = "in";
     in_out.child_frame_id = "out";
     in_out.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
@@ -97,7 +97,7 @@ void TFTest::test_input_output()
 
     // test input = output rotation + translation
     buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
-    upns::tf::TransformStamped in_out_rot;
+    mapit::tf::TransformStamped in_out_rot;
     in_out_rot.frame_id  = "in";
     in_out_rot.child_frame_id = "out";
     in_out_rot.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
@@ -117,7 +117,7 @@ void TFTest::test_chain_of_2_tfs()
     std::shared_ptr<mapit::tf2::BufferCore> buffer;
     buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
 
-    upns::tf::TransformStamped chain_1;
+    mapit::tf::TransformStamped chain_1;
     chain_1.frame_id  = "cb";
     chain_1.child_frame_id = "cm";
     chain_1.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
@@ -129,7 +129,7 @@ void TFTest::test_chain_of_2_tfs()
 
     buffer->setTransform(chain_1, "layername", false);
 
-    upns::tf::TransformStamped chain_2;
+    mapit::tf::TransformStamped chain_2;
     chain_2.frame_id  = "cm";
     chain_2.child_frame_id = "ce";
     chain_2.stamp = mapit::time::from_sec_and_nsec(1001, 10002);
@@ -141,7 +141,7 @@ void TFTest::test_chain_of_2_tfs()
 
     buffer->setTransform(chain_2, "layername", false);
 
-    upns::tf::TransformStamped chain_together;
+    mapit::tf::TransformStamped chain_together;
     chain_together.frame_id = chain_1.frame_id;
     chain_together.stamp = chain_1.stamp;
     chain_together.child_frame_id = chain_2.child_frame_id;
@@ -159,7 +159,7 @@ void TFTest::test_interpolation()
     std::shared_ptr<mapit::tf2::BufferCore> buffer;
     buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore);
 
-    upns::tf::TransformStamped inter_1;
+    mapit::tf::TransformStamped inter_1;
     inter_1.frame_id  = "a";
     inter_1.child_frame_id = "b";
     inter_1.stamp = mapit::time::from_sec_and_nsec(1000, 0);
@@ -171,7 +171,7 @@ void TFTest::test_interpolation()
 
     buffer->setTransform(inter_1, "layername", false);
 
-    upns::tf::TransformStamped inter_2;
+    mapit::tf::TransformStamped inter_2;
     inter_2.frame_id  = "a";
     inter_2.child_frame_id = "b";
     inter_2.stamp = mapit::time::from_sec_and_nsec(1002, 0);
@@ -184,7 +184,7 @@ void TFTest::test_interpolation()
     buffer->setTransform(inter_2, "layername", false);
 
     // calculate by food
-    upns::tf::TransformStamped inter_together;
+    mapit::tf::TransformStamped inter_together;
     inter_together.frame_id = inter_1.frame_id;
     inter_together.stamp    = mapit::time::from_sec_and_nsec(1001, 0);
     inter_together.child_frame_id = inter_1.child_frame_id;
@@ -210,7 +210,7 @@ void TFTest::test_interpolation()
 void TFTest::test_layertype_to_buffer()
 {
     // create layers and fill with tf data
-    upns::tf::TransformStamped tf_in_1, tf_in_2;
+    mapit::tf::TransformStamped tf_in_1, tf_in_2;
     tf_in_1.frame_id = "world";
     tf_in_1.stamp = mapit::time::from_sec_and_nsec(1000, 500000000);
     tf_in_1.child_frame_id = "frame_1";
@@ -281,7 +281,7 @@ void TFTest::test_layertype_to_buffer()
                 "   ]"
                 "}"
                 );
-    OperationResult ret = checkout_->doOperation( desc );
+    mapit::OperationResult ret = checkout_->doOperation( desc );
     QVERIFY( upnsIsOk(ret.first) );
 
     // read all tfs from the 2 default layers and store them in the buffer

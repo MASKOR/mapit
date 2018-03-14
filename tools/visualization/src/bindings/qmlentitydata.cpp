@@ -22,7 +22,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmlentitydata.h"
+#include "mapit/ui/bindings/qmlentitydata.h"
 #include "entitydataloader.h"
 
 QmlEntitydata::QmlEntitydata(QObject *parent)
@@ -36,7 +36,7 @@ QmlEntitydata::QmlEntitydata(QObject *parent)
 
 }
 
-QmlEntitydata::QmlEntitydata(std::shared_ptr<upns::AbstractEntitydata> &entitydata, QmlCheckout *co, QString path)
+QmlEntitydata::QmlEntitydata(std::shared_ptr<mapit::AbstractEntitydata> &entitydata, QmlCheckout *co, QString path)
     :m_entitydata(entitydata),
      m_checkout( co ),
      m_path( path ),
@@ -54,7 +54,7 @@ QmlEntitydata::~QmlEntitydata()
     if(m_edLoader) delete m_edLoader;
 }
 
-std::shared_ptr<upns::AbstractEntitydata> QmlEntitydata::getEntitydata() { return m_entitydata; }
+std::shared_ptr<mapit::AbstractEntitydata> QmlEntitydata::getEntitydata() { return m_entitydata; }
 
 QString QmlEntitydata::path() const
 {

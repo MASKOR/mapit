@@ -53,13 +53,13 @@ if(NOT DISABLE_PCL)
     add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
     # describe target
-    file(GLOB_RECURSE UPNS_OPERATOR_SOURCES
+    file(GLOB_RECURSE OPERATOR_SOURCES
       ${PROJECT_SOURCE_DIR}/src/*.cpp
       ${PROJECT_SOURCE_DIR}/src/*.h
       )
     add_library(${PROJECT_NAME} SHARED
       ${SRC_LIST}
-      ${UPNS_OPERATOR_SOURCES}
+      ${OPERATOR_SOURCES}
       )
     set_target_properties(${PROJECT_NAME} PROPERTIES
       VERSION ${OPERATOR_VERSION}
@@ -69,8 +69,6 @@ if(NOT DISABLE_PCL)
     target_include_directories(${PROJECT_NAME}
       PRIVATE
         ${PROJECT_SOURCE_DIR}/src/
-      PUBLIC
-        ${PROJECT_SOURCE_DIR}/../../mapmanager/include/
       )
 
     # mapit
@@ -99,15 +97,14 @@ if(NOT DISABLE_PCL)
       ${sensor_msgs_LIBRARIES}
       )
 
-    # naming and installing
-    if (CMAKE_HOST_UNIX)
-        set(FILENAME_PREFIX "lib")
-        set(FILENAME_POSTFIX ".so")
-    else (CMAKE_HOST_UNIX)
-        set(FILENAME_PREFIX "")
-        set(FILENAME_POSTFIX ".dll")
-    endif (CMAKE_HOST_UNIX)
+    SET_TARGET_PROPERTIES(
+        ${PROJECT_NAME}
+      PROPERTIES
+        VERSION ${OPERATOR_VERSION}
+        SOVERSION ${OPERATOR_VERSION}
+    )
 
+    # naming and installing
     if(UNIX)
         # tell CMake Prefix is "lib" otherwise it can not be queried
         set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")

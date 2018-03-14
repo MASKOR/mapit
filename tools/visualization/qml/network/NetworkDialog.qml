@@ -27,7 +27,6 @@ import QtQuick.Layouts 1.3
 import "../components"
 
 Window {
-    visible: true
     id: connectRealtimeMultiviewDialog
     flags: Qt.Tool
     title: qsTr( "Choose Checkout" )
@@ -128,7 +127,7 @@ Window {
             Layout.fillHeight: true
             //Layout.minimumHeight: 200
             height: 200
-            Text {
+            StyledLabel {
                 text: "Realtime objects:"
             }
             Repeater {
@@ -143,7 +142,7 @@ Window {
                     }
                 }
             }
-            Text {
+            StyledLabel {
                 text: "Visible Network Entities:"
             }
             Repeater {

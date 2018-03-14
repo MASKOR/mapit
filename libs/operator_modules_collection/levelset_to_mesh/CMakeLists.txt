@@ -34,7 +34,7 @@ add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
-file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
@@ -43,7 +43,7 @@ find_package(Qt5Gui REQUIRED)
 find_package(OpenVDB REQUIRED)
 find_package(TBB REQUIRED)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${OPERATOR_SOURCES} )
 target_link_libraries( ${PROJECT_NAME} ${mapit_interface} ${mapit_core} layertype_asset layertype_openvdb)
 target_link_libraries( ${PROJECT_NAME} ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES})
 
@@ -55,14 +55,6 @@ SET_TARGET_PROPERTIES(
     VERSION ${OPERATOR_VERSION}
     SOVERSION ${OPERATOR_VERSION}
 )
-
-if (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "lib")
-    set(FILENAME_POSTFIX ".so")
-else (CMAKE_HOST_UNIX)
-    set(FILENAME_PREFIX "")
-    set(FILENAME_POSTFIX ".dll")
-endif (CMAKE_HOST_UNIX)
 
 if(UNIX)
     # tell CMake Prefix is "lib" otherwise it can not be queried

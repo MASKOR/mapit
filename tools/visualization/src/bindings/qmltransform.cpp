@@ -21,12 +21,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upns/ui/bindings/qmltransform.h"
-#include "upns/ui/bindings/qmlcheckout.h"
-#include <upns/logging.h>
-#include <upns/layertypes/tflayer.h>
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
-#include <upns/layertypes/tflayer/tf2/exceptions.h>
+#include "mapit/ui/bindings/qmltransform.h"
+#include "mapit/ui/bindings/qmlcheckout.h"
+#include <mapit/logging.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/tflayer/tf2/exceptions.h>
 
 QmlTransform::QmlTransform()
     : QObject()
@@ -49,7 +49,7 @@ QMatrix4x4 QmlTransform::matrix() const
     }
 
     bool found;
-    ::tf::TransformStamped tfs(getTfs(&found));
+    mapit::tf::TransformStamped tfs(getTfs(&found));
     if(!found)
     {
         return QMatrix4x4();
@@ -81,7 +81,7 @@ bool QmlTransform::exists() const
     {
         return false;
     }
-    std::shared_ptr<upns::Checkout> co = QmlTransform::checkout()->getCheckoutObj();
+    std::shared_ptr<mapit::Checkout> co = QmlTransform::checkout()->getCheckoutObj();
     std::string p = path().toStdString();
     std::shared_ptr<mapit::msgs::Entity> e(co->getEntity(p));
     if(!e)
@@ -115,11 +115,11 @@ void QmlTransform::emitExistsChanged()
     Q_EMIT existsChanged(e);
 }
 
-tf::TransformStamped QmlTransform::getTfs(bool *found) const
+mapit::tf::TransformStamped QmlTransform::getTfs(bool *found) const
 {
     // not safe (checkout, etc. are not checked for null)
     // extract entities mapname
-    ::tf::TransformStamped tfs;
+    mapit::tf::TransformStamped tfs;
 
     std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout()->getCheckoutObj().get(), ""));
 
@@ -139,7 +139,7 @@ tf::TransformStamped QmlTransform::getTfs(bool *found) const
         if(found) *found = false;
 
         // use identity on error
-        return ::tf::TransformStamped();
+        return mapit::tf::TransformStamped();
     }
 }
 

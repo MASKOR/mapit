@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <upns/errorcodes.h>
+#include <mapit/errorcodes.h>
 
 #define LDBSER_DELIM "!"
 #define KEY_PREFIX_CHECKOUT "co"
@@ -44,7 +44,7 @@
 #define KEY_PREFIX_TAG "obj!tag"
 #define KEY_PREFIX_BRANCH "ref!branch"
 
-namespace upns
+namespace mapit
 {
 const fs::path FSSerializer::_PREFIX_MAPIT_       = "/.mapit";
 const fs::path FSSerializer::_PREFIX_TREE_        = "/trees/";
@@ -240,7 +240,7 @@ FSSerializer::getTreeTransient(const PathInternal &transientId)
 std::pair<StatusCode, ObjectId>
 FSSerializer::storeTree(std::shared_ptr<Tree> &obj)
 {
-    ObjectId oid = upns::hash_toString(obj.get());
+    ObjectId oid = mapit::hash_toString(obj.get());
 
     fs::path path = repo_ / _PREFIX_TREE_;
     fs_check_create( path );
@@ -251,7 +251,7 @@ FSSerializer::storeTree(std::shared_ptr<Tree> &obj)
     *(ge->mutable_tree()) = *obj;
     fs_write( path, ge, MessageTree);
 
-    return std::pair<StatusCode, ObjectId>(UPNS_STATUS_OK, oid);
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, oid);
 }
 
 std::pair<StatusCode, ObjectId>
@@ -266,7 +266,7 @@ FSSerializer::storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal 
     *(ge->mutable_tree()) = *obj;
     fs_write( path, ge, MessageTree, true);
 
-    return std::pair<StatusCode, ObjectId>(UPNS_STATUS_OK, transientId);
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, transientId);
 }
 
 StatusCode
@@ -275,7 +275,7 @@ FSSerializer::removeTreeTransient(const PathInternal &transientId)
     fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
     fs_delete( path );
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 std::shared_ptr<Entity>
@@ -331,7 +331,7 @@ FSSerializer::getEntityTransient(const PathInternal oid)
 std::pair<StatusCode, ObjectId>
 FSSerializer::storeEntity(std::shared_ptr<Entity> &obj)
 {
-    ObjectId oid = upns::hash_toString(obj.get());
+    ObjectId oid = mapit::hash_toString(obj.get());
 
     fs::path path = repo_ / _PREFIX_ENTITY_;
     fs_check_create( path );
@@ -342,7 +342,7 @@ FSSerializer::storeEntity(std::shared_ptr<Entity> &obj)
     *(ge->mutable_entity()) = *obj;
     fs_write( path, ge, MessageEntity);
 
-    return std::pair<StatusCode, ObjectId>(UPNS_STATUS_OK, oid);
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, oid);
 }
 
 std::pair<StatusCode, ObjectId>
@@ -357,7 +357,7 @@ FSSerializer::storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInter
     *(ge->mutable_entity()) = *obj;
     fs_write( path, ge, MessageEntity, true);
 
-    return std::pair<StatusCode, ObjectId>(UPNS_STATUS_OK, transientId);
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, transientId);
 }
 
 StatusCode
@@ -368,7 +368,7 @@ FSSerializer::removeEntityTransient(const PathInternal &transientId)
     fs_delete( path_entity / _CHECKOUT_GENERIC_ENTRY_ );
     fs_delete( path_entity / _CHECKOUT_ENTITY_DATA_ );
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 std::shared_ptr<Commit>
@@ -400,14 +400,14 @@ FSSerializer::createCommit(std::shared_ptr<Commit> &obj)
 {
     //TODO
     ObjectId oid;
-    return std::pair<StatusCode, ObjectId>(UPNS_STATUS_ERR_DB_IO_ERROR, oid);
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_ERR_DB_IO_ERROR, oid);
 }
 
 StatusCode
 FSSerializer::removeCommit(const ObjectId &oid)
 {
     //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 std::vector<std::string>
@@ -474,7 +474,7 @@ FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::
     *(ge->mutable_checkout()) = *obj;
     fs_write( path, ge, MessageCheckout, true);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode
@@ -489,14 +489,14 @@ FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std:
     *(ge->mutable_checkout()) = *obj;
     fs_write( path, ge, MessageCheckout);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode
 FSSerializer::removeCheckoutCommit(const ObjectId &oid)
 {
     //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 std::vector< std::shared_ptr<Branch> >
@@ -566,7 +566,7 @@ StatusCode
 FSSerializer::storeBranch(std::shared_ptr<Branch> &obj, const std::string &name)
 {
     //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 StatusCode
@@ -577,21 +577,21 @@ FSSerializer::createBranch(std::shared_ptr<Branch> &obj, const std::string &name
     path /= name;
 
     if (fs::exists( path )) {
-        return UPNS_STATUS_BRANCH_ALREADY_EXISTS;
+        return MAPIT_STATUS_BRANCH_ALREADY_EXISTS;
     }
 
     std::shared_ptr<GenericEntry> ge(new GenericEntry);
     *(ge->mutable_branch()) = *obj;
     fs_write(path, ge, MessageBranch);
 
-    return UPNS_STATUS_OK;
+    return MAPIT_STATUS_OK;
 }
 
 StatusCode
 FSSerializer::removeBranch(const std::string &name)
 {
     //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 std::shared_ptr<AbstractEntitydataProvider>
@@ -616,7 +616,7 @@ StatusCode
 FSSerializer::cleanUp()
 {
     //TODO
-    return UPNS_STATUS_ERR_DB_IO_ERROR;
+    return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 MessageType
@@ -680,7 +680,7 @@ std::pair<StatusCode, ObjectId>
 FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
 {
     //TODO
-    return std::pair<StatusCode, ObjectId>(UPNS_STATUS_ERR_DB_IO_ERROR, "");
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_ERR_DB_IO_ERROR, "");
 }
 
 bool

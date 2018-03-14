@@ -29,7 +29,7 @@
 #include <mapit/msgs/services.pb.h>
 #include <mapit/msgs/services_internal.pb.h>
 
-namespace upns {
+namespace mapit {
 
 class Repository;
 
@@ -53,16 +53,16 @@ public:
 //    void handleRequestStoreTree(RequestStoreTree *msg);
     void handleRequestDeleteEntity(RequestDeleteEntity* msg);
     void handleRequestDeleteTree(RequestDeleteTree* msg);
-//    void handleRequestStoreGenericEntry(upns::RequestStoreGenericEntry *msg);
-//    void handleRequestEntity(upns::RequestEntity *msg);
-//    void handleRequestTree(upns::RequestTree *msg);
+//    void handleRequestStoreGenericEntry(mapit::RequestStoreGenericEntry *msg);
+//    void handleRequestEntity(mapit::RequestEntity *msg);
+//    void handleRequestTree(mapit::RequestTree *msg);
 
     Repository *m_repo;
     std::string m_urlOutgoing;
     int m_portIncoming;
 
     // Implementation can be in cpp, because it's only used there. Must be public for function pointers
-    template < typename T, void (upns::ZmqResponderPrivate::*func)(T*) >
+    template < typename T, void (mapit::ZmqResponderPrivate::*func)(T*) >
     void toDelegate(google::protobuf::Message* msg);
 
 private:
