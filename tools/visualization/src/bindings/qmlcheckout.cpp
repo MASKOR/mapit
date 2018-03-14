@@ -181,7 +181,7 @@ bool QmlCheckout::isInConflictMode() const
     return m_isInConflictMode;
 }
 
-std::shared_ptr<mapit::Checkout>& QmlCheckout::getCheckoutObj() { return m_checkout; }
+std::shared_ptr<mapit::Checkout> QmlCheckout::getCheckoutObj() { return m_checkout; }
 
 QmlRepository *QmlCheckout::repository() const
 {

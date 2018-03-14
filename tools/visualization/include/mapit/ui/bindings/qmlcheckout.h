@@ -67,7 +67,7 @@ public:
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString path);
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnlyConflict(QString entityId);
     Q_INVOKABLE bool isInConflictMode() const;
-    std::shared_ptr<mapit::Checkout> &getCheckoutObj();
+    std::shared_ptr<mapit::Checkout> getCheckoutObj();
     QmlRepository* repository() const;
     QString name() const;
     QStringList entities() const;
