@@ -20,8 +20,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UPNSZMQREQUESTER_H
-#define UPNSZMQREQUESTER_H
+#ifndef ZMQREQUESTER_H
+#define ZMQREQUESTER_H
 
 #include <string>
 #include <mapit/versioning/repository.h>
@@ -70,4 +70,4 @@ private:
 
 }
 
-#endif // UPNSZMQREQUESTER_H
+#endif // ZMQREQUESTER_H

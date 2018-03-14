@@ -52,7 +52,7 @@ class LASEntitydataWriter;
 /// Exposes Reader and Writer for LAS/LAZ data.
 /// Duo to the intrfae of libLAS the interface of this Entitytype is a bit more comple than other types.
 /// Instead of having easy getData/setData methods, single points can be queried directly from the data.
-/// In order to be compatible with ${insert_upns_framework_name_here} you should call start(Reading|Writing)LAS before accessing the data
+/// In order to be compatible with mapit you should call start(Reading|Writing)LAS before accessing the data
 /// and the corresponding end-Method afterwards.
 /// E.g. calling endWritingLAS while accessing a network stream will trigger the actual network connection.
 /// These Methods are not reentrant or thread safe for a single instance. However it should be possible to read and write at the same time (TODO: This must be tested).

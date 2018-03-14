@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UPNS_GLOBALS_H
-#define __UPNS_GLOBALS_H
+#ifndef MAPIT_GLOBALS_H
+#define MAPIT_GLOBALS_H
 
 #include <mapit/typedefs.h>
 
@@ -56,7 +56,7 @@
     #define log_info(msg) LOG4CPLUS_INFO(log4cplus::Logger::getInstance("main"), std::string() + "\033[1;32m" + msg + "\033[0m")
   #endif
   #endif // MAPIT_DEBUG
-#define upns_init_logging()     { log4cplus::BasicConfigurator _logconfig_; _logconfig_.configure(); }
+#define mapit_init_logging()     { log4cplus::BasicConfigurator _logconfig_; _logconfig_.configure(); }
 #else // LOG4CPLUS_FOUND
   #include <iomanip>
   #ifdef MAPIT_DEBUG
@@ -82,6 +82,6 @@
       #define log_info(msg) (std::cout << "\033[1;32m" << std::string() + msg << "\033[0m" << std::endl)
     #endif
   #endif // MAPIT_DEBUG
-#define upns_init_logging()
+#define mapit_init_logging()
 #endif // LOG4CPLUS_FOUND
 #endif

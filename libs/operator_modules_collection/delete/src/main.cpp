@@ -37,7 +37,7 @@ deleteEntityOrTree(mapit::CheckoutRaw* checkout, std::string entityName)
     std::shared_ptr<mapit::msgs::Entity> entity = checkout->getEntity(entityName);
     if (entity != nullptr) {
         mapit::StatusCode s = checkout->deleteEntity(entityName);
-        if ( ! upnsIsOk(s) ) {
+        if ( ! mapitIsOk(s) ) {
             log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
             return s;
         }
@@ -45,7 +45,7 @@ deleteEntityOrTree(mapit::CheckoutRaw* checkout, std::string entityName)
         std::shared_ptr<mapit::msgs::Tree> tree = checkout->getTree(entityName);
         if (tree != nullptr) {
             mapit::StatusCode s = checkout->deleteTree(entityName);
-            if ( ! upnsIsOk(s) ) {
+            if ( ! mapitIsOk(s) ) {
                 log_error("operator_delete: Error while deleting tree \"" + entityName + "\"");
                 return s;
             }
@@ -75,7 +75,7 @@ operateDelete(mapit::OperationEnvironment* env)
         // just one entity/tree
         std::string entityName = params["target"].toString().toStdString();
         mapit::StatusCode s = deleteEntityOrTree(checkout, entityName);
-        if ( ! upnsIsOk(s) ) {
+        if ( ! mapitIsOk(s) ) {
 //            log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
             return s;
         }
@@ -85,7 +85,7 @@ operateDelete(mapit::OperationEnvironment* env)
         for (auto jsonEntityName : jsonEntityNames) {
             std::string entityName = jsonEntityName.toString().toStdString();
             mapit::StatusCode s = deleteEntityOrTree(checkout, entityName);
-            if ( ! upnsIsOk(s) ) {
+            if ( ! mapitIsOk(s) ) {
     //            log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
                 return s;
             }

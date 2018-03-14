@@ -40,9 +40,9 @@
 using namespace mapit::msgs;
 
 template <typename PointT>
-mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env);
+mapit::StatusCode operateConcreteType(mapit::entitytypes::Pointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env);
 
-mapit::StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
+mapit::StatusCode operate(mapit::entitytypes::Pointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     bool hasX = false;
     bool hasY = false;
@@ -199,19 +199,19 @@ mapit::StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEn
     return MAPIT_STATUS_ERROR;
 }
 
-//StatusCode demean(upnsPointcloud2Ptr cloud, Eigen::Vector4f ctr, pcl::PointCloud<pcl::PointXYZ> *pcCtr)
+//StatusCode demean(mapit::entitytypes::Pointcloud2Ptr cloud, Eigen::Vector4f ctr, pcl::PointCloud<pcl::PointXYZ> *pcCtr)
 //{
 //    pcl::demeanPointCloud(*cloud, ctr, *pcCtr);
 //}
 
 //template <typename PointT>
-//StatusCode demean(upnsPointcloud2Ptr cloud, Eigen::Vector4f ctr, pcl::PointCloud<PointT> *pcCtr)
+//StatusCode demean(mapit::entitytypes::Pointcloud2Ptr cloud, Eigen::Vector4f ctr, pcl::PointCloud<PointT> *pcCtr)
 //{
 
 //}
 
 template <typename PointT>
-mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
+mapit::StatusCode operateConcreteType(mapit::entitytypes::Pointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
@@ -253,7 +253,7 @@ mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<
         pcl::demeanPointCloud(pcAll, ctr, pcCtr);
         //demean(pc, ctr, &pcCtr);
 
-        upnsPointcloud2Ptr pc2Out(new pcl::PCLPointCloud2());
+        mapit::entitytypes::Pointcloud2Ptr pc2Out(new pcl::PCLPointCloud2());
         pcl::toPCLPointCloud2( pcCtr, *pc2Out);
 
         entityData->setData(pc2Out);
@@ -280,7 +280,7 @@ mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<
 //            tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
 //            tfEntity->set_type(TfEntitydata::TYPENAME());
 //            StatusCode s = env->getCheckout()->storeEntity(tfEntityName, tfEntity);
-//            if(!upnsIsOk(s))
+//            if(!mapitIsOk(s))
 //            {
 //                log_error("Failed to create transform entity.");
 //                return MAPIT_STATUS_ERR_UNKNOWN;
@@ -318,7 +318,7 @@ mapit::StatusCode operate_ctr(mapit::OperationEnvironment* env)
         log_error("Wrong type");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsPointcloud2Ptr pc2 = entityData->getData();
+    mapit::entitytypes::Pointcloud2Ptr pc2 = entityData->getData();
 
     return operate(pc2, entityData, env);
 }

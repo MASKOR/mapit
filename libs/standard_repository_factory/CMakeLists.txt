@@ -42,9 +42,9 @@ if(WITH_YAML)
   include_directories(${YAMLCPP_INCLUDE_DIR})
 endif(WITH_YAML)
 
-file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h )
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/include/*.h )
 
-add_library(${PROJECT_NAME} SHARED ${UPNS_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
@@ -54,7 +54,14 @@ target_include_directories(${PROJECT_NAME}
            src
 )
 
-target_link_libraries(${PROJECT_NAME} ${mapit_core} ${mapit_interface} ${mapit_interface_cpp} ${mapit_networking_node} ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${YAMLCPP_LIBRARY})
+target_link_libraries(${PROJECT_NAME}
+    ${mapit_core}
+    ${mapit_interface}
+    ${mapit_interface_cpp}
+    ${mapit_networking_node}
+    ${ZMQ_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${YAMLCPP_LIBRARY})
 
 if(MAPIT_ENABLE_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})
@@ -68,10 +75,7 @@ if(NOT WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})
 endif(NOT WIN32)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME upns_${PROJECT_NAME})
-
-#install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
-#install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME mapit_${PROJECT_NAME})
 
 include(GenerateExportHeader)
 
@@ -90,8 +94,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT mapit_standard_repository_factory_targets
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
 )
-install(DIRECTORY include/upns DESTINATION include )
-#install(DIRECTORY include/mapit DESTINATION include )
+install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(

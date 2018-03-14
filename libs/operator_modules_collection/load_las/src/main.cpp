@@ -90,7 +90,7 @@ mapit::StatusCode operate_load_las(mapit::OperationEnvironment* env)
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(LASEntitydata::TYPENAME());
     mapit::StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }

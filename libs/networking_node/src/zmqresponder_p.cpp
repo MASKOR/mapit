@@ -22,7 +22,7 @@
  */
 
 #define NOMINMAX
-#include "upnszmqresponder_p.h"
+#include "zmqresponder_p.h"
 #include <mapit/msgs/services.pb.h>
 #include <functional>
 #include <mapit/versioning/repository.h>
@@ -276,7 +276,7 @@ void mapit::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPla
                 return true;
             },
             [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path){return true;});
-        if(!upnsIsOk(s))
+        if(!mapitIsOk(s))
         {
             log_info("error while listing entities (dfs)");
         }
@@ -382,7 +382,7 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
             {
                 // Other cases: There was a layertype and none is set now (just leave it as is).
                 mapit::StatusCode status = coraw->storeEntity(msg->path(), entity);
-                if(!upnsIsOk(status))
+                if(!mapitIsOk(status))
                 {
                     log_info("Could not store entity: \"" + msg->path() + "\"");
                     return status;
@@ -428,7 +428,7 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
         ed->endWrite(stream);
         return MAPIT_STATUS_OK;
     });
-    if(upnsIsOk(res.first))
+    if(mapitIsOk(res.first))
     {
         assert(!has_more());
         rep->set_status(ReplyStoreEntity::SUCCESS);
@@ -469,7 +469,7 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
 //        StatusCode s = coraw->storeTree(msg->path(), tree);
 //        return s;
 //    });
-//    if(upnsIsOk(res.first))
+//    if(mapitIsOk(res.first))
 //    {
 //        assert(!has_more());
 //        rep->set_status(ReplyStoreTree::SUCCESS);
@@ -504,7 +504,7 @@ mapit::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
 
         return coraw->deleteEntity(msg->path());
     });
-    if(upnsIsOk(res.first))
+    if(mapitIsOk(res.first))
     {
         rep->set_status(ReplyDeleteEntity::SUCCESS);
     }
@@ -539,7 +539,7 @@ mapit::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
 
         return coraw->deleteTree(msg->path());
     });
-    if(upnsIsOk(res.first))
+    if(mapitIsOk(res.first))
     {
         rep->set_status(ReplyDeleteTree::SUCCESS);
     }

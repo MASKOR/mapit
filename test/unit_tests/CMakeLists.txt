@@ -21,7 +21,7 @@
 #  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(upns_test)
+project(mapit_test)
 cmake_minimum_required(VERSION 3.2)
 aux_source_directory(. SRC_LIST)
 
@@ -58,12 +58,8 @@ MACRO(SUBDIRLIST result curdir)
   SET(${result} ${dirlist})
 ENDMACRO()
 SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
-#TODO: include these again!
-list(REMOVE_ITEM SUBDIRS "entitydata_test")
+
 list(REMOVE_ITEM SUBDIRS "interface_test")
-#list(REMOVE_ITEM SUBDIRS "operators_test")
-#list(REMOVE_ITEM SUBDIRS "messages_test")
-#FILE(GLOB_RECURSE ALL_TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.h )
 
 SET(AllUnitTest "")
 SET(AllUnitTestCPP "")

@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REPOSITORY_H
-#define REPOSITORY_H
+#ifndef MAPIT_REPOSITORY_H
+#define MAPIT_REPOSITORY_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
@@ -61,7 +61,7 @@ public:
     virtual ~Repository() {}
     /**
      * @brief getCheckouts retrieves a list of all checkouts in the system.
-     * In contrast to git (with a single file tree), upns can checkout multiple versions at the same time.
+     * In contrast to git (with a single file tree), mapit can checkout multiple versions at the same time.
      * This forces streams/entitydata to be physically stored locally (Is this a good idea? What about replaying operations?).
      * A commitId can only be checked out once. If multiple checkouts for a commit is wanted, the first one should
      * finish its work, so a new commit is generated (and the branch-tag is forwared). The the old commitId can be used.

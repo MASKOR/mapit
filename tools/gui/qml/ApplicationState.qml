@@ -23,7 +23,7 @@
 import QtQuick 2.4
 import QtQml.Models 2.3
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 import "qrc:/qml/network"
 
@@ -31,7 +31,7 @@ Item {
     id: root
 
 //    Note: globalRepository comes from cpp and may be used with command line
-//    UPNS.Repository {
+//    Mapit.Repository {
 //        id: globalRepository
 //        url: appStyle.repositoryUrl
 //        onUrlChanged: appStyle.repositoryUrl = url
@@ -50,14 +50,14 @@ Item {
         }
     }
 
-    UPNS.Checkout {
+    Mapit.Checkout {
         id: globalCheckout
         repository: root.currentRepository
         name: appStyle.checkoutName
         onNameChanged: appStyle.checkoutName = name
     }
 
-    UPNS.Entitydata {
+    Mapit.Entitydata {
         id: globalEntitydata
         checkout: root.currentCheckout
         path: root.currentEntityPath
@@ -66,7 +66,7 @@ Item {
         }
     }
 
-    UPNS.TfTransform {
+    Mapit.TfTransform {
         id: globalEntityTransform
         checkout: root.currentCheckout
         path: root.currentEntityPath

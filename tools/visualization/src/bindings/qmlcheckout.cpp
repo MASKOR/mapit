@@ -87,7 +87,7 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
 //    Q_EMIT internalCheckoutChanged(this);
 //    //TODO Q_EMIT something changed()
 //    // TODO: wrap operation result.
-//    if(upnsIsOk(res.first)) return "error";
+//    if(mapitIsOk(res.first)) return "error";
     return "";
 }
 
@@ -227,7 +227,7 @@ QStringList QmlCheckout::getFrameIds()
             return true;
         },
         depthFirstSearchAll(Entity));
-    if( !upnsIsOk(s) ) {
+    if( !mapitIsOk(s) ) {
         log_warn("getFrameIds did not succeed for UI");
     }
     return frameIdSet.toList();

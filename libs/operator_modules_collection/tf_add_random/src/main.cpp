@@ -109,7 +109,7 @@ mapit::StatusCode saveRandomTFForEntity(  mapit::OperationEnvironment* env
     std::shared_ptr<TfEntitydata> ed;
     std::shared_ptr<mapit::tf::store::TransformStampedList> edTFList;
     mapit::StatusCode s = mapit::tf::store::getOrCreateTransformStampedList(env->getCheckout(), frame_id, child_frame_id, tfStoragePrefix, e, ed, edTFList, false);
-    if( ! upnsIsOk(s) ) {
+    if( ! mapitIsOk(s) ) {
       return s;
     }
     edTFList->add_TransformStamped(std::move(tfStamped), false);
@@ -174,7 +174,7 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
                     , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             status = saveRandomTFForEntity(env, obj, path, frame_id, tfStoragePrefix, randomStorage);
-                            if ( ! upnsIsOk(status) ) {
+                            if ( ! mapitIsOk(status) ) {
                                 return false;
                             }
                             return true;

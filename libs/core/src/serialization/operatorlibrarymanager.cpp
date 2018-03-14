@@ -140,7 +140,7 @@ mapit::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs:
     OperationEnvironmentImpl env(desc);
     env.setCheckout( checkout );
     StatusCode result = module->operate( &env );
-    if(!upnsIsOk(result))
+    if(!mapitIsOk(result))
     {
         std::stringstream strm;
         strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result << ")";
@@ -189,14 +189,14 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
         return OperationResult(MAPIT_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
     }
     OperationResult result = _doOperation(modInfo, desc, checkout);
-    if(!upnsIsOk(result.first))
+    if(!mapitIsOk(result.first))
     {
         std::stringstream strm;
         strm << "operator '" << desc.operator_().operatorname() << "' reported an error. (code:" << result.first << ")";
         log_warn(strm.str());
     }
     StatusCode status = closeOperatorModule(handle);
-    if(!upnsIsOk(status))
+    if(!mapitIsOk(status))
     {
         std::stringstream strm;
         strm << "operator '" << desc.operator_().operatorname() << "' could not be unloaded. (code:" << status << ")";
@@ -280,7 +280,7 @@ void addOperatorsFromDirectory(std::vector<OperatorInfo> &vec, const std::string
             }
             vec.push_back(OperatorInfo(*modInfo));
             StatusCode status = closeOperatorModule(handle);
-            if(!upnsIsOk(status))
+            if(!mapitIsOk(status))
             {
                 log_warn("Could not close library: " + name);
             }

@@ -57,14 +57,14 @@ bool PointcloudEntitydata::canSaveRegions() const
     return false;
 }
 
-upnsPointcloud2Ptr PointcloudEntitydata::getData(float x1, float y1, float z1,
+mapit::entitytypes::Pointcloud2Ptr PointcloudEntitydata::getData(float x1, float y1, float z1,
                                                 float x2, float y2, float z2,
                                                 bool clipMode,
                                                 int lod)
 {
     if(m_pointcloud == NULL)
     {
-        m_pointcloud = upnsPointcloud2Ptr(new ::pcl::PCLPointCloud2);
+        m_pointcloud = mapit::entitytypes::Pointcloud2Ptr(new ::pcl::PCLPointCloud2);
         mapit::ReadWriteHandle handle;
         std::string filename = m_streamProvider->startReadFile(handle);
         {
@@ -78,7 +78,7 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(float x1, float y1, float z1,
 
 int PointcloudEntitydata::setData(float x1, float y1, float z1,
                                  float x2, float y2, float z2,
-                                 upnsPointcloud2Ptr &data,
+                                 mapit::entitytypes::Pointcloud2Ptr &data,
                                  int lod)
 {
     int result = -1;
@@ -93,7 +93,7 @@ int PointcloudEntitydata::setData(float x1, float y1, float z1,
     return result;
 }
 
-upnsPointcloud2Ptr PointcloudEntitydata::getData(int lod)
+mapit::entitytypes::Pointcloud2Ptr PointcloudEntitydata::getData(int lod)
 {
     return getData(-std::numeric_limits<float>::infinity(),
                    -std::numeric_limits<float>::infinity(),
@@ -104,7 +104,7 @@ upnsPointcloud2Ptr PointcloudEntitydata::getData(int lod)
                    false, lod);
 }
 
-int PointcloudEntitydata::setData(upnsPointcloud2Ptr &data, int lod)
+int PointcloudEntitydata::setData(mapit::entitytypes::Pointcloud2Ptr &data, int lod)
 {
     return setData(-std::numeric_limits<float>::infinity(),
                    -std::numeric_limits<float>::infinity(),

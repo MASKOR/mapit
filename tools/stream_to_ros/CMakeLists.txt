@@ -56,11 +56,11 @@ if(NOT DISABLE_PCL)
     file(GLOB_RECURSE YAML_FILES
       ${PROJECT_SOURCE_DIR}/*.yaml
       )
-    file(GLOB_RECURSE UPNS_SOURCES
+    file(GLOB_RECURSE SOURCES
       ${PROJECT_SOURCE_DIR}/src/*.cpp
       ${PROJECT_SOURCE_DIR}/src/*.h
       )
-    add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
+    add_executable(${PROJECT_NAME} ${SOURCES})
     set_target_properties(${PROJECT_NAME} PROPERTIES
       CXX_STANDARD 14
       )

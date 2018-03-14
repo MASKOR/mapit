@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ABSTRACTLAYERDATALOADER_H
-#define __ABSTRACTLAYERDATALOADER_H
+#ifndef MAPIT_ABSTRACTLAYERDATALOADER_H
+#define MAPIT_ABSTRACTLAYERDATALOADER_H
 
 #include <mapit/typedefs.h>
 

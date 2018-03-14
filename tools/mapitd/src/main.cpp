@@ -37,7 +37,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
-    upns_init_logging();
+    mapit_init_logging();
 
     po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <port>");
     program_options_desc.add_options()

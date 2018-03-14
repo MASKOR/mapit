@@ -159,7 +159,7 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
         entity = std::make_shared<mapit::msgs::Entity>();
         entity->set_type( TfEntitydata::TYPENAME() );
         mapit::StatusCode status = checkout->storeEntity(entity_name, entity);
-        if ( ! upnsIsOk(status) ) {
+        if ( ! mapitIsOk(status) ) {
             log_error("tflayer: can't store entity");
             return status;
         }
@@ -208,7 +208,7 @@ mapit::StatusCode mapit::tf::store::getOrCreateTransformStampedList(  CheckoutRa
       entity = std::make_shared<mapit::msgs::Entity>();
       entity->set_type(TfEntitydata::TYPENAME());
       StatusCode s = workspace->storeEntity(entityTFName, entity);
-      if( ! upnsIsOk(s) ) {
+      if( ! mapitIsOk(s) ) {
           log_error("tf utils: Failed to create entity " + entityTFName + ".");
         return MAPIT_STATUS_ERROR;
       }

@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- * Copyright 2015-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
- *                2015 Tobias Neumann	<t.neumann@fh-aachen.de>
+ * Copyright 2016-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
+ *                2017 Tobias Neumann	<t.neumann@fh-aachen.de>
  *
 ******************************************************************************/
 
@@ -21,39 +21,24 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VISUAL_GLOBALS_H
-#define VISUAL_GLOBALS_H
+#ifndef ZMQREQUESTER_P_H
+#define ZMQREQUESTER_P_H
 
-
+#include <string>
+#include "zmqprotobufnode.h"
+#include <mapit/msgs/services.pb.h>
+#include <mapit/versioning/repository.h>
 
 namespace mapit {
 
-#ifdef USE_QT_STRUCTURES
-#define upnsToQVector(vec) (vec)
-#else // USE_QT_STRUCTURES
-
-#ifdef QT_CORE_LIB
-#include <QVector>
-}
-
-// Not in namespace mapit so this can be replaced by a macro when qt types are used.
-template<class T>
-QVector<T> upnsToQVector(std::vector<T> vec)
+class ZmqRequesterPrivate : public ZmqProtobufNode
 {
-    return QVector<T>::fromStdVector(vec);
-}
 
-namespace mapit {
-#endif // QT_CORE_LIB
+public:
+    ZmqRequesterPrivate( Repository* cache, std::string urlOutgoingRequests = std::string(), bool operationsLocal = false );
+    Repository* m_cache;
+    bool m_operationsLocal;
+};
 
-#ifdef USE_BOOST_STRUCTURES
-
-#else // USE_BOOST_STRUCTURES
-
-#endif // USE_BOOST_STRUCTURES
-
-#endif // USE_QT_STRUCTURES
-
-}
-
-#endif
+} // namespace mapit
+#endif // ZMQREQUESTER_P_H

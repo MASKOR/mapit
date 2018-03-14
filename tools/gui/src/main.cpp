@@ -91,7 +91,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
-    upns_init_logging();
+    mapit_init_logging();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(mapit_visualization);
@@ -126,37 +126,32 @@ int main(int argc, char *argv[])
     GraphblocksContext* graphblockCtx = initializeGraphBlocks();
 #endif
 
-    qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
-//    qmlRegisterType<QmlMapsRenderViewport>("fhac.upns", 1, 0, "MapsRenderViewport");
-//    qmlRegisterUncreatableType<Renderdata>("fhac.upns", 1, 0, "Renderdata", "Can not create Renderdata");
-//    //qmlRegisterType<QmlEntitydataPointcloud2>("fhac.upns", 1, 0, "EntitydataPointcloud2");
-//    qmlRegisterType<XBoxController>("fhac.upns", 1, 0, "XBoxController");
-//    //qmlRegisterUncreatableType<QmlEntity>("fhac.upns", 1, 0, "UpnsEntity", "Please add entities by using layer.addEntity()");
+    qmlRegisterType<QmlRaycast>("fhac.mapit", 1, 0, "Raycast");
+//    qmlRegisterType<XBoxController>("fhac.mapit", 1, 0, "XBoxController");
 
-    //qmlRegisterUncreatableType<QmlRepository>("fhac.upns", 1, 0, "Repository", "Not yet implemented. Uses RAII and must be wrapped to set all program_options for repo. Use global \"globalRepository\" for now.");
-    qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
-    qmlRegisterType<QmlCheckout>("fhac.upns", 1, 0, "Checkout");
-    qmlRegisterType<QmlCommit>("fhac.upns", 1, 0, "Commit");
-    qmlRegisterType<QmlTree>("fhac.upns", 1, 0, "Tree");
-    qmlRegisterType<QmlEntity>("fhac.upns", 1, 0, "Entity");
-    qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
-    qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
-    qmlRegisterType<QmlRepositoryServer>("fhac.upns", 1, 0, "RepositoryServer");
-    qmlRegisterUncreatableType<MouseEventFilter>("fhac.upns", 1, 0, "MouseEventFilter", "Use globalMouseEventFilter to blur popups");
+    qmlRegisterType<QmlRepository>("fhac.mapit", 1, 0, "Repository");
+    qmlRegisterType<QmlCheckout>("fhac.mapit", 1, 0, "Checkout");
+    qmlRegisterType<QmlCommit>("fhac.mapit", 1, 0, "Commit");
+    qmlRegisterType<QmlTree>("fhac.mapit", 1, 0, "Tree");
+    qmlRegisterType<QmlEntity>("fhac.mapit", 1, 0, "Entity");
+    qmlRegisterType<QmlEntitydata>("fhac.mapit", 1, 0, "Entitydata");
+    qmlRegisterType<QmlBranch>("fhac.mapit", 1, 0, "Branch");
+    qmlRegisterType<QmlRepositoryServer>("fhac.mapit", 1, 0, "RepositoryServer");
+    qmlRegisterUncreatableType<MouseEventFilter>("fhac.mapit", 1, 0, "MouseEventFilter", "Use globalMouseEventFilter to blur popups");
 
-    qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
-    qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
+    qmlRegisterType<QmlTransform>("fhac.mapit", 1, 0, "TfTransform");
+    qmlRegisterUncreatableType<QmlStamp>("fhac.mapit", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
 
-    qmlRegisterType<QmlRootTreeModel>("fhac.upns", 1, 0, "RootTreeModel");
+    qmlRegisterType<QmlRootTreeModel>("fhac.mapit", 1, 0, "RootTreeModel");
 
-    qmlRegisterType<QmlEntitydataRenderer>("fhac.upns", 1, 0, "EntitydataRenderer");
+    qmlRegisterType<QmlEntitydataRenderer>("fhac.mapit", 1, 0, "EntitydataRenderer");
     qmlRegisterUncreatableType<QPointcloud>("pcl", 1, 0, "Pointcloud", "Please use factory method (not yet available).");
     qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
     qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
 
     qmlRegisterType<EditorCameraController>("qt3deditorlib", 1, 0, "EditorCameraController");
 
-    qmlRegisterType<QmlPointcloudCoordinatesystem>("fhac.upns", 1, 0, "PointcloudCoordinatesystem");
+    qmlRegisterType<QmlPointcloudCoordinatesystem>("fhac.mapit", 1, 0, "PointcloudCoordinatesystem");
     qmlRegisterType<FileIO, 1>("FileIO", 1, 0, "FileIO");
 
     QQmlApplicationEngine engine;
@@ -192,14 +187,6 @@ int main(int argc, char *argv[])
             const QMetaObject *appStyleMeta = appStyle->metaObject();
             int isDarkIndex = appStyleMeta->indexOfProperty("isDark");
             QMetaMethod isDarkChanged = appStyleMeta->property(isDarkIndex).notifySignal();
-
-    //        const QMetaObject *imgProvMeta = &IconImageProvider::staticMetaObject;
-    //        int setDarkIconsIndex = imgProvMeta->indexOfSlot("setDarkIcons(bool)");
-    //        QMetaMethod setDarkIcons = imgProvMeta->method(setDarkIconsIndex);
-
-    //        QObject::connect(appStyle, isDarkChanged, imgProviderIcon, setDarkIcons);
-    //        QObject::connect(appStyle, isDarkChanged, imgProviderMaterialDesign, setDarkIcons);
-    //        QObject::connect(appStyle, isDarkChanged, imgProviderOperator, setDarkIcons);
 
             const QMetaObject *imgUpdMeta = &ImageUpdater::staticMetaObject;
             int updateAllIdx = imgUpdMeta->indexOfSlot("updateAllImages()");

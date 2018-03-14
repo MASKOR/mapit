@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UPNS_UTIL_H
-#define __UPNS_UTIL_H
+#ifndef __MAPIT_UTIL_H
+#define __MAPIT_UTIL_H
 
 #include <mapit/typedefs.h>
 #include <string>

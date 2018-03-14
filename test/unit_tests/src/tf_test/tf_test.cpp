@@ -282,7 +282,7 @@ void TFTest::test_layertype_to_buffer()
                 "}"
                 );
     mapit::OperationResult ret = checkout_->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     // read all tfs from the 2 default layers and store them in the buffer
     std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout_.get(), "map_tftest"));

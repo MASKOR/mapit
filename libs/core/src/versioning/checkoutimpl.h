@@ -315,7 +315,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 // case 2: create Leaf. This is executed once. Next step is after(...).
                 std::pair<StatusCode, PathInternal> pathStatus = storeObject(createLeaf, pathInternal);
                 leafPathIntenal = pathStatus.second;
-                if(!upnsIsOk(pathStatus.first)) return false;
+                if(!mapitIsOk(pathStatus.first)) return false;
                 m_checkout->mutable_transientoidstoorigin()
                         ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathStatus.second, "")); //TODO: history of createLeaf lost, if ther was one
 
@@ -356,7 +356,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                     m_checkout->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, "")); //TODO: history of createLeaf lost, if ther was one
                     std::pair<StatusCode, PathInternal> statusPath = storeObject(createLeaf, pathInternal);
-                    if(!upnsIsOk(statusPath.first)) return false;
+                    if(!mapitIsOk(statusPath.first)) return false;
                     leafPathIntenal = statusPath.second;
                     leafWasStored = true;
                 }
@@ -391,7 +391,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     //createLeaf->set_id(nextOid);
                     std::pair<StatusCode, PathInternal> status_path = storeObject(createLeaf, pathInternal);
-                    if(!upnsIsOk(status_path.first)) return false;
+                    if(!mapitIsOk(status_path.first)) return false;
                     leafPathIntenal = status_path.second;
                     leafWasStored = true;
                 }
@@ -420,7 +420,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
             pathInternal = m_name + "/" + p.substr(0, idx);
             std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(current, pathInternal);
             pathInternal = status_path.second;
-            if(!upnsIsOk(status_path.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
+            if(!mapitIsOk(status_path.first)) { assert(false); return false;} // must never happen. leads to inconsistent data. TODO: rollback
             if(transientTreePath.empty())
             {
                 assert(idx == 0);
@@ -451,7 +451,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     std::shared_ptr<Tree> obj = transientTreePath.back();
     transientTreePath.pop_back();
     std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(obj, m_name + "/");
-    if(!upnsIsOk(status_path.first)) return status_path.first;
+    if(!mapitIsOk(status_path.first)) return status_path.first;
 
     // update checkout commit
     StatusCode s = m_serializer->storeCheckoutCommit(m_checkout, m_name);

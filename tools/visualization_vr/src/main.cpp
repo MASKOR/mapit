@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 {
     Q_INIT_RESOURCE(mapit_visualization);
     Q_INIT_RESOURCE(mapit_visualization_vr);
-    upns_init_logging();
+    mapit_init_logging();
     //TODO: Use QGuiApplication when this bug is fixed: https://bugreports.qt.io/browse/QTBUG-39437
     QGuiApplication app(argc, argv);
     app.setOrganizationName("Fachhochschule Aachen");
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 
 
 
-    qmlRegisterType<QmlPointcloudCoordinatesystem>("fhac.upns", 1, 0, "PointcloudCoordinatesystem");
+    qmlRegisterType<QmlPointcloudCoordinatesystem>("fhac.mapit", 1, 0, "PointcloudCoordinatesystem");
 //    qmlRegisterType<FileIO, 1>("FileIO", 1, 0, "FileIO");
 
     QmlRepository *exampleRepo = new QmlRepository(repo, hmd->engine()->qmlEngine()->rootContext());
@@ -146,25 +146,25 @@ int main(int argc, char* argv[])
 
     qmlRegisterType<Qt3DRender::QCameraLens>("qt3d.render_", 1, 0, "CameraLens_");
 
-    qmlRegisterType<QmlEntitydataRenderer>("fhac.upns", 1, 0, "EntitydataRenderer");
+    qmlRegisterType<QmlEntitydataRenderer>("fhac.mapit", 1, 0, "EntitydataRenderer");
     qmlRegisterUncreatableType<QPointcloud>("pcl", 1, 0, "Pointcloud", "Please use factory method (not yet available).");
     qmlRegisterType<QPointcloudGeometry>("pcl", 1, 0, "PointcloudGeometry");
     qmlRegisterUncreatableType<QPointfield>("pcl", 1, 0, "Pointfield", "Please use factory method (not yet available).");
 
 
-    qmlRegisterType<QmlTransform>("fhac.upns", 1, 0, "TfTransform");
-    qmlRegisterUncreatableType<QmlStamp>("fhac.upns", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
+    qmlRegisterType<QmlTransform>("fhac.mapit", 1, 0, "TfTransform");
+    qmlRegisterUncreatableType<QmlStamp>("fhac.mapit", 1, 0, "MapitStamp", "Can not use MapitTime in Qml because it uses bytes of long unsigned int which are not available in script.");
 
-    qmlRegisterType<QmlRaycast>("fhac.upns", 1, 0, "Raycast");
+    qmlRegisterType<QmlRaycast>("fhac.mapit", 1, 0, "Raycast");
 
-    qmlRegisterType<QmlRepository>("fhac.upns", 1, 0, "Repository");
-    qmlRegisterType<QmlCheckout>("fhac.upns", 1, 0, "Checkout");
-    qmlRegisterType<QmlCommit>("fhac.upns", 1, 0, "Commit");
-    qmlRegisterType<QmlTree>("fhac.upns", 1, 0, "Tree");
-    qmlRegisterType<QmlEntity>("fhac.upns", 1, 0, "Entity");
-    qmlRegisterType<QmlEntitydata>("fhac.upns", 1, 0, "Entitydata");
-    qmlRegisterType<QmlBranch>("fhac.upns", 1, 0, "Branch");
-    qmlRegisterType<QmlRepositoryServer>("fhac.upns", 1, 0, "RepositoryServer");
+    qmlRegisterType<QmlRepository>("fhac.mapit", 1, 0, "Repository");
+    qmlRegisterType<QmlCheckout>("fhac.mapit", 1, 0, "Checkout");
+    qmlRegisterType<QmlCommit>("fhac.mapit", 1, 0, "Commit");
+    qmlRegisterType<QmlTree>("fhac.mapit", 1, 0, "Tree");
+    qmlRegisterType<QmlEntity>("fhac.mapit", 1, 0, "Entity");
+    qmlRegisterType<QmlEntitydata>("fhac.mapit", 1, 0, "Entitydata");
+    qmlRegisterType<QmlBranch>("fhac.mapit", 1, 0, "Branch");
+    qmlRegisterType<QmlRepositoryServer>("fhac.mapit", 1, 0, "RepositoryServer");
 
     QObject::connect(hmd, &Qt3DVirtualReality::QHeadMountedDisplay::sceneCreated, &onSceneCreated);
     hmd->setSource(QUrl("qrc:///qml/main.qml"));

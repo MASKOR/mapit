@@ -21,9 +21,9 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upnszmqrequester.h"
-#include "upnszmqrequester_p.h"
-#include "upnszmqrequestercheckout.h"
+#include "zmqrequester.h"
+#include "zmqrequester_p.h"
+#include "zmqrequestercheckout.h"
 #include <zmq.hpp>
 #include <mapit/errorcodes.h>
 

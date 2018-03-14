@@ -143,7 +143,7 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
         log_error("Wrong type");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsPointcloud2Ptr inputPcd = entityDataInput->getData();
+    mapit::entitytypes::Pointcloud2Ptr inputPcd = entityDataInput->getData();
 
     FloatGridPtr outputFloatGrid;
     std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
@@ -170,7 +170,7 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
         ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
         mapit::StatusCode s = env->getCheckout()->storeEntity(output, ent);
-        if(!upnsIsOk(s))
+        if(!mapitIsOk(s))
         {
             log_error("Failed to create entity.");
             return MAPIT_STATUS_ERR_DB_IO_ERROR;

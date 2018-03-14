@@ -38,7 +38,7 @@ mapit::StatusCode copyEntity(mapit::OperationEnvironment* env, std::string sourc
     // Note: Only the entity is copied, it's new data is empty (because transient path is used to identify entities data)
     mapit::StatusCode s = env->getCheckout()->storeEntity(target, srcEnt);
 
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Could not copy \"" + source + "\" to \"" + target + "\"");
         return s;
@@ -124,7 +124,7 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
                             }
 
                             s = copyEntity(env, path, pathNew, obj);
-                            if (!upnsIsOk(s)) {
+                            if (!mapitIsOk(s)) {
                                 return false;
                             }
 
@@ -139,7 +139,7 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
             log_error("Path not found " + source);
         }
     }
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Could not copy \"" + source + "\" to \"" + target + "\"");
     }

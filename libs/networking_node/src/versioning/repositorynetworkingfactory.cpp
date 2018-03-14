@@ -21,8 +21,8 @@
  */
 
 #include "mapit/versioning/repositorynetworkingfactory.h"
-#include "upnszmqrequester.h"
-#include "upnszmqresponder.h"
+#include "zmqrequester.h"
+#include "zmqresponder.h"
 #include "mapit/repositoryserver.h"
 
 mapit::RepositoryServer* mapit::RepositoryNetworkingFactory::openRepositoryAsServer(const int port, mapit::Repository *repo, std::string urlNext)

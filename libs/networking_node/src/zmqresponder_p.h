@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UPNSZMQRESPONDER_P_H
-#define UPNSZMQRESPONDER_P_H
+#ifndef ZMQRESPONDER_P_H
+#define ZMQRESPONDER_P_H
 
 #include <string>
 #include "zmqprotobufnode.h"
@@ -71,4 +71,4 @@ private:
 
 }
 
-#endif // UPNSZMQRESPONDER_P_H
+#endif // ZMQRESPONDER_P_H

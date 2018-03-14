@@ -130,7 +130,7 @@ void display_checkout(std::shared_ptr<mapit::Checkout> co, bool use_recursive = 
 
 int main(int argc, char *argv[])
 {
-    upns_init_logging();
+    mapit_init_logging();
 
     int ret = 0;
     // get parameter

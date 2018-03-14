@@ -33,7 +33,7 @@ import "panes"
 import "components"
 import "qrc:/qml/network"
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 ApplicationWindow {
     id: mainWindow
@@ -101,7 +101,7 @@ ApplicationWindow {
 //        }
     }
 //TODO: Use Zmq Router for async requests
-//    UPNS.RepositoryServer {
+//    Mapit.RepositoryServer {
 //        id: repoServer
 //        running: connectRealtimeMultiviewDialog.isServer
 //        repository: globalRepository

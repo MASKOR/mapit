@@ -30,14 +30,9 @@ set(OPERATOR_VERSION 1)
 
 find_package(mapit REQUIRED)
 
-aux_source_directory(. SRC_LIST)
-
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
-
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 
@@ -46,7 +41,6 @@ find_package(PCL 1.8 REQUIRED COMPONENTS common io filters surface segmentation 
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-set(PCL_REALLY_ALL_LIBRARIES ${PROTOBUF_LIBRARIES} )
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
@@ -57,8 +51,8 @@ if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-file(GLOB_RECURSE UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_VOXELGRIDFILTER_SOURCES})
+file(GLOB_RECURSE OPERATOR_VOXELGRIDFILTER_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+add_library(${PROJECT_NAME} SHARED ${OPERATOR_VOXELGRIDFILTER_SOURCES})
 
 target_link_libraries( ${PROJECT_NAME}
     ${PCL_LIBRARIES}

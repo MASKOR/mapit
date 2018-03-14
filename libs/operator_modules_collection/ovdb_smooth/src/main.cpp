@@ -139,7 +139,7 @@ mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
         ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
         mapit::StatusCode s = env->getCheckout()->storeEntity(output, ent);
-        if(!upnsIsOk(s))
+        if(!mapitIsOk(s))
         {
             log_error("Failed to create entity.");
             return MAPIT_STATUS_ERR_DB_IO_ERROR;

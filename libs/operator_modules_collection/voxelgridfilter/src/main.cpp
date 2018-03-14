@@ -45,14 +45,14 @@ mapit::StatusCode executeVoxelgrid(mapit::OperationEnvironment* env, const std::
         log_error("Wrong type");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsPointcloud2Ptr pc2 = entityData->getData();
+    mapit::entitytypes::Pointcloud2Ptr pc2 = entityData->getData();
 
     pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
     pcl::PCLPointCloud2ConstPtr stdPc2( pc2.get(), [](pcl::PCLPointCloud2*){});
     sor.setInputCloud(stdPc2);
     sor.setLeafSize (leafSize, leafSize, leafSize);
 
-    upnsPointcloud2Ptr cloud_filtered(new pcl::PCLPointCloud2 ());
+    mapit::entitytypes::Pointcloud2Ptr cloud_filtered(new pcl::PCLPointCloud2 ());
     sor.filter (*cloud_filtered);
     std::stringstream strstr;
     strstr << "new pointcloudsize " << cloud_filtered->width << "(leafsize: " << leafSize << ")";
@@ -91,7 +91,7 @@ mapit::StatusCode operate_vxg(mapit::OperationEnvironment* env)
                     , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             status = executeVoxelgrid(env, path, leafSize);
-                            if ( ! upnsIsOk(status) ) {
+                            if ( ! mapitIsOk(status) ) {
                                 return false;
                             }
                             return true;

@@ -33,7 +33,7 @@ import QtQml.Models 2.3
 
 import pcl 1.0
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 import QtQuick 2.0 as QQ2
 
@@ -383,7 +383,7 @@ Item {
                         }
                     }
 
-                    UPNS.Raycast {
+                    Mapit.Raycast {
                         id: mouseRaycast
                         viewMatrix: camera.viewMatrix
                         projectionMatrix: camera.projectionMatrix
@@ -399,7 +399,7 @@ Item {
                             text: peerRaycast.theRto ? root.mapitClient.state.peerToPeerState[peerRaycast.theRto.peerOwner].peername : "unknown"
                             x: peerRaycast.screenPosition.x
                             y: peerRaycast.screenPosition.y
-                            UPNS.Raycast {
+                            Mapit.Raycast {
                                 id: peerRaycast
                                 viewMatrix: camera.viewMatrix
                                 projectionMatrix: camera.projectionMatrix
@@ -741,7 +741,7 @@ Item {
 //                                    //                                        components: [ gizmoTransform, gizmoLayer ]
 //                                    //                                    }
 
-//                                    UPNS.PointcloudCoordinatesystem {
+//                                    Mapit.PointcloudCoordinatesystem {
 //                                        id: coordSys
 //                                    }
 //                                    Timer {
@@ -788,13 +788,13 @@ Item {
 //                                            //parametersTmp: techniqueFilter.parameters
 //                                            //Currently only one checkout is supported
 //                                            currentCheckout: globalApplicationState.currentCheckout
-//                                            //                                    currentCheckout: UPNS.Checkout {
+//                                            //                                    currentCheckout: Mapit.Checkout {
 //                                            //                                        id: co
 //                                            //                                        repository: globalRepository
 //                                            //                                        name: model.checkoutName
 //                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
 //                                            //                                    }
-//                                            currentEntitydata: UPNS.Entitydata {
+//                                            currentEntitydata: Mapit.Entitydata {
 //                                                checkout: currentCheckout
 //                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
 //                                                onIsLoadingChanged: {
@@ -850,7 +850,7 @@ Item {
 //                                            //parametersTmp: techniqueFilter.parameters
 //                                            //Currently only one checkout is supported
 //                                            currentCheckout: globalApplicationState.currentCheckout
-//                                            currentEntitydata: UPNS.Entitydata {
+//                                            currentEntitydata: Mapit.Entitydata {
 //                                                checkout: currentCheckout
 //                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
 //                                            }

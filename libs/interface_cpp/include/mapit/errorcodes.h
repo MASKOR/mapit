@@ -21,14 +21,14 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UPNS_ERROR_H
-#define UPNS_ERROR_H
+#ifndef MAPIT_ERROR_H
+#define MAPIT_ERROR_H
 
 #include <algorithm>
 
 #define MAPIT_STATUS_OK 0u
 
-#define upnsIsOk(status) (status == MAPIT_STATUS_OK)
+#define mapitIsOk(status) (status == MAPIT_STATUS_OK)
 
 #define MAPIT_STATUS_ERROR 1u
 
@@ -66,16 +66,5 @@
 #define MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED 200u
 
 #define MAPIT_STATUS_ERR_UNKNOWN 666u
-
-namespace mapit
-{
-
-template<typename T>
-bool upnsCheckResultVector( T result )
-{
-    return std::all_of(result.begin(), result.end(), [](typename T::value_type t){return upnsIsOk(t.second);});
-}
-
-}
 
 #endif

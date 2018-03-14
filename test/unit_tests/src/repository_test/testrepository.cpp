@@ -146,11 +146,11 @@ void TestRepository::testReadCheckout()
     QVERIFY(entityData != nullptr);
 
     // compare pointcloud from repo with pointcloud from filesystem
-    upnsPointcloud2Ptr cloud_repo_2 = entityData->getData();
+    mapit::entitytypes::Pointcloud2Ptr cloud_repo_2 = entityData->getData();
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_repo(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*cloud_repo_2, *cloud_repo);
 
-    upnsPointcloud2Ptr cloud_fs_2( new pcl::PCLPointCloud2);
+    mapit::entitytypes::Pointcloud2Ptr cloud_fs_2( new pcl::PCLPointCloud2);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_fs(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*cloud_fs_2, *cloud_fs);
     pcl::PCDReader reader;

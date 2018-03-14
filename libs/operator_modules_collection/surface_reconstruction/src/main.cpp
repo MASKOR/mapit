@@ -532,7 +532,7 @@ mapit::StatusCode operate_surface_reconstruction(mapit::OperationEnvironment* en
     if (pointsEntity == NULL) {
         pointsEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         pointsEntity->set_type(PointcloudEntitydata::TYPENAME());
-        if (!upnsIsOk(environment->getCheckout()->storeEntity(target + "_flt", pointsEntity))) {
+        if (!mapitIsOk(environment->getCheckout()->storeEntity(target + "_flt", pointsEntity))) {
             log_error("Failed to create transform entity.");
             return MAPIT_STATUS_ERR_UNKNOWN;
         }
@@ -580,7 +580,7 @@ mapit::StatusCode operate_surface_reconstruction(mapit::OperationEnvironment* en
     if (meshEntity == NULL) {
         meshEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         meshEntity->set_type(AssetEntitydata::TYPENAME());
-        if (!upnsIsOk(environment->getCheckout()->storeEntity(target + "_msh", meshEntity))) {
+        if (!mapitIsOk(environment->getCheckout()->storeEntity(target + "_msh", meshEntity))) {
             log_error("Failed to create transform entity.");
             return MAPIT_STATUS_ERR_UNKNOWN;
         }

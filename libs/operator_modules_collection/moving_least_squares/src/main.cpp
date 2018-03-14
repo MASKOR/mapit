@@ -40,9 +40,9 @@
 
 
 template <typename PointT>
-mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env);
+mapit::StatusCode operateConcreteType(mapit::entitytypes::Pointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env);
 
-mapit::StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
+mapit::StatusCode operate(mapit::entitytypes::Pointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     bool hasX = false;
     bool hasY = false;
@@ -200,7 +200,7 @@ mapit::StatusCode operate(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEn
 }
 
 template <typename PointT>
-mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
+mapit::StatusCode operateConcreteType(mapit::entitytypes::Pointcloud2Ptr cloud, std::shared_ptr<PointcloudEntitydata> entityData, mapit::OperationEnvironment* env)
 {
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     log_info( "moving least squares params:" + env->getParameters() );
@@ -242,7 +242,7 @@ mapit::StatusCode operateConcreteType(upnsPointcloud2Ptr cloud, std::shared_ptr<
     strstr << "new pointcloudsize " << mls_points.width << "(radius: " << radius << ")";
     log_info( strstr.str() );
 
-    upnsPointcloud2Ptr cloudOut(new pcl::PCLPointCloud2());
+    mapit::entitytypes::Pointcloud2Ptr cloudOut(new pcl::PCLPointCloud2());
     pcl::toPCLPointCloud2(mls_points, *cloudOut);
     entityData->setData(cloudOut);
 
@@ -265,7 +265,7 @@ mapit::StatusCode operate_mls(mapit::OperationEnvironment* env)
         log_error("Wrong type");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsPointcloud2Ptr pc2 = entityData->getData();
+    mapit::entitytypes::Pointcloud2Ptr pc2 = entityData->getData();
 
     return operate(pc2, entityData, env);
 }

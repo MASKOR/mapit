@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UPNS_HASH_H
-#define UPNS_HASH_H
+#ifndef MAPIT_HASH_H
+#define MAPIT_HASH_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>

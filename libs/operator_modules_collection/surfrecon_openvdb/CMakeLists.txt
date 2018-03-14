@@ -30,8 +30,6 @@ set(OPERATOR_VERSION 1)
 
 find_package(mapit REQUIRED)
 
-aux_source_directory(. SRC_LIST)
-
 add_definitions(-DOPERATOR_NAME="${PROJECT_NAME}")
 
 add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
@@ -62,8 +60,8 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-file(GLOB_RECURSE UPNS_OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${UPNS_OPERATOR_SOURCES})
+file(GLOB_RECURSE OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+add_library(${PROJECT_NAME} SHARED ${OPERATOR_SOURCES})
 
 qt5_use_modules(${PROJECT_NAME} Core Gui)
 

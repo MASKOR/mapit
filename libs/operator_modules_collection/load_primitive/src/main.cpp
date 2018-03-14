@@ -98,7 +98,7 @@ mapit::StatusCode operate_load_primitive(mapit::OperationEnvironment* env)
     entity->set_type(PrimitiveEntitydata::TYPENAME());
     entity->set_frame_id(frameId);
     mapit::StatusCode s = env->getCheckout()->storeEntity(target, entity);
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }

@@ -250,7 +250,7 @@ void TestRepositoriesCommunication::readPcd(mapit::Checkout *checkout)
     desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params(std::string("{\"filename\":\"") + FILENAME + "\", \"target\":\"themap/thelayer/bunny\"}");
     mapit::OperationResult ret = checkout->doOperation( desc );
-    //QVERIFY( upnsIsOk(ret.first) );
+    //QVERIFY( mapitIsOk(ret.first) );
 }
 
 void TestRepositoriesCommunication::voxelgrid(mapit::Checkout *checkout)
@@ -264,7 +264,7 @@ void TestRepositoriesCommunication::voxelgrid(mapit::Checkout *checkout)
     paramsDoc.setObject( params );
     operation.set_params( paramsDoc.toJson().toStdString() );
     mapit::OperationResult ret = checkout->doOperation(operation);
-    //QVERIFY( upnsIsOk(ret.first) );
+    //QVERIFY( mapitIsOk(ret.first) );
 }
 
 void TestRepositoriesCommunication::writePcdLocalOnly(mapit::Checkout *checkout, std::string filename)
@@ -287,7 +287,7 @@ void TestRepositoriesCommunication::writePcdLocalOnly(mapit::Checkout *checkout,
         }
         pcl::PCDWriter writer;
 
-        upnsPointcloud2Ptr pc2(entityData->getData());
+        mapit::entitytypes::Pointcloud2Ptr pc2(entityData->getData());
         writer.writeASCII(filename, *pc2.get());
 
         return MAPIT_STATUS_OK;

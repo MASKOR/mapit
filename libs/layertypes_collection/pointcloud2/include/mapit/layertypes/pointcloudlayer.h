@@ -36,8 +36,13 @@
 #endif
 
 // Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-typedef std::shared_ptr<pcl::PCLPointCloud2> upnsPointcloud2Ptr;
-
+namespace mapit
+{
+namespace entitytypes
+{
+typedef std::shared_ptr<pcl::PCLPointCloud2> Pointcloud2Ptr;
+}
+}
 
 extern "C"
 {
@@ -84,17 +89,17 @@ public:
     const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
-    upnsPointcloud2Ptr  getData(float x1, float y1, float z1,
+    mapit::entitytypes::Pointcloud2Ptr  getData(float x1, float y1, float z1,
                                 float x2, float y2, float z2,
                                 bool clipMode,
                                 int lod = 0);
     int                 setData(float x1, float y1, float z1,
                                 float x2, float y2, float z2,
-                                upnsPointcloud2Ptr &data,
+                                mapit::entitytypes::Pointcloud2Ptr &data,
                                 int lod = 0);
 
-    upnsPointcloud2Ptr  getData(int lod = 0);
-    int                 setData(upnsPointcloud2Ptr &data, int lod = 0);
+    mapit::entitytypes::Pointcloud2Ptr  getData(int lod = 0);
+    int                 setData(mapit::entitytypes::Pointcloud2Ptr &data, int lod = 0);
 
     void gridCellAt(float   x, float   y, float   z,
                     float &x1, float &y1, float &z1,
@@ -113,7 +118,7 @@ public:
 private:
     std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
     //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
-    upnsPointcloud2Ptr m_pointcloud;
+    mapit::entitytypes::Pointcloud2Ptr m_pointcloud;
 };
 
 #endif

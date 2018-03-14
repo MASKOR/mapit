@@ -78,7 +78,7 @@ void TestOperators::testOperatorLoadPointcloud()
     //desc.set_params("{\"filename\":\"data/1465223257087387.pcd\", \"target\":\"corridor/laser/eins\"}");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"corridor/laser/eins\"}");
     OperationResult ret = checkout->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
     std::shared_ptr<Entity> ent = checkout->getEntity("corridor/laser/eins");
     QVERIFY( ent != nullptr );
     QVERIFY( ent->type().compare(PointcloudEntitydata::TYPENAME()) == 0 );
@@ -90,8 +90,8 @@ void TestOperators::testOperatorLoadPointcloud()
     std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     QVERIFY( entitydataPC2ByPath != nullptr );
     //std::shared_ptr<PointcloudEntitydata> entitydataPC2ByRef = std::d_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
-    upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
-    //upnsPointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
+    mapit::entitytypes::Pointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
+    //mapit::entitytypes::Pointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPath(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*pc2path, *cloudPath);
@@ -137,7 +137,7 @@ void TestOperators::testInlineOperator()
         std::shared_ptr<Entity> e(new Entity);
         e->set_type(PointcloudEntitydata::TYPENAME());
         mapit::StatusCode status = coraw->storeEntity(epath, e);
-        if(!upnsIsOk(status))
+        if(!mapitIsOk(status))
         {
             return MAPIT_STATUS_ERROR;
         }
@@ -152,12 +152,12 @@ void TestOperators::testInlineOperator()
         entityData->setData(cloud2);
         return MAPIT_STATUS_OK;
     });
-    QVERIFY(upnsIsOk(res.first));
+    QVERIFY(mapitIsOk(res.first));
 
     std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = checkout->getEntitydataReadOnly(epath);
     std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
     QVERIFY( entitydataPC2ByPath != nullptr );
-    upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
+    mapit::entitytypes::Pointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPath(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*pc2path, *cloudPath);
     for(int i=0 ; qMin(100, (int)cloud.width) > i ; ++i)
@@ -176,18 +176,18 @@ void TestOperators::testPointcloudToMesh()
     desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"bunny/laser/eins\"}");
     OperationResult ret = checkout->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
 #if MAPIT_ENABLE_OPENVDB
     desc.mutable_operator_()->set_operatorname("surfrecon_openvdb");
     desc.set_params("{\"voxelsize\":0.1, \"radius\":1, \"input\":\"bunny/laser/eins\", \"output\":\"bunny/laser/levelset\"}");
     ret = checkout->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     desc.mutable_operator_()->set_operatorname("levelset_to_mesh");
     desc.set_params("{\"input\":\"bunny/laser/levelset\", \"output\":\"bunny/laser/asset\"}");
     ret = checkout->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 #endif
     log_info("Test finished!");
 }
@@ -201,11 +201,11 @@ void TestOperators::testPointcloudToMesh()
 //    desc.set_operatorname("load_pointcloud");
 //    desc.set_params("{\"filename\":\"data/bunny.pcd\", \"target\":\"corridor/laser/eins\"}");
 //    OperationResult ret = checkout->doOperation( desc );
-//    QVERIFY( upnsIsOk(ret.first) );
+//    QVERIFY( mapitIsOk(ret.first) );
 //    desc.set_operatorname("grid");
 //    desc.set_params("{\"target\":\"corridor/laser/eins\", \"leafsize\":\"0.01\"}");
 //    ret = checkout->doOperation( desc );
-//    QVERIFY( upnsIsOk(ret.first) );
+//    QVERIFY( mapitIsOk(ret.first) );
 //    std::shared_ptr<Entity> ent = checkout->getEntity("corridor/laser/eins");
 //    QVERIFY( ent != nullptr );
 //    QVERIFY( ent->type() == mapit::POINTCLOUD2 );
@@ -217,8 +217,8 @@ void TestOperators::testPointcloudToMesh()
 
 //    std::shared_ptr<PointcloudEntitydata> entitydataPC2ByPath = std::d_pointer_cast<PointcloudEntitydata>(abstractentitydataByPath);
 //    //std::shared_ptr<PointcloudEntitydata> entitydataPC2ByRef = std::d_pointer_cast<PointcloudEntitydata>(abstractentitydataByRef);
-//    upnsPointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
-//    //upnsPointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
+//    mapit::entitytypes::Pointcloud2Ptr pc2path = entitydataPC2ByPath->getData(0);
+//    //mapit::entitytypes::Pointcloud2Ptr pc2ref  = entitydataPC2ByRef->getData(0);
 
 //    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPath(new pcl::PointCloud<pcl::PointXYZ>);
 //    pcl::fromPCLPointCloud2(*pc2path, *cloudPath);

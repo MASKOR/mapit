@@ -33,11 +33,16 @@ add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} 
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
-add_executable(${PROJECT_NAME} ${UPNS_SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES} stdc++)
+target_link_libraries(${PROJECT_NAME}
+    ${mapit_interface}
+    ${mapit_interface_cpp}
+    ${mapit_standard_repository_factory}
+    ${Boost_LIBRARIES}
+    stdc++)
 
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} uuid ${libzip})

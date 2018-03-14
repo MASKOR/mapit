@@ -26,7 +26,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import Qt3D.Core 2.0
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 import ".."
 import "../components"
@@ -82,7 +82,7 @@ ColumnLayout {
     }
     Item {
         id: priv
-        UPNS.TfTransform {
+        Mapit.TfTransform {
             id: currentEntitydataTransformId
             checkout: globalApplicationState.currentCheckout
             mustExist: false

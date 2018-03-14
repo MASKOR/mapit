@@ -78,7 +78,7 @@ void OPRegLocalICPTest::init()
                 "}"
                 );
     mapit::OperationResult ret = checkout_->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     //add 2. bunny
     OperationDescription desc_bunny2;
@@ -92,7 +92,7 @@ void OPRegLocalICPTest::init()
                 "}"
                 );
     ret = checkout_->doOperation( desc_bunny2 );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     //add 3. bunny
     OperationDescription desc_bunny3;
@@ -106,7 +106,7 @@ void OPRegLocalICPTest::init()
                 "}"
                 );
     ret = checkout_->doOperation( desc_bunny3 );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     // get bunny, transform and save as bunny_tf
     std::shared_ptr<mapit::AbstractEntitydata> ed_a = checkout_->getEntitydataReadOnly("bunny");
@@ -139,7 +139,7 @@ void OPRegLocalICPTest::init()
                 "}"
                 );
     mapit::OperationResult ret_tf = checkout_->doOperation( desc_bunny_tf );
-    QVERIFY( upnsIsOk(ret_tf.first) );
+    QVERIFY( mapitIsOk(ret_tf.first) );
 
     // add tfs for tf-combine test
     OperationDescription desc_add_tfs;
@@ -249,7 +249,7 @@ void OPRegLocalICPTest::init()
                 "}"
                 );
     mapit::OperationResult ret_tfs = checkout_->doOperation( desc_add_tfs );
-    QVERIFY( upnsIsOk(ret_tfs.first) );
+    QVERIFY( mapitIsOk(ret_tfs.first) );
 }
 
 void OPRegLocalICPTest::cleanup()
@@ -288,7 +288,7 @@ void OPRegLocalICPTest::test_icp_tf_add()
                 "}"
                 );
     mapit::OperationResult ret = checkout_->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     // get result from tf buffer
     mapit::tf2::BufferCore buffer(checkout_.get(), "/tfs");
@@ -319,7 +319,7 @@ void OPRegLocalICPTest::test_icp_for_more_than_one_input()
                 "}"
                 );
     mapit::OperationResult ret = checkout_->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 }
 
 void OPRegLocalICPTest::test_icp_tf_combine()
@@ -340,7 +340,7 @@ void OPRegLocalICPTest::test_icp_tf_combine()
                 "}"
                 );
     mapit::OperationResult ret = checkout_->doOperation( desc );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     // get result from tf buffer
     mapit::tf2::BufferCore buffer(checkout_.get(), "/tf-combine");

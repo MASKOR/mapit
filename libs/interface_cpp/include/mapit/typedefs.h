@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UPNS_TYPEDEFS_H
-#define __UPNS_TYPEDEFS_H
+#ifndef MAPIT_TYPEDEFS_H
+#define MAPIT_TYPEDEFS_H
 
 #include <cstddef> // for NULL, size_t, ...
 #include <vector>
@@ -65,4 +65,4 @@ typedef std::string Path;
 typedef std::pair<StatusCode, mapit::msgs::OperationDescription> OperationResult;
 }
 
-#endif // __UPNS_TYPEDEFS_H
+#endif // MAPIT_TYPEDEFS_H

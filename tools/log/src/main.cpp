@@ -50,7 +50,7 @@ void buildCommitList(mapit::Repository *repo, std::vector< std::pair<mapit::Comm
 
 int main(int argc, char *argv[])
 {
-    upns_init_logging();
+    mapit_init_logging();
 
     po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name>");
     program_options_desc.add_options()

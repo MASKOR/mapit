@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upnszmqrequestercheckout.h"
+#include "zmqrequestercheckout.h"
 #include <mapit/msgs/services_internal.pb.h>
 #include <mapit/serialization/entitydatalibrarymanager.h> //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"

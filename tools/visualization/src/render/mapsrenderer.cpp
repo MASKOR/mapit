@@ -245,7 +245,7 @@ void MapsRenderer::createGeometry()
         qWarning() << "FATAL: Corrupt pcd entitydata";
         return;
     }
-    upnsPointcloud2Ptr pc2 = pcdData->getData();
+    mapit::entitytypes::Pointcloud2Ptr pc2 = pcdData->getData();
 
     createGeometry(*pc2);
 }

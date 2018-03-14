@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ABSTRACTLAYERDATA_H
-#define ABSTRACTLAYERDATA_H
+#ifndef MAPIT_ABSTRACTLAYERDATA_H
+#define MAPIT_ABSTRACTLAYERDATA_H
 
 #include <mapit/typedefs.h>
 #include <memory>

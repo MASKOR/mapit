@@ -54,7 +54,7 @@ mapit::StatusCode operate_load_asset(mapit::OperationEnvironment* env)
     std::shared_ptr<Entity> entity(new Entity);
     entity->set_type(AssetEntitydata::TYPENAME());
     mapit::StatusCode s = env->getCheckout()->storeEntity(target, entity);
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }

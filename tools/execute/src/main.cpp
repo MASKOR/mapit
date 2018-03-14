@@ -34,7 +34,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
-    upns_init_logging();
+    mapit_init_logging();
 
     ///// read parameters from commandline /////
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     desc.set_params(vars["parameters"].as<std::string>());
     log_info("Executing: " + vars["operator"].as<std::string>() + ", with params: " + vars["parameters"].as<std::string>());
     mapit::OperationResult res = co->doOperation(desc);
-    if(upnsIsOk(res.first))
+    if(mapitIsOk(res.first))
     {
         std::cout << "success" << std::endl;
     }

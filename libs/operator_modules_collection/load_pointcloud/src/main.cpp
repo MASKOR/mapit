@@ -60,7 +60,7 @@ void chooseDefaultRepresentation ( const std::vector<pcl::PCLPointField>& flist 
 
 mapit::StatusCode operate_load_pointcloud(mapit::OperationEnvironment* env)
 {
-    upnsPointcloud2Ptr pc2( new pcl::PCLPointCloud2);
+    mapit::entitytypes::Pointcloud2Ptr pc2( new pcl::PCLPointCloud2);
 
     std::string jsonErr;
     json11::Json params = json11::Json::parse(env->getParameters(), jsonErr);
@@ -94,7 +94,7 @@ mapit::StatusCode operate_load_pointcloud(mapit::OperationEnvironment* env)
     pclEntity->mutable_stamp()->set_sec( sec );
     pclEntity->mutable_stamp()->set_nsec( nsec );
     mapit::StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }

@@ -86,7 +86,7 @@ std::shared_ptr<Checkout> RepositoryImpl::createCheckout(const CommitId &commitI
     co = std::shared_ptr<CheckoutObj>(new CheckoutObj());
     co->mutable_rollingcommit()->add_parentcommitids(commitId);
     StatusCode s = m_p->m_serializer->createCheckoutCommit( co, name );
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Could not create checkout.");
     }
@@ -208,7 +208,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             obj->set_author("tester <test@maskor.fh-aachen.de>");
 
             std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(obj);
-            if(upnsIsOk(!statusOid.first)) return false;
+            if(mapitIsOk(!statusOid.first)) return false;
             ret = statusOid.second;
             return true;
         },
@@ -232,7 +232,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
                 iter++;
             }
             std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
-            if(upnsIsOk(!statusOid.first)) return false;
+            if(mapitIsOk(!statusOid.first)) return false;
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
@@ -240,7 +240,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
         [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
         {
             std::pair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());
-            if(upnsIsOk(!statusEntitydataOid.first)) return false;
+            if(mapitIsOk(!statusEntitydataOid.first)) return false;
             bool entityNeedsStore;
             if(statusEntitydataOid.second != obj->dataid())
             {
@@ -256,7 +256,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             if(entityNeedsStore)
             {
                 std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(obj);
-                if(upnsIsOk(!statusOid.first)) return false;
+                if(mapitIsOk(!statusOid.first)) return false;
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             }
             else
@@ -267,7 +267,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             //oldToNewIds.insert(oid, soid.second);
             return true;
         });
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("error while commiting");
     }
@@ -284,7 +284,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     ci->add_parentcommitids(ret);
     std::shared_ptr<CheckoutObj> obj(co->getCheckoutObj());
     s = m_p->m_serializer->storeCheckoutCommit(obj, co->getName());
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Error during commit. Could not update current checkout.");
     }

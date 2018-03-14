@@ -76,19 +76,19 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
             return MAPIT_STATUS_ERR_DB_CORRUPTION;
 //            std::shared_ptr<Commit> commit(checkout->getCommit(childoid));
 //            StatusCode s = depthFirstSearch(checkout, commit, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-//            if(!upnsIsOk(s)) return s;
+//            if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageTree)
         {
             std::shared_ptr<Tree> tree(checkout->getTree(childpath));
             StatusCode s = depthFirstSearch(checkout, tree, childref, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-            if(!upnsIsOk(s)) return s;
+            if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
             std::shared_ptr<Entity> entity(checkout->getEntity(childpath));
             StatusCode s = depthFirstSearch(checkout, entity, childref, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-            if(!upnsIsOk(s)) return s;
+            if(!mapitIsOk(s)) return s;
         }
         else
         {
@@ -116,7 +116,7 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Commit> ob
     if( tree )
     {
         StatusCode s = depthFirstSearch(checkout, tree, obj->root(), "/", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-        if(!upnsIsOk(s)) return s;
+        if(!mapitIsOk(s)) return s;
     }
     if(!afterCommit(obj, ref, path)) return MAPIT_STATUS_OK;
     return MAPIT_STATUS_OK;

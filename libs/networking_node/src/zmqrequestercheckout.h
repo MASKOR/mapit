@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UPNSZMQREQUESTERCHECKOUT_H
-#define UPNSZMQREQUESTERCHECKOUT_H
+#ifndef ZMQREQUESTERCHECKOUT_H
+#define ZMQREQUESTERCHECKOUT_H
 
 #include <string>
 #include <mapit/versioning/repository.h>
@@ -93,4 +93,4 @@ private:
 
 }
 
-#endif // UPNSZMQREQUESTER_H
+#endif // ZMQREQUESTER_H

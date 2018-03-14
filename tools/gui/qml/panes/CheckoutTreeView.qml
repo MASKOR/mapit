@@ -26,7 +26,7 @@ import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
 import QtQml.Models 2.3
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 import "../components"
 import "qrc:/qml/network"
@@ -39,7 +39,7 @@ QCtl.TreeView {
     property var allVisualInfoModel: ([])//ObjectModel {}
     // only visible entities
     property ListModel visibleEntityModel: ListModel {}
-    property string currentEntityPath: selectionModel.currentIndex && treeViewCheckout.model.data(selectionModel.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(selectionModel.currentIndex, Qt.ToolTipRole) : ""
+    property string currentEntityPath: selectionModel.currentIndex && treeViewCheckout.model.data(selectionModel.currentIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode ? treeViewCheckout.model.data(selectionModel.currentIndex, Qt.ToolTipRole) : ""
     signal visibleElemsUpdated
     alternatingRowColors: true
     headerVisible: false
@@ -159,12 +159,12 @@ QCtl.TreeView {
         }
     }
 
-    model: UPNS.RootTreeModel {
+    model: Mapit.RootTreeModel {
         sortRole: 0 // "displayRole"
         id: rootModel
         root: currentCheckout
         function forEachItem(parentItem, callback) {
-            //console.log("DBG: a" + hasIndex(0, UPNS.RootTreeModel.NodeTypeRole))
+            //console.log("DBG: a" + hasIndex(0, Mapit.RootTreeModel.NodeTypeRole))
             for(var i = 0; hasIndex(i, 0, parentItem); ++i) {
                 var itemIndex = index(i, 0, parentItem)
                 //console.log("DBG: b" + itemIndex)
@@ -182,10 +182,10 @@ QCtl.TreeView {
             }
 
             forEachItem(null, function(itemIndex, i, parentItem) {
-                var itemPath = data(itemIndex, UPNS.RootTreeModel.NodePathRole)
-                var itemIsEntity = data(itemIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode
+                var itemPath = data(itemIndex, Mapit.RootTreeModel.NodePathRole)
+                var itemIsEntity = data(itemIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode
                 var foundItem = treeViewCheckout.getVisualInfoForPath(itemPath, itemIsEntity)
-                //setData(itemIndex, foundItem, UPNS.RootTreeModel.NodeVisualInfoRole)
+                //setData(itemIndex, foundItem, Mapit.RootTreeModel.NodeVisualInfoRole)
                 for(var missingIndex=0 ; missingIndex < missingItems.length ; ++missingIndex) {
                     if(missingItems[missingIndex].path === foundItem.path) {
                         missingItems.splice(missingIndex, 1)
@@ -217,14 +217,14 @@ QCtl.TreeView {
             verticalAlignment:  Text.AlignVCenter
             text: styleData.value
             elide: StyledLabel.ElideRight
-            property var entity: currentCheckout.getEntity(rootModel.data(styleData.index, UPNS.RootTreeModel.NodePathRole))
+            property var entity: currentCheckout.getEntity(rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole))
             tooltip: entity && entity.isValid() ?
                                 ("<b>Type:</b> " + entity.type
                            + "<br><b>Frame:</b> " + entity.frameId
                            + "<br><b>Stamp:</b> " + entity.stamp.text):""
 
             property string currentClassName: "MapitEntity"
-            property var parameters: { "currentEntityPath": rootModel.data(styleData.index, UPNS.RootTreeModel.NodePathRole) }
+            property var parameters: { "currentEntityPath": rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole) }
             property var myGraph
             property bool myIsClass: true
             property bool dragActive: dragArea.drag.active
@@ -265,8 +265,8 @@ QCtl.TreeView {
 
     itemDelegate: Component {
         Row {
-            property EntityVisualInfo myVisualInfo: treeViewCheckout.getVisualInfoForPath(rootModel.data(styleData.index, UPNS.RootTreeModel.NodePathRole),
-                                                                             rootModel.data(styleData.index, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode)
+            property EntityVisualInfo myVisualInfo: treeViewCheckout.getVisualInfoForPath(rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole),
+                                                                             rootModel.data(styleData.index, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode)
 
             padding: appStyle.controlMargin
             width: visibleColumn.width
@@ -302,8 +302,8 @@ QCtl.TreeView {
                     if(!myVisualInfo.isEntity) {
                         // tree
                         rootModel.forEachItem(styleData.index, function(itemIndexI, i2, parentItem) {
-                            var path = rootModel.data(itemIndexI, UPNS.RootTreeModel.NodePathRole)
-                            var itemIsEntity = rootModel.data(itemIndexI, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode
+                            var path = rootModel.data(itemIndexI, Mapit.RootTreeModel.NodePathRole)
+                            var itemIsEntity = rootModel.data(itemIndexI, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode
                             var visInfo = treeViewCheckout.getVisualInfoForPath(path, itemIsEntity)
                             visInfo.isVisible = myVisualInfo.isVisible
                         })

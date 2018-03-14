@@ -171,7 +171,7 @@ mapit::StatusCode operateApproximateVoxelGrid(mapit::OperationEnvironment* envir
     if (targetEntity == NULL) {
         targetEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         targetEntity->set_type(PointcloudEntitydata::TYPENAME());
-        if (!upnsIsOk(environment->getCheckout()->storeEntity(target, targetEntity))) {
+        if (!mapitIsOk(environment->getCheckout()->storeEntity(target, targetEntity))) {
             log_error("  └─failed to create target entity");
             return MAPIT_STATUS_ERR_UNKNOWN;
         }

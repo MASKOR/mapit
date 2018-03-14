@@ -171,7 +171,7 @@ mapit::StatusCode operate_pcd2las(mapit::OperationEnvironment* env)
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
     mapit::StatusCode s = env->getCheckout()->storeEntity(output, pclEntity);
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }

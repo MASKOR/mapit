@@ -12,7 +12,7 @@ We will create a virtual machine to install and execute mapit in a known working
 This has the advantage, that you do not need to compile mapit yourself. We can not yet proved ABI compatible versions of the programm for most operating systems with all features. Using docker, you can use all features as surface reconstruction and pointcloud manipulation without installing/compiling a multitude of dependencies.
 By using a system alias, it will look like mapit is installed on you host system directly.
 
-We assume you obtained the upns **Dockerfile** and **upns-\<version\>-Linux\_and\_dependencies.tar.gz** before.
+We assume you obtained the mapit **Dockerfile** and **mapit-\<version\>-Linux\_and\_dependencies.tar.gz** before.
 
 First, build the docker container, by invoking the following command **in the directory containig both files**:
 

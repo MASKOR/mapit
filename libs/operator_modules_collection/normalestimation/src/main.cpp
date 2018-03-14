@@ -72,7 +72,7 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
         log_error("Wrong type");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsPointcloud2Ptr pc2 = entityData->getData();
+    mapit::entitytypes::Pointcloud2Ptr pc2 = entityData->getData();
 
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
     pcl::PointCloud<pcl::PointXYZ>::Ptr pcdxyz(new pcl::PointCloud<pcl::PointXYZ>());

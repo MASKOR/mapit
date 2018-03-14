@@ -32,8 +32,8 @@ cmake_minimum_required(VERSION 2.8)
     set(Green       "${Esc}[32m")
   endif()
 
-file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/script/*)
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add bash script files to project" SOURCES ${UPNS_SOURCES})
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/script/*)
+add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add bash script files to project" SOURCES ${SOURCES})
 
 execute_process(
     COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" ${CMAKE_BINARY_DIR}/tools/bin

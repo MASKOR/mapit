@@ -20,24 +20,37 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upnszmqresponder.h"
-#include "upnszmqresponder_p.h"
-#include <mapit/versioning/repository.h>
+#ifndef ZMQRESPONDER_H
+#define ZMQRESPONDER_H
+
+#include <string>
 #include "mapit/repositoryserver.h"
-#include <zmq.hpp>
 
-mapit::ZmqResponder::ZmqResponder(int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests)
+namespace mapit {
+
+class ZmqResponderPrivate;
+class Repository;
+
+///
+/// \brief The mapit::ZmqResponder class
+/// Acts as a server and tries to answer requests to a map-repository.
+/// If a request can not be answered by this repository, the request may be forwarded to another node.
+///
+
+class ZmqResponder : public RepositoryServer
 {
-    m_d = new mapit::ZmqResponderPrivate(portIncomingRequests, repo, urlOutgoingRequests);
+public:
+    ZmqResponder( int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests = std::string() );
+    virtual ~ZmqResponder();
+
+    // RepositoryServer interface
+public:
+    void handleRequest(int milliseconds);
+
+private:
+    ZmqResponderPrivate *m_d;
+};
+
 }
 
-mapit::ZmqResponder::~ZmqResponder()
-{
-    delete m_d;
-}
-
-void mapit::ZmqResponder::handleRequest(int milliseconds)
-{
-    m_d->receive_and_dispatch(milliseconds);
-}
-
+#endif // ZMQRESPONDER_H

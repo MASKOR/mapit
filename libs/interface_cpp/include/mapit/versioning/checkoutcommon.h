@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHECKOUTCOMMON_H
-#define CHECKOUTCOMMON_H
+#ifndef MAPIT_CHECKOUTCOMMON_H
+#define MAPIT_CHECKOUTCOMMON_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>

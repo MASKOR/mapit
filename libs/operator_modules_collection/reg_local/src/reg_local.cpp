@@ -160,7 +160,7 @@ mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &s
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
         log_info("reg_local: \"matching-algorithm\" is ICP");
         mapit::StatusCode status_icp = get_cfg_icp(params);
-        if ( ! upnsIsOk(status_icp) ) {
+        if ( ! mapitIsOk(status_icp) ) {
             status = status_icp;
             return;
         }
@@ -168,7 +168,7 @@ mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &s
         log_error("reg_local: \"matching-algorithm\" not specified, going to use ICP");
         cfg_matching_algorithm_ = MatchingAlgorithm::ICP;
         mapit::StatusCode status_icp = get_cfg_icp(params);
-        if ( ! upnsIsOk(status_icp) ) {
+        if ( ! mapitIsOk(status_icp) ) {
             status = status_icp;
             return;
         }
@@ -220,7 +220,7 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
     std::shared_ptr<mapit::msgs::Entity> entity;
     std::shared_ptr<TfEntitydata> ed_tf;
     std::shared_ptr<tf::store::TransformStampedList> ed_d;
-    if ( ! upnsIsOk( mapit::tf::store::getOrCreateTransformStampedList(checkout_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
+    if ( ! mapitIsOk( mapit::tf::store::getOrCreateTransformStampedList(checkout_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
         return MAPIT_STATUS_ERROR;
     }
 
@@ -294,7 +294,7 @@ mapit::RegLocal::operate()
     pcl::PCLHeader target_header;
     std::shared_ptr<PointcloudEntitydata> entitydata_target;
     boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc = get_pointcloud( cfg_target_, status, target_stamp, target_header, entitydata_target );
-    if ( ! upnsIsOk(status) ) {
+    if ( ! mapitIsOk(status) ) {
         return status;
     }
 
@@ -307,7 +307,7 @@ mapit::RegLocal::operate()
         pcl::PCLHeader input_header;
         std::shared_ptr<PointcloudEntitydata> entitydata_input;
         boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc = get_pointcloud( cfg_input_one, status, input_stamp, input_header, entitydata_input );
-        if ( ! upnsIsOk(status) ) {
+        if ( ! mapitIsOk(status) ) {
             return status;
         }
 
@@ -354,7 +354,7 @@ mapit::RegLocal::operate()
             }
             case HandleResult::tf_add: {
                 mapit::StatusCode status = mapit_add_tf(input_stamp, result_transform);
-                if ( ! upnsIsOk(status)) {
+                if ( ! mapitIsOk(status)) {
                     return status;
                 }
                 break;
@@ -433,7 +433,7 @@ mapit::RegLocal::operate()
 
         // delete tfs between time of clouds
         mapit::StatusCode status = mapit_remove_tfs(earliest, latest);
-        if ( ! upnsIsOk(status)) {
+        if ( ! mapitIsOk(status)) {
             return status;
         }
         // add new tfs

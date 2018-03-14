@@ -251,7 +251,7 @@ mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
     std::shared_ptr<Entity> assetEntity(new Entity);
     assetEntity->set_type(AssetEntitydata::TYPENAME());
     mapit::StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
-    if(!upnsIsOk(s))
+    if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
         return MAPIT_STATUS_ERR_DB_IO_ERROR;

@@ -240,7 +240,7 @@
 //    assert(m_entitydata != NULL);
 
 //    std::shared_ptr<PointcloudEntitydata> pcdData = std::d_pointer_cast<PointcloudEntitydata>(m_entitydata);
-//    upnsPointcloud2Ptr pc2 = pcdData->getData();
+//    mapit::entitytypes::Pointcloud2Ptr pc2 = pcdData->getData();
 
 //    createGeometry(*pc2);
 //}

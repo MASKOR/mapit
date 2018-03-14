@@ -23,7 +23,6 @@
 
 project(gui)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
 
 # other libs don't like 'foreach' (openvdb?)
 add_definitions(-DQT_NO_KEYWORDS)
@@ -71,10 +70,10 @@ find_package(Qt53DQuickRender REQUIRED)
 #else(MAPIT_ENABLE_PCL)
 #endif(MAPIT_ENABLE_PCL)
 
-QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization_standalone.qrc)
+QT5_ADD_RESOURCES(VIS_RESOURCES_RCC mapit_visualization_standalone.qrc)
 
-file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE SHADER ${PROJECT_SOURCE_DIR}/data/*)
 
 #file(GLOB_RECURSE QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/*.cpp ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/*.h)
 #list(REMOVE_ITEM QT3DVR_SOURCES ${PROJECT_SOURCE_DIR}/../qt3d-vr-example/virtualreality/vrbackends/ovr/*)
@@ -92,15 +91,15 @@ set(DataDir ${PROJECT_SOURCE_DIR}/data)
 file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
-file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
+file(GLOB_RECURSE QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
 #hardcoded for ubuntu 16.04 + qt3d input/logic should not affect other installations
 #link_directories("/opt/qt59/lib")
 
 add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${QT3DVR_SOURCES}
-                                ${UPNS_SOURCES}
-                                ${UPNS_VIS_RESOURCES_RCC}
+                                ${SOURCES}
+                                ${VIS_RESOURCES_RCC}
                                 ${FragmentShader}
                                 ${VertexShader}
                                 ${TesControlShader}
@@ -108,7 +107,7 @@ add_executable(${PROJECT_NAME}  ${SRC_LIST}
                                 ${GeometryShader}
                                 ${GlslIncludeShader}
 
-                                ${UPNS_QMLFILES})
+                                ${QMLFILES})
 
 add_custom_target(resourceFilesVizStandalone ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
@@ -159,7 +158,7 @@ target_link_libraries(${PROJECT_NAME} reg_local)
 
 #############################################
 
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
+add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${QMLFILES})
 
 if(WIN32)
     message("Please Create Symlink MANUALLY (see gui cmake:95")
@@ -169,10 +168,10 @@ if(WIN32)
     # 3) backslashes have to be done manually
     # please execute following lines manually once after first build, with administrative privileges in the lovely win cmd:
     # (works if build folder is next to sources)
-    # mklink /D data ..\..\..\upns_software\data
+    # mklink /D data ..\..\..\mapit\data
     # mklink /D libs ..\..\libs
-    # mklink /D resources ..\..\..\upns_software\resources
-    # mklink logging.properties ..\..\..\upns_software\logging.properties
+    # mklink /D resources ..\..\..\mapit\resources
+    # mklink logging.properties ..\..\..\mapit\logging.properties
 
 #    STRING(REGEX REPLACE "/" "\\\\" BINARY_PATH_TMP_WINDOWS ${CMAKE_BINARY_DIR})
 #    STRING(REGEX REPLACE "/" "\\\\" MAPIT_ROOT_DIR_TMP_WINDOWS ${MAPIT_ROOT_DIR})

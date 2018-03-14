@@ -20,8 +20,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ENTITYDATALIBRARYMANAGER_H
-#define ENTITYDATALIBRARYMANAGER_H
+#ifndef MAPIT_ENTITYDATALIBRARYMANAGER_H
+#define MAPIT_ENTITYDATALIBRARYMANAGER_H
 
 #include <mapit/typedefs.h>
 #include <mapit/abstractentitydata.h>

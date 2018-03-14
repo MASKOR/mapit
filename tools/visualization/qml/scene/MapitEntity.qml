@@ -26,7 +26,7 @@ import Qt3D.Input 2.0
 import Qt3D.Extras 2.0
 import QtQml 2.2
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 Q3D.Entity {
     id: pointcloud
@@ -58,7 +58,7 @@ Q3D.Entity {
     }
 
 
-    UPNS.TfTransform {
+    Mapit.TfTransform {
         id: currentEntitydataTransform
         path: currentEntitydata.path
         targetFrame: pointcloud.currentFrameId
@@ -90,7 +90,7 @@ Q3D.Entity {
             id: theMeshTransform
             matrix: ((typeof appStyle !== "undefined") && appStyle.tmpUsePreviewMatrix && pointcloud.currentEntitydata.path === appStyle.tmpCurrentEditEntity) ? appStyle.tmpPreviewMatrix : currentEntitydataTransform.matrix
     }
-    property GeometryRenderer customMesh: UPNS.EntitydataRenderer {
+    property GeometryRenderer customMesh: Mapit.EntitydataRenderer {
         id: edrender
     }
     property list<RenderState> pointRenderStates: [

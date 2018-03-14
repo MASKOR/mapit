@@ -102,7 +102,7 @@ mapit::StatusCode operate_voxelgrid(mapit::OperationEnvironment* env)
     filter.setInputCloud(stdPc2);
     filter.setLeafSize (leafSize, leafSize, leafSize);
 
-    upnsPointcloud2Ptr cloud_filtered(new pcl::PCLPointCloud2 ());
+    mapit::entitytypes::Pointcloud2Ptr cloud_filtered(new pcl::PCLPointCloud2 ());
     sor.filter (*cloud_filtered);
     log_info( "new pointcloudsize " + std::to_string( cloud_filtered->width ) );
 
@@ -133,8 +133,6 @@ add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 find_package(json11 REQUIRED)
-
-include_directories(${UPNS_INTERFACE_INCLUDE})
 
 find_package(PCL REQUIRED COMPONENTS common io filters)
 include_directories(${PCL_INCLUDE_DIRS})
@@ -238,7 +236,7 @@ There are fast C++ implementations for Qml Components to display an Checkout. Mo
 To import the C++ classes and use them with the namespace ```Mapit``` the following line is needed.
 
 ```qml
-import fhac.upns 1.0 as Mapit
+import fhac.mapit 1.0 as Mapit
 ```
 
 
@@ -293,8 +291,8 @@ Mapit.EntitydataRenderer {
   id: currentEntitydata
   checkout: checkout
   path: treeViewCheckout.currentIndex
-        && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole)
-        === UPNS.RootTreeModel.EntityNode
+        && treeViewCheckout.model.data(treeViewCheckout.currentIndex, Mapit.RootTreeModel.NodeTypeRole)
+        === Mapit.RootTreeModel.EntityNode
           ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole)
           : ""
 }

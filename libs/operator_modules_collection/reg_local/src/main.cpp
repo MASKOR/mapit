@@ -85,7 +85,7 @@ mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
 
     mapit::StatusCode status;
     mapit::RegLocal reg_local(env, status);
-    if ( ! upnsIsOk( status ) ) {
+    if ( ! mapitIsOk( status ) ) {
         return status;
     }
     return reg_local.operate();

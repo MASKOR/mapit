@@ -76,7 +76,7 @@ void DeleteTest::add_bunny(std::shared_ptr<mapit::Checkout> checkout, std::strin
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 }
 
 void DeleteTest::test_delete_entity_data() { createTestdata(true, true); }
@@ -97,7 +97,7 @@ void DeleteTest::test_delete_entity()
                 "}"
                 );
     mapit::OperationResult ret_del = checkout->doOperation( desc_del );
-    QVERIFY( upnsIsOk(ret_del.first) );
+    QVERIFY( mapitIsOk(ret_del.first) );
 
     QVERIFY( checkout->getEntity( "bunny1" ) == nullptr);
 }
@@ -124,7 +124,7 @@ void DeleteTest::test_delete_tree()
                 "}"
                 );
     mapit::OperationResult ret_del = checkout->doOperation( desc_del );
-    QVERIFY( upnsIsOk(ret_del.first) );
+    QVERIFY( mapitIsOk(ret_del.first) );
 
     QVERIFY( checkout->getTree("bunnys" ) == nullptr);
     QVERIFY( checkout->getEntity( "bunnys/bun1" ) == nullptr);
@@ -154,7 +154,7 @@ void DeleteTest::test_delete_sub_entity()
                 "}"
                 );
     mapit::OperationResult ret_del = checkout->doOperation( desc_del );
-    QVERIFY( upnsIsOk(ret_del.first) );
+    QVERIFY( mapitIsOk(ret_del.first) );
 
     QVERIFY( checkout->getTree("bunnys" ) != nullptr);
     QVERIFY( checkout->getEntity( "bunnys/bun1" ) != nullptr);
@@ -183,7 +183,7 @@ void DeleteTest::test_delete_sub_tree()
                 "}"
                 );
     mapit::OperationResult ret_del = checkout->doOperation( desc_del );
-    QVERIFY( upnsIsOk(ret_del.first) );
+    QVERIFY( mapitIsOk(ret_del.first) );
 
     QVERIFY( checkout->getTree("suuub" ) != nullptr);
     QVERIFY( checkout->getTree("suuub/bunnys" ) == nullptr);
@@ -213,7 +213,7 @@ void DeleteTest::test_delete_entities_and_trees_mixed()
                 "}"
                 );
     mapit::OperationResult ret_del = checkout->doOperation( desc_del );
-    QVERIFY( upnsIsOk(ret_del.first) );
+    QVERIFY( mapitIsOk(ret_del.first) );
 
     QVERIFY( checkout->getTree("suuub" ) != nullptr);
     QVERIFY( checkout->getTree("suuub/keep" ) != nullptr);

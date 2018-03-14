@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ENTITYDATA_H
-#define __ENTITYDATA_H
+#ifndef MAPIT_ENTITYDATA_H
+#define MAPIT_ENTITYDATA_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
@@ -31,9 +31,6 @@
 
 namespace mapit
 {
-/**
- * TODO: Might be called ObjectData (Note: Do not use word 'Object', but ScanObject, UpnsObject, Entity,
- */
 
 template<typename LayerDataType>
 class Entitydata : public AbstractEntitydata

@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERATIONENVIRONMENT_H
-#define OPERATIONENVIRONMENT_H
+#ifndef MAPIT_OPERATIONENVIRONMENT_H
+#define MAPIT_OPERATIONENVIRONMENT_H
 
 #include <string>
 

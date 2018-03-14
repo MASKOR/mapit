@@ -34,7 +34,7 @@ import vr 2.0
 import "qrc:/qml/network"
 import "qrc:/qml/scene"
 
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 
 Q3D.Entity {
     id: root
@@ -69,7 +69,7 @@ Q3D.Entity {
     }
 
 
-    UPNS.Raycast {
+    Mapit.Raycast {
         id: teleportRaycast
         viewMatrix: realtimeHead.tf
         projectionMatrix: vrCam.leftCameraLens.projectionMatrix
@@ -243,7 +243,7 @@ Q3D.Entity {
             ]
         }
     }
-    UPNS.Checkout {
+    Mapit.Checkout {
         id: globalCheckout
         repository: globalRepository
         name: "testcheckout"

@@ -26,9 +26,8 @@ import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2 as Wnd
 import QtGraphicalEffects 1.0
 import pcl 1.0
-import fhac.upns 1.0 as UPNS
 import QtQuick 2.0 as QQ2
-import fhac.upns 1.0 as UPNS
+import fhac.mapit 1.0 as Mapit
 import "panes"
 import "components"
 
@@ -38,7 +37,7 @@ Item {
 //    property alias currentOperator: operatorListPane.currentOperator
 //    property alias currentPipeline: operatorListPane.currentPipeline
 //    property alias visibleElems: treeViewCheckout.visibleElems
-//    property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, UPNS.RootTreeModel.NodeTypeRole) === UPNS.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
+//    property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
 //    property string currentFrameId
 
 //    onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath

@@ -159,7 +159,7 @@ mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
                         , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                           {
                               mapit::StatusCode s = scalePointcloud(checkout, path, obj);
-                              if ( upnsIsOk(s) ) {
+                              if ( mapitIsOk(s) ) {
                                   return true;
                               } else {
                                   statusSearch = s;

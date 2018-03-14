@@ -41,13 +41,13 @@ if(NOT DISABLE_PCL)
   add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
   # describe target
-  file(GLOB_RECURSE UPNS_OPERATOR_SOURCES
+  file(GLOB_RECURSE OPERATOR_SOURCES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
     ${PROJECT_SOURCE_DIR}/src/*.h
     )
   add_library(${PROJECT_NAME} SHARED
     ${SRC_LIST}
-    ${UPNS_OPERATOR_SOURCES}
+    ${OPERATOR_SOURCES}
     )
   set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${OPERATOR_VERSION}

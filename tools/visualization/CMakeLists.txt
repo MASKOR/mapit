@@ -75,11 +75,11 @@ if(WIN32)
     link_directories(${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64)
 endif()
 
-QT5_ADD_RESOURCES(UPNS_VIS_RESOURCES_RCC mapit_visualization.qrc)
+QT5_ADD_RESOURCES(VIS_RESOURCES_RCC mapit_visualization.qrc)
 
-file(GLOB_RECURSE UPNS_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-file(GLOB_RECURSE UPNS_SHADER ${PROJECT_SOURCE_DIR}/data/*)
-file(GLOB_RECURSE UPNS_VIZ_PUBLIC_HEADER ${MAPIT_VISUALIZATION_INCLUDE}/**.h)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE SHADER ${PROJECT_SOURCE_DIR}/data/*)
+file(GLOB_RECURSE VIS_PUBLIC_HEADER ${MAPIT_VISUALIZATION_INCLUDE}/**.h)
 
 set(ShaderPath ${PROJECT_SOURCE_DIR}/data/shader/)
 file(GLOB FragmentShader ${ShaderPath}/*.frag)
@@ -94,15 +94,15 @@ file(GLOB Datas ${DataDir}/*)
 file(GLOB_RECURSE Datas_All ${DataDir}/*)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST}
-                                ${UPNS_SOURCES}
-                                ${UPNS_VIS_RESOURCES_RCC}
+                                ${SOURCES}
+                                ${VIS_RESOURCES_RCC}
                                 ${FragmentShader}
                                 ${VertexShader}
                                 ${TesControlShader}
                                 ${TesEvalShader}
                                 ${GeometryShader}
                                 ${GlslIncludeShader}
-                                ${UPNS_VIZ_PUBLIC_HEADER})
+                                ${VIS_PUBLIC_HEADER})
 
 add_custom_target(resourceFilesVizRenderview ALL ${CMAKE_COMMAND} -E echo "nop" SOURCES ${Datas_All})
 
@@ -153,9 +153,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${MAPIT_VISUALIZATION_INCLUDE
                                                    ${PROJECT_SOURCE_DIR}/../Qt3DOpenVDBRenderer/include)
 
 
-file(GLOB_RECURSE UPNS_QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
+file(GLOB_RECURSE QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
-add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${UPNS_QMLFILES})
+add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${QMLFILES})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )

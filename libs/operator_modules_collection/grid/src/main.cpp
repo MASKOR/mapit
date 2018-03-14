@@ -81,7 +81,7 @@ mapit::StatusCode operate_grid(mapit::OperationEnvironment* env)
         log_error("Wrong type (not a pointcloud)");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    upnsPointcloud2Ptr pc2 = entityData->getData();
+    mapit::entitytypes::Pointcloud2Ptr pc2 = entityData->getData();
 
     //TODO: Helper Library: Query for entities in frustum. Query for level of detail.
     pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>());

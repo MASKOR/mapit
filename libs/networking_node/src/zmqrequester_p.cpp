@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "upnszmqrequester_p.h"
+#include "zmqrequester_p.h"
 #include <mapit/msgs/services.pb.h>
 #include <mapit/msgs/services_internal.pb.h>
 #include <functional>

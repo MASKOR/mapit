@@ -20,8 +20,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPERATORLIBRARYMANAGER_H
-#define OPERATORLIBRARYMANAGER_H
+#ifndef MAPIT_OPERATORLIBRARYMANAGER_H
+#define MAPIT_OPERATORLIBRARYMANAGER_H
 
 #include <mapit/typedefs.h>
 #include <mapit/operators/versioning/checkoutraw.h>

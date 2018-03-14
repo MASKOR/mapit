@@ -233,7 +233,7 @@ bool QmlRepository::deleteCheckoutForced(QString checkoutName)
     if(!m_repository) return false;
     std::string o = checkoutName.toStdString();
     mapit::StatusCode s = m_repository->deleteCheckoutForced( o );
-    return upnsIsOk( s );
+    return mapitIsOk( s );
 }
 
 QString QmlRepository::commit(QmlCheckout *checkout, QString msg)

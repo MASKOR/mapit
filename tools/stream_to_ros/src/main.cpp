@@ -318,7 +318,7 @@ start_publishing_all_entities_at_once(  const std::shared_ptr<mapit::Checkout> c
 
 int main(int argc, char *argv[])
 {
-    upns_init_logging();
+    mapit_init_logging();
 
     int ret = 0;
     // get parameter

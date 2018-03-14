@@ -134,7 +134,7 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
 
               std::shared_ptr<mapit::msgs::Entity> entity;
               mapit::StatusCode get_entity_status = get_or_create_entity(checkout, entity_name, PointcloudEntitydata::TYPENAME(), entity);
-              if ( ! upnsIsOk(get_entity_status) ) {
+              if ( ! mapitIsOk(get_entity_status) ) {
                   log_error("load_bags: Can't get entity \"" + entity_name + "\" of type \"" + PointcloudEntitydata::TYPENAME() + "\"");
                   return get_entity_status;
               }

@@ -490,7 +490,7 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
                     }
 
                     StatusCode s =  m_serializer->removeTreeTransient(m_name + "/" + p);
-                    if ( ! upnsIsOk(s) ) {
+                    if ( ! mapitIsOk(s) ) {
                         status_search = s;
                         return false;
                     }
@@ -501,7 +501,7 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
                 [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &pathInt)
                 {
                     StatusCode s = deleteEntity(pathInt);
-                    if ( ! upnsIsOk(s) ) {
+                    if ( ! mapitIsOk(s) ) {
                         status_search = s;
                         return false;
                     }
@@ -558,19 +558,19 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //        {
 //            std::shared_ptr<Commit> commit(this->getCommit(childoid));
 //            StatusCode s = depthFirstSearch(commit, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-//            if(!upnsIsOk(s)) return s;
+//            if(!mapitIsOk(s)) return s;
 //        }
 //        else if(t == MessageType::MessageTree)
 //        {
 //            std::shared_ptr<Tree> tree(this->getTree(childoid));
 //            StatusCode s = depthFirstSearch(tree, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-//            if(!upnsIsOk(s)) return s;
+//            if(!mapitIsOk(s)) return s;
 //        }
 //        else if(t == MessageType::MessageEntity)
 //        {
 //            std::shared_ptr<Entity> entity(this->getEntity(childoid));
 //            StatusCode s = depthFirstSearch(entity, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-//            if(!upnsIsOk(s)) return s;
+//            if(!mapitIsOk(s)) return s;
 //        }
 //        else
 //        {
@@ -597,7 +597,7 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    if( !obj->root().empty() )
 //    {
 //        StatusCode s = depthFirstSearch(tree, obj->root(), "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-//        if(!upnsIsOk(s)) return s;
+//        if(!mapitIsOk(s)) return s;
 //    }
 //    if(!afterCommit(obj, oid, path)) return MAPIT_STATUS_OK;
 //    return MAPIT_STATUS_OK;

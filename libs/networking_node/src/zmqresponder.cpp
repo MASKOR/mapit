@@ -1,7 +1,6 @@
 /*******************************************************************************
  *
- * Copyright 2015-2016 Daniel Bulla	<d.bulla@fh-aachen.de>
- *                2015 Tobias Neumann	<t.neumann@fh-aachen.de>
+ * Copyright 2016-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
  *
 ******************************************************************************/
 
@@ -21,37 +20,24 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TESTENTITYDATA_H
-#define __TESTENTITYDATA_H
+#include "zmqresponder.h"
+#include "zmqresponder_p.h"
+#include <mapit/versioning/repository.h>
+#include "mapit/repositoryserver.h"
+#include <zmq.hpp>
 
-#include <QTest>
-
-#include "versioning/repository.h"
-#include "../repositorycommon.h"
-
-namespace mapit {
-class AbstractEntityData;
-class AbstractMapSerializer;
-class AbstractEntityDataStreamProvider;
+mapit::ZmqResponder::ZmqResponder(int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests)
+{
+    m_d = new mapit::ZmqResponderPrivate(portIncomingRequests, repo, urlOutgoingRequests);
 }
 
-class TestEntitydata : public QObject
+mapit::ZmqResponder::~ZmqResponder()
 {
-    Q_OBJECT
-private slots:
-    void init();
-    void cleanup();
+    delete m_d;
+}
 
-    void initTestCase();
-    void cleanupTestCase();
+void mapit::ZmqResponder::handleRequest(int milliseconds)
+{
+    m_d->receive_and_dispatch(milliseconds);
+}
 
-    void testCreateLayer_data();
-    void testCreateLayer();
-private:
-    void createTestdata();
-    mapit::upnsSharedPointer<mapit::AbstractMapSerializer> m_ed[2];
-    mapit::upnsSharedPointer<mapit::AbstractEntityDataStreamProvider> m_edsp[2];
-
-};
-
-#endif

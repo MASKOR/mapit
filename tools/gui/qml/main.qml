@@ -29,8 +29,6 @@ import QtGraphicalEffects 1.0
 
 import pcl 1.0
 
-import fhac.upns 1.0 as UPNS
-
 import "panes"
 import "components"
 

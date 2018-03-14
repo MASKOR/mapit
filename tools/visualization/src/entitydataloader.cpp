@@ -70,7 +70,7 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<mapit::AbstractEntitydata>
         std::shared_ptr<FloatGridEntitydata> entitydataOpenVDB;
         if(entitydataPointcloud = std::dynamic_pointer_cast<PointcloudEntitydata>( entitydata ))
         {
-            upnsPointcloud2Ptr pc2 = entitydataPointcloud->getData();
+            mapit::entitytypes::Pointcloud2Ptr pc2 = entitydataPointcloud->getData();
             result["width"] = QJsonValue(static_cast<qint64>(pc2->width));
             result["length"] = QJsonValue(static_cast<qint64>(pc2->width));
             float xMin, yMin, zMin, xMax, yMax, zMax;
