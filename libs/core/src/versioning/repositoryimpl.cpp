@@ -167,7 +167,7 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
     return m_p->m_serializer->removeCheckout(checkoutName);
 }
 
-CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string msg)
+CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg, std::string author, std::string email)
 {
     size_t logStatsFileChanged = 0;
 
@@ -202,7 +202,7 @@ CommitId RepositoryImpl::commit(std::shared_ptr<Checkout>& checkout, std::string
             commit->set_commitmessage(msg);
             int64_t millisecs = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
             commit->set_datetime(millisecs);
-            commit->set_author("tester <test@maskor.fh-aachen.de>");
+            commit->set_author(author + " <" + email + ">");
 
             std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(commit);
             if ( ! mapitIsOk(statusOid.first) ) {

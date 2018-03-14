@@ -118,12 +118,14 @@ public:
     virtual StatusCode deleteCheckoutForced(const std::string &checkoutName) = 0;
 
     /**
-     * @brief commit Commits checked out data. The checkout must not be used after committing it.
+     * @brief commit Commits checked out data.
      * @param checkout
      * @param msg
+     * @param author
+     * @param email
      * @return commitId of new commit.
      */
-    virtual CommitId commit(std::shared_ptr<Checkout>& checkout, std::string msg) = 0;
+    virtual CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg, std::string author, std::string email) = 0;
 
     /**
      * @brief getBranches List all Branches

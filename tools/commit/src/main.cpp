@@ -40,7 +40,9 @@ int main(int argc, char *argv[])
     program_options_desc.add_options()
             ("help,h", "print usage")
             ("checkout,co", po::value<std::string>()->required(), "")
-            ("commitmessage,m", po::value<std::string>()->required(), "");
+            ("commitmessage,m", po::value<std::string>()->required(), "")
+            ("author,a", po::value<std::string>()->required(), "")
+            ("email,e", po::value<std::string>()->required(), "");
     po::positional_options_description pos_options;
     pos_options.add("checkout",  1)
                .add("commitmessage",  1);
@@ -61,7 +63,7 @@ int main(int argc, char *argv[])
 
     if(co)
     {
-        const mapit::CommitId ciid = repo->commit(co, vars["commitmessage"].as<std::string>() );
+        const mapit::CommitId ciid = repo->commit(co, vars["commitmessage"].as<std::string>(), vars["author"].as<std::string>(), vars["email"].as<std::string>() );
         std::cout << "commit " << ciid << std::endl;
     }
     else

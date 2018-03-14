@@ -91,10 +91,7 @@ void CommitTest::test_commit_of_single_entity()
     ret = checkout->doOperation( desc_bunny );
     QVERIFY( upnsIsOk(ret.first) );
 
-    upns::Checkout* coBefore = checkout.get();
-    repo->commit(checkout, "CommitTest: first commit");
-    upns::Checkout* coAfter = checkout.get();
-    QVERIFY(coBefore != coAfter);
+    repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     std::string rootTreeName   = "local.mapit/.mapit/trees/ae24c810976196461762b56addaba892514464ab406bf258374148885ce3dc26";
