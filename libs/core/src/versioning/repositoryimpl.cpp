@@ -221,6 +221,9 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             {
                 Path childPath(iter->second.path());
                 childPath = childPath.substr(childPath.find_first_of("/"), childPath.length());
+                if (childPath.back() == '/') {
+                    childPath = childPath.substr(0, childPath.find_last_not_of("/")+1);
+                }
                 assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
                 const ObjectId &newId = oldPathsToNewOids[childPath];
                 assert(!newId.empty());
