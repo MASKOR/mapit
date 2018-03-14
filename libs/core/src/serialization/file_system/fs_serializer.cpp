@@ -246,7 +246,7 @@ FSSerializer::getTreeTransient(const PathInternal &transientId)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeTree(std::shared_ptr<Tree> &obj)
+FSSerializer::storeTree(std::shared_ptr<Tree> obj)
 {
     ObjectId oid = mapit::hash_toString(obj.get());
 
@@ -263,7 +263,7 @@ FSSerializer::storeTree(std::shared_ptr<Tree> &obj)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal &transientId)
+FSSerializer::storeTreeTransient(std::shared_ptr<Tree> obj, const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
@@ -337,7 +337,7 @@ FSSerializer::getEntityTransient(const PathInternal oid)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeEntity(std::shared_ptr<Entity> &obj)
+FSSerializer::storeEntity(std::shared_ptr<Entity> obj)
 {
     ObjectId oid = mapit::hash_toString(obj.get());
 
@@ -354,7 +354,7 @@ FSSerializer::storeEntity(std::shared_ptr<Entity> &obj)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInternal &transientId)
+FSSerializer::storeEntityTransient(std::shared_ptr<Entity> obj, const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
@@ -404,7 +404,7 @@ FSSerializer::getCommit(const ObjectId &oid)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::createCommit(std::shared_ptr<Commit> &obj)
+FSSerializer::createCommit(std::shared_ptr<Commit> obj)
 {
     ObjectId oid = mapit::hash_toString(obj.get());
 
@@ -480,7 +480,7 @@ FSSerializer::getCheckoutCommit(const std::string &name)
 }
 
 StatusCode
-FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name)
+FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name)
 {
     fs::path path = objectid_to_checkout_fs_path( name );
     fs_check_create(path);
@@ -495,7 +495,7 @@ FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::
 }
 
 StatusCode
-FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name)
+FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name)
 {
     fs::path path = objectid_to_checkout_fs_path(name);
     fs_check_create( path );
@@ -582,14 +582,14 @@ FSSerializer::getBranch(const std::string &name)
 }
 
 StatusCode
-FSSerializer::storeBranch(std::shared_ptr<Branch> &obj, const std::string &name)
+FSSerializer::storeBranch(std::shared_ptr<Branch> obj, const std::string &name)
 {
     //TODO
     return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 StatusCode
-FSSerializer::createBranch(std::shared_ptr<Branch> &obj, const std::string &name)
+FSSerializer::createBranch(std::shared_ptr<Branch> obj, const std::string &name)
 {
     fs::path path = repo_ / _PREFIX_BRANCHES_;
     fs_check_create( path );

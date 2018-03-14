@@ -81,34 +81,34 @@ namespace mapit
 
     virtual std::shared_ptr<Tree> getTree(const ObjectId &oid);
     virtual std::shared_ptr<Tree> getTreeTransient(const PathInternal &transientId);
-    virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<Tree> &obj);
-    virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal &transientId);
+    virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<Tree> obj);
+    virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<Tree> obj, const PathInternal &transientId);
     //virtual std::pair<StatusCode, ObjectId> createTreeTransient(std::shared_ptr<Tree> &obj, const Path &path);
     virtual StatusCode removeTreeTransient(const PathInternal &transientId);
 
     virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId oid);
     virtual std::shared_ptr<mapit::msgs::Entity> getEntityTransient(const PathInternal oid);
-    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> &obj);
-    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> &obj, const PathInternal &transientId);
+    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> obj);
+    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> obj, const PathInternal &transientId);
     //virtual StatusCode createEntityTransient(std::shared_ptr<Entity> &obj);
     virtual StatusCode removeEntityTransient(const PathInternal &transientId);
 
     virtual std::shared_ptr<Commit> getCommit(const ObjectId &oid);
     //virtual std::pair<StatusCode, ObjectId> storeCommit(std::shared_ptr<Commit> &obj);
-    virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<Commit> &obj);
+    virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<Commit> obj);
     virtual StatusCode removeCommit(const ObjectId &oid);
 
     virtual std::vector< std::string > listCheckoutNames();
     virtual std::vector< std::shared_ptr<CheckoutObj> > listCheckouts();
     virtual std::shared_ptr<CheckoutObj> getCheckoutCommit(const std::string &name);
-    virtual StatusCode storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name);
-    virtual StatusCode createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name);
+    virtual StatusCode storeCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name);
+    virtual StatusCode createCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name);
     virtual StatusCode removeCheckout(const std::string &name);
 
     virtual std::vector< std::shared_ptr<Branch> > listBranches();
     virtual std::shared_ptr<Branch> getBranch(const std::string &name);
-    virtual StatusCode storeBranch(std::shared_ptr<Branch> &obj, const std::string &name);
-    virtual StatusCode createBranch(std::shared_ptr<Branch> &obj, const std::string &name);
+    virtual StatusCode storeBranch(std::shared_ptr<Branch> obj, const std::string &name);
+    virtual StatusCode createBranch(std::shared_ptr<Branch> obj, const std::string &name);
     virtual StatusCode removeBranch(const std::string &name);
 
     virtual bool existsStreamProvider(const ObjectId &entityId);
