@@ -65,6 +65,8 @@ endif(NOT WIN32)
 #install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 #install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME mapit_${PROJECT_NAME})
+
 include(GenerateExportHeader)
 
 generate_export_header(${PROJECT_NAME})

@@ -65,6 +65,8 @@ target_include_directories(${PROJECT_NAME}
     ${Boost_INCLUDE_DIRS}
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME mapit_${PROJECT_NAME})
+
 include(GenerateExportHeader)
 
 generate_export_header(${PROJECT_NAME})

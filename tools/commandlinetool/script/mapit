@@ -1,7 +1,7 @@
 #!/bin/bash
 cmd=`which $0`
 cmddir=${cmd%/*}
-subcmd=$cmddir/upns_tools/$1
+subcmd="$cmddir/../libexec/mapit_tools/"$1
 
 if [ "$#" -le 0 ]; then
     echo "no parameters given"
