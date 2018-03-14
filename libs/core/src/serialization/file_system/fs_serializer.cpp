@@ -738,11 +738,11 @@ FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
 
         if ( transientStream.read(buffer, offsetStep) ) { // if the end is not reached
             // and update hash
-            fileHash += buffer; // TODO, use update of hash to be able to not have the whole file in RAM
+            fileHash += std::string(buffer, offsetStep); // TODO, use update of hash to be able to not have the whole file in RAM
         } else {
             // and update hash
             size_t left = transientStream.gcount();
-            fileHash += buffer; // TODO, use update of hash to be able to not have the whole file in RAM
+            fileHash += std::string(buffer, left); // TODO, use update of hash to be able to not have the whole file in RAM
 
             writeIsDone = true; // stop writing with next loop
         }
