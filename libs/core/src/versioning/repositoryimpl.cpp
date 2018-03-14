@@ -287,19 +287,15 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     // delete all folder of checkout
     std::string coName = co->getName();
     std::string branchName = co->getBranchName();
-    deleteCheckoutForced(coName);
 
-    checkout = createCheckout(refID, coName);
-    // TODO: update branchName to new refID
-
-//    // alternative version
-//    std::shared_ptr<CheckoutObj> coNew = std::shared_ptr<CheckoutObj>(new CheckoutObj());
-//    coNew->mutable_rollingcommit()->add_parentcommitids(ret);
-//    StatusCode status = m_p->m_serializer->createCheckoutCommit( coNew, coName );
-//    if ( ! upnsIsOk(status) ) {
-//        log_error("Could not create checkout.");
-//    }
-//    std::shared_ptr<Checkout>(new CheckoutImpl(m_p->m_serializer, coNew, coName, branchName));
+    // update checkout
+    co->getCheckoutObj()->clear_transientoidstoorigin();
+    co->getCheckoutObj()->mutable_rollingcommit()->Clear();
+    co->getCheckoutObj()->mutable_rollingcommit()->add_parentcommitids( refID );
+    StatusCode status = m_p->m_serializer->createCheckoutCommit( co->getCheckoutObj(), coName );
+    if ( ! upnsIsOk(status) ) {
+        log_error("Could not update checkout.");
+    }
 
     log_info("");
     log_info("[" << branchName << " " << refID.substr(0, 7) << "] " << msg.substr(0, msg.find_first_of("\n") ));
