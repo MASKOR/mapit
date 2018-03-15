@@ -174,11 +174,11 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
     CommitId refID;
-    std::shared_ptr<Commit> rootCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
+    std::shared_ptr<Commit> rollingCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
     ObjectReference nullRef;
     StatusCode s = mapit::depthFirstSearch(
                 co,
-                rootCommit,
+                rollingCommit,
                 nullRef,
                 "",
         depthFirstSearchAll(Commit),
@@ -219,19 +219,24 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
             while(iter != refs.end())
             {
-                Path childPath(iter->second.path());
-                childPath = childPath.substr(childPath.find_first_of("/"), childPath.length());
-                if (childPath.back() == '/') {
-                    childPath = childPath.substr(0, childPath.find_last_not_of("/")+1);
+                if ( iter->second.path().empty()) {
+                    assert(! iter->second.id().empty());
+                } else {
+                    Path childPath(iter->second.path());
+                    childPath = childPath.substr(childPath.find_first_of("/"), childPath.length());
+                    if (childPath.back() == '/') {
+                        childPath = childPath.substr(0, childPath.find_last_not_of("/")+1);
+                    }
+                    assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
+                    const ObjectId &newId = oldPathsToNewOids[childPath];
+                    assert(!newId.empty());
+                    if(newId != iter->second.id())
+                    {
+                        iter->second.set_id(newId);
+                        iter->second.clear_path();
+                    }
                 }
-                assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
-                const ObjectId &newId = oldPathsToNewOids[childPath];
-                assert(!newId.empty());
-                if(newId != iter->second.id())
-                {
-                    iter->second.set_id(newId);
-                    iter->second.clear_path();
-                }
+
                 iter++;
             }
             std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(tree);
