@@ -295,15 +295,13 @@ const std::string &CheckoutImpl::getBranchName() const
 
 std::shared_ptr<Tree> CheckoutImpl::getTree(const ObjectReference &ref)
 {
-    if(!ref.id().empty())
-    {
-        return m_serializer->getTree(ref.id());
-    }
-    else if (!ref.path().empty())
-    {
+    if ( ! ref.path().empty()) {
         return m_serializer->getTreeTransient(ref.path());
+    } else if( ! ref.id().empty()) {
+        return m_serializer->getTree(ref.id());
+    } else {
+        return std::shared_ptr<Tree>(nullptr);
     }
-    return std::shared_ptr<Tree>(nullptr);
     //assert(false);
 }
 
