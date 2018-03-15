@@ -295,6 +295,10 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     co->getCheckoutObj()->clear_transientoidstoorigin();
     co->getCheckoutObj()->mutable_rollingcommit()->Clear();
     co->getCheckoutObj()->mutable_rollingcommit()->add_parentcommitids( refID );
+    std::shared_ptr<Commit> commit = getCommit(refID);
+    assert(commit);
+    co->getCheckoutObj()->mutable_rollingcommit()->mutable_root()->set_id( commit->root().id() );
+    assert(commit->root().path().empty());
     StatusCode status = m_p->m_serializer->createCheckoutCommit( co->getCheckoutObj(), coName );
     if ( ! upnsIsOk(status) ) {
         log_error("Could not update checkout.");
