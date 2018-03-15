@@ -289,7 +289,7 @@ FSSerializer::removeTreeTransient(const PathInternal &transientId)
 std::shared_ptr<Entity>
 FSSerializer::getEntity(const ObjectId oid)
 {
-    fs::path path = _PREFIX_ENTITY_ / fs::path(oid);
+    fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(oid);
 
     if ( ! fs::exists( path ) ) {
         return std::shared_ptr<Entity>(NULL);
