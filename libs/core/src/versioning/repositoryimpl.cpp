@@ -304,14 +304,14 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     assert(commit);
     co->getCheckoutObj()->mutable_rollingcommit()->mutable_root()->set_id( commit->root().id() );
     assert(commit->root().path().empty());
-    StatusCode status = m_p->m_serializer->createCheckoutCommit( co->getCheckoutObj(), coName );
+    StatusCode status = m_p->m_serializer->storeCheckoutCommit( co->getCheckoutObj(), coName );
     if ( ! upnsIsOk(status) ) {
         log_error("Could not update checkout.");
     }
 
     log_info("");
     log_info("[" << branchName << " " << refID.substr(0, 7) << "] " << msg.substr(0, msg.find_first_of("\n") ));
-    log_info("" << logStatsFileChanged << " entity changed");
+    log_info("" << logStatsFileChanged << " entity added"); // TODO to check if something was removed, one would had to compare the tree childen from the transient with persistent
     log_info("");
     log_info("\tCommited " << coName << " -> " << branchName);
     log_info("");
