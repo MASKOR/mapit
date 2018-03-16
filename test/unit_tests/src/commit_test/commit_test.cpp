@@ -23,19 +23,19 @@
 #include "commit_test.h"
 #include "../../src/autotest.h"
 
-#include <upns/errorcodes.h>
-#include <upns/versioning/checkout.h>
-#include <upns/versioning/repositoryfactory.h>
+#include <mapit/errorcodes.h>
+#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/repositoryfactory.h>
 
 #include <mapit/msgs/datastructs.pb.h>
-#include <upns/operators/versioning/checkoutraw.h>
-#include <upns/operators/operationenvironment.h>
+#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/operationenvironment.h>
 
-#include <upns/layertypes/tflayer.h>
-#include <upns/layertypes/tflayer/tf2/buffer_core.h>
+#include <mapit/layertypes/tflayer.h>
+#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 #include <mapit/time/time.h>
-#include <upns/logging.h>
-#include <upns/depthfirstsearch.h>
+#include <mapit/logging.h>
+#include <mapit/depthfirstsearch.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -43,8 +43,8 @@
 #include <typeinfo>
 #include <iostream>
 
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<upns::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace fs = boost::filesystem;
@@ -74,11 +74,11 @@ void CommitTest::test_commit_of_single_entity_data() { createTestdata(false, fal
 
 void CommitTest::test_commit_of_single_entity()
 {
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
-    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
 
     OperationDescription desc_bunny;
-    upns::OperationResult ret;
+    mapit::OperationResult ret;
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
                 "{"
@@ -89,7 +89,7 @@ void CommitTest::test_commit_of_single_entity()
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
@@ -107,11 +107,11 @@ void CommitTest::test_commit_of_trees_and_entities_data() { createTestdata(false
 
 void CommitTest::test_commit_of_trees_and_entities()
 {
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
-    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
 
     OperationDescription desc_bunny;
-    upns::OperationResult ret;
+    mapit::OperationResult ret;
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
                 "{"
@@ -122,7 +122,7 @@ void CommitTest::test_commit_of_trees_and_entities()
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
                 "{"
@@ -133,7 +133,7 @@ void CommitTest::test_commit_of_trees_and_entities()
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
@@ -145,7 +145,7 @@ void CommitTest::test_commit_of_trees_and_entities()
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
@@ -186,11 +186,11 @@ void CommitTest::test_delete()
         bool result = repoFolder.removeRecursively();
         QVERIFY( result );
     }
-    std::shared_ptr<upns::Repository> repo = std::shared_ptr<upns::Repository>(upns::RepositoryFactory::openLocalRepository(repoName));
-    std::shared_ptr<upns::Checkout> checkout = std::shared_ptr<upns::Checkout>(repo->createCheckout("master", "test-delete-checkout"));;
+    std::shared_ptr<mapit::Repository> repo = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(repoName));
+    std::shared_ptr<mapit::Checkout> checkout = std::shared_ptr<mapit::Checkout>(repo->createCheckout("master", "test-delete-checkout"));;
 
     OperationDescription desc_bunny;
-    upns::OperationResult ret;
+    mapit::OperationResult ret;
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
                 "{"
@@ -201,9 +201,9 @@ void CommitTest::test_delete()
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
-    CommitId commit1ID = repo->commit(checkout, "CommitTest: Add bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
+    mapit::CommitId commit1ID = repo->commit(checkout, "CommitTest: Add bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     std::string rootTreeName    = (std::string)repoName + "/.mapit/trees/f974ce1f901908186875e4dd9a184d534e50e92d45c5739db04b5e514521d421";
@@ -224,7 +224,7 @@ void CommitTest::test_delete()
                 "}"
                 );
     ret = checkout->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     std::string TransientEntityFolder    = (std::string)repoName + "/.mapit/checkouts/test-delete-checkout/root/deltest/bunny/";
     std::string TransientDeltestTreeName = (std::string)repoName + "/.mapit/checkouts/test-delete-checkout/root/deltest/.generic_entry";
@@ -235,7 +235,7 @@ void CommitTest::test_delete()
     QVERIFY( fs::exists(TransientRootTreeName) );
     // TODO one could load the protobufs and check the path to its childen
 
-    CommitId commit2ID = repo->commit(checkout, "CommitTest: Remove bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
+    mapit::CommitId commit2ID = repo->commit(checkout, "CommitTest: Remove bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     std::string NewRootTreeName    = (std::string)repoName + "/.mapit/trees/3bcee7d728fd2eabf4a149e612f90ab8289a4c16ca1670598df3a02db511dd01";
     std::string NewDeltestTreeName = (std::string)repoName + "/.mapit/trees/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"; // this is the empty tree
@@ -243,8 +243,8 @@ void CommitTest::test_delete()
     QVERIFY( fs::exists(NewRootTreeName) );
 
     // check if checkout (which would be the 3. commit) only points to 2. commit
-    std::vector<CommitId> wsParentIDs = checkout->getParentCommitIds();
-    for (CommitId wsParentID : wsParentIDs) {
+    std::vector<mapit::CommitId> wsParentIDs = checkout->getParentCommitIds();
+    for (mapit::CommitId wsParentID : wsParentIDs) {
         QVERIFY( 0 == commit2ID.compare( wsParentID ) );
     }
 
@@ -260,26 +260,26 @@ void CommitTest::test_branching_data() { createTestdata(false, false); }
 void CommitTest::test_branching()
 {
     // actual branches are not yet supported, here we test if we can create a branch (without a name)
-    QFETCH(std::shared_ptr<upns::Repository>, repo);
-    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
 
-    CommitId parentForNewWs;
-    std::vector<CommitId> wsParents = checkout->getParentCommitIds();
+    mapit::CommitId parentForNewWs;
+    std::vector<mapit::CommitId> wsParents = checkout->getParentCommitIds();
     // get the second last commit (this is ugly, but fastly written ;))
-    for (CommitId wsParent : wsParents) {
+    for (mapit::CommitId wsParent : wsParents) {
         std::shared_ptr<Commit> coP1 = repo->getCommit(wsParent);
         assert(coP1);
-        for (CommitId coP1Parent : coP1->parentcommitids()) {
+        for (mapit::CommitId coP1Parent : coP1->parentcommitids()) {
             std::shared_ptr<Commit> coP2 = repo->getCommit(coP1Parent);
             assert(coP2);
             parentForNewWs = coP1Parent;
         }
     }
 
-    std::shared_ptr<upns::Checkout> ws = repo->createCheckout(parentForNewWs, "wsBranched");
+    std::shared_ptr<mapit::Checkout> ws = repo->createCheckout(parentForNewWs, "wsBranched");
 
     OperationDescription desc_bunny;
-    upns::OperationResult ret;
+    mapit::OperationResult ret;
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
                 "{"
@@ -290,7 +290,7 @@ void CommitTest::test_branching()
                 "}"
                 );
     ret = ws->doOperation( desc_bunny );
-    QVERIFY( upnsIsOk(ret.first) );
+    QVERIFY( mapitIsOk(ret.first) );
 
     repo->commit(ws, "BranchTest: Test to commit a branched workspace\n\na few commits have been done in a different direction allready", "the mapit system", "mapit@mascor.fh-aachen.de");
 

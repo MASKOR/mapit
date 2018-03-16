@@ -306,7 +306,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     co->getCheckoutObj()->mutable_rollingcommit()->mutable_root()->set_id( commit->root().id() );
     assert(commit->root().path().empty());
     StatusCode status = m_p->m_serializer->storeCheckoutCommit( co->getCheckoutObj(), coName );
-    if ( ! upnsIsOk(status) ) {
+    if ( ! mapitIsOk(status) ) {
         log_error("Could not update checkout.");
     }
 
