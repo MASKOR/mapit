@@ -255,4 +255,47 @@ void CommitTest::test_delete()
     }
 }
 
+void CommitTest::test_branching_data() { createTestdata(false, false); }
+
+void CommitTest::test_branching()
+{
+    // actual branches are not yet supported, here we test if we can create a branch (without a name)
+    QFETCH(std::shared_ptr<upns::Repository>, repo);
+    QFETCH(std::shared_ptr<upns::Checkout>, checkout);
+
+    CommitId parentForNewWs;
+    std::vector<CommitId> wsParents = checkout->getParentCommitIds();
+    // get the second last commit (this is ugly, but fastly written ;))
+    for (CommitId wsParent : wsParents) {
+        std::shared_ptr<Commit> coP1 = repo->getCommit(wsParent);
+        assert(coP1);
+        for (CommitId coP1Parent : coP1->parentcommitids()) {
+            std::shared_ptr<Commit> coP2 = repo->getCommit(coP1Parent);
+            assert(coP2);
+            parentForNewWs = coP1Parent;
+        }
+    }
+
+    std::shared_ptr<upns::Checkout> ws = repo->createCheckout(parentForNewWs, "wsBranched");
+
+    OperationDescription desc_bunny;
+    upns::OperationResult ret;
+    desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"bunny\","
+                "  \"sec\"      : 6, "
+                "  \"nsec\"     : 5 "
+                "}"
+                );
+    ret = ws->doOperation( desc_bunny );
+    QVERIFY( upnsIsOk(ret.first) );
+
+    repo->commit(ws, "BranchTest: Test to commit a branched workspace\n\na few commits have been done in a different direction allready", "the mapit system", "mapit@mascor.fh-aachen.de");
+
+    // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
+    // TODO how to test if it worked?
+}
+
 DECLARE_TEST(CommitTest)
