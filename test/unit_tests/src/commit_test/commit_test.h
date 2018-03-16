@@ -40,6 +40,8 @@ private slots:
     void test_commit_of_single_entity();
     void test_commit_of_trees_and_entities_data();
     void test_commit_of_trees_and_entities();
+    void test_delete_data();
+    void test_delete();
 private:
 
 };
