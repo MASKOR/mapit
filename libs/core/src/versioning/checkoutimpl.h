@@ -442,6 +442,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
             ObjectReference oref;
             oref.set_path(pathInternal);
             //oref.set_lastchange(QDateTime::currentDateTime().toMSecsSinceEpoch()); //< breaks hashing
+            parent->mutable_refs()->erase(seg);
             parent->mutable_refs()
                     ->insert( ::google::protobuf::MapPair< ::std::string, ::mapit::msgs::ObjectReference>( seg, oref));
         }
