@@ -43,7 +43,7 @@
 #include <mapit/layertypes/pointcloudlayer.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-mapit::StatusCode get_or_create_entity(  CheckoutRaw* checkout
+mapit::StatusCode get_or_create_entity(  mapit::CheckoutRaw* checkout
                                       , const std::string& entity_name
                                       , const std::string& entity_type
                                       , std::shared_ptr<mapit::msgs::Entity>& entity)
@@ -89,7 +89,7 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    CheckoutRaw* checkout = env->getCheckout();
+    mapit::CheckoutRaw* checkout = env->getCheckout();
 
     QJsonArray json_bag_names( params["bags"].toArray() );
     for (auto json_bag_name : json_bag_names) {
@@ -157,7 +157,7 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
             if (tf2 != NULL) {
 
               for (geometry_msgs::TransformStamped ros_tf : tf2->transforms) {
-                std::unique_ptr<tf::TransformStamped> tf_loaded = std::make_unique<tf::TransformStamped>();
+                std::unique_ptr<mapit::tf::TransformStamped> tf_loaded = std::make_unique<mapit::tf::TransformStamped>();
 
                 tf_loaded->frame_id = ros_tf.header.frame_id;
                 tf_loaded->stamp = mapit::time::from_sec_and_nsec( ros_tf.header.stamp.sec, ros_tf.header.stamp.nsec );
