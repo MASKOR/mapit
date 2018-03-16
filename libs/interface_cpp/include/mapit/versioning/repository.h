@@ -28,6 +28,7 @@
 #include <mapit/msgs/services.pb.h>
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <mapit/entitydata.h>
+#include <mapit/time/time.h>
 #include "checkout.h"
 
 namespace mapit
@@ -123,9 +124,14 @@ public:
      * @param msg
      * @param author
      * @param email
+     * @param stamp
      * @return commitId of new commit.
      */
-    virtual CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg, std::string author, std::string email) = 0;
+    virtual CommitId commit(const std::shared_ptr<Checkout> checkout
+                            , std::string msg
+                            , std::string author
+                            , std::string email
+                            , mapit::time::Stamp stamp = mapit::time::Clock::now()) = 0;
 
     /**
      * @brief getBranches List all Branches

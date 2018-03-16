@@ -172,7 +172,7 @@ mapit::StatusCode mapit::ZmqRequester::deleteCheckoutForced(const std::string &c
     return MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-mapit::CommitId mapit::ZmqRequester::commit(const std::shared_ptr<mapit::Checkout> checkout, std::string msg, std::string author, std::string email)
+mapit::CommitId mapit::ZmqRequester::commit(const std::shared_ptr<mapit::Checkout> checkout, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp)
 {
     //TODO: nyi
     assert(false);
