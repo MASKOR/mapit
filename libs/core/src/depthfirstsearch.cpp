@@ -29,10 +29,14 @@ namespace mapit
 
 using namespace mapit::msgs;
 
-StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path& path,
-                            std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                            std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                            std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+StatusCode depthFirstSearchWorkspace(  CheckoutCommon *checkout
+                                     , std::shared_ptr<Entity> obj
+                                     , const ObjectReference &ref
+                                     , const Path& path
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
     assert(obj != NULL);
     if(!beforeEntity(obj, ref, path))
@@ -45,10 +49,14 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Entity> ob
     return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path& path,
-                                                std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+StatusCode depthFirstSearchWorkspace(CheckoutCommon *checkout
+                                     , std::shared_ptr<Tree> obj
+                                     , const ObjectReference &ref
+                                     , const Path& path
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
     if(obj == nullptr) return MAPIT_STATUS_ERROR;
     //assert(obj != NULL);
@@ -74,20 +82,17 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
             assert(false);
             log_error("Commit found in tree. Commit must be root");
             return MAPIT_STATUS_ERR_DB_CORRUPTION;
-//            std::shared_ptr<Commit> commit(checkout->getCommit(childoid));
-//            StatusCode s = depthFirstSearch(checkout, commit, childoid, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-//            if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageTree)
         {
             std::shared_ptr<Tree> tree(checkout->getTree(childpath));
-            StatusCode s = depthFirstSearch(checkout, tree, childref, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+            StatusCode s = depthFirstSearchWorkspace(checkout, tree, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
             std::shared_ptr<Entity> entity(checkout->getEntity(childpath));
-            StatusCode s = depthFirstSearch(checkout, entity, childref, childpath, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+            StatusCode s = depthFirstSearchWorkspace(checkout, entity, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else
@@ -100,58 +105,32 @@ StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Tree> obj,
     return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearch(CheckoutCommon *checkout, std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path& path,
-                            std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit,
-                            std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree,
-                            std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
-{
-    assert(obj != NULL);
-    if(!beforeCommit(obj, ref, path))
-    {
-        afterCommit(obj, ref, path);
-        return MAPIT_STATUS_OK;
-    }
-
-    std::shared_ptr<Tree> tree(checkout->getRoot());
-    if( tree )
-    {
-        StatusCode s = depthFirstSearch(checkout, tree, obj->root(), "/", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
-        if(!mapitIsOk(s)) return s;
-    }
-    if(!afterCommit(obj, ref, path)) return MAPIT_STATUS_OK;
-    return MAPIT_STATUS_OK;
-}
-
-StatusCode depthFirstSearch(  mapit::CheckoutCommon *checkout
-                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit
-                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit
-                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
-                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
-                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
-                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
     ObjectReference nullRef;
-    return depthFirstSearch(checkout, checkout->getRoot(), nullRef, "", beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+    return depthFirstSearchWorkspace(checkout, checkout->getRoot(), nullRef, "", beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-StatusCode depthFirstSearch(  mapit::CheckoutCommon *checkout
-                            , const Path& path
-                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> beforeCommit
-                            , std::function<bool(std::shared_ptr<Commit>, const ObjectReference&, const Path&)> afterCommit
-                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
-                            , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
-                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
-                            , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+                                     , const Path& path
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
     if (path.empty()) {
-        return depthFirstSearch(checkout, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+        return depthFirstSearchWorkspace(checkout, beforeTree, afterTree, beforeEntity, afterEntity);
     } else {
         std::shared_ptr<Tree> tree = checkout->getTree(path);
         if ( ! tree ) {
             return MAPIT_STATUS_ENTITY_NOT_FOUND; // TODO: actuly tree not found
         }
         ObjectReference nullRef;
-        return depthFirstSearch(checkout, tree, nullRef, path, beforeCommit, afterCommit, beforeTree, afterTree, beforeEntity, afterEntity);
+        return depthFirstSearchWorkspace(checkout, tree, nullRef, path, beforeTree, afterTree, beforeEntity, afterEntity);
     }
 }
 

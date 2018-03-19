@@ -204,7 +204,7 @@ QStringList QmlCheckout::getFrameIds()
     QSet<QString> frameIdSet;
 
     mapit::StatusCode s = this->m_checkout->depthFirstSearch(
-        depthFirstSearchAll(Tree), depthFirstSearchAll(Tree),
+        depthFirstSearchWorkspaceAll(Tree), depthFirstSearchWorkspaceAll(Tree),
         [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             // get the stream to write into a file
@@ -226,7 +226,7 @@ QStringList QmlCheckout::getFrameIds()
             }
             return true;
         },
-        depthFirstSearchAll(Entity));
+        depthFirstSearchWorkspaceAll(Entity));
     if( !mapitIsOk(s) ) {
         log_warn("getFrameIds did not succeed for UI");
     }

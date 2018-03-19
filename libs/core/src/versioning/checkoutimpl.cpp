@@ -266,7 +266,7 @@ StatusCode CheckoutImpl::depthFirstSearch(  std::function<bool(std::shared_ptr<T
                                           , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                           , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    return mapit::depthFirstSearch(this, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
+    return mapit::depthFirstSearchWorkspace(this, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
@@ -275,7 +275,7 @@ StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity)
 {
-    return mapit::depthFirstSearch(this, path, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
+    return mapit::depthFirstSearchWorkspace(this, path, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 std::shared_ptr<CheckoutObj> CheckoutImpl::getCheckoutObj()
@@ -476,14 +476,12 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
 {
     StatusCode status_search = MAPIT_STATUS_OK;
     ObjectReference nullRef;
-    mapit::depthFirstSearch(
+    mapit::depthFirstSearchWorkspace(
                 this,
                 getTree(path), // we just need to delete trees that are actualy transient
                 nullRef,
                 path,
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Tree),
+                depthFirstSearchWorkspaceAll(Tree),
                 [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &pathInt)
                 {
                     Path p(preparePath(pathInt));
@@ -500,7 +498,7 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
 
                     return true;
                },
-                depthFirstSearchAll(Entity),
+                depthFirstSearchWorkspaceAll(Entity),
                 [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &pathInt)
                 {
                     StatusCode s = deleteEntity(pathInt);

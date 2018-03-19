@@ -182,15 +182,13 @@ BufferCore::BufferCore(CheckoutCommon* checkout
         ) : BufferCore()
 {
     ObjectReference nullRef;
-    StatusCode s = mapit::depthFirstSearch(
+    StatusCode s = mapit::depthFirstSearchWorkspace(
                 checkout,
                 tf_prefix.empty() ? checkout->getRoot(): checkout->getTree(tf_prefix),
                 nullRef,
                 tf_prefix,
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Tree),
-                depthFirstSearchAll(Tree),
+                depthFirstSearchWorkspaceAll(Tree),
+                depthFirstSearchWorkspaceAll(Tree),
                 [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
                     std::shared_ptr<mapit::AbstractEntitydata> ed = checkout->getEntitydataReadOnly(path);
@@ -208,7 +206,7 @@ BufferCore::BufferCore(CheckoutCommon* checkout
                     }
                     return true;
                 },
-                depthFirstSearchAll(mapit::msgs::Entity)
+                depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
             );
 }
 

@@ -169,15 +169,13 @@ load_entities( const po::variables_map& vars
             // is tree => depth first search for all entities
             if (tree != nullptr) {
                 ObjectReference nullRef;
-                mapit::depthFirstSearch(
+                mapit::depthFirstSearchWorkspace(
                             co.get(),
                             tree,
                             nullRef,
                             data_name,
-                            depthFirstSearchAll(mapit::msgs::Commit),
-                            depthFirstSearchAll(mapit::msgs::Commit),
-                            depthFirstSearchAll(mapit::msgs::Tree),
-                            depthFirstSearchAll(mapit::msgs::Tree),
+                            depthFirstSearchWorkspaceAll(mapit::msgs::Tree),
+                            depthFirstSearchWorkspaceAll(mapit::msgs::Tree),
                             [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                             {
                                 ::Entity entity_struct;
@@ -187,7 +185,7 @@ load_entities( const po::variables_map& vars
                                 entities.push_back( entity_struct );
                                 return true;
                             },
-                            depthFirstSearchAll(mapit::msgs::Entity)
+                            depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
                         );
             } else {
                 log_warn("can't open \"" + data_name + "\", its neither a entity nor a tree");

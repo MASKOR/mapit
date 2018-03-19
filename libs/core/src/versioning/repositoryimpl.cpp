@@ -176,43 +176,12 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
     CommitId refID;
     std::shared_ptr<Commit> rollingCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
     ObjectReference nullRef;
-    StatusCode s = mapit::depthFirstSearch(
+    StatusCode s = mapit::depthFirstSearchWorkspace(
                 co,
-                rollingCommit,
+                co->getRoot(),
                 nullRef,
-                "",
-        depthFirstSearchAll(Commit),
-        [&](std::shared_ptr<Commit> commit, const ObjectReference &ref, const Path &path)
-        {
-            const Path pathOfRootDir("/");
-            bool changes = oldPathsToNewOids.find(pathOfRootDir) != oldPathsToNewOids.end();
-
-            if ( changes ) {
-                // add reference to root
-                commit->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
-                commit->mutable_root()->clear_path();
-            } else {
-                // no changes where found
-                log_warn("commit empty checkout on empty parent commit (no root)");
-            }
-
-            if(msg.find_last_of('\n') != msg.length()-1) {
-                msg += "\n";
-            }
-            commit->set_commitmessage(msg);
-            mapit::msgs::Time stampMsg = mapit::time::to_msg( stamp );
-            commit->mutable_stamp()->set_sec( stampMsg.sec() );
-            commit->mutable_stamp()->set_nsec( stampMsg.nsec() );
-            commit->set_author(author + " <" + email + ">");
-
-            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(commit);
-            if ( ! mapitIsOk(statusOid.first) ) {
-                return false;
-            }
-            refID = statusOid.second;
-            return true;
-        },
-        depthFirstSearchAll(Tree),
+                "/",
+        depthFirstSearchWorkspaceAll(Tree),
         [&](std::shared_ptr<Tree> tree, const ObjectReference &ref, const Path &path)
         {
             assert(tree != NULL);
@@ -248,7 +217,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
-        depthFirstSearchAll(Entity),
+        depthFirstSearchWorkspaceAll(Entity),
         [&](std::shared_ptr<Entity> entity, const ObjectReference &ref, const Path &path)
         {
             // we have nothing todo when ref.path() is empty
@@ -289,7 +258,36 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
         });
     if(!mapitIsOk(s))
     {
-        log_error("error while commiting");
+        log_error("error while commiting the workspace");
+    }
+    {
+        std::shared_ptr<Commit> commit = rollingCommit;
+        const Path pathOfRootDir("/");
+        bool changes = oldPathsToNewOids.find(pathOfRootDir) != oldPathsToNewOids.end();
+
+        if ( changes ) {
+            // add reference to root
+            commit->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
+            commit->mutable_root()->clear_path();
+        } else {
+            // no changes where found
+            log_warn("commit empty checkout on empty parent commit (no root)");
+        }
+
+        if(msg.find_last_of('\n') != msg.length()-1) {
+            msg += "\n";
+        }
+        commit->set_commitmessage(msg);
+        mapit::msgs::Time stampMsg = mapit::time::to_msg( stamp );
+        commit->mutable_stamp()->set_sec( stampMsg.sec() );
+        commit->mutable_stamp()->set_nsec( stampMsg.nsec() );
+        commit->set_author(author + " <" + email + ">");
+
+        std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(commit);
+        if ( ! mapitIsOk(statusOid.first) ) {
+            log_error("error while commiting");
+        }
+        refID = statusOid.second;
     }
 
     // TODO: assert check if checkout is empty

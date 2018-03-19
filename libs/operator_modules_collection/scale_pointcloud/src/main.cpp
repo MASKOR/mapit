@@ -154,8 +154,8 @@ mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
             mapit::StatusCode statusSearch = MAPIT_STATUS_OK;
             checkout->depthFirstSearch(
                         target
-                        , depthFirstSearchAll(mapit::msgs::Tree)
-                        , depthFirstSearchAll(mapit::msgs::Tree)
+                        , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
+                        , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                         , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                           {
                               mapit::StatusCode s = scalePointcloud(checkout, path, obj);
@@ -166,7 +166,7 @@ mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
                                   return false;
                               }
                           }
-                        , depthFirstSearchAll(mapit::msgs::Entity)
+                        , depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
                         );
         } else {
             log_error("scale_pointcloud: \"target\" is neither a entity nor a tree");
