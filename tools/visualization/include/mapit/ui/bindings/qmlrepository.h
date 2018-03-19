@@ -28,19 +28,19 @@
 #include "qmltree.h"
 #include "qmlentity.h"
 #include "qmlcommit.h"
-#include "qmlcheckout.h"
+#include "qmlworkspace.h"
 #include "qmlbranch.h"
 #include "qmlentitydata.h"
 #include <mapit/msgs/services.pb.h>
 #include <mapit/versioning/repository.h>
 
 class OperatorLoader;
-class QmlCheckout;
+class QmlWorkspace;
 class QmlEntitydata;
 class QmlRepository : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList checkoutNames READ checkoutNames NOTIFY checkoutNamesChanged)
+    Q_PROPERTY(QStringList workspaceNames READ workspaceNames NOTIFY workspaceNamesChanged)
 
     Q_PROPERTY(QVariantList operators READ operators NOTIFY operatorsChanged)
     Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY urlChanged)
@@ -56,7 +56,7 @@ public:
     Q_INVOKABLE QmlTree* getTree(QString oid);
     Q_INVOKABLE QmlEntity* getEntity(QString oid);
     Q_INVOKABLE QmlCommit* getCommit(QString oid);
-    //Q_INVOKABLE QmlCheckout* getCheckoutObj(QString name);
+    //Q_INVOKABLE QmlWorkspace* getWorkspaceObj(QString name);
     Q_INVOKABLE QmlBranch* getBranch(QString name);
     Q_INVOKABLE QString typeOfObject(QString oid);
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString oid);
@@ -65,20 +65,20 @@ public:
     Q_INVOKABLE void reloadOperators();
 
     /**
-     * @brief checkout creates a new checkout from a commit.
+     * @brief workspace creates a new workspace from a commit.
      * name not existing: create new commit
      * name already existing: error (returns null).
      * @param commitId
      * @param name
      * @return
      */
-    Q_INVOKABLE QmlCheckout* createCheckout(QString commitIdOrBranchname, QString name);
+    Q_INVOKABLE QmlWorkspace* createWorkspace(QString commitIdOrBranchname, QString name);
 
-    Q_INVOKABLE QmlCheckout* getCheckout(QString checkoutName);
+    Q_INVOKABLE QmlWorkspace* getWorkspace(QString workspaceName);
 
-    Q_INVOKABLE bool deleteCheckoutForced(QString checkoutName);
+    Q_INVOKABLE bool deleteWorkspaceForced(QString workspaceName);
 
-    Q_INVOKABLE QString commit(QmlCheckout* checkout, QString msg, QString author, QString email);
+    Q_INVOKABLE QString commit(QmlWorkspace* workspace, QString msg, QString author, QString email);
 
     /**
      * @brief getBranches List all Branches
@@ -112,9 +112,9 @@ public:
      * @param mine
      * @param theirs
      * @param base
-     * @return A checkout in conflict mode.
+     * @return A workspace in conflict mode.
      */
-    Q_INVOKABLE QmlCheckout* merge(QString mine, QString theirs, QString base);
+    Q_INVOKABLE QmlWorkspace* merge(QString mine, QString theirs, QString base);
 
     /**
      * @brief ancestors retrieves all (or all until <level>) ancestors of an object. Note that a merged object has more parent.
@@ -130,9 +130,9 @@ public:
     Q_INVOKABLE bool canRead();
     Q_INVOKABLE bool canWrite();
 
-    Q_INVOKABLE QStringList listCheckoutNames() const;
+    Q_INVOKABLE QStringList listWorkspaceNames() const;
 
-    QStringList checkoutNames() const;
+    QStringList workspaceNames() const;
 
     QVariantList m_operators;
     QString url() const;
@@ -147,7 +147,7 @@ public Q_SLOTS:
     void setUrl(QString url);
 
 Q_SIGNALS:
-    void checkoutNamesChanged(QStringList checkoutNames);
+    void workspaceNamesChanged(QStringList workspaceNames);
 
     void internalRepositoryChanged(QmlRepository* repo);
 
@@ -162,7 +162,7 @@ protected:
     std::shared_ptr<mapit::Repository> m_repository;
 
 private:
-    QStringList m_checkoutNames;
+    QStringList m_workspaceNames;
     OperatorLoader *m_opLoaderWorker;
     QString m_url;
     bool m_isLoaded;

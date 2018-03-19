@@ -27,26 +27,26 @@
 #include <QObject>
 #include <mapit/msgs/services.pb.h>
 #include <mapit/abstractentitydata.h>
-#include "qmlcheckout.h"
+#include "qmlworkspace.h"
 
-class QmlCheckout;
+class QmlWorkspace;
 class EntitydataLoader;
 class QmlEntitydata : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QmlCheckout* checkout READ checkout WRITE setCheckout NOTIFY checkoutChanged)
+    Q_PROPERTY(QmlWorkspace* workspace READ workspace WRITE setWorkspace NOTIFY workspaceChanged)
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
     Q_PROPERTY(QJsonObject info READ info NOTIFY infoChanged)
     Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged)
 public:
     QmlEntitydata(QObject *parent = nullptr);
-    QmlEntitydata(std::shared_ptr<mapit::AbstractEntitydata> &entitydata, QmlCheckout* co, QString path = "");
+    QmlEntitydata(std::shared_ptr<mapit::AbstractEntitydata> &entitydata, QmlWorkspace* workspace, QString path = "");
     ~QmlEntitydata();
     std::shared_ptr<mapit::AbstractEntitydata> getEntitydata();
 
     QString path() const;
 
-    QmlCheckout* checkout() const;
+    QmlWorkspace* workspace() const;
 
     void updateInfo();
 
@@ -55,13 +55,13 @@ public:
     bool isLoading() const;
 
 public Q_SLOTS:
-    void setCheckout(QmlCheckout* checkout);
+    void setWorkspace(QmlWorkspace* workspace);
     void setPath(QString path);
     void setInfo(QJsonObject info);
 
 Q_SIGNALS:
     void updated();
-    void checkoutChanged(QmlCheckout* checkout);
+    void workspaceChanged(QmlWorkspace* workspace);
     void pathChanged(QString path);
 
     void internalEntitydataChanged(QmlEntitydata *ed);
@@ -73,7 +73,7 @@ protected:
     std::shared_ptr<mapit::AbstractEntitydata> m_entitydata;
 
 private:
-    QmlCheckout* m_checkout;
+    QmlWorkspace* m_workspace;
     QString m_path;
     QJsonObject m_info;
     bool m_isLoading;

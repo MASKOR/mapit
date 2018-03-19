@@ -24,11 +24,11 @@
 #include "../../src/autotest.h"
 
 #include <mapit/errorcodes.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/versioning/repositoryfactory.h>
 
 #include <mapit/msgs/datastructs.pb.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 
 #include <mapit/layertypes/tflayer.h>
@@ -39,7 +39,7 @@
 #include <iostream>
 
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Workspace>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 void DeleteTest::init()
@@ -62,7 +62,7 @@ void DeleteTest::cleanupTestCase()
     cleanupTestdata();
 }
 
-void DeleteTest::add_bunny(std::shared_ptr<mapit::Checkout> checkout, std::string path)
+void DeleteTest::add_bunny(std::shared_ptr<mapit::Workspace> workspace, std::string path)
 {
     OperationDescription desc_bunny;
     mapit::OperationResult ret;
@@ -75,7 +75,7 @@ void DeleteTest::add_bunny(std::shared_ptr<mapit::Checkout> checkout, std::strin
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 }
 
@@ -83,11 +83,11 @@ void DeleteTest::test_delete_entity_data() { createTestdata(true, true); }
 
 void DeleteTest::test_delete_entity()
 {
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
     //add bunny
-    add_bunny(checkout, "bunny1");
+    add_bunny(workspace, "bunny1");
 
-    QVERIFY( checkout->getEntity( "bunny1" ) != nullptr);
+    QVERIFY( workspace->getEntity( "bunny1" ) != nullptr);
 
     OperationDescription desc_del;
     desc_del.mutable_operator_()->set_operatorname("delete");
@@ -96,25 +96,25 @@ void DeleteTest::test_delete_entity()
                 "  \"target\"   : \"bunny1\""
                 "}"
                 );
-    mapit::OperationResult ret_del = checkout->doOperation( desc_del );
+    mapit::OperationResult ret_del = workspace->doOperation( desc_del );
     QVERIFY( mapitIsOk(ret_del.first) );
 
-    QVERIFY( checkout->getEntity( "bunny1" ) == nullptr);
+    QVERIFY( workspace->getEntity( "bunny1" ) == nullptr);
 }
 
 void DeleteTest::test_delete_tree_data() { createTestdata(true, true); }
 
 void DeleteTest::test_delete_tree()
 {
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     //add bunnys
-    add_bunny(checkout, "bunnys/bun1");
-    add_bunny(checkout, "bunnys/bun2");
-    add_bunny(checkout, "bunnys/bun3");
-    add_bunny(checkout, "keep1/bun1");
-    add_bunny(checkout, "keep2/bun1");
-    add_bunny(checkout, "keep_bun1");
+    add_bunny(workspace, "bunnys/bun1");
+    add_bunny(workspace, "bunnys/bun2");
+    add_bunny(workspace, "bunnys/bun3");
+    add_bunny(workspace, "keep1/bun1");
+    add_bunny(workspace, "keep2/bun1");
+    add_bunny(workspace, "keep_bun1");
 
     OperationDescription desc_del;
     desc_del.mutable_operator_()->set_operatorname("delete");
@@ -123,28 +123,28 @@ void DeleteTest::test_delete_tree()
                 "  \"target\"   : \"bunnys\""
                 "}"
                 );
-    mapit::OperationResult ret_del = checkout->doOperation( desc_del );
+    mapit::OperationResult ret_del = workspace->doOperation( desc_del );
     QVERIFY( mapitIsOk(ret_del.first) );
 
-    QVERIFY( checkout->getTree("bunnys" ) == nullptr);
-    QVERIFY( checkout->getEntity( "bunnys/bun1" ) == nullptr);
-    QVERIFY( checkout->getEntity( "bunnys/bun2" ) == nullptr);
-    QVERIFY( checkout->getEntity( "bunnys/bun3" ) == nullptr);
-    QVERIFY( checkout->getEntity( "keep1/bun1" ) != nullptr);
-    QVERIFY( checkout->getEntity( "keep2/bun1" ) != nullptr);
-    QVERIFY( checkout->getEntity( "keep_bun1" ) != nullptr);
+    QVERIFY( workspace->getTree("bunnys" ) == nullptr);
+    QVERIFY( workspace->getEntity( "bunnys/bun1" ) == nullptr);
+    QVERIFY( workspace->getEntity( "bunnys/bun2" ) == nullptr);
+    QVERIFY( workspace->getEntity( "bunnys/bun3" ) == nullptr);
+    QVERIFY( workspace->getEntity( "keep1/bun1" ) != nullptr);
+    QVERIFY( workspace->getEntity( "keep2/bun1" ) != nullptr);
+    QVERIFY( workspace->getEntity( "keep_bun1" ) != nullptr);
 }
 
 void DeleteTest::test_delete_sub_entity_data() { createTestdata(true, true); }
 
 void DeleteTest::test_delete_sub_entity()
 {
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     //add bunnys
-    add_bunny(checkout, "bunnys/bun1");
-    add_bunny(checkout, "bunnys/bun2");
-    add_bunny(checkout, "bunnys/bun3");
+    add_bunny(workspace, "bunnys/bun1");
+    add_bunny(workspace, "bunnys/bun2");
+    add_bunny(workspace, "bunnys/bun3");
 
     OperationDescription desc_del;
     desc_del.mutable_operator_()->set_operatorname("delete");
@@ -153,27 +153,27 @@ void DeleteTest::test_delete_sub_entity()
                 "  \"target\"   : \"bunnys/bun2\""
                 "}"
                 );
-    mapit::OperationResult ret_del = checkout->doOperation( desc_del );
+    mapit::OperationResult ret_del = workspace->doOperation( desc_del );
     QVERIFY( mapitIsOk(ret_del.first) );
 
-    QVERIFY( checkout->getTree("bunnys" ) != nullptr);
-    QVERIFY( checkout->getEntity( "bunnys/bun1" ) != nullptr);
-    QVERIFY( checkout->getEntity( "bunnys/bun2" ) == nullptr);
-    QVERIFY( checkout->getEntity( "bunnys/bun3" ) != nullptr);
+    QVERIFY( workspace->getTree("bunnys" ) != nullptr);
+    QVERIFY( workspace->getEntity( "bunnys/bun1" ) != nullptr);
+    QVERIFY( workspace->getEntity( "bunnys/bun2" ) == nullptr);
+    QVERIFY( workspace->getEntity( "bunnys/bun3" ) != nullptr);
 }
 
 void DeleteTest::test_delete_sub_tree_data() { createTestdata(true, true); }
 
 void DeleteTest::test_delete_sub_tree()
 {
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     //add bunnys
-    add_bunny(checkout, "suuub/bunnys/bun1");
-    add_bunny(checkout, "suuub/bunnys/bun2");
-    add_bunny(checkout, "suuub/bunnys/bun3");
-    add_bunny(checkout, "suuub/keep/bun");
-    add_bunny(checkout, "suuub/keep_bun");
+    add_bunny(workspace, "suuub/bunnys/bun1");
+    add_bunny(workspace, "suuub/bunnys/bun2");
+    add_bunny(workspace, "suuub/bunnys/bun3");
+    add_bunny(workspace, "suuub/keep/bun");
+    add_bunny(workspace, "suuub/keep_bun");
 
     OperationDescription desc_del;
     desc_del.mutable_operator_()->set_operatorname("delete");
@@ -182,28 +182,28 @@ void DeleteTest::test_delete_sub_tree()
                 "  \"target\"   : \"suuub/bunnys\""
                 "}"
                 );
-    mapit::OperationResult ret_del = checkout->doOperation( desc_del );
+    mapit::OperationResult ret_del = workspace->doOperation( desc_del );
     QVERIFY( mapitIsOk(ret_del.first) );
 
-    QVERIFY( checkout->getTree("suuub" ) != nullptr);
-    QVERIFY( checkout->getTree("suuub/bunnys" ) == nullptr);
-    QVERIFY( checkout->getTree("suuub/keep" ) != nullptr);
-    QVERIFY( checkout->getEntity( "suuub/keep_bun" ) != nullptr);
+    QVERIFY( workspace->getTree("suuub" ) != nullptr);
+    QVERIFY( workspace->getTree("suuub/bunnys" ) == nullptr);
+    QVERIFY( workspace->getTree("suuub/keep" ) != nullptr);
+    QVERIFY( workspace->getEntity( "suuub/keep_bun" ) != nullptr);
 }
 
 void DeleteTest::test_delete_entities_and_trees_mixed_data() { createTestdata(true, true); }
 
 void DeleteTest::test_delete_entities_and_trees_mixed()
 {
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     //add bunnys
-    add_bunny(checkout, "suuub/bunnys/del1");
-    add_bunny(checkout, "suuub/bunnys/del2");
-    add_bunny(checkout, "suuub/bunnys2/keep1");
-    add_bunny(checkout, "suuub/bunnys2/del2");
-    add_bunny(checkout, "suuub/keep/bun");
-    add_bunny(checkout, "suuub/keep_bun");
+    add_bunny(workspace, "suuub/bunnys/del1");
+    add_bunny(workspace, "suuub/bunnys/del2");
+    add_bunny(workspace, "suuub/bunnys2/keep1");
+    add_bunny(workspace, "suuub/bunnys2/del2");
+    add_bunny(workspace, "suuub/keep/bun");
+    add_bunny(workspace, "suuub/keep_bun");
 
     OperationDescription desc_del;
     desc_del.mutable_operator_()->set_operatorname("delete");
@@ -212,16 +212,16 @@ void DeleteTest::test_delete_entities_and_trees_mixed()
                 "  \"target\"   : [ \"suuub/bunnys\", \"suuub/bunnys2/del2\" ]"
                 "}"
                 );
-    mapit::OperationResult ret_del = checkout->doOperation( desc_del );
+    mapit::OperationResult ret_del = workspace->doOperation( desc_del );
     QVERIFY( mapitIsOk(ret_del.first) );
 
-    QVERIFY( checkout->getTree("suuub" ) != nullptr);
-    QVERIFY( checkout->getTree("suuub/keep" ) != nullptr);
-    QVERIFY( checkout->getEntity( "suuub/keep_bun" ) != nullptr);
-    QVERIFY( checkout->getTree("suuub/bunnys" ) == nullptr);
-    QVERIFY( checkout->getTree("suuub/bunnys2" ) != nullptr);
-    QVERIFY( checkout->getEntity( "suuub/bunnys2/keep1" ) != nullptr);
-    QVERIFY( checkout->getEntity( "suuub/bunnys2/del2" ) == nullptr);
+    QVERIFY( workspace->getTree("suuub" ) != nullptr);
+    QVERIFY( workspace->getTree("suuub/keep" ) != nullptr);
+    QVERIFY( workspace->getEntity( "suuub/keep_bun" ) != nullptr);
+    QVERIFY( workspace->getTree("suuub/bunnys" ) == nullptr);
+    QVERIFY( workspace->getTree("suuub/bunnys2" ) != nullptr);
+    QVERIFY( workspace->getEntity( "suuub/bunnys2/keep1" ) != nullptr);
+    QVERIFY( workspace->getEntity( "suuub/bunnys2/del2" ) == nullptr);
 }
 
 DECLARE_TEST(DeleteTest)

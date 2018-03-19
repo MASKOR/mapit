@@ -46,7 +46,10 @@ struct PCLHeader;
 
 namespace mapit {
 class OperationEnvironment;
-class CheckoutRaw;
+namespace operators
+{
+class WorkspaceWritable;
+}
 }
 
 namespace mapit {
@@ -76,7 +79,7 @@ private:
                                      );
 
     // general setup
-    mapit::CheckoutRaw* checkout_;
+    mapit::operators::WorkspaceWritable* workspace_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
 
     std::string cfg_tf_prefix_;

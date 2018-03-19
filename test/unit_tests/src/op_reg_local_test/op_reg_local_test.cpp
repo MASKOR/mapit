@@ -26,11 +26,11 @@
 #include <mapit/logging.h>
 
 #include <mapit/errorcodes.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/versioning/repositoryfactory.h>
 
 #include <mapit/msgs/datastructs.pb.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 
 #include <mapit/layertypes/pointcloudlayer.h>
@@ -58,7 +58,7 @@ void OPRegLocalICPTest::init()
     fileSystemName_ = std::string("op_reg_local_test.mapit");
     cleanup();
     repo_ = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName_));
-    checkout_ = std::shared_ptr<mapit::Checkout>(repo_->createCheckout("master", "op_reg_local_icp_test"));
+    workspace_ = std::shared_ptr<mapit::Workspace>(repo_->createWorkspace("master", "op_reg_local_icp_test"));
 
     log_warn("\n\nop_reg_local_icp_test: this test is based on the performance of ICP on 1 example pointcloud\n"
                  "                       When this failes, it might just mean that the ICP does not work as\n"
@@ -77,7 +77,7 @@ void OPRegLocalICPTest::init()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    mapit::OperationResult ret = checkout_->doOperation( desc_bunny );
+    mapit::OperationResult ret = workspace_->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
     //add 2. bunny
@@ -91,7 +91,7 @@ void OPRegLocalICPTest::init()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout_->doOperation( desc_bunny2 );
+    ret = workspace_->doOperation( desc_bunny2 );
     QVERIFY( mapitIsOk(ret.first) );
 
     //add 3. bunny
@@ -105,11 +105,11 @@ void OPRegLocalICPTest::init()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout_->doOperation( desc_bunny3 );
+    ret = workspace_->doOperation( desc_bunny3 );
     QVERIFY( mapitIsOk(ret.first) );
 
     // get bunny, transform and save as bunny_tf
-    std::shared_ptr<mapit::AbstractEntitydata> ed_a = checkout_->getEntitydataReadOnly("bunny");
+    std::shared_ptr<mapit::AbstractEntitydata> ed_a = workspace_->getEntitydataReadOnly("bunny");
     QVERIFY( ed_a != nullptr );
     std::shared_ptr<PointcloudEntitydata> ed_pc = std::dynamic_pointer_cast<PointcloudEntitydata>(ed_a);
     QVERIFY( ed_pc != nullptr );
@@ -138,7 +138,7 @@ void OPRegLocalICPTest::init()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    mapit::OperationResult ret_tf = checkout_->doOperation( desc_bunny_tf );
+    mapit::OperationResult ret_tf = workspace_->doOperation( desc_bunny_tf );
     QVERIFY( mapitIsOk(ret_tf.first) );
 
     // add tfs for tf-combine test
@@ -248,7 +248,7 @@ void OPRegLocalICPTest::init()
                 "   ]"
                 "}"
                 );
-    mapit::OperationResult ret_tfs = checkout_->doOperation( desc_add_tfs );
+    mapit::OperationResult ret_tfs = workspace_->doOperation( desc_add_tfs );
     QVERIFY( mapitIsOk(ret_tfs.first) );
 }
 
@@ -287,11 +287,11 @@ void OPRegLocalICPTest::test_icp_tf_add()
                 "   \"matching-algorithm\" : \"icp\""
                 "}"
                 );
-    mapit::OperationResult ret = checkout_->doOperation( desc );
+    mapit::OperationResult ret = workspace_->doOperation( desc );
     QVERIFY( mapitIsOk(ret.first) );
 
     // get result from tf buffer
-    mapit::tf2::BufferCore buffer(checkout_.get(), "/tfs");
+    mapit::tf2::BufferCore buffer(workspace_.get(), "/tfs");
     mapit::tf::TransformStamped tf_b = buffer.lookupTransform("world", "bunny", mapit::time::from_sec_and_nsec(0, 0));
     Eigen::Affine3f tf_from_icp(tf_b.transform.translation);
     tf_from_icp.rotate(tf_b.transform.rotation);
@@ -318,7 +318,7 @@ void OPRegLocalICPTest::test_icp_for_more_than_one_input()
                 "   \"matching-algorithm\" : \"icp\""
                 "}"
                 );
-    mapit::OperationResult ret = checkout_->doOperation( desc );
+    mapit::OperationResult ret = workspace_->doOperation( desc );
     QVERIFY( mapitIsOk(ret.first) );
 }
 
@@ -339,11 +339,11 @@ void OPRegLocalICPTest::test_icp_tf_combine()
                 "   \"matching-algorithm\" : \"icp\""
                 "}"
                 );
-    mapit::OperationResult ret = checkout_->doOperation( desc );
+    mapit::OperationResult ret = workspace_->doOperation( desc );
     QVERIFY( mapitIsOk(ret.first) );
 
     // get result from tf buffer
-    mapit::tf2::BufferCore buffer(checkout_.get(), "/tf-combine");
+    mapit::tf2::BufferCore buffer(workspace_.get(), "/tf-combine");
     mapit::tf::TransformStamped tf_b0 = buffer.lookupTransform("world", "bunny", mapit::time::from_sec_and_nsec(0, 1)); // 0.0 would get the "newest" tf but at 1ns it works and is close enough
     Eigen::Affine3f tf_b0_m(tf_b0.transform.translation);
     tf_b0_m.rotate(tf_b0.transform.rotation);

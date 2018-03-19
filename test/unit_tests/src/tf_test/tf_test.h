@@ -50,7 +50,7 @@ private slots:
 private:
     std::string fileSystemName_;
     std::shared_ptr<mapit::Repository> repo_;
-    std::shared_ptr<mapit::Checkout> checkout_;
+    std::shared_ptr<mapit::Workspace> workspace_;
 
     void createTestdata();
 

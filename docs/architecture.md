@@ -7,8 +7,8 @@ is_in_menu: true
 ---
 
 Mapit is designed in a modular way. Complexity is hidden behind a handful of classes. These classes implement the facade design pattern and offer easy interfaces to multiple parts of mapit.
-For new tools, that want to use mapit to access checkouts there are the *Checkout* and *CheckoutCommon* class.
-For new operators which should use a checkout to manipulate it's data there are the *CheckoutRaw* and *CheckoutCommon* class.
+For new tools, that want to use mapit to access workspaces there are the *workspace* and *WorkspaceCommon* class.
+For new operators which should use a workspace to manipulate it's data there are the *operators::WorkspaceWritable* and *WorkspaceCommon* class.
 Everything that needs access to history of the data, *Repository* can be used to access versions of entities, commits, ...
 For new layertypes the class *Entitydata* must be inherited.
 A more advanced usecase is extending mapit for new kinds of serialization (e.g. Webservice or writing directly to a database). This is not yet an easy task and is described shortly at the end of this chapter.
@@ -29,7 +29,7 @@ We also provide a docker container which takes care of the installation of the d
 ### Libaries
 
 - lib/libmapit_core.so: shared library containing symbols for all extensions. This is the core of mapit.
-- lib/libmapitstandard_repository_factory.so: library used by tools to create C++-Classes to access and manipulate *Repositories* and *Checkouts*.
+- lib/libmapitstandard_repository_factory.so: library used by tools to create C++-Classes to access and manipulate *Repositories* and *workspaces*.
 - lib/mapit_layertype_\*: types of sensordata the system can work with. For example Pointclouds (PCL).
 - lib/mapit_operator_\*: each shared library represents an algorithm that can be executed on the data.
 
@@ -37,12 +37,12 @@ We also provide a docker container which takes care of the installation of the d
 
 **common headers**
 
-- include/mapit/versioning/repository.h: Used to navigate through history. This must be used to obtain a Checkout.
-- include/mapit/versioning/checkoutcommon.h: Used to read data from a checkout. Checkouts (at this point) are immutable (may already be commited). The class is extended by CheckoutCommon (see tools) or CheckoutRaw (see operators).
+- include/mapit/versioning/repository.h: Used to navigate through history. This must be used to obtain a workspace.
+- include/mapit/versioning/WorkspaceCommon.h: Used to read data from a workspace. Workspaces (at this point) are immutable (may already be commited). The class is extended by WorkspaceCommon (see tools) or operators::WorkspaceWritable (see operators).
 
 **for implementing new operators**
 
-- include/mapit/versioning/checkoutraw.h: Extends CheckoutCommon with the ability to write and change a checkout. Changes can be tracked implicitly by this class (which entities were changed?).
+- include/mapit/versioning/workspacewritable.h: Extends WorkspaceCommon with the ability to write and change a workspace. Changes can be tracked implicitly by this class (which entities were changed?).
 - include/mapit/serialization/abstractentitydataprovider.h: Access bits and bytes of entities. Usually this is not needed and a concrete implementation of a layertype will be used. This is only needed for typeless / data agnostic calculations (like *delete*, *copy*, *rename*, calculate data size, lossless compression, ...). In almost all usecases it is wrong to use this class directly.
 - include/mapit/operators/module.h: Used to create a shared library for mapit. This defines entrypoint of the operator and data like *version*, *author*, ...
 
@@ -53,7 +53,7 @@ We also provide a docker container which takes care of the installation of the d
 
 **for implementing new tools**
 
-- include/mapit/versioning/checkout.h: Extends CheckoutCommon with the ability to execute operations on the checkout.
+- include/mapit/versioning/workspace.h: Extends WorkspaceCommon with the ability to execute operations on the workspace.
 
 - Repository Factories:
     - include/mapit/versioning/repositoryfactorystandard.h: Header for commandline tools. This is only needed for new *tools*.
@@ -68,19 +68,19 @@ We also provide a docker container which takes care of the installation of the d
 - mapitd: server
 - mapit: entypoint for all mapit subcommands/tools
 
-### Checkout
+### workspace
 
-For basic usage it is only required to understand the concept of *checkouts*. Details about versioning can be ignored, when working only with one checkout. When using git as an analogy, this is like working with an directory tree.
-A checkout is nothing more than a directory tree. In mapit, folders are called 'tree' (at the moment) and 'entities', which represent files.
-A checkout is one specific version of all the data you are currently working on.
-In contrast to git and other versioning systems, checkouts have names in mapit. There can be multiple checkouts at a time. Checkouts might also exist on remote machines.
+For basic usage it is only required to understand the concept of *workspaces*. Details about versioning can be ignored, when working only with one workspace. When using git as an analogy, this is like working with an directory tree.
+A workspace is nothing more than a directory tree. In mapit, folders are called 'tree' (at the moment) and 'entities', which represent files.
+A workspace is one specific version of all the data you are currently working on.
+In contrast to git and other versioning systems, workspaces have names in mapit. There can be multiple workspaces at a time. Workspaces might also exist on remote machines.
 
-A checkout can only be accessed by mapit tools or by writing a new tool (see *using mapit as a library*). Usually tools only **read** the structure.
-**Writing** is meant to be done by executing operators. You can not use a file explorer on an checkout.
+A workspace can only be accessed by mapit tools or by writing a new tool (see *using mapit as a library*). Usually tools only **read** the structure.
+**Writing** is meant to be done by executing operators. You can not use a file explorer on an workspace.
 
 ### Repository
 
-If it is required to access the history of the data, a checkout is not enough. A repository gives you access to existing checkouts. Moreover you can create a checkout from version which existed in the past.
+If it is required to access the history of the data, a workspace is not enough. A repository gives you access to existing workspaces. Moreover you can create a workspace from version which existed in the past.
 
 ### Operators
 

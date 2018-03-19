@@ -52,12 +52,12 @@ int main(int argc, char *argv[])
 {
     mapit_init_logging();
 
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name>");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
     program_options_desc.add_options()
             ("help,h", "print usage")
-            ("checkout,co", po::value<std::string>()->required(), "");
+            ("workspace,w", po::value<std::string>()->required(), "");
     po::positional_options_description pos_options;
-    pos_options.add("checkout",  1);
+    pos_options.add("workspace",  1);
 
     mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
     po::variables_map vars;
@@ -71,15 +71,15 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
+    std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
 
-    if(co == NULL)
+    if(workspace == NULL)
     {
-        std::cout << "failed to log checkout " << vars["checkout"].as<std::string>() << std::endl;
+        std::cout << "failed to log workspace " << vars["workspace"].as<std::string>() << std::endl;
         return 1;
     }
     std::vector< std::pair<mapit::CommitId, std::shared_ptr<Commit> > > commits;
-    const std::vector<mapit::CommitId> parents(co->getParentCommitIds());
+    const std::vector<mapit::CommitId> parents(workspace->getParentCommitIds());
     std::vector<mapit::CommitId>::const_iterator currentParent( parents.cbegin() );
     while(currentParent != parents.cend())
     {
@@ -100,5 +100,5 @@ int main(int argc, char *argv[])
         std::cout << " " << iter->second->commitmessage();
         iter++;
     }
-    return co == NULL;
+    return workspace == NULL;
 }

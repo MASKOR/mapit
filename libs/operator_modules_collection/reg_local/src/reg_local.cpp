@@ -26,7 +26,7 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 #include <mapit/depthfirstsearch.h>
@@ -68,11 +68,11 @@ mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &s
     // if tree -> depth search, add all entities to list
     // otherwise error
     for (std::string input_name : input_list) {
-        if (env->getCheckout()->getEntity(input_name) != nullptr) {
+        if (env->getWorkspace()->getEntity(input_name) != nullptr) {
             cfg_input_.push_back(input_name);
         } else {
-            if (env->getCheckout()->getTree(input_name) != nullptr) {
-                env->getCheckout()->depthFirstSearch(
+            if (env->getWorkspace()->getTree(input_name) != nullptr) {
+                env->getWorkspace()->depthFirstSearch(
                               input_name
                             , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                             , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
@@ -149,10 +149,10 @@ mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &s
     }
 
     // get env
-    checkout_ = env->getCheckout();
+    workspace_ = env->getWorkspace();
     cfg_tf_prefix_ = params.contains("tf-prefix") ? params["tf-prefix"].toString().toStdString() : "";
 
-    tf_buffer_ = std::make_shared<mapit::tf2::BufferCore>(checkout_, cfg_tf_prefix_);
+    tf_buffer_ = std::make_shared<mapit::tf2::BufferCore>(workspace_, cfg_tf_prefix_);
 
     // get algorithm
     std::string cfg_matching_algorithm_str = params.contains("matching-algorithm") ? params["matching-algorithm"].toString().toStdString() : "";
@@ -179,14 +179,14 @@ boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
 mapit::RegLocal::get_pointcloud(std::string path, mapit::StatusCode &status, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
 {
     status = MAPIT_STATUS_OK;
-    std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( path );
+    std::shared_ptr<mapit::msgs::Entity> entity = workspace_->getEntity( path );
     if (entity == nullptr) {
         status = MAPIT_STATUS_INVALID_ARGUMENT;
         return nullptr;
     }
     std::string frame_id = entity->frame_id();
     stamp = mapit::time::from_msg(entity->stamp());
-    std::shared_ptr<mapit::AbstractEntitydata> abstract_entitydata = checkout_->getEntitydataForReadWrite( path );
+    std::shared_ptr<mapit::AbstractEntitydata> abstract_entitydata = workspace_->getEntitydataForReadWrite( path );
     if ( 0 != std::strcmp( abstract_entitydata->type(), PointcloudEntitydata::TYPENAME() )) {
         status = MAPIT_STATUS_INVALID_ARGUMENT;
         return nullptr;
@@ -220,7 +220,7 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
     std::shared_ptr<mapit::msgs::Entity> entity;
     std::shared_ptr<TfEntitydata> ed_tf;
     std::shared_ptr<tf::store::TransformStampedList> ed_d;
-    if ( ! mapitIsOk( mapit::tf::store::getOrCreateTransformStampedList(checkout_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
+    if ( ! mapitIsOk( mapit::tf::store::getOrCreateTransformStampedList(workspace_, cfg_tf_frame_id_, cfg_tf_child_frame_id_, cfg_tf_prefix_, entity, ed_tf, ed_d, cfg_tf_is_static_) )) {
         return MAPIT_STATUS_ERROR;
     }
 
@@ -242,7 +242,7 @@ mapit::RegLocal::mapit_add_tf(const mapit::time::Stamp& input_stamp, const Eigen
 
     // write data
     std::string entity_name = cfg_tf_prefix_ + "/" + mapit::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
-    checkout_->storeEntity(entity_name, entity);
+    workspace_->storeEntity(entity_name, entity);
     ed_tf->setData(ed_d);
 
     return MAPIT_STATUS_OK;
@@ -259,12 +259,12 @@ mapit::RegLocal::mapit_remove_tfs(const time::Stamp &stamp_start, const time::St
     // get entity and entitydata
     std::string entity_name = cfg_tf_prefix_ + "/" + mapit::tf::store::TransformStampedList::get_entity_name(cfg_tf_frame_id_, cfg_tf_child_frame_id_);
     // get entity and data
-    std::shared_ptr<mapit::msgs::Entity> entity = checkout_->getEntity( entity_name );
+    std::shared_ptr<mapit::msgs::Entity> entity = workspace_->getEntity( entity_name );
     if (entity == nullptr) {
         log_warn("reg_local: transform entity \"" + entity_name + "\" does not exists, do not remove anything");
         return MAPIT_STATUS_OK;
     }
-    std::shared_ptr<mapit::AbstractEntitydata> ed_a = checkout_->getEntitydataForReadWrite(entity_name);
+    std::shared_ptr<mapit::AbstractEntitydata> ed_a = workspace_->getEntitydataForReadWrite(entity_name);
     if ( 0 != std::strcmp(ed_a->type(), TfEntitydata::TYPENAME()) ) {
       log_error("reg_local: can't add tf, retrieved entity is not of type TfEntitydata");
       return MAPIT_STATUS_ERROR;

@@ -38,7 +38,7 @@
 #include <boost/program_options.hpp>
 
 #include <mapit/ui/bindings/qmlrepository.h>
-#include <mapit/ui/bindings/qmlcheckout.h>
+#include <mapit/ui/bindings/qmlworkspace.h>
 #include <mapit/ui/bindings/qmlcommit.h>
 #include <mapit/ui/bindings/qmltree.h>
 #include <mapit/ui/bindings/qmlentity.h>
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
     qmlRegisterType<QmlRaycast>("fhac.mapit", 1, 0, "Raycast");
 
     qmlRegisterType<QmlRepository>("fhac.mapit", 1, 0, "Repository");
-    qmlRegisterType<QmlCheckout>("fhac.mapit", 1, 0, "Checkout");
+    qmlRegisterType<QmlWorkspace>("fhac.mapit", 1, 0, "Workspace");
     qmlRegisterType<QmlCommit>("fhac.mapit", 1, 0, "Commit");
     qmlRegisterType<QmlTree>("fhac.mapit", 1, 0, "Tree");
     qmlRegisterType<QmlEntity>("fhac.mapit", 1, 0, "Entity");

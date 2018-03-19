@@ -35,7 +35,7 @@ ColumnLayout {
     //// in ////
     property bool shown
     property bool editable
-    property var currentCheckout
+    property var currentWorkspace
     property string currentEntityPath
 
     function fromParameters(params) {
@@ -50,8 +50,8 @@ ColumnLayout {
     }
     function execute() {
         if(executeButton.enabled) {
-            currentCheckout.doOperation("load_primitive", parameters)
-            currentCheckout.doOperation("load_tfs", parametersLoadTfs)
+            currentWorkspace.doOperation("load_primitive", parameters)
+            currentWorkspace.doOperation("load_tfs", parametersLoadTfs)
         }
     }
 

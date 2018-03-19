@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAPIT_CHECKOUTCOMMON_H
-#define MAPIT_CHECKOUTCOMMON_H
+#ifndef MAPIT_WORKSPACECOMMON_H
+#define MAPIT_WORKSPACECOMMON_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
@@ -33,22 +33,22 @@ namespace mapit
 {
 
 /**
- * @brief The CheckoutCommon class contains read and common methods of "Checkout" and "CheckoutRaw".
+ * @brief The WorkspaceCommon class contains read and common methods of "Workspace" and "WorkspaceWritable".
  */
 
-class CheckoutCommon
+class WorkspaceCommon
 {
 public:
-    virtual ~CheckoutCommon() {}
+    virtual ~WorkspaceCommon() {}
     /**
-     * @brief isInConflictMode After a try to merge, a checkout with conflicts can be generated.
+     * @brief isInConflictMode After a try to merge, a workspace with conflicts can be generated.
      * @return
      */
     virtual bool isInConflictMode() = 0;
 
     /**
      * @brief getConflicts gets references to mine, theirs and base of all conflicting trees/entities after merge.
-     * In the Checkout Tree, the objects are stored with the ObjectReference of "mine".
+     * In the workspace Tree, the objects are stored with the ObjectReference of "mine".
      * All conflicts, marked as solved are not returned.
      * @return
      */
@@ -69,7 +69,7 @@ public:
     virtual std::shared_ptr<mapit::msgs::Tree> getRoot() = 0;
 
     /**
-     * @brief getTreeConflict gets a Tree from repository/checkout. Tree must be reachable from this checkout (descendant of <root>)
+     * @brief getTreeConflict gets a Tree from repository/workspace. Tree must be reachable from this workspace (descendant of <root>)
      * This must only be used for conflicting objects. Use getTree otherwise
      * @param objectId
      * @return child
@@ -77,7 +77,7 @@ public:
     virtual std::shared_ptr<mapit::msgs::Tree> getTreeConflict(const ObjectId &objectId) = 0;
 
     /**
-     * @brief getEntityConflict gets an Entity from repository/checkout. Entity must be reachable from this checkout (descendant of <root>)
+     * @brief getEntityConflict gets an Entity from repository/workspace. Entity must be reachable from this workspace (descendant of <root>)
      * This must only be used for conflicting objects. Use getEntity otherwise
      * @param objectId
      * @return child

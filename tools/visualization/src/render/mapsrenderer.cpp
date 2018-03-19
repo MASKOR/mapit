@@ -29,7 +29,7 @@
 #include "mapit/ui/bindings/qmlentitydata.h"
 #include <mapit/logging.h>
 #include <mapit/msgs/services.pb.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>

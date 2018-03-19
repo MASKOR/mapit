@@ -29,7 +29,7 @@
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <mapit/entitydata.h>
 #include <mapit/time/time.h>
-#include "checkout.h"
+#include "workspace.h"
 
 namespace mapit
 {
@@ -39,7 +39,7 @@ class RepositoryPrivate;
  * @brief The Repository class is the main interface to maps and data inside a repository.
  * Repository has functionality to work with data across their versions. If only a single/
  * the newest version of maps is needed for a user, the only methods needed from this interface
- * are "listCheckoutNames", "createCheckout" and "getCheckout". @sa Checkout provides all
+ * are "listWorkspaceNames", "createWorkspace" and "getWorkspace". @sa Workspace provides all
  * functionality to read and write a specific version of objects.
  * Methods should never be called in a main or GUI Thread, as they may prevent the application
  * to respond to OS messages and thus freeze GUIs. Implementations of this interface will likely
@@ -61,73 +61,73 @@ class Repository
 public:
     virtual ~Repository() {}
     /**
-     * @brief getCheckouts retrieves a list of all checkouts in the system.
-     * In contrast to git (with a single file tree), mapit can checkout multiple versions at the same time.
+     * @brief getWorkspaces retrieves a list of all workspaces in the system.
+     * In contrast to git (with a single file tree), mapit can workspace multiple versions at the same time.
      * This forces streams/entitydata to be physically stored locally (Is this a good idea? What about replaying operations?).
-     * A commitId can only be checked out once. If multiple checkouts for a commit is wanted, the first one should
+     * A commitId can only be checked out once. If multiple workspaces for a commit is wanted, the first one should
      * finish its work, so a new commit is generated (and the branch-tag is forwared). The the old commitId can be used.
-     * @return all the checkouts
+     * @return all the workspaces
      */
-    virtual std::vector<std::string> listCheckoutNames() = 0;
+    virtual std::vector<std::string> listWorkspaceNames() = 0;
 
 
     virtual std::shared_ptr<mapit::msgs::Tree> getTree(const ObjectId &oid) = 0;
     virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId &oid) = 0;
     virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const ObjectId &oid) = 0;
-    virtual std::shared_ptr<mapit::msgs::CheckoutObj> getCheckoutObj(const std::string &name) = 0;
+    virtual std::shared_ptr<mapit::msgs::WorkspaceObj> getWorkspaceObj(const std::string &name) = 0;
     virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;
     virtual mapit::msgs::MessageType typeOfObject(const ObjectId &oid) = 0;
 
     /**
-     * @brief getEntitydataReadOnly reads an object, without checkout
+     * @brief getEntitydataReadOnly reads an object, without workspace
      * @param oid
      * @return
      */
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const ObjectId &oid) = 0;
 
     /**
-     * @brief checkout creates a new checkout from a commit.
+     * @brief workspace creates a new workspace from a commit.
      * name not existing: create new commit
      * name already existing: error (returns null).
      * @param commitId
      * @param name
      * @return
      */
-    virtual std::shared_ptr<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const std::string &name) = 0;
-    //std::shared_ptr<Checkout> checkout(const std::shared_ptr<Branch> &branch, const std::string &name) = 0;
+    virtual std::shared_ptr<Workspace> createWorkspace(const CommitId &commitIdOrBranchname, const std::string &name) = 0;
+    //std::shared_ptr<Workspace> workspace(const std::shared_ptr<Branch> &branch, const std::string &name) = 0;
     /**
-     * @brief checkout a commit. The Checkout-Object makes all data in the checked out version accessible.
+     * @brief workspace a commit. The Workspace-Object makes all data in the checked out version accessible.
      * Changes are not fully recorded at this level. Individual Stream-writes are recorded, without knowing the "OperationDescriptor".
-     * This enables operator-modules to use the "Checkout"-Class for their implementations. Another level must version append this
+     * This enables operator-modules to use the "Workspace"-Class for their implementations. Another level must version append this
      * versioning information to contain also "OperationDescriptor".
-     * After a Checkout was commited, it points to the old uncommited state and should not be used afterwards. A new, blank checkout
+     * After a Workspace was commited, it points to the old uncommited state and should not be used afterwards. A new, blank workspace
      * must be done on the new commit (Note that this unintuitive behaviour should be hidden by one layer from the user).
      * If a commit was checked out, that also is a branch, the branch is forwarded on the first commit
      * (only if the parent commit still is the branch head).
      * @param commit
-     * @return new empty checkout object, representing exactly the state of <commit>.
+     * @return new empty workspace object, representing exactly the state of <commit>.
      */
-    virtual std::shared_ptr<Checkout> getCheckout(const std::string &checkoutName) = 0;
+    virtual std::shared_ptr<Workspace> getWorkspace(const std::string &workspaceName) = 0;
     // when commiting we check if we are on a branch head. if so... update branch pointer
-    //std::shared_ptr<Checkout> checkout(const std::shared_ptr<Branch> &commit) = 0;
+    //std::shared_ptr<Workspace> workspace(const std::shared_ptr<Branch> &commit) = 0;
 
     /**
-     * @brief deleteCheckoutForced Deletes a checkout forever. This cannot be undone, like deleting changed files in git
-     * @param checkout to delete
+     * @brief deleteWorkspaceForced Deletes a workspace forever. This cannot be undone, like deleting changed files in git
+     * @param workspace to delete
      * @return status
      */
-    virtual StatusCode deleteCheckoutForced(const std::string &checkoutName) = 0;
+    virtual StatusCode deleteWorkspaceForced(const std::string &workspaceName) = 0;
 
     /**
      * @brief commit Commits checked out data.
-     * @param checkout
+     * @param workspace
      * @param msg
      * @param author
      * @param email
      * @param stamp
      * @return commitId of new commit.
      */
-    virtual CommitId commit(const std::shared_ptr<Checkout> checkout
+    virtual CommitId commit(const std::shared_ptr<Workspace> workspace
                             , std::string msg
                             , std::string author
                             , std::string email
@@ -165,9 +165,9 @@ public:
      * @param mine
      * @param theirs
      * @param base
-     * @return A checkout in conflict mode.
+     * @return A workspace in conflict mode.
      */
-    virtual std::shared_ptr<Checkout> merge(const CommitId mine, const CommitId theirs, const CommitId base) = 0;
+    virtual std::shared_ptr<Workspace> merge(const CommitId mine, const CommitId theirs, const CommitId base) = 0;
 
     /**
      * @brief ancestors retrieves all (or all until <level>) ancestors of an object. Note that a merged object has more parent.

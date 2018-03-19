@@ -23,7 +23,7 @@
 
 #include "zmqrequester.h"
 #include "zmqrequester_p.h"
-#include "zmqrequestercheckout.h"
+#include "zmqrequesterworkspace.h"
 #include <zmq.hpp>
 #include <mapit/errorcodes.h>
 
@@ -38,15 +38,15 @@ mapit::ZmqRequester::~ZmqRequester()
     delete m_d;
 }
 
-std::vector<std::string> mapit::ZmqRequester::listCheckoutNames()
+std::vector<std::string> mapit::ZmqRequester::listWorkspaceNames()
 {
-    std::unique_ptr<RequestListCheckouts> req(new RequestListCheckouts);
+    std::unique_ptr<RequestListWorkspaces> req(new RequestListWorkspaces);
     try
     {
         m_d->prepareForwardComChannel();
         m_d->send(std::move(req));
         m_d->prepareBackComChannel();
-        std::shared_ptr<ReplyListCheckouts> rep(m_d->receive<ReplyListCheckouts>());
+        std::shared_ptr<ReplyListWorkspaces> rep(m_d->receive<ReplyListWorkspaces>());
 
         std::vector<std::string> ret;
         if(rep == nullptr)
@@ -54,16 +54,16 @@ std::vector<std::string> mapit::ZmqRequester::listCheckoutNames()
             return ret;
         }
 
-        ret.resize(rep->checkouts_size());
-        for(int i=0 ; i<rep->checkouts_size() ; ++i)
+        ret.resize(rep->workspaces_size());
+        for(int i=0 ; i<rep->workspaces_size() ; ++i)
         {
-            ret.push_back(rep->checkouts(i));
+            ret.push_back(rep->workspaces(i));
         }
         return ret;
     }
     catch(zmq::error_t err)
     {
-        log_error("ZmqRequester: Error in listCheckoutNames: " + err.what());
+        log_error("ZmqRequester: Error in listWorkspaceNames: " + err.what());
         return std::vector<std::string>();
     }
 }
@@ -89,7 +89,7 @@ std::shared_ptr<Commit> mapit::ZmqRequester::getCommit(const mapit::ObjectId &oi
     return nullptr;
 }
 
-std::shared_ptr<CheckoutObj> mapit::ZmqRequester::getCheckoutObj(const std::string &name)
+std::shared_ptr<WorkspaceObj> mapit::ZmqRequester::getWorkspaceObj(const std::string &name)
 {
     //TODO: Define network message
     assert(false);
@@ -109,7 +109,7 @@ MessageType mapit::ZmqRequester::typeOfObject(const mapit::ObjectId &oid)
     if(this->getTree(oid) != nullptr) return MessageTree;
     if(this->getEntity(oid) != nullptr) return MessageEntity;
     if(this->getCommit(oid) != nullptr) return MessageCommit;
-    if(this->getTree(oid) != nullptr) return MessageCheckout;
+    if(this->getTree(oid) != nullptr) return MessageWorkspace;
     if(this->getBranch(oid) != nullptr) return MessageBranch;
     if(this->getEntitydataReadOnly(oid) != nullptr) return MessageEntitydata;
     return MessageEmpty;
@@ -123,10 +123,10 @@ std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequester::getEntitydataRea
     return nullptr;
 }
 
-std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::createCheckout(const mapit::CommitId &commitIdOrBranchname, const std::string &name)
+std::shared_ptr<mapit::Workspace> mapit::ZmqRequester::createWorkspace(const mapit::CommitId &commitIdOrBranchname, const std::string &name)
 {
-    std::unique_ptr<RequestCheckout> req(new RequestCheckout);
-    req->set_checkout(name);
+    std::unique_ptr<RequestWorkspace> req(new RequestWorkspace);
+    req->set_workspace(name);
     req->add_commit(commitIdOrBranchname);
     req->set_createifnotexists(true);
     try
@@ -134,45 +134,45 @@ std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::createCheckout(const mapit
         m_d->prepareForwardComChannel();
         m_d->send(std::move(req));
         m_d->prepareBackComChannel();
-        std::shared_ptr<ReplyCheckout> rep(m_d->receive<ReplyCheckout>());
-        if(rep && (rep->status() == ReplyCheckout::SUCCESS ||
-           rep->status() == ReplyCheckout::EXISTED))
+        std::shared_ptr<ReplyWorkspace> rep(m_d->receive<ReplyWorkspace>());
+        if(rep && (rep->status() == ReplyWorkspace::SUCCESS ||
+           rep->status() == ReplyWorkspace::EXISTED))
         {
-            return std::shared_ptr<mapit::Checkout>(new mapit::ZmqRequesterCheckout( name, m_d, nullptr, m_d->m_operationsLocal ));
+            return std::shared_ptr<mapit::Workspace>(new mapit::ZmqRequesterWorkspace( name, m_d, nullptr, m_d->m_operationsLocal ));
         }
         else
         {
-            log_error("Could not create checkout \"" + name + "\"");
-            return std::shared_ptr<mapit::Checkout>(nullptr);
+            log_error("Could not create workspace \"" + name + "\"");
+            return std::shared_ptr<mapit::Workspace>(nullptr);
         }
     }
     catch(zmq::error_t err)
     {
-        log_error("ZmqRequester: Error in createCheckout: " + err.what());
-        return std::shared_ptr<mapit::Checkout>(nullptr);
+        log_error("ZmqRequester: Error in createWorkspace: " + err.what());
+        return std::shared_ptr<mapit::Workspace>(nullptr);
     }
 }
 
-std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::getCheckout(const std::string &checkoutName)
+std::shared_ptr<mapit::Workspace> mapit::ZmqRequester::getWorkspace(const std::string &workspaceName)
 {
-    //TODO: No error checking here at the time. It is possible, that the returned checkout does simply not exist.
+    //TODO: No error checking here at the time. It is possible, that the returned workspace does simply not exist.
     if(!m_d->m_operationsLocal)
     {
         // make sure remote repository is in sync with local
         // operator later must be able to compute locally without requests to client
         // TODO:
     }
-    return std::shared_ptr<mapit::Checkout>(new mapit::ZmqRequesterCheckout( checkoutName, m_d, nullptr, m_d->m_operationsLocal ));
+    return std::shared_ptr<mapit::Workspace>(new mapit::ZmqRequesterWorkspace( workspaceName, m_d, nullptr, m_d->m_operationsLocal ));
 }
 
-mapit::StatusCode mapit::ZmqRequester::deleteCheckoutForced(const std::string &checkoutName)
+mapit::StatusCode mapit::ZmqRequester::deleteWorkspaceForced(const std::string &workspaceName)
 {
     //TODO: nyi
     assert(false);
     return MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-mapit::CommitId mapit::ZmqRequester::commit(const std::shared_ptr<mapit::Checkout> checkout, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp)
+mapit::CommitId mapit::ZmqRequester::commit(const std::shared_ptr<mapit::Workspace> workspace, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp)
 {
     //TODO: nyi
     assert(false);
@@ -207,11 +207,11 @@ mapit::CommitId mapit::ZmqRequester::parseCommitRef(const std::string &commitRef
     return commitRef;
 }
 
-std::shared_ptr<mapit::Checkout> mapit::ZmqRequester::merge(const mapit::CommitId mine, const mapit::CommitId theirs, const mapit::CommitId base)
+std::shared_ptr<mapit::Workspace> mapit::ZmqRequester::merge(const mapit::CommitId mine, const mapit::CommitId theirs, const mapit::CommitId base)
 {
     //TODO: nyi
     assert(false);
-    return std::shared_ptr<mapit::Checkout>(nullptr);
+    return std::shared_ptr<mapit::Workspace>(nullptr);
 }
 
 std::vector<std::pair<mapit::CommitId, mapit::ObjectId> > mapit::ZmqRequester::ancestors(const mapit::CommitId &commitId, const mapit::ObjectId &objectId, const int level)

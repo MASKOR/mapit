@@ -77,8 +77,8 @@ public:
     }
 };
 
-mapit::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node)
-    :m_checkoutName(checkoutName),
+mapit::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string workspaceName, std::string pathOrOid, ZmqProtobufNode *node)
+    :m_workspaceName(workspaceName),
      m_pathOrOid(pathOrOid),
      m_node(node),
      m_entityLength(0)
@@ -128,7 +128,7 @@ mapit::uint64_t mapit::ZmqEntitydataStreamProvider::getStreamSize() const
     if(m_entityLength == 0)
     {
         std::unique_ptr<RequestEntitydata> req(new RequestEntitydata);
-        req->set_checkout(m_checkoutName);
+        req->set_workspace(m_workspaceName);
         req->set_entitypath(m_pathOrOid);
         req->set_offset(0ul);
         req->set_maxlength(0ul);
@@ -160,7 +160,7 @@ void mapit::ZmqEntitydataStreamProvider::setStreamSize(mapit::uint64_t entitylen
 {
     m_entityLength = entitylength;
     std::unique_ptr<RequestStoreEntity> req(new RequestStoreEntity);
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(m_pathOrOid);
     req->set_offset(0ul);
     req->set_sendlength(0ul);
@@ -229,7 +229,7 @@ char *mapit::ZmqEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit
         length = maxBufferSize;
     }
     std::unique_ptr<RequestEntitydata> req(new RequestEntitydata);
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_entitypath(m_pathOrOid);
     req->set_offset(start);
     req->set_maxlength(maxBufferSize);
@@ -306,7 +306,7 @@ void mapit::ZmqEntitydataStreamProvider::endWrite(const char *memory, const mapi
         m_entityLength = length;
     }
     std::unique_ptr<RequestStoreEntity> req(new RequestStoreEntity);
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(m_pathOrOid);
     req->set_offset(offset);
     req->set_sendlength(length);

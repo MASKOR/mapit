@@ -22,13 +22,13 @@
 
 #include "operationexecutor.h"
 #include <mapit/errorcodes.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 
 void OperationExecutor::run()
 {
-    if(m_checkout)
+    if(m_workspace)
     {
-        mapit::OperationResult s = m_checkout->doOperation(m_desc);
+        mapit::OperationResult s = m_workspace->doOperation(m_desc);
         Q_EMIT operationExecuted( s.first );
     }
     else
@@ -37,9 +37,9 @@ void OperationExecutor::run()
     }
 }
 
-OperationExecutor::OperationExecutor(QObject *parent, std::shared_ptr<mapit::Checkout> co, mapit::msgs::OperationDescription desc)
+OperationExecutor::OperationExecutor(QObject *parent, std::shared_ptr<mapit::Workspace> workspace, mapit::msgs::OperationDescription desc)
     : QThread(parent)
-    , m_checkout( co )
+    , m_workspace( workspace )
     , m_desc( desc )
 {}
 

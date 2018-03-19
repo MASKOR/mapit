@@ -23,9 +23,9 @@
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/pose_path.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
@@ -53,13 +53,13 @@ mapit::StatusCode operate_load_posepath(mapit::OperationEnvironment* env)
 
     std::shared_ptr<Entity> entity(new Entity);
     entity->set_type(PosePathEntitydata::TYPENAME());
-    mapit::StatusCode s = env->getCheckout()->storeEntity(target, entity);
+    mapit::StatusCode s = env->getWorkspace()->storeEntity(target, entity);
     if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
     if(abstractEntitydata == NULL)
     {
         return MAPIT_STATUS_ERR_UNKNOWN;

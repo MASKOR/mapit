@@ -27,7 +27,7 @@
 #include <mapit/typedefs.h>
 #include <mapit/logging.h>
 #include <mapit/msgs/services.pb.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/versioning/repository.h>
 
 namespace mapit
@@ -36,7 +36,7 @@ namespace mapit
  * @brief Depth first search for Commit, Tree and Entity. This is often very handy.
  * Does not work for branches. Does not visit Entitydata (must be done manually).
  */
-StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
                                      , std::shared_ptr<mapit::msgs::Tree> obj
                                      , const ObjectReference &ref
                                      , const Path& path
@@ -45,7 +45,7 @@ StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity);
 
-StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
                                      , std::shared_ptr<mapit::msgs::Entity> obj
                                      , const ObjectReference &ref, const Path& path
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> beforeTree
@@ -53,20 +53,20 @@ StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity);
 
-StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
 
-StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
                                      , const Path& path
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
 
-// TODO change "mapit::CheckoutCommon*" to "const mapit::CheckoutCommon&"
+// TODO change "mapit::WorkspaceCommon*" to "const mapit::WorkspaceCommon&"
 
 StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
                                    , const CommitId& commitID

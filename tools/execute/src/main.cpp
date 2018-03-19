@@ -38,14 +38,14 @@ int main(int argc, char *argv[])
 
     ///// read parameters from commandline /////
 
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout> <operator_name> <parameters>");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace> <operator_name> <parameters>");
     program_options_desc.add_options()
             ("help,h", "print usage")
-            ("checkout,co", po::value<std::string>()->required(), "the checkout/version state to operate on")
+            ("workspace,w", po::value<std::string>()->required(), "the workspace/version state to operate on")
             ("operator,op", po::value<std::string>()->required(), "name of the operator (with underscores)")
             ("parameters,p",po::value<std::string>()->default_value(std::string("")), "string of parameters for the operation. (any format, commonly json)");
     po::positional_options_description pos_options;
-    pos_options.add("checkout",  1) // if no names are used, checkout is given first
+    pos_options.add("workspace",  1) // if no names are used, workspace is given first
                .add("operator",  1) // then operator
                .add("parameters",1);// followed by the parameter string
 
@@ -70,10 +70,10 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
-    if(co == nullptr)
+    std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
+    if(workspace == nullptr)
     {
-        log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
+        log_error("Workspace: " + vars["workspace"].as<std::string>() + "not found");
         return 1;
     }
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     desc.mutable_operator_()->set_operatorname(vars["operator"].as<std::string>());
     desc.set_params(vars["parameters"].as<std::string>());
     log_info("Executing: " + vars["operator"].as<std::string>() + ", with params: " + vars["parameters"].as<std::string>());
-    mapit::OperationResult res = co->doOperation(desc);
+    mapit::OperationResult res = workspace->doOperation(desc);
     if(mapitIsOk(res.first))
     {
         std::cout << "success" << std::endl;

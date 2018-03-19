@@ -23,11 +23,11 @@
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/tflayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/depthfirstsearch.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
@@ -108,7 +108,7 @@ mapit::StatusCode saveRandomTFForEntity(  mapit::OperationEnvironment* env
     std::shared_ptr<mapit::msgs::Entity> e;
     std::shared_ptr<TfEntitydata> ed;
     std::shared_ptr<mapit::tf::store::TransformStampedList> edTFList;
-    mapit::StatusCode s = mapit::tf::store::getOrCreateTransformStampedList(env->getCheckout(), frame_id, child_frame_id, tfStoragePrefix, e, ed, edTFList, false);
+    mapit::StatusCode s = mapit::tf::store::getOrCreateTransformStampedList(env->getWorkspace(), frame_id, child_frame_id, tfStoragePrefix, e, ed, edTFList, false);
     if( ! mapitIsOk(s) ) {
       return s;
     }
@@ -117,7 +117,7 @@ mapit::StatusCode saveRandomTFForEntity(  mapit::OperationEnvironment* env
     std::string eName = tfStoragePrefix + "/" + mapit::tf::store::TransformStampedList::get_entity_name(frame_id, child_frame_id);
     e->set_frame_id(frame_id);
     *e->mutable_stamp() = mapit::time::to_msg(edTFList->get_stamp_earliest());
-    env->getCheckout()->storeEntity(eName, e);
+    env->getWorkspace()->storeEntity(eName, e);
 
     return MAPIT_STATUS_OK;
 }
@@ -160,14 +160,14 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
     }
 
 
-    std::shared_ptr<mapit::msgs::Entity> entity = env->getCheckout()->getEntity(target);
+    std::shared_ptr<mapit::msgs::Entity> entity = env->getWorkspace()->getEntity(target);
     if ( entity ) {
         // execute on entity
         return saveRandomTFForEntity(env, entity, target, frame_id, tfStoragePrefix, randomStorage);
-    } else if ( env->getCheckout()->getTree(target) ) {
+    } else if ( env->getWorkspace()->getTree(target) ) {
         // execute on tree
         mapit::StatusCode status = MAPIT_STATUS_OK;
-        env->getCheckout()->depthFirstSearch(
+        env->getWorkspace()->depthFirstSearch(
                       target
                     , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                     , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)

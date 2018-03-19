@@ -22,7 +22,7 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 #include <string>

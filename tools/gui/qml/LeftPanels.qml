@@ -116,8 +116,8 @@ Item {
                 spacing: appStyle.controlMargin
                 StyledHeader {
                     Layout.fillWidth: true
-                    id: headerCheckout
-                    text: qsTr("Checkout")
+                    id: headerWorkspace
+                    text: qsTr("Workspace")
                     iconSource: "image://material/ic_layers"
                 }
                 ColumnLayout {
@@ -125,17 +125,17 @@ Item {
                     Layout.leftMargin: appStyle.controlMargin
                     Layout.rightMargin: appStyle.controlMargin
                     spacing: appStyle.controlMargin
-                    visible: headerCheckout.checked
+                    visible: headerWorkspace.checked
                     RowLayout {
                         Layout.fillWidth: true
                         StyledLabel {
-                            text: globalApplicationState.currentCheckout.name
+                            text: globalApplicationState.currentWorkspace.name
                             Layout.fillWidth: true
                         }
                         CheckoutChooser {
                             width: implicitWidth
                             id: checkoutChooser
-                            onCurrentCheckoutNameChanged: globalApplicationState.currentCheckoutName = currentCheckoutName
+                            onCurrentWorkspaceNameChanged: globalApplicationState.currentWorkspaceName = currentWorkspaceName
                         }
                     }
                     StyledLabel {

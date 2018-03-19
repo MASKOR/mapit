@@ -31,7 +31,7 @@ Item {
     id: root
     //// in ////
     property bool editable
-    property var currentCheckout
+    property var currentWorkspace
     property string currentEntityPath
 
     function fromParameters(params) {

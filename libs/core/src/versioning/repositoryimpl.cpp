@@ -23,7 +23,7 @@
 
 #include "repositoryimpl.h"
 #include "serialization/abstractserializer.h"
-#include "versioning/checkoutimpl.h"
+#include "versioning/workspaceimpl.h"
 #include <mapit/depthfirstsearch.h>
 #include <mapit/serialization/entitydatalibrarymanager.h>
 #include <chrono>
@@ -47,12 +47,12 @@ RepositoryImpl::~RepositoryImpl()
     delete m_p;
 }
 
-std::shared_ptr<Checkout> RepositoryImpl::createCheckout(const CommitId &commitIdOrBranchname, const std::string &name)
+std::shared_ptr<Workspace> RepositoryImpl::createWorkspace(const CommitId &commitIdOrBranchname, const std::string &name)
 {
-    std::shared_ptr<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(name));
-    if(co != NULL)
+    std::shared_ptr<WorkspaceObj> workspace(m_p->m_serializer->getworkspaceCommit(name));
+    if(workspace != NULL)
     {
-        log_warn("Checkout with this name already exist: " + name);
+        log_warn("Workspace with this name already exist: " + name);
         return NULL;
     }
     std::shared_ptr<Branch> branch(m_p->m_serializer->getBranch(commitIdOrBranchname));
@@ -83,19 +83,19 @@ std::shared_ptr<Checkout> RepositoryImpl::createCheckout(const CommitId &commitI
             return NULL;
         }
     }
-    co = std::shared_ptr<CheckoutObj>(new CheckoutObj());
-    co->mutable_rollingcommit()->add_parentcommitids(commitId);
-    StatusCode s = m_p->m_serializer->createCheckoutCommit( co, name );
+    workspace = std::shared_ptr<WorkspaceObj>(new WorkspaceObj());
+    workspace->mutable_rollingcommit()->add_parentcommitids(commitId);
+    StatusCode s = m_p->m_serializer->createworkspaceCommit( workspace, name );
     if(!mapitIsOk(s))
     {
-        log_error("Could not create checkout.");
+        log_error("Could not create workspace.");
     }
-    return std::shared_ptr<Checkout>(new CheckoutImpl(m_p->m_serializer, co, name, branchName));
+    return std::shared_ptr<Workspace>(new WorkspaceImpl(m_p->m_serializer, workspace, name, branchName));
 }
 
-std::vector<std::string> RepositoryImpl::listCheckoutNames()
+std::vector<std::string> RepositoryImpl::listWorkspaceNames()
 {
-    return m_p->m_serializer->listCheckoutNames();
+    return m_p->m_serializer->listWorkspaceNames();
 }
 
 std::shared_ptr<Tree> RepositoryImpl::getTree(const ObjectId &oid)
@@ -113,9 +113,9 @@ std::shared_ptr<Commit> RepositoryImpl::getCommit(const ObjectId &oid)
     return m_p->m_serializer->getCommit(oid);
 }
 
-std::shared_ptr<CheckoutObj> RepositoryImpl::getCheckoutObj(const std::string &name)
+std::shared_ptr<WorkspaceObj> RepositoryImpl::getWorkspaceObj(const std::string &name)
 {
-    return m_p->m_serializer->getCheckoutCommit(name);
+    return m_p->m_serializer->getworkspaceCommit(name);
 }
 
 std::shared_ptr<Branch> RepositoryImpl::getBranch(const std::string &name)
@@ -144,41 +144,41 @@ std::shared_ptr<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(const 
     return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
 }
 
-std::shared_ptr<Checkout> RepositoryImpl::getCheckout(const std::string &checkoutName)
+std::shared_ptr<Workspace> RepositoryImpl::getWorkspace(const std::string &workspaceName)
 {
-    std::shared_ptr<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
-    if(co == NULL)
+    std::shared_ptr<WorkspaceObj> workspace(m_p->m_serializer->getworkspaceCommit(workspaceName));
+    if(workspace == NULL)
     {
-        log_info("Checkout does not exist: " + checkoutName);
+        log_info("Workspace does not exist: " + workspaceName);
         return NULL;
     }
-    return std::shared_ptr<Checkout>(new CheckoutImpl(m_p->m_serializer, co, checkoutName));
+    return std::shared_ptr<Workspace>(new WorkspaceImpl(m_p->m_serializer, workspace, workspaceName));
 }
 
-StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
+StatusCode RepositoryImpl::deleteWorkspaceForced(const std::string &workspaceName)
 {
-    std::shared_ptr<CheckoutObj> co(m_p->m_serializer->getCheckoutCommit(checkoutName));
-    if(co == NULL)
+    std::shared_ptr<WorkspaceObj> workspace(m_p->m_serializer->getworkspaceCommit(workspaceName));
+    if(workspace == NULL)
     {
-        log_info("Checkout with this name does not exist: " + checkoutName);
+        log_info("Workspace with this name does not exist: " + workspaceName);
         return MAPIT_STATUS_ENTITY_NOT_FOUND;
     }
-    //TODO: Get Checkout, remove its inner Commit and objects (objects only if not referenced)!
-    return m_p->m_serializer->removeCheckout(checkoutName);
+    //TODO: Get workspace, remove its inner Commit and objects (objects only if not referenced)!
+    return m_p->m_serializer->removeWorkspace(workspaceName);
 }
 
-CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp)
+CommitId RepositoryImpl::commit(const std::shared_ptr<Workspace> workspace, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp)
 {
     size_t logStatsFileChanged = 0;
 
-    CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
+    WorkspaceImpl *ws = static_cast<WorkspaceImpl*>(workspace.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
     CommitId refID;
-    std::shared_ptr<Commit> rollingCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
+    std::shared_ptr<Commit> rollingCommit(new Commit(ws->getWorkspaceObj()->rollingcommit()));
     ObjectReference nullRef;
     StatusCode s = mapit::depthFirstSearchWorkspace(
-                co,
-                co->getRoot(),
+                ws,
+                ws->getRoot(),
                 nullRef,
                 "/",
         depthFirstSearchWorkspaceAll(Tree),
@@ -271,7 +271,7 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
             commit->mutable_root()->clear_path();
         } else {
             // no changes where found
-            log_warn("commit empty checkout on empty parent commit (no root)");
+            log_warn("commit empty workspace on empty parent commit (no root)");
         }
 
         if(msg.find_last_of('\n') != msg.length()-1) {
@@ -290,22 +290,22 @@ CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::s
         refID = statusOid.second;
     }
 
-    // TODO: assert check if checkout is empty
-    // delete all folder of checkout
-    std::string coName = co->getName();
-    std::string branchName = co->getBranchName();
+    // TODO: assert check if workspace is empty
+    // delete all folder of workspace
+    std::string coName = ws->getName();
+    std::string branchName = ws->getBranchName();
 
-    // update checkout
-    co->getCheckoutObj()->clear_transientoidstoorigin();
-    co->getCheckoutObj()->mutable_rollingcommit()->Clear();
-    co->getCheckoutObj()->mutable_rollingcommit()->add_parentcommitids( refID );
+    // update workspace
+    ws->getWorkspaceObj()->clear_transientoidstoorigin();
+    ws->getWorkspaceObj()->mutable_rollingcommit()->Clear();
+    ws->getWorkspaceObj()->mutable_rollingcommit()->add_parentcommitids( refID );
     std::shared_ptr<Commit> commit = getCommit(refID);
     assert(commit);
-    co->getCheckoutObj()->mutable_rollingcommit()->mutable_root()->set_id( commit->root().id() );
+    ws->getWorkspaceObj()->mutable_rollingcommit()->mutable_root()->set_id( commit->root().id() );
     assert(commit->root().path().empty());
-    StatusCode status = m_p->m_serializer->storeCheckoutCommit( co->getCheckoutObj(), coName );
+    StatusCode status = m_p->m_serializer->storeWorkspaceCommit( ws->getWorkspaceObj(), coName );
     if ( ! mapitIsOk(status) ) {
-        log_error("Could not update checkout.");
+        log_error("Could not update workspace.");
     }
 
     log_info("");
@@ -338,7 +338,7 @@ CommitId RepositoryImpl::parseCommitRef(const std::string &commitRef)
     return "";
 }
 
-std::shared_ptr<Checkout> RepositoryImpl::merge(const CommitId mine, const CommitId theirs, const CommitId base)
+std::shared_ptr<Workspace> RepositoryImpl::merge(const CommitId mine, const CommitId theirs, const CommitId base)
 {
     return NULL;
 }

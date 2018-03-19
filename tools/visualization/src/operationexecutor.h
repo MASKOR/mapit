@@ -30,7 +30,7 @@
 
 namespace mapit
 {
-    class Checkout;
+    class Workspace;
 }
 
 class OperationExecutor : public QThread
@@ -38,13 +38,13 @@ class OperationExecutor : public QThread
     Q_OBJECT
     void run();
 public:
-    OperationExecutor(QObject * parent, std::shared_ptr<mapit::Checkout> co, mapit::msgs::OperationDescription desc);
+    OperationExecutor(QObject * parent, std::shared_ptr<mapit::Workspace> workspace, mapit::msgs::OperationDescription desc);
     ~OperationExecutor();
 Q_SIGNALS:
     void operationExecuted( int status );
 
 private:
-    std::shared_ptr<mapit::Checkout> m_checkout;
+    std::shared_ptr<mapit::Workspace> m_workspace;
     mapit::msgs::OperationDescription m_desc;
 };
 #endif

@@ -34,7 +34,7 @@ Q3D.Entity {
     property alias currentEntitydata : edrender.entitydata
     //property var currentEntitydata
     property alias currentTransform : currentEntitydataTransform
-    property alias currentCheckout : currentEntitydataTransform.checkout
+    property alias currentWorkspace : currentEntitydataTransform.checkout
     property var mainCameratmp
     property Layer layer
     property alias parametersTmp: surfelTechnique.parameters
@@ -62,8 +62,8 @@ Q3D.Entity {
         id: currentEntitydataTransform
         path: currentEntitydata.path
         targetFrame: pointcloud.currentFrameId
-        sourceFrame:  pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).frameId
-        stamp: pointcloud.currentCheckout.getEntity(pointcloud.currentEntitydata.path).stamp
+        sourceFrame:  pointcloud.currentWorkspace.getEntity(pointcloud.currentEntitydata.path).frameId
+        stamp: pointcloud.currentWorkspace.getEntity(pointcloud.currentEntitydata.path).stamp
         mustExist: false
 
     }

@@ -34,8 +34,8 @@
 #include <mapit/layertypes/tflayer/tf2/exceptions.h>
 #include <mapit/layertypes/tflayer/tf2/linear_math.h>
 
-#include <mapit/versioning/checkout.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/versioning/workspace.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/depthfirstsearch.h>
 
 #include <assert.h>
@@ -177,23 +177,23 @@ BufferCore::BufferCore()
   frameIDs_reverse.push_back("NO_PARENT");
 }
 
-BufferCore::BufferCore(CheckoutCommon* checkout
+BufferCore::BufferCore(WorkspaceCommon* workspace
         , std::string tf_prefix
         ) : BufferCore()
 {
     ObjectReference nullRef;
     StatusCode s = mapit::depthFirstSearchWorkspace(
-                checkout,
-                tf_prefix.empty() ? checkout->getRoot(): checkout->getTree(tf_prefix),
+                workspace,
+                tf_prefix.empty() ? workspace->getRoot(): workspace->getTree(tf_prefix),
                 nullRef,
                 tf_prefix,
                 depthFirstSearchWorkspaceAll(Tree),
                 depthFirstSearchWorkspaceAll(Tree),
                 [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
-                    std::shared_ptr<mapit::AbstractEntitydata> ed = checkout->getEntitydataReadOnly(path);
+                    std::shared_ptr<mapit::AbstractEntitydata> ed = workspace->getEntitydataReadOnly(path);
                     if( ed && 0 == strcmp(ed->type(), TfEntitydata::TYPENAME()) ) {
-        //                std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
+        //                std::shared_ptr<mapit::msgs::Entity> ent = this->m_workspace->getEntity( path );
         //                assert(ent);
                         assert(obj);
                         std::shared_ptr<TfEntitydata> ed_tf = std::static_pointer_cast<TfEntitydata>( ed );

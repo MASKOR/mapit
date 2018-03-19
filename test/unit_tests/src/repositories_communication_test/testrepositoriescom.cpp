@@ -38,7 +38,7 @@
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/layertypes/pointcloudlayer.h>
 
 #include <pcl/io/pcd_io.h>
@@ -137,14 +137,14 @@ void TestRepositoriesCommunication::testReadLocalComputeRemoteWriteLocal()
     std::shared_ptr<mapit::Repository> networkRemoteCompute(initNetwork(false));
     QVERIFY( nullptr != networkRemoteCompute );
 
-    std::shared_ptr<mapit::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
-    QVERIFY( nullptr != checkoutLocal );
-    std::shared_ptr<mapit::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
-    QVERIFY( nullptr != checkoutRemote );
-    readPcd(checkoutLocal.get());
-    voxelgrid(checkoutRemote.get());
+    std::shared_ptr<mapit::Workspace> workspaceLocal(local->createWorkspace("master", "testworkspace"));
+    QVERIFY( nullptr != workspaceLocal );
+    std::shared_ptr<mapit::Workspace> workspaceRemote(networkRemoteCompute->getWorkspace("testworkspace"));
+    QVERIFY( nullptr != workspaceRemote );
+    readPcd(workspaceLocal.get());
+    voxelgrid(workspaceRemote.get());
     const char* filename = FILENAME_OUT1;
-    writePcdLocalOnly(checkoutLocal.get(), filename);
+    writePcdLocalOnly(workspaceLocal.get(), filename);
     compareFileToExpected(filename);
 }
 
@@ -155,13 +155,13 @@ void TestRepositoriesCommunication::testReadRemoteComputeLocalWriteRemote()
     std::shared_ptr<mapit::Repository> networkRemoteCompute(initNetwork(false));
     QVERIFY( nullptr != networkRemoteCompute );
 
-    std::shared_ptr<mapit::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
-    std::shared_ptr<mapit::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
-    readPcd(checkoutRemote.get());
-    voxelgrid(checkoutLocal.get());
+    std::shared_ptr<mapit::Workspace> workspaceLocal(local->createWorkspace("master", "testworkspace"));
+    std::shared_ptr<mapit::Workspace> workspaceRemote(networkRemoteCompute->getWorkspace("testworkspace"));
+    readPcd(workspaceRemote.get());
+    voxelgrid(workspaceLocal.get());
     const char* filename = FILENAME_OUT2;
     // Note: This writes local, there is not yet a way to distinguish which thread wrote the file.
-    writePcdLocalOnly(checkoutRemote.get(), filename);
+    writePcdLocalOnly(workspaceRemote.get(), filename);
     compareFileToExpected(filename);
 }
 
@@ -172,13 +172,13 @@ void TestRepositoriesCommunication::testReadRemoteComputeRemoteWriteLocal()
     std::shared_ptr<mapit::Repository> networkRemoteCompute(initNetwork(false));
     QVERIFY( nullptr != networkRemoteCompute );
 
-    std::shared_ptr<mapit::Checkout> checkoutLocal(local->createCheckout("master", "testcheckout"));
-    std::shared_ptr<mapit::Checkout> checkoutRemote(networkRemoteCompute->getCheckout("testcheckout"));
-    readPcd(checkoutRemote.get());
-    voxelgrid(checkoutRemote.get());
+    std::shared_ptr<mapit::Workspace> workspaceLocal(local->createWorkspace("master", "testworkspace"));
+    std::shared_ptr<mapit::Workspace> workspaceRemote(networkRemoteCompute->getWorkspace("testworkspace"));
+    readPcd(workspaceRemote.get());
+    voxelgrid(workspaceRemote.get());
     // Note: This writes local, there is not yet a way to distinguish which thread wrote the file.
     const char* filename = FILENAME_OUT3;
-    writePcdLocalOnly(checkoutLocal.get(), filename);
+    writePcdLocalOnly(workspaceLocal.get(), filename);
     compareFileToExpected(filename);
 }
 
@@ -244,16 +244,16 @@ std::shared_ptr<mapit::Repository> TestRepositoriesCommunication::initNetwork(/*
     return std::shared_ptr<mapit::Repository>(mapit::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", nullptr, computeLocal));
 }
 
-void TestRepositoriesCommunication::readPcd(mapit::Checkout *checkout)
+void TestRepositoriesCommunication::readPcd(mapit::Workspace *workspace)
 {
     OperationDescription desc;
     desc.mutable_operator_()->set_operatorname("load_pointcloud");
     desc.set_params(std::string("{\"filename\":\"") + FILENAME + "\", \"target\":\"themap/thelayer/bunny\"}");
-    mapit::OperationResult ret = checkout->doOperation( desc );
+    mapit::OperationResult ret = workspace->doOperation( desc );
     //QVERIFY( mapitIsOk(ret.first) );
 }
 
-void TestRepositoriesCommunication::voxelgrid(mapit::Checkout *checkout)
+void TestRepositoriesCommunication::voxelgrid(mapit::Workspace *workspace)
 {
     OperationDescription operation;
     operation.mutable_operator_()->set_operatorname("voxelgridfilter");
@@ -263,18 +263,18 @@ void TestRepositoriesCommunication::voxelgrid(mapit::Checkout *checkout)
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operation.set_params( paramsDoc.toJson().toStdString() );
-    mapit::OperationResult ret = checkout->doOperation(operation);
+    mapit::OperationResult ret = workspace->doOperation(operation);
     //QVERIFY( mapitIsOk(ret.first) );
 }
 
-void TestRepositoriesCommunication::writePcdLocalOnly(mapit::Checkout *checkout, std::string filename)
+void TestRepositoriesCommunication::writePcdLocalOnly(mapit::Workspace *workspace, std::string filename)
 {
     OperationDescription desc;
     desc.mutable_operator_()->set_operatorname("myUntraceable");
     desc.set_params("{\"source:\":\"testInlineOperator\"}");
-    mapit::OperationResult res = checkout->doUntraceableOperation(desc, [&filename](mapit::OperationEnvironment* env)
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc, [&filename](mapit::OperationEnvironment* env)
     {
-        mapit::CheckoutRaw *coraw = env->getCheckout();
+        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
         std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataReadOnly("themap/thelayer/bunny");
         if( abstractEntitydata == nullptr)
         {

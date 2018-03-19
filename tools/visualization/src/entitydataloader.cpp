@@ -24,7 +24,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <mapit/versioning/repository.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/abstractentitydata.h>
 #include <mapit/versioning/repositoryfactorystandard.h>
 #include <mapit/logging.h>
@@ -234,24 +234,24 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<mapit::AbstractEntitydata>
 
 void EntitydataLoader::run()
 {
-    std::shared_ptr<mapit::Checkout> co = m_checkout;
-//    if(co == nullptr) {
+    std::shared_ptr<mapit::Workspace> workspace = m_workspace;
+//    if(workspace == nullptr) {
 //        std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepositorySimple( m_repository.toStdString(), false) );
 //        if(repo == nullptr) {
 //            log_error("AsyncEntitydataLoader: could not load entitydata. Repository invalid");
 //            return;
 //        }
-//        co = repo->getCheckout(m_checkoutname.toStdString());
-//        if(co == nullptr) {
+//        workspace = repo->getCheckout(m_workspacename.toStdString());
+//        if(workspace == nullptr) {
 //            log_error("AsyncEntitydataLoader: could not load entitydata. Checkout not found");
 //            return;
 //        }
 //    }
-    if(co == nullptr) {
+    if(workspace == nullptr) {
         log_error("AsyncEntitydataLoader: could not load entitydata. No Checkout specified");
         return;
     }
-    std::shared_ptr<mapit::AbstractEntitydata> ed = co->getEntitydataReadOnly(m_path.toStdString());
+    std::shared_ptr<mapit::AbstractEntitydata> ed = workspace->getEntitydataReadOnly(m_path.toStdString());
     if(ed == nullptr) {
         log_error("AsyncEntitydataLoader: could not load entitydata. Entitydata could not be read");
         return;
@@ -261,20 +261,20 @@ void EntitydataLoader::run()
     Q_EMIT entityInfoLoaded(result);
 }
 
-//EntitydataLoader::EntitydataLoader(QObject *parent, QString repository, QString checkoutname, QString path )
+//EntitydataLoader::EntitydataLoader(QObject *parent, QString repository, QString workspaceName, QString path )
 //    : QThread(parent)
 //    , m_repository( repository )
-//    , m_checkoutname( checkoutname )
+//    , m_workspacename( workspaceName )
 //    , m_path( path )
-//    , m_checkout( nullptr )
+//    , m_workspace( nullptr )
 //{}
 
-EntitydataLoader::EntitydataLoader(QObject *parent, std::shared_ptr<mapit::Checkout> co, QString path)
+EntitydataLoader::EntitydataLoader(QObject *parent, std::shared_ptr<mapit::Workspace> workspace, QString path)
     : QThread(parent)
     , m_repository( "" )
-    , m_checkoutname( "" )
+    , m_workspacename( "" )
     , m_path( path )
-    , m_checkout( co )
+    , m_workspace( workspace )
 {
 
 }

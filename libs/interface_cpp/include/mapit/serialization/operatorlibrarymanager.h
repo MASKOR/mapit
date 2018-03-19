@@ -24,7 +24,7 @@
 #define MAPIT_OPERATORLIBRARYMANAGER_H
 
 #include <mapit/typedefs.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/module.h>
 
 // WARNING: Use this header only if you don't want to use core reimplement .
@@ -70,7 +70,7 @@ struct OperatorInfo
 class OperatorLibraryManager
 {
 public:
-    static mapit::OperationResult doOperation(const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout);
+    static mapit::OperationResult doOperation(const mapit::msgs::OperationDescription &desc, operators::WorkspaceWritable *workspace);
 
     static std::vector<OperatorInfo> listOperators();
 };

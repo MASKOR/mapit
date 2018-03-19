@@ -38,7 +38,7 @@ import QtWebSockets 1.1
 //    response: "get_uid_reply" -> { uid: "<globaly unique identifier>", data: "<identifier for response>"}
 //  messagetypes from server to client:
 //  (see above *_reply-messages)
-//  "world -> { world: [MapitMultiviewPeerStates without the peers own state], repositoryUrl: <"ip:port of repo">, checkoutName:<checkoutName> }
+//  "world -> { world: [MapitMultiviewPeerStates without the peers own state], repositoryUrl: <"ip:port of repo">, workspaceName:<workspaceName> }
 // application layer:
 //  there is a list of MapitMultiviewPeerStates
 //  the own state can be send to the server
@@ -72,7 +72,7 @@ Item {
         property bool peersNeedUpdate: false
         property string identOfCurrentHost
         property string repositoryUrl
-        property string checkoutName
+        property string workspaceName
         function isMessageValidFromRegisteredPeer(msgData) {
             if( typeof msgData.sessionId !== "string" ) {
                 console.log(qsTr("Server received message without \"sessionId\": %1").arg(JSON.stringify(msgData)))
@@ -125,7 +125,7 @@ Item {
                     webServer.connectedPeers[id] = Date.now()
                     webServer.peerWebSockets[id] = webSocket
                     webServer.peerIdentToSessId[id] = sid
-                    var emptyState = {ident: id, sessionId:sid, peername:"", isHost:false, repositoryPort:-1, checkoutName: "", timestamp: Date.now(), realtimeObjects: [], visibleEntityInfos: []}
+                    var emptyState = {ident: id, sessionId:sid, peername:"", isHost:false, repositoryPort:-1, workspaceName: "", timestamp: Date.now(), realtimeObjects: [], visibleEntityInfos: []}
                     webServer.peerStates[id] = emptyState
                     webServer.peersNeedUpdate = true
                     break
@@ -175,9 +175,9 @@ Item {
                             repositoryUrl = newReopUrl
                             console.log("Server received new repository url for host: " + repositoryUrl)
                         }
-                        if(checkoutName !== msgData.checkoutName) {
-                            checkoutName = msgData.checkoutName
-                            console.log("Server received new checkout name from host: " + checkoutName)
+                        if(workspaceName !== msgData.workspaceName) {
+                            workspaceName = msgData.workspaceName
+                            console.log("Server received new checkout name from host: " + workspaceName)
                         }
                     }
 
@@ -232,7 +232,7 @@ Item {
                 , message: {
                     world: strippedStatesWithoutOwn
                   , repositoryUrl: webServer.repositoryUrl
-                  , checkoutName: webServer.checkoutName
+                  , workspaceName: webServer.workspaceName
                 }
             }
             webSocket.sendTextMessage(JSON.stringify(messageWorld))

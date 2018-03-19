@@ -33,7 +33,7 @@ import "qrc:/qml/network"
 
 QCtl.TreeView {
     id: treeViewCheckout
-    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentWorkspace: globalApplicationState.currentWorkspace
     property var contextMenu
     // all objects, also cached and invisible
     property var allVisualInfoModel: ([])//ObjectModel {}
@@ -162,7 +162,7 @@ QCtl.TreeView {
     model: Mapit.RootTreeModel {
         sortRole: 0 // "displayRole"
         id: rootModel
-        root: currentCheckout
+        root: currentWorkspace
         function forEachItem(parentItem, callback) {
             //console.log("DBG: a" + hasIndex(0, Mapit.RootTreeModel.NodeTypeRole))
             for(var i = 0; hasIndex(i, 0, parentItem); ++i) {
@@ -217,7 +217,7 @@ QCtl.TreeView {
             verticalAlignment:  Text.AlignVCenter
             text: styleData.value
             elide: StyledLabel.ElideRight
-            property var entity: currentCheckout.getEntity(rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole))
+            property var entity: currentWorkspace.getEntity(rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole))
             tooltip: entity && entity.isValid() ?
                                 ("<b>Type:</b> " + entity.type
                            + "<br><b>Frame:</b> " + entity.frameId

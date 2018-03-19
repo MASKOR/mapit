@@ -31,7 +31,7 @@ StyledButton {
     id: root
     text: qsTr("Workspace")
     tooltip: qsTr("Open Dialog to choose a workspace to work on")
-    property string currentCheckoutName: appStyle.checkoutName
+    property string currentWorkspaceName: appStyle.workspaceName
     onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
     Wnd.Window {
         id: chooseCheckoutDialog
@@ -54,7 +54,7 @@ StyledButton {
                             source: "image://icon/asset-green"
                         }
                         StyledLabel {
-                            text: globalRepository.checkoutNames[index]
+                            text: globalRepository.workspaceNames[index]
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: checkoutList.currentIndex = index
@@ -62,7 +62,7 @@ StyledButton {
                         }
                     }
 
-                model: globalRepository.checkoutNames
+                model: globalRepository.workspaceNames
                 highlight: Rectangle { color: appStyle.selectionColor }
 
                 Layout.fillWidth: true
@@ -102,7 +102,7 @@ StyledButton {
                             Layout.row: 1
                         }
                         StyledTextField {
-                            id: checkoutnameTextedit
+                            id: workspaceNameTextedit
                             Layout.column: 1
                             Layout.row: 1
                         }
@@ -115,10 +115,10 @@ StyledButton {
                         StyledButton {
                             text: "Ok"
                             enabled: branchnameTextedit.text.trim().length !== 0
-                                     && checkoutnameTextedit.text.trim().length !== 0
+                                     && workspaceNameTextedit.text.trim().length !== 0
                             onClicked: {
-                                globalRepository.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
-                                appStyle.checkoutName = checkoutnameTextedit.text
+                                globalRepository.createCheckout(branchnameTextedit.text, workspaceNameTextedit.text)
+                                appStyle.workspaceName = workspaceNameTextedit.text
                                 newCheckoutDialog.visible = false
                             }
                             Layout.column: 1
@@ -136,8 +136,8 @@ StyledButton {
                 StyledButton {
                     text: "Ok"
                     onClicked: {
-                        root.currentCheckoutName = globalRepository.checkoutNames[checkoutList.currentIndex];
-                        appStyle.checkoutName = root.currentCheckoutName
+                        root.currentWorkspaceName = globalRepository.workspaceNames[checkoutList.currentIndex];
+                        appStyle.workspaceName = root.currentworkspaceName
                         chooseCheckoutDialog.visible = false;
                     }
                 }

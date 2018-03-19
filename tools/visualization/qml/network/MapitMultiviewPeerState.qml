@@ -39,7 +39,7 @@ Item {
 
     // repoUrl: is set by server to the host-client ip + repositoryPort
     property int repositoryPort
-    property string checkoutName
+    property string workspaceName
 
     // list of path to objects, the peer currently sees (and works with and wants other to see)
     //property var visibleObjects

@@ -29,7 +29,7 @@ namespace mapit
 
 using namespace mapit::msgs;
 
-StatusCode depthFirstSearchWorkspace(  CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
                                      , std::shared_ptr<Entity> obj
                                      , const ObjectReference &ref
                                      , const Path& path
@@ -49,7 +49,7 @@ StatusCode depthFirstSearchWorkspace(  CheckoutCommon *checkout
     return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearchWorkspace(CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
                                      , std::shared_ptr<Tree> obj
                                      , const ObjectReference &ref
                                      , const Path& path
@@ -75,7 +75,7 @@ StatusCode depthFirstSearchWorkspace(CheckoutCommon *checkout
     {
         const ObjectReference &childref = iter->second;
         const Path &childpath = (path=="/"?"":path) + "/" + iter->first;
-        MessageType t = checkout->typeOfObject(childpath);
+        MessageType t = workspace->typeOfObject(childpath);
 
         if(t == MessageType::MessageCommit)
         {
@@ -85,14 +85,14 @@ StatusCode depthFirstSearchWorkspace(CheckoutCommon *checkout
         }
         else if(t == MessageType::MessageTree)
         {
-            std::shared_ptr<Tree> tree(checkout->getTree(childpath));
-            StatusCode s = depthFirstSearchWorkspace(checkout, tree, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
+            std::shared_ptr<Tree> tree(workspace->getTree(childpath));
+            StatusCode s = depthFirstSearchWorkspace(workspace, tree, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
-            std::shared_ptr<Entity> entity(checkout->getEntity(childpath));
-            StatusCode s = depthFirstSearchWorkspace(checkout, entity, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
+            std::shared_ptr<Entity> entity(workspace->getEntity(childpath));
+            StatusCode s = depthFirstSearchWorkspace(workspace, entity, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else
@@ -105,17 +105,17 @@ StatusCode depthFirstSearchWorkspace(CheckoutCommon *checkout
     return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(mapit::WorkspaceCommon *workspace
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
     ObjectReference nullRef;
-    return depthFirstSearchWorkspace(checkout, checkout->getRoot(), nullRef, "", beforeTree, afterTree, beforeEntity, afterEntity);
+    return depthFirstSearchWorkspace(workspace, workspace->getRoot(), nullRef, "", beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
+StatusCode depthFirstSearchWorkspace(mapit::WorkspaceCommon *workspace
                                      , const Path& path
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
@@ -123,14 +123,14 @@ StatusCode depthFirstSearchWorkspace(  mapit::CheckoutCommon *checkout
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
     if (path.empty()) {
-        return depthFirstSearchWorkspace(checkout, beforeTree, afterTree, beforeEntity, afterEntity);
+        return depthFirstSearchWorkspace(workspace, beforeTree, afterTree, beforeEntity, afterEntity);
     } else {
-        std::shared_ptr<Tree> tree = checkout->getTree(path);
+        std::shared_ptr<Tree> tree = workspace->getTree(path);
         if ( ! tree ) {
             return MAPIT_STATUS_ENTITY_NOT_FOUND; // TODO: actuly tree not found
         }
         ObjectReference nullRef;
-        return depthFirstSearchWorkspace(checkout, tree, nullRef, path, beforeTree, afterTree, beforeEntity, afterEntity);
+        return depthFirstSearchWorkspace(workspace, tree, nullRef, path, beforeTree, afterTree, beforeEntity, afterEntity);
     }
 }
 

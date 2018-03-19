@@ -25,7 +25,7 @@
 
 #include <mapit/time/time.h>
 #include <mapit/layertypes/tflayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/errorcodes.h>
 
 #include <Eigen/Geometry>
@@ -172,7 +172,7 @@ namespace tf {
       add_transform(std::unique_ptr<TransformStamped> tf , bool is_static);
 
       mapit::StatusCode
-      store_entities(CheckoutRaw* checkout, const std::string& prefix);
+      store_entities(operators::WorkspaceWritable* workspace, const std::string& prefix);
     private:
       std::shared_ptr<std::map<std::string, std::shared_ptr<TransformStampedList>>> tfs_map_;
     };
@@ -189,7 +189,7 @@ namespace tf {
      * @param is_static
      * @return
      */
-    mapit::StatusCode getOrCreateTransformStampedList(CheckoutRaw* workspace
+    mapit::StatusCode getOrCreateTransformStampedList(operators::WorkspaceWritable* workspace
                                                      , const std::string& frame_id
                                                      , const std::string& child_frame_id
                                                      , const std::string& tfStoragePrefix

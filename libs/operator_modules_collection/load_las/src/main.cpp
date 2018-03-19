@@ -25,7 +25,7 @@
 #include <mapit/logging.h>
 #include <mapit/layertypes/lastype.h>
 #include <mapit/layertypes/lasentitydatawriter.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
@@ -89,14 +89,14 @@ mapit::StatusCode operate_load_las(mapit::OperationEnvironment* env)
 
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(LASEntitydata::TYPENAME());
-    mapit::StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
+    mapit::StatusCode s = env->getWorkspace()->storeEntity(target, pclEntity);
     if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }
     liblas::Reader reader = f.CreateWithStream(ifs);
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<LASEntitydata> entityData = std::dynamic_pointer_cast<LASEntitydata>(abstractEntitydata);
     if(entityData == nullptr)

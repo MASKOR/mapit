@@ -62,13 +62,13 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
     return 0;
 }
 
-void display_checkout(std::shared_ptr<mapit::Checkout> co, bool use_recursive = false, std::string search_prefix = "")
+void display_checkout(std::shared_ptr<mapit::Workspace> workspace, bool use_recursive = false, std::string search_prefix = "")
 {
     int depth = 1;
     ObjectReference nullRef;
     mapit::StatusCode s = mapit::depthFirstSearchWorkspace(
-                co.get(),
-                search_prefix.empty() ? co->getRoot() : co->getTree(search_prefix),
+                workspace.get(),
+                search_prefix.empty() ? workspace->getRoot() : workspace->getTree(search_prefix),
                 nullRef,
                 search_prefix,
                 [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &path)
@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
     // connect to repo and workspace
     std::shared_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
     if (use_workspace) {
-      std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["workspace"].as<std::string>() );
-      if(co == nullptr)
+      std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
+      if(workspace == nullptr)
       {
-          log_error("Checkout \"" + vars["workspace"].as<std::string>() + "\" not found");
-          std::vector<std::string> possibleCheckouts = repo->listCheckoutNames();
+          log_error("Workspace \"" + vars["workspace"].as<std::string>() + "\" not found");
+          std::vector<std::string> possibleCheckouts = repo->listWorkspaceNames();
           if (possibleCheckouts.size() == 0) {
               log_info("No possible checkout");
           }
@@ -162,18 +162,18 @@ int main(int argc, char *argv[])
       }
 
       if (use_path) {
-          display_checkout(co, use_recursive, vars["path"].as<std::string>());
+          display_checkout(workspace, use_recursive, vars["path"].as<std::string>());
       } else {
-          display_checkout(co, use_recursive);
+          display_checkout(workspace, use_recursive);
       }
 
     } else {
-        std::vector<std::string> co_names = repo->listCheckoutNames();
-        for (auto co_name : co_names) {
-          log_info("- " + co_name);
+        std::vector<std::string> workspace_names = repo->listWorkspaceNames();
+        for (auto workspace_name : workspace_names) {
+          log_info("- " + workspace_name);
           if (use_recursive) {
-            std::shared_ptr<mapit::Checkout> co = repo->getCheckout( co_name );
-            display_checkout(co, use_recursive);
+            std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( workspace_name );
+            display_checkout(workspace, use_recursive);
           }
         }
     }

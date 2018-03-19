@@ -22,7 +22,7 @@
  */
 
 #include "mapit/ui/bindings/qmltransform.h"
-#include "mapit/ui/bindings/qmlcheckout.h"
+#include "mapit/ui/bindings/qmlworkspace.h"
 #include <mapit/logging.h>
 #include <mapit/layertypes/tflayer.h>
 #include <mapit/layertypes/tflayer/tf2/buffer_core.h>
@@ -31,7 +31,7 @@
 QmlTransform::QmlTransform()
     : QObject()
     , m_mustExist(false)
-    , m_checkout(nullptr)
+    , m_workspace(nullptr)
     , m_path()
     , m_targetFrame()
     , m_sourceFrame()
@@ -43,7 +43,7 @@ QmlTransform::QmlTransform()
 
 QMatrix4x4 QmlTransform::matrix() const
 {
-    if(!checkout() || !checkout()->getCheckoutObj() || path().isEmpty())
+    if(!workspace() || !workspace()->getWorkspaceObj() || path().isEmpty())
     {
         return QMatrix4x4();
     }
@@ -77,13 +77,13 @@ bool QmlTransform::mustExist() const
 
 bool QmlTransform::exists() const
 {
-    if(!QmlTransform::checkout() || !QmlTransform::checkout()->getCheckoutObj() || path().isEmpty())
+    if(!QmlTransform::workspace() || !QmlTransform::workspace()->getWorkspaceObj() || path().isEmpty())
     {
         return false;
     }
-    std::shared_ptr<mapit::Checkout> co = QmlTransform::checkout()->getCheckoutObj();
+    std::shared_ptr<mapit::Workspace> workspace = QmlTransform::workspace()->getWorkspaceObj();
     std::string p = path().toStdString();
-    std::shared_ptr<mapit::msgs::Entity> e(co->getEntity(p));
+    std::shared_ptr<mapit::msgs::Entity> e(workspace->getEntity(p));
     if(!e)
     {
         return false;
@@ -117,11 +117,11 @@ void QmlTransform::emitExistsChanged()
 
 mapit::tf::TransformStamped QmlTransform::getTfs(bool *found) const
 {
-    // not safe (checkout, etc. are not checked for null)
+    // not safe (workspace, etc. are not checked for null)
     // extract entities mapname
     mapit::tf::TransformStamped tfs;
 
-    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout()->getCheckoutObj().get(), ""));
+    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(workspace()->getWorkspaceObj().get(), ""));
 
     try
     {
@@ -143,9 +143,9 @@ mapit::tf::TransformStamped QmlTransform::getTfs(bool *found) const
     }
 }
 
-QmlCheckout *QmlTransform::checkout() const
+QmlWorkspace *QmlTransform::workspace() const
 {
-    return m_checkout;
+    return m_workspace;
 }
 
 QString QmlTransform::path() const
@@ -168,13 +168,13 @@ QmlStamp *QmlTransform::stamp() const
     return m_stamp;
 }
 
-void QmlTransform::setCheckout(QmlCheckout *checkout)
+void QmlTransform::setWorkspace(QmlWorkspace *workspace)
 {
-    if (m_checkout == checkout)
+    if (m_workspace == workspace)
         return;
 
-    m_checkout = checkout;
-    Q_EMIT checkoutChanged(m_checkout);
+    m_workspace = workspace;
+    Q_EMIT workspaceChanged(m_workspace);
     Q_EMIT updated();
 }
 

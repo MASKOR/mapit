@@ -22,12 +22,12 @@
  */
 
 #include <mapit/operators/module.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 
 mapit::StatusCode operate(mapit::OperationEnvironment* env)
 {

@@ -36,7 +36,7 @@ ColumnLayout {
     //// in ////
     property bool shown
     property bool editable
-    property string currentCheckout
+    property string currentWorkspace
     property string currentEntityPath
 
     readonly property string angleUnit: appStyle.useRadians ? "rad" : qsTr( "\u00B0" ) // degree
@@ -84,7 +84,7 @@ ColumnLayout {
         id: priv
         Mapit.TfTransform {
             id: currentEntitydataTransformId
-            checkout: globalApplicationState.currentCheckout
+            checkout: globalApplicationState.currentWorkspace
             mustExist: false
             path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
                                           && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)

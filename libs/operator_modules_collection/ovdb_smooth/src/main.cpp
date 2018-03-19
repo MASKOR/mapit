@@ -22,9 +22,9 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/layertypes/openvdblayer.h>
 #include "openvdb/tools/LevelSetFilter.h"
 #include <iostream>
@@ -103,7 +103,7 @@ mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
         }
     }
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getWorkspace()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
@@ -117,11 +117,11 @@ mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
     }
     FloatGridPtr inputGrid = entityDataInput->getData();
 
-    std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
+    std::shared_ptr<Entity> ent = env->getWorkspace()->getEntity(output);
     if(ent)
     {
         log_info("Output grid already exists. ignoring voxelsize.");
-        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getWorkspace()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)
         {
             log_error("could not read output grid");
@@ -138,7 +138,7 @@ mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
     {
         ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
-        mapit::StatusCode s = env->getCheckout()->storeEntity(output, ent);
+        mapit::StatusCode s = env->getWorkspace()->storeEntity(output, ent);
         if(!mapitIsOk(s))
         {
             log_error("Failed to create entity.");
@@ -154,7 +154,7 @@ mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
     filter.offset(dilateerode);
     std::cout << "Erosion finished";
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getWorkspace()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output asset");

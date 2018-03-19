@@ -48,7 +48,7 @@ private slots:
     void test_delete_entities_and_trees_mixed_data();
     void test_delete_entities_and_trees_mixed();
 private:
-    void add_bunny(std::shared_ptr<mapit::Checkout> checkout, std::string path);
+    void add_bunny(std::shared_ptr<mapit::Workspace> workspace, std::string path);
 };
 
 #endif

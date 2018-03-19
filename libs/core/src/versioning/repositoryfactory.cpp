@@ -32,11 +32,11 @@ static mapit::AbstractSerializer *initializeSerializer(std::string directory)
 
     // Check if anything exists in the database
     // Note: There might be commits or objects which are not recognized here.
-    // TODO: forbid to delete last branch for this to work. Checkouts might all be deleted.
+    // TODO: forbid to delete last branch for this to work. Workspaces might all be deleted.
     size_t numElems = mser->listBranches().size();
 
     if(numElems) return mser;
-//        numElems = m_serializer->listCheckoutNames().size();
+//        numElems = m_serializer->listWorkspaceNames().size();
 //        if(numElems) return;
     log_warn("Selected empty repository, create master");
     std::shared_ptr<mapit::msgs::Branch> master(new mapit::msgs::Branch());

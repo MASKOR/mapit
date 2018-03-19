@@ -65,10 +65,10 @@ get_substrings(std::string row)
 }
 
 std::string
-get_publisher_name(const std::shared_ptr<mapit::Checkout>& co, const ::Entity& entity)
+get_publisher_name(const std::shared_ptr<mapit::Workspace>& workspace, const ::Entity& entity)
 {
     if ( 0 == entity.entity->type().compare( TfEntitydata::TYPENAME() ) ) {
-        std::shared_ptr<mapit::AbstractEntitydata> ed_a = co->getEntitydataReadOnly(entity.entity_name);
+        std::shared_ptr<mapit::AbstractEntitydata> ed_a = workspace->getEntitydataReadOnly(entity.entity_name);
         std::shared_ptr<TfEntitydata> ed = std::static_pointer_cast<TfEntitydata>(ed_a);
         if ( ed->getData()->get_is_static() ) {
             return "/tf_static";
@@ -83,10 +83,10 @@ get_publisher_name(const std::shared_ptr<mapit::Checkout>& co, const ::Entity& e
 int
 get_program_options(int argc, char *argv[], po::variables_map& vars)
 {
-  po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name>");
+  po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
   program_options_desc.add_options()
       ("help,h", "print usage")
-      ("workspace,w", po::value<std::string>()->required(), "the workspace (formerly checkout) to work with")
+      ("workspace,w", po::value<std::string>()->required(), "the workspace (formerly workspace) to work with")
       ("use_sim_time,s", po::value<bool>()->default_value(false), "whenever the clock should be published or not.\n"
                                                                   "When entities are shown, this param will be ignored.\n"
                                                                   "(Only usefull in the \"playback mode\" which is only availible when layesr are displayed)")
@@ -96,7 +96,7 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
                                                                   "or \"all at once\", when \"use_sim_time\" is set, this is expected to be true");
 
   po::positional_options_description pos_options;
-  pos_options.add("checkout",  1);
+  pos_options.add("workspace",  1);
 
   mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
   try {
@@ -122,20 +122,20 @@ get_program_options(int argc, char *argv[], po::variables_map& vars)
 int
 get_mapit_data(  po::variables_map& vars
                , std::shared_ptr<mapit::Repository>& repo
-               , std::shared_ptr<mapit::Checkout>& co)
+               , std::shared_ptr<mapit::Workspace>& workspace)
 {
   repo = std::shared_ptr<mapit::Repository>( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-  co = repo->getCheckout( vars["workspace"].as<std::string>() );
-  if(co == nullptr)
+  workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
+  if(workspace == nullptr)
   {
-      log_error("Checkout \"" + vars["workspace"].as<std::string>() + "\" not found");
-      std::vector<std::string> possibleCheckouts = repo->listCheckoutNames();
-      if (possibleCheckouts.size() == 0) {
-          log_info("No possible checkout");
+      log_error("Workspace \"" + vars["workspace"].as<std::string>() + "\" not found");
+      std::vector<std::string> possibleWorkspaces = repo->listWorkspaceNames();
+      if (possibleWorkspaces.size() == 0) {
+          log_info("No possible workspace");
       }
-      for ( std::string checkout : possibleCheckouts ) {
-          log_info("Possible checkout: " + checkout);
+      for ( std::string workspace : possibleWorkspaces ) {
+          log_info("Possible workspace: " + workspace);
       }
       return 1;
   }
@@ -151,12 +151,12 @@ get_mapit_data(  po::variables_map& vars
 
 int
 load_entities( const po::variables_map& vars
-             , const std::shared_ptr<mapit::Checkout> co
+             , const std::shared_ptr<mapit::Workspace> workspace
              , std::list<::Entity>& entities)
 {
     std::vector<std::string> data_names = vars["data"].as<std::vector<std::string>>();
     for (std::string data_name : data_names) {
-        std::shared_ptr<mapit::msgs::Entity> entity = co->getEntity(data_name);
+        std::shared_ptr<mapit::msgs::Entity> entity = workspace->getEntity(data_name);
         // is entity => add
         if (entity != nullptr) {
             ::Entity entity_struct;
@@ -165,12 +165,12 @@ load_entities( const po::variables_map& vars
             entity_struct.user_prefix = data_name;
             entities.push_back( entity_struct );
         } else {
-            std::shared_ptr<mapit::msgs::Tree> tree = co->getTree(data_name);
+            std::shared_ptr<mapit::msgs::Tree> tree = workspace->getTree(data_name);
             // is tree => depth first search for all entities
             if (tree != nullptr) {
                 ObjectReference nullRef;
                 mapit::depthFirstSearchWorkspace(
-                            co.get(),
+                            workspace.get(),
                             tree,
                             nullRef,
                             data_name,
@@ -198,7 +198,7 @@ load_entities( const po::variables_map& vars
 
 int
 start_publishing_in_playback_mode_and_clock(  const po::variables_map& vars
-                                  , const std::shared_ptr<mapit::Checkout> co
+                                  , const std::shared_ptr<mapit::Workspace> workspace
                                   , const std::shared_ptr<ros::NodeHandle>& node_handle
                                   , const std::string& pub_name
                                   , const std::list<::Entity>& entities
@@ -208,7 +208,7 @@ start_publishing_in_playback_mode_and_clock(  const po::variables_map& vars
     std::map<std::string, std::shared_ptr<PublishToROS>> entities_for_one_publisher;
     // for all entities
     for (const ::Entity& entity : entities) {
-        std::string publisher_name = get_publisher_name(co, entity);
+        std::string publisher_name = get_publisher_name(workspace, entity);
         // get the class that manages the publishing to ROS (search by the user input)
         std::map<std::string, std::shared_ptr<PublishToROS>>::const_iterator publisher_manager_it = entities_for_one_publisher.find( publisher_name );
         // if this does not exists, create it
@@ -217,13 +217,13 @@ start_publishing_in_playback_mode_and_clock(  const po::variables_map& vars
             if ( 0 == entity.entity->type().compare( PointcloudEntitydata::TYPENAME() ) ) {
                 std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(pub_name + publisher_name, 10, true));
                 publisher_manager = std::make_shared<PublishPointClouds>(
-                            co, node_handle, std::move(pub)
+                            workspace, node_handle, std::move(pub)
                             );
             } else if ( 0 == entity.entity->type().compare( TfEntitydata::TYPENAME() ) ) {
                 std::string publisher_name_tf = publisher_name[0] == '/' ? publisher_name : "/" + publisher_name;
                 std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<tf2_msgs::TFMessage>(publisher_name_tf, 10, true));
                 publisher_manager = std::make_shared<PublishTFs>(
-                            co, node_handle, std::move(pub)
+                            workspace, node_handle, std::move(pub)
                             );
             } else {
               log_error("layertype \"" + entity.entity->type() + "\" not implemented in this tool");
@@ -281,19 +281,19 @@ start_publishing_in_playback_mode_and_clock(  const po::variables_map& vars
 }
 
 int
-start_publishing_all_entities_at_once(  const std::shared_ptr<mapit::Checkout> co
+start_publishing_all_entities_at_once(  const std::shared_ptr<mapit::Workspace> workspace
                           , const std::shared_ptr<ros::NodeHandle>& node_handle
                           , const std::string& pub_name
                           , const std::list<::Entity>& entities
                           , std::list<std::shared_ptr<PublishToROS>>& publish_managers)
 {
     for (const ::Entity& entity : entities) {
-        std::string publisher_name = get_publisher_name(co, entity);
+        std::string publisher_name = get_publisher_name(workspace, entity);
         std::string current_pub_name = pub_name + "/" + entity.user_prefix;
         if ( 0 == entity.entity->type().compare( PointcloudEntitydata::TYPENAME() ) ) {
             std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<sensor_msgs::PointCloud2>(current_pub_name, 10, true));
             publish_managers.push_back( std::make_shared<PublishPointClouds>(
-                                        co, node_handle, std::move(pub)
+                                        workspace, node_handle, std::move(pub)
                                         )
                                       );
             publish_managers.back()->publish_entity(entity.entity_name, std::make_shared<::Entity>(entity));
@@ -301,7 +301,7 @@ start_publishing_all_entities_at_once(  const std::shared_ptr<mapit::Checkout> c
             current_pub_name = publisher_name; // special case, don't use the /mapit/ prefix for the topic for TFs
             std::unique_ptr<ros::Publisher> pub = std::make_unique<ros::Publisher>(node_handle->advertise<tf2_msgs::TFMessage>(current_pub_name, 10, true));
             publish_managers.push_back( std::make_shared<PublishTFs>(
-                                        co, node_handle, std::move(pub)
+                                        workspace, node_handle, std::move(pub)
                                         )
                                       );
             publish_managers.back()->publish_entity(entity.entity_name, std::make_shared<::Entity>(entity));
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 
     // get mapit data
     std::shared_ptr<mapit::Repository> repo( nullptr );
-    std::shared_ptr<mapit::Checkout> co( nullptr );
+    std::shared_ptr<mapit::Workspace> co( nullptr );
     ret = get_mapit_data(vars, repo, co);
     if (ret != 0) {
       return ret;

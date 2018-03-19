@@ -42,11 +42,11 @@ class ZmqResponderPrivate : public ZmqProtobufNode
 
 public:
     ZmqResponderPrivate( int portIncomingRequests, Repository* repo, std::string urlOutgoingRequests = std::string() );
-    void handleRequestCheckout(RequestCheckout* msg);
+    void handleRequestWorkspace(RequestWorkspace* msg);
     void handleRequestEntitydata(RequestEntitydata* msg);
     void handleRequestHierarchy(RequestHierarchy* msg);
     void handleRequestHierarchyPlain(RequestHierarchyPlain* msg);
-    void handleRequestListCheckouts(RequestListCheckouts* msg);
+    void handleRequestListWorkspaces(RequestListWorkspaces* msg);
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
     void handleRequestGenericEntry(RequestGenericEntry *msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);

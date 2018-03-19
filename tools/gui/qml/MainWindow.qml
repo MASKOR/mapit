@@ -52,7 +52,7 @@ ApplicationWindow {
         minimumWidth: width
         maximumWidth: width
         property alias detailDialogPath: opPane.detailDialogPath
-        property alias currentCheckout: opPane.currentCheckout
+        property alias currentWorkspace: opPane.currentWorkspace
         property alias currentEntityPath: opPane.currentEntityPath
         RowLayout {
             anchors.fill: parent
@@ -79,7 +79,7 @@ ApplicationWindow {
             isHost: connectRealtimeMultiviewDialog.isServer
             additionalData: ({ pointSize: sceneView.pointSize, shaderVar: sceneView.shaderVar, shaderVar2: sceneView.shaderVar2, renderStyle: sceneView.renderStyle })
             //repositoryPort: repoServer.port
-            checkoutName: globalApplicationState.currentCheckoutName
+            workspaceName: globalApplicationState.currentWorkspaceName
             allVisualInfoModel: leftPanels.treeView.allVisualInfoModel
             realtimeObjects: [
                 RealtimeObject {
@@ -93,8 +93,8 @@ ApplicationWindow {
     Connections {
         target: mapitClient.state
         enabled: !connectRealtimeMultiviewDialog.isServer
-        onCheckoutNameChanged: {
-            globalApplicationState.currentCheckoutName = mapitClient.state.checkoutName
+        onworkspaceNameChanged: {
+            globalApplicationState.currentWorkspaceName = mapitClient.state.workspaceName
         }
 //        onRepositoryUrlChanged: {
 //            globalRepository.url = mapitClient.state.repositoryUrl
@@ -290,7 +290,7 @@ ApplicationWindow {
                 MenuItem {
                     text: operatorInstantiator.model[index] ? operatorInstantiator.model[index].moduleName : "unknown module"
                     onTriggered: {
-                        executeOperatorDialog.currentCheckout = globalApplicationState.currentCheckout
+                        executeOperatorDialog.currentWorkspace = globalApplicationState.currentWorkspace
                         executeOperatorDialog.currentEntityPath = globalApplicationState.currentEntityPath
                         executeOperatorDialog.detailDialogPath = "../operators/" + operatorInstantiator.model[index]
                         executeOperatorDialog.show()

@@ -39,7 +39,7 @@ class ZmqEntitydataStreamProvider : public AbstractEntitydataProvider
 {
     // AbstractEntitydataProvider interface
 public:
-    ZmqEntitydataStreamProvider(std::string checkoutName, std::string pathOrOid, ZmqProtobufNode *node);
+    ZmqEntitydataStreamProvider(std::string workspaceName, std::string pathOrOid, ZmqProtobufNode *node);
     bool isCached();
     bool isReadWriteSame();
     mapit::istream *startRead(mapit::uint64_t start, mapit::uint64_t length);
@@ -67,7 +67,7 @@ public:
     ReadWriteType preferredReadType();
     ReadWriteType preferredWriteType();
 private:
-    std::string m_checkoutName;
+    std::string m_workspaceName;
     std::string m_pathOrOid;
     ZmqProtobufNode *m_node;
     mutable mapit::uint64_t m_entityLength;

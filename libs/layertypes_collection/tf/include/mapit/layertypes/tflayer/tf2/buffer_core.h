@@ -51,7 +51,7 @@
 //#include <boost/shared_ptr.hpp>
 
 namespace mapit {
-class CheckoutCommon;
+class WorkspaceCommon;
 }
 
 namespace mapit {
@@ -118,11 +118,11 @@ public:
   BufferCore();
 
   /**
-   * @brief BufferCore returnes the buffer core filled with the transforms from the checkout
-   * @param checkout from where to load the transforms
+   * @brief BufferCore returnes the buffer core filled with the transforms from the workspace
+   * @param workspace from where to load the transforms
    * @param tf_prefix
    */
-  BufferCore(mapit::CheckoutCommon *checkout
+  BufferCore(mapit::WorkspaceCommon *workspace
           , std::string tf_prefix
           );
 

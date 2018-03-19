@@ -35,7 +35,7 @@ MAPIT_MODULE(<OPERATOR_NAME>, "description of your operator",
 The parameter of the function is mapit::OperationEnvironment, which exposes all data you need.
 
 - mapit::OperationEnvironment::getParameters(): Returns a string that is the data given as paramters. This may be a string, the user entered in the command line. Currently all our operators use Json (json11 library) for encoding parameters.
-- mapit::OperationEnvironment::getCheckout(): Gives you an interface for manipulating data (CheckoutRaw).
+- mapit::OperationEnvironment::getWorkspace(): Gives you an interface for manipulating data (operators::WorkspaceWritable).
 
 A simple voxelgridfilter using pcl looks like this:
 
@@ -43,13 +43,13 @@ A simple voxelgridfilter using pcl looks like this:
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/pointcloudlayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include "json11.hpp"
 
 mapit::StatusCode operate_voxelgrid(mapit::OperationEnvironment* env)
@@ -75,7 +75,7 @@ mapit::StatusCode operate_voxelgrid(mapit::OperationEnvironment* env)
         return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
     if( ! abstractEntitydata)
     {
         log_error("target does not exist");
@@ -226,11 +226,11 @@ However, you may completely ignore this preference and only implement one of the
 
 ## Writing tools
 
-For writing tools use the **Repository** and **Checkout** class. Moreover GUIs can be implemented easily in Qml
+For writing tools use the **Repository** and **workspace** class. Moreover GUIs can be implemented easily in Qml
 
 ### GUIs
 
-There are fast C++ implementations for Qml Components to display an Checkout. Moreover there is a Qt3D GeometryRenderer to visualize common layertypes (like pointclouds).
+There are fast C++ implementations for Qml Components to display an workspace. Moreover there is a Qt3D GeometryRenderer to visualize common layertypes (like pointclouds).
 
 
 To import the C++ classes and use them with the namespace ```Mapit``` the following line is needed.
@@ -240,7 +240,7 @@ import fhac.mapit 1.0 as Mapit
 ```
 
 
-There is a binding for **Repository** and **Checkout** to easyly access and manipulate both. They have no visual representation but can be used to show a list of checkouts or in combination with **RootTreeModel** to create a tree view for a checkout,
+There is a binding for **Repository** and **workspace** to easyly access and manipulate both. They have no visual representation but can be used to show a list of workspaces or in combination with **RootTreeModel** to create a tree view for a workspace,
 
 ```qml
 Mapit.Repository {
@@ -248,19 +248,19 @@ Mapit.Repository {
   url: "tcp://localhost:5555"
 }
 
-Mapit.Checkout {
-  id: checkout
+Mapit.Workspace {
+  id: workspace
   repository: globalRepository
-  name: "testcheckout"
+  name: "testworkspace"
 }
 ```
 
-Mapit comes with it's own TreeModel for checkouts:
+Mapit comes with it's own TreeModel for workspaces:
 
 ```qml
 Mapit.RootTreeModel {
   id: rootTreeModel
-  root: checkout
+  root: workspace
 }
 ```
 
@@ -268,7 +268,7 @@ This can be used to create a TreeView
 
 ```qml
 TreeView {
-  id: treeViewCheckout
+  id: treeViewWorkspace
   model: rootTreeModel
   TableViewColumn {
     role: "displayRole"
@@ -289,11 +289,11 @@ The renderer implementes **QGeometryRenderer** and can be used as a **Component*
 Mapit.EntitydataRenderer {
   entitydata: Mapit.Entitydata {
   id: currentEntitydata
-  checkout: checkout
-  path: treeViewCheckout.currentIndex
-        && treeViewCheckout.model.data(treeViewCheckout.currentIndex, Mapit.RootTreeModel.NodeTypeRole)
+  workspace: workspace
+  path: treeViewWorkspace.currentIndex
+        && treeViewWorkspace.model.data(treeViewWorkspace.currentIndex, Mapit.RootTreeModel.NodeTypeRole)
         === Mapit.RootTreeModel.EntityNode
-          ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole)
+          ? treeViewWorkspace.model.data(treeViewWorkspace.currentIndex, Qt.ToolTipRole)
           : ""
 }
 ```

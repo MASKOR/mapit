@@ -45,7 +45,7 @@ protected:
     void stopServer();
 private:
     std::shared_ptr<mapit::Repository> m_repo[4];
-    std::shared_ptr<mapit::Checkout> m_checkout[4];
+    std::shared_ptr<mapit::Workspace> m_workspace[4];
     std::function<void()> m_serverCallback;
     std::shared_ptr<ServerThread> m_serverThread[2];
     std::shared_ptr<mapit::Repository> m_networkRepo[2];

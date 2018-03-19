@@ -61,7 +61,7 @@ Item {
     property int shaderVar: techniqueFilter.fieldnameToShaderindex(colorizeSelect.currentText)
     property int shaderVar2: colorModeSelect.currentIndex //TODO: shaderVar and Var2 are temporary for demo
     property string renderStyle: renderstyleSelect.currentText
-    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentWorkspace: globalApplicationState.currentWorkspace
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
     property ListModel visibleEntityModel//: entityInstantiator.model
     property var allVisualInfoModel
@@ -141,7 +141,7 @@ Item {
                     Layout.minimumWidth: 100
                     id: frameIdChooser
                     allowNew: false
-                    //currentCheckout: root.currentCheckout
+                    //currentWorkspace: root.currentWorkspace
                 }
 
                 //                StyledComboBox {
@@ -566,7 +566,7 @@ Item {
                                 visibleEntityPaths: root.visibleEntityModel
                                 allEntities: root.allVisualInfoModel
                                 currentFrameId: root.currentFrameId
-                                currentCheckout: globalApplicationState.currentCheckout
+                                currentWorkspace: globalApplicationState.currentWorkspace
                                 mapitClient: root.mapitClient
                                 camera: mainCamera
                                 appStyleOptional: appStyle
@@ -787,15 +787,15 @@ Item {
 //                                            layer: pointLayer
 //                                            //parametersTmp: techniqueFilter.parameters
 //                                            //Currently only one checkout is supported
-//                                            currentCheckout: globalApplicationState.currentCheckout
-//                                            //                                    currentCheckout: Mapit.Checkout {
+//                                            currentWorkspace: globalApplicationState.currentWorkspace
+//                                            //                                    currentWorkspace: Mapit.Checkout {
 //                                            //                                        id: co
 //                                            //                                        repository: globalRepository
-//                                            //                                        name: model.checkoutName
+//                                            //                                        name: model.workspaceName
 //                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
 //                                            //                                    }
 //                                            currentEntitydata: Mapit.Entitydata {
-//                                                checkout: currentCheckout
+//                                                checkout: currentWorkspace
 //                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
 //                                                onIsLoadingChanged: {
 ////                                                    if(isLoading) {
@@ -849,9 +849,9 @@ Item {
 //                                            layer: pointLayer
 //                                            //parametersTmp: techniqueFilter.parameters
 //                                            //Currently only one checkout is supported
-//                                            currentCheckout: globalApplicationState.currentCheckout
+//                                            currentWorkspace: globalApplicationState.currentWorkspace
 //                                            currentEntitydata: Mapit.Entitydata {
-//                                                checkout: currentCheckout
+//                                                checkout: currentWorkspace
 //                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
 //                                            }
 //                                            onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()
@@ -910,13 +910,13 @@ Item {
                         iconSource: "image://material/ic_device_hub"
                         StyledButton {
                             isIcon: true
-                            visible: !globalApplicationState.currentCheckout.isBusyExecuting
+                            visible: !globalApplicationState.currentWorkspace.isBusyExecuting
                             iconSource: "image://material/ic_play_circle_filled"
                             onClicked: gbcontrol.doOperations()
                         }
                         StyledButton {
                             isIcon: true
-                            visible: globalApplicationState.currentCheckout.isBusyExecuting
+                            visible: globalApplicationState.currentWorkspace.isBusyExecuting
                             iconSource: "image://material/ic_pause_circle_filled"
                             enabled: false
                         }
@@ -955,18 +955,18 @@ Item {
                             onTriggered: executeOperations()
                             function executeOperations() {
                                 //if(running) return
-                                if(globalApplicationState.currentCheckout.isBusyExecuting) {
+                                if(globalApplicationState.currentWorkspace.isBusyExecuting) {
                                     operationTimer.start()
                                     return
                                 }
-                                console.log("Last Operation Status: " + globalApplicationState.currentCheckout.lastOperationStatus)
+                                console.log("Last Operation Status: " + globalApplicationState.currentWorkspace.lastOperationStatus)
                                 if(globalOperationScheduler.operatorList.length == 0) {
                                     console.log("Done executing")
                                     return
                                 }
                                 var op = globalOperationScheduler.operatorList.shift()
                                 console.log("Starting: " + op.moduleName + ", params: " + op.parameters)
-                                globalApplicationState.currentCheckout.doOperation(op.moduleName, op.parameters)
+                                globalApplicationState.currentWorkspace.doOperation(op.moduleName, op.parameters)
                                 operationTimer.start()
                             }
                         }

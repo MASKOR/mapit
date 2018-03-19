@@ -131,14 +131,14 @@ ModuleInfo* getModuleInfo(HandleOpModule &handle)
     return getModInfo();
 }
 
-mapit::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout)
+mapit::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs::OperationDescription &desc, operators::WorkspaceWritable *workspace)
 {
 //    OperationDescription opdesc;
 //    // protobuf has no methods to handle members as const. We won't change opdesc.operator()
 //    opdesc.set_allocated_operator_(const_cast<OperatorDescription*>(&desc));
 //    opdesc.set_params(params);
     OperationEnvironmentImpl env(desc);
-    env.setCheckout( checkout );
+    env.setWorkspace( workspace );
     StatusCode result = module->operate( &env );
     if(!mapitIsOk(result))
     {
@@ -175,7 +175,7 @@ StatusCode closeOperatorModule(HandleOpModule handle)
     return result;
 }
 
-OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::OperationDescription &desc, CheckoutRaw *checkout)
+OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::OperationDescription &desc, operators::WorkspaceWritable *workspace)
 {
     HandleOpModule handle = loadOperatorModule(desc.operator_());
     if(!handle)
@@ -188,7 +188,7 @@ OperationResult OperatorLibraryManager::doOperation(const mapit::msgs::Operation
     {
         return OperationResult(MAPIT_STATUS_ERR_MODULE_OPERATOR_NOT_FOUND, mapit::msgs::OperationDescription());
     }
-    OperationResult result = _doOperation(modInfo, desc, checkout);
+    OperationResult result = _doOperation(modInfo, desc, workspace);
     if(!mapitIsOk(result.first))
     {
         std::stringstream strm;

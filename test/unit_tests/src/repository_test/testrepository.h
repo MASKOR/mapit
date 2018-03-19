@@ -37,7 +37,7 @@ class TestRepository : public RepositoryCommon
 {
 private:
     std::string filename_;
-    std::string checkoutPath_;
+    std::string workspacePath_;
     Q_OBJECT
 private slots:
     void init();
@@ -46,12 +46,12 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testCreateCheckout_data();
-    void testCreateCheckout();
-    void testGetCheckout_data();
-    void testGetCheckout();
-    void testReadCheckout_data();
-    void testReadCheckout();
+    void testCreateWorkspace_data();
+    void testCreateWorkspace();
+    void testGetWorkspace_data();
+    void testGetWorkspace();
+    void testReadWorkspace_data();
+    void testReadWorkspace();
     void testCommit_data();
     void testCommit();
     void testVoxelgridfilter_data();

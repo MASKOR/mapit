@@ -22,7 +22,7 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 #include <string>
@@ -43,16 +43,16 @@
 #include <mapit/layertypes/pointcloudlayer.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-mapit::StatusCode get_or_create_entity(  mapit::CheckoutRaw* checkout
+mapit::StatusCode get_or_create_entity(  mapit::operators::WorkspaceWritable* workspace
                                       , const std::string& entity_name
                                       , const std::string& entity_type
                                       , std::shared_ptr<mapit::msgs::Entity>& entity)
 {
-    entity = checkout->getEntity(entity_name);
+    entity = workspace->getEntity(entity_name);
     if (entity == nullptr) {
         entity = std::make_shared<mapit::msgs::Entity>();
         entity->set_type( entity_type );
-        checkout->storeEntity(entity_name, entity);
+        workspace->storeEntity(entity_name, entity);
     }
     if ( 0 == entity->type().compare( entity_type ) ) {
         return MAPIT_STATUS_OK;
@@ -89,7 +89,7 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    mapit::CheckoutRaw* checkout = env->getCheckout();
+    mapit::operators::WorkspaceWritable* workspace = env->getWorkspace();
 
     QJsonArray json_bag_names( params["bags"].toArray() );
     for (auto json_bag_name : json_bag_names) {
@@ -133,7 +133,7 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
               std::string entity_name = prefix_name + "/" + escape_slashes(pc2->header.frame_id + std::to_string(pc2->header.stamp.sec) + "." + std::to_string(pc2->header.stamp.nsec));
 
               std::shared_ptr<mapit::msgs::Entity> entity;
-              mapit::StatusCode get_entity_status = get_or_create_entity(checkout, entity_name, PointcloudEntitydata::TYPENAME(), entity);
+              mapit::StatusCode get_entity_status = get_or_create_entity(workspace, entity_name, PointcloudEntitydata::TYPENAME(), entity);
               if ( ! mapitIsOk(get_entity_status) ) {
                   log_error("load_bags: Can't get entity \"" + entity_name + "\" of type \"" + PointcloudEntitydata::TYPENAME() + "\"");
                   return get_entity_status;
@@ -146,8 +146,8 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
               pcl_conversions::toPCL(*pc2, *entity_data);
 
               log_info("load_bags:   entity: " + entity_name);
-              checkout->storeEntity(entity_name, entity);
-              std::static_pointer_cast<PointcloudEntitydata>(checkout->getEntitydataForReadWrite(entity_name))->setData(entity_data);
+              workspace->storeEntity(entity_name, entity);
+              std::static_pointer_cast<PointcloudEntitydata>(workspace->getEntitydataForReadWrite(entity_name))->setData(entity_data);
             } else {
               log_error("load_bags: Data [" + bag_name + "] : \"" + topic_name + "\" is not of type \"sensor_msgs::PointCloud2\"");
               return MAPIT_STATUS_ERROR;
@@ -184,7 +184,7 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
             }
           }
         }
-        tfs_map.store_entities( checkout, prefix_name );
+        tfs_map.store_entities( workspace, prefix_name );
       }
     }
 

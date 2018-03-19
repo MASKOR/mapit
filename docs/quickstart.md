@@ -34,7 +34,7 @@ The *\-\-compute-locale*-Flags specifies, that all computation has to take place
 Currently there is a small list of *commands*:
 
 ```bash
-checkout
+workspace
 execute
 mapitd
 checkout2filesystem
@@ -47,32 +47,32 @@ checkout2filesystem
 Getting data into the system is done by using a special operator, which accesses the filesystem it is running on. For Pointlocuds the operator is calls *load_pointcloud*
 
 ```bash
-mapit execute testcheckout load_pointcloud '{"filename":"./data/bunny.pcd", "target":"testmap/testlayer/bunny"}'
+mapit execute testworkspace load_pointcloud '{"filename":"./data/bunny.pcd", "target":"testmap/testlayer/bunny"}'
 ```
 
 ### Write Data to filesystem
 
 All data is hidden from the user by default to prevent accidential edits of the data. To track all changes it is important that all changes are done via operators (and in the best case can be represented as metadata). In later versions it might be possible to create read-only symlinks to checked-out files.
 
-There is a tool which extracts/copies a complete checkout to a directory:
+There is a tool which extracts/copies a complete workspace to a directory:
 
 ```bash
-mapit checkout2filesystem <checkout> <destination>
+mapit checkout2filesystem <workspace> <destination>
 ```
 
 For example:
 
 ```bash
-mapit checkout2filesystem testcheckout ./export
+mapit checkout2filesystem testworkspace ./export
 ```
 
 ### Edit data
 
-Data can only be changed by operators. Operator always work on a specific version of the data, which is represented as a *checkout*. There are no operator that works across multiple versions of data.
+Data can only be changed by operators. Operator always work on a specific version of the data, which is represented as a *workspace*. There are no operator that works across multiple versions of data.
 Executing an operator is possible with:
 
 ```bash
-mapit execute <checkout> <operator> <params>
+mapit execute <workspace> <operator> <params>
 ```
 
 The list of operators is always growing, currently these operators are available/in-development
@@ -84,13 +84,13 @@ Downloading und uploading data is done by configuring the repository to the remo
 For downloading use
 
 ```bash
-mapit export2filesystem <checkout> <local_destination_directory> --url tcp://<ip|hostname>:<port>
+mapit export2filesystem <workspace> <local_destination_directory> --url tcp://<ip|hostname>:<port>
 ```
 
 To upload pointclouds to a remote repository use:
 
 ```bash
-mapit execute <checkout> load_pointcloud '{"filename":"<filename>", "target":"<name_of_new_entity>"}'
+mapit execute <workspace> load_pointcloud '{"filename":"<filename>", "target":"<name_of_new_entity>"}'
 ```
 
 ### Create an remote accesible Repository

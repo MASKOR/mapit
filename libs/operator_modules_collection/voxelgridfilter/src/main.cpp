@@ -24,13 +24,13 @@
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/pointcloudlayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/depthfirstsearch.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
@@ -38,7 +38,7 @@
 
 mapit::StatusCode executeVoxelgrid(mapit::OperationEnvironment* env, const std::string& target, const double& leafSize)
 {
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {
@@ -78,13 +78,13 @@ mapit::StatusCode operate_vxg(mapit::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    if ( env->getCheckout()->getEntity(target) ) {
+    if ( env->getWorkspace()->getEntity(target) ) {
         // execute on entity
         return executeVoxelgrid(env, target, leafSize);
-    } else if ( env->getCheckout()->getTree(target) ) {
+    } else if ( env->getWorkspace()->getTree(target) ) {
         // execute on tree
         mapit::StatusCode status = MAPIT_STATUS_OK;
-        env->getCheckout()->depthFirstSearch(
+        env->getWorkspace()->depthFirstSearch(
                       target
                     , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                     , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)

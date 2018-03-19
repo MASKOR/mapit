@@ -21,12 +21,12 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAPIT_CHECKOUT_H
-#define MAPIT_CHECKOUT_H
+#ifndef MAPIT_WORKSPACE_H
+#define MAPIT_WORKSPACE_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
-#include "checkoutcommon.h"
+#include "workspacecommon.h"
 
 using namespace mapit::msgs;
 
@@ -35,23 +35,23 @@ namespace mapit
 class OperationEnvironment;
 
 /**
- * @brief A Checkout object represents an editable state/version of all maps.
- * Checkout (without raw) is the interface for users to invoke parameterized Operators to indirectly edit objects.
- * Changes can be done in a checkout without creating new commits. Checkouts are persistent on harddrive and do
+ * @brief A Workspace object represents an editable state/version of all maps.
+ * Workspace (without raw) is the interface for users to invoke parameterized Operators to indirectly edit objects.
+ * Changes can be done in a workspace without creating new commits. Workspaces are persistent on harddrive and do
  * not only exist in RAM (just like a git working directory persists on harddrive). When they are commited, the
- * checkout gets transformed to the final commit. At this stage, it can not be changed anymore (all objects are
- * immutable). Objects (entities, trees) may not have an objectId in a checkout. One can not use the commit- and
+ * workspace gets transformed to the final commit. At this stage, it can not be changed anymore (all objects are
+ * immutable). Objects (entities, trees) may not have an objectId in a workspace. One can not use the commit- and
  * objectIds, because these are changing. Ids are generated during a commit. Some objects, which have not changed
  * since the last commit, may have an objectId. These objects may be copied on the first write access. However if
  * the history of the objects is traceable and the object can bes restored from other data, the system may over-
- * write the data without copying. OperationDescriptors are collected while the checkout is active. Operations
+ * write the data without copying. OperationDescriptors are collected while the workspace is active. Operations
  * inside the list can have parameters (objectIds) which are only temporary in the system. When replayed,
  * dependencymanagement tries to compute all Operations which have all their parameters ready.
  */
-class Checkout : virtual public CheckoutCommon
+class Workspace : virtual public WorkspaceCommon
 {
 public:
-    virtual ~Checkout() {}
+    virtual ~Workspace() {}
     /**
      * @brief doOperation Executes the Operator given in the description.
      * TODO:

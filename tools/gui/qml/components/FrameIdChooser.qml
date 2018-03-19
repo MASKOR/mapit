@@ -28,21 +28,21 @@ import QtQuick.Controls.Styles 1.4
 import "."
 
 QuickAccessMenu {
-    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentWorkspace: globalApplicationState.currentWorkspace
     z: 100
     id: frameIdInput
     height: appStyle.controlHeightInner
-    model: currentCheckout ? currentCheckout.getFrameIds() : []
+    model: currentWorkspace ? currentWorkspace.getFrameIds() : []
     Connections {
-        target: currentCheckout
+        target: currentWorkspace
         onIsBusyExecutingChanged: {
-            if(!currentCheckout.isBusyExecuting)
-                frameIdInput.model = frameIdInput.currentCheckout.getFrameIds()
+            if(!currentWorkspace.isBusyExecuting)
+                frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
         }
-        onInternalCheckoutChanged: {
-            if(!currentCheckout.is)
-                frameIdInput.model = frameIdInput.currentCheckout.getFrameIds()
+        oninternalWorkspaceChanged: {
+            if(!currentWorkspace.is)
+                frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
         }
     }
-    onCurrentCheckoutChanged: frameIdInput.model = frameIdInput.currentCheckout.getFrameIds()
+    onCurrentWorkspaceChanged: frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
 }

@@ -173,7 +173,7 @@ ColumnLayout {
             Layout.minimumWidth: 100
             id: frameId
             allowNew: false
-            currentCheckout: root.currentCheckout
+            currentWorkspace: root.currentWorkspace
         }
         StyledLabel {
             Layout.column: 0
@@ -264,7 +264,7 @@ ColumnLayout {
                 Layout.minimumWidth: 100
                 id: tfFrameId
                 allowNew: false
-                currentCheckout: root.currentCheckout
+                currentWorkspace: root.currentWorkspace
             }
             StyledLabel {
                 Layout.column: 0
@@ -279,7 +279,7 @@ ColumnLayout {
                 Layout.minimumWidth: 100
                 id: tfChildFrameId
                 allowNew: false
-                currentCheckout: root.currentCheckout
+                currentWorkspace: root.currentWorkspace
             }
         }
     }

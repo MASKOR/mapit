@@ -52,9 +52,9 @@ private:
     std::shared_ptr<mapit::Repository> initNetwork(bool computeLocal);
 
     //// functions to execute on the repositories
-    void readPcd(mapit::Checkout *checkout);
-    void voxelgrid(mapit::Checkout* checkout);
-    void writePcdLocalOnly(mapit::Checkout* checkout, std::string filename);
+    void readPcd(mapit::Workspace *workspace);
+    void voxelgrid(mapit::Workspace* workspace);
+    void writePcdLocalOnly(mapit::Workspace* workspace, std::string filename);
     void compareFileToExpected(const char* filename);
 
 

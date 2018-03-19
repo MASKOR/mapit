@@ -103,7 +103,7 @@ ColumnLayout {
             Layout.minimumWidth: 100
             id: frameId
             allowNew: true
-            currentCheckout: root.currentCheckout
+            currentWorkspace: root.currentWorkspace
             currentText: "random"
         }
 
