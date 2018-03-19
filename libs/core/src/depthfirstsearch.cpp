@@ -29,43 +29,47 @@ namespace mapit
 
 using namespace mapit::msgs;
 
-StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
-                                     , std::shared_ptr<Entity> obj
-                                     , const ObjectReference &ref
-                                     , const Path& path
-                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
-                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
-                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
-                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+////////////////////////////////////////////////////////////////////////////////
+/// template functions
+////////////////////////////////////////////////////////////////////////////////
+
+StatusCode depthFirstSearchGeneric(  std::shared_ptr<mapit::msgs::Entity> entity
+                                   , const ObjectReference &ref
+                                   , const Path& path
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    assert(obj != NULL);
-    if(!beforeEntity(obj, ref, path))
-    {
-        afterEntity(obj, ref, path);
+    assert(entity != NULL);
+    if ( ! beforeEntity(entity, ref, path) ) {
+        afterEntity(entity, ref, path);
         return MAPIT_STATUS_OK;
     }
-    //TODO: Entitydata!
-    if(!afterEntity(obj, ref, path)) return MAPIT_STATUS_OK;
+
+    if ( ! afterEntity(entity, ref, path) ) {
+        return MAPIT_STATUS_OK;
+    }
+
     return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
-                                     , std::shared_ptr<Tree> obj
-                                     , const ObjectReference &ref
-                                     , const Path& path
-                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
-                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
-                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
-                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+template <typename T>
+StatusCode depthFirstSearchGeneric(  T *mapitDataSource
+                                   , std::shared_ptr<Tree> tree
+                                   , const ObjectReference &ref
+                                   , const Path& path
+                                   , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                   , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                   , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
 {
-    if(obj == nullptr) return MAPIT_STATUS_ERROR;
+    if(tree == nullptr) return MAPIT_STATUS_ERROR;
     //assert(obj != NULL);
-    if(!beforeTree(obj, ref, path))
+    if(!beforeTree(tree, ref, path))
     {
-        afterTree(obj, ref, path);
+        afterTree(tree, ref, path);
         return MAPIT_STATUS_OK;
     }
-    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
+    ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *tree->mutable_refs();
     std::map<std::string, ::mapit::msgs::ObjectReference> refsSorted;
     for (std::pair<::std::string, ::mapit::msgs::ObjectReference> refsElement : refs) {
         refsSorted.insert(refsElement);
@@ -75,7 +79,7 @@ StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
     {
         const ObjectReference &childref = iter->second;
         const Path &childpath = (path=="/"?"":path) + "/" + iter->first;
-        MessageType t = workspace->typeOfObject(childpath);
+        MessageType t = mapitDataSource->typeOfObject(childpath);
 
         if(t == MessageType::MessageCommit)
         {
@@ -85,14 +89,14 @@ StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
         }
         else if(t == MessageType::MessageTree)
         {
-            std::shared_ptr<Tree> tree(workspace->getTree(childpath));
-            StatusCode s = depthFirstSearchWorkspace(workspace, tree, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
+            std::shared_ptr<Tree> tree(mapitDataSource->getTree(childpath));
+            StatusCode s = depthFirstSearchGeneric(mapitDataSource, tree, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
-            std::shared_ptr<Entity> entity(workspace->getEntity(childpath));
-            StatusCode s = depthFirstSearchWorkspace(workspace, entity, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
+            std::shared_ptr<Entity> entity(mapitDataSource->getEntity(childpath));
+            StatusCode s = depthFirstSearchGeneric(entity, childref, childpath, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else
@@ -101,11 +105,39 @@ StatusCode depthFirstSearchWorkspace(WorkspaceCommon *workspace
         }
         iter++;
     }
-    if(!afterTree(obj, ref, path)) return MAPIT_STATUS_OK; //TODO: return error code.
+    if(!afterTree(tree, ref, path)) return MAPIT_STATUS_OK; //TODO: return error code.
     return MAPIT_STATUS_OK;
 }
 
-StatusCode depthFirstSearchWorkspace(mapit::WorkspaceCommon *workspace
+////////////////////////////////////////////////////////////////////////////////
+/// workspace functions
+////////////////////////////////////////////////////////////////////////////////
+
+StatusCode depthFirstSearchWorkspace(  WorkspaceCommon *workspace
+                                     , std::shared_ptr<Entity> obj
+                                     , const ObjectReference &ref
+                                     , const Path& path
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+{
+    depthFirstSearchGeneric(obj, ref, path, beforeEntity, afterEntity);
+}
+
+StatusCode depthFirstSearchWorkspace(  WorkspaceCommon *workspace
+                                     , std::shared_ptr<Tree> obj
+                                     , const ObjectReference &ref
+                                     , const Path& path
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                     , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                     , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
+{
+    depthFirstSearchGeneric(workspace, obj, ref, path, beforeTree, afterTree, beforeEntity, afterEntity);
+}
+
+StatusCode depthFirstSearchWorkspace(  WorkspaceCommon *workspace
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
                                      , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
@@ -134,10 +166,39 @@ StatusCode depthFirstSearchWorkspace(mapit::WorkspaceCommon *workspace
     }
 }
 
-StatusCode depthFirstSearchHistory(  std::shared_ptr<mapit::Repository> repo
+////////////////////////////////////////////////////////////////////////////////
+/// history functions
+////////////////////////////////////////////////////////////////////////////////
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<mapit::msgs::Entity> entity
+                                   , const ObjectReference &ref
+                                   , const Path& path
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity)
+{
+    depthFirstSearchGeneric(entity, ref, path, beforeEntity, afterEntity);
+}
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
+                                   , std::shared_ptr<mapit::msgs::Tree> tree
+                                   , const ObjectReference &ref
+                                   , const Path& path
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> beforeTree
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> afterTree
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity)
+{
+    depthFirstSearchGeneric(repo.get(), tree, ref, path, beforeTree, afterTree, beforeEntity, afterEntity);
+}
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
                                    , const CommitId& commitID
-                                   , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> beforeCommit
-                                   , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> afterCommit
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> beforeCommit
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> afterCommit
+                                   , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                   , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                   , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity
                                   )
 {
     std::shared_ptr<Commit> commit = repo->getCommit(commitID);
@@ -145,13 +206,47 @@ StatusCode depthFirstSearchHistory(  std::shared_ptr<mapit::Repository> repo
 
     bool continueSearchBefore = beforeCommit(commit, commitID);
     if (continueSearchBefore) {
-        for (auto parentCommitID : commit->parentcommitids()) {
+        // start depthFirstSearch for root tree
+        assert( ! commit->root().id().empty() );
+        std::shared_ptr<Tree> root = repo->getTree( commit->root().id() );
+        assert(root);
+        ObjectReference nullRef;
+        StatusCode s = depthFirstSearchGeneric(  repo.get()
+                                               , root
+                                               , nullRef
+                                               , "/"
+                                               , beforeTree
+                                               , afterTree
+                                               , beforeEntity
+                                               , afterEntity);
+        if ( ! mapitIsOk(s) ) return s;
+
+        // start depthFirstSearch for parrent commits
+        for (mapit::CommitId parentCommitID : commit->parentcommitids()) {
             if ( ! parentCommitID.empty() ) {
                 depthFirstSearchHistory(repo, parentCommitID, beforeCommit, afterCommit);
             }
         }
-        afterCommit(commit, commitID);
     }
+    afterCommit(commit, commitID);
+
+    return MAPIT_STATUS_OK;
+}
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<mapit::Repository> repo
+                                   , const CommitId& commitID
+                                   , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> beforeCommit
+                                   , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> afterCommit
+                                  )
+{
+    depthFirstSearchHistory(  repo
+                            , commitID
+                            , beforeCommit
+                            , afterCommit
+                            , depthFirstSearchStop(Tree)
+                            , depthFirstSearchStop(Tree)
+                            , depthFirstSearchStop(Entity)
+                            , depthFirstSearchStop(Entity));
 }
 
 }
