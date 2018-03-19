@@ -155,4 +155,24 @@ StatusCode depthFirstSearch(  mapit::CheckoutCommon *checkout
     }
 }
 
+StatusCode depthFirstSearchHistory(  std::shared_ptr<mapit::Repository> repo
+                                   , const CommitId& commitID
+                                   , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> beforeCommit
+                                   , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> afterCommit
+                                  )
+{
+    std::shared_ptr<Commit> commit = repo->getCommit(commitID);
+    assert(commit);
+
+    bool continueSearchBefore = beforeCommit(commit, commitID);
+    if (continueSearchBefore) {
+        for (auto parentCommitID : commit->parentcommitids()) {
+            if ( ! parentCommitID.empty() ) {
+                depthFirstSearchHistory(repo, parentCommitID, beforeCommit, afterCommit);
+            }
+        }
+        afterCommit(commit, commitID);
+    }
+}
+
 }

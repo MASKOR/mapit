@@ -28,6 +28,7 @@
 #include <mapit/logging.h>
 #include <mapit/msgs/services.pb.h>
 #include <mapit/versioning/checkout.h>
+#include <mapit/versioning/repository.h>
 
 namespace mapit
 {
@@ -68,7 +69,16 @@ StatusCode depthFirstSearch(  mapit::CheckoutCommon *checkout
                             , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                             , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
 
+// TODO change "mapit::CheckoutCommon*" to "const mapit::CheckoutCommon&"
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
+                                   , const CommitId& commitID
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> beforeCommit
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> afterCommit
+                                  );
+
 #define depthFirstSearchAll(c) ([](std::shared_ptr<c> obj, const ObjectReference& ref, const mapit::Path &path){return true;})
+#define depthFirstSearchHistoryAll [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;}
 
 }
 
