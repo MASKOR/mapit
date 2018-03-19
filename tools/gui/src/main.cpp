@@ -31,7 +31,6 @@
 #include <mapit/ui/bindings/qmlmapsrenderviewport.h>
 #include <mapit/ui/bindings/qmlentitydata.h>
 #include <mapit/logging.h>
-#include "stubs/qmlstubentitydatapointcloud2.h"
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
