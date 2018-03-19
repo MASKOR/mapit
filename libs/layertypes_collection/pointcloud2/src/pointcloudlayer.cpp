@@ -87,7 +87,7 @@ int PointcloudEntitydata::setData(float x1, float y1, float z1,
     {
         m_pointcloud = data;
         pcl::PCDWriter writer;
-        result = writer.writeBinaryCompressed(filename, *m_pointcloud);
+        result = writer.writeBinary(filename, *m_pointcloud);
     }
     m_streamProvider->endWriteFile(handle);
     return result;

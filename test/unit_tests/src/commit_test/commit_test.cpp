@@ -94,9 +94,9 @@ void CommitTest::test_commit_of_single_entity()
     repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
-    std::string rootTreeName   = "local.mapit/.mapit/trees/4a48864ad186f6eb57586b2904cbdccd21c836061d2086114161a3407d2f7d92";
-    std::string entityName     = "local.mapit/.mapit/entities/6ae742b98fd0867c98e2238596fe7ee40153af0d22b368845b354882436971ae";
-    std::string entitydataName = "local.mapit/.mapit/entities_data/3a8d491c40779b2325a78ad3b385dd1d3f12650dc68da2f42a8603ff67ed1c87";
+    std::string rootTreeName   = "local.mapit/.mapit/trees/05031e86c8499a066ebd1d2e83f0b281c3b3c85d10970cdadcb673362ca56e62";
+    std::string entityName     = "local.mapit/.mapit/entities/42cc531231c7d904b7b20640c506dd8b25099d4a509d39f88ad474d4b4fbc703";
+    std::string entitydataName = "local.mapit/.mapit/entities_data/71e2f4bdb1932c22e3436341a30b2aa4de5e985a1c8d50b1f6f21c145b330944";
 
     QVERIFY( fs::exists(entitydataName) );
     QVERIFY( fs::exists(entityName) );
@@ -150,7 +150,7 @@ void CommitTest::test_commit_of_trees_and_entities()
     repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
-    fs::path entitydataName = "local.mapit/.mapit/entities_data/3a8d491c40779b2325a78ad3b385dd1d3f12650dc68da2f42a8603ff67ed1c87";
+    fs::path entitydataName = "local.mapit/.mapit/entities_data/71e2f4bdb1932c22e3436341a30b2aa4de5e985a1c8d50b1f6f21c145b330944";
 
     QVERIFY( fs::exists(entitydataName) );
 
@@ -161,11 +161,11 @@ void CommitTest::test_commit_of_trees_and_entities()
         QVERIFY( 0 == entitydataName.compare(*file) );
     }
 
-    fs::path rootTreeName      = "local.mapit/.mapit/trees/7a3afbfa9f6de7e3c5c1cb2d1ab6e32e5bf04581873c7ca93091241f896f3edc";
-    fs::path dataTreeName      = "local.mapit/.mapit/trees/6f46956354353622d3e5257fa3ea675ee5f0878f7af8e4b86de914b383ed3caf";
-    fs::path bunnyEntityName   = "local.mapit/.mapit/entities/6ae742b98fd0867c98e2238596fe7ee40153af0d22b368845b354882436971ae";
+    fs::path rootTreeName      = "local.mapit/.mapit/trees/11c0f0747fd1939ab0b22f8876a1bd465591706b74a2b51885957b0a267d3138";
+    fs::path dataTreeName      = "local.mapit/.mapit/trees/42ad145a4182925afe09a90d1d5a1d803971584d7be40e443ca09e5ed8691af3";
+    fs::path bunnyEntityName   = "local.mapit/.mapit/entities/42cc531231c7d904b7b20640c506dd8b25099d4a509d39f88ad474d4b4fbc703";
     fs::path bunny_1EntityName = bunnyEntityName;
-    fs::path bunny_2EntityName = "local.mapit/.mapit/entities/0aa53db5a1f74bf77661a6f169f07cc771717ba534c93044a6c84d08a6e5a355";
+    fs::path bunny_2EntityName = "local.mapit/.mapit/entities/1ca50ae5f33d0c67013cf877be6505a379231e2de6ea6f7522b784f81b582030";
     QVERIFY( fs::exists(bunny_1EntityName) );
     QVERIFY( fs::exists(bunny_2EntityName) );
 
@@ -206,10 +206,10 @@ void CommitTest::test_delete()
     mapit::CommitId commit1ID = repo->commit(checkout, "CommitTest: Add bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
-    std::string rootTreeName    = (std::string)repoName + "/.mapit/trees/f974ce1f901908186875e4dd9a184d534e50e92d45c5739db04b5e514521d421";
-    std::string deltestTreeName = (std::string)repoName + "/.mapit/trees/4a48864ad186f6eb57586b2904cbdccd21c836061d2086114161a3407d2f7d92";
-    std::string entityName      = (std::string)repoName + "/.mapit/entities/6ae742b98fd0867c98e2238596fe7ee40153af0d22b368845b354882436971ae";
-    std::string entitydataName  = (std::string)repoName + "/.mapit/entities_data/3a8d491c40779b2325a78ad3b385dd1d3f12650dc68da2f42a8603ff67ed1c87";
+    std::string rootTreeName    = (std::string)repoName + "/.mapit/trees/a5fd3c9261d1732e5bc2e8ddaca187fd597fdea4c96827ef413eb786eea2370b";
+    std::string deltestTreeName = (std::string)repoName + "/.mapit/trees/05031e86c8499a066ebd1d2e83f0b281c3b3c85d10970cdadcb673362ca56e62";
+    std::string entityName      = (std::string)repoName + "/.mapit/entities/42cc531231c7d904b7b20640c506dd8b25099d4a509d39f88ad474d4b4fbc703";
+    std::string entitydataName  = (std::string)repoName + "/.mapit/entities_data/71e2f4bdb1932c22e3436341a30b2aa4de5e985a1c8d50b1f6f21c145b330944";
 
     QVERIFY( fs::exists(entitydataName) );
     QVERIFY( fs::exists(entityName) );
@@ -292,10 +292,15 @@ void CommitTest::test_branching()
     ret = ws->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
-    repo->commit(ws, "BranchTest: Test to commit a branched workspace\n\na few commits have been done in a different direction allready", "the mapit system", "mapit@mascor.fh-aachen.de");
+    mapit::CommitId commitID = repo->commit(ws, "BranchTest: Test to commit a branched workspace\n\na few commits have been done in a different direction allready", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     // TODO how to test if it worked?
+//    mapit::depthFirstSearchHistory(repo
+//                                   , commitID
+//                                   , [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;}
+//                                   , [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;});
+
 }
 
 DECLARE_TEST(CommitTest)
