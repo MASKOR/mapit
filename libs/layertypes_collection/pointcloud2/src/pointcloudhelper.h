@@ -32,24 +32,6 @@
 
 //#include <pcl/io/pcd_io.h>
 
-////template <typename PointT> int
-////writeBinaryToStream (std::ostringstream &oss,
-////                             const pcl::PointCloud<PointT> &cloud,
-////                             const std::vector<int> &indices);
-
-//int
-//writeBinaryCompressed (std::ostream &oss, const pcl::PCLPointCloud2 &cloud,
-//                                                const Eigen::Vector4f &origin = Eigen::Vector4f::Zero (),
-//                                                const Eigen::Quaternionf &orientation = Eigen::Quaternionf::Identity ());
-
-
-//int
-//readPointcloudFromStream (std::istream &is, pcl::PCLPointCloud2 &cloud,
-//                      Eigen::Vector4f origin = Eigen::Vector4f::Zero (),
-//                      Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity (),
-//                      int pcd_version = 0,
-//                      const int offset = 0);
-
 //namespace pcl {
 
 //template<class Archive>
