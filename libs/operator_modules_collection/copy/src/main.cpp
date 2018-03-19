@@ -101,15 +101,13 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
         if(srcTree)
         {
             ObjectReference nullRef;
-            mapit::depthFirstSearch(
+            mapit::depthFirstSearchWorkspace(
                         env->getCheckout(),
                         srcTree,
                         nullRef,
                         source,
-                        depthFirstSearchAll(Commit),
-                        depthFirstSearchAll(Commit),
-                        depthFirstSearchAll(mapit::msgs::Tree),
-                        depthFirstSearchAll(mapit::msgs::Tree),
+                        depthFirstSearchWorkspaceAll(mapit::msgs::Tree),
+                        depthFirstSearchWorkspaceAll(mapit::msgs::Tree),
                         [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             // create path for new entity => replace source with target in path
@@ -130,7 +128,7 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
 
                             return true;
                         },
-                        depthFirstSearchAll(mapit::msgs::Entity)
+                        depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
                     );
         }
         else

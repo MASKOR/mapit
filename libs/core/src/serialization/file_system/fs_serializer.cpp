@@ -109,6 +109,14 @@ FSSerializer::fs_check_create(fs::path path)
 }
 
 fs::path
+FSSerializer::path_to_commit_fs_path(const Path& path, const fs::path& prefix)
+{
+    fs::path pathInternal = repo_ / _PREFIX_COMMIT_ / prefix / path;
+
+    return pathInternal.remove_trailing_separator();
+}
+
+fs::path
 FSSerializer::objectid_to_checkout_fs_path(ObjectId oid)
 {
     fs::path path = repo_ / _PREFIX_CHECKOUTS_;
@@ -238,7 +246,7 @@ FSSerializer::getTreeTransient(const PathInternal &transientId)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeTree(std::shared_ptr<Tree> &obj)
+FSSerializer::storeTree(std::shared_ptr<Tree> obj)
 {
     ObjectId oid = mapit::hash_toString(obj.get());
 
@@ -255,7 +263,7 @@ FSSerializer::storeTree(std::shared_ptr<Tree> &obj)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeTreeTransient(std::shared_ptr<Tree> &obj, const PathInternal &transientId)
+FSSerializer::storeTreeTransient(std::shared_ptr<Tree> obj, const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
@@ -281,7 +289,7 @@ FSSerializer::removeTreeTransient(const PathInternal &transientId)
 std::shared_ptr<Entity>
 FSSerializer::getEntity(const ObjectId oid)
 {
-    fs::path path = _PREFIX_ENTITY_ / fs::path(oid);
+    fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(oid);
 
     if ( ! fs::exists( path ) ) {
         return std::shared_ptr<Entity>(NULL);
@@ -329,7 +337,7 @@ FSSerializer::getEntityTransient(const PathInternal oid)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeEntity(std::shared_ptr<Entity> &obj)
+FSSerializer::storeEntity(std::shared_ptr<Entity> obj)
 {
     ObjectId oid = mapit::hash_toString(obj.get());
 
@@ -346,7 +354,7 @@ FSSerializer::storeEntity(std::shared_ptr<Entity> &obj)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::storeEntityTransient(std::shared_ptr<Entity> &obj, const PathInternal &transientId)
+FSSerializer::storeEntityTransient(std::shared_ptr<Entity> obj, const PathInternal &transientId)
 {
     fs::path path = objectid_to_checkout_fs_path( transientId );
     fs_check_create( path );
@@ -374,7 +382,7 @@ FSSerializer::removeEntityTransient(const PathInternal &transientId)
 std::shared_ptr<Commit>
 FSSerializer::getCommit(const ObjectId &oid)
 {
-    fs::path path = _PREFIX_COMMIT_ / fs::path(oid);
+    fs::path path = repo_ / _PREFIX_COMMIT_ / fs::path(oid);
 
     if ( ! fs::exists( path ) ) {
         return std::shared_ptr<Commit>(NULL);
@@ -396,11 +404,20 @@ FSSerializer::getCommit(const ObjectId &oid)
 }
 
 std::pair<StatusCode, ObjectId>
-FSSerializer::createCommit(std::shared_ptr<Commit> &obj)
+FSSerializer::createCommit(std::shared_ptr<Commit> obj)
 {
-    //TODO
-    ObjectId oid;
-    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_ERR_DB_IO_ERROR, oid);
+    ObjectId oid = mapit::hash_toString(obj.get());
+
+    fs::path path = repo_ / _PREFIX_COMMIT_;
+    fs_check_create( path );
+
+    path /= fs::path(oid);
+
+    std::shared_ptr<GenericEntry> ge(new GenericEntry);
+    *(ge->mutable_commit()) = *obj;
+    fs_write( path, ge, MessageCommit);
+
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, oid);
 }
 
 StatusCode
@@ -463,7 +480,7 @@ FSSerializer::getCheckoutCommit(const std::string &name)
 }
 
 StatusCode
-FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name)
+FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name)
 {
     fs::path path = objectid_to_checkout_fs_path( name );
     fs_check_create(path);
@@ -478,7 +495,7 @@ FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::
 }
 
 StatusCode
-FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std::string &name)
+FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name)
 {
     fs::path path = objectid_to_checkout_fs_path(name);
     fs_check_create( path );
@@ -493,10 +510,12 @@ FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> &obj, const std:
 }
 
 StatusCode
-FSSerializer::removeCheckoutCommit(const ObjectId &oid)
+FSSerializer::removeCheckout(const ObjectId &oid)
 {
-    //TODO
-    return MAPIT_STATUS_ERR_DB_IO_ERROR;
+    fs::path path = objectid_to_checkout_fs_path( oid ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs_delete( path );
+
+    return MAPIT_STATUS_OK;
 }
 
 std::vector< std::shared_ptr<Branch> >
@@ -563,14 +582,14 @@ FSSerializer::getBranch(const std::string &name)
 }
 
 StatusCode
-FSSerializer::storeBranch(std::shared_ptr<Branch> &obj, const std::string &name)
+FSSerializer::storeBranch(std::shared_ptr<Branch> obj, const std::string &name)
 {
     //TODO
     return MAPIT_STATUS_ERR_DB_IO_ERROR;
 }
 
 StatusCode
-FSSerializer::createBranch(std::shared_ptr<Branch> &obj, const std::string &name)
+FSSerializer::createBranch(std::shared_ptr<Branch> obj, const std::string &name)
 {
     fs::path path = repo_ / _PREFIX_BRANCHES_;
     fs_check_create( path );
@@ -592,6 +611,20 @@ FSSerializer::removeBranch(const std::string &name)
 {
     //TODO
     return MAPIT_STATUS_ERR_DB_IO_ERROR;
+}
+
+bool
+FSSerializer::existsStreamProvider(const ObjectId &entityId)
+{
+    fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(entityId);
+    return fs::exists(path);
+}
+
+bool
+FSSerializer::existsStreamProviderTransient(const Path &path)
+{
+    fs::path filePath = objectid_to_checkout_fs_path(path) / _CHECKOUT_ENTITY_DATA_;
+    return fs::exists(filePath);
 }
 
 std::shared_ptr<AbstractEntitydataProvider>
@@ -679,8 +712,53 @@ FSSerializer::exists(const ObjectId &oidOrName)
 std::pair<StatusCode, ObjectId>
 FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
 {
-    //TODO
-    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_ERR_DB_IO_ERROR, "");
+    if (pathInternal.empty()) {
+        return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, "");
+    }
+
+    // get EntityData path
+    fs::path transientPath = objectid_to_checkout_fs_path(pathInternal) / _CHECKOUT_ENTITY_DATA_;
+
+    // calculate chunk size
+    size_t entitySize = fs::file_size(transientPath);
+    size_t offsetMax = 4 * 1024 * 1024; // 4 MB // what makes sense? 100MB?
+    size_t offsetStep = entitySize;
+    if ( offsetStep > offsetMax ) {
+        offsetStep = offsetMax;
+    }
+
+    // create buffer for hash TODO, use SHA update to not store in RAM
+    std::string fileHash = "";
+
+    // read chunks, to create the hash
+    std::ifstream transientStream(transientPath.string(), std::ifstream::in | std::ios_base::binary);
+    bool writeIsDone = false;
+    for (size_t offsetIterator = 0; ! writeIsDone; offsetIterator++) {
+        char* buffer = new char[offsetStep];
+
+        if ( transientStream.read(buffer, offsetStep) ) { // if the end is not reached
+            // and update hash
+            fileHash += std::string(buffer, offsetStep); // TODO, use update of hash to be able to not have the whole file in RAM
+        } else {
+            // and update hash
+            size_t left = transientStream.gcount();
+            fileHash += std::string(buffer, left); // TODO, use update of hash to be able to not have the whole file in RAM
+
+            writeIsDone = true; // stop writing with next loop
+        }
+        delete[] buffer;
+    }
+    transientStream.close();
+
+    // finish hash
+    ObjectId persistentID = hash_toString(fileHash);
+
+    // move temporarly file to correct position with hash
+    fs::path persistentPath = repo_ / _PREFIX_ENTITY_DATA_ / persistentID;
+    fs_check_create( persistentPath.parent_path() );
+    fs::rename(transientPath, persistentPath);
+
+    return std::pair<StatusCode, ObjectId>(MAPIT_STATUS_OK, persistentID);
 }
 
 bool

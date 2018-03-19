@@ -78,7 +78,7 @@ public:
 
     Q_INVOKABLE bool deleteCheckoutForced(QString checkoutName);
 
-    Q_INVOKABLE QString commit(QmlCheckout* checkout, QString msg);
+    Q_INVOKABLE QString commit(QmlCheckout* checkout, QString msg, QString author, QString email);
 
     /**
      * @brief getBranches List all Branches

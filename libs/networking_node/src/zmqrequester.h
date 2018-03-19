@@ -54,7 +54,7 @@ public:
     std::shared_ptr<Checkout> createCheckout(const CommitId &commitIdOrBranchname, const std::string &name);
     std::shared_ptr<Checkout> getCheckout(const std::string &checkoutName);
     StatusCode deleteCheckoutForced(const std::string &checkoutName);
-    CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg);
+    CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp);
     std::vector<std::shared_ptr<Branch> > getBranches();
     StatusCode push(Repository &repo);
     StatusCode pull(Repository &repo);

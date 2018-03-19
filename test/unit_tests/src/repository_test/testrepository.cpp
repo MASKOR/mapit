@@ -179,7 +179,7 @@ void TestRepository::testCommit()
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
     std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
     QVERIFY(co != nullptr);
-    repo->commit( co, "This is the commit message of a TestCommit");
+    repo->commit( co, "This is the commit message of a TestCommit", "Test Author", "Test Email");
 }
 
 void TestRepository::testVoxelgridfilter_data() { createTestdata(); }

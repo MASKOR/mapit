@@ -169,8 +169,8 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
         mapit::StatusCode status = MAPIT_STATUS_OK;
         env->getCheckout()->depthFirstSearch(
                       target
-                    , depthFirstSearchAll(mapit::msgs::Tree)
-                    , depthFirstSearchAll(mapit::msgs::Tree)
+                    , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
+                    , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                     , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             status = saveRandomTFForEntity(env, obj, path, frame_id, tfStoragePrefix, randomStorage);
@@ -179,7 +179,7 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
                             }
                             return true;
                         }
-                    , depthFirstSearchAll(mapit::msgs::Entity)
+                    , depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
                     );
         return status;
     } else {

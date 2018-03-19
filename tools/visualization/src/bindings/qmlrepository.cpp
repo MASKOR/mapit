@@ -236,11 +236,13 @@ bool QmlRepository::deleteCheckoutForced(QString checkoutName)
     return mapitIsOk( s );
 }
 
-QString QmlRepository::commit(QmlCheckout *checkout, QString msg)
+QString QmlRepository::commit(QmlCheckout *checkout, QString msg, QString author, QString email)
 {
     if(!m_repository) return nullptr;
     std::string m = msg.toStdString();
-    mapit::CommitId cid = m_repository->commit( checkout->getCheckoutObj(), m );
+    std::string a = author.toStdString();
+    std::string e = email.toStdString();
+    mapit::CommitId cid = m_repository->commit( checkout->getCheckoutObj(), m, a, e );
     return QString::fromStdString(cid);
 }
 

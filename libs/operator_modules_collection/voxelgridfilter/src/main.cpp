@@ -86,8 +86,8 @@ mapit::StatusCode operate_vxg(mapit::OperationEnvironment* env)
         mapit::StatusCode status = MAPIT_STATUS_OK;
         env->getCheckout()->depthFirstSearch(
                       target
-                    , depthFirstSearchAll(mapit::msgs::Tree)
-                    , depthFirstSearchAll(mapit::msgs::Tree)
+                    , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
+                    , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                     , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
                             status = executeVoxelgrid(env, path, leafSize);
@@ -96,7 +96,7 @@ mapit::StatusCode operate_vxg(mapit::OperationEnvironment* env)
                             }
                             return true;
                         }
-                    , depthFirstSearchAll(mapit::msgs::Entity)
+                    , depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
                     );
         return status;
     } else {

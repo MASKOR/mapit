@@ -181,7 +181,7 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  std::function<
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> afterEntity)
 {
-    return mapit::depthFirstSearch(this, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
+    return mapit::depthFirstSearchWorkspace(this, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  const Path& path
@@ -190,7 +190,7 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  const Path& pa
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> afterEntity)
 {
-    return mapit::depthFirstSearch(this, path, depthFirstSearchAll(mapit::msgs::Commit), depthFirstSearchAll(mapit::msgs::Commit), beforeTree, afterTree, beforeEntity, afterEntity);
+    return mapit::depthFirstSearchWorkspace(this, path, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
 mapit::OperationResult mapit::ZmqRequesterCheckout::doOperation(const OperationDescription &desc)

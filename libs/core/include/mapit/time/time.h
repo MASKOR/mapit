@@ -40,7 +40,7 @@ namespace mapit
 #endif
 
 namespace time {
-  using Clock = std::chrono::high_resolution_clock;
+  using Clock = std::chrono::system_clock;
 
   using Stamp = std::chrono::time_point<Clock>;
   using Duration = std::chrono::duration<double>;

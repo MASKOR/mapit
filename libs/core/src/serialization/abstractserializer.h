@@ -52,36 +52,38 @@ public:
     // Note: storing and creating is only distinguished for transient oid (paths). When
     //       Hashes are used, the system does not know if a tree/entity with the same hash
     //       already exists or if it is a new tree/entity
-    virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<mapit::msgs::Tree> &obj) = 0;
-    virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<mapit::msgs::Tree> &obj, const PathInternal &transientId) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeTree(std::shared_ptr<mapit::msgs::Tree> obj) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeTreeTransient(std::shared_ptr<mapit::msgs::Tree> obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createTree(std::shared_ptr<Tree> &obj) = 0;
     virtual StatusCode removeTreeTransient(const ObjectId &oid) = 0;
 
     virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId oid) = 0;
     virtual std::shared_ptr<mapit::msgs::Entity> getEntityTransient(const PathInternal path) = 0;
-    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> &obj) = 0;
-    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> &obj, const PathInternal &transientId) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeEntity(std::shared_ptr<mapit::msgs::Entity> obj) = 0;
+    virtual std::pair<StatusCode, ObjectId> storeEntityTransient(std::shared_ptr<mapit::msgs::Entity> obj, const PathInternal &transientId) = 0;
     //virtual StatusCode createEntity(std::shared_ptr<Entity> &obj) = 0;
     virtual StatusCode removeEntityTransient(const PathInternal &oid) = 0;
 
     virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const ObjectId &oid) = 0;
     //virtual StatusCode storeCommit(std::shared_ptr<Commit> &obj) = 0;
-    virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<mapit::msgs::Commit> &obj) = 0;
+    virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<mapit::msgs::Commit> obj) = 0;
     virtual StatusCode removeCommit(const ObjectId &oid) = 0;
 
     virtual std::vector< std::string > listCheckoutNames() = 0;
     virtual std::vector< std::shared_ptr<mapit::msgs::CheckoutObj> > listCheckouts() = 0;
     virtual std::shared_ptr<mapit::msgs::CheckoutObj> getCheckoutCommit(const std::string &name) = 0;
-    virtual StatusCode storeCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> &obj, const std::string &name) = 0;
-    virtual StatusCode createCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> &obj, const std::string &name) = 0;
-    virtual StatusCode removeCheckoutCommit(const std::string &name) = 0;
+    virtual StatusCode storeCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> obj, const std::string &name) = 0;
+    virtual StatusCode createCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> obj, const std::string &name) = 0;
+    virtual StatusCode removeCheckout(const std::string &name) = 0;
 
     virtual std::vector< std::shared_ptr<mapit::msgs::Branch> > listBranches() = 0;
     virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;
-    virtual StatusCode storeBranch(std::shared_ptr<mapit::msgs::Branch> &obj, const std::string &name) = 0;
-    virtual StatusCode createBranch(std::shared_ptr<mapit::msgs::Branch> &obj, const std::string &name) = 0;
+    virtual StatusCode storeBranch(std::shared_ptr<mapit::msgs::Branch> obj, const std::string &name) = 0;
+    virtual StatusCode createBranch(std::shared_ptr<mapit::msgs::Branch> obj, const std::string &name) = 0;
     virtual StatusCode removeBranch(const std::string &name) = 0;
 
+    virtual bool existsStreamProvider(const ObjectId &entityId) = 0;
+    virtual bool existsStreamProviderTransient(const Path &path) = 0;
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead = true) = 0;
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProviderTransient(const Path &path, bool canRead = true, bool canWrite = false) = 0;
 

@@ -164,132 +164,158 @@ StatusCode RepositoryImpl::deleteCheckoutForced(const std::string &checkoutName)
         return MAPIT_STATUS_ENTITY_NOT_FOUND;
     }
     //TODO: Get Checkout, remove its inner Commit and objects (objects only if not referenced)!
-    return m_p->m_serializer->removeCheckoutCommit(checkoutName);
+    return m_p->m_serializer->removeCheckout(checkoutName);
 }
 
-CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg)
+CommitId RepositoryImpl::commit(const std::shared_ptr<Checkout> checkout, std::string msg, std::string author, std::string email, mapit::time::Stamp stamp)
 {
+    size_t logStatsFileChanged = 0;
+
     CheckoutImpl *co = static_cast<CheckoutImpl*>(checkout.get());
     std::map< Path, ObjectId > oldPathsToNewOids;
-    CommitId ret;
-    std::shared_ptr<Commit> rootCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
+    CommitId refID;
+    std::shared_ptr<Commit> rollingCommit(new Commit(co->getCheckoutObj()->rollingcommit()));
     ObjectReference nullRef;
-    StatusCode s = mapit::depthFirstSearch(
+    StatusCode s = mapit::depthFirstSearchWorkspace(
                 co,
-                rootCommit,
+                co->getRoot(),
                 nullRef,
-                "",
-        depthFirstSearchAll(Commit),
-        [&](std::shared_ptr<Commit> obj, const ObjectReference &ref, const Path &path)
+                "/",
+        depthFirstSearchWorkspaceAll(Tree),
+        [&](std::shared_ptr<Tree> tree, const ObjectReference &ref, const Path &path)
         {
-            const Path pathOfRootDir("");
-            assert(ref.path().empty() != ref.id().empty()); //XOR
-            bool changes = oldPathsToNewOids.find(pathOfRootDir) != oldPathsToNewOids.end();
-            // check if there where changes but on a non exclusive object
-            assert(!ref.id().empty() && changes);
-            if(ref.id().empty() && changes)
-            {
-                obj->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
-                obj->mutable_root()->clear_path();
-            }
-            else
-            {
-                // no changes where found
-                log_warn("commit empty checkout on empty parent commit (no root)");
-            }
-            //TODO: Lots of todos here (Metadata)
-            if(msg.find_last_of('\n') != msg.length()-1)
-            {
-                msg += "\n";
-            }
-            obj->set_commitmessage(msg);
-            int64_t millisecs = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
-            obj->set_datetime(millisecs);
-            obj->set_author("tester <test@maskor.fh-aachen.de>");
-
-            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(obj);
-            if(mapitIsOk(!statusOid.first)) return false;
-            ret = statusOid.second;
-            return true;
-        },
-        depthFirstSearchAll(Tree),
-        [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path)
-        {
-            assert(obj != NULL);
-            ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *obj->mutable_refs();
+            assert(tree != NULL);
+            ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference > &refs = *tree->mutable_refs();
             ::google::protobuf::Map< ::std::string, ::mapit::msgs::ObjectReference >::iterator iter(refs.begin());
             while(iter != refs.end())
             {
-                Path childPath(path + "/" + iter->second.path());
-                assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
-                const ObjectId &newId = oldPathsToNewOids[childPath];
-                assert(!newId.empty());
-                if(newId != iter->second.id())
-                {
-                    iter->second.set_id(newId);
-                    iter->second.clear_path();
+                if ( iter->second.path().empty()) {
+                    assert(! iter->second.id().empty());
+                } else {
+                    Path childPath(iter->second.path());
+                    childPath = childPath.substr(childPath.find_first_of("/"), childPath.length());
+                    if (childPath.back() == '/') {
+                        childPath = childPath.substr(0, childPath.find_last_not_of("/")+1);
+                    }
+                    assert(oldPathsToNewOids.find(childPath) != oldPathsToNewOids.end());
+                    const ObjectId &newId = oldPathsToNewOids[childPath];
+                    assert(!newId.empty());
+                    if(newId != iter->second.id())
+                    {
+                        iter->second.set_id(newId);
+                        iter->second.clear_path();
+                    }
                 }
+
                 iter++;
             }
-            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(obj);
-            if(mapitIsOk(!statusOid.first)) return false;
+            std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeTree(tree);
+            if ( ! mapitIsOk(statusOid.first)) {
+                return false;
+            }
+            m_p->m_serializer->removeTreeTransient( ref.path() );
             oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
             return true;
         },
-        depthFirstSearchAll(Entity),
-        [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
+        depthFirstSearchWorkspaceAll(Entity),
+        [&](std::shared_ptr<Entity> entity, const ObjectReference &ref, const Path &path)
         {
-            std::pair<StatusCode, ObjectId> statusEntitydataOid = m_p->m_serializer->persistTransientEntitydata(ref.path());
-            if(mapitIsOk(!statusEntitydataOid.first)) return false;
-            bool entityNeedsStore;
-            if(statusEntitydataOid.second != obj->dataid())
-            {
-                obj->set_dataid(statusEntitydataOid.second);
-                entityNeedsStore = true;
-            }
-            else
-            {
-                assert(ref.path().empty() != ref.id().empty()); //XOR
-                entityNeedsStore = !ref.path().empty();
+            // we have nothing todo when ref.path() is empty
+            bool entityExistsTransient     = (! ref.path().empty()) && (m_p->m_serializer->getEntityTransient( ref.path() ) != nullptr);
+            bool entitydataExistsTransient = (! ref.path().empty()) && m_p->m_serializer->existsStreamProviderTransient( ref.path() );
+
+            // first save the data (becase the ID to the new data needs to be in the entity)
+            if (entitydataExistsTransient) {
+                std::pair<StatusCode, ObjectId> edStatus = m_p->m_serializer->persistTransientEntitydata( ref.path() );
+                if ( ! mapitIsOk(edStatus.first) ) {
+                    log_error("Commit: error while saving \"" << path << "\" persistent. Code: " << edStatus.first);
+                    return false;
+                }
+                // check if the data ID changed for the entity
+                if ( ! edStatus.second.empty() && entity->dataid() != edStatus.second) {
+                    entity->set_dataid( edStatus.second );
+                    entityExistsTransient = true; // might has been true anyways, but now we need to update at least the new reference
+                }
             }
 
-            if(entityNeedsStore)
-            {
-                std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(obj);
-                if(mapitIsOk(!statusOid.first)) return false;
+            // afterwards save the entity
+            if (entityExistsTransient) {
+                std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->storeEntity(entity);
+                if ( ! mapitIsOk(statusOid.first) ) {
+                    return false;
+                }
+                m_p->m_serializer->removeEntityTransient( ref.path() );
+                // save ID of entity for tree storage
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, statusOid.second));
-            }
-            else
-            {
+
+                logStatsFileChanged++;
+            } else {
+                // save ID of entity for tree storage
                 oldPathsToNewOids.insert(std::pair<std::string, std::string>(path, ref.id()));
             }
-            //TODO: Put old->New for entitydata (How?!?)
-            //oldToNewIds.insert(oid, soid.second);
+
             return true;
         });
     if(!mapitIsOk(s))
     {
-        log_error("error while commiting");
+        log_error("error while commiting the workspace");
     }
-    //TODO: What to do with old ids?
-    ::mapit::msgs::Commit *ci = co->getCheckoutObj()->mutable_rollingcommit();
-    ci->clear_author();
-    ci->clear_commitmessage();
-    ci->clear_datetime();
-    ci->clear_detailedtransitions();
-    ci->clear_ops();
-    ci->clear_parentcommitids();
-    //ci->clear_root();
-    ci->clear_transitions();
-    ci->add_parentcommitids(ret);
-    std::shared_ptr<CheckoutObj> obj(co->getCheckoutObj());
-    s = m_p->m_serializer->storeCheckoutCommit(obj, co->getName());
-    if(!mapitIsOk(s))
     {
-        log_error("Error during commit. Could not update current checkout.");
+        std::shared_ptr<Commit> commit = rollingCommit;
+        const Path pathOfRootDir("/");
+        bool changes = oldPathsToNewOids.find(pathOfRootDir) != oldPathsToNewOids.end();
+
+        if ( changes ) {
+            // add reference to root
+            commit->mutable_root()->set_id(oldPathsToNewOids[pathOfRootDir]);
+            commit->mutable_root()->clear_path();
+        } else {
+            // no changes where found
+            log_warn("commit empty checkout on empty parent commit (no root)");
+        }
+
+        if(msg.find_last_of('\n') != msg.length()-1) {
+            msg += "\n";
+        }
+        commit->set_commitmessage(msg);
+        mapit::msgs::Time stampMsg = mapit::time::to_msg( stamp );
+        commit->mutable_stamp()->set_sec( stampMsg.sec() );
+        commit->mutable_stamp()->set_nsec( stampMsg.nsec() );
+        commit->set_author(author + " <" + email + ">");
+
+        std::pair<StatusCode, ObjectId> statusOid = m_p->m_serializer->createCommit(commit);
+        if ( ! mapitIsOk(statusOid.first) ) {
+            log_error("error while commiting");
+        }
+        refID = statusOid.second;
     }
-    //m_p->m_serializer->debugDump();
-    return ret;
+
+    // TODO: assert check if checkout is empty
+    // delete all folder of checkout
+    std::string coName = co->getName();
+    std::string branchName = co->getBranchName();
+
+    // update checkout
+    co->getCheckoutObj()->clear_transientoidstoorigin();
+    co->getCheckoutObj()->mutable_rollingcommit()->Clear();
+    co->getCheckoutObj()->mutable_rollingcommit()->add_parentcommitids( refID );
+    std::shared_ptr<Commit> commit = getCommit(refID);
+    assert(commit);
+    co->getCheckoutObj()->mutable_rollingcommit()->mutable_root()->set_id( commit->root().id() );
+    assert(commit->root().path().empty());
+    StatusCode status = m_p->m_serializer->storeCheckoutCommit( co->getCheckoutObj(), coName );
+    if ( ! mapitIsOk(status) ) {
+        log_error("Could not update checkout.");
+    }
+
+    log_info("");
+    log_info("[" << branchName << " " << refID.substr(0, 7) << "] " << msg.substr(0, msg.find_first_of("\n") ));
+    log_info("" << logStatsFileChanged << " entity added"); // TODO to check if something was removed, one would had to compare the tree childen from the transient with persistent
+    log_info("");
+    log_info("\tCommited " << coName << " -> " << branchName);
+    log_info("");
+
+    return refID;
 }
 
 std::vector<std::shared_ptr<Branch> > RepositoryImpl::getBranches()

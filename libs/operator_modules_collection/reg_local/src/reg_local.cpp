@@ -74,14 +74,14 @@ mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &s
             if (env->getCheckout()->getTree(input_name) != nullptr) {
                 env->getCheckout()->depthFirstSearch(
                               input_name
-                            , depthFirstSearchAll(mapit::msgs::Tree)
-                            , depthFirstSearchAll(mapit::msgs::Tree)
+                            , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
+                            , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                             , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                               {
                                   cfg_input_.push_back(path);
                                   return true;
                               }
-                            , depthFirstSearchAll(mapit::msgs::Entity)
+                            , depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
                             );
             } else {
                 log_error("reg_local: pointcloud name \"" + input_name + "\" given in param \"input\", is neither a entity nor a tree");

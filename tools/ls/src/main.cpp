@@ -66,13 +66,11 @@ void display_checkout(std::shared_ptr<mapit::Checkout> co, bool use_recursive = 
 {
     int depth = 1;
     ObjectReference nullRef;
-    mapit::StatusCode s = mapit::depthFirstSearch(
+    mapit::StatusCode s = mapit::depthFirstSearchWorkspace(
                 co.get(),
                 search_prefix.empty() ? co->getRoot() : co->getTree(search_prefix),
                 nullRef,
                 search_prefix,
-                depthFirstSearchAll(Commit),
-                depthFirstSearchAll(Commit),
                 [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &path)
                 {
                     std::string prefix = "  ";
@@ -124,7 +122,7 @@ void display_checkout(std::shared_ptr<mapit::Checkout> co, bool use_recursive = 
 
                     return true;
                 },
-                depthFirstSearchAll(mapit::msgs::Entity)
+                depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
             );
 }
 

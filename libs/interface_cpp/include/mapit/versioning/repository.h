@@ -28,6 +28,7 @@
 #include <mapit/msgs/services.pb.h>
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <mapit/entitydata.h>
+#include <mapit/time/time.h>
 #include "checkout.h"
 
 namespace mapit
@@ -118,12 +119,19 @@ public:
     virtual StatusCode deleteCheckoutForced(const std::string &checkoutName) = 0;
 
     /**
-     * @brief commit Commits checked out data. The checkout must not be used after committing it. TODO: checkout should be updated to be based on new commit.
+     * @brief commit Commits checked out data.
      * @param checkout
      * @param msg
+     * @param author
+     * @param email
+     * @param stamp
      * @return commitId of new commit.
      */
-    virtual CommitId commit(const std::shared_ptr<Checkout> checkout, std::string msg) = 0;
+    virtual CommitId commit(const std::shared_ptr<Checkout> checkout
+                            , std::string msg
+                            , std::string author
+                            , std::string email
+                            , mapit::time::Stamp stamp = mapit::time::Clock::now()) = 0;
 
     /**
      * @brief getBranches List all Branches
