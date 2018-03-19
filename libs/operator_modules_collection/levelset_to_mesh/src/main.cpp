@@ -65,7 +65,7 @@ void normalForTri(const uint32_t& i1, const uint32_t& i2, const uint32_t i3,
     crossprod[2] = a[0]*b[1]-a[1]*b[0];
 
     //normalize, switch side (ccw triangles)
-    invlength = 1.f/std::max(0.00000001f,sqrt(pow(crossprod[0],2.f)+pow(crossprod[1],2.f)+pow(crossprod[2],2.f)));
+    invlength = 1.f/std::max(0.00000001f,sqrtf(pow(crossprod[0],2.f)+pow(crossprod[1],2.f)+pow(crossprod[2],2.f)));
     crossprod[0] *= invlength;
     crossprod[1] *= invlength;
     crossprod[2] *= invlength;
