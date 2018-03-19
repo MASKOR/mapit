@@ -47,6 +47,8 @@ Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
+mapit::CommitId oldRef;
+
 namespace fs = boost::filesystem;
 
 void CommitTest::init()
@@ -147,7 +149,8 @@ void CommitTest::test_commit_of_trees_and_entities()
     ret = checkout->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
-    repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
+    // we just save the ref for the test_branching()
+    oldRef = repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     fs::path entitydataName = "local.mapit/.mapit/entities_data/71e2f4bdb1932c22e3436341a30b2aa4de5e985a1c8d50b1f6f21c145b330944";
@@ -295,12 +298,48 @@ void CommitTest::test_branching()
     mapit::CommitId commitID = repo->commit(ws, "BranchTest: Test to commit a branched workspace\n\na few commits have been done in a different direction allready", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
-    // TODO how to test if it worked?
-//    mapit::depthFirstSearchHistory(repo
-//                                   , commitID
-//                                   , [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;}
-//                                   , [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;});
 
+    QVERIFY(commitID != oldRef); // can't imagen how this could happen and is not an error, but if this occurs the following test dosn't make sense
+
+    std::vector<mapit::CommitId> commitIDs;
+    mapit::CommitId originFromFirstRef;
+    mapit::CommitId originFromSecondRef;
+    mapit::depthFirstSearchHistory(  repo
+                                   , commitID
+                                   , [&](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID)
+                                     {
+                                         originFromFirstRef = commitID;
+                                         commitIDs.push_back(commitID);
+                                         return true;
+                                     }
+                                   , depthFirstSearchHistoryAll);
+
+    mapit::depthFirstSearchHistory(  repo
+                                   , oldRef
+                                   , [&](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID)
+                                     {
+                                         originFromSecondRef = commitID;
+                                         commitIDs.push_back(commitID);
+                                         return true;
+                                     }
+                                   , depthFirstSearchHistoryAll);
+
+    QVERIFY(originFromFirstRef == originFromSecondRef); // both have the same origin (history with the same commit)
+
+    // check if all commits exists
+    fs::path commitFolder = "local.mapit/.mapit/commits";
+    QVERIFY( fs::exists(commitFolder) );
+    for( fs::directory_iterator file( commitFolder );
+         file != fs::directory_iterator();
+         ++file ) {
+        bool found = false;
+        for (auto commitID : commitIDs) {
+            if (0 == commitID.compare( (*file).path().filename().string() )) {
+                found = true;
+            }
+        }
+        QVERIFY(found);
+    }
 }
 
 DECLARE_TEST(CommitTest)
