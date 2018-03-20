@@ -24,13 +24,13 @@
 #include <mapit/logging.h>
 #include <mapit/layertypes/pointcloudlayer.h>
 #include <mapit/layertypes/assettype.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/filters/voxel_grid.h>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -501,7 +501,7 @@ mapit::StatusCode operate_surface_reconstruction(mapit::OperationEnvironment* en
 
     // get point cloud from environment
     std::shared_ptr<PointcloudEntitydata> entity_data =
-            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(target));
+            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getWorkspace()->getEntitydataForReadWrite(target));
     if(entity_data == nullptr)
     {
         log_error("wrong type");
@@ -528,16 +528,16 @@ mapit::StatusCode operate_surface_reconstruction(mapit::OperationEnvironment* en
     pcl::toPCLPointCloud2(*pointCloudWithNormals, *pointCloud2Out);
 
     // save filtered pointcloud
-    std::shared_ptr<mapit::msgs::Entity> pointsEntity = environment->getCheckout()->getEntity(target + "_flt");
+    std::shared_ptr<mapit::msgs::Entity> pointsEntity = environment->getWorkspace()->getEntity(target + "_flt");
     if (pointsEntity == NULL) {
         pointsEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         pointsEntity->set_type(PointcloudEntitydata::TYPENAME());
-        if (!mapitIsOk(environment->getCheckout()->storeEntity(target + "_flt", pointsEntity))) {
+        if (!mapitIsOk(environment->getWorkspace()->storeEntity(target + "_flt", pointsEntity))) {
             log_error("Failed to create transform entity.");
             return MAPIT_STATUS_ERR_UNKNOWN;
         }
     }
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntityDataPoints = environment->getCheckout()->getEntitydataForReadWrite( target + "_flt" );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntityDataPoints = environment->getWorkspace()->getEntitydataForReadWrite( target + "_flt" );
     if (abstractEntityDataPoints == NULL) {
         return MAPIT_STATUS_ERR_UNKNOWN;
     }
@@ -576,16 +576,16 @@ mapit::StatusCode operate_surface_reconstruction(mapit::OperationEnvironment* en
     file.comments.push_back("generated with resute");
 
     // save filtered mesh
-    std::shared_ptr<mapit::msgs::Entity> meshEntity = environment->getCheckout()->getEntity(target + "_msh");
+    std::shared_ptr<mapit::msgs::Entity> meshEntity = environment->getWorkspace()->getEntity(target + "_msh");
     if (meshEntity == NULL) {
         meshEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         meshEntity->set_type(AssetEntitydata::TYPENAME());
-        if (!mapitIsOk(environment->getCheckout()->storeEntity(target + "_msh", meshEntity))) {
+        if (!mapitIsOk(environment->getWorkspace()->storeEntity(target + "_msh", meshEntity))) {
             log_error("Failed to create transform entity.");
             return MAPIT_STATUS_ERR_UNKNOWN;
         }
     }
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataMesh = environment->getCheckout()->getEntitydataForReadWrite( target + "_msh" );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataMesh = environment->getWorkspace()->getEntitydataForReadWrite( target + "_msh" );
     if (abstractEntitydataMesh == NULL) {
         return MAPIT_STATUS_ERR_UNKNOWN;
     }

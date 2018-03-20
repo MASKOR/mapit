@@ -32,7 +32,7 @@ Item {
     id:root
     height: appStyle.controlHeightOuter
     z: 1000
-    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentWorkspace: globalApplicationState.currentWorkspace
     property alias currentEntityPath: filter.currentText
     property real extendedHeight: 200
     property bool allowNewMap: true
@@ -41,6 +41,6 @@ Item {
         id: filter
         anchors.fill: parent
         allowNew: true
-        model: currentCheckout.entities
+        model: currentWorkspace.entities
     }
 }

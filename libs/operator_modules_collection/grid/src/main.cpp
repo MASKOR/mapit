@@ -23,7 +23,7 @@
 #include <mapit/errorcodes.h>
 #include <mapit/operators/module.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/layertypes/pointcloudlayer.h>
 #include <mapit/logging.h>
 #include <pcl/PCLPointCloud2.h>
@@ -74,7 +74,7 @@ mapit::StatusCode operate_grid(mapit::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {
@@ -116,7 +116,7 @@ mapit::StatusCode operate_grid(mapit::OperationEnvironment* env)
 //        pcl::PCLPointCloud2 p2;
 //        extractIndices.filter(p2);
 
-//        std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( prefix + postfix );
+//        std::shared_ptr<AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( prefix + postfix );
 //        std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
 //        if(entityData == nullptr)
 //        {

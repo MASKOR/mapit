@@ -12,14 +12,14 @@ theme: minima
 Mapit is designed to offer easy communication between multiple participants for accessing and editing sensordata. This is achieved by following design principles of distributed versioning systems and algorithm pipelines (workflows).
 
 For example  the following shell script creates a new repository locally (*.mapit* directory).
-It creates a new *checkout*. Note, that *checkouts*, in contrast to other versioning systems, are not visible in the filesystem (yet).
-Data is read into the checkout and is edited with *execute_operator* command. In the end data is made visible to the filesystem again (*export2filesystem*).
+It creates a new *workspace*. Note, that *workspaces*, in contrast to other versioning systems, are not visible in the filesystem (yet).
+Data is read into the workspace and is edited with *execute_operator* command. In the end data is made visible to the filesystem again (*export2filesystem*).
 
-	mapit create_checkout testcheckout master
-	mapit execute_operator testcheckout load_pointcloud '{"filename":"./data/bunny.pcd", "target":"testmap/testlayer/bunny"}'
-	mapit execute_operator testcheckout voxelgridfilter '{"leafsize":0.2, "target":"testmap/testlayer/bunnyVoxelgrid"}'
-	mapit execute_operator testcheckout normalestimation '{"radius":0.2, "target":"testmap/testlayer/bunnyNormalEst"}'
-	mapit checkout2filesystem testcheckout ./export
+	mapit create_workspace testworkspace master
+	mapit execute_operator testworkspace load_pointcloud '{"filename":"./data/bunny.pcd", "target":"testmap/testlayer/bunny"}'
+	mapit execute_operator testworkspace voxelgridfilter '{"leafsize":0.2, "target":"testmap/testlayer/bunnyVoxelgrid"}'
+	mapit execute_operator testworkspace normalestimation '{"radius":0.2, "target":"testmap/testlayer/bunnyNormalEst"}'
+        mapit checkout2filesystem testworkspace ./export
 
 ## Features
 Mapit is meant to be used with huge files while still maintaining the history of data. This requires the use of new paradigms.

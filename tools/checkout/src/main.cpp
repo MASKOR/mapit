@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
 {
     mapit_init_logging();
 
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name> <branch or commitid>");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name> <branch or commitid>");
     program_options_desc.add_options()
             ("help,h", "print usage")
-            ("checkout,co", po::value<std::string>()->required(), "")
-            ("commitref,ref", po::value<std::string>()->required(), "");
+            ("workspace,w", po::value<std::string>()->required(), "")
+            ("commitref,r", po::value<std::string>()->required(), "");
     po::positional_options_description pos_options;
-    pos_options.add("checkout",  1)
+    pos_options.add("workspace",  1)
                .add("commitref",  1);
 
     mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
@@ -57,14 +57,14 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<mapit::Checkout> co = repo->createCheckout( vars["commitref"].as<std::string>(), vars["checkout"].as<std::string>() );
-    if(co != nullptr)
+    std::shared_ptr<mapit::Workspace> workspace = repo->createWorkspace( vars["commitref"].as<std::string>(), vars["workspace"].as<std::string>() );
+    if(workspace != nullptr)
     {
-        std::cout << "checkout " << vars["checkout"].as<std::string>() << " successfully created" << std::endl;
+        std::cout << "workspace " << vars["workspace"].as<std::string>() << " successfully created" << std::endl;
     }
     else
     {
-        std::cout << "failed to create checkout from " << vars["commitref"].as<std::string>() << std::endl;
+        std::cout << "failed to create workspace from " << vars["commitref"].as<std::string>() << std::endl;
     }
-    return co == nullptr;
+    return workspace == nullptr;
 }

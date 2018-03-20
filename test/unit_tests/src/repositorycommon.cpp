@@ -25,12 +25,12 @@
 #include <mapit/repositoryserver.h>
 #include <mapit/versioning/repositoryfactory.h>
 #include <mapit/versioning/repositorynetworkingfactory.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <QThread>
 #include "serverthread.h"
 
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Workspace>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalculated)
@@ -38,18 +38,18 @@ void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalc
     const bool testLevelDB = false;
     const bool testRemote = withServer;
     QTest::addColumn< std::shared_ptr<mapit::Repository> >("repo");
-    QTest::addColumn< std::shared_ptr<mapit::Checkout> >("checkout");
+    QTest::addColumn< std::shared_ptr<mapit::Workspace> >("workspace");
     QTest::addColumn< std::function<void()> >("startServer");
     QTest::addColumn< std::function<void()> >("stopServer");
 
-    QTest::newRow("local filesystem")  << m_repo[0] << m_checkout[0] << std::function<void()>([](){}) << std::function<void()>([](){});
+    QTest::newRow("local filesystem")  << m_repo[0] << m_workspace[0] << std::function<void()>([](){}) << std::function<void()>([](){});
     if(testLevelDB)
     {
-        QTest::newRow("local database")<< m_repo[1] << m_checkout[1] << std::function<void()>([](){}) << std::function<void()>([](){});
+        QTest::newRow("local database")<< m_repo[1] << m_workspace[1] << std::function<void()>([](){}) << std::function<void()>([](){});
     }
     if(testRemote)
     {
-        QTest::newRow("remote")        << m_repo[2] << m_checkout[2] << std::function<void()>([this]()
+        QTest::newRow("remote")        << m_repo[2] << m_workspace[2] << std::function<void()>([this]()
             {
                 QMutexLocker l(&m_serverThreadMutex);
                 m_serverThread[0]->start();
@@ -62,7 +62,7 @@ void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalc
     }
     if (withServerLocalyCalculated)
     {
-        QTest::newRow("remote with local execution")        << m_repo[3] << m_checkout[3] << std::function<void()>([this]()
+        QTest::newRow("remote with local execution")        << m_repo[3] << m_workspace[3] << std::function<void()>([this]()
             {
                 QMutexLocker l(&m_serverThreadMutex);
                 m_serverThread[1]->start();
@@ -87,7 +87,7 @@ void RepositoryCommon::initTestdata()
             QVERIFY( result );
         }
         m_repo[0] = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName));
-        m_checkout[0] = std::shared_ptr<mapit::Checkout>(m_repo[0]->createCheckout("master", "testcheckout"));
+        m_workspace[0] = std::shared_ptr<mapit::Workspace>(m_repo[0]->createWorkspace("master", "testworkspace"));
     }
 //    {
 //        //// Setup Repository as Database
@@ -105,7 +105,7 @@ void RepositoryCommon::initTestdata()
 //        conf["mapsource"] = mapsource;
 
 //        m_repo[1] = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(conf));
-//        m_checkout[1] = std::shared_ptr<mapit::Checkout>(m_repo[1]->createCheckout("master", "testcheckout"));
+//        m_workspace[1] = std::shared_ptr<mapit::Workspace>(m_repo[1]->createWorkspace("master", "testworkspace"));
 //    }
     {
         //// Setup Repository as Network connection
@@ -123,7 +123,7 @@ void RepositoryCommon::initTestdata()
         m_repo[2] = std::shared_ptr<mapit::Repository>(mapit::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5555", NULL));
         m_serverThread[0] = std::shared_ptr<ServerThread>(new ServerThread(srv));
         m_serverThread[0]->start();
-        m_checkout[2] = std::shared_ptr<mapit::Checkout>(m_repo[2]->createCheckout("master", "testcheckout"));
+        m_workspace[2] = std::shared_ptr<mapit::Workspace>(m_repo[2]->createWorkspace("master", "testworkspace"));
         m_serverThread[0]->stop();
     }
     {
@@ -142,17 +142,17 @@ void RepositoryCommon::initTestdata()
         m_repo[3] = std::shared_ptr<mapit::Repository>(mapit::RepositoryNetworkingFactory::connectToRemoteRepository("tcp://localhost:5655", NULL, true));
         m_serverThread[1] = std::shared_ptr<ServerThread>(new ServerThread(srv));
         m_serverThread[1]->start();
-        m_checkout[3] = std::shared_ptr<mapit::Checkout>(m_repo[3]->createCheckout("master", "testcheckout"));
+        m_workspace[3] = std::shared_ptr<mapit::Workspace>(m_repo[3]->createWorkspace("master", "testworkspace"));
         m_serverThread[1]->stop();
     }
 }
 
 void RepositoryCommon::cleanupTestdata()
 {
-    m_checkout[0] = nullptr;
-    m_checkout[1] = nullptr;
-    m_checkout[2] = nullptr;
-    m_checkout[3] = nullptr;
+    m_workspace[0] = nullptr;
+    m_workspace[1] = nullptr;
+    m_workspace[2] = nullptr;
+    m_workspace[3] = nullptr;
     m_repo[0] = nullptr;
     m_repo[1] = nullptr;
     m_repo[2] = nullptr;

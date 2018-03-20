@@ -24,11 +24,11 @@
 #include "../../src/autotest.h"
 
 #include <mapit/errorcodes.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/versioning/repositoryfactory.h>
 
 #include <mapit/msgs/datastructs.pb.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 
 #include <mapit/layertypes/tflayer.h>
@@ -43,7 +43,7 @@ void TFTest::init()
     fileSystemName_ = std::string("tf_test.mapit");
     cleanup();
     repo_ = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(fileSystemName_));
-    checkout_ = std::shared_ptr<mapit::Checkout>(repo_->createCheckout("master", "tftest"));
+    workspace_ = std::shared_ptr<mapit::Workspace>(repo_->createWorkspace("master", "tftest"));
 }
 
 void TFTest::cleanup()
@@ -281,11 +281,11 @@ void TFTest::test_layertype_to_buffer()
                 "   ]"
                 "}"
                 );
-    mapit::OperationResult ret = checkout_->doOperation( desc );
+    mapit::OperationResult ret = workspace_->doOperation( desc );
     QVERIFY( mapitIsOk(ret.first) );
 
     // read all tfs from the 2 default layers and store them in the buffer
-    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(checkout_.get(), "map_tftest"));
+    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(workspace_.get(), "map_tftest"));
 
     compareTfs(tf_in_1, buffer->lookupTransform("world", "frame_1", mapit::time::from_sec_and_nsec(1000, 500000000)));
     compareTfs(tf_in_2, buffer->lookupTransform("world", "frame_2", mapit::time::from_sec_and_nsec(1001, 500000000)));

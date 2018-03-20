@@ -31,7 +31,6 @@
 #include <mapit/ui/bindings/qmlmapsrenderviewport.h>
 #include <mapit/ui/bindings/qmlentitydata.h>
 #include <mapit/logging.h>
-#include "stubs/qmlstubentitydatapointcloud2.h"
 #include <pcl/io/ply_io.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
@@ -49,7 +48,7 @@
 #include "controls/xboxcontroller.h"
 #include <mapit/ui/bindings/renderdata.h>
 #include <mapit/ui/bindings/qmlrepository.h>
-#include <mapit/ui/bindings/qmlcheckout.h>
+#include <mapit/ui/bindings/qmlworkspace.h>
 #include <mapit/ui/bindings/qmlcommit.h>
 #include <mapit/ui/bindings/qmltree.h>
 #include <mapit/ui/bindings/qmlentity.h>
@@ -130,7 +129,7 @@ int main(int argc, char *argv[])
 //    qmlRegisterType<XBoxController>("fhac.mapit", 1, 0, "XBoxController");
 
     qmlRegisterType<QmlRepository>("fhac.mapit", 1, 0, "Repository");
-    qmlRegisterType<QmlCheckout>("fhac.mapit", 1, 0, "Checkout");
+    qmlRegisterType<QmlWorkspace>("fhac.mapit", 1, 0, "Workspace");
     qmlRegisterType<QmlCommit>("fhac.mapit", 1, 0, "Commit");
     qmlRegisterType<QmlTree>("fhac.mapit", 1, 0, "Tree");
     qmlRegisterType<QmlEntity>("fhac.mapit", 1, 0, "Entity");

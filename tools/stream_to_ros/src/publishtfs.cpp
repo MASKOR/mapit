@@ -29,7 +29,7 @@ void
 PublishTFs::publish_entity(const std::string& entity_name, const std::shared_ptr<::Entity>& entity)
 {
   // get data
-  std::shared_ptr<mapit::AbstractEntitydata> entity_data_abstract = checkout_->getEntitydataReadOnly(entity_name);
+  std::shared_ptr<mapit::AbstractEntitydata> entity_data_abstract = workspace_->getEntitydataReadOnly(entity_name);
   if ( entity_data_abstract == nullptr || 0 != std::strcmp(entity_data_abstract->type(), TfEntitydata::TYPENAME()) ) {
     log_error("stream_to_ros: can't publish " + entity_name + " since the type is wrongly given\n"
               "type is: " + entity_data_abstract->type() + " but we need: " + TfEntitydata::TYPENAME());

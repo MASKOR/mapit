@@ -22,7 +22,7 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 #include <string>
@@ -32,19 +32,19 @@
 #include <QtCore/QJsonArray>
 
 mapit::StatusCode
-deleteEntityOrTree(mapit::CheckoutRaw* checkout, std::string entityName)
+deleteEntityOrTree(mapit::operators::WorkspaceWritable* workspace, std::string entityName)
 {
-    std::shared_ptr<mapit::msgs::Entity> entity = checkout->getEntity(entityName);
+    std::shared_ptr<mapit::msgs::Entity> entity = workspace->getEntity(entityName);
     if (entity != nullptr) {
-        mapit::StatusCode s = checkout->deleteEntity(entityName);
+        mapit::StatusCode s = workspace->deleteEntity(entityName);
         if ( ! mapitIsOk(s) ) {
             log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
             return s;
         }
     } else {
-        std::shared_ptr<mapit::msgs::Tree> tree = checkout->getTree(entityName);
+        std::shared_ptr<mapit::msgs::Tree> tree = workspace->getTree(entityName);
         if (tree != nullptr) {
-            mapit::StatusCode s = checkout->deleteTree(entityName);
+            mapit::StatusCode s = workspace->deleteTree(entityName);
             if ( ! mapitIsOk(s) ) {
                 log_error("operator_delete: Error while deleting tree \"" + entityName + "\"");
                 return s;
@@ -69,12 +69,12 @@ operateDelete(mapit::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    mapit::CheckoutRaw* checkout = env->getCheckout();
+    mapit::operators::WorkspaceWritable* workspace = env->getWorkspace();
 
     if (        params["target"].isString() ) {
         // just one entity/tree
         std::string entityName = params["target"].toString().toStdString();
-        mapit::StatusCode s = deleteEntityOrTree(checkout, entityName);
+        mapit::StatusCode s = deleteEntityOrTree(workspace, entityName);
         if ( ! mapitIsOk(s) ) {
 //            log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
             return s;
@@ -84,7 +84,7 @@ operateDelete(mapit::OperationEnvironment* env)
         QJsonArray jsonEntityNames( params["target"].toArray() );
         for (auto jsonEntityName : jsonEntityNames) {
             std::string entityName = jsonEntityName.toString().toStdString();
-            mapit::StatusCode s = deleteEntityOrTree(checkout, entityName);
+            mapit::StatusCode s = deleteEntityOrTree(workspace, entityName);
             if ( ! mapitIsOk(s) ) {
     //            log_error("operator_delete: Error while deleting entity \"" + entityName + "\"");
                 return s;

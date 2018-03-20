@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "checkoutimpl.h"
+#include "workspaceimpl.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -40,15 +40,15 @@ namespace mapit
 {
 typedef ModuleInfo* (*GetModuleInfo)();
 
-CheckoutImpl::CheckoutImpl(std::shared_ptr<AbstractSerializer> serializer, std::shared_ptr<CheckoutObj>  checkoutCommit, std::string name, const std::string branchname)
+WorkspaceImpl::WorkspaceImpl(std::shared_ptr<AbstractSerializer> serializer, std::shared_ptr<WorkspaceObj> workspaceCommit, std::string name, const std::string branchname)
     :m_serializer(serializer),
      m_branchname( branchname ),
      m_name(name),
-     m_checkout(checkoutCommit),
+     m_workspace(workspaceCommit),
      m_nextTransientOid("0")
 {
 
-//    if(m_serializer->isCheckout(checkoutCommit))
+//    if(m_serializer->isWorkspace(workspaceCommit))
 //    {
 //        m_checkoutId = commitOrCheckoutId;
 //    }
@@ -56,15 +56,15 @@ CheckoutImpl::CheckoutImpl(std::shared_ptr<AbstractSerializer> serializer, std::
 //    {
 //        std::shared_ptr<Commit> co(new Commit());
 //        co->add_parentcommitids(commitOrCheckoutId);
-//        m_checkoutId = m_serializer->createCheckoutCommit( co );
+//        m_checkoutId = m_serializer->createworkspaceCommit( co );
 //    }
 }
 
-//CheckoutImpl::CheckoutImpl(AbstractSerializer *serializer, const std::shared_ptr<Branch> &branch)
+//WorkspaceImpl::WorkspaceImpl(AbstractSerializer *serializer, const std::shared_ptr<Branch> &branch)
 //    :m_serializer(serializer),
 //      m_branch( branch )
 //{
-////    if(m_serializer->isCheckout(branch->commitid()))
+////    if(m_serializer->isWorkspace(branch->commitid()))
 ////    {
 ////        m_checkoutId = branch->commitid();
 ////    }
@@ -79,26 +79,26 @@ CheckoutImpl::CheckoutImpl(std::shared_ptr<AbstractSerializer> serializer, std::
 ////        {
 ////            log_info("Initial Commit created, branch: " + branch->name());
 ////        }
-////        m_checkoutId = m_serializer->createCheckoutCommit( co );
+////        m_checkoutId = m_serializer->createworkspaceCommit( co );
 ////    }
 //}
 
-bool CheckoutImpl::isInConflictMode()
+bool WorkspaceImpl::isInConflictMode()
 {
     return false;
 }
 
-std::vector<std::shared_ptr<Conflict> > CheckoutImpl::getPendingConflicts()
+std::vector<std::shared_ptr<Conflict> > WorkspaceImpl::getPendingConflicts()
 {
     return std::vector<std::shared_ptr<Conflict> >();
 }
 
-std::shared_ptr<Tree> CheckoutImpl::getRoot()
+std::shared_ptr<Tree> WorkspaceImpl::getRoot()
 {
-    return this->getTree(m_checkout->rollingcommit().root());
+    return this->getTree(m_workspace->rollingcommit().root());
 }
 
-std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
+std::shared_ptr<Tree> WorkspaceImpl::getTree(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
@@ -114,7 +114,7 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const Path &path)
     return m_serializer->getTree(ref.id());
 }
 
-std::shared_ptr<Entity> CheckoutImpl::getEntity(const Path &path)
+std::shared_ptr<Entity> WorkspaceImpl::getEntity(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
@@ -131,7 +131,7 @@ std::shared_ptr<Entity> CheckoutImpl::getEntity(const Path &path)
 }
 
 MessageType
-CheckoutImpl::typeOfObject(const Path &path)
+WorkspaceImpl::typeOfObject(const Path &path)
 {
     Path p(preparePath(path));
     if(p.empty()) return MessageEmpty;
@@ -147,30 +147,30 @@ CheckoutImpl::typeOfObject(const Path &path)
     return m_serializer->typeOfObject(ref.id());
 }
 
-std::shared_ptr<Tree> CheckoutImpl::getTreeConflict(const ObjectId &objectId)
+std::shared_ptr<Tree> WorkspaceImpl::getTreeConflict(const ObjectId &objectId)
 {
     return nullptr;
 }
 
-std::shared_ptr<Entity> CheckoutImpl::getEntityConflict(const ObjectId &objectId)
+std::shared_ptr<Entity> WorkspaceImpl::getEntityConflict(const ObjectId &objectId)
 {
     return nullptr;
 }
 
-OperationResult CheckoutImpl::doOperation(const OperationDescription &desc)
+OperationResult WorkspaceImpl::doOperation(const OperationDescription &desc)
 {
     return OperatorLibraryManager::doOperation(desc, this);
 }
 
-OperationResult CheckoutImpl::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate)
+OperationResult WorkspaceImpl::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate)
 {
     OperationEnvironmentImpl env(desc);
-    env.setCheckout( this );
+    env.setWorkspace( this );
     mapit::StatusCode result = operate( &env );
     return OperationResult(result, env.outputDescription());
 }
 
-std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Path &path)
+std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataReadOnly(const Path &path)
 {
     Path p(preparePathFilename(path));
     if(p.empty()) return nullptr;
@@ -196,7 +196,7 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnly(const Pa
     }
 }
 
-std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
+std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataReadOnlyConflict(const ObjectId &entityId)
 {
     std::shared_ptr<Entity> ent = m_serializer->getEntity( entityId );
     if( ent == nullptr )
@@ -208,7 +208,7 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataReadOnlyConflict(
     return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(entityId, true), true);
 }
 
-std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(const Path &path)
+std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataForReadWrite(const Path &path)
 {
     // Only check transient, because writing is not allowed for already commited objects.
     Path p(preparePathFilename(path));
@@ -224,17 +224,17 @@ std::shared_ptr<AbstractEntitydata> CheckoutImpl::getEntitydataForReadWrite(cons
     return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
 }
 
-StatusCode CheckoutImpl::storeTree(const Path &path, std::shared_ptr<Tree> tree)
+StatusCode WorkspaceImpl::storeTree(const Path &path, std::shared_ptr<Tree> tree)
 {
     return createPath(path, tree);
 }
 
-StatusCode CheckoutImpl::storeEntity(const Path &path, std::shared_ptr<Entity> entity)
+StatusCode WorkspaceImpl::storeEntity(const Path &path, std::shared_ptr<Entity> entity)
 {
     return createPath(path, entity);
 }
 
-StatusCode CheckoutImpl::deleteTree(const Path &path)
+StatusCode WorkspaceImpl::deleteTree(const Path &path)
 {
     Path p(preparePath(path));
     if (p.empty()) {
@@ -245,7 +245,7 @@ StatusCode CheckoutImpl::deleteTree(const Path &path)
     return MAPIT_STATUS_OK;
 }
 
-StatusCode CheckoutImpl::deleteEntity(const Path &path)
+StatusCode WorkspaceImpl::deleteEntity(const Path &path)
 {
     Path p(preparePath(path));
     if (p.empty()) {
@@ -256,12 +256,12 @@ StatusCode CheckoutImpl::deleteEntity(const Path &path)
     return MAPIT_STATUS_OK;
 }
 
-void CheckoutImpl::setConflictSolved(const Path &path, const ObjectId &oid)
+void WorkspaceImpl::setConflictSolved(const Path &path, const ObjectId &oid)
 {
     //TODO
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(  std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+StatusCode WorkspaceImpl::depthFirstSearch(  std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
                                           , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
                                           , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                           , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity)
@@ -269,7 +269,7 @@ StatusCode CheckoutImpl::depthFirstSearch(  std::function<bool(std::shared_ptr<T
     return mapit::depthFirstSearchWorkspace(this, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
+StatusCode WorkspaceImpl::depthFirstSearch(  const Path& path
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> beforeTree
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
                                           , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
@@ -278,22 +278,22 @@ StatusCode CheckoutImpl::depthFirstSearch(  const Path& path
     return mapit::depthFirstSearchWorkspace(this, path, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-std::shared_ptr<CheckoutObj> CheckoutImpl::getCheckoutObj()
+std::shared_ptr<WorkspaceObj> WorkspaceImpl::getWorkspaceObj()
 {
-    return m_checkout;
+    return m_workspace;
 }
 
-const std::string &CheckoutImpl::getName() const
+const std::string &WorkspaceImpl::getName() const
 {
     return m_name;
 }
 
-const std::string &CheckoutImpl::getBranchName() const
+const std::string &WorkspaceImpl::getBranchName() const
 {
     return m_branchname;
 }
 
-std::shared_ptr<Tree> CheckoutImpl::getTree(const ObjectReference &ref)
+std::shared_ptr<Tree> WorkspaceImpl::getTree(const ObjectReference &ref)
 {
     if ( ! ref.path().empty()) {
         return m_serializer->getTreeTransient(ref.path());
@@ -305,7 +305,7 @@ std::shared_ptr<Tree> CheckoutImpl::getTree(const ObjectReference &ref)
     //assert(false);
 }
 
-std::shared_ptr<Entity> CheckoutImpl::getEntity(const ObjectReference &ref)
+std::shared_ptr<Entity> WorkspaceImpl::getEntity(const ObjectReference &ref)
 {
     if(!ref.id().empty())
     {
@@ -318,7 +318,7 @@ std::shared_ptr<Entity> CheckoutImpl::getEntity(const ObjectReference &ref)
     assert(false);
 }
 
-MessageType CheckoutImpl::typeOfObject(const ObjectReference &ref)
+MessageType WorkspaceImpl::typeOfObject(const ObjectReference &ref)
 {
     if(!ref.id().empty())
     {
@@ -331,7 +331,7 @@ MessageType CheckoutImpl::typeOfObject(const ObjectReference &ref)
     assert(false);
 }
 
-ObjectReference CheckoutImpl::objectReferenceOfChild(std::shared_ptr<Tree> tree, const ::std::string &name)
+ObjectReference WorkspaceImpl::objectReferenceOfChild(std::shared_ptr<Tree> tree, const ::std::string &name)
 {
     assert(tree != NULL);
     assert(!name.empty());
@@ -349,11 +349,11 @@ ObjectReference CheckoutImpl::objectReferenceOfChild(std::shared_ptr<Tree> tree,
     return ObjectReference();
 }
 
-ObjectReference CheckoutImpl::objectReferenceForPath(const Path &path)
+ObjectReference WorkspaceImpl::objectReferenceForPath(const Path &path)
 {
     assert(!path.empty());
     Path p = preparePath(path);
-    ObjectReference ref(m_checkout->rollingcommit().root());
+    ObjectReference ref(m_workspace->rollingcommit().root());
     if(ref.id().empty() && ref.path().empty()) return ObjectReference();
     std::shared_ptr<Tree> current = this->getTree(ref);
     forEachPathSegment(p,
@@ -375,7 +375,7 @@ ObjectReference CheckoutImpl::objectReferenceForPath(const Path &path)
     return ref;
 }
 
-Path CheckoutImpl::preparePath(const Path &path)
+Path WorkspaceImpl::preparePath(const Path &path)
 {
     // path p has no beginning / and always trailing /
     // also removed double //
@@ -402,7 +402,7 @@ Path CheckoutImpl::preparePath(const Path &path)
     return p;
 }
 
-Path CheckoutImpl::preparePathFilename(const Path &path)
+Path WorkspaceImpl::preparePathFilename(const Path &path)
 {
     // path p has no beginning / and no trailing /
     Path p = path;
@@ -417,7 +417,7 @@ Path CheckoutImpl::preparePathFilename(const Path &path)
     return p;
 }
 
-bool CheckoutImpl::forEachPathSegment(const Path &path
+bool WorkspaceImpl::forEachPathSegment(const Path &path
                         , std::function<bool(std::string, size_t, bool)> before
                         , std::function<bool(std::string, size_t, bool)> after
                         , const int start)
@@ -447,32 +447,32 @@ bool CheckoutImpl::forEachPathSegment(const Path &path
 // TODO: Object-classes are seperated (entity, tree, ...) and are here unified again.
 // On the lowest level they are now unified. TODO: provide unified interface to them (template).
 //template <>
-//std::pair<StatusCode, ObjectId> CheckoutImpl::createObject<Tree>(std::shared_ptr<Tree> leafObject, const Path &path)
+//std::pair<StatusCode, ObjectId> WorkspaceImpl::createObject<Tree>(std::shared_ptr<Tree> leafObject, const Path &path)
 //{
 //    return m_serializer->storeTreeTransient(leafObject, path);
 //}
 //TODO: maybe abandon "create" for entity/tree
 //template <>
-//std::pair<StatusCode, ObjectId> CheckoutImpl::createObject<Entity>(std::shared_ptr<Entity> leafObject, const Path &path)
+//std::pair<StatusCode, ObjectId> WorkspaceImpl::createObject<Entity>(std::shared_ptr<Entity> leafObject, const Path &path)
 //{
 //    return m_serializer->storeEntityTransient(leafObject, path);
 //}
 
 template <>
-std::pair<StatusCode, PathInternal> CheckoutImpl::storeObject<Tree>(std::shared_ptr<Tree> leafObject, const PathInternal &pathInternal)
+std::pair<StatusCode, PathInternal> WorkspaceImpl::storeObject<Tree>(std::shared_ptr<Tree> leafObject, const PathInternal &pathInternal)
 {
     return m_serializer->storeTreeTransient(leafObject, pathInternal);
 }
 
 template <>
-std::pair<StatusCode, PathInternal> CheckoutImpl::storeObject<Entity>(std::shared_ptr<Entity> leafObject, const PathInternal &pathInternal)
+std::pair<StatusCode, PathInternal> WorkspaceImpl::storeObject<Entity>(std::shared_ptr<Entity> leafObject, const PathInternal &pathInternal)
 {
     PathInternal real_id = pathInternal.substr(0, pathInternal.size() - 1 );
     return m_serializer->storeEntityTransient(leafObject, real_id);
 }
 
 template <>
-StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
+StatusCode WorkspaceImpl::deleteObject<Tree>(const Path& path)
 {
     StatusCode status_search = MAPIT_STATUS_OK;
     ObjectReference nullRef;
@@ -515,13 +515,13 @@ StatusCode CheckoutImpl::deleteObject<Tree>(const Path& path)
 }
 
 template <>
-StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
+StatusCode WorkspaceImpl::deleteObject<Entity>(const Path& path)
 {
     PathInternal real_id = m_name + "/" + path.substr(0, path.size() - 1 );
     return m_serializer->removeEntityTransient(real_id);
 }
 
-//StatusCode CheckoutImpl::depthFirstSearch(std::shared_ptr<Entity> obj, const ObjectId& oid, const Path &path,
+//StatusCode WorkspaceImpl::depthFirstSearch(std::shared_ptr<Entity> obj, const ObjectId& oid, const Path &path,
 //                                                  std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> afterCommit,
 //                                                  std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> afterTree,
 //                                                  std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> afterEntity)
@@ -537,7 +537,7 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    return MAPIT_STATUS_OK;
 //}
 
-//StatusCode CheckoutImpl::depthFirstSearch(std::shared_ptr<Tree> obj, const ObjectId& oid, const Path &path,
+//StatusCode WorkspaceImpl::depthFirstSearch(std::shared_ptr<Tree> obj, const ObjectId& oid, const Path &path,
 //                                                std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> afterCommit,
 //                                                std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> afterTree,
 //                                                std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> afterEntity)
@@ -583,7 +583,7 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    return MAPIT_STATUS_OK;
 //}
 
-//StatusCode CheckoutImpl::depthFirstSearch(std::shared_ptr<Commit> obj, const ObjectId& oid, const Path &path,
+//StatusCode WorkspaceImpl::depthFirstSearch(std::shared_ptr<Commit> obj, const ObjectId& oid, const Path &path,
 //                                                  std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> beforeCommit, std::function<bool(std::shared_ptr<Commit>, const ObjectReference &)> afterCommit,
 //                                                  std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> beforeTree, std::function<bool(std::shared_ptr<Tree>, const ObjectReference &)> afterTree,
 //                                                  std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> beforeEntity, std::function<bool(std::shared_ptr<Entity>, const ObjectReference &)> afterEntity)
@@ -604,7 +604,7 @@ StatusCode CheckoutImpl::deleteObject<Entity>(const Path& path)
 //    return MAPIT_STATUS_OK;
 //}
 
-std::shared_ptr<mapit::msgs::Branch> mapit::CheckoutImpl::getParentBranch()
+std::shared_ptr<mapit::msgs::Branch> mapit::WorkspaceImpl::getParentBranch()
 {
     std::shared_ptr<mapit::msgs::Branch> branch;
     if(!m_branchname.empty())
@@ -614,12 +614,12 @@ std::shared_ptr<mapit::msgs::Branch> mapit::CheckoutImpl::getParentBranch()
     return branch;
 }
 
-std::vector<CommitId> CheckoutImpl::getParentCommitIds()
+std::vector<CommitId> WorkspaceImpl::getParentCommitIds()
 {
     std::vector<CommitId> ret;
-    for(int i=0 ; i<m_checkout->rollingcommit().parentcommitids_size() ; ++i)
+    for(int i=0 ; i<m_workspace->rollingcommit().parentcommitids_size() ; ++i)
     {
-        ret.push_back(m_checkout->rollingcommit().parentcommitids(i));
+        ret.push_back(m_workspace->rollingcommit().parentcommitids(i));
     }
     return ret;
 }

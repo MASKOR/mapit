@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "zmqrequestercheckout.h"
+#include "zmqrequesterworkspace.h"
 #include <mapit/msgs/services_internal.pb.h>
 #include <mapit/serialization/entitydatalibrarymanager.h> //TODO: put in yet another independent project/cmake target. No dependecy to mapmanager required.
 #include "serialization/zmqentitydatastreamprovider.h"
@@ -39,69 +39,69 @@
 #include <mapit/operators/module.h>
 typedef ModuleInfo* (*GetModuleInfo)();
 
-mapit::ZmqRequesterCheckout::ZmqRequesterCheckout(std::string name, ZmqProtobufNode *node, Checkout *cache, bool operationsLocal)
-    :m_checkoutName( name ),
+mapit::ZmqRequesterWorkspace::ZmqRequesterWorkspace(std::string name, ZmqProtobufNode *node, mapit::Workspace *cache, bool operationsLocal)
+    :m_workspaceName( name ),
      m_node( node ),
      m_cache( cache ),
      m_operationsLocal( operationsLocal )
 {
 }
 
-bool mapit::ZmqRequesterCheckout::isInConflictMode()
+bool mapit::ZmqRequesterWorkspace::isInConflictMode()
 {
     //TODO: nyi
     assert(false);
     return false;
 }
 
-std::vector<std::shared_ptr<Conflict> > mapit::ZmqRequesterCheckout::getPendingConflicts()
+std::vector<std::shared_ptr<Conflict> > mapit::ZmqRequesterWorkspace::getPendingConflicts()
 {
     //TODO: nyi
     assert(false);
     return std::vector<std::shared_ptr<Conflict> >();
 }
 
-void mapit::ZmqRequesterCheckout::setConflictSolved(const mapit::Path &path, const mapit::ObjectId &oid)
+void mapit::ZmqRequesterWorkspace::setConflictSolved(const mapit::Path &path, const mapit::ObjectId &oid)
 {
     //TODO: nyi
     assert(false);
 }
 
-MessageType mapit::ZmqRequesterCheckout::typeOfObject(const mapit::Path &oidOrName)
+MessageType mapit::ZmqRequesterWorkspace::typeOfObject(const mapit::Path &oidOrName)
 {
     //TODO: Introduce typeof method with protobuf
     if(this->getTree(oidOrName) != nullptr) return MessageTree;
     if(this->getEntity(oidOrName) != nullptr) return MessageEntity;
     //if(this->get(oidOrName) != nullptr) return MessageCommit;
-    //if(this->getTree(oidOrName) != nullptr) return MessageCheckout;
+    //if(this->getTree(oidOrName) != nullptr) return MessageWorkspace;
     //if(this->get(oidOrName) != nullptr) return MessageBranch;
     if(this->getEntitydataReadOnly(oidOrName) != nullptr) return MessageEntitydata;
     return MessageEmpty;
 }
 
-std::shared_ptr<Tree> mapit::ZmqRequesterCheckout::getRoot()
+std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getRoot()
 {
     return getTree("/");
 }
 
-std::shared_ptr<Tree> mapit::ZmqRequesterCheckout::getTreeConflict(const mapit::ObjectId &objectId)
+std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getTreeConflict(const mapit::ObjectId &objectId)
 {
     //TODO: nyi
     assert(false);
     return std::shared_ptr<Tree>();
 }
 
-std::shared_ptr<Entity> mapit::ZmqRequesterCheckout::getEntityConflict(const mapit::ObjectId &objectId)
+std::shared_ptr<Entity> mapit::ZmqRequesterWorkspace::getEntityConflict(const mapit::ObjectId &objectId)
 {
     //TODO: nyi
     assert(false);
     return std::shared_ptr<Entity>();
 }
 
-std::shared_ptr<Tree> mapit::ZmqRequesterCheckout::getTree(const mapit::Path &path)
+std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getTree(const mapit::Path &path)
 {
     std::unique_ptr<RequestGenericEntry> req(new RequestGenericEntry);
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(path);
     try {
         m_node->prepareForwardComChannel();
@@ -123,10 +123,10 @@ std::shared_ptr<Tree> mapit::ZmqRequesterCheckout::getTree(const mapit::Path &pa
     }
 }
 
-std::shared_ptr<Entity> mapit::ZmqRequesterCheckout::getEntity(const mapit::Path &path)
+std::shared_ptr<Entity> mapit::ZmqRequesterWorkspace::getEntity(const mapit::Path &path)
 {
     std::unique_ptr<RequestGenericEntry> req(new RequestGenericEntry);
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(path);
     try {
         m_node->prepareForwardComChannel();
@@ -143,21 +143,21 @@ std::shared_ptr<Entity> mapit::ZmqRequesterCheckout::getEntity(const mapit::Path
     }
 }
 
-std::shared_ptr<Branch> mapit::ZmqRequesterCheckout::getParentBranch()
+std::shared_ptr<Branch> mapit::ZmqRequesterWorkspace::getParentBranch()
 {
     //TODO: nyi
     assert(false);
     return std::shared_ptr<Branch>();
 }
 
-std::vector<mapit::CommitId> mapit::ZmqRequesterCheckout::getParentCommitIds()
+std::vector<mapit::CommitId> mapit::ZmqRequesterWorkspace::getParentCommitIds()
 {
     //TODO: nyi
     assert(false);
     return std::vector<mapit::CommitId>();
 }
 
-std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterCheckout::getEntitydataReadOnly(const mapit::Path &entityId)
+std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterWorkspace::getEntitydataReadOnly(const mapit::Path &entityId)
 {
     std::shared_ptr<Entity> e = getEntity(entityId);
     if(!e)
@@ -165,18 +165,18 @@ std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterCheckout::getEntit
         log_warn("Entity could not be queried for entitydata: " + entityId);
         return std::shared_ptr<mapit::AbstractEntitydata>(nullptr);
     }
-    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entityId, m_node));
+    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_workspaceName, entityId, m_node));
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }
 
-std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterCheckout::getEntitydataReadOnlyConflict(const mapit::ObjectId &entityId)
+std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterWorkspace::getEntitydataReadOnlyConflict(const mapit::ObjectId &entityId)
 {
     //TODO: nyi
     assert(false);
     return std::shared_ptr<mapit::AbstractEntitydata>(nullptr);
 }
 
-mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> beforeTree
+mapit::StatusCode mapit::ZmqRequesterWorkspace::depthFirstSearch(  std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> beforeTree
                                                               , std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> afterTree
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> afterEntity)
@@ -184,7 +184,7 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  std::function<
     return mapit::depthFirstSearchWorkspace(this, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  const Path& path
+mapit::StatusCode mapit::ZmqRequesterWorkspace::depthFirstSearch(  const Path& path
                                                               , std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> beforeTree
                                                               , std::function<bool (std::shared_ptr<Tree>, const ObjectReference &, const Path &)> afterTree
                                                               , std::function<bool (std::shared_ptr<Entity>, const ObjectReference &, const Path &)> beforeEntity
@@ -193,18 +193,18 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::depthFirstSearch(  const Path& pa
     return mapit::depthFirstSearchWorkspace(this, path, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
-mapit::OperationResult mapit::ZmqRequesterCheckout::doOperation(const OperationDescription &desc)
+mapit::OperationResult mapit::ZmqRequesterWorkspace::doOperation(const OperationDescription &desc)
 {
     if(m_operationsLocal)
     {
-        // Execute operation on this machine. ZmqRequesterCheckoutRaw will read/write data from remote.
+        // Execute operation on this machine. ZmqRequesterWorkspaceWritable will read/write data from remote.
         return OperatorLibraryManager::doOperation(desc, this);
     }
     else
     {
         // Operator is executed on remote machine. Remote machine reads/writes however it is configured.
         std::unique_ptr<RequestOperatorExecution> req(new RequestOperatorExecution);
-        req->set_checkout(m_checkoutName);
+        req->set_workspace(m_workspaceName);
         *req->mutable_param() = desc;
         try {
             m_node->prepareForwardComChannel();
@@ -230,35 +230,35 @@ mapit::OperationResult mapit::ZmqRequesterCheckout::doOperation(const OperationD
     }
 }
 
-mapit::OperationResult mapit::ZmqRequesterCheckout::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode (mapit::OperationEnvironment *)> operate)
+mapit::OperationResult mapit::ZmqRequesterWorkspace::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode (mapit::OperationEnvironment *)> operate)
 {
     mapit::OperationEnvironmentImpl env( desc );
-    env.setCheckout( this );
+    env.setWorkspace( this );
     // TODO: this breaks req/resp pattern!
     mapit::StatusCode status = operate( &env );
     OperationResult res(status, env.outputDescription());
     return res;
 }
 
-//void mapit::ZmqRequesterCheckout::syncHierarchy()
+//void mapit::ZmqRequesterWorkspace::syncHierarchy()
 //{
 //    std::unique_ptr<mapit::RequestHierarchy> req(new mapit::RequestHierarchy);
-//    req->set_checkout(m_checkoutName);
+//    req->set_workspace(m_workspaceName);
 //    m_node->send(std::move(req)); catch
 //    std::unique_ptr<mapit::ReplyHierarchy> hierarchy(m_node->receive<mapit::ReplyHierarchy>());
 //    assert(m_cache);
 //    //m_cache->
 //}
 
-mapit::StatusCode mapit::ZmqRequesterCheckout::storeTree(const mapit::Path &path, std::shared_ptr<Tree> tree)
+mapit::StatusCode mapit::ZmqRequesterWorkspace::storeTree(const mapit::Path &path, std::shared_ptr<Tree> tree)
 {
     return MAPIT_STATUS_ERR_NOT_YET_IMPLEMENTED;
 }
 
-mapit::StatusCode mapit::ZmqRequesterCheckout::storeEntity(const mapit::Path &path, std::shared_ptr<Entity> entity)
+mapit::StatusCode mapit::ZmqRequesterWorkspace::storeEntity(const mapit::Path &path, std::shared_ptr<Entity> entity)
 {
     std::unique_ptr<RequestStoreEntity> req(new RequestStoreEntity);
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(path);
     req->set_type( entity->type() );
     req->set_offset(0ul);
@@ -286,10 +286,10 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::storeEntity(const mapit::Path &pa
     }
 }
 
-mapit::StatusCode mapit::ZmqRequesterCheckout::deleteTree(const Path &path)
+mapit::StatusCode mapit::ZmqRequesterWorkspace::deleteTree(const Path &path)
 {
     std::unique_ptr<RequestDeleteTree> req = std::make_unique<RequestDeleteTree>();
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(path);
     m_node->send(std::move(req));
 
@@ -300,15 +300,15 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::deleteTree(const Path &path)
     }
     else
     {
-        log_error("ZmqRequesterCheckout: Could not delete tree \"" + path + "\"");
+        log_error("ZmqRequesterWorkspace: Could not delete tree \"" + path + "\"");
         return MAPIT_STATUS_ERROR;
     }
 }
 
-mapit::StatusCode mapit::ZmqRequesterCheckout::deleteEntity(const Path &path)
+mapit::StatusCode mapit::ZmqRequesterWorkspace::deleteEntity(const Path &path)
 {
     std::unique_ptr<RequestDeleteEntity> req = std::make_unique<RequestDeleteEntity>();
-    req->set_checkout(m_checkoutName);
+    req->set_workspace(m_workspaceName);
     req->set_path(path);
     m_node->send(std::move(req));
 
@@ -319,12 +319,12 @@ mapit::StatusCode mapit::ZmqRequesterCheckout::deleteEntity(const Path &path)
     }
     else
     {
-        log_error("ZmqRequesterCheckout: Could not delete entity \"" + path + "\"");
+        log_error("ZmqRequesterWorkspace: Could not delete entity \"" + path + "\"");
         return MAPIT_STATUS_ERROR;
     }
 }
 
-std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterCheckout::getEntitydataForReadWrite(const mapit::Path &entity)
+std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterWorkspace::getEntitydataForReadWrite(const mapit::Path &entity)
 {
     std::shared_ptr<Entity> e = getEntity(entity);
     if(!e)
@@ -332,6 +332,6 @@ std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterCheckout::getEntit
         log_error("Entity could not be queried for entitydata: " + entity);
         return std::shared_ptr<mapit::AbstractEntitydata>(nullptr);
     }
-    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_checkoutName, entity, m_node));
+    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_workspaceName, entity, m_node));
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }

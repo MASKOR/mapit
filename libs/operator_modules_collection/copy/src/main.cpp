@@ -23,10 +23,10 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/depthfirstsearch.h>
 #include "json11.hpp"
 
@@ -36,7 +36,7 @@ mapit::StatusCode copyEntity(mapit::OperationEnvironment* env, std::string sourc
         return MAPIT_STATUS_ERROR;
     }
     // Note: Only the entity is copied, it's new data is empty (because transient path is used to identify entities data)
-    mapit::StatusCode s = env->getCheckout()->storeEntity(target, srcEnt);
+    mapit::StatusCode s = env->getWorkspace()->storeEntity(target, srcEnt);
 
     if(!mapitIsOk(s))
     {
@@ -45,8 +45,8 @@ mapit::StatusCode copyEntity(mapit::OperationEnvironment* env, std::string sourc
     }
     else
     {
-        std::shared_ptr<mapit::AbstractEntitydata> aedSource = env->getCheckout()->getEntitydataReadOnly(source);
-        std::shared_ptr<mapit::AbstractEntitydata> aedTarget = env->getCheckout()->getEntitydataForReadWrite(target);
+        std::shared_ptr<mapit::AbstractEntitydata> aedSource = env->getWorkspace()->getEntitydataReadOnly(source);
+        std::shared_ptr<mapit::AbstractEntitydata> aedTarget = env->getWorkspace()->getEntitydataForReadWrite(target);
         mapit::istream *is = aedSource->startReadBytes();
         mapit::ostream *os = aedTarget->startWriteBytes();
 
@@ -89,7 +89,7 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
         log_error("could not copy, target is not set");
     }
 
-    std::shared_ptr< mapit::msgs::Entity > srcEnt( env->getCheckout()->getEntity(source) );
+    std::shared_ptr< mapit::msgs::Entity > srcEnt( env->getWorkspace()->getEntity(source) );
     mapit::StatusCode s;
     if(srcEnt)
     {
@@ -97,12 +97,12 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
     }
     else
     {
-        std::shared_ptr< mapit::msgs::Tree > srcTree( env->getCheckout()->getTree(source) );
+        std::shared_ptr< mapit::msgs::Tree > srcTree( env->getWorkspace()->getTree(source) );
         if(srcTree)
         {
             ObjectReference nullRef;
             mapit::depthFirstSearchWorkspace(
-                        env->getCheckout(),
+                        env->getWorkspace(),
                         srcTree,
                         nullRef,
                         source,

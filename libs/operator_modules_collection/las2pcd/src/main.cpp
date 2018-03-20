@@ -27,9 +27,9 @@
 #include <mapit/layertypes/pointcloudlayer.h>
 #include <pcl/point_cloud.h>
 #include <pcl/conversions.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
@@ -88,7 +88,7 @@ mapit::StatusCode operate_pcd2las(mapit::OperationEnvironment* env)
 
     std::cout << "normalize: " << normalizeScale << std::endl;
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getWorkspace()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
@@ -170,12 +170,12 @@ mapit::StatusCode operate_pcd2las(mapit::OperationEnvironment* env)
     }
     std::shared_ptr<mapit::msgs::Entity> pclEntity(new mapit::msgs::Entity);
     pclEntity->set_type(PointcloudEntitydata::TYPENAME());
-    mapit::StatusCode s = env->getCheckout()->storeEntity(output, pclEntity);
+    mapit::StatusCode s = env->getWorkspace()->storeEntity(output, pclEntity);
     if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getWorkspace()->getEntitydataForReadWrite( output );
     std::shared_ptr<PointcloudEntitydata> entityDataPCLOutput = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydataOutput );
     if(entityDataPCLOutput == nullptr)
     {

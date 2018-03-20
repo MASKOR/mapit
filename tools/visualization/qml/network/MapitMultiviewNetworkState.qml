@@ -37,7 +37,7 @@ Item {
 
     property string repositoryUrl
     //property int repositoryPort
-    property string checkoutName
+    property string workspaceName
 
     property var hostState
 
@@ -212,7 +212,7 @@ Item {
             peerToPeerState[peerIdentIndex].additionalData = foundPeers[prsupd].additionalData
             peerToPeerState[peerIdentIndex].isHost = foundPeers[prsupd].isHost
             peerToPeerState[peerIdentIndex].repositoryPort = foundPeers[prsupd].repositoryPort
-            peerToPeerState[peerIdentIndex].checkoutName = foundPeers[prsupd].checkoutName
+            peerToPeerState[peerIdentIndex].workspaceName = foundPeers[prsupd].workspaceName
             //peerToPeerState[peerIdentIndex].realtimeObjects = foundPeers[prsupd].realtimeObjects //TODO: Add fromJson/toJSON Method to peerState/RealtimeObject/EntityVisualInfo
             //peerToPeerState[peerIdentIndex].visibleEntityInfos = foundPeers[prsupd].visibleEntityInfos
             peerToPeerState[peerIdentIndex].timestamp = foundPeers[prsupd].timestamp

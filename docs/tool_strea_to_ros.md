@@ -12,7 +12,7 @@ streams data from mapit (entities or layers) to ROS topics
 ```
 mapit stream_to_ros <workspace name>:
   -h [ --help ]                  print usage
-  -w [ --workspace ] arg         the workspace (formerly checkout) to work with
+  -w [ --workspace ] arg         the workspace to work with
   -s [ --use_sim_time ] arg (=0) whenever the clock should be published or not.
                                  When entities are shown, this param will be 
                                  ignored.

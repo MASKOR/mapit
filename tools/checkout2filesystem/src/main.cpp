@@ -42,13 +42,13 @@ int main(int argc, char *argv[])
 {
     mapit_init_logging();
 
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <checkout name> <destination>");
+    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name> <destination>");
     program_options_desc.add_options()
             ("help,h", "print usage")
-            ("checkout,co", po::value<std::string>()->required(), "")
+            ("workspace,w", po::value<std::string>()->required(), "")
             ("destination,d", po::value<std::string>()->required(), "");
     po::positional_options_description pos_options;
-    pos_options.add("checkout",  1)
+    pos_options.add("workspace",  1)
                .add("destination",  1);
 
     mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
@@ -63,28 +63,28 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
 
-    std::shared_ptr<mapit::Checkout> co = repo->getCheckout( vars["checkout"].as<std::string>() );
-    if(co == nullptr)
+    std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
+    if(workspace == nullptr)
     {
-        log_error("Checkout: " + vars["checkout"].as<std::string>() + "not found");
-        std::vector<std::string> possibleCheckouts = repo->listCheckoutNames();
-        if (possibleCheckouts.size() == 0) {
-            log_info("No possible checkout");
+        log_error("Workspace: " + vars["workspace"].as<std::string>() + "not found");
+        std::vector<std::string> possibleWorkspaces = repo->listWorkspaceNames();
+        if (possibleWorkspaces.size() == 0) {
+            log_info("No possible workspace");
         }
-        for ( std::string checkout : possibleCheckouts ) {
-            log_info("Possible checkout: " + checkout);
+        for ( std::string workspace : possibleWorkspaces ) {
+            log_info("Possible workspace: " + workspace);
         }
         return 1;
     }
 
-    std::shared_ptr<Tree> currentDirectory(co->getRoot());
+    std::shared_ptr<Tree> currentDirectory(workspace->getRoot());
     fs::path rootPath(vars["destination"].as<std::string>());
-    if ( rootPath.leaf() != vars["checkout"].as<std::string>() ) {
-        // otherwise, use subfolder with checkout name
-        rootPath /= fs::path( vars["checkout"].as<std::string>() );
+    if ( rootPath.leaf() != vars["workspace"].as<std::string>() ) {
+        // otherwise, use subfolder with workspace name
+        rootPath /= fs::path( vars["workspace"].as<std::string>() );
     }
 
-    mapit::StatusCode s = co->depthFirstSearch(
+    mapit::StatusCode s = workspace->depthFirstSearch(
         [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             fs::path current( rootPath );
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
             }
 
             // get the stream to write into a file
-            std::shared_ptr<mapit::AbstractEntitydata> reader = co->getEntitydataReadOnly(path);
+            std::shared_ptr<mapit::AbstractEntitydata> reader = workspace->getEntitydataReadOnly(path);
             mapit::istream *entityStream = reader->startReadBytes();
 
             // calculate the step size to write into the file

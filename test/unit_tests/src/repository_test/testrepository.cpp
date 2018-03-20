@@ -40,7 +40,7 @@
 
 //TODO: Why must this be redeclared here ( @sa repositorycommon.cpp)
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Workspace>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 using namespace mapit::msgs;
@@ -49,7 +49,7 @@ using namespace mapit;
 void TestRepository::init()
 {
     filename_ = "data/bunny.pcd";
-    checkoutPath_ = "/testmap/testlayer/secondentity";
+    workspacePath_ = "/testmap/testlayer/secondentity";
     startServer();
 }
 
@@ -68,23 +68,23 @@ void TestRepository::cleanupTestCase()
     cleanupTestdata();
 }
 
-void TestRepository::testCreateCheckout_data() { createTestdata(); }
-void TestRepository::testCreateCheckout()
+void TestRepository::testCreateWorkspace_data() { createTestdata(); }
+void TestRepository::testCreateWorkspace()
 {
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    std::shared_ptr<Checkout> co(repo->createCheckout("master", "testcheckout_created_new"));
-    QVERIFY(co != nullptr);
+    std::shared_ptr<Workspace> workspace(repo->createWorkspace("master", "testworkspace_created_new"));
+    QVERIFY(workspace != nullptr);
     OperationDescription operationCreateTree;
     operationCreateTree.mutable_operator_()->set_operatorname("load_pointcloud");
     QJsonObject params;
     params["filename"] = filename_.c_str();
-    QString entityPath(checkoutPath_.c_str());
+    QString entityPath(workspacePath_.c_str());
     params["target"] = entityPath;
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operationCreateTree.set_params( paramsDoc.toJson().toStdString() );
-    co->doOperation(operationCreateTree);
-    std::shared_ptr<Tree> tr = co->getTree( entityPath.mid(0, entityPath.lastIndexOf('/')).toStdString() );
+    workspace->doOperation(operationCreateTree);
+    std::shared_ptr<Tree> tr = workspace->getTree( entityPath.mid(0, entityPath.lastIndexOf('/')).toStdString() );
     QVERIFY(tr != nullptr);
     QVERIFY(tr->refs_size() != 0);
     if(tr && tr->refs_size() != 0)
@@ -99,48 +99,48 @@ void TestRepository::testCreateCheckout()
         }
         QVERIFY2(childFound, "Created entity was not child of parent tree");
     }
-    std::shared_ptr<Entity> ent = co->getEntity( entityPath.toStdString() );
+    std::shared_ptr<Entity> ent = workspace->getEntity( entityPath.toStdString() );
     QVERIFY(ent != NULL);
     if(ent)
         QVERIFY(ent->type().compare(PointcloudEntitydata::TYPENAME()) == 0);
 }
 
-void TestRepository::testGetCheckout_data() { createTestdata(); }
-void TestRepository::testGetCheckout()
+void TestRepository::testGetWorkspace_data() { createTestdata(); }
+void TestRepository::testGetWorkspace()
 {
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
-    QVERIFY(co != nullptr);
+    std::shared_ptr<Workspace> workspace(repo->getWorkspace("testworkspace"));
+    QVERIFY(workspace != nullptr);
 
     OperationDescription operation;
     operation.mutable_operator_()->set_operatorname("load_pointcloud");
     QJsonObject params;
     params["filename"] = filename_.c_str();
-    params["target"] = checkoutPath_.c_str();
+    params["target"] = workspacePath_.c_str();
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operation.set_params( paramsDoc.toJson().toStdString() );
-    if(co)
+    if(workspace)
     {
-        co->doOperation(operation);
+        workspace->doOperation(operation);
     }
 }
 
-void TestRepository::testReadCheckout_data() { createTestdata(); }
-void TestRepository::testReadCheckout()
+void TestRepository::testReadWorkspace_data() { createTestdata(); }
+void TestRepository::testReadWorkspace()
 {
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    QVERIFY2( repo->listCheckoutNames().size() > 0, "Can't find checkouts in repo");
+    QVERIFY2( repo->listWorkspaceNames().size() > 0, "Can't find workspaces in repo");
 
-    std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
-    QVERIFY(co != nullptr);
+    std::shared_ptr<Workspace> workspace(repo->getWorkspace("testworkspace"));
+    QVERIFY(workspace != nullptr);
 
-    mapit::Path path = checkoutPath_;
-    std::shared_ptr<Entity> entity = co->getEntity(path);
+    mapit::Path path = workspacePath_;
+    std::shared_ptr<Entity> entity = workspace->getEntity(path);
 
     QVERIFY(entity != nullptr);
 
-    std::shared_ptr<mapit::AbstractEntitydata> entityDataAbstract = co->getEntitydataReadOnly(path);
+    std::shared_ptr<mapit::AbstractEntitydata> entityDataAbstract = workspace->getEntitydataReadOnly(path);
     QVERIFY(strcmp(entityDataAbstract->type(), PointcloudEntitydata::TYPENAME()) == 0);
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>(entityDataAbstract);
     QVERIFY(entityData != nullptr);
@@ -177,26 +177,26 @@ void TestRepository::testCommit()
 {
     return; // skip for now due to network test
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
-    QVERIFY(co != nullptr);
-    repo->commit( co, "This is the commit message of a TestCommit", "Test Author", "Test Email");
+    std::shared_ptr<Workspace> workspace(repo->getWorkspace("testworkspace"));
+    QVERIFY(workspace != nullptr);
+    repo->commit( workspace, "This is the commit message of a TestCommit", "Test Author", "Test Email");
 }
 
 void TestRepository::testVoxelgridfilter_data() { createTestdata(); }
 void TestRepository::testVoxelgridfilter()
 {
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    std::shared_ptr<Checkout> co(repo->getCheckout("testcheckout"));
-    QVERIFY(co != nullptr);
+    std::shared_ptr<Workspace> workspace(repo->getWorkspace("testworkspace"));
+    QVERIFY(workspace != nullptr);
     OperationDescription operation;
     operation.mutable_operator_()->set_operatorname("voxelgridfilter");
     QJsonObject params;
     params["leafsize"] = 0.01;
-    params["target"] = checkoutPath_.c_str();
+    params["target"] = workspacePath_.c_str();
     QJsonDocument paramsDoc;
     paramsDoc.setObject( params );
     operation.set_params( paramsDoc.toJson().toStdString() );
-    co->doOperation(operation);
+    workspace->doOperation(operation);
     //Skip due to networking tests: repo->commit( co, "Two different pointclouds inside");
 }
 

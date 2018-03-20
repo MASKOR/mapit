@@ -35,15 +35,6 @@
 #include <sstream>
 #include <mapit/errorcodes.h>
 
-#define LDBSER_DELIM "!"
-#define KEY_PREFIX_CHECKOUT "co"
-#define KEY_PREFIX_COMMIT "obj!cm"
-#define KEY_PREFIX_TREE "obj!tr"
-#define KEY_PREFIX_ENTITY "obj!ent"
-#define KEY_PREFIX_DATA "blob!ed"
-#define KEY_PREFIX_TAG "obj!tag"
-#define KEY_PREFIX_BRANCH "ref!branch"
-
 namespace mapit
 {
 const fs::path FSSerializer::_PREFIX_MAPIT_       = "/.mapit";
@@ -53,10 +44,10 @@ const fs::path FSSerializer::_PREFIX_ENTITY_DATA_ = "/entities_data/";
 const fs::path FSSerializer::_PREFIX_BRANCHES_    = "/branches/";
 const fs::path FSSerializer::_PREFIX_COMMIT_      = "/commits/";
 
-const fs::path FSSerializer::_PREFIX_CHECKOUTS_       = "checkouts";
-const fs::path FSSerializer::_CHECKOUT_GENERIC_ENTRY_ = ".generic_entry";
-const fs::path FSSerializer::_CHECKOUT_ENTITY_DATA_   = "entity_data";
-const fs::path FSSerializer::_CHECKOUT_ROOT_FOLDER_   = "root";
+const fs::path FSSerializer::_PREFIX_WORKSPACES_       = "workspaces";
+const fs::path FSSerializer::_WORKSPACE_GENERIC_ENTRY_ = ".generic_entry";
+const fs::path FSSerializer::_workspace_ENTITY_DATA_   = "entity_data";
+const fs::path FSSerializer::_workspace_ROOT_FOLDER_   = "root";
 
 FSSerializer::FSSerializer(std::string directory)
 {
@@ -117,18 +108,18 @@ FSSerializer::path_to_commit_fs_path(const Path& path, const fs::path& prefix)
 }
 
 fs::path
-FSSerializer::objectid_to_checkout_fs_path(ObjectId oid)
+FSSerializer::objectid_to_workspace_fs_path(ObjectId oid)
 {
-    fs::path path = repo_ / _PREFIX_CHECKOUTS_;
+    fs::path path = repo_ / _PREFIX_WORKSPACES_;
 
     size_t seperator_pose = oid.find("/");
     if (seperator_pose != std::string::npos) {
-        path /= fs::path(oid.substr(0, seperator_pose));                    // first part is the name of the checkout
-        path /= _CHECKOUT_ROOT_FOLDER_;
-        path /= oid.substr(seperator_pose, oid.size() - seperator_pose);    // second part is the id of the file within the checkout which is used as a path in the filesystem
+        path /= fs::path(oid.substr(0, seperator_pose));                    // first part is the name of the workspace name
+        path /= _workspace_ROOT_FOLDER_;
+        path /= oid.substr(seperator_pose, oid.size() - seperator_pose);    // second part is the id of the file within the workspace which is used as a path in the filesystem
     } else {
         path /= fs::path(oid);
-//        log_warn("Can't find \"/\" in ObjectId of object in checkout, don't extended path as <checkoutname>/" + _CHECKOUT_ROOT_FOLDER_.string() + "/<checkoutid>\n the path is: " + path.string());
+//        log_warn("Can't find \"/\" in ObjectId of object in workspace, don't extended path as <workspaceName>/" + _workspace_ROOT_FOLDER_.string() + "/<checkoutid>\n the path is: " + path.string());
     }
 
     return path.remove_trailing_separator();
@@ -224,7 +215,7 @@ FSSerializer::getTree(const ObjectId &oid)
 std::shared_ptr<Tree>
 FSSerializer::getTreeTransient(const PathInternal &transientId)
 {
-    fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_workspace_fs_path( transientId ) / _WORKSPACE_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path ) ) {
         return std::shared_ptr<Tree>(NULL);
@@ -265,10 +256,10 @@ FSSerializer::storeTree(std::shared_ptr<Tree> obj)
 std::pair<StatusCode, ObjectId>
 FSSerializer::storeTreeTransient(std::shared_ptr<Tree> obj, const PathInternal &transientId)
 {
-    fs::path path = objectid_to_checkout_fs_path( transientId );
+    fs::path path = objectid_to_workspace_fs_path( transientId );
     fs_check_create( path );
 
-    path /= _CHECKOUT_GENERIC_ENTRY_;
+    path /= _WORKSPACE_GENERIC_ENTRY_;
 
     std::shared_ptr<GenericEntry> ge(new GenericEntry);
     *(ge->mutable_tree()) = *obj;
@@ -280,7 +271,7 @@ FSSerializer::storeTreeTransient(std::shared_ptr<Tree> obj, const PathInternal &
 StatusCode
 FSSerializer::removeTreeTransient(const PathInternal &transientId)
 {
-    fs::path path = objectid_to_checkout_fs_path( transientId ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_workspace_fs_path( transientId ) / _WORKSPACE_GENERIC_ENTRY_;
     fs_delete( path );
 
     return MAPIT_STATUS_OK;
@@ -315,7 +306,7 @@ FSSerializer::getEntityTransient(const PathInternal oid)
 {
     Path pathWithoutSlash = oid.substr(0, oid.length()- (oid[oid.length()-1] == '/')); //TODO is that realy needed ???
 
-    fs::path path = objectid_to_checkout_fs_path(pathWithoutSlash) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_workspace_fs_path(pathWithoutSlash) / _WORKSPACE_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path ) ) {
         return std::shared_ptr<Entity>(NULL);
@@ -356,10 +347,10 @@ FSSerializer::storeEntity(std::shared_ptr<Entity> obj)
 std::pair<StatusCode, ObjectId>
 FSSerializer::storeEntityTransient(std::shared_ptr<Entity> obj, const PathInternal &transientId)
 {
-    fs::path path = objectid_to_checkout_fs_path( transientId );
+    fs::path path = objectid_to_workspace_fs_path( transientId );
     fs_check_create( path );
 
-    path /= _CHECKOUT_GENERIC_ENTRY_;
+    path /= _WORKSPACE_GENERIC_ENTRY_;
 
     std::shared_ptr<GenericEntry> ge(new GenericEntry);
     *(ge->mutable_entity()) = *obj;
@@ -372,9 +363,9 @@ StatusCode
 FSSerializer::removeEntityTransient(const PathInternal &transientId)
 {
     // delete entity and entitydata
-    fs::path path_entity = objectid_to_checkout_fs_path( transientId );
-    fs_delete( path_entity / _CHECKOUT_GENERIC_ENTRY_ );
-    fs_delete( path_entity / _CHECKOUT_ENTITY_DATA_ );
+    fs::path path_entity = objectid_to_workspace_fs_path( transientId );
+    fs_delete( path_entity / _WORKSPACE_GENERIC_ENTRY_ );
+    fs_delete( path_entity / _workspace_ENTITY_DATA_ );
 
     return MAPIT_STATUS_OK;
 }
@@ -428,16 +419,16 @@ FSSerializer::removeCommit(const ObjectId &oid)
 }
 
 std::vector<std::string>
-FSSerializer::listCheckoutNames()
+FSSerializer::listWorkspaceNames()
 {
-    fs::path checkouts = repo_ / _PREFIX_CHECKOUTS_;
+    fs::path workspaces = repo_ / _PREFIX_WORKSPACES_;
     std::vector<std::string> ret;
-    if ( ! fs::exists(checkouts) ) {
+    if ( ! fs::exists(workspaces) ) {
         return ret;
     }
 
     fs::directory_iterator end_it;
-    fs::directory_iterator it(checkouts);
+    fs::directory_iterator it(workspaces);
     for (; it != end_it; ++it) {
         if ( fs::is_directory( it->status() ) ) {
             ret.push_back( it->path().filename().string() );
@@ -447,72 +438,72 @@ FSSerializer::listCheckoutNames()
     return ret;
 }
 
-std::vector< std::shared_ptr<CheckoutObj> >
-FSSerializer::listCheckouts()
+std::vector< std::shared_ptr<WorkspaceObj> >
+FSSerializer::listWorkspaces()
 {
     //TODO
-    std::vector<std::shared_ptr<CheckoutObj> > ret;
+    std::vector<std::shared_ptr<WorkspaceObj> > ret;
     return ret;
 }
 
-std::shared_ptr<CheckoutObj>
-FSSerializer::getCheckoutCommit(const std::string &name)
+std::shared_ptr<WorkspaceObj>
+FSSerializer::getworkspaceCommit(const std::string &name)
 {
-    fs::path path = objectid_to_checkout_fs_path(name) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_workspace_fs_path(name) / _WORKSPACE_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path ) ) {
-        return std::shared_ptr<CheckoutObj>(NULL);
+        return std::shared_ptr<WorkspaceObj>(NULL);
     }
 
     std::shared_ptr<GenericEntry> ge(new GenericEntry);
     fs_read(path, ge);
 
-    if ( ge->type() != MessageCheckout ) {
-//        log_error("Checkout at: " + path.string() + " has variable type not set correctly");
+    if ( ge->type() != MessageWorkspace ) {
+//        log_error("Workspace at: " + path.string() + " has variable type not set correctly");
         return nullptr;
     }
-    if ( ! ge->has_checkout() ) {
-        log_fatal("Checkout at: " + path.string() + " is no checkout");
-        return std::shared_ptr<CheckoutObj>(NULL);
+    if ( ! ge->has_workspace() ) {
+        log_fatal("Workspace at: " + path.string() + " is no workspace");
+        return std::shared_ptr<WorkspaceObj>(NULL);
     }
 
-    return std::shared_ptr<CheckoutObj>(new CheckoutObj( ge->checkout() ));
+    return std::shared_ptr<WorkspaceObj>(new WorkspaceObj( ge->workspace() ));
 }
 
 StatusCode
-FSSerializer::storeCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name)
+FSSerializer::storeWorkspaceCommit(std::shared_ptr<WorkspaceObj> obj, const std::string &name)
 {
-    fs::path path = objectid_to_checkout_fs_path( name );
+    fs::path path = objectid_to_workspace_fs_path( name );
     fs_check_create(path);
 
-    path /= _CHECKOUT_GENERIC_ENTRY_;
+    path /= _WORKSPACE_GENERIC_ENTRY_;
 
     std::shared_ptr<GenericEntry> ge(new GenericEntry);
-    *(ge->mutable_checkout()) = *obj;
-    fs_write( path, ge, MessageCheckout, true);
+    *(ge->mutable_workspace()) = *obj;
+    fs_write( path, ge, MessageWorkspace, true);
 
     return MAPIT_STATUS_OK;
 }
 
 StatusCode
-FSSerializer::createCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name)
+FSSerializer::createworkspaceCommit(std::shared_ptr<WorkspaceObj> obj, const std::string &name)
 {
-    fs::path path = objectid_to_checkout_fs_path(name);
+    fs::path path = objectid_to_workspace_fs_path(name);
     fs_check_create( path );
 
-    path /= _CHECKOUT_GENERIC_ENTRY_;
+    path /= _WORKSPACE_GENERIC_ENTRY_;
 
     std::shared_ptr<GenericEntry> ge(new GenericEntry);
-    *(ge->mutable_checkout()) = *obj;
-    fs_write( path, ge, MessageCheckout);
+    *(ge->mutable_workspace()) = *obj;
+    fs_write( path, ge, MessageWorkspace);
 
     return MAPIT_STATUS_OK;
 }
 
 StatusCode
-FSSerializer::removeCheckout(const ObjectId &oid)
+FSSerializer::removeWorkspace(const ObjectId &oid)
 {
-    fs::path path = objectid_to_checkout_fs_path( oid ) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_workspace_fs_path( oid ) / _WORKSPACE_GENERIC_ENTRY_;
     fs_delete( path );
 
     return MAPIT_STATUS_OK;
@@ -623,7 +614,7 @@ FSSerializer::existsStreamProvider(const ObjectId &entityId)
 bool
 FSSerializer::existsStreamProviderTransient(const Path &path)
 {
-    fs::path filePath = objectid_to_checkout_fs_path(path) / _CHECKOUT_ENTITY_DATA_;
+    fs::path filePath = objectid_to_workspace_fs_path(path) / _workspace_ENTITY_DATA_;
     return fs::exists(filePath);
 }
 
@@ -640,7 +631,7 @@ std::shared_ptr<AbstractEntitydataProvider>
 FSSerializer::getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite)
 {
     //TODO: Get entity data by path. Might be a file at path "_PREFIX_CHECKOUT" / "path"?
-    fs::path path = objectid_to_checkout_fs_path(oid) / _CHECKOUT_ENTITY_DATA_;
+    fs::path path = objectid_to_workspace_fs_path(oid) / _workspace_ENTITY_DATA_;
     std::string fn( path.string() );
     return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(canRead?fn:"", canWrite?fn:""));
 }
@@ -689,7 +680,7 @@ FSSerializer::typeOfObject(const ObjectId &oid)
 MessageType
 FSSerializer::typeOfObjectTransient(const PathInternal &pathIntenal)
 {
-    fs::path path = objectid_to_checkout_fs_path(pathIntenal) / _CHECKOUT_GENERIC_ENTRY_;
+    fs::path path = objectid_to_workspace_fs_path(pathIntenal) / _WORKSPACE_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path) ) {
         log_warn("Can't open file to detect type of object " + path.string());
@@ -717,7 +708,7 @@ FSSerializer::persistTransientEntitydata(const PathInternal &pathInternal)
     }
 
     // get EntityData path
-    fs::path transientPath = objectid_to_checkout_fs_path(pathInternal) / _CHECKOUT_ENTITY_DATA_;
+    fs::path transientPath = objectid_to_workspace_fs_path(pathInternal) / _workspace_ENTITY_DATA_;
 
     // calculate chunk size
     size_t entitySize = fs::file_size(transientPath);

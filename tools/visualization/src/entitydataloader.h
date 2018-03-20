@@ -29,16 +29,16 @@
 #include <memory>
 
 namespace mapit {
-    class Checkout;
+    class Workspace;
 }
 class EntitydataLoader : public QThread
 {
     Q_OBJECT
     void run();
 public:
-    //EntitydataLoader(QObject * parent, QString repository, QString checkoutname, QString path );
+    //EntitydataLoader(QObject * parent, QString repository, QString workspaceName, QString path );
     // This constructor requires mapit::CHeckout to be thread-safe
-    EntitydataLoader(QObject * parent, std::shared_ptr<mapit::Checkout> co, QString path );
+    EntitydataLoader(QObject * parent, std::shared_ptr<mapit::Workspace> workspace, QString path );
     ~EntitydataLoader();
 
 Q_SIGNALS:
@@ -46,9 +46,9 @@ Q_SIGNALS:
 
 private:
     QString m_repository;
-    QString m_checkoutname;
+    QString m_workspacename;
     QString m_path;
-    std::shared_ptr<mapit::Checkout> m_checkout;
+    std::shared_ptr<mapit::Workspace> m_workspace;
 };
 
 #endif

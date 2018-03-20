@@ -21,26 +21,26 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QMLCHECKOUT
-#define QMLCHECKOUT
+#ifndef QmlWorkspace_H
+#define QmlWorkspace_H
 
 #include <QtCore>
 
 #include "qmltree.h"
 #include "qmlentity.h"
 #include "qmlcommit.h"
-#include "qmlcheckout.h"
+#include "qmlworkspace.h"
 #include "qmlbranch.h"
 #include "qmlentitydata.h"
 #include "qmlrepository.h"
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/msgs/services.pb.h>
 #include <QtCore/QJsonObject>
 
 class QmlRepository;
 class OperationExecutor;
 
-class QmlCheckout : public QObject
+class QmlWorkspace : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isInConflictMode READ isInConflictMode NOTIFY isInConflictModeChanged)
@@ -50,9 +50,9 @@ class QmlCheckout : public QObject
     Q_PROPERTY(bool isBusyExecuting READ isBusyExecuting NOTIFY isBusyExecutingChanged)
     Q_PROPERTY(int lastOperationStatus READ lastOperationStatus NOTIFY lastOperationStatusChanged)
 public:
-    QmlCheckout();
-    QmlCheckout( std::shared_ptr<mapit::Checkout> &co, QmlRepository* repo = NULL, QString name = "" );
-    ~QmlCheckout();
+    QmlWorkspace();
+    QmlWorkspace(std::shared_ptr<mapit::Workspace> &workspace, QmlRepository* repo = NULL, QString name = "" );
+    ~QmlWorkspace();
 
     Q_INVOKABLE QString doOperation(QString operatorname, const QJsonObject &desc);
     //std::vector< std::shared_ptr<Conflict> > getPendingConflicts() = 0;
@@ -67,13 +67,13 @@ public:
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnly(QString path);
     Q_INVOKABLE QmlEntitydata* getEntitydataReadOnlyConflict(QString entityId);
     Q_INVOKABLE bool isInConflictMode() const;
-    std::shared_ptr<mapit::Checkout> getCheckoutObj();
+    std::shared_ptr<mapit::Workspace> getWorkspaceObj();
     QmlRepository* repository() const;
     QString name() const;
     QStringList entities() const;
 
     //TODO: Put this to a another class. This introduces dependency
-    //      to tfs from checkout (core->entitytype).
+    //      to tfs from workspace (core->entitytype).
 
     Q_INVOKABLE QStringList getFrameIds();
     bool isBusyExecuting() const;
@@ -88,14 +88,14 @@ Q_SIGNALS:
     void isInConflictModeChanged(bool isInConflictMode);
     void repositoryChanged(QmlRepository* repository);
     void nameChanged(QString name);
-    void internalCheckoutChanged(QmlCheckout *co);
+    void internalWorkspaceChanged(QmlWorkspace *co);
     void entitiesChanged(QStringList entities);
     void isBusyExecutingChanged(bool isBusyExecuting);
 
     void lastOperationStatusChanged(int lastOperationStatus);
 
 protected:
-    std::shared_ptr<mapit::Checkout> m_checkout;
+    std::shared_ptr<mapit::Workspace> m_workspace;
 private:
 
     QmlRepository* m_repository;

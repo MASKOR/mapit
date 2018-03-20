@@ -53,19 +53,19 @@ namespace mapit
     static const fs::path _PREFIX_TREE_;
     static const fs::path _PREFIX_ENTITY_;
     static const fs::path _PREFIX_ENTITY_DATA_;
-    static const fs::path _PREFIX_CHECKOUTS_;
+    static const fs::path _PREFIX_WORKSPACES_;
     static const fs::path _PREFIX_BRANCHES_;
     static const fs::path _PREFIX_COMMIT_;
 
-//    static const fs::path _FILE_CHECKOUT_;
-    static const fs::path _PREFIX_CHECKOUT_;
-    static const fs::path _CHECKOUT_GENERIC_ENTRY_;
-    static const fs::path _CHECKOUT_ENTITY_DATA_;
-    static const fs::path _CHECKOUT_ROOT_FOLDER_;
+//    static const fs::path _FILE_workspace_;
+    static const fs::path _PREFIX_workspace_;
+    static const fs::path _WORKSPACE_GENERIC_ENTRY_;
+    static const fs::path _workspace_ENTITY_DATA_;
+    static const fs::path _workspace_ROOT_FOLDER_;
   private:
     fs::path repo_;
   private:
-    fs::path objectid_to_checkout_fs_path(ObjectId oid);
+    fs::path objectid_to_workspace_fs_path(ObjectId oid);
     fs::path path_to_commit_fs_path(const Path& path, const fs::path& prefix);
     void fs_check_create(fs::path path);
     void fs_write(fs::path path, std::shared_ptr<GenericEntry> ge, MessageType msgType, bool overwrite = false);
@@ -98,12 +98,12 @@ namespace mapit
     virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<Commit> obj);
     virtual StatusCode removeCommit(const ObjectId &oid);
 
-    virtual std::vector< std::string > listCheckoutNames();
-    virtual std::vector< std::shared_ptr<CheckoutObj> > listCheckouts();
-    virtual std::shared_ptr<CheckoutObj> getCheckoutCommit(const std::string &name);
-    virtual StatusCode storeCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name);
-    virtual StatusCode createCheckoutCommit(std::shared_ptr<CheckoutObj> obj, const std::string &name);
-    virtual StatusCode removeCheckout(const std::string &name);
+    virtual std::vector< std::string > listWorkspaceNames();
+    virtual std::vector< std::shared_ptr<WorkspaceObj> > listWorkspaces();
+    virtual std::shared_ptr<WorkspaceObj> getworkspaceCommit(const std::string &name);
+    virtual StatusCode storeWorkspaceCommit(std::shared_ptr<WorkspaceObj> obj, const std::string &name);
+    virtual StatusCode createworkspaceCommit(std::shared_ptr<WorkspaceObj> obj, const std::string &name);
+    virtual StatusCode removeWorkspace(const std::string &name);
 
     virtual std::vector< std::shared_ptr<Branch> > listBranches();
     virtual std::shared_ptr<Branch> getBranch(const std::string &name);

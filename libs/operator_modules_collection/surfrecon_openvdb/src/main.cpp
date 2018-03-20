@@ -34,12 +34,12 @@
 #include <openvdb/Grid.h>
 #include <openvdb/tools/ParticlesToLevelSet.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -131,7 +131,7 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
         return MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getWorkspace()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
@@ -146,12 +146,12 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
     mapit::entitytypes::Pointcloud2Ptr inputPcd = entityDataInput->getData();
 
     FloatGridPtr outputFloatGrid;
-    std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
+    std::shared_ptr<Entity> ent = env->getWorkspace()->getEntity(output);
     if(ent && false)
     {
         //TODO: at the moment always a new grid should be created
         log_info("Output grid already exists. ignoring voxelsize.");
-        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataReadOnly( output );
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getWorkspace()->getEntitydataReadOnly( output );
         if(!abstractEntitydataOutput)
         {
             log_error("could not read output grid");
@@ -169,7 +169,7 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
     {
         ent = std::shared_ptr<Entity>(new Entity);
         ent->set_type(FloatGridEntitydata::TYPENAME());
-        mapit::StatusCode s = env->getCheckout()->storeEntity(output, ent);
+        mapit::StatusCode s = env->getWorkspace()->storeEntity(output, ent);
         if(!mapitIsOk(s))
         {
             log_error("Failed to create entity.");
@@ -188,7 +188,7 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
     log_info("Voxelize " + std::to_string(spheres.size()) + " Points as Spheres.");
     particlesToLevelset.rasterizeSpheres( spheres, spheresize );
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getWorkspace()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output grid");

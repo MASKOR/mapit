@@ -40,7 +40,7 @@ Item {
                          state.realtimeObjects.clear()
                          //state.visibleEntityInfos.clear()
                          state.repositoryUrl = ""
-                         state.checkoutName = ""
+                         state.workspaceName = ""
                      }
 
     function sendOwnState(ownState) {
@@ -136,7 +136,7 @@ Item {
                            , timestamp: Date.now()
                            , isHost: ownState.isHost
                            , repositoryPort: ownState.repositoryPort
-                           , checkoutName: ownState.checkoutName }
+                           , workspaceName: ownState.workspaceName }
 
         var message = { messagetype: "state", message: ownStateJson }
         socket.sendTextMessage(JSON.stringify(message))
@@ -191,7 +191,7 @@ Item {
             case "world":
 
                 state.repositoryUrl = msgData.repositoryUrl
-                state.checkoutName = msgData.checkoutName
+                state.workspaceName = msgData.workspaceName
                 state.worldUpdated(msgData.world)
                 break
             default:

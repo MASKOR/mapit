@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHECKOUTIMPL_H
-#define CHECKOUTIMPL_H
+#ifndef WORKSPACEIMPL_H
+#define WORKSPACEIMPL_H
 
 #include <mapit/typedefs.h>
 #include <mapit/logging.h>
@@ -30,8 +30,8 @@
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include "serialization/abstractserializer.h"
 #include <mapit/entitydata.h>
-#include <mapit/versioning/checkout.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/versioning/workspace.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include "util.h"
 #include <functional>
 
@@ -40,36 +40,36 @@ using namespace mapit::msgs;
 namespace mapit
 {
 
-// PathInternal contains the checkout name at the beginning
+// PathInternal contains the workspace name at the beginning
 // The corresponing types should be used. However there is no "typechecking" here.
 typedef Path PathInternal;
 /**
- * @brief The CheckoutImpl class
+ * @brief The WorkspaceImpl class
  * Why?
  *
- * Checkout vs. CheckoutRaw
- * The Class "Checkout" is meant to be used by user/application. The Class "CheckoutRaw" is meant to be used by operators.
- * CheckoutRaw can edit objects and can not execute other operators (thus, recursive execution of operators is forbidden, it could break metadata).
- * Checkout can not edit objects, as the application can only do changes by executing operations!
+ * Workspace vs. operators::WorkspaceWritable
+ * The Class "Workspace" is meant to be used by user/application. The Class "WorkspaceWritable" is meant to be used by operators.
+ * WorkspaceWritable can edit objects and can not execute other operators (thus, recursive execution of operators is forbidden, it could break metadata).
+ * Workspace can not edit objects, as the application can only do changes by executing operations!
  *
- * CheckoutCommon:
- * Both classes have similarities (e.g. all the read operations). These similarities are not repeated in both interfaces, but in "CheckoutCommon".
+ * WorkspaceCommon:
+ * Both classes have similarities (e.g. all the read operations). These similarities are not repeated in both interfaces, but in "WorkspaceCommon".
  *
- * CheckoutImpl:
- * When a Checkout is generated and given to an operator, the objects should not be copied. Thus, both of the classes ("Checkout" and "CheckoutRaw")
- * need to be one object with both implementations. The Implementation is in "CheckoutImpl". Instances of "CheckoutImpl" can be seen as "Chechout" for
- * the user/application and as "CheckoutRaw" fom an operator.
+ * WorkspaceImpl:
+ * When a Workspace is generated and given to an operator, the objects should not be copied. Thus, both of the classes ("Workspace" and "WorkspaceWritable")
+ * need to be one object with both implementations. The implementation is in "WorkspaceImpl". Instances of "WorkspaceImpl" can be seen as "Workspace" for
+ * the user/application and as "WorkspaceWritable" from an operator.
  *
  */
-class CheckoutImpl : public Checkout, public CheckoutRaw /*, CheckoutCommon*/
+class WorkspaceImpl : public Workspace, public operators::WorkspaceWritable /*, WorkspaceCommon*/
 {
 public:
     /**
-     * @brief Checkout Checkouts represent an editable state of a group of maps.
+     * @brief Workspace represents an editable state of a group of entities.
      * @param serializer
      * @param commitOrCheckoutId
      */
-    CheckoutImpl(std::shared_ptr<AbstractSerializer> serializer, std::shared_ptr<CheckoutObj> checkoutCommit, std::string name, const std::string branchname = "");
+    WorkspaceImpl(std::shared_ptr<AbstractSerializer> serializer, std::shared_ptr<WorkspaceObj> workspaceCommit, std::string name, const std::string branchname = "");
 
     virtual bool isInConflictMode();
     virtual std::vector< std::shared_ptr<Conflict> > getPendingConflicts();
@@ -109,7 +109,7 @@ public:
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity);
-    std::shared_ptr<CheckoutObj> getCheckoutObj();
+    std::shared_ptr<WorkspaceObj> getWorkspaceObj();
     const std::string& getName() const;
     const std::string& getBranchName() const;
 private:
@@ -127,7 +127,7 @@ private:
 
     /**
      * @brief oidForPath Used to convert path to oids.
-     * @param path beginning with root dir of checkout. Checkout must not be part of path. Can have leading or trailing slashes.
+     * @param path beginning with root dir of workspace. Workspacenames must not be part of path. Can have leading or trailing slashes.
      * @return Oid or empty oid
      */
     ObjectReference objectReferenceForPath(const Path &path);
@@ -137,8 +137,8 @@ private:
     Path preparePathFilename(const Path &path);
 
     /**
-     * @brief createPath If checkout wants to write to a path, it must be created. The leaf can be a tree or entity. This is not a trivial function, but should be easy to use from the outside.
-     * @param path path to create in the checkout.
+     * @brief createPath If workspace wants to write to a path, it must be created. The leaf can be a tree or entity. This is not a trivial function, but should be easy to use from the outside.
+     * @param path to create in the workspace.
      * @param createLeaf null, if the leaf exists as non-exclusive tree/entity. Can also be a new entity. Can also be a tree (e.g. copy/move operation).
      */
     template <typename T>
@@ -183,13 +183,13 @@ private:
 
     std::shared_ptr<AbstractSerializer> m_serializer;
 
-    // Branch, the checkout is based on, if any
+    // Branch, the workspace is based on, if any
     std::string m_branchname;
 
-    // Name of the checkout
+    // Name of the workspace
     std::string m_name;
 
-    std::shared_ptr<CheckoutObj> m_checkout;
+    std::shared_ptr<WorkspaceObj> m_workspace;
 
     std::vector<ObjectId> m_transientOids;
     ObjectId m_nextTransientOid;
@@ -197,13 +197,13 @@ private:
 
 //TODO: This method could be implemented shorter with less branching and duplication in code.
 // This method ensures that the path consist of transient objects.
-// This is needed when objects are changed in a checkout/workspace, because history must not be changed.
+// This is needed when objects are changed in a workspace, because history must not be changed.
 // Method walks through path and detects the first branch into history. It then copies all objects from
 // history or creates new objects.
 // If "createLeafe" is set, the last element of the path will be hooked correctly into the
 // (maybe newly created) parent.
 template <typename T>
-StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf, bool deleteLeaf)
+StatusCode WorkspaceImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf, bool deleteLeaf)
 {
     Path p = preparePath(path);
 
@@ -214,22 +214,22 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     std::shared_ptr<Tree> current;
 
     // check if root tree exists
-    bool rootMissing = !m_checkout->rollingcommit().has_root() || m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty();
+    bool rootMissing = !m_workspace->rollingcommit().has_root() || m_workspace->rollingcommit().root().id().empty() && m_workspace->rollingcommit().root().path().empty();
 
     // check if root is transient/exclusive
     // if root is not transient and must be copied to edit.
-    bool rootNotTransient = (!rootMissing) && (!m_checkout->rollingcommit().root().id().empty() && m_checkout->rollingcommit().root().path().empty());
-    //bool rootNotExclusive = m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root()) == 0;
-    assert(rootMissing || (rootNotTransient == (m_checkout->transientoidstoorigin().count(m_checkout->rollingcommit().root().path()) == 0)));
-    // if there is no root directory, checkout must be empty and have nothing transient
-    assert(!rootMissing || rootMissing && m_checkout->transientoidstoorigin_size() == 0);
+    bool rootNotTransient = (!rootMissing) && (!m_workspace->rollingcommit().root().id().empty() && m_workspace->rollingcommit().root().path().empty());
+    //bool rootNotExclusive = m_workspace->transientoidstoorigin().count(m_workspace->rollingcommit().root()) == 0;
+    assert(rootMissing || (rootNotTransient == (m_workspace->transientoidstoorigin().count(m_workspace->rollingcommit().root().path()) == 0)));
+    // if there is no root directory, workspace must be empty and have nothing transient
+    assert(!rootMissing || rootMissing && m_workspace->transientoidstoorigin_size() == 0);
 
     // step 1) make root exclusive or create new root and hook it into rolling commit.
     // This can not be done in step 2), because the parent is not a tree.
 
     if(rootMissing || rootNotTransient)
     {
-        // create/copy root for checkout
+        // create/copy root for workspace
 
         // ObjectIdentifier/Hash of original object.
         // Commit stores the origin-version of each altered object in transientoidstoorigin (empty if newly created).
@@ -244,18 +244,18 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         else
         {
             // copy to make transient
-            originOid = m_checkout->rollingcommit().root().id();
+            originOid = m_workspace->rollingcommit().root().id();
             current = m_serializer->getTree(originOid);
         }
-        m_checkout->mutable_rollingcommit()->mutable_root()->set_path(m_name + "/");
-        m_checkout->mutable_transientoidstoorigin()
-                ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(m_checkout->rollingcommit().root().path(), originOid));
+        m_workspace->mutable_rollingcommit()->mutable_root()->set_path(m_name + "/");
+        m_workspace->mutable_transientoidstoorigin()
+                ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(m_workspace->rollingcommit().root().path(), originOid));
         transientTreePath.push_back( current );
     }
     else
     {
         // root exists and is transient; can be altered
-        PathInternal path = m_checkout->rollingcommit().root().path();
+        PathInternal path = m_workspace->rollingcommit().root().path();
         current = m_serializer->getTreeTransient(path);
         transientTreePath.push_back( current );
     }
@@ -307,7 +307,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 // case 1: append tree
                 std::shared_ptr<Tree> tree(new Tree);
                 transientTreePath.push_back( tree );
-                m_checkout->mutable_transientoidstoorigin()
+                m_workspace->mutable_transientoidstoorigin()
                         ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ""));
                 current = tree;
             }
@@ -317,7 +317,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 std::pair<StatusCode, PathInternal> pathStatus = storeObject(createLeaf, pathInternal);
                 leafPathIntenal = pathStatus.second;
                 if(!mapitIsOk(pathStatus.first)) return false;
-                m_checkout->mutable_transientoidstoorigin()
+                m_workspace->mutable_transientoidstoorigin()
                         ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathStatus.second, "")); //TODO: history of createLeaf lost, if ther was one
 
                 leafWasStored = true;
@@ -327,8 +327,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
         {
             // use or copy existing
             bool segTransient = ref.id().empty() && !ref.path().empty();
-            //bool segTransient = m_checkout->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is transient, instead this is ensured in assertion below)
-            assert(segTransient == (m_checkout->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
+            //bool segTransient = m_workspace->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is transient, instead this is ensured in assertion below)
+            assert(segTransient == (m_workspace->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
             if(segTransient)
             {
                 // delete leaf
@@ -354,7 +354,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 {
                     // case 4: overwrite Leaf. This is executed once. Next step is after(...).
                     // Note: here might be two transient ids in the pair
-                    m_checkout->mutable_transientoidstoorigin()
+                    m_workspace->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, "")); //TODO: history of createLeaf lost, if ther was one
                     std::pair<StatusCode, PathInternal> statusPath = storeObject(createLeaf, pathInternal);
                     if(!mapitIsOk(statusPath.first)) return false;
@@ -380,7 +380,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                         log_error("Segment of path was not a tree or corrupt oids");
                         return false;
                     }
-                    m_checkout->mutable_transientoidstoorigin()
+                    m_workspace->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     transientTreePath.push_back( tree );
                     current = tree;
@@ -388,7 +388,7 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
                 else
                 {
                     // case 6: overwrite Leaf with copy. This is executed once. Next step is after(...).
-                    m_checkout->mutable_transientoidstoorigin()
+                    m_workspace->mutable_transientoidstoorigin()
                             ->insert(::google::protobuf::MapPair< ::std::string, ::std::string>(pathInternal, ref.id()));
                     //createLeaf->set_id(nextOid);
                     std::pair<StatusCode, PathInternal> status_path = storeObject(createLeaf, pathInternal);
@@ -455,8 +455,8 @@ StatusCode CheckoutImpl::createPath(const Path &path, std::shared_ptr<T> createL
     std::pair<StatusCode, PathInternal> status_path = m_serializer->storeTreeTransient(obj, m_name + "/");
     if(!mapitIsOk(status_path.first)) return status_path.first;
 
-    // update checkout commit
-    StatusCode s = m_serializer->storeCheckoutCommit(m_checkout, m_name);
+    // update workspace commit
+    StatusCode s = m_serializer->storeWorkspaceCommit(m_workspace, m_name);
     return s;
 }
 

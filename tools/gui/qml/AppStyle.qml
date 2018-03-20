@@ -56,7 +56,7 @@ Item {
     }
 
     property string repositoryUrl: "." // default cfg is the current folder
-    property string checkoutName: "testcheckout"
+    property string workspaceName: "myworkspace"
 
     property bool isDark: backgroundLightness < 0.5
     onIsDarkChanged: darkLightChanged()
@@ -129,7 +129,7 @@ Item {
 
     Settings {
         property alias repositoryUrl: root.repositoryUrl
-        property alias checkoutName: root.checkoutName
+        property alias workspaceName: root.workspaceName
         property alias textColor: root.textColor
         property alias textColorDisabled: root.textColorDisabled
         property alias selectionColor: root.selectionColor

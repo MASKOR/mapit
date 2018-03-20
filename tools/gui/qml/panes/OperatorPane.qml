@@ -44,7 +44,7 @@ Item {
     onDetailDialogPathChanged: privLoadDialog(detailDialogPath)
     property string currentEntityPath: globalApplicationState.currentEntityPath // to prefill operator
     property var prefillHint
-    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentWorkspace: globalApplicationState.currentWorkspace
     property var currentOperatorUiItem
     onCurrentOperatorUiItemChanged: {
         controlHolder.height = currentOperatorUiItem.implicitHeight + appStyle.controlMargin * 2
@@ -65,8 +65,8 @@ Item {
     function finish( controlComponent ) {
         if (controlComponent.status === Component.Ready) {
             //if( typeof root.currentOperator == "undefined" ) return
-            root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentCheckout: root.currentCheckout,
-                                                                                       currentCheckoutName: root.currentCheckout.name,
+            root.currentOperatorUiItem = controlComponent.createObject(controlHolder, {currentWorkspace: root.currentWorkspace,
+                                                                                       currentWorkspaceName: root.currentWorkspace.name,
                                                                                        currentEntityPath: root.currentEntityPath,
                                                                                        shown: true,
                                                                                        prefill: root.prefillHint})
@@ -160,7 +160,7 @@ Item {
             StyledButton {
                 Layout.leftMargin: appStyle.controlMargin
                 text: "Execute"
-                enabled: currentCheckout ? currentOperatorUiItem ? currentOperatorUiItem.valid && !currentCheckout.isBusyExecuting : false : false
+                enabled: currentWorkspace ? currentOperatorUiItem ? currentOperatorUiItem.valid && !currentWorkspace.isBusyExecuting : false : false
                 onClicked: {
                     var dialogParts = globalApplicationState.currentDetailDialog.split("/")
                     var moduleName = dialogParts[dialogParts.length-1]
@@ -168,11 +168,11 @@ Item {
                         currentOperatorUiItem.beforeOperation()
                     }
                     console.log("executing \"" + moduleName + "\" with parameter\n" + JSON.stringify(currentOperatorUiItem.parameters))
-                    currentCheckout.doOperation(moduleName, currentOperatorUiItem.parameters)
+                    currentWorkspace.doOperation(moduleName, currentOperatorUiItem.parameters)
                 }
                 BusyIndicator {
                     anchors.centerIn: parent
-                    running: currentCheckout.isBusyExecuting
+                    running: currentWorkspace.isBusyExecuting
                 }
             }
         }

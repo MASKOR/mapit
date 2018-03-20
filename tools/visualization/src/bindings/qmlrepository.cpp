@@ -84,12 +84,12 @@ void QmlRepository::reload()
 {
     m_isLoadingOperators = true;
     Q_EMIT isLoadingOperatorsChanged(true);
-    m_checkoutNames.clear();
+    m_workspaceNames.clear();
     if(m_repository == nullptr) return;
-    std::vector<std::string> coNames(m_repository->listCheckoutNames());
+    std::vector<std::string> coNames(m_repository->listWorkspaceNames());
     for(std::vector<std::string>::const_iterator iter(coNames.cbegin()) ; iter != coNames.cend() ; iter++)
     {
-        m_checkoutNames.append(QString::fromStdString(*iter));
+        m_workspaceNames.append(QString::fromStdString(*iter));
     }
     m_operators.clear();
     if(m_opLoaderWorker == nullptr)
@@ -112,18 +112,18 @@ void QmlRepository::reload()
 
     reloadOperators();
     Q_EMIT isLoadedChanged(m_repository != nullptr);
-    Q_EMIT checkoutNamesChanged( m_checkoutNames );
+    Q_EMIT workspaceNamesChanged( m_workspaceNames );
     Q_EMIT internalRepositoryChanged( this );
 }
 
-QStringList QmlRepository::listCheckoutNames() const
+QStringList QmlRepository::listWorkspaceNames() const
 {
-    return checkoutNames();
+    return workspaceNames();
 }
 
-QStringList QmlRepository::checkoutNames() const
+QStringList QmlRepository::workspaceNames() const
 {
-    return m_checkoutNames;
+    return m_workspaceNames;
 }
 
 QString QmlRepository::url() const
@@ -180,8 +180,8 @@ QString QmlRepository::typeOfObject(QString oid)
         return"MessageEntity";
     case mapit::msgs::MessageCommit:
         return"MessageCommit";
-    case mapit::msgs::MessageCheckout:
-        return"MessageCheckout";
+    case mapit::msgs::MessageWorkspace:
+        return"MessageWorkspace";
     case mapit::msgs::MessageBranch:
         return"MessageBranch";
     case mapit::msgs::MessageEntitydata:
@@ -207,42 +207,42 @@ void QmlRepository::reloadOperators()
     m_opLoaderWorker->start();
 }
 
-QmlCheckout *QmlRepository::createCheckout(QString commitIdOrBranchname, QString name)
+QmlWorkspace *QmlRepository::createWorkspace(QString commitIdOrBranchname, QString name)
 {
     if(!m_repository) return nullptr;
     std::string o = commitIdOrBranchname.toStdString(),
                      n = name.toStdString();
-    std::shared_ptr<mapit::Checkout> obj( m_repository->createCheckout( o, n ) );
+    std::shared_ptr<mapit::Workspace> obj( m_repository->createWorkspace( o, n ) );
     if(!obj) return nullptr;
-    m_checkoutNames.append( name );
-    Q_EMIT checkoutNamesChanged(m_checkoutNames);
-    return new QmlCheckout( obj, this, name );
+    m_workspaceNames.append( name );
+    Q_EMIT workspaceNamesChanged(m_workspaceNames);
+    return new QmlWorkspace( obj, this, name );
 }
 
-QmlCheckout *QmlRepository::getCheckout(QString checkoutName)
+QmlWorkspace *QmlRepository::getWorkspace(QString workspaceName)
 {
     if(!m_repository) return nullptr;
-    std::string o = checkoutName.toStdString();
-    std::shared_ptr<mapit::Checkout> obj( m_repository->getCheckout( o ) );
+    std::string o = workspaceName.toStdString();
+    std::shared_ptr<mapit::Workspace> obj( m_repository->getWorkspace( o ) );
     if(!obj) return nullptr;
-    return new QmlCheckout( obj, this, checkoutName );
+    return new QmlWorkspace( obj, this, workspaceName );
 }
 
-bool QmlRepository::deleteCheckoutForced(QString checkoutName)
+bool QmlRepository::deleteWorkspaceForced(QString workspaceName)
 {
     if(!m_repository) return false;
-    std::string o = checkoutName.toStdString();
-    mapit::StatusCode s = m_repository->deleteCheckoutForced( o );
+    std::string o = workspaceName.toStdString();
+    mapit::StatusCode s = m_repository->deleteWorkspaceForced( o );
     return mapitIsOk( s );
 }
 
-QString QmlRepository::commit(QmlCheckout *checkout, QString msg, QString author, QString email)
+QString QmlRepository::commit(QmlWorkspace *workspace, QString msg, QString author, QString email)
 {
     if(!m_repository) return nullptr;
     std::string m = msg.toStdString();
     std::string a = author.toStdString();
     std::string e = email.toStdString();
-    mapit::CommitId cid = m_repository->commit( checkout->getCheckoutObj(), m, a, e );
+    mapit::CommitId cid = m_repository->commit( workspace->getWorkspaceObj(), m, a, e );
     return QString::fromStdString(cid);
 }
 
@@ -278,14 +278,14 @@ QString QmlRepository::parseCommitRef(QString commitRef)
     return QString::fromStdString( m_repository->parseCommitRef( cr ) );
 }
 
-QmlCheckout *QmlRepository::merge(QString mine, QString theirs, QString base)
+QmlWorkspace *QmlRepository::merge(QString mine, QString theirs, QString base)
 {
     if(!m_repository) return nullptr;
     std::string m = mine.toStdString();
     std::string t = theirs.toStdString();
     std::string b = base.toStdString();
-    std::shared_ptr<mapit::Checkout> co(m_repository->merge( m, t, b ));
-    return new QmlCheckout( co, this );
+    std::shared_ptr<mapit::Workspace> workspace(m_repository->merge( m, t, b ));
+    return new QmlWorkspace( workspace, this );
 }
 
 QMap<QString, QString> QmlRepository::ancestors(QString commitId, QString objectId, qint32 level)

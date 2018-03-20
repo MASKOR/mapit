@@ -79,7 +79,7 @@ Item {
             id: opPane
             Layout.fillWidth: true
             Layout.fillHeight: true
-            currentCheckout: globalApplicationState.currentCheckout
+            currentWorkspace: globalApplicationState.currentWorkspace
         }
         StyledHeader {
             Layout.fillWidth: true

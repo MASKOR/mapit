@@ -24,11 +24,11 @@
 #include "../../src/autotest.h"
 
 #include <mapit/errorcodes.h>
-#include <mapit/versioning/checkout.h>
+#include <mapit/versioning/workspace.h>
 #include <mapit/versioning/repositoryfactory.h>
 
 #include <mapit/msgs/datastructs.pb.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 
 #include <mapit/layertypes/tflayer.h>
@@ -44,7 +44,7 @@
 #include <iostream>
 
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
-Q_DECLARE_METATYPE(std::shared_ptr<mapit::Checkout>)
+Q_DECLARE_METATYPE(std::shared_ptr<mapit::Workspace>)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 mapit::CommitId oldRef;
@@ -77,7 +77,7 @@ void CommitTest::test_commit_of_single_entity_data() { createTestdata(false, fal
 void CommitTest::test_commit_of_single_entity()
 {
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     OperationDescription desc_bunny;
     mapit::OperationResult ret;
@@ -90,10 +90,10 @@ void CommitTest::test_commit_of_single_entity()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
-    repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
+    repo->commit(workspace, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     std::string rootTreeName   = "local.mapit/.mapit/trees/05031e86c8499a066ebd1d2e83f0b281c3b3c85d10970cdadcb673362ca56e62";
@@ -110,7 +110,7 @@ void CommitTest::test_commit_of_trees_and_entities_data() { createTestdata(false
 void CommitTest::test_commit_of_trees_and_entities()
 {
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     OperationDescription desc_bunny;
     mapit::OperationResult ret;
@@ -123,7 +123,7 @@ void CommitTest::test_commit_of_trees_and_entities()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
     desc_bunny.set_params(
@@ -134,7 +134,7 @@ void CommitTest::test_commit_of_trees_and_entities()
                 "  \"nsec\"     : 3 "
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
     desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
@@ -146,11 +146,11 @@ void CommitTest::test_commit_of_trees_and_entities()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
     // we just save the ref for the test_branching()
-    oldRef = repo->commit(checkout, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
+    oldRef = repo->commit(workspace, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     fs::path entitydataName = "local.mapit/.mapit/entities_data/71e2f4bdb1932c22e3436341a30b2aa4de5e985a1c8d50b1f6f21c145b330944";
@@ -190,7 +190,7 @@ void CommitTest::test_delete()
         QVERIFY( result );
     }
     std::shared_ptr<mapit::Repository> repo = std::shared_ptr<mapit::Repository>(mapit::RepositoryFactory::openLocalRepository(repoName));
-    std::shared_ptr<mapit::Checkout> checkout = std::shared_ptr<mapit::Checkout>(repo->createCheckout("master", "test-delete-checkout"));;
+    std::shared_ptr<mapit::Workspace> workspace = std::shared_ptr<mapit::Workspace>(repo->createWorkspace("master", "test-delete-workspace"));;
 
     OperationDescription desc_bunny;
     mapit::OperationResult ret;
@@ -203,10 +203,10 @@ void CommitTest::test_delete()
                 "  \"nsec\"     : 0 "
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
-    mapit::CommitId commit1ID = repo->commit(checkout, "CommitTest: Add bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
+    mapit::CommitId commit1ID = repo->commit(workspace, "CommitTest: Add bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     // this names depends on variables in RepositoryCommon::initTestdata() and bunny.pcd
     std::string rootTreeName    = (std::string)repoName + "/.mapit/trees/a5fd3c9261d1732e5bc2e8ddaca187fd597fdea4c96827ef413eb786eea2370b";
@@ -226,27 +226,27 @@ void CommitTest::test_delete()
                 "  \"target\"   : \"/deltest/bunny\""
                 "}"
                 );
-    ret = checkout->doOperation( desc_bunny );
+    ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
-    std::string TransientEntityFolder    = (std::string)repoName + "/.mapit/checkouts/test-delete-checkout/root/deltest/bunny/";
-    std::string TransientDeltestTreeName = (std::string)repoName + "/.mapit/checkouts/test-delete-checkout/root/deltest/.generic_entry";
-    std::string TransientRootTreeName    = (std::string)repoName + "/.mapit/checkouts/test-delete-checkout/root/.generic_entry";
+    std::string TransientEntityFolder    = (std::string)repoName + "/.mapit/workspaces/test-delete-workspace/root/deltest/bunny/";
+    std::string TransientDeltestTreeName = (std::string)repoName + "/.mapit/workspaces/test-delete-workspace/root/deltest/.generic_entry";
+    std::string TransientRootTreeName    = (std::string)repoName + "/.mapit/workspaces/test-delete-workspace/root/.generic_entry";
 
     QVERIFY( fs::is_empty(TransientEntityFolder) );
     QVERIFY( fs::exists(TransientDeltestTreeName) );
     QVERIFY( fs::exists(TransientRootTreeName) );
     // TODO one could load the protobufs and check the path to its childen
 
-    mapit::CommitId commit2ID = repo->commit(checkout, "CommitTest: Remove bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
+    mapit::CommitId commit2ID = repo->commit(workspace, "CommitTest: Remove bunny", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     std::string NewRootTreeName    = (std::string)repoName + "/.mapit/trees/3bcee7d728fd2eabf4a149e612f90ab8289a4c16ca1670598df3a02db511dd01";
     std::string NewDeltestTreeName = (std::string)repoName + "/.mapit/trees/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"; // this is the empty tree
     QVERIFY( fs::exists(NewDeltestTreeName) );
     QVERIFY( fs::exists(NewRootTreeName) );
 
-    // check if checkout (which would be the 3. commit) only points to 2. commit
-    std::vector<mapit::CommitId> wsParentIDs = checkout->getParentCommitIds();
+    // check if workspace (which would be the 3. commit) only points to 2. commit
+    std::vector<mapit::CommitId> wsParentIDs = workspace->getParentCommitIds();
     for (mapit::CommitId wsParentID : wsParentIDs) {
         QVERIFY( 0 == commit2ID.compare( wsParentID ) );
     }
@@ -264,10 +264,10 @@ void CommitTest::test_branching()
 {
     // actual branches are not yet supported, here we test if we can create a branch (without a name)
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
-    QFETCH(std::shared_ptr<mapit::Checkout>, checkout);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
     mapit::CommitId parentForNewWs;
-    std::vector<mapit::CommitId> wsParents = checkout->getParentCommitIds();
+    std::vector<mapit::CommitId> wsParents = workspace->getParentCommitIds();
     // get the second last commit (this is ugly, but fastly written ;))
     for (mapit::CommitId wsParent : wsParents) {
         std::shared_ptr<Commit> coP1 = repo->getCommit(wsParent);
@@ -279,7 +279,7 @@ void CommitTest::test_branching()
         }
     }
 
-    std::shared_ptr<mapit::Checkout> ws = repo->createCheckout(parentForNewWs, "wsBranched");
+    std::shared_ptr<mapit::Workspace> ws = repo->createWorkspace(parentForNewWs, "wsBranched");
 
     OperationDescription desc_bunny;
     mapit::OperationResult ret;

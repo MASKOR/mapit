@@ -21,30 +21,30 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ZMQREQUESTERCHECKOUT_H
-#define ZMQREQUESTERCHECKOUT_H
+#ifndef ZMQREQUESTERWORKSPACE_H
+#define ZMQREQUESTERWORKSPACE_H
 
 #include <string>
 #include <mapit/versioning/repository.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include "zmqprotobufnode.h"
 
 namespace mapit {
 
 ///
-/// \brief The ZmqRequesterCheckout class
-/// Implements the basic Checkout Interface and will send requests over network
+/// \brief The ZmqRequesterWorkspace class
+/// Implements the basic Workspace Interface and will send requests over network
 /// Compute local:
 /// - true: makes it possible to read from filesystem locally, and write to remote repository
 /// - false: makes it possible to read from remote filesystem to remote repo
 ///
 
-class ZmqRequesterCheckout : public mapit::Checkout, public mapit::CheckoutRaw
+class ZmqRequesterWorkspace : public mapit::Workspace, public mapit::operators::WorkspaceWritable
 {
 public:
-    ZmqRequesterCheckout(std::string name, ZmqProtobufNode *node, mapit::Checkout *cache = NULL, bool operationsLocal = false);
+    ZmqRequesterWorkspace(std::string name, ZmqProtobufNode *node, mapit::Workspace *cache = NULL, bool operationsLocal = false);
 
-    // CheckoutCommon interface
+    // WorkspaceCommon interface
 public:
     bool isInConflictMode();
     std::vector<std::shared_ptr<Conflict> > getPendingConflicts();
@@ -68,12 +68,12 @@ public:
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const mapit::msgs::ObjectReference&, const Path&)> afterTree
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity);
-    // Checkout interface
+    // Workspace interface
 public:
     OperationResult doOperation(const OperationDescription &desc);
     OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate);
 
-    // CheckoutRaw interface
+    // WorkspaceWritable interface
 public:
     StatusCode storeTree(const Path &path, std::shared_ptr<Tree> tree);
     StatusCode storeEntity(const Path &path, std::shared_ptr<Entity> entity);
@@ -82,9 +82,9 @@ public:
     std::shared_ptr<AbstractEntitydata> getEntitydataForReadWrite(const Path &entity);
 
 private:
-    std::string m_checkoutName;
+    std::string m_workspaceName;
     ZmqProtobufNode *m_node;
-    mapit::Checkout *m_cache;
+    mapit::Workspace *m_cache;
     bool m_operationsLocal;
 
     //void syncHierarchy();
@@ -93,4 +93,4 @@ private:
 
 }
 
-#endif // ZMQREQUESTER_H
+#endif // ZMQREQUESTERWORKSPACE_H

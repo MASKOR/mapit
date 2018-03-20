@@ -24,9 +24,9 @@
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/pointcloudlayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <iostream>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -93,12 +93,12 @@ mapit::StatusCode operate_load_pointcloud(mapit::OperationEnvironment* env)
     pclEntity->set_frame_id( params["frame_id"].string_value() );
     pclEntity->mutable_stamp()->set_sec( sec );
     pclEntity->mutable_stamp()->set_nsec( nsec );
-    mapit::StatusCode s = env->getCheckout()->storeEntity(target, pclEntity);
+    mapit::StatusCode s = env->getWorkspace()->storeEntity(target, pclEntity);
     if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
     }
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
 
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>(abstractEntitydata);
     if(entityData == nullptr)

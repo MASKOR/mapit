@@ -150,15 +150,15 @@ TransformStampedListGatherer::add_transform( std::unique_ptr<TransformStamped> t
 }
 
 mapit::StatusCode
-TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::string& prefix)
+TransformStampedListGatherer::store_entities(operators::WorkspaceWritable* workspace, const std::string& prefix)
 {
   for (std::pair<std::string, std::shared_ptr<TransformStampedList>> tf_list : *tfs_map_) {
     std::string entity_name = prefix + "/" + tf_list.first;
-    std::shared_ptr<mapit::msgs::Entity> entity = checkout->getEntity(entity_name);
+    std::shared_ptr<mapit::msgs::Entity> entity = workspace->getEntity(entity_name);
     if (entity == nullptr) {
         entity = std::make_shared<mapit::msgs::Entity>();
         entity->set_type( TfEntitydata::TYPENAME() );
-        mapit::StatusCode status = checkout->storeEntity(entity_name, entity);
+        mapit::StatusCode status = workspace->storeEntity(entity_name, entity);
         if ( ! mapitIsOk(status) ) {
             log_error("tflayer: can't store entity");
             return status;
@@ -176,7 +176,7 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
     }
 
     std::shared_ptr<mapit::tf::store::TransformStampedList> ed_list;
-    std::shared_ptr<TfEntitydata> ed = std::static_pointer_cast<TfEntitydata>(checkout->getEntitydataForReadWrite(entity_name));
+    std::shared_ptr<TfEntitydata> ed = std::static_pointer_cast<TfEntitydata>(workspace->getEntitydataForReadWrite(entity_name));
     ed_list = ed->getData();
     if (ed_list == nullptr) {
         ed_list = std::make_shared<mapit::tf::store::TransformStampedList>(tf_list.second->get_frame_id(), tf_list.second->get_child_frame_id(), tf_list.second->get_is_static());
@@ -186,14 +186,14 @@ TransformStampedListGatherer::store_entities(CheckoutRaw* checkout, const std::s
     for (auto &tf : *tf_list_tmp) {
       ed_list->add_TransformStamped(std::move( tf ), tf_list.second->get_is_static());
     }
-    checkout->storeEntity(entity_name, entity);
+    workspace->storeEntity(entity_name, entity);
     ed->setData(ed_list);
   }
 
   return MAPIT_STATUS_OK;
 }
 
-mapit::StatusCode mapit::tf::store::getOrCreateTransformStampedList(  CheckoutRaw* workspace
+mapit::StatusCode mapit::tf::store::getOrCreateTransformStampedList(  operators::WorkspaceWritable* workspace
                                                                   , const std::string& frame_id
                                                                   , const std::string& child_frame_id
                                                                   , const std::string& tfStoragePrefix

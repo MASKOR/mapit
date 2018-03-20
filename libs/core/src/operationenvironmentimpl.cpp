@@ -22,7 +22,7 @@
  */
 
 #include "operationenvironmentimpl.h"
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 
 namespace mapit
@@ -33,14 +33,14 @@ OperationEnvironmentImpl::OperationEnvironmentImpl(const mapit::msgs::OperationD
 {
 }
 
-void OperationEnvironmentImpl::setCheckout(CheckoutRaw *checkout)
+void OperationEnvironmentImpl::setWorkspace(operators::WorkspaceWritable *workspace)
 {
-    m_checkout = checkout;
+    m_workspace = workspace;
 }
 
-CheckoutRaw *OperationEnvironmentImpl::getCheckout() const
+operators::WorkspaceWritable *OperationEnvironmentImpl::getWorkspace() const
 {
-    return m_checkout;
+    return m_workspace;
 }
 
 const mapit::msgs::OperationDescription *OperationEnvironmentImpl::getDescription() const

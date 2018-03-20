@@ -23,7 +23,7 @@
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/pointcloudlayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 #include <QJsonDocument>
@@ -94,7 +94,7 @@ mapit::StatusCode operateUniformSampling(mapit::OperationEnvironment* environmen
 
     log_info("├─┬load original point cloud...");
     std::shared_ptr<PointcloudEntitydata> sourceData =
-            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(source));
+            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getWorkspace()->getEntitydataForReadWrite(source));
     if (sourceData == nullptr) {
         log_error("└─┴─source entity is no point cloud");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
@@ -161,18 +161,18 @@ mapit::StatusCode operateUniformSampling(mapit::OperationEnvironment* environmen
     log_info("│ └─size: " << filtered->height * filtered->width);
 
     log_info("└─┬save filtered point cloud...");
-    std::shared_ptr<mapit::msgs::Entity> targetEntity = environment->getCheckout()->getEntity(target);
+    std::shared_ptr<mapit::msgs::Entity> targetEntity = environment->getWorkspace()->getEntity(target);
     if (targetEntity == NULL) {
         targetEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
         targetEntity->set_type(PointcloudEntitydata::TYPENAME());
-        if (!mapitIsOk(environment->getCheckout()->storeEntity(target, targetEntity))) {
+        if (!mapitIsOk(environment->getWorkspace()->storeEntity(target, targetEntity))) {
             log_error("  └─failed to create target entity");
             return MAPIT_STATUS_ERR_UNKNOWN;
         }
         log_info("  ├─created new entity '" << target << "'");
     }
     std::shared_ptr<PointcloudEntitydata> targetData =
-            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getCheckout()->getEntitydataForReadWrite(target));
+            std::dynamic_pointer_cast<PointcloudEntitydata>(environment->getWorkspace()->getEntitydataForReadWrite(target));
     if (targetData == NULL) {
         log_error("  └─target entity is no point cloud");
         return MAPIT_STATUS_ERR_UNKNOWN;

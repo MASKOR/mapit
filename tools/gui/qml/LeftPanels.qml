@@ -30,14 +30,15 @@ import QtQuick 2.0 as QQ2
 import fhac.mapit 1.0 as Mapit
 import "panes"
 import "components"
+import "network" // only for EntityVisualInfo in contextMenu
 
 Item {
     id: root
-    property alias treeView: treeViewCheckout
+    property alias treeView: treeViewWorkspace
 //    property alias currentOperator: operatorListPane.currentOperator
 //    property alias currentPipeline: operatorListPane.currentPipeline
-//    property alias visibleElems: treeViewCheckout.visibleElems
-//    property string currentEntityPath: treeViewCheckout.currentIndex && treeViewCheckout.model.data(treeViewCheckout.currentIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode ? treeViewCheckout.model.data(treeViewCheckout.currentIndex, Qt.ToolTipRole) : ""
+//    property alias visibleElems: treeViewWorkspace.visibleElems
+//    property string currentEntityPath: treeViewWorkspace.currentIndex && treeViewWorkspace.model.data(treeViewWorkspace.currentIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode ? treeViewWorkspace.model.data(treeViewWorkspace.currentIndex, Qt.ToolTipRole) : ""
 //    property string currentFrameId
 
 //    onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath
@@ -80,35 +81,32 @@ Item {
                     onCurrentDetailDialogPathChanged: globalApplicationState.currentDetailDialog = currentDetailDialogPath
                     onCurrentExecutableIsPipelineChanged: globalApplicationState.currentDetailDialogHasExecuteButton = currentExecutableIsPipeline
                 }
-//                QCtl.Action {
-//                    //TODO
-//                    id: transformAction
-//                    text: "&Transform"
-//                    shortcut: "T"
-//                    //iconName: "edit-copy"
-//                    enabled: currentEntitydataTransform.path.length > 0
-//                    //    target: "path/to/target.tf"
-//                    //    mode: "relative"|"absolute",
-//                    //    tf: [
-//                    //      0: {mat: [0: m00, 1: m01, m02...], parent: "/path/to/parent", timestamp: unixts},
-//                    //      1: {mat: [0: m00_2, ...]},
-//                    //      2: ...
-//                    //    ]
-//                    // }
-//                    onTriggered: {
-//                        console.log("executing");
-//                        checkout.doOperation("transform", {
-//                            target: currentEntitydataTransform.path,
-//                            mode: "absolute",
-//                            tf: {
-//                                mat:[100,   0,   0,   0,
-//                                       0, 100,   0,   0,
-//                                       0,   0, 100,   0,
-//                                       0,   0,   0,   1]
-//                            }
-//                        });
-//                    }
-//                }
+                QCtl.Action {
+                    id: actionShowHide
+                    property var myVisualInfo: treeViewWorkspace.getVisualInfoForPath(contextMenu.path, contextMenu.itemIsEntity)
+                    text: "&Toggle visibility"
+                    enabled: myVisualInfo !== null && myVisualInfo !== undefined
+                    shortcut: "T"
+                    onTriggered: {
+                        myVisualInfo.isVisible = !myVisualInfo.isVisible
+                    }
+                }
+                QCtl.Action {
+                    id: actionRename
+                    text: "&Rename"
+                    enabled: false
+                    shortcut: "R"
+                    onTriggered: {
+                    }
+                }
+                QCtl.Action {
+                    id: actionDelete
+                    text: "&Delete"
+                    enabled: false
+                    shortcut: "D"
+                    onTriggered: {
+                    }
+                }
             }
             ColumnLayout {
                 Layout.preferredHeight: 300
@@ -116,8 +114,8 @@ Item {
                 spacing: appStyle.controlMargin
                 StyledHeader {
                     Layout.fillWidth: true
-                    id: headerCheckout
-                    text: qsTr("Checkout")
+                    id: headerWorkspace
+                    text: qsTr("Workspace")
                     iconSource: "image://material/ic_layers"
                 }
                 ColumnLayout {
@@ -125,35 +123,45 @@ Item {
                     Layout.leftMargin: appStyle.controlMargin
                     Layout.rightMargin: appStyle.controlMargin
                     spacing: appStyle.controlMargin
-                    visible: headerCheckout.checked
+                    visible: headerWorkspace.checked
                     RowLayout {
                         Layout.fillWidth: true
                         StyledLabel {
-                            text: globalApplicationState.currentCheckout.name
+                            text: globalApplicationState.currentWorkspace.name
                             Layout.fillWidth: true
                         }
-                        CheckoutChooser {
+                        WorkspaceChooser {
                             width: implicitWidth
-                            id: checkoutChooser
-                            onCurrentCheckoutNameChanged: globalApplicationState.currentCheckoutName = currentCheckoutName
+                            onCurrentWorkspaceNameChanged: globalApplicationState.currentWorkspaceName = currentWorkspaceName
                         }
                     }
                     StyledLabel {
                         visible: !globalRepository.isLoaded
                         text: "No Repository loaded"
                     }
-                    CheckoutTreeView {
+                    WorkspaceTreeView {
                         visible: globalRepository.isLoaded
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.bottomMargin: appStyle.controlMargin
-                        id: treeViewCheckout
+                        id: treeViewWorkspace
                         onCurrentEntityPathChanged: globalApplicationState.currentEntityPath = currentEntityPath
                         contextMenu: QCtl.Menu {
                             id: contextMenu
-//                            QCtl.MenuItem {
-//                                action: transformAction
-//                            }
+                            // These properties are set when the popup opens
+                            property var index
+                            property string path
+                            property bool itemIsEntity
+                            QCtl.MenuItem {
+                                visible: contextMenu.itemIsEntity
+                                action: actionShowHide
+                            }
+                            QCtl.MenuItem {
+                                action: actionRename
+                            }
+                            QCtl.MenuItem {
+                                action: actionDelete
+                            }
                         }
                     }
                 }

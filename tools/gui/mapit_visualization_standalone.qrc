@@ -257,8 +257,6 @@
         <file>qml/components/StyledTextField.qml</file>
         <file>qml/dialogs/About.qml</file>
         <file>qml/dialogs/VisualizationSettings.qml</file>
-        <file>qml/panes/CheckoutTreeView.qml</file>
-        <file>qml/components/CheckoutChooser.qml</file>
         <file>qml/EntityVisualSettings.qml</file>
         <file>qml/components/HelperOpenFile.qml</file>
         <file>qml/components/HelperTarget.qml</file>
@@ -332,5 +330,7 @@
         <file>qml/CameraController.qml</file>
         <file>license/ModifiedBSDsha256</file>
         <file>license/MPL20</file>
+        <file>qml/components/WorkspaceChooser.qml</file>
+        <file>qml/panes/WorkspaceTreeView.qml</file>
     </qresource>
 </RCC>

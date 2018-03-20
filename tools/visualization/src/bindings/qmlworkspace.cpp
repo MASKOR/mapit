@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mapit/ui/bindings/qmlcheckout.h"
+#include "mapit/ui/bindings/qmlworkspace.h"
 #include <mapit/errorcodes.h>
 #include <mapit/depthfirstsearch.h>
 #include <mapit/layertypes/tflayer.h> //< TODO: remove this dependecy and put dependet code to it to new "QmlTransformLayer"
@@ -31,8 +31,8 @@
 #include <QSet>
 #include "operationexecutor.h"
 
-QmlCheckout::QmlCheckout()
-    : m_checkout( NULL )
+QmlWorkspace::QmlWorkspace()
+    : m_workspace( NULL )
     , m_repository( NULL )
     , m_isInConflictMode( false )
     , m_isBusyExecuting( false )
@@ -41,8 +41,8 @@ QmlCheckout::QmlCheckout()
 }
 
 // If name is not given, this must be a result of a merge.
-QmlCheckout::QmlCheckout(std::shared_ptr<mapit::Checkout> &co, QmlRepository* repo, QString name)
-    : m_checkout( co )
+QmlWorkspace::QmlWorkspace(std::shared_ptr<mapit::Workspace> &workspace, QmlRepository* repo, QString name)
+    : m_workspace( workspace )
     , m_repository( repo )
     , m_isInConflictMode( false )
     , m_isBusyExecuting( false )
@@ -51,19 +51,19 @@ QmlCheckout::QmlCheckout(std::shared_ptr<mapit::Checkout> &co, QmlRepository* re
 {
     if(m_repository)
     {
-        connect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlCheckout::setRepository);
+        connect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlWorkspace::setRepository);
     }
     reloadEntities();
 }
 
-QmlCheckout::~QmlCheckout()
+QmlWorkspace::~QmlWorkspace()
 {
     if(m_executor) delete m_executor;
 }
 
-QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
+QString QmlWorkspace::doOperation(QString operatorname, const QJsonObject &desc)
 {
-    if(!m_checkout) return "not initialized, too early";
+    if(!m_workspace) return "not initialized, too early";
 
     if(isBusyExecuting()) return "can not execute, currently busy executing";
     if(m_executor) delete m_executor;
@@ -74,83 +74,83 @@ QString QmlCheckout::doOperation(QString operatorname, const QJsonObject &desc)
     descript.mutable_operator_()->set_operatorname(operatorname.toStdString());
     descript.set_params(strJson.toStdString());
 
-    m_executor = new OperationExecutor(this, m_checkout, descript);
+    m_executor = new OperationExecutor(this, m_workspace, descript);
 
-    connect(m_executor, &OperationExecutor::operationExecuted, this, &QmlCheckout::operationExecuted);
+    connect(m_executor, &OperationExecutor::operationExecuted, this, &QmlWorkspace::operationExecuted);
 
     m_isBusyExecuting = true;
     Q_EMIT isBusyExecutingChanged(m_isBusyExecuting);
 
     m_executor->start();
-//    mapit::OperationResult res = m_checkout->doOperation(descript);
+//    mapit::OperationResult res = m_workspace->doOperation(descript);
 //    reloadEntities();
-//    Q_EMIT internalCheckoutChanged(this);
+//    Q_EMIT internalWorkspaceChanged(this);
 //    //TODO Q_EMIT something changed()
 //    // TODO: wrap operation result.
 //    if(mapitIsOk(res.first)) return "error";
     return "";
 }
 
-void QmlCheckout::setConflictSolved(QString path, QString oid)
+void QmlWorkspace::setConflictSolved(QString path, QString oid)
 {
     //TODO: how to handle error?
-    if(!m_checkout) return;
+    if(!m_workspace) return;
     std::string p = path.toStdString(),
                      o = oid.toStdString();
-    m_checkout->setConflictSolved(p, o);
+    m_workspace->setConflictSolved(p, o);
 }
 
-QmlTree *QmlCheckout::getRoot()
+QmlTree *QmlWorkspace::getRoot()
 {
-    if(!m_checkout) return new QmlTree(this);
-    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getRoot());
+    if(!m_workspace) return new QmlTree(this);
+    std::shared_ptr<mapit::msgs::Tree> tree(m_workspace->getRoot());
     return new QmlTree(tree);
 }
 
-QmlTree *QmlCheckout::getTreeConflict(QString objectId)
+QmlTree *QmlWorkspace::getTreeConflict(QString objectId)
 {
-    if(!m_checkout) return new QmlTree(this);
+    if(!m_workspace) return new QmlTree(this);
     std::string p = objectId.toStdString();
-    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getTreeConflict(p));
+    std::shared_ptr<mapit::msgs::Tree> tree(m_workspace->getTreeConflict(p));
     return new QmlTree(tree);
 }
 
-QmlEntity *QmlCheckout::getEntityConflict(QString objectId)
+QmlEntity *QmlWorkspace::getEntityConflict(QString objectId)
 {
-    if(!m_checkout) return new QmlEntity(this);
+    if(!m_workspace) return new QmlEntity(this);
     std::string p = objectId.toStdString();
-    std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntityConflict(p));
+    std::shared_ptr<mapit::msgs::Entity> ent(m_workspace->getEntityConflict(p));
     return new QmlEntity(ent);
 }
 
-QmlTree *QmlCheckout::getTree(QString path)
+QmlTree *QmlWorkspace::getTree(QString path)
 {
-    if(!m_checkout) return new QmlTree(this);
+    if(!m_workspace) return new QmlTree(this);
     std::string p = path.toStdString();
-    std::shared_ptr<mapit::msgs::Tree> tree(m_checkout->getTree(p));
+    std::shared_ptr<mapit::msgs::Tree> tree(m_workspace->getTree(p));
     return new QmlTree(tree);
 }
 
-QmlEntity *QmlCheckout::getEntity(QString path)
+QmlEntity *QmlWorkspace::getEntity(QString path)
 {
-    if(!m_checkout) return new QmlEntity(this);
+    if(!m_workspace) return new QmlEntity(this);
     if(path.isEmpty()) return new QmlEntity(this);
     std::string p = path.toStdString();
-    std::shared_ptr<mapit::msgs::Entity> ent(m_checkout->getEntity(p));
+    std::shared_ptr<mapit::msgs::Entity> ent(m_workspace->getEntity(p));
     return new QmlEntity(ent);
 }
 
-QmlBranch *QmlCheckout::getParentBranch()
+QmlBranch *QmlWorkspace::getParentBranch()
 {
-    if(!m_checkout) return new QmlBranch(this);
-    std::shared_ptr<mapit::msgs::Branch> br(m_checkout->getParentBranch());
+    if(!m_workspace) return new QmlBranch(this);
+    std::shared_ptr<mapit::msgs::Branch> br(m_workspace->getParentBranch());
     return new QmlBranch(br);
 }
 
-QStringList QmlCheckout::getParentCommitIds()
+QStringList QmlWorkspace::getParentCommitIds()
 {
-    if(!m_checkout) return QStringList();
-    std::vector<mapit::CommitId> ids(m_checkout->getParentCommitIds());
+    if(!m_workspace) return QStringList();
+    std::vector<mapit::CommitId> ids(m_workspace->getParentCommitIds());
     QStringList allIds;
     std::for_each(ids.begin(), ids.end(), [&allIds](const mapit::CommitId &id)
     {
@@ -160,63 +160,63 @@ QStringList QmlCheckout::getParentCommitIds()
     return allIds;
 }
 
-QmlEntitydata *QmlCheckout::getEntitydataReadOnly(QString path)
+QmlEntitydata *QmlWorkspace::getEntitydataReadOnly(QString path)
 {
-    if(!m_checkout) return new QmlEntitydata(this);
+    if(!m_workspace) return new QmlEntitydata(this);
     std::string p = path.toStdString();
-    std::shared_ptr<mapit::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnly(p));
+    std::shared_ptr<mapit::AbstractEntitydata> ent(m_workspace->getEntitydataReadOnly(p));
     return new QmlEntitydata(ent, this, path);
 }
 
-QmlEntitydata *QmlCheckout::getEntitydataReadOnlyConflict(QString entityId)
+QmlEntitydata *QmlWorkspace::getEntitydataReadOnlyConflict(QString entityId)
 {
-    if(!m_checkout) return new QmlEntitydata(this);
+    if(!m_workspace) return new QmlEntitydata(this);
     std::string oid = entityId.toStdString();
-    std::shared_ptr<mapit::AbstractEntitydata> ent(m_checkout->getEntitydataReadOnlyConflict(oid));
+    std::shared_ptr<mapit::AbstractEntitydata> ent(m_workspace->getEntitydataReadOnlyConflict(oid));
     return new QmlEntitydata(ent, this);
 }
 
-bool QmlCheckout::isInConflictMode() const
+bool QmlWorkspace::isInConflictMode() const
 {
     return m_isInConflictMode;
 }
 
-std::shared_ptr<mapit::Checkout> QmlCheckout::getCheckoutObj() { return m_checkout; }
+std::shared_ptr<mapit::Workspace> QmlWorkspace::getWorkspaceObj() { return m_workspace; }
 
-QmlRepository *QmlCheckout::repository() const
+QmlRepository *QmlWorkspace::repository() const
 {
     return m_repository;
 }
 
-QString QmlCheckout::name() const
+QString QmlWorkspace::name() const
 {
     return m_name;
 }
 
-QStringList QmlCheckout::entities() const
+QStringList QmlWorkspace::entities() const
 {
     return m_entities;
 }
 
-QStringList QmlCheckout::getFrameIds()
+QStringList QmlWorkspace::getFrameIds()
 {
-    if(this->m_checkout == nullptr) return QStringList();
+    if(this->m_workspace == nullptr) return QStringList();
     QSet<QString> frameIdSet;
 
-    mapit::StatusCode s = this->m_checkout->depthFirstSearch(
+    mapit::StatusCode s = this->m_workspace->depthFirstSearch(
         depthFirstSearchWorkspaceAll(Tree), depthFirstSearchWorkspaceAll(Tree),
         [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             // get the stream to write into a file
-            std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly(path);
+            std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_workspace->getEntitydataReadOnly(path);
 
-            std::shared_ptr<mapit::msgs::Entity> ent = this->m_checkout->getEntity( path );
+            std::shared_ptr<mapit::msgs::Entity> ent = this->m_workspace->getEntity( path );
             assert(ent);
             frameIdSet.insert(QString::fromStdString(ent->frame_id()));
 
             if(ed && strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
             {
-                std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_checkout->getEntitydataReadOnly( path );
+                std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_workspace->getEntitydataReadOnly( path );
                 if( ed == nullptr ) return true;
                 std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
                 if( tfEd == nullptr ) return true;
@@ -233,46 +233,46 @@ QStringList QmlCheckout::getFrameIds()
     return frameIdSet.toList();
 }
 
-bool QmlCheckout::isBusyExecuting() const
+bool QmlWorkspace::isBusyExecuting() const
 {
     return m_isBusyExecuting;
 }
 
-int QmlCheckout::lastOperationStatus() const
+int QmlWorkspace::lastOperationStatus() const
 {
     return m_lastOperationStatus;
 }
 
-void QmlCheckout::setRepository(QmlRepository *repository)
+void QmlWorkspace::setRepository(QmlRepository *repository)
 {
     if (m_repository != repository)
     {
         if(m_repository)
         {
-            disconnect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlCheckout::setRepository);
+            disconnect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlWorkspace::setRepository);
         }
         m_repository = repository;
         if(m_repository)
         {
-            connect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlCheckout::setRepository);
+            connect(m_repository, &QmlRepository::internalRepositoryChanged, this, &QmlWorkspace::setRepository);
         }
         Q_EMIT repositoryChanged(repository);
     }
     if(!m_name.isEmpty() && m_repository->getRepository())
     {
-        m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
+        m_workspace = m_repository->getRepository()->getWorkspace(m_name.toStdString());
         reloadEntities();
-        Q_EMIT internalCheckoutChanged( this );
+        Q_EMIT internalWorkspaceChanged( this );
     }
     //TODO: there might be some rare cases, where this is set intentionally to "".
-    //Important: on merge checkout name might be "" and should not be overwritten.
+    //Important: on merge workspace name might be "" and should not be overwritten.
 //    else
 //    {
-//        m_checkout = NULL;
+//        m_workspace = NULL;
 //    }
 }
 
-void QmlCheckout::setName(QString name)
+void QmlWorkspace::setName(QString name)
 {
     if (m_name == name)
         return;
@@ -280,30 +280,30 @@ void QmlCheckout::setName(QString name)
     m_name = name;
     if(m_repository)
     {
-        m_checkout = m_repository->getRepository()->getCheckout(m_name.toStdString());
+        m_workspace = m_repository->getRepository()->getWorkspace(m_name.toStdString());
         reloadEntities();
-        Q_EMIT internalCheckoutChanged( this );
+        Q_EMIT internalWorkspaceChanged( this );
     }
 
     Q_EMIT nameChanged(name);
 }
 
-void QmlCheckout::operationExecuted(int result)
+void QmlWorkspace::operationExecuted(int result)
 {
     m_isBusyExecuting = false;
     m_lastOperationStatus = result;
     reloadEntities();
-    Q_EMIT internalCheckoutChanged(this);
+    Q_EMIT internalWorkspaceChanged(this);
     Q_EMIT isBusyExecutingChanged(m_isBusyExecuting);
     Q_EMIT lastOperationStatusChanged(result);
 }
 
-void QmlCheckout::reloadEntities()
+void QmlWorkspace::reloadEntities()
 {
     m_entities.clear();
-    if(m_checkout)
+    if(m_workspace)
     {
-        mapit::StatusCode s = m_checkout->depthFirstSearch(
+        mapit::StatusCode s = m_workspace->depthFirstSearch(
             [&](std::shared_ptr<Tree> obj, const ObjectReference& ref, const mapit::Path &path)
             {
                 return true;

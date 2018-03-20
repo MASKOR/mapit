@@ -61,7 +61,7 @@ Item {
     property int shaderVar: techniqueFilter.fieldnameToShaderindex(colorizeSelect.currentText)
     property int shaderVar2: colorModeSelect.currentIndex //TODO: shaderVar and Var2 are temporary for demo
     property string renderStyle: renderstyleSelect.currentText
-    property var currentCheckout: globalApplicationState.currentCheckout
+    property var currentWorkspace: globalApplicationState.currentWorkspace
     property var currentEntitydataTransform: globalApplicationState.currentEntityTransform
     property ListModel visibleEntityModel//: entityInstantiator.model
     property var allVisualInfoModel
@@ -141,7 +141,7 @@ Item {
                     Layout.minimumWidth: 100
                     id: frameIdChooser
                     allowNew: false
-                    //currentCheckout: root.currentCheckout
+                    //currentWorkspace: root.currentWorkspace
                 }
 
                 //                StyledComboBox {
@@ -164,6 +164,7 @@ Item {
                 //                }
             }
             RowLayout {
+                visible: false // hide primitive icons for now
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/sphere-skinny"
@@ -566,7 +567,7 @@ Item {
                                 visibleEntityPaths: root.visibleEntityModel
                                 allEntities: root.allVisualInfoModel
                                 currentFrameId: root.currentFrameId
-                                currentCheckout: globalApplicationState.currentCheckout
+                                currentWorkspace: globalApplicationState.currentWorkspace
                                 mapitClient: root.mapitClient
                                 camera: mainCamera
                                 appStyleOptional: appStyle
@@ -577,322 +578,6 @@ Item {
                                 pointLayer: pointLayer
                                 solidLayer: solidLayer
                             }
-
-//                            Q3D.Entity {
-//                                id: worldEntity
-//                                components: [
-//                                    Q3D.Transform {
-//                                        id: worldTransform
-//                                        scale: appStyle.cameraScale
-//                                    }]
-//                                Q3D.Entity {
-//                                    id: gridEntity
-//                                    Q3D.Transform {
-//                                        id: gridTransform
-//                                        translation: Qt.vector3d(0, 0, 0)
-//                                    }
-//                                    HelperGridMesh {
-//                                        id: gridMesh
-//                                        gridSpacing: appStyle.gridSpacing
-//                                        lines: appStyle.gridLines
-//                                    }
-
-//                                    property Material materialPhong: PhongMaterial {
-//                                        ambient: Qt.rgba(0.0,0.0,0.0,1.0)
-//                                    }
-//                                    components: [ gridMesh, materialPhong, gridTransform, gridLayer ]
-//                                }
-//                                Q3D.NodeInstantiator {
-//                                    id: realtimeObjectInstantiator
-//                                    model: root.mapitClient ? root.mapitClient.state.realtimeObjects.count : 0
-//                                    HandleFrustum {
-//                                        id: peerGizmo
-//                                        layer: gizmoLayer
-//                                        property var theRto: root.mapitClient.state.realtimeObjects.get(index)
-//                                        property var gizmoTransform: Q3D.Transform {
-//                                            matrix: peerGizmo.theRto ? peerGizmo.theRto.tf.inverted() : Qt.matrix4x4()
-//                                        }
-//                                        aspectRatio: theRto.additionalData.aspect
-//                                        horizontalFov: theRto.additionalData.fov
-//                                        components: [ gizmoTransform ]
-
-////                                        Q3D.Entity {
-////                                            property Material material: PhongMaterial { diffuse: "red" }
-////                                            components: [text1Transform, solidLayer, material, text]
-////                                            ExtrudedTextMesh { // Not a type
-////                                                id: text
-////                                                text: "Hello World"
-////                                                width: 20
-////                                                height: 10
-////                                            }
-
-////                                            Q3D.Transform {
-////                                                id: text1Transform
-////                                                translation: Qt.vector3d(0, 2, 0)//manipulationGizmo.gizmoTransform.pos.plus( Qt.vector3d(0, 2, 0) )
-////                                            }
-////                                            TextLabelEntity { // Error when more than 2 peers
-////                                                text: manipulationGizmo.theRto ? root.mapitClient.state.peerToPeerState[manipulationGizmo.theRto.peerOwner].peername : "unknown"
-////                                                layer: solidLayer //TO DO: would be awesome if children are rendered, when parent is in "solidLayer" automatically
-////                                            }
-////                                        }
-//                                    }
-////                                    Q3D.Entity {
-
-////                                        property var meshTransform: Q3D.Transform {
-////                                            property var theRto: root.mapitClient.state.realtimeObjects.get(index)
-////                                            matrix: theRto ? theRto.tf.inverted() : Qt.matrix4x4()
-////                                        }
-////                                        property var coneMesh: ConeMesh { }
-////                                        components: [ coneMesh, perVertexColorMaterial, meshTransform, solidLayer ]
-////                                    }
-//                                }
-
-//                                Q3D.Entity {
-//                                    id: gizmoEntity
-
-//                                    property var meshTransform: Q3D.Transform {
-//                                        id: viewCenterTransform
-//                                        translation: mainCamera.viewCenter
-//                                        rotation: coordianteSystemTransform.rotation
-//                                    }
-//                                    PerVertexColorMaterial {
-//                                        id: perVertexColorMaterial
-//                                    }
-//                                    GeometryRenderer {
-//                                        id: gizmoRenderer
-
-//                                        function rebuild() {
-//                                            buffer.data = buffer.buildGrid()
-//                                        }
-//                                        instanceCount: 1
-//                                        indexOffset: 0
-//                                        firstInstance: 0
-//                                        vertexCount: 6
-//                                        primitiveType: GeometryRenderer.Lines
-//                                        geometry: Geometry {
-//                                            Attribute {
-//                                                id: positionAttribute
-//                                                attributeType: Attribute.VertexAttribute
-//                                                vertexBaseType: Attribute.Float
-//                                                vertexSize: 3
-//                                                byteOffset: 0
-//                                                byteStride: 6 * 4
-//                                                count: 6
-//                                                name: "vertexPosition"//defaultPositionAttributeName()
-//                                                buffer: Buffer {
-//                                                    id: bufferPosColor
-//                                                    type: Buffer.VertexBuffer
-//                                                    function buildGrid() {
-//                                                        var vertices = 6;
-//                                                        var vertexFloats = 6;
-//                                                        var vertexArray = new Float32Array(vertexFloats * vertices);
-//                                                        vertexArray[ 0] =-1.0; vertexArray[ 1] = 0.0; vertexArray[ 2] = 0.0
-//                                                        vertexArray[ 3] = 1.0; vertexArray[ 4] = 0.0; vertexArray[ 5] = 0.0
-//                                                        vertexArray[ 6] = 1.0; vertexArray[ 7] = 0.0; vertexArray[ 8] = 0.0
-//                                                        vertexArray[ 9] = 1.0; vertexArray[10] = 0.0; vertexArray[11] = 0.0
-
-//                                                        vertexArray[12] = 0.0; vertexArray[13] =-1.0; vertexArray[14] = 0.0
-//                                                        vertexArray[15] = 0.0; vertexArray[16] = 1.0; vertexArray[17] = 0.0
-//                                                        vertexArray[18] = 0.0; vertexArray[19] = 1.0; vertexArray[20] = 0.0
-//                                                        vertexArray[21] = 0.0; vertexArray[22] = 1.0; vertexArray[23] = 0.0
-
-//                                                        vertexArray[24] = 0.0; vertexArray[25] = 0.0; vertexArray[26] =-1.0
-//                                                        vertexArray[27] = 0.0; vertexArray[28] = 0.0; vertexArray[29] = 1.0
-//                                                        vertexArray[30] = 0.0; vertexArray[31] = 0.0; vertexArray[32] = 1.0
-//                                                        vertexArray[33] = 0.0; vertexArray[34] = 0.0; vertexArray[35] = 1.0
-//                                                        return vertexArray
-//                                                    }
-//                                                    data: buildGrid()
-//                                                }
-//                                            }
-//                                            Attribute {
-//                                                id: colorAttribute
-//                                                attributeType: Attribute.VertexAttribute
-//                                                vertexBaseType: Attribute.Float
-//                                                vertexSize: 3
-//                                                byteOffset: 3 * 4
-//                                                byteStride: 6 * 4
-//                                                count: 6
-//                                                name: "vertexColor"//defaultColorAttributeName()
-//                                                buffer: bufferPosColor
-//                                            }
-//                                        }
-//                                    }
-//                                    property bool isVisible
-//                                    property Layer currentLayer: isVisible || appStyle.showGizmoAlways ? solidLayer : invisibleLayer
-//                                    components: [ gizmoRenderer, perVertexColorMaterial, viewCenterTransform, currentLayer ]
-//                                }
-
-//                                Q3D.Entity {
-//                                    id: objectsRoot
-//                                    property alias objectsRootTransform: coordianteSystemTransform
-//                                    components: [
-//                                        Q3D.Transform {
-//                                            id: coordianteSystemTransform
-//                                            rotationX: appStyle.coordinateSystemYPointsUp ? 0 : -90//Math.PI*0.5
-//                                        }]
-
-//                                    //                                    HandleTranslate {
-//                                    //                                        id: manipulationGizmo
-//                                    //                                        layer: gizmoLayer
-//                                    //                                        property var gizmoTransform: Q3D.Transform {
-//                                    //                                            translation: Qt.vector3d(2.0,2.0,2.0)
-//                                    //                                        }
-//                                    //                                        components: [ gizmoTransform, gizmoLayer ]
-//                                    //                                    }
-
-//                                    Mapit.PointcloudCoordinatesystem {
-//                                        id: coordSys
-//                                    }
-//                                    Timer {
-//                                        id: boundingBoxRecalculator
-//                                        interval: 1
-//                                        repeat: false
-//                                        onTriggered: {
-//                                            var minx= Infinity, miny= Infinity, minz= Infinity
-//                                            , maxx=-Infinity, maxy=-Infinity, maxz=-Infinity
-//                                            for(var i=0; i<entityInstantiator.count; i++) {
-//                                                var item = entityInstantiator.objectAt(i)
-//                                                if(minx > item.min.x) minx = item.min.x
-//                                                if(miny > item.min.y) miny = item.min.y
-//                                                if(minz > item.min.z) minz = item.min.z
-//                                                if(maxx < item.max.x) maxx = item.max.x
-//                                                if(maxy < item.max.y) maxy = item.max.y
-//                                                if(maxz < item.max.z) maxz = item.max.z
-//                                            }
-//                                            entityInstantiator.boundingboxMin = Qt.vector3d(minx, miny, minz)
-//                                            entityInstantiator.boundingboxMax = Qt.vector3d(maxx, maxy, maxz)
-//                                        }
-//                                    }
-
-//                                    Q3D.NodeInstantiator {
-//                                        id: entityInstantiator
-//                                        function recalcBoundingBox() {
-//                                            boundingBoxRecalculator.start()
-//                                        }
-//                                        property int loadingItems: 0
-//                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
-//                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
-
-//                                        model: root.visibleEntityModel
-//                                        onModelChanged: recalcBoundingBox()
-//                                        onObjectAdded: recalcBoundingBox()
-//                                        onObjectRemoved: recalcBoundingBox()
-//                                        //model: root.visibleEntityModel
-//                                        delegate: MapitEntity {
-//                                            mainCameratmp: mainCamera
-//                                            scene3dtmp: scene3d
-//                                            coordinateSystem: coordSys
-//                                            currentFrameId: root.currentFrameId
-//                                            layer: pointLayer
-//                                            //parametersTmp: techniqueFilter.parameters
-//                                            //Currently only one checkout is supported
-//                                            currentCheckout: globalApplicationState.currentCheckout
-//                                            //                                    currentCheckout: Mapit.Checkout {
-//                                            //                                        id: co
-//                                            //                                        repository: globalRepository
-//                                            //                                        name: model.checkoutName
-//                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
-//                                            //                                    }
-//                                            currentEntitydata: Mapit.Entitydata {
-//                                                checkout: currentCheckout
-//                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
-//                                                onIsLoadingChanged: {
-////                                                    if(isLoading) {
-////                                                        // Busy indicator disabled at the moment
-////                                                        entityInstantiator.loadingItems++
-////                                                    } else {
-////                                                        // Busy indicator disabled at the moment
-////                                                        entityInstantiator.loadingItems--
-////                                                    }
-//                                                    if(entityInstantiator.model[index])
-//                                                    {
-//                                                        var idxInVisualInfoModel = entityInstantiator.model[index].idxInVisualInfoModel
-//                                                        root.visualInfoModel[idxInVisualInfoModel].isLoading = isLoading
-//                                                    }
-//                                                }
-//                                            }
-//                                            onMinChanged: entityInstantiator.recalcBoundingBox()
-//                                            onMaxChanged: entityInstantiator.recalcBoundingBox()
-//                                            HandleBoundingBox {
-//                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
-//                                                min: parent.min
-//                                                max: parent.max
-//                                            }
-//                                        }
-//                                    }
-
-//                                    Q3D.NodeInstantiator {
-//                                        id: peerVisualEntityInstantiator
-//                                        function recalcBoundingBox() {
-//                                            boundingBoxRecalculator.start()
-//                                        }
-//                                        property int loadingItems: 0
-//                                        property vector3d boundingboxMin // use recalc. Propertybindings would not reevaluate if model changed
-//                                        property vector3d boundingboxMax // use recalc. Propertybindings would not reevaluate if model changed
-
-//                                        //onModelChanged: recalcBoundingBox()
-//                                        onObjectAdded: recalcBoundingBox()
-//                                        onObjectRemoved: recalcBoundingBox()
-//                                        model: root.mapitClient.state.visibleEntityInfosList
-//                                        onModelChanged: {
-//                                            recalcBoundingBox()
-//                                            console.log("DBG: PEERMODEL CHANGED" + root.mapitClient.state.visibleEntityInfosList.count)
-//                                        }
-
-//                                        delegate: MapitEntity {
-//                                            mainCameratmp: mainCamera
-//                                            scene3dtmp: scene3d
-//                                            coordinateSystem: coordSys
-//                                            currentFrameId: root.currentFrameId
-
-//                                            layer: pointLayer
-//                                            //parametersTmp: techniqueFilter.parameters
-//                                            //Currently only one checkout is supported
-//                                            currentCheckout: globalApplicationState.currentCheckout
-//                                            currentEntitydata: Mapit.Entitydata {
-//                                                checkout: currentCheckout
-//                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
-//                                            }
-//                                            onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()
-//                                            onMaxChanged: peerVisualEntityInstantiator.recalcBoundingBox()
-//                                            HandleBoundingBox {
-//                                                layer: boundingBoxButton.checked ? gizmoLayer : invisibleLayer
-//                                                min: parent.min
-//                                                max: parent.max
-//                                            }
-//                                        }
-//                                    }
-
-//                                    Q3D.Entity {
-//                                        id: annotationPreviewEntity
-//                                        property ObjectPicker picker: ObjectPicker {
-//                                            onClicked: console.log("Clicked sphere", pick.distance, pick.triangleIndex)
-//                                        }
-
-//                                        property var meshTransform: Q3D.Transform {
-//                                            matrix: appStyle.tmpPreviewMatrix
-//                                        }
-//                                        property var sphereMesh: SphereMesh { }
-//                                        property var planeMesh: PlaneMesh { }
-//                                        property var cylinderMesh: CylinderMesh { }
-//                                        property var coneMesh: ConeMesh { }
-//                                        property var torusMesh: TorusMesh { minorRadius: 0.3 }
-//                                        property var cubeMesh: CuboidMesh { }
-//                                        property var selectedMesh: appStyle.tmpPrimitiveType === "sphere" ? sphereMesh
-//                                                                                                          : appStyle.tmpPrimitiveType === "plane" ? planeMesh
-//                                                                                                                                                  : appStyle.tmpPrimitiveType === "cylinder" ? cylinderMesh
-//                                                                                                                                                                                             : appStyle.tmpPrimitiveType === "cone" ? coneMesh
-//                                                                                                                                                                                                                                    : appStyle.tmpPrimitiveType === "torus" ? torusMesh
-//                                                                                                                                                                                                                                                                            : appStyle.tmpPrimitiveType === "cube" ? cubeMesh
-//                                                                                                                                                                                                                                                                                                                   : sphereMesh
-
-//                                        property var materialPhong: PhongMaterial { }
-//                                        property Layer currentLayer: appStyle.tmpPlacePrimitive ? solidLayer : invisibleLayer
-//                                        components: [ selectedMesh, materialPhong, meshTransform, currentLayer, picker ]
-//                                    }
-//                                }
-//                            }
                         }
                     }
                 }
@@ -910,13 +595,13 @@ Item {
                         iconSource: "image://material/ic_device_hub"
                         StyledButton {
                             isIcon: true
-                            visible: !globalApplicationState.currentCheckout.isBusyExecuting
+                            visible: !globalApplicationState.currentWorkspace.isBusyExecuting
                             iconSource: "image://material/ic_play_circle_filled"
                             onClicked: gbcontrol.doOperations()
                         }
                         StyledButton {
                             isIcon: true
-                            visible: globalApplicationState.currentCheckout.isBusyExecuting
+                            visible: globalApplicationState.currentWorkspace.isBusyExecuting
                             iconSource: "image://material/ic_pause_circle_filled"
                             enabled: false
                         }
@@ -955,18 +640,18 @@ Item {
                             onTriggered: executeOperations()
                             function executeOperations() {
                                 //if(running) return
-                                if(globalApplicationState.currentCheckout.isBusyExecuting) {
+                                if(globalApplicationState.currentWorkspace.isBusyExecuting) {
                                     operationTimer.start()
                                     return
                                 }
-                                console.log("Last Operation Status: " + globalApplicationState.currentCheckout.lastOperationStatus)
+                                console.log("Last Operation Status: " + globalApplicationState.currentWorkspace.lastOperationStatus)
                                 if(globalOperationScheduler.operatorList.length == 0) {
                                     console.log("Done executing")
                                     return
                                 }
                                 var op = globalOperationScheduler.operatorList.shift()
                                 console.log("Starting: " + op.moduleName + ", params: " + op.parameters)
-                                globalApplicationState.currentCheckout.doOperation(op.moduleName, op.parameters)
+                                globalApplicationState.currentWorkspace.doOperation(op.moduleName, op.parameters)
                                 operationTimer.start()
                             }
                         }

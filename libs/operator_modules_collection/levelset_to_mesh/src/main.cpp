@@ -28,13 +28,13 @@
 #include <openvdb/Grid.h>
 #include <openvdb/tools/VolumeToMesh.h>
 #include <openvdb/tools/LevelSetUtil.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <sstream>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include "tinyply.h"
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
@@ -228,7 +228,7 @@ mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
 //        detail = 1.0;
 //    }
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getCheckout()->getEntitydataReadOnly( input );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataInput = env->getWorkspace()->getEntitydataReadOnly( input );
     if(!abstractEntitydataInput)
     {
         log_error("input does not exist or is not readable.");
@@ -242,7 +242,7 @@ mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
     }
     FloatGridPtr inputGrid = entityDataInput->getData();
 
-    std::shared_ptr<Entity> ent = env->getCheckout()->getEntity(output);
+    std::shared_ptr<Entity> ent = env->getWorkspace()->getEntity(output);
     if(ent)
     {
         log_info("Output asset already exists. overwrite");
@@ -250,7 +250,7 @@ mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
 
     std::shared_ptr<Entity> assetEntity(new Entity);
     assetEntity->set_type(AssetEntitydata::TYPENAME());
-    mapit::StatusCode s = env->getCheckout()->storeEntity(output, assetEntity);
+    mapit::StatusCode s = env->getWorkspace()->storeEntity(output, assetEntity);
     if(!mapitIsOk(s))
     {
         log_error("Failed to create entity.");
@@ -395,7 +395,7 @@ mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
 //        m_mesh->setPrimitiveCount( vertexCount );
 //    }
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getCheckout()->getEntitydataForReadWrite( output );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydataOutput = env->getWorkspace()->getEntitydataForReadWrite( output );
     if(!abstractEntitydataOutput)
     {
         log_error("could not read output asset");

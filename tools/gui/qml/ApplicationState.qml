@@ -50,16 +50,16 @@ Item {
         }
     }
 
-    Mapit.Checkout {
-        id: globalCheckout
+    Mapit.Workspace {
+        id: globalWorkspace
         repository: root.currentRepository
-        name: appStyle.checkoutName
-        onNameChanged: appStyle.checkoutName = name
+        name: appStyle.workspaceName
+        onNameChanged: appStyle.workspaceName = name
     }
 
     Mapit.Entitydata {
         id: globalEntitydata
-        checkout: root.currentCheckout
+        workspace: root.currentWorkspace
         path: root.currentEntityPath
         onPathChanged: {
             console.log("Path of current entity: " + path)
@@ -68,7 +68,7 @@ Item {
 
     Mapit.TfTransform {
         id: globalEntityTransform
-        checkout: root.currentCheckout
+        workspace: root.currentWorkspace
         path: root.currentEntityPath
         targetFrame: root.currentFrameId
         sourceFrame:  root.currentEntity?root.currentEntity.frameId:""
@@ -80,11 +80,11 @@ Item {
         globalRepository.url = currentRepositoryUrl
     }
 
-    property alias currentCheckoutName: globalCheckout.name
+    property alias currentWorkspaceName: globalWorkspace.name
     // Zero or one Repository is open at a time
     readonly property var currentRepository: globalRepository
-    // At the moment zero or one checkout is open at a time. In the future entities may be showed without a checkout
-    readonly property var currentCheckout: globalCheckout
+    // At the moment zero or one workspace is open at a time. In the future entities may be showed without a workspace
+    readonly property var currentWorkspace: globalWorkspace
 
     // realtime objects of connected peers and more
     property MapitClient mapitClient
@@ -93,7 +93,7 @@ Item {
     onCurrentEntityPathChanged: appStyle.tmpCurrentEditEntity = currentEntityPath
 
     // One Entity is selected at a time
-    readonly property var currentEntity: currentCheckout ? currentCheckout.getEntity(currentEntityPath) : null
+    readonly property var currentEntity: currentWorkspace ? currentWorkspace.getEntity(currentEntityPath) : null
     // Entitydata may be loaded only once into the UI (here)! Note that it may freeze the UI for a short time (at the moment).
     // TODO: introduce lazy loading on cpp side
     readonly property var currentEntitydata: globalEntitydata

@@ -27,7 +27,7 @@
 #include <functional>
 #include <mapit/versioning/repository.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/errorcodes.h>
 
 template < typename T, void (mapit::ZmqResponderPrivate::*func)(T*) >
@@ -45,9 +45,9 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     void (mapit::ZmqResponderPrivate::*member)(google::protobuf::Message*);
     std::function<void(google::protobuf::Message*)> fn;
 
-    member = &mapit::ZmqResponderPrivate::toDelegate<RequestCheckout, &mapit::ZmqResponderPrivate::handleRequestCheckout>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestWorkspace, &mapit::ZmqResponderPrivate::handleRequestWorkspace>;
     fn = std::bind(member, this, std::placeholders::_1);
-    add_receivable_message_type<RequestCheckout>( fn );
+    add_receivable_message_type<RequestWorkspace>( fn );
 
     member = &mapit::ZmqResponderPrivate::toDelegate<RequestEntitydata, &mapit::ZmqResponderPrivate::handleRequestEntitydata>;
     fn = std::bind(member, this, std::placeholders::_1);
@@ -61,9 +61,9 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestHierarchyPlain>( fn );
 
-    member = &mapit::ZmqResponderPrivate::toDelegate<RequestListCheckouts, &mapit::ZmqResponderPrivate::handleRequestListCheckouts>;
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestListWorkspaces, &mapit::ZmqResponderPrivate::handleRequestListWorkspaces>;
     fn = std::bind(member, this, std::placeholders::_1);
-    add_receivable_message_type<RequestListCheckouts>( fn );
+    add_receivable_message_type<RequestListWorkspaces>( fn );
 
     member = &mapit::ZmqResponderPrivate::toDelegate<RequestOperatorExecution, &mapit::ZmqResponderPrivate::handleRequestOperatorExecution>;
     fn = std::bind(member, this, std::placeholders::_1);
@@ -93,41 +93,41 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
 
-void mapit::ZmqResponderPrivate::handleRequestCheckout(RequestCheckout *msg)
+void mapit::ZmqResponderPrivate::handleRequestWorkspace(RequestWorkspace *msg)
 {
-    std::unique_ptr<ReplyCheckout> ptr(new ReplyCheckout());
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
+    std::unique_ptr<ReplyWorkspace> ptr(new ReplyWorkspace());
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
     {
         if(msg->createifnotexists())
         {
             //TODO: handle multiple commits for merge
             CommitId commit = msg->commit_size() == 0 ? "" : msg->commit(0);
-            co = m_repo->createCheckout(commit, msg->checkout());
-            if( co == NULL )
+            workspace = m_repo->createWorkspace(commit, msg->workspace());
+            if( workspace == NULL )
             {
-                log_info("Could not get checkout \"" + msg->checkout() + "\"");
-                ptr->set_status( ReplyCheckout::ERROR );
+                log_info("Could not get workspace \"" + msg->workspace() + "\"");
+                ptr->set_status( ReplyWorkspace::ERROR );
             }
             else
             {
                 *ptr->mutable_commit() = msg->commit();
-                ptr->set_status( ReplyCheckout::SUCCESS );
+                ptr->set_status( ReplyWorkspace::SUCCESS );
             }
         }
         else
         {
-            ptr->set_status( ReplyCheckout::SUCCESS );
+            ptr->set_status( ReplyWorkspace::SUCCESS );
         }
     }
     else
     {
-        std::vector<CommitId> ids(co->getParentCommitIds());
+        std::vector<CommitId> ids(workspace->getParentCommitIds());
         for(std::vector<CommitId>::const_iterator citer(ids.cbegin()); citer != ids.cend() ; ++citer)
         {
             ptr->add_commit( *citer );
         }
-        ptr->set_status( ReplyCheckout::EXISTED );
+        ptr->set_status( ReplyWorkspace::EXISTED );
     }
     send( std::move( ptr ) );
 }
@@ -138,8 +138,8 @@ void mapit::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
         std::unique_ptr<ReplyEntitydata> ptr(new ReplyEntitydata());
 
         // Validate input
-        std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-        if(co == NULL)
+        std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+        if(workspace == NULL)
         {
             ptr->set_status( ReplyEntitydata::NOT_FOUND );
             ptr->set_receivedlength( 0 );
@@ -147,7 +147,7 @@ void mapit::ZmqResponderPrivate::handleRequestEntitydata(RequestEntitydata *msg)
             send( std::move( ptr ) );
             return;
         }
-        std::shared_ptr<AbstractEntitydata> ed = co->getEntitydataReadOnly( msg->entitypath() );
+        std::shared_ptr<AbstractEntitydata> ed = workspace->getEntitydataReadOnly( msg->entitypath() );
 
         ReplyEntitydata::Status status;
         if(ed == nullptr )
@@ -258,16 +258,16 @@ void mapit::ZmqResponderPrivate::handleRequestHierarchy(RequestHierarchy *msg)
 void mapit::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPlain *msg)
 {
     std::unique_ptr<ReplyHierarchyPlain> rep(new ReplyHierarchyPlain());
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
     {
         // TODO: Introduce Error-type
-        rep->set_status( ReplyHierarchyPlain::CHECKOUT_NOT_FOUND );
+        rep->set_status( ReplyHierarchyPlain::WORKSPACE_NOT_FOUND );
         send( std::move( rep ) );
     }
     else
     {
-        StatusCode s = co->depthFirstSearch(
+        StatusCode s = workspace->depthFirstSearch(
             [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path){return true;},
             [&](std::shared_ptr<Tree> obj, const ObjectReference &ref, const Path &path) {return true;},
             [&](std::shared_ptr<Entity> obj, const ObjectReference &ref, const Path &path)
@@ -283,13 +283,13 @@ void mapit::ZmqResponderPrivate::handleRequestHierarchyPlain(RequestHierarchyPla
     }
 }
 
-void mapit::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts *msg)
+void mapit::ZmqResponderPrivate::handleRequestListWorkspaces(RequestListWorkspaces *msg)
 {
-    std::unique_ptr<ReplyListCheckouts> rep(new ReplyListCheckouts());
-    std::vector<std::string> cos = m_repo->listCheckoutNames();
-    for(std::vector<std::string>::const_iterator iter(cos.cbegin()) ; iter != cos.cend() ; ++iter)
+    std::unique_ptr<ReplyListWorkspaces> rep(new ReplyListWorkspaces());
+    std::vector<std::string> workspaces = m_repo->listWorkspaceNames();
+    for(std::vector<std::string>::const_iterator iter(workspaces.cbegin()) ; iter != workspaces.cend() ; ++iter)
     {
-        rep->add_checkouts(*iter);
+        rep->add_workspaces(*iter);
     }
     send( std::move( rep ) );
 }
@@ -297,15 +297,15 @@ void mapit::ZmqResponderPrivate::handleRequestListCheckouts(RequestListCheckouts
 void mapit::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorExecution *msg)
 {
     std::unique_ptr<ReplyOperatorExecution> rep(new ReplyOperatorExecution());
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
     {
         rep->set_status_code( MAPIT_STATUS_ERR_DB_NOT_FOUND );
-        rep->set_error_msg( "Checkout does not exist" );
+        rep->set_error_msg( "Workspace does not exist" );
         send( std::move( rep ) );
         return;
     }
-    mapit::OperationResult result = co->doOperation(msg->param());
+    mapit::OperationResult result = workspace->doOperation(msg->param());
     rep->set_status_code(result.first);
     rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
     send( std::move( rep ) );
@@ -333,11 +333,11 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
         send( std::move( rep ) );
         return;
     }
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
     {
         discard_more();
-        log_info("Checkout was not available");
+        log_info("Workspace was not available");
         rep->set_status(ReplyStoreEntity::ERROR);
         send( std::move( rep ) );
         return;
@@ -346,14 +346,14 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
     desc.mutable_operator_()->set_operatorname("StoreEntity");
     desc.set_params("{source:\"network\"}");
 
-    mapit::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
-        mapit::CheckoutRaw* coraw = env->getCheckout();
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+        mapit::operators::WorkspaceWritable* workspaceDirectWriteAccess = env->getWorkspace();
 
         // if offset is not 0, we assume the entity already exists.
         if(msg->offset() == 0)
         {
             // Receive Entity out of the message and compare to existing entity
-            std::shared_ptr<Entity> entity(coraw->getEntity(msg->path()));
+            std::shared_ptr<Entity> entity(workspaceDirectWriteAccess->getEntity(msg->path()));
             if(nullptr == entity)
             {
                 // There was no entity yet
@@ -381,7 +381,7 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
             else
             {
                 // Other cases: There was a layertype and none is set now (just leave it as is).
-                mapit::StatusCode status = coraw->storeEntity(msg->path(), entity);
+                mapit::StatusCode status = workspaceDirectWriteAccess->storeEntity(msg->path(), entity);
                 if(!mapitIsOk(status))
                 {
                     log_info("Could not store entity: \"" + msg->path() + "\"");
@@ -399,7 +399,7 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
             return MAPIT_STATUS_INVALID_ARGUMENT;
         }
         // write entitydata
-        std::shared_ptr<AbstractEntitydata> ed = coraw->getEntitydataForReadWrite(msg->path());
+        std::shared_ptr<AbstractEntitydata> ed = workspaceDirectWriteAccess->getEntitydataForReadWrite(msg->path());
         if(ed == nullptr)
         {
             log_info("Entitydata of type could not be created.");
@@ -446,14 +446,14 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
 //    std::unique_ptr<ReplyStoreTree> rep(new ReplyStoreTree());
 
 //    // Validate input
-//    std::shared_ptr<Checkout> checkout = m_repo->getCheckout(msg->checkout());
-//    if(checkout == NULL)
+//    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+//    if(workspace == NULL)
 //    {
-//        rep->set_status( ReplyStoreTree::CHECKOUT_NOT_FOUND );
+//        rep->set_status( ReplyStoreTree::WORKSPACE_NOT_FOUND );
 //        send( std::move( rep ) );
 //        return;
 //    }
-//    MessageType type = checkout->typeOfObject(msg->path());
+//    MessageType type = workspace->typeOfObject(msg->path());
 //    if(type != MessageEmpty)
 //    {
 //        rep->set_status( ReplyStoreTree::EXISTED );
@@ -463,8 +463,8 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
 //    OperationDescription desc;
 //    desc.mutable_operator_()->set_operatorname("StoreTree");
 //    desc.set_params("{source:\"network\"}");
-//    mapit::OperationResult res = checkout->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
-//        mapit::CheckoutRaw* coraw = env->getCheckout();
+//    mapit::OperationResult res = workspace->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+//        mapit::WorkspaceRaw* coraw = env->getWorkspace();
 //        std::shared_ptr<Tree> tree;
 //        StatusCode s = coraw->storeTree(msg->path(), tree);
 //        return s;
@@ -486,11 +486,11 @@ void
 mapit::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
 {
     std::unique_ptr<ReplyDeleteEntity> rep = std::make_unique<ReplyDeleteEntity>();
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
     {
         discard_more();
-        log_info("Checkout was not available");
+        log_info("Workspace was not available");
         rep->set_status(ReplyDeleteEntity::ERROR);
         send( std::move( rep ) );
         return;
@@ -499,10 +499,10 @@ mapit::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
     desc.mutable_operator_()->set_operatorname("DeleteEntity");
     desc.set_params("{source:\"network\"}");
 
-    mapit::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
-        mapit::CheckoutRaw* coraw = env->getCheckout();
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+        mapit::operators::WorkspaceWritable* workspaceDirectWriteAccess = env->getWorkspace();
 
-        return coraw->deleteEntity(msg->path());
+        return workspaceDirectWriteAccess->deleteEntity(msg->path());
     });
     if(mapitIsOk(res.first))
     {
@@ -521,11 +521,11 @@ void
 mapit::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
 {
     std::unique_ptr<ReplyDeleteTree> rep = std::make_unique<ReplyDeleteTree>();
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == NULL)
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
     {
         discard_more();
-        log_info("Checkout was not available");
+        log_info("Workspace was not available");
         rep->set_status(ReplyDeleteTree::ERROR);
         send( std::move( rep ) );
         return;
@@ -534,10 +534,10 @@ mapit::ZmqResponderPrivate::handleRequestDeleteTree(RequestDeleteTree* msg)
     desc.mutable_operator_()->set_operatorname("DeleteTree");
     desc.set_params("{source:\"network\"}");
 
-    mapit::OperationResult res = co->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
-        mapit::CheckoutRaw* coraw = env->getCheckout();
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
+        mapit::operators::WorkspaceWritable* workspaceDirectWriteAccess = env->getWorkspace();
 
-        return coraw->deleteTree(msg->path());
+        return workspaceDirectWriteAccess->deleteTree(msg->path());
     });
     if(mapitIsOk(res.first))
     {
@@ -555,18 +555,18 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
 {
     Replier<ReplyGenericEntry> rep(new ReplyGenericEntry(), this);
     //std::unique_ptr<mapit::ReplyGenericEntry> rep(new mapit::ReplyGenericEntry());
-    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
-    if(co == nullptr)
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == nullptr)
     {
-        log_info("Checkout for requestGenericEntry does not exist");
+        log_info("Workspace for requestGenericEntry does not exist");
         rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
         rep.send();
         return;
     }
-    MessageType type = co->typeOfObject(msg->path());
+    MessageType type = workspace->typeOfObject(msg->path());
     if(type == MessageTree)
     {
-        std::shared_ptr<Tree> tree = co->getTree(msg->path());
+        std::shared_ptr<Tree> tree = workspace->getTree(msg->path());
         if(tree)
         {
             rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
@@ -580,7 +580,7 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
     }
     else if(type == MessageEntity)
     {
-        std::shared_ptr<Entity> entity = co->getEntity(msg->path());
+        std::shared_ptr<Entity> entity = workspace->getEntity(msg->path());
         if(entity)
         {
             rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
@@ -598,7 +598,7 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
 //void mapit::ZmqResponderPrivate::handleRequestTree(mapit::RequestTree *msg)
 //{
 //    std::unique_ptr<mapit::ReplyTree> rep(new mapit::ReplyTree());
-//    std::shared_ptr<Checkout> co = m_repo->getCheckout(msg->checkout());
+//    std::shared_ptr<Workspace> co = m_repo->getWorkspace(msg->workspace());
 //    std::shared_ptr<Tree> t = co->getTree(msg->path());
 //    if(t)
 //    {

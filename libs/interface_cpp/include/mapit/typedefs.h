@@ -52,7 +52,7 @@ typedef mapit::uint32_t StatusCode;
 typedef std::string CommitId;
 typedef std::string ObjectId;
 
-// Paths to navigate through a checkout
+// Paths to navigate through a workspace
 // Path do not need to start with "/".
 // TODO: There are not yet codepassages, where relative paths are needed
 // Empty "directories" are not allowed ("//").

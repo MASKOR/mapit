@@ -243,10 +243,10 @@ Q3D.Entity {
             ]
         }
     }
-    Mapit.Checkout {
-        id: globalCheckout
+    Mapit.Workspace {
+        id: globalWorkspace
         repository: globalRepository
-        name: "testcheckout"
+        name: "myworkspace"
     }
 
     MapitScene {
@@ -255,7 +255,7 @@ Q3D.Entity {
         currentFrameId: root.currentFrameId
         mapitClient: mapitClient
         camera: vrCam.leftCamera
-        currentCheckout: globalCheckout
+        currentWorkspace: globalWorkspace
 
         gridLayer: stereoFrameGraph.gridLayer
         gizmoLayer: stereoFrameGraph.gizmoLayer
@@ -263,5 +263,4 @@ Q3D.Entity {
         pointLayer: stereoFrameGraph.pointLayer
         solidLayer: stereoFrameGraph.solidLayer
     }
-
 }

@@ -31,10 +31,10 @@ StyledButton {
     id: root
     text: qsTr("Workspace")
     tooltip: qsTr("Open Dialog to choose a workspace to work on")
-    property string currentCheckoutName: appStyle.checkoutName
-    onClicked: chooseCheckoutDialog.visible = !chooseCheckoutDialog.visible
+    property string currentWorkspaceName: appStyle.workspaceName
+    onClicked: chooseWorkspaceDialog.visible = !chooseWorkspaceDialog.visible
     Wnd.Window {
-        id: chooseCheckoutDialog
+        id: chooseWorkspaceDialog
         width: 420
         height: 260
         minimumHeight: height
@@ -48,21 +48,21 @@ StyledButton {
             anchors.fill: parent
 
             ListView {
-                id: checkoutList
+                id: workspaceList
                 delegate: RowLayout {
                         Image {
                             source: "image://icon/asset-green"
                         }
                         StyledLabel {
-                            text: globalRepository.checkoutNames[index]
+                            text: globalRepository.workspaceNames[index]
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: checkoutList.currentIndex = index
+                                onClicked: workspaceList.currentIndex = index
                             }
                         }
                     }
 
-                model: globalRepository.checkoutNames
+                model: globalRepository.workspaceNames
                 highlight: Rectangle { color: appStyle.selectionColor }
 
                 Layout.fillWidth: true
@@ -71,10 +71,10 @@ StyledButton {
             QCtl.Button {
                 text: "+"
                 onClicked: {
-                    newCheckoutDialog.visible = !newCheckoutDialog.visible
+                    newWorkspaceDialog.visible = !newWorkspaceDialog.visible
                 }
                 Wnd.Window {
-                    id: newCheckoutDialog
+                    id: newWorkspaceDialog
                     width: 420
                     height: 260
                     minimumHeight: height
@@ -102,24 +102,24 @@ StyledButton {
                             Layout.row: 1
                         }
                         StyledTextField {
-                            id: checkoutnameTextedit
+                            id: workspaceNameTextedit
                             Layout.column: 1
                             Layout.row: 1
                         }
                         StyledButton {
                             text: "Cancel"
-                            onClicked: newCheckoutDialog.visible = false
+                            onClicked: newWorkspaceDialog.visible = false
                             Layout.column: 0
                             Layout.row: 2
                         }
                         StyledButton {
                             text: "Ok"
                             enabled: branchnameTextedit.text.trim().length !== 0
-                                     && checkoutnameTextedit.text.trim().length !== 0
+                                     && workspaceNameTextedit.text.trim().length !== 0
                             onClicked: {
-                                globalRepository.createCheckout(branchnameTextedit.text, checkoutnameTextedit.text)
-                                appStyle.checkoutName = checkoutnameTextedit.text
-                                newCheckoutDialog.visible = false
+                                globalRepository.createWorkspace(branchnameTextedit.text, workspaceNameTextedit.text)
+                                appStyle.workspaceName = workspaceNameTextedit.text
+                                newWorkspaceDialog.visible = false
                             }
                             Layout.column: 1
                             Layout.row: 2
@@ -131,14 +131,14 @@ StyledButton {
                 Layout.fillWidth: true
                 StyledButton {
                     text: "Cancel"
-                    onClicked: chooseCheckoutDialog.visible = false
+                    onClicked: chooseWorkspaceDialog.visible = false
                 }
                 StyledButton {
                     text: "Ok"
                     onClicked: {
-                        root.currentCheckoutName = globalRepository.checkoutNames[checkoutList.currentIndex];
-                        appStyle.checkoutName = root.currentCheckoutName
-                        chooseCheckoutDialog.visible = false;
+                        root.currentWorkspaceName = globalRepository.workspaceNames[workspaceList.currentIndex];
+                        appStyle.workspaceName = root.currentWorkspaceName
+                        chooseWorkspaceDialog.visible = false;
                     }
                 }
             }

@@ -21,32 +21,35 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHECKOUTRAW_H
-#define CHECKOUTRAW_H
+#ifndef WORKSPACEWRITABLE_H
+#define WORKSPACEWRITABLE_H
 
 #include <mapit/typedefs.h>
 #include <mapit/msgs/services.pb.h>
 #include <mapit/entitydata.h>
-#include <mapit/versioning/checkoutcommon.h>
+#include <mapit/versioning/workspacecommon.h>
 #include <algorithm>
 
 namespace mapit
 {
 
+namespace operators
+{
+
 /**
- * @brief A Checkout object represents an editable state/version of all maps.
- * CheckoutRaw is the interface for Operators to directly edit objects.
+ * @brief A Workspace object represents an editable state/version of all maps.
+ * WorkspaceWritable is the interface for Operators to directly edit objects.
  * Conflicts:
  * When there is a conflict, a "path" is not enough to identify objects. An Operation,
  * working on conflicts can choose one of the existing versions or create a new object,
  * which will be marked as the new version.
  */
 
-class CheckoutRaw : public virtual CheckoutCommon
+class WorkspaceWritable : public virtual WorkspaceCommon
 {
 protected:
     // Can not be deleted from outside (module)
-    virtual ~CheckoutRaw() {}
+    virtual ~WorkspaceWritable() {}
 public:
 //    /**
 //     * @brief storeTree changes the tree at a given path. No conflict is generated, the old version is overwritten.
@@ -120,6 +123,8 @@ public:
 //     */
 //    virtual std::shared_ptr<AbstractEntitydata> getEntitydataConflictSolvingForWrite(const Path &entity) = 0;
 };
+
+}
 
 }
 #endif

@@ -32,10 +32,10 @@ mapit::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string u
      m_operationsLocal(operationsLocal)
 {
     connect(urlOutgoingRequests);
-    add_receivable_message_type<ReplyCheckout>();
+    add_receivable_message_type<ReplyWorkspace>();
     add_receivable_message_type<ReplyEntitydata>();
     add_receivable_message_type<ReplyHierarchy>();
-    add_receivable_message_type<ReplyListCheckouts>();
+    add_receivable_message_type<ReplyListWorkspaces>();
     add_receivable_message_type<ReplyOperatorExecution>();
     add_receivable_message_type<ReplyGenericEntry>();
     add_receivable_message_type<ReplyStoreEntity>();

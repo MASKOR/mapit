@@ -12,7 +12,7 @@ list repo contents
 ```
 mapit ls <workspace name>:
   -h [ --help ]              print usage
-  -w [ --workspace ] arg     the workspace (formerly checkout) to work with
+  -w [ --workspace ] arg     the workspace to work with
   -r [ --recursive ]         the structure should be displayed recursivly
   -m [ --map ] arg           the content within the map
   -l [ --layer ] arg         the content within the layer, needs map to be 

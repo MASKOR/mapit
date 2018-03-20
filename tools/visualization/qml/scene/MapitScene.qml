@@ -47,7 +47,7 @@ Q3D.Entity {
     property alias coordianteSystemTransform: coordianteSystemTransform
     property alias gizmoEntity: gizmoEntity
     property alias entityInstantiator: entityInstantiator
-    property var currentCheckout
+    property var currentWorkspace
     property var appStyleOptional
 
     property Layer gridLayer
@@ -293,16 +293,16 @@ Q3D.Entity {
                     currentFrameId: sceneRoot.currentFrameId
                     layer: pointLayer
                     //parametersTmp: techniqueFilter.parameters
-                    //Currently only one checkout is supported
-                    currentCheckout: sceneRoot.currentCheckout
-                    //                                    currentCheckout: Mapit.Checkout {
+                    //Currently only one workspace is supported
+                    currentWorkspace: sceneRoot.currentWorkspace
+                    //                                    currentWorkspace: Mapit.Workspace {
                     //                                        id: co
                     //                                        repository: globalRepository
-                    //                                        name: model.checkoutName
+                    //                                        name: model.workspaceName
                     //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
                     //                                    }
                     currentEntitydata: Mapit.Entitydata {
-                        checkout: sceneRoot.currentCheckout
+                        workspace: sceneRoot.currentWorkspace
                         path: (sceneRoot.visibleEntityPaths && sceneRoot.visibleEntityPaths.get(index)) ? sceneRoot.visibleEntityPaths.get(index).path : ""
                         onIsLoadingChanged: {
 //                                                    if(isLoading) {
@@ -367,10 +367,10 @@ Q3D.Entity {
 
                     layer: pointLayer
                     //parametersTmp: techniqueFilter.parameters
-                    //Currently only one checkout is supported
-                    currentCheckout: sceneRoot.currentCheckout
+                    //Currently only one workspace is supported
+                    currentWorkspace: sceneRoot.currentWorkspace
                     currentEntitydata: Mapit.Entitydata {
-                        checkout: sceneRoot.currentCheckout
+                        workspace: sceneRoot.currentWorkspace
                         path: sceneRoot.mapitClient.state ? sceneRoot.mapitClient.state.visibleEntityInfosList.get(index) ? sceneRoot.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
                     }
 //                    onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()

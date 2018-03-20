@@ -22,7 +22,7 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/errorcodes.h>
 #include <mapit/depthfirstsearch.h>
@@ -57,9 +57,9 @@ void scalePoint(std::vector<pcl::uint8_t>& data, const size_t& offset, const ::p
     }
 }
 
-mapit::StatusCode scalePointcloud(mapit::CheckoutRaw* checkout, std::string path, std::shared_ptr<mapit::msgs::Entity> entity)
+mapit::StatusCode scalePointcloud(mapit::operators::WorkspaceWritable* workspace, std::string path, std::shared_ptr<mapit::msgs::Entity> entity)
 {
-    std::shared_ptr<mapit::AbstractEntitydata> edA = checkout->getEntitydataForReadWrite(path);
+    std::shared_ptr<mapit::AbstractEntitydata> edA = workspace->getEntitydataForReadWrite(path);
     if ( 0 != std::strcmp(edA->type(), PointcloudEntitydata::TYPENAME()) ) {
         log_error("scale_pointcloud: entity \"" + path
                 + "\" is of type \"" + edA->type()
@@ -119,7 +119,7 @@ mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    mapit::CheckoutRaw* checkout = env->getCheckout();
+    mapit::operators::WorkspaceWritable* workspace = env->getWorkspace();
 
     if ( ! params.contains("target") || ! params["target"].isString() ) {
         log_error("scale_pointcloud: parameter \"target\" is not set or not a string");
@@ -145,20 +145,20 @@ mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
     log_info("scale_pointcloud: executing on \"" + target + "\" with factor ("
              + std::to_string(factorX_) + ", " + std::to_string(factorY_) + ", " + std::to_string(factorZ_) + ")");
 
-    std::shared_ptr<mapit::msgs::Entity> entity = checkout->getEntity(target);
+    std::shared_ptr<mapit::msgs::Entity> entity = workspace->getEntity(target);
     if (entity != nullptr) {
-        return scalePointcloud(checkout, target, entity);
+        return scalePointcloud(workspace, target, entity);
     } else {
-        std::shared_ptr<mapit::msgs::Tree> tree = checkout->getTree(target);
+        std::shared_ptr<mapit::msgs::Tree> tree = workspace->getTree(target);
         if (tree != nullptr) {
             mapit::StatusCode statusSearch = MAPIT_STATUS_OK;
-            checkout->depthFirstSearch(
+            workspace->depthFirstSearch(
                         target
                         , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                         , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                         , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                           {
-                              mapit::StatusCode s = scalePointcloud(checkout, path, obj);
+                              mapit::StatusCode s = scalePointcloud(workspace, path, obj);
                               if ( mapitIsOk(s) ) {
                                   return true;
                               } else {

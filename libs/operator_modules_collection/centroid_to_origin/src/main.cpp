@@ -25,7 +25,7 @@
 #include <mapit/operators/module.h>
 #include <mapit/layertypes/pointcloudlayer.h>
 #include <mapit/layertypes/tflayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <pcl/common/centroid.h>
@@ -33,7 +33,7 @@
 #include <pcl/common/common.h>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 
@@ -272,21 +272,21 @@ mapit::StatusCode operateConcreteType(mapit::entitytypes::Pointcloud2Ptr cloud, 
 //    {
 //        std::string tfEntityName = params["tfTarget"].toString().toStdString();
 //        // Get Target
-//        std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getCheckout()->getEntity(tfEntityName);
+//        std::shared_ptr<mapit::msgs::Entity> tfEntity = env->getWorkspace()->getEntity(tfEntityName);
 //        if(tfEntity == NULL)
 //        {
 //            // If target could not be received, create new entity
 //            // There must be an entity in order to write entity data in the next step
 //            tfEntity = std::shared_ptr<mapit::msgs::Entity>(new mapit::msgs::Entity);
 //            tfEntity->set_type(TfEntitydata::TYPENAME());
-//            StatusCode s = env->getCheckout()->storeEntity(tfEntityName, tfEntity);
+//            StatusCode s = env->getWorkspace()->storeEntity(tfEntityName, tfEntity);
 //            if(!mapitIsOk(s))
 //            {
 //                log_error("Failed to create transform entity.");
 //                return MAPIT_STATUS_ERR_UNKNOWN;
 //            }
 //        }
-//        std::shared_ptr<AbstractEntitydata> abstractEntitydataTf = env->getCheckout()->getEntitydataForReadWrite( tfEntityName );
+//        std::shared_ptr<AbstractEntitydata> abstractEntitydataTf = env->getWorkspace()->getEntitydataForReadWrite( tfEntityName );
 //        if(abstractEntitydataTf == NULL)
 //        {
 //            return MAPIT_STATUS_ERR_UNKNOWN;
@@ -311,7 +311,7 @@ mapit::StatusCode operate_ctr(mapit::OperationEnvironment* env)
 
     std::string target = params["target"].toString().toStdString();
 
-    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getCheckout()->getEntitydataForReadWrite( target );
+    std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = env->getWorkspace()->getEntitydataForReadWrite( target );
     std::shared_ptr<PointcloudEntitydata> entityData = std::dynamic_pointer_cast<PointcloudEntitydata>( abstractEntitydata );
     if(entityData == nullptr)
     {

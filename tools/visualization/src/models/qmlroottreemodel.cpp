@@ -42,23 +42,23 @@ QVariantMap QmlRootTreeModel::get(int idx) const
     return map;
 }
 
-QmlCheckout *QmlRootTreeModel::root() const
+QmlWorkspace *QmlRootTreeModel::root() const
 {
     return m_root;
 }
 
-void QmlRootTreeModel::setRoot(QmlCheckout *root)
+void QmlRootTreeModel::setRoot(QmlWorkspace *root)
 {
     if (m_root != root)
     {
         if(m_root)
         {
-            disconnect(m_root, &QmlCheckout::internalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+            disconnect(m_root, &QmlWorkspace::internalWorkspaceChanged, this, &QmlRootTreeModel::setRoot);
         }
         m_root = root;
         if(m_root)
         {
-            connect(m_root, &QmlCheckout::internalCheckoutChanged, this, &QmlRootTreeModel::setRoot);
+            connect(m_root, &QmlWorkspace::internalWorkspaceChanged, this, &QmlRootTreeModel::setRoot);
         }
         Q_EMIT rootChanged(root);
     }

@@ -24,12 +24,12 @@
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
 #include <mapit/layertypes/tflayer.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -77,7 +77,7 @@ mapit::StatusCode operate_load_tfs(mapit::OperationEnvironment* env)
 
     std::string prefix = params["prefix"].toString().toStdString();
 
-    mapit::CheckoutRaw* checkout = env->getCheckout();
+    mapit::operators::WorkspaceWritable* workspace = env->getWorkspace();
 
     std::shared_ptr<mapit::tf::store::TransformStampedListGatherer> tfs_map
         = std::make_shared<mapit::tf::store::TransformStampedListGatherer>();
@@ -138,7 +138,7 @@ mapit::StatusCode operate_load_tfs(mapit::OperationEnvironment* env)
         tfs_map->add_transform( std::move( tf_loaded ), is_static );
     }
 
-    mapit::StatusCode usc_static = tfs_map->store_entities(checkout, prefix);
+    mapit::StatusCode usc_static = tfs_map->store_entities(workspace, prefix);
 
     if (   usc_static == MAPIT_STATUS_OK) {
       return MAPIT_STATUS_OK;

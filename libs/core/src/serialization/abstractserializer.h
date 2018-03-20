@@ -32,7 +32,7 @@
 
 namespace mapit
 {
-// Path with leading checkout name
+// Path with leading workspace name
 typedef Path PathInternal;
 /**
  * @brief The AbstractSerializer class capsulates data access. From outside maps and entities can be read/written.
@@ -69,12 +69,12 @@ public:
     virtual std::pair<StatusCode, ObjectId> createCommit(std::shared_ptr<mapit::msgs::Commit> obj) = 0;
     virtual StatusCode removeCommit(const ObjectId &oid) = 0;
 
-    virtual std::vector< std::string > listCheckoutNames() = 0;
-    virtual std::vector< std::shared_ptr<mapit::msgs::CheckoutObj> > listCheckouts() = 0;
-    virtual std::shared_ptr<mapit::msgs::CheckoutObj> getCheckoutCommit(const std::string &name) = 0;
-    virtual StatusCode storeCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> obj, const std::string &name) = 0;
-    virtual StatusCode createCheckoutCommit(std::shared_ptr<mapit::msgs::CheckoutObj> obj, const std::string &name) = 0;
-    virtual StatusCode removeCheckout(const std::string &name) = 0;
+    virtual std::vector< std::string > listWorkspaceNames() = 0;
+    virtual std::vector< std::shared_ptr<mapit::msgs::WorkspaceObj> > listWorkspaces() = 0;
+    virtual std::shared_ptr<mapit::msgs::WorkspaceObj> getworkspaceCommit(const std::string &name) = 0;
+    virtual StatusCode storeWorkspaceCommit(std::shared_ptr<mapit::msgs::WorkspaceObj> obj, const std::string &name) = 0;
+    virtual StatusCode createworkspaceCommit(std::shared_ptr<mapit::msgs::WorkspaceObj> obj, const std::string &name) = 0;
+    virtual StatusCode removeWorkspace(const std::string &name) = 0;
 
     virtual std::vector< std::shared_ptr<mapit::msgs::Branch> > listBranches() = 0;
     virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;
@@ -96,7 +96,7 @@ public:
 //    virtual bool isTree(const ObjectId &oid) = 0;
 //    virtual bool isEntity(const ObjectId &oid) = 0;
 //    virtual bool isCommit(const CommitId &oid) = 0;
-//    virtual bool isCheckout(const CommitId &oid) = 0;
+//    virtual bool isWorkspace(const CommitId &oid) = 0;
 //    virtual bool isBranch(const CommitId &oid) = 0;
     /**
      * @brief cleanUp Collects Grabage. Orphan Objects, not reachable by any branch are removed.

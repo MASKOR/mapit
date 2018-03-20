@@ -23,9 +23,9 @@
 
 #include <mapit/operators/module.h>
 #include <mapit/logging.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <mapit/operators/operationenvironment.h>
-#include <mapit/operators/versioning/checkoutraw.h>
+#include <mapit/operators/versioning/workspacewritable.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
@@ -69,7 +69,7 @@ mapit::StatusCode operate_edit_entity(mapit::OperationEnvironment* env)
         return MAPIT_STATUS_OK;
     }
 
-    std::shared_ptr<mapit::msgs::Entity> entity = env->getCheckout()->getEntity(target);
+    std::shared_ptr<mapit::msgs::Entity> entity = env->getWorkspace()->getEntity(target);
     if(entity == nullptr)
     {
         log_error("Entity not found.");
@@ -85,7 +85,7 @@ mapit::StatusCode operate_edit_entity(mapit::OperationEnvironment* env)
         stamp->set_sec(sec);
         stamp->set_nsec(nsec);
     }
-    env->getCheckout()->storeEntity(target, entity);
+    env->getWorkspace()->storeEntity(target, entity);
 
     return MAPIT_STATUS_OK;
 }
