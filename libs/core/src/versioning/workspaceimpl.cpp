@@ -307,26 +307,26 @@ std::shared_ptr<Tree> WorkspaceImpl::getTree(const ObjectReference &ref)
 
 std::shared_ptr<Entity> WorkspaceImpl::getEntity(const ObjectReference &ref)
 {
-    if(!ref.id().empty())
-    {
-        return m_serializer->getEntity(ref.id());
-    }
-    else if (!ref.path().empty())
+    if(!ref.path().empty())
     {
         return m_serializer->getEntityTransient(ref.path());
+    }
+    else if (!ref.id().empty())
+    {
+        return m_serializer->getEntity(ref.id());
     }
     assert(false);
 }
 
 MessageType WorkspaceImpl::typeOfObject(const ObjectReference &ref)
 {
-    if(!ref.id().empty())
-    {
-        return m_serializer->typeOfObject(ref.id());
-    }
-    else if (!ref.path().empty())
+    if(!ref.path().empty())
     {
         return m_serializer->typeOfObjectTransient(ref.path());
+    }
+    else if (!ref.id().empty())
+    {
+        return m_serializer->typeOfObject(ref.id());
     }
     assert(false);
 }
