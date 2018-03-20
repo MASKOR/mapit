@@ -73,7 +73,7 @@ public:
     QStringList entities() const;
 
     //TODO: Put this to a another class. This introduces dependency
-    //      to tfs from checkout (core->entitytype).
+    //      to tfs from workspace (core->entitytype).
 
     Q_INVOKABLE QStringList getFrameIds();
     bool isBusyExecuting() const;

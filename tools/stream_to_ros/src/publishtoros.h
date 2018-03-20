@@ -39,8 +39,8 @@ struct Entity {
 class PublishToROS
 {
 public:
-  PublishToROS(std::shared_ptr<mapit::Workspace> checkout, std::shared_ptr<ros::NodeHandle> node_handle, std::unique_ptr<ros::Publisher> publisher)
-    : workspace_(checkout)
+  PublishToROS(std::shared_ptr<mapit::Workspace> workspace, std::shared_ptr<ros::NodeHandle> node_handle, std::unique_ptr<ros::Publisher> publisher)
+    : workspace_(workspace)
     , node_handle_(node_handle)
     , publisher_( std::move(publisher) )
   { }
