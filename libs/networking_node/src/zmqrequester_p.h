@@ -28,6 +28,7 @@
 #include "zmqprotobufnode.h"
 #include <mapit/msgs/services.pb.h>
 #include <mapit/versioning/repository.h>
+#include <mutex>
 
 namespace mapit {
 
@@ -38,6 +39,7 @@ public:
     ZmqRequesterPrivate( Repository* cache, std::string urlOutgoingRequests = std::string(), bool operationsLocal = false );
     Repository* m_cache;
     bool m_operationsLocal;
+    std::mutex m_requestMutex; //TODO: this is only needed for req/rep pattern
 };
 
 } // namespace mapit

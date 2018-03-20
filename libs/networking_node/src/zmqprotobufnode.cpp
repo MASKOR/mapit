@@ -287,7 +287,6 @@ bool ZmqProtobufNode::has_more()
 
 void ZmqProtobufNode::prepareForwardComChannel()
 {
-
 }
 
 void ZmqProtobufNode::prepareBackComChannel()

@@ -27,6 +27,7 @@
 #include <mapit/versioning/repository.h>
 #include "zmqprotobufnode.h"
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
+#include <mutex>
 
 namespace mapit
 {
@@ -39,7 +40,7 @@ class ZmqEntitydataStreamProvider : public AbstractEntitydataProvider
 {
     // AbstractEntitydataProvider interface
 public:
-    ZmqEntitydataStreamProvider(std::string workspaceName, std::string pathOrOid, ZmqProtobufNode *node);
+    ZmqEntitydataStreamProvider(std::string workspaceName, std::string pathOrOid, ZmqProtobufNode *node, std::mutex *requestMutex);
     bool isCached();
     bool isReadWriteSame();
     mapit::istream *startRead(mapit::uint64_t start, mapit::uint64_t length);
@@ -71,6 +72,7 @@ private:
     std::string m_pathOrOid;
     ZmqProtobufNode *m_node;
     mutable mapit::uint64_t m_entityLength;
+    std::mutex *m_requestMutex;
 };
 
 }

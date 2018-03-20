@@ -26,6 +26,7 @@
 #include "zmqrequesterworkspace.h"
 #include <zmq.hpp>
 #include <mapit/errorcodes.h>
+#include <mutex>
 
 mapit::ZmqRequester::ZmqRequester(Repository *cache, std::string urlOutgoingRequests, bool operationsLocal)
     :m_d( new mapit::ZmqRequesterPrivate( cache, urlOutgoingRequests, operationsLocal ) )
@@ -43,10 +44,12 @@ std::vector<std::string> mapit::ZmqRequester::listWorkspaceNames()
     std::unique_ptr<RequestListWorkspaces> req(new RequestListWorkspaces);
     try
     {
+        m_d->m_requestMutex.lock();
         m_d->prepareForwardComChannel();
         m_d->send(std::move(req));
         m_d->prepareBackComChannel();
         std::shared_ptr<ReplyListWorkspaces> rep(m_d->receive<ReplyListWorkspaces>());
+        m_d->m_requestMutex.unlock();
 
         std::vector<std::string> ret;
         if(rep == nullptr)
@@ -63,6 +66,7 @@ std::vector<std::string> mapit::ZmqRequester::listWorkspaceNames()
     }
     catch(zmq::error_t err)
     {
+        m_d->m_requestMutex.unlock();
         log_error("ZmqRequester: Error in listWorkspaceNames: " + err.what());
         return std::vector<std::string>();
     }
@@ -131,14 +135,16 @@ std::shared_ptr<mapit::Workspace> mapit::ZmqRequester::createWorkspace(const map
     req->set_createifnotexists(true);
     try
     {
+        m_d->m_requestMutex.lock();
         m_d->prepareForwardComChannel();
         m_d->send(std::move(req));
         m_d->prepareBackComChannel();
         std::shared_ptr<ReplyWorkspace> rep(m_d->receive<ReplyWorkspace>());
+        m_d->m_requestMutex.unlock();
         if(rep && (rep->status() == ReplyWorkspace::SUCCESS ||
            rep->status() == ReplyWorkspace::EXISTED))
         {
-            return std::shared_ptr<mapit::Workspace>(new mapit::ZmqRequesterWorkspace( name, m_d, nullptr, m_d->m_operationsLocal ));
+            return std::shared_ptr<mapit::Workspace>(new mapit::ZmqRequesterWorkspace( name, m_d, nullptr, m_d->m_operationsLocal, &m_d->m_requestMutex ));
         }
         else
         {
@@ -148,6 +154,7 @@ std::shared_ptr<mapit::Workspace> mapit::ZmqRequester::createWorkspace(const map
     }
     catch(zmq::error_t err)
     {
+        m_d->m_requestMutex.unlock();
         log_error("ZmqRequester: Error in createWorkspace: " + err.what());
         return std::shared_ptr<mapit::Workspace>(nullptr);
     }
@@ -162,7 +169,7 @@ std::shared_ptr<mapit::Workspace> mapit::ZmqRequester::getWorkspace(const std::s
         // operator later must be able to compute locally without requests to client
         // TODO:
     }
-    return std::shared_ptr<mapit::Workspace>(new mapit::ZmqRequesterWorkspace( workspaceName, m_d, nullptr, m_d->m_operationsLocal ));
+    return std::shared_ptr<mapit::Workspace>(new mapit::ZmqRequesterWorkspace( workspaceName, m_d, nullptr, m_d->m_operationsLocal, &m_d->m_requestMutex ));
 }
 
 mapit::StatusCode mapit::ZmqRequester::deleteWorkspaceForced(const std::string &workspaceName)
