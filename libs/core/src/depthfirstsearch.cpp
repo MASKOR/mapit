@@ -79,7 +79,14 @@ StatusCode depthFirstSearchGeneric(  T *mapitDataSource
     {
         const ObjectReference &childref = iter->second;
         const Path &childpath = (path=="/"?"":path) + "/" + iter->first;
-        MessageType t = mapitDataSource->typeOfObject(childpath);
+        std::string templateReference;
+        if ( childref.path().empty() ) {
+             templateReference = childref.id(); // type of T is a repository
+        } else {
+            templateReference = childpath;      // type of T is a workspace
+        }
+
+        MessageType t = mapitDataSource->typeOfObject(templateReference);
 
         if(t == MessageType::MessageCommit)
         {
@@ -89,13 +96,13 @@ StatusCode depthFirstSearchGeneric(  T *mapitDataSource
         }
         else if(t == MessageType::MessageTree)
         {
-            std::shared_ptr<Tree> tree(mapitDataSource->getTree(childpath));
+            std::shared_ptr<Tree> tree(mapitDataSource->getTree(templateReference));
             StatusCode s = depthFirstSearchGeneric(mapitDataSource, tree, childref, childpath, beforeTree, afterTree, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
         else if(t == MessageType::MessageEntity)
         {
-            std::shared_ptr<Entity> entity(mapitDataSource->getEntity(childpath));
+            std::shared_ptr<Entity> entity(mapitDataSource->getEntity(templateReference));
             StatusCode s = depthFirstSearchGeneric(entity, childref, childpath, beforeEntity, afterEntity);
             if(!mapitIsOk(s)) return s;
         }
@@ -210,10 +217,11 @@ StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
         assert( ! commit->root().id().empty() );
         std::shared_ptr<Tree> root = repo->getTree( commit->root().id() );
         assert(root);
-        ObjectReference nullRef;
+        ObjectReference rootRef;
+        rootRef.set_id( commit->root().id() );
         StatusCode s = depthFirstSearchGeneric(  repo.get()
                                                , root
-                                               , nullRef
+                                               , rootRef
                                                , "/"
                                                , beforeTree
                                                , afterTree
