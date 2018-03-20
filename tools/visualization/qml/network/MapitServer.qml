@@ -177,7 +177,7 @@ Item {
                         }
                         if(workspaceName !== msgData.workspaceName) {
                             workspaceName = msgData.workspaceName
-                            console.log("Server received new checkout name from host: " + workspaceName)
+                            console.log("Server received new workspace name from host: " + workspaceName)
                         }
                     }
 

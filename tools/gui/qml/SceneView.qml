@@ -164,6 +164,7 @@ Item {
                 //                }
             }
             RowLayout {
+                visible: false // hide primitive icons for now
                 StyledButton {
                     isIcon: true
                     iconSource: "image://primitive/sphere-skinny"
@@ -786,16 +787,16 @@ Item {
 //                                            currentFrameId: root.currentFrameId
 //                                            layer: pointLayer
 //                                            //parametersTmp: techniqueFilter.parameters
-//                                            //Currently only one checkout is supported
+//                                            //Currently only one workspace is supported
 //                                            currentWorkspace: globalApplicationState.currentWorkspace
-//                                            //                                    currentWorkspace: Mapit.Checkout {
+//                                            //                                    currentWorkspace: Mapit.Workspace {
 //                                            //                                        id: co
 //                                            //                                        repository: globalRepository
 //                                            //                                        name: model.workspaceName
 //                                            //                                        //Component.onCompleted: frameIdChooser.addUniqueFrameIds(co.getFrameIds())
 //                                            //                                    }
 //                                            currentEntitydata: Mapit.Entitydata {
-//                                                checkout: currentWorkspace
+//                                                workspace: currentWorkspace
 //                                                path: root.visibleEntityModel.get(index) ? root.visibleEntityModel.get(index).path : ""
 //                                                onIsLoadingChanged: {
 ////                                                    if(isLoading) {
@@ -848,10 +849,10 @@ Item {
 
 //                                            layer: pointLayer
 //                                            //parametersTmp: techniqueFilter.parameters
-//                                            //Currently only one checkout is supported
+//                                            //Currently only one workspace is supported
 //                                            currentWorkspace: globalApplicationState.currentWorkspace
 //                                            currentEntitydata: Mapit.Entitydata {
-//                                                checkout: currentWorkspace
+//                                                workspace: currentWorkspace
 //                                                path: root.mapitClient.state ? root.mapitClient.state.visibleEntityInfosList.get(index) ? root.mapitClient.state.visibleEntityInfosList.get(index).path : "" : ""
 //                                            }
 //                                            onMinChanged: peerVisualEntityInstantiator.recalcBoundingBox()

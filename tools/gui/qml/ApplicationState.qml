@@ -59,7 +59,7 @@ Item {
 
     Mapit.Entitydata {
         id: globalEntitydata
-        checkout: root.currentWorkspace
+        workspace: root.currentWorkspace
         path: root.currentEntityPath
         onPathChanged: {
             console.log("Path of current entity: " + path)
@@ -68,7 +68,7 @@ Item {
 
     Mapit.TfTransform {
         id: globalEntityTransform
-        checkout: root.currentWorkspace
+        workspace: root.currentWorkspace
         path: root.currentEntityPath
         targetFrame: root.currentFrameId
         sourceFrame:  root.currentEntity?root.currentEntity.frameId:""
@@ -83,7 +83,7 @@ Item {
     property alias currentWorkspaceName: globalWorkspace.name
     // Zero or one Repository is open at a time
     readonly property var currentRepository: globalRepository
-    // At the moment zero or one checkout is open at a time. In the future entities may be showed without a checkout
+    // At the moment zero or one workspace is open at a time. In the future entities may be showed without a workspace
     readonly property var currentWorkspace: globalWorkspace
 
     // realtime objects of connected peers and more

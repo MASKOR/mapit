@@ -34,7 +34,7 @@ Q3D.Entity {
     property alias currentEntitydata : edrender.entitydata
     //property var currentEntitydata
     property alias currentTransform : currentEntitydataTransform
-    property alias currentWorkspace : currentEntitydataTransform.checkout
+    property alias currentWorkspace : currentEntitydataTransform.workspace
     property var mainCameratmp
     property Layer layer
     property alias parametersTmp: surfelTechnique.parameters

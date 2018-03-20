@@ -243,10 +243,10 @@ Q3D.Entity {
             ]
         }
     }
-    Mapit.Checkout {
+    Mapit.Workspace {
         id: globalWorkspace
         repository: globalRepository
-        name: "testcheckout"
+        name: "myworkspace"
     }
 
     MapitScene {
@@ -263,5 +263,4 @@ Q3D.Entity {
         pointLayer: stereoFrameGraph.pointLayer
         solidLayer: stereoFrameGraph.solidLayer
     }
-
 }

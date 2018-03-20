@@ -84,7 +84,7 @@ ColumnLayout {
         id: priv
         Mapit.TfTransform {
             id: currentEntitydataTransformId
-            checkout: globalApplicationState.currentWorkspace
+            workspace: globalApplicationState.currentWorkspace
             mustExist: false
             path: entityChooser.currentEntityPath /*+ ((entityChooser.currentEntityPath.length > 3
                                           && entityChooser.currentEntityPath.lastIndexOf(".tf") !== entityChooser.currentEntityPath.length-3)

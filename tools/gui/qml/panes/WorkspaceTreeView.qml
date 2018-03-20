@@ -32,14 +32,14 @@ import "../components"
 import "qrc:/qml/network"
 
 QCtl.TreeView {
-    id: treeViewCheckout
+    id: treeViewWorkspace
     property var currentWorkspace: globalApplicationState.currentWorkspace
     property var contextMenu
     // all objects, also cached and invisible
     property var allVisualInfoModel: ([])//ObjectModel {}
     // only visible entities
     property ListModel visibleEntityModel: ListModel {}
-    property string currentEntityPath: selectionModel.currentIndex && treeViewCheckout.model.data(selectionModel.currentIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode ? treeViewCheckout.model.data(selectionModel.currentIndex, Qt.ToolTipRole) : ""
+    property string currentEntityPath: selectionModel.currentIndex && treeViewWorkspace.model.data(selectionModel.currentIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode ? treeViewWorkspace.model.data(selectionModel.currentIndex, Qt.ToolTipRole) : ""
     signal visibleElemsUpdated
     alternatingRowColors: true
     headerVisible: false
@@ -47,7 +47,7 @@ QCtl.TreeView {
     //selectionMode: SelectionMode.SingleSelection
     selection: ItemSelectionModel {
         id: selectionModel
-        model: treeViewCheckout.model
+        model: treeViewWorkspace.model
     }
     function getVisualInfoForPath(path, isEntity) {
         if(!path) return
@@ -58,22 +58,22 @@ QCtl.TreeView {
                 return current
             }
         }
-        for(var i=0 ; treeViewCheckout.allVisualInfoModel.length > i ; ++i) {
-            var current = treeViewCheckout.allVisualInfoModel[i]
+        for(var i=0 ; treeViewWorkspace.allVisualInfoModel.length > i ; ++i) {
+            var current = treeViewWorkspace.allVisualInfoModel[i]
             if(current.path === path) {
                 current.isEntity = isEntity
                 return current
             }
         }
-        var newObject = visualInfoComponent.createObject(treeViewCheckout)
+        var newObject = visualInfoComponent.createObject(treeViewWorkspace)
         newObject.path = path
         newObject.isEntity = isEntity
         newObject.onIsVisibleChanged.connect(function(isVisible) {
             if(!newObject.isEntity) return
             if(newObject.isVisible) {
                 var found = false
-                for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
-                    if(treeViewCheckout.visibleEntityModel.get(i).path === newObject.path) {
+                for(var i=0 ; i < treeViewWorkspace.visibleEntityModel.count ; ++i) {
+                    if(treeViewWorkspace.visibleEntityModel.get(i).path === newObject.path) {
                         found = true
                         break
                     }
@@ -89,43 +89,43 @@ QCtl.TreeView {
 
                 if(!found) {
                     var idx = -1
-                    for(var i=0 ; i < treeViewCheckout.allVisualInfoModel.length ; ++i) {
-                        if(treeViewCheckout.allVisualInfoModel[i].path === newObject.path) {
+                    for(var i=0 ; i < treeViewWorkspace.allVisualInfoModel.length ; ++i) {
+                        if(treeViewWorkspace.allVisualInfoModel[i].path === newObject.path) {
                             idx = i
                             break
                         }
                     }
                     listSynchronizer.itemsToAdd.push({path:newObject.path, idxInVisualInfoModel:idx})
                     listSynchronizer.start()
-//                    treeViewCheckout.visibleEntityModel.append({path:newObject.path, idxInVisualInfoModel:idx})
-//                    var arr = treeViewCheckout.visibleEntityModel
+//                    treeViewWorkspace.visibleEntityModel.append({path:newObject.path, idxInVisualInfoModel:idx})
+//                    var arr = treeViewWorkspace.visibleEntityModel
 //                    arr.push({path:newObject.path, idxInVisualInfoModel:idx})
-//                    treeViewCheckout.visibleEntityModel = arr
+//                    treeViewWorkspace.visibleEntityModel = arr
                 }
             } else {
                 listSynchronizer.itemsToRemove.push(newObject)
                 listSynchronizer.start()
-//                console.log("DBG: getVisualInfoForPath: removing count: " + treeViewCheckout.visibleEntityModel.count)
-//                for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
-//                    console.log("DBG: getVisualInfoForPath: treeViewCheckout.visibleEntityModel index: " + i)
-//                    if(treeViewCheckout.visibleEntityModel.get(i).path === newObject.path) {
+//                console.log("DBG: getVisualInfoForPath: removing count: " + treeViewWorkspace.visibleEntityModel.count)
+//                for(var i=0 ; i < treeViewWorkspace.visibleEntityModel.count ; ++i) {
+//                    console.log("DBG: getVisualInfoForPath: treeViewWorkspace.visibleEntityModel index: " + i)
+//                    if(treeViewWorkspace.visibleEntityModel.get(i).path === newObject.path) {
 //                        console.log("DBG: getVisualInfoForPath: removed newObject.path: " + newObject.path)
-//                        treeViewCheckout.visibleEntityModel.remove(i)
+//                        treeViewWorkspace.visibleEntityModel.remove(i)
 //                        console.log("DBG: getVisualInfoForPath: deleted newObject.path: " + newObject.path)
-////                        var arr = treeViewCheckout.visibleEntityModel
+////                        var arr = treeViewWorkspace.visibleEntityModel
 ////                        arr.splice(i, 1)
-////                        treeViewCheckout.visibleEntityModel = arr
+////                        treeViewWorkspace.visibleEntityModel = arr
 //                    }
 //                }
             }
         })
         listSynchronizer.itemsToAddToAllVisualInfoModel.push(newObject)
         listSynchronizer.start()
-//        treeViewCheckout.allVisualInfoModel.push(newObject)
+//        treeViewWorkspace.allVisualInfoModel.push(newObject)
         return newObject
     }
     Timer {
-        // it is not safe to call treeViewCheckout.visibleEntityModel.remove(i) while view are processed.
+        // it is not safe to call treeViewWorkspace.visibleEntityModel.remove(i) while view are processed.
         id: listSynchronizer
         property var itemsToRemove: ([])
         property var itemsToAdd: ([])
@@ -137,9 +137,9 @@ QCtl.TreeView {
             var toRemoveIndex = listSynchronizer.itemsToRemove.length
             while(toRemoveIndex--) {
                 var removeItem = listSynchronizer.itemsToRemove[toRemoveIndex]
-                for(var i=0 ; i < treeViewCheckout.visibleEntityModel.count ; ++i) {
-                    if(treeViewCheckout.visibleEntityModel.get(i).path === removeItem.path) {
-                        treeViewCheckout.visibleEntityModel.remove(i)
+                for(var i=0 ; i < treeViewWorkspace.visibleEntityModel.count ; ++i) {
+                    if(treeViewWorkspace.visibleEntityModel.get(i).path === removeItem.path) {
+                        treeViewWorkspace.visibleEntityModel.remove(i)
                     }
                 }
                 listSynchronizer.itemsToRemove.splice(toRemoveIndex, 1)
@@ -147,13 +147,13 @@ QCtl.TreeView {
             var toAddIndex = listSynchronizer.itemsToAdd.length
             while(toAddIndex--) {
                 var addItem = listSynchronizer.itemsToAdd[toAddIndex]
-                treeViewCheckout.visibleEntityModel.append(addItem)
+                treeViewWorkspace.visibleEntityModel.append(addItem)
                 listSynchronizer.itemsToAdd.splice(toAddIndex, 1)
             }
             var toAddIndex2 = listSynchronizer.itemsToAddToAllVisualInfoModel.length
             while(toAddIndex2--) {
                 var addItem2 = listSynchronizer.itemsToAddToAllVisualInfoModel[toAddIndex2]
-                treeViewCheckout.allVisualInfoModel.push(addItem2)
+                treeViewWorkspace.allVisualInfoModel.push(addItem2)
                 listSynchronizer.itemsToAddToAllVisualInfoModel.splice(toAddIndex2, 1)
             }
         }
@@ -177,14 +177,14 @@ QCtl.TreeView {
         onItemsChanged: {
             var newItem = []
             var missingItems = []
-            for(var missingIndex=0 ; missingIndex < treeViewCheckout.allVisualInfoModel.length ; ++missingIndex) {
-                missingItems.push(treeViewCheckout.allVisualInfoModel[missingIndex])
+            for(var missingIndex=0 ; missingIndex < treeViewWorkspace.allVisualInfoModel.length ; ++missingIndex) {
+                missingItems.push(treeViewWorkspace.allVisualInfoModel[missingIndex])
             }
 
             forEachItem(null, function(itemIndex, i, parentItem) {
                 var itemPath = data(itemIndex, Mapit.RootTreeModel.NodePathRole)
                 var itemIsEntity = data(itemIndex, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode
-                var foundItem = treeViewCheckout.getVisualInfoForPath(itemPath, itemIsEntity)
+                var foundItem = treeViewWorkspace.getVisualInfoForPath(itemPath, itemIsEntity)
                 //setData(itemIndex, foundItem, Mapit.RootTreeModel.NodeVisualInfoRole)
                 for(var missingIndex=0 ; missingIndex < missingItems.length ; ++missingIndex) {
                     if(missingItems[missingIndex].path === foundItem.path) {
@@ -193,13 +193,13 @@ QCtl.TreeView {
                     }
                 }
             })
-            var infoModelIndex = treeViewCheckout.allVisualInfoModel.length
+            var infoModelIndex = treeViewWorkspace.allVisualInfoModel.length
             while(infoModelIndex--) {
                 for(var missingIndex=0 ; missingIndex < missingItems.length ; ++missingIndex) {
-                    if(missingItems[missingIndex].path === treeViewCheckout.allVisualInfoModel[infoModelIndex].path) {
-                        treeViewCheckout.allVisualInfoModel[infoModelIndex].isVisible = false
+                    if(missingItems[missingIndex].path === treeViewWorkspace.allVisualInfoModel[infoModelIndex].path) {
+                        treeViewWorkspace.allVisualInfoModel[infoModelIndex].isVisible = false
                         // do not remove old visual info but hide them and keep them cached
-                        //treeViewCheckout.allVisualInfoModel.remove(infoModelIndex)
+                        //treeViewWorkspace.allVisualInfoModel.remove(infoModelIndex)
                         break
                     }
                 }
@@ -210,7 +210,7 @@ QCtl.TreeView {
         role: "displayRole"
         title: "Name"
         resizable: true
-        width: treeViewCheckout.width-appStyle.controlHeightInner-visibleColumn.width-12 /*12=scrollbarwidth*/
+        width: treeViewWorkspace.width-appStyle.controlHeightInner-visibleColumn.width-12 /*12=scrollbarwidth*/
         delegate: StyledLabel {
             id: itemLabel
             height: appStyle.controlHeightInner
@@ -248,7 +248,7 @@ QCtl.TreeView {
                 id: dragArea
                 anchors.fill: parent
                 drag.target: parent
-                onClicked: treeViewCheckout.selection.setCurrentIndex(styleData.index, ItemSelectionModel.ClearAndSelect)
+                onClicked: treeViewWorkspace.selection.setCurrentIndex(styleData.index, ItemSelectionModel.ClearAndSelect)
             }
 
         }
@@ -265,7 +265,7 @@ QCtl.TreeView {
 
     itemDelegate: Component {
         Row {
-            property EntityVisualInfo myVisualInfo: treeViewCheckout.getVisualInfoForPath(rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole),
+            property EntityVisualInfo myVisualInfo: treeViewWorkspace.getVisualInfoForPath(rootModel.data(styleData.index, Mapit.RootTreeModel.NodePathRole),
                                                                              rootModel.data(styleData.index, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode)
 
             padding: appStyle.controlMargin
@@ -304,7 +304,7 @@ QCtl.TreeView {
                         rootModel.forEachItem(styleData.index, function(itemIndexI, i2, parentItem) {
                             var path = rootModel.data(itemIndexI, Mapit.RootTreeModel.NodePathRole)
                             var itemIsEntity = rootModel.data(itemIndexI, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode
-                            var visInfo = treeViewCheckout.getVisualInfoForPath(path, itemIsEntity)
+                            var visInfo = treeViewWorkspace.getVisualInfoForPath(path, itemIsEntity)
                             visInfo.isVisible = myVisualInfo.isVisible
                         })
                     }
@@ -336,7 +336,12 @@ QCtl.TreeView {
                     acceptedButtons: Qt.RightButton
                     onClicked: {
                         if (mouse.button === Qt.RightButton) {
-                            treeViewCheckout.contextMenu.popup()
+                            var mouseCoords = mapToItem(treeViewWorkspace, mouseX, mouseY)
+                            treeViewWorkspace.contextMenu.index = treeViewWorkspace.indexAt(mouseCoords.x, mouseCoords.y)
+                            treeViewWorkspace.contextMenu.path = rootModel.data(treeViewWorkspace.contextMenu.index, Mapit.RootTreeModel.NodePathRole)
+                            treeViewWorkspace.contextMenu.itemIsEntity =rootModel.data(treeViewWorkspace.contextMenu.index, Mapit.RootTreeModel.NodeTypeRole) === Mapit.RootTreeModel.EntityNode
+                            console.log("DBG: PATH: " + treeViewWorkspace.contextMenu.path)
+                            treeViewWorkspace.contextMenu.popup()
                         }
                     }
                 }

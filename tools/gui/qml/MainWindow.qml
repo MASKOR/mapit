@@ -93,7 +93,7 @@ ApplicationWindow {
     Connections {
         target: mapitClient.state
         enabled: !connectRealtimeMultiviewDialog.isServer
-        onworkspaceNameChanged: {
+        onWorkspaceNameChanged: {
             globalApplicationState.currentWorkspaceName = mapitClient.state.workspaceName
         }
 //        onRepositoryUrlChanged: {

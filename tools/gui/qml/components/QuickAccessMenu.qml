@@ -52,6 +52,7 @@ Item {
     Timer {
         id: blurTimer
         interval: 10
+        repeat: false
         onTriggered: {
             dropDownVisible = false
         }
@@ -64,9 +65,9 @@ Item {
     signal action(var item)
 
     onModelChanged: {
-        var oldName = currentEntityPath
+        var oldName = currentText
         reinit()
-        currentEntityPath = oldName
+        currentText = oldName
     }
     onXChanged: reinit()
     onYChanged: reinit()
@@ -111,6 +112,7 @@ Item {
         anchors.right: parent.right
         id: ff
         placeholderText: "filter..."
+        focus: false
         onActiveFocusChanged: {
             dropDown.visible = activeFocus
             blurTimer.stop()

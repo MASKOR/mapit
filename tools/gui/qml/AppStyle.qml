@@ -56,7 +56,7 @@ Item {
     }
 
     property string repositoryUrl: "." // default cfg is the current folder
-    property string workspaceName: "testcheckout"
+    property string workspaceName: "myworkspace"
 
     property bool isDark: backgroundLightness < 0.5
     onIsDarkChanged: darkLightChanged()

@@ -29,7 +29,7 @@ import "../components"
 Window {
     id: connectRealtimeMultiviewDialog
     flags: Qt.Tool
-    title: qsTr( "Choose Checkout" )
+    title: qsTr( "Realtime Network" )
     color: appStyle.backgroundColor
     width: 420
     height: 400

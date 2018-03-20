@@ -39,7 +39,7 @@ QuickAccessMenu {
             if(!currentWorkspace.isBusyExecuting)
                 frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
         }
-        oninternalWorkspaceChanged: {
+        onInternalWorkspaceChanged: {
             if(!currentWorkspace.is)
                 frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
         }
