@@ -47,7 +47,8 @@ StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
 
 StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
                                      , std::shared_ptr<mapit::msgs::Entity> obj
-                                     , const ObjectReference &ref, const Path& path
+                                     , const ObjectReference &ref
+                                     , const Path& path
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> beforeTree
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> afterTree
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
@@ -66,7 +67,7 @@ StatusCode depthFirstSearchWorkspace(  mapit::WorkspaceCommon *workspace
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
                                      , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity);
 
-// TODO change "mapit::WorkspaceCommon*" to "const mapit::WorkspaceCommon&"
+
 
 StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
                                    , const CommitId& commitID
@@ -74,8 +75,35 @@ StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
                                    , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> afterCommit
                                   );
 
+StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
+                                   , const CommitId& commitID
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> beforeCommit
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> afterCommit
+                                   , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> beforeTree
+                                   , std::function<bool(std::shared_ptr<Tree>, const ObjectReference&, const Path&)> afterTree
+                                   , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<Entity>, const ObjectReference&, const Path&)> afterEntity
+                                  );
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<Repository> repo
+                                   , std::shared_ptr<mapit::msgs::Tree> tree
+                                   , const ObjectReference &ref
+                                   , const Path& path
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> beforeTree
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Tree>, const ObjectReference&, const Path&)> afterTree
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity);
+
+StatusCode depthFirstSearchHistory(  std::shared_ptr<mapit::msgs::Entity> entity
+                                   , const ObjectReference &ref
+                                   , const Path& path
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> beforeEntity
+                                   , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const ObjectReference&, const Path&)> afterEntity);
+
 #define depthFirstSearchWorkspaceAll(c) ([](std::shared_ptr<c> obj, const ObjectReference& ref, const mapit::Path &path){return true;})
-#define depthFirstSearchHistoryAll [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;}
+#define depthFirstSearchStop(c) ([](std::shared_ptr<c> obj, const ObjectReference& ref, const mapit::Path &path){return false;})
+#define depthFirstSearchCommitContinue [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;}
+#define depthFirstSearchCommitStop [](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return false;}
 
 }
 

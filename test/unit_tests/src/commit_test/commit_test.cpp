@@ -312,7 +312,7 @@ void CommitTest::test_branching()
                                          commitIDs.push_back(commitID);
                                          return true;
                                      }
-                                   , depthFirstSearchHistoryAll);
+                                   , depthFirstSearchCommitContinue);
 
     mapit::depthFirstSearchHistory(  repo
                                    , oldRef
@@ -322,7 +322,7 @@ void CommitTest::test_branching()
                                          commitIDs.push_back(commitID);
                                          return true;
                                      }
-                                   , depthFirstSearchHistoryAll);
+                                   , depthFirstSearchCommitContinue);
 
     QVERIFY(originFromFirstRef == originFromSecondRef); // both have the same origin (history with the same commit)
 

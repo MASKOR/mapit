@@ -125,8 +125,6 @@ std::shared_ptr<Branch> RepositoryImpl::getBranch(const std::string &name)
 
 MessageType RepositoryImpl::typeOfObject(const ObjectId &oid)
 {
-    MessageType type = m_p->m_serializer->typeOfObjectTransient(oid);
-    if(type != MessageEmpty) return type;
     return m_p->m_serializer->typeOfObject(oid);
 }
 

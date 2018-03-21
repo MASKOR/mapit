@@ -28,3 +28,6 @@
 [submodule "libs/mapit-msgs"]
 	path = libs/mapit-msgs
 	url = git@mascor.fh-aachen.de:mapit-msgs
+[submodule "tools/diff/src/diff-match-patch-cpp-stl"]
+	path = tools/diff/src/diff-match-patch-cpp-stl
+	url = https://github.com/leutloff/diff-match-patch-cpp-stl.git

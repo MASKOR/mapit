@@ -646,7 +646,6 @@ FSSerializer::cleanUp()
 MessageType
 FSSerializer::typeOfObject(const ObjectId &oid)
 {
-    fs::path path_prefix = repo_;
     fs::path path;
     std::vector<fs::path> places;
     places.push_back(_PREFIX_COMMIT_);
@@ -663,6 +662,7 @@ FSSerializer::typeOfObject(const ObjectId &oid)
 
         if ( fs::exists( path ) ) {
             found = true;
+            break;
         }
     }
 
