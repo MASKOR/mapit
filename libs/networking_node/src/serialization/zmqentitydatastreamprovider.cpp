@@ -77,11 +77,12 @@ public:
     }
 };
 
-mapit::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string workspaceName, std::string pathOrOid, ZmqProtobufNode *node)
+mapit::ZmqEntitydataStreamProvider::ZmqEntitydataStreamProvider(std::string workspaceName, std::string pathOrOid, ZmqProtobufNode *node, std::mutex *requestMutex)
     :m_workspaceName(workspaceName),
      m_pathOrOid(pathOrOid),
      m_node(node),
-     m_entityLength(0)
+     m_entityLength(0),
+     m_requestMutex(requestMutex)
 {
 
 }
@@ -134,10 +135,12 @@ mapit::uint64_t mapit::ZmqEntitydataStreamProvider::getStreamSize() const
         req->set_maxlength(0ul);
         try
         {
+            if(m_requestMutex) m_requestMutex->lock();
             m_node->prepareForwardComChannel();
             m_node->send(std::move(req));
             m_node->prepareBackComChannel();
             std::shared_ptr<ReplyEntitydata> rep(m_node->receive<ReplyEntitydata>());
+            if(m_requestMutex) m_requestMutex->unlock();
             if(rep->status() != ReplyEntitydata::SUCCESS)
             {
                 log_error("received error from server when storing entitydata");
@@ -149,6 +152,7 @@ mapit::uint64_t mapit::ZmqEntitydataStreamProvider::getStreamSize() const
         }
         catch( zmq::error_t err)
         {
+            if(m_requestMutex) m_requestMutex->unlock();
             log_error("network error for setStreamSize: " + err.what());
             return 0;
         }
@@ -167,10 +171,12 @@ void mapit::ZmqEntitydataStreamProvider::setStreamSize(mapit::uint64_t entitylen
     req->set_entitylength(m_entityLength);
     try
     {
+        if(m_requestMutex) m_requestMutex->lock();
         m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+        if(m_requestMutex) m_requestMutex->unlock();
         if(rep->status() != ReplyStoreEntity::SUCCESS)
         {
             log_error("received error from server when setting entitydata length");
@@ -178,6 +184,7 @@ void mapit::ZmqEntitydataStreamProvider::setStreamSize(mapit::uint64_t entitylen
     }
     catch( zmq::error_t err)
     {
+        if(m_requestMutex) m_requestMutex->unlock();
         log_error("network error for setStreamSize: " + err.what());
     }
 }
@@ -235,10 +242,12 @@ char *mapit::ZmqEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit
     req->set_maxlength(maxBufferSize);
     std::shared_ptr<ReplyEntitydata> rep;
     try {
+        if(m_requestMutex) m_requestMutex->lock();
         m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
         m_node->prepareBackComChannel();
         rep.reset(m_node->receive<ReplyEntitydata>());
+        // no unlock because there is more
     }
     catch( zmq::error_t err)
     {
@@ -281,10 +290,12 @@ char *mapit::ZmqEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit
             }
             catch( zmq::error_t err)
             {
+                if(m_requestMutex) m_requestMutex->unlock();
                 log_error("network error when asked for entitydata: " + err.what());
                 return nullptr;
             }
         } while (m_node->has_more() && offset <= recvlen);
+        if(m_requestMutex) m_requestMutex->unlock();
 
         if( offset != recvlen && !(offset == 0 && recvlen == 1) )
         {
@@ -294,6 +305,10 @@ char *mapit::ZmqEntitydataStreamProvider::startRead(mapit::uint64_t start, mapit
         {
             log_error("Received unexpected network part. Entitydata may be corrupt. (entity: " + m_pathOrOid + ")");
         }
+    }
+    else
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
     }
     outLength = recvlen;
     return buf;
@@ -313,6 +328,7 @@ void mapit::ZmqEntitydataStreamProvider::endWrite(const char *memory, const mapi
     req->set_entitylength(m_entityLength);
 
     try {
+        if(m_requestMutex) m_requestMutex->lock();
         m_node->prepareForwardComChannel();
         m_node->send(std::move(req), ZMQ_SNDMORE);
         m_node->send_raw_body( reinterpret_cast<const unsigned char*>(memory), length ); //TODO: add zero copy support!
@@ -320,6 +336,7 @@ void mapit::ZmqEntitydataStreamProvider::endWrite(const char *memory, const mapi
 
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+        if(m_requestMutex) m_requestMutex->unlock();
         if(rep->status() != ReplyStoreEntity::SUCCESS)
         {
             log_error("received error from server when asked for entitydata");

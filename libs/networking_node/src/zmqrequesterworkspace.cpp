@@ -39,11 +39,12 @@
 #include <mapit/operators/module.h>
 typedef ModuleInfo* (*GetModuleInfo)();
 
-mapit::ZmqRequesterWorkspace::ZmqRequesterWorkspace(std::string name, ZmqProtobufNode *node, mapit::Workspace *cache, bool operationsLocal)
+mapit::ZmqRequesterWorkspace::ZmqRequesterWorkspace(std::string name, ZmqProtobufNode *node, mapit::Workspace *cache, bool operationsLocal, std::mutex *requestMutex)
     :m_workspaceName( name ),
      m_node( node ),
      m_cache( cache ),
-     m_operationsLocal( operationsLocal )
+     m_operationsLocal( operationsLocal ),
+     m_requestMutex( requestMutex )
 {
 }
 
@@ -104,20 +105,24 @@ std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getTree(const mapit::Path &p
     req->set_workspace(m_workspaceName);
     req->set_path(path);
     try {
+        if(m_requestMutex) m_requestMutex->lock();
         m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
+        if(m_requestMutex) m_requestMutex->unlock();
         std::shared_ptr<Tree> ret(rep->mutable_entry()->release_tree());
         return ret;
     }
     catch (std::runtime_error err)
     {
+        if(m_requestMutex) m_requestMutex->unlock();
         log_error("Server Error while getTree(" + path + "): " + err.what());
         return nullptr;
     }
     catch (zmq::error_t err)
     {
+        if(m_requestMutex) m_requestMutex->unlock();
         log_error("Server Error while getTree(" + path + "): " + err.what());
         return nullptr;
     }
@@ -129,15 +134,18 @@ std::shared_ptr<Entity> mapit::ZmqRequesterWorkspace::getEntity(const mapit::Pat
     req->set_workspace(m_workspaceName);
     req->set_path(path);
     try {
+        if(m_requestMutex) m_requestMutex->lock();
         m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
+        if(m_requestMutex) m_requestMutex->unlock();
         std::shared_ptr<Entity> ret(rep->mutable_entry()->release_entity());
         return ret;
     }
     catch (std::runtime_error err)
     {
+        if(m_requestMutex) m_requestMutex->unlock();
         log_error(err.what());
         return nullptr;
     }
@@ -165,7 +173,7 @@ std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterWorkspace::getEnti
         log_warn("Entity could not be queried for entitydata: " + entityId);
         return std::shared_ptr<mapit::AbstractEntitydata>(nullptr);
     }
-    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_workspaceName, entityId, m_node));
+    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_workspaceName, entityId, m_node, m_requestMutex));
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }
 
@@ -207,10 +215,12 @@ mapit::OperationResult mapit::ZmqRequesterWorkspace::doOperation(const Operation
         req->set_workspace(m_workspaceName);
         *req->mutable_param() = desc;
         try {
+            if(m_requestMutex) m_requestMutex->lock();
             m_node->prepareForwardComChannel();
             m_node->send(std::move(req));
             m_node->prepareBackComChannel();
             std::shared_ptr<ReplyOperatorExecution> rep(m_node->receive<ReplyOperatorExecution>());
+            if(m_requestMutex) m_requestMutex->unlock();
             mapit::OperationResult res;
             res.first = rep->status_code();
             res.second = rep->result();
@@ -222,6 +232,7 @@ mapit::OperationResult mapit::ZmqRequesterWorkspace::doOperation(const Operation
         }
         catch (std::runtime_error err)
         {
+            if(m_requestMutex) m_requestMutex->unlock();
             log_error(err.what());
             mapit::OperationResult res;
             res.first = MAPIT_STATUS_ERROR;
@@ -244,8 +255,10 @@ mapit::OperationResult mapit::ZmqRequesterWorkspace::doUntraceableOperation(cons
 //{
 //    std::unique_ptr<mapit::RequestHierarchy> req(new mapit::RequestHierarchy);
 //    req->set_workspace(m_workspaceName);
+//    if(m_requestMutex) m_requestMutex->lock();
 //    m_node->send(std::move(req)); catch
 //    std::unique_ptr<mapit::ReplyHierarchy> hierarchy(m_node->receive<mapit::ReplyHierarchy>());
+//    if(m_requestMutex) m_requestMutex->unlock();
 //    assert(m_cache);
 //    //m_cache->
 //}
@@ -265,10 +278,12 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::storeEntity(const mapit::Path &p
     req->set_sendlength(0ul);
     req->set_entitylength(0ul);
     try {
+        if(m_requestMutex) m_requestMutex->lock();
         m_node->prepareForwardComChannel();
         m_node->send(std::move(req));
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
+        if(m_requestMutex) m_requestMutex->unlock();
         if(rep->status() == ReplyStoreEntity::SUCCESS)
         {
             return MAPIT_STATUS_OK;
@@ -281,6 +296,7 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::storeEntity(const mapit::Path &p
     }
     catch (std::runtime_error err)
     {
+        if(m_requestMutex) m_requestMutex->unlock();
         log_error(err.what());
         return MAPIT_STATUS_ERROR;
     }
@@ -291,9 +307,11 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::deleteTree(const Path &path)
     std::unique_ptr<RequestDeleteTree> req = std::make_unique<RequestDeleteTree>();
     req->set_workspace(m_workspaceName);
     req->set_path(path);
+    if(m_requestMutex) m_requestMutex->lock();
     m_node->send(std::move(req));
 
     std::shared_ptr<ReplyDeleteTree> rep(m_node->receive<ReplyDeleteTree>());
+    if(m_requestMutex) m_requestMutex->unlock();
     if(rep->status() == ReplyDeleteTree::SUCCESS)
     {
         return MAPIT_STATUS_OK;
@@ -310,9 +328,11 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::deleteEntity(const Path &path)
     std::unique_ptr<RequestDeleteEntity> req = std::make_unique<RequestDeleteEntity>();
     req->set_workspace(m_workspaceName);
     req->set_path(path);
+    if(m_requestMutex) m_requestMutex->lock();
     m_node->send(std::move(req));
 
     std::shared_ptr<ReplyDeleteEntity> rep(m_node->receive<ReplyDeleteEntity>());
+    if(m_requestMutex) m_requestMutex->unlock();
     if(rep->status() == ReplyDeleteEntity::SUCCESS)
     {
         return MAPIT_STATUS_OK;
@@ -332,6 +352,6 @@ std::shared_ptr<mapit::AbstractEntitydata> mapit::ZmqRequesterWorkspace::getEnti
         log_error("Entity could not be queried for entitydata: " + entity);
         return std::shared_ptr<mapit::AbstractEntitydata>(nullptr);
     }
-    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_workspaceName, entity, m_node));
+    std::shared_ptr<AbstractEntitydataProvider> streamProvider(new ZmqEntitydataStreamProvider(m_workspaceName, entity, m_node, m_requestMutex));
     return EntityDataLibraryManager::getEntitydataFromProvider(e->type(), streamProvider);
 }

@@ -100,6 +100,7 @@ std::shared_ptr<Tree> WorkspaceImpl::getRoot()
 
 std::shared_ptr<Tree> WorkspaceImpl::getTree(const Path &path)
 {
+    assert(!path.empty());
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
 
@@ -116,6 +117,7 @@ std::shared_ptr<Tree> WorkspaceImpl::getTree(const Path &path)
 
 std::shared_ptr<Entity> WorkspaceImpl::getEntity(const Path &path)
 {
+    assert(!path.empty());
     Path p(preparePath(path));
     if(p.empty()) return nullptr;
 
@@ -133,6 +135,7 @@ std::shared_ptr<Entity> WorkspaceImpl::getEntity(const Path &path)
 MessageType
 WorkspaceImpl::typeOfObject(const Path &path)
 {
+    assert(!path.empty());
     Path p(preparePath(path));
     if(p.empty()) return MessageEmpty;
 
@@ -236,6 +239,7 @@ StatusCode WorkspaceImpl::storeEntity(const Path &path, std::shared_ptr<Entity> 
 
 StatusCode WorkspaceImpl::deleteTree(const Path &path)
 {
+    assert(!path.empty());
     Path p(preparePath(path));
     if (p.empty()) {
         return MAPIT_STATUS_ERROR;
@@ -247,6 +251,7 @@ StatusCode WorkspaceImpl::deleteTree(const Path &path)
 
 StatusCode WorkspaceImpl::deleteEntity(const Path &path)
 {
+    assert(!path.empty());
     Path p(preparePath(path));
     if (p.empty()) {
         return MAPIT_STATUS_ERROR;
@@ -484,6 +489,7 @@ StatusCode WorkspaceImpl::deleteObject<Tree>(const Path& path)
                 depthFirstSearchWorkspaceAll(Tree),
                 [&](std::shared_ptr<mapit::msgs::Tree> obj, const ObjectReference& ref, const mapit::Path &pathInt)
                 {
+                    assert(!pathInt.empty());
                     Path p(preparePath(pathInt));
                     if (p.empty()) {
                         status_search = MAPIT_STATUS_ERROR;

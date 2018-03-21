@@ -33,7 +33,44 @@
 
 #include <mapit/versioning/repositorynetworkingfactory.h>
 
+#include <thread>
+
+#define MAX_NETWORK_LATENCY 500
+
 namespace po = boost::program_options;
+
+bool shutdown = false;
+
+void serverThread(int port, mapit::Repository *repo)
+{
+    std::cout << "Server thread started (port: " << port << ")" << std::endl;
+
+    while(!shutdown)
+    {
+        mapit::RepositoryServer *node = nullptr;
+        try {
+            node = mapit::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo);
+            bool errorOccurred = false;
+            while(!errorOccurred && !shutdown)
+            {
+                try {
+                    node->handleRequest(MAX_NETWORK_LATENCY);
+                } catch(...) {
+                    std::cout << "Server error occurred, see logs for more information. (port: " << port << ")" << std::endl;
+                    errorOccurred = true;
+                }
+            }
+        }
+        catch(...)
+        {
+            std::cout << "Server error occurred, see logs for more information. (port: " << port << ")" << std::endl;
+        }
+        if(node)
+        {
+            delete node;
+        }
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -42,7 +79,8 @@ int main(int argc, char *argv[])
     po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <port>");
     program_options_desc.add_options()
             ("help,h", "print usage")
-            ("port,p", po::value<std::string>()->required(), "");
+            ("port,p", po::value<std::string>()->required(), "port or first port")
+            ("count,c", po::value<std::string>(), "number of ports to open for multiple connections. If this option is used the server will restart on failure");
     po::positional_options_description pos_options;
     pos_options.add("port",  1);
 
@@ -62,18 +100,41 @@ int main(int argc, char *argv[])
         std::cout << "port was not a number; abort" << std::endl;
         return 1;
     }
-
-    mapit::Repository *repo = mapit::RepositoryFactoryStandard::openRepository( vars );
-
-    mapit::RepositoryServer *node = mapit::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo);
-
-    while(true)
+    int count = 0;
+    if(!vars["count"].empty() && (count = std::stoi( vars["count"].as<std::string>() )) == 0)
     {
-        node->handleRequest(500);
+        std::cout << "count was not a number; abort" << std::endl;
+        return 1;
     }
-
+    if(count > 64)
+    {
+        std::cout << "please do not open more than 64 server threads. To support more users implement ZMQ Dealer/Router." << std::endl;
+        return 1;
+    }
     // No smart pointers here to ensure sequence of deletion
-    delete node;
+    mapit::Repository *repo = mapit::RepositoryFactoryStandard::openRepository( vars );
+    if(count == 0)
+    {
+
+        mapit::RepositoryServer *node = mapit::RepositoryNetworkingFactory::openRepositoryAsServer(port, repo);
+        std::cout << "Server thread started (port: " << port << ")" << std::endl;
+
+        while(true)
+        {
+            node->handleRequest(500);
+        }
+
+        delete node;
+    }
+    else
+    {
+        std::thread *serverThreads = new std::thread[count];
+        for (int i = 0; i < count; ++i) {
+            serverThreads[i] = std::thread(serverThread, port + i, repo);
+        }
+        for (int i = 0; i < count; ++i)
+            serverThreads[i].join();
+    }
     delete repo;
     return 0;
 }

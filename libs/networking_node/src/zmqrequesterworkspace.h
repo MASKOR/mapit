@@ -28,6 +28,7 @@
 #include <mapit/versioning/repository.h>
 #include <mapit/operators/versioning/workspacewritable.h>
 #include "zmqprotobufnode.h"
+#include <mutex>
 
 namespace mapit {
 
@@ -42,7 +43,7 @@ namespace mapit {
 class ZmqRequesterWorkspace : public mapit::Workspace, public mapit::operators::WorkspaceWritable
 {
 public:
-    ZmqRequesterWorkspace(std::string name, ZmqProtobufNode *node, mapit::Workspace *cache = NULL, bool operationsLocal = false);
+    ZmqRequesterWorkspace(std::string name, ZmqProtobufNode *node, mapit::Workspace *cache, bool operationsLocal, std::mutex *requestMutex);
 
     // WorkspaceCommon interface
 public:
@@ -89,6 +90,8 @@ private:
 
     //void syncHierarchy();
 
+
+    std::mutex *m_requestMutex; //TODO: this is only needed for req/rep pattern
 };
 
 }

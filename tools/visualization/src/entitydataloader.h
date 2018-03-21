@@ -36,9 +36,9 @@ class EntitydataLoader : public QThread
     Q_OBJECT
     void run();
 public:
-    //EntitydataLoader(QObject * parent, QString repository, QString workspaceName, QString path );
+    //EntitydataLoader(QObject *parent, QString repository, QString workspaceName, QString path );
     // This constructor requires mapit::CHeckout to be thread-safe
-    EntitydataLoader(QObject * parent, std::shared_ptr<mapit::Workspace> workspace, QString path );
+    EntitydataLoader(QObject *parent, std::shared_ptr<mapit::Workspace> workspace, QString path );
     ~EntitydataLoader();
 
 Q_SIGNALS:
