@@ -73,6 +73,19 @@ execute_process(
 )
 
 execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/mapitd-failsafe.sh ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/mapitd-failsafe
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/mapitd-spawner.sh ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/mapitd-spawner
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/mapitd-failsafe.sh ${CMAKE_BINARY_DIR}/tools/bin/mapitd-failsafe
+)
+execute_process(
+  COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${PROJECT_SOURCE_DIR}/mapitd-spawner.sh ${CMAKE_BINARY_DIR}/tools/bin/mapitd-spawner
+)
+
+execute_process(
   COMMAND "${CMAKE_COMMAND}" "-E" "create_symlink" ${CMAKE_BINARY_DIR}/libs ${CMAKE_BINARY_DIR}/tools/${PROJECT_NAME}/libs
 )
 execute_process(
