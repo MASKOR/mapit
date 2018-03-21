@@ -119,8 +119,8 @@ ZmqProtobufNode::connect(std::string com)
     socket_->connect(com);
     address_ = com;
     connected_ = true;
-    //const int receiveTimeout = 5000;
-    //socket_->setsockopt(ZMQ_RCVTIMEO, &receiveTimeout, sizeof(receiveTimeout)); //Set Timeout before recv returns with EAGAIN
+    const int receiveTimeout = 5000;
+    socket_->setsockopt(ZMQ_RCVTIMEO, &receiveTimeout, sizeof(receiveTimeout)); //Set Timeout before recv returns with EAGAIN
   } catch (zmq::error_t e) {
     log_error("Can't connect to server " + e.what());
     connected_ = false;

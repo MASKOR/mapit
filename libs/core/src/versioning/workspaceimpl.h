@@ -205,6 +205,7 @@ private:
 template <typename T>
 StatusCode WorkspaceImpl::createPath(const Path &path, std::shared_ptr<T> createLeaf, bool deleteLeaf)
 {
+    assert(!path.empty());
     Path p = preparePath(path);
 
     // final path of "transient" objects

@@ -251,6 +251,10 @@ void EntitydataLoader::run()
         log_error("AsyncEntitydataLoader: could not load entitydata. No Checkout specified");
         return;
     }
+    if(m_path.isNull() || m_path.isEmpty()) {
+        log_error("AsyncEntitydataLoader: could not load entitydata. No path for entitydata specified");
+        return;
+    }
     std::shared_ptr<mapit::AbstractEntitydata> ed = workspace->getEntitydataReadOnly(m_path.toStdString());
     if(ed == nullptr) {
         log_error("AsyncEntitydataLoader: could not load entitydata. Entitydata could not be read");
