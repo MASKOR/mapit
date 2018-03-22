@@ -73,6 +73,7 @@ public:
 
     virtual bool isInConflictMode();
     virtual std::vector< std::shared_ptr<Conflict> > getPendingConflicts();
+    virtual const Commit &getRollingcommit();
     virtual std::shared_ptr<Tree> getRoot();
     virtual std::shared_ptr<Tree> getTree(const Path &path);
     virtual std::shared_ptr<Entity> getEntity(const Path &path);

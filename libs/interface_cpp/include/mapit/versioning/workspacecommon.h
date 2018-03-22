@@ -63,6 +63,12 @@ public:
     virtual void setConflictSolved(const Path &path, const ObjectId &oid) = 0;
 
     /**
+     * @brief getRollingcommit get the Entrypoint for the history
+     * @return
+     */
+    virtual const mapit::msgs::Commit& getRollingcommit() = 0;
+
+    /**
      * @brief getRoot get Entry point to all objects of this commit.
      * @return
      */
