@@ -29,22 +29,97 @@
 #include <mapit/errorcodes.h>
 #include <mapit/logging.h>
 #include <boost/program_options.hpp>
+#include <mapit/breadthFirstSearch.h>
+#include <mapit/time/time.h>
 
 namespace po = boost::program_options;
 
-void buildCommitList(mapit::Repository *repo, std::vector< std::pair<mapit::CommitId, std::shared_ptr<Commit> > > &commits, const ::google::protobuf::RepeatedPtrField< ::std::string> &currentParents)
+void
+getHistory(std::shared_ptr<mapit::Repository> repo, const std::string& commitID, const mapit::msgs::Commit& commit)
 {
-    ::google::protobuf::RepeatedPtrField< ::std::string>::const_iterator currentParent( currentParents.cbegin() );
-    while(currentParent != currentParents.cend())
-    {
-        if(!currentParent->empty())
-        {
-            std::shared_ptr<Commit> ci(repo->getCommit(*currentParent));
-            assert(ci);
-            commits.push_back(std::pair< mapit::CommitId, std::shared_ptr<Commit> >(*currentParent, ci));
-            buildCommitList(repo, commits, ci->parentcommitids());
-        }
-        currentParent++;
+    std::string ret;
+    mapit::breadthFirstSearchHistory(repo
+                                     , commitID
+                                     , commit
+                                     , [&](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID)
+                                       {
+                                           ret += "\033[38;5;208mcommit " + commitID + " (<TODO, list REFs here>)\033[0m\n";
+                                           if (commit->parentcommitids_size() > 1) {
+                                               // this is a merge commit
+                                               ret += "Merge:";
+                                               for (std::string parentCommitID : commit->parentcommitids()) {
+                                                   ret += " " + parentCommitID.substr(0, 7);
+                                               }
+                                               ret += "\n";
+                                           }
+                                           ret += "Author: " + commit->author() + "\n";
+                                           ret += "Date:   " + mapit::time::to_string_human( mapit::time::from_msg( commit->stamp() ) ) + "\n";
+                                           std::string commitMsg = commit->commitmessage();
+                                           while ( ! commitMsg.empty() ) {
+                                               size_t endOfLine = commitMsg.find("\n") + 1;
+                                               std::string line = commitMsg.substr(0, endOfLine);
+                                               commitMsg = commitMsg.substr(endOfLine, commitMsg.size());
+
+                                               ret += "\t" + line;
+                                           }
+
+                                           ret += "\n";
+                                           return true;
+                                       }
+                                     , [&](std::shared_ptr<mapit::msgs::Commit> commit,  const mapit::CommitId& commitID){return true;}
+    );
+
+    std::cout << ret;
+}
+
+void
+getHistory(std::shared_ptr<mapit::Repository> repo, const std::string& workspaceName, std::shared_ptr<mapit::Workspace> workspace)
+{
+    getHistory( repo, workspaceName, workspace->getRollingcommit() );
+}
+
+void
+getProgramOptions(int argc, char *argv[], po::variables_map& vars)
+{
+    po::options_description programOptionsDesc(  std::string("Usage:")
+                                                 + std::string("\n\t") + argv[0] + " <workspace name>"
+                                                 + std::string("\n\t") + argv[0] + " <commit id>");
+
+    programOptionsDesc.add_options()
+            ("help,h", "print usage")
+            ("ref,r", po::value<std::string>(), "Can be either a workspace name or a commit id where to search from")
+            ("all,a", po::value<std::string>(), "starts the search at every workspace and ref")
+            ;
+    po::positional_options_description posOptions;
+    posOptions.add("ref",  1);
+
+    mapit::RepositoryFactoryStandard::addProgramOptions(programOptionsDesc);
+    try {
+        po::store(po::command_line_parser(argc, argv).options(programOptionsDesc).positional(posOptions).run(), vars);
+    } catch(...) {
+        std::cout << programOptionsDesc << std::endl;
+        throw std::invalid_argument("Can't parse program options");
+    }
+    if(vars.count("help")) {
+        std::cout << programOptionsDesc << std::endl;
+        throw std::invalid_argument("Stop, and only show the help");
+    }
+    try {
+        po::notify(vars);
+    } catch(...) {
+        std::cout << programOptionsDesc << std::endl;
+        throw std::invalid_argument("Can't contain options");
+    }
+
+    if ( ! vars.count("all") && ! vars.count("ref") ) {
+        std::cout << programOptionsDesc << std::endl;
+        throw std::invalid_argument("Either all or ref need to be set");
+    }
+
+    // untill all is supported
+    if ( ! vars.count("ref") ) {
+        std::cout << programOptionsDesc << std::endl;
+        throw std::invalid_argument("Currently ref has to be set");
     }
 }
 
@@ -52,53 +127,38 @@ int main(int argc, char *argv[])
 {
     mapit_init_logging();
 
-    po::options_description program_options_desc(std::string("Usage: ") + argv[0] + " <workspace name>");
-    program_options_desc.add_options()
-            ("help,h", "print usage")
-            ("workspace,w", po::value<std::string>()->required(), "");
-    po::positional_options_description pos_options;
-    pos_options.add("workspace",  1);
-
-    mapit::RepositoryFactoryStandard::addProgramOptions(program_options_desc);
+    // get parameter
     po::variables_map vars;
-    po::store(po::command_line_parser(argc, argv).options(program_options_desc).positional(pos_options).run(), vars);
-    if(vars.count("help"))
-    {
-        std::cout << program_options_desc << std::endl;
+    try {
+        getProgramOptions(argc, argv, vars);
+    } catch(std::invalid_argument e) {
+        log_error("\n" << e.what() << "\n");
         return 1;
     }
-    po::notify(vars);
 
-    std::unique_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
+    bool all = vars.count("all");
+    bool ref = vars.count("ref");
 
-    std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
-
-    if(workspace == NULL)
-    {
-        std::cout << "failed to log workspace " << vars["workspace"].as<std::string>() << std::endl;
-        return 1;
+    if (all) {
+        log_warn("the parameter all is not yet implemented");
     }
-    std::vector< std::pair<mapit::CommitId, std::shared_ptr<Commit> > > commits;
-    const std::vector<mapit::CommitId> parents(workspace->getParentCommitIds());
-    std::vector<mapit::CommitId>::const_iterator currentParent( parents.cbegin() );
-    while(currentParent != parents.cend())
-    {
-        if(!currentParent->empty())
-        {
-            std::shared_ptr<Commit> ci(repo->getCommit(*currentParent));
-            assert(ci);
-            commits.push_back(std::pair< mapit::CommitId, std::shared_ptr<Commit> >(*currentParent, ci));
-            buildCommitList(repo.get(), commits, ci->parentcommitids());
+
+    std::shared_ptr<mapit::Repository> repo( mapit::RepositoryFactoryStandard::openRepository( vars ) );
+
+    std::shared_ptr<mapit::Workspace> workspace;
+    std::shared_ptr<mapit::msgs::Commit> commit;
+    workspace = repo->getWorkspace( vars["ref"].as<std::string>() );
+    if ( workspace ) {
+        getHistory(repo, vars["ref"].as<std::string>(), workspace);
+    } else {
+        commit = repo->getCommit( vars["ref"].as<std::string>() );
+        if ( commit ) {
+            getHistory(repo, vars["ref"].as<std::string>(), *commit.get());
+        } else {
+            std::cout << "given parameter ref: \"" << vars["ref"].as<std::string>() << "\" is neither a workspace nor a commit id" << std::endl;
+            return 1;
         }
-        currentParent++;
     }
 
-    std::vector< std::pair<mapit::CommitId, std::shared_ptr<Commit> > >::const_iterator iter(commits.cbegin());
-    while(iter != commits.cend())
-    {
-        std::cout << iter->first << " : ";
-        std::cout << " " << iter->second->commitmessage();
-        iter++;
-    }
-    return workspace == NULL;
+    return 0;
 }
