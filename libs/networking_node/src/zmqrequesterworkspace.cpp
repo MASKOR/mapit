@@ -80,6 +80,11 @@ MessageType mapit::ZmqRequesterWorkspace::typeOfObject(const mapit::Path &oidOrN
     return MessageEmpty;
 }
 
+const Commit& mapit::ZmqRequesterWorkspace::getRollingcommit()
+{
+    return m_cache->getRollingcommit();
+}
+
 std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getRoot()
 {
     return getTree("/");

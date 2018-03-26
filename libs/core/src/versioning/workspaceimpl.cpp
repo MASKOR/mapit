@@ -93,6 +93,12 @@ std::vector<std::shared_ptr<Conflict> > WorkspaceImpl::getPendingConflicts()
     return std::vector<std::shared_ptr<Conflict> >();
 }
 
+const mapit::msgs::Commit&
+WorkspaceImpl::getRollingcommit()
+{
+    return m_workspace->rollingcommit();
+}
+
 std::shared_ptr<Tree> WorkspaceImpl::getRoot()
 {
     return this->getTree(m_workspace->rollingcommit().root());

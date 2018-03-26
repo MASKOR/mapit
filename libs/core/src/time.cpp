@@ -96,5 +96,11 @@ namespace  time {
     std::string out = std::to_string(sec) + "." + zeroes + nsec_str;
     return out;
   }
+
+    std::string to_string_human(Stamp stamp)
+    {
+        std::time_t t = Clock::to_time_t(stamp);
+        return std::string( std::ctime(&t) );
+    }
 };
 }

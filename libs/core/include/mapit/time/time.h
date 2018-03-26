@@ -25,6 +25,7 @@
 
 #include <mapit/msgs/datastructs.pb.h>
 #include <chrono>
+#include <ctime>
 #include "date/date.h"
 
 namespace std {
@@ -69,6 +70,7 @@ namespace time {
   double to_sec(Duration dur);
 
   std::string to_string(Stamp stamp);
+  std::string to_string_human(Stamp stamp);
 }
 }
 
