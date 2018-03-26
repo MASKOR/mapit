@@ -171,7 +171,7 @@ Item {
         }
 
         ListView {
-            //z:10
+            z: fillingMouseArea.z+1
             anchors.margins: 3
             anchors.fill: parent
             clip: true
@@ -217,6 +217,7 @@ Item {
             }
         }
         MouseArea {
+            id: fillingMouseArea
             anchors.fill: parent
             onClicked: {
                 dropDown.visible = false
