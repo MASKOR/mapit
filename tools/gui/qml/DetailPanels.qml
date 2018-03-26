@@ -36,6 +36,14 @@ Item {
         return "(" + vec.x.toFixed(2) + ", " + vec.y.toFixed(2) + ", " + vec.z.toFixed(2) + ")"
     }
 
+    Item {
+        id: popupLayerRight
+        anchors.fill: parent
+        z: 1000
+        Component.onCompleted: {
+            appStyle.popupLayerRight = popupLayerRight
+        }
+    }
 
     Connections {
         // Connect all content to the global application state

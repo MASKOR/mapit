@@ -84,6 +84,8 @@ void TestRepositoriesCommunication::initTestCase()
             }
             if(*quit_server)
             {
+                exit(0); // otherwise server process will start the whole testing
+                         // suite and will run into zmq timeout on it's first try to communicate.
                 QEXPECT_FAIL("", "This is output from server process. Server should just stop now.", Abort);
 
                 QVERIFY2(!*quit_server, "Stopping server");

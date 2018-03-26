@@ -253,8 +253,12 @@ void QmlEntitydataRenderer::updateGeometry()
             QGeometryRenderer::setGeometry(new Qt3DExtras::QConeGeometry(this));
             break;
         case mapit::msgs::Primitive::TORUS:
-            QGeometryRenderer::setGeometry(new Qt3DExtras::QTorusGeometry(this));
+        {
+            Qt3DExtras::QTorusGeometry *torus = new Qt3DExtras::QTorusGeometry(this);
+            torus->setMinorRadius(0.3);
+            QGeometryRenderer::setGeometry(torus);
             break;
+        }
         case mapit::msgs::Primitive::CUBE:
             QGeometryRenderer::setGeometry(new Qt3DExtras::QCuboidGeometry(this));
             break;

@@ -31,7 +31,8 @@ import "."
 Item {
     id:root
     height: appStyle.controlHeightOuter
-    z: 1000
+    //z: 1000
+    property var popupLayer: appStyle.popupLayerRight
     property var currentWorkspace: globalApplicationState.currentWorkspace
     property alias currentEntityPath: filter.currentText
     property real extendedHeight: 200
@@ -42,5 +43,6 @@ Item {
         anchors.fill: parent
         allowNew: true
         model: currentWorkspace.entities
+        popupLayer: parent.popupLayer
     }
 }
