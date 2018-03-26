@@ -168,7 +168,15 @@ std::shared_ptr<Entity> WorkspaceImpl::getEntityConflict(const ObjectId &objectI
 
 OperationResult WorkspaceImpl::doOperation(const OperationDescription &desc)
 {
-    return OperatorLibraryManager::doOperation(desc, this);
+    OperationResult result = OperatorLibraryManager::doOperation(desc, this);
+    // when operation successfull, add to commit
+    if ( mapitIsOk(result.first) ) {
+        OperationDescription* addedDesc = m_workspace->mutable_rollingcommit()->add_ops();
+        addedDesc->mutable_operator_()->set_operatorname( desc.operator_().operatorname() );
+        addedDesc->mutable_operator_()->set_operatorversion( desc.operator_().operatorversion() );
+        addedDesc->set_params( desc.params() );
+    }
+    return result;
 }
 
 OperationResult WorkspaceImpl::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate)
