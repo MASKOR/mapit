@@ -54,6 +54,7 @@ Item {
             return Qt.darker(col)
         }
     }
+    property var popupLayerRight
 
     property string repositoryUrl: "." // default cfg is the current folder
     property string workspaceName: "myworkspace"
@@ -205,7 +206,7 @@ Item {
 
         property color textColor: paletteInactive.text
         property color textColorDisabled: paletteDisabled.text
-        property color selectionColor: paletteActive.base
+        property color selectionColor: paletteActive.highlight
         property color selectionBorderColor: paletteActive.highlight
         property color highlightColor: paletteActive.highlight
         //property color itemBackgroundColor: "#2e2f30"

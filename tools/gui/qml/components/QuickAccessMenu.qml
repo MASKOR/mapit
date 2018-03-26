@@ -28,6 +28,8 @@ import QtQuick.Layouts 1.1
 
 Item {
     id: root
+    property var popupLayer: appStyle.popupLayerRight
+    onPopupLayerChanged: if(popupLayer) dropDown.parent = popupLayer
     property bool allowNew: true
     property var model
 
@@ -44,7 +46,7 @@ Item {
     Connections {
         target: globalMouseEventFilter
         onMouseReleased: {
-            if(dropDownVisible) {
+            if(dropDownVisible && !doNotBlurTimer.running) {
                 blurTimer.start()
             }
         }
@@ -56,6 +58,12 @@ Item {
         onTriggered: {
             dropDownVisible = false
         }
+    }
+    Timer {
+        //HACK: after first click (when popup becomes visible caused by focus
+        id: doNotBlurTimer
+        interval: 200
+        repeat: false
     }
 
     property ListModel filteredModel: ListModel {}
@@ -72,7 +80,7 @@ Item {
     onXChanged: reinit()
     onYChanged: reinit()
     onVisibleChanged: reinit()
-    z: 1000
+    //z: 1000
     function reinit() {
         if(visible) {
             ff.text = "";
@@ -114,7 +122,8 @@ Item {
         placeholderText: "filter..."
         focus: false
         onActiveFocusChanged: {
-            dropDown.visible = activeFocus
+            doNotBlurTimer.start()
+            dropDown.visible = activeFocus && filteredModel.count > 0
             blurTimer.stop()
         }
         onTextChanged: {
@@ -127,21 +136,28 @@ Item {
                 }
             }
             lv.currentIndex = 0;
-            dropDown.visible = activeFocus
+            dropDown.visible = activeFocus && filteredModel.count > 0
         }
     }
     Rectangle {
+        Component.onCompleted: {
+            if(root.popupLayer)
+            parent = root.popupLayer
+        }
+        onVisibleChanged: {
+            var pos = ff.mapToItem(parent, 0, ff.height)
+            x = pos.x
+            y = pos.y
+        }
+
         visible: false
         id: dropDown
-
-        anchors.top: ff.bottom
-        anchors.left: ff.left
-        anchors.right: ff.right
+        width: ff.width
+        height: 200
         color: appStyle.itemBackgroundColor
         border.width: 1
         border.color: appStyle.selectionBorderColor
-        height: 200
-        z: 1000
+        //z: 1000
 
         Component {
             id: highlightBar
@@ -155,7 +171,7 @@ Item {
         }
 
         ListView {
-            z:10
+            //z:10
             anchors.margins: 3
             anchors.fill: parent
             clip: true

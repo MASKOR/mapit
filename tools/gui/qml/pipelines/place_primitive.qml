@@ -212,7 +212,7 @@ ColumnLayout {
         Layout.fillWidth: true
         id: entityChooser
         currentEntityPath: root.currentEntityPath ? root.currentEntityPath : "/testmap/annotation/annotation_" + (new Date())
-        z: 200
+        //z: 200
     }
     RowLayout {
         Layout.fillWidth: true
@@ -258,7 +258,7 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
-        z:100
+        //z:100
         StyledLabel {
             Layout.alignment: Qt.AlignTop
             text: "frame_id:"
@@ -271,7 +271,7 @@ ColumnLayout {
     }
     RowLayout {
         Layout.fillWidth: true
-        z:99
+        //z:99
         StyledLabel {
             Layout.alignment: Qt.AlignTop
             text: "child_frame_id:"

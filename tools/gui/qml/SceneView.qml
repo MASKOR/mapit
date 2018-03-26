@@ -78,6 +78,13 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             z: 1000
+            Item {
+                z: 1000
+                id: popupLayerTop
+                width: 0
+                height: 0
+                clip: false
+            }
             RowLayout {
                 StyledLabel {
                     text: "PointSize: " + pointSizeSlider.value.toFixed(2)
@@ -137,6 +144,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                 }
                 FrameIdChooser {
+                    popupLayer: popupLayerTop
                     Layout.fillWidth: true
                     Layout.minimumWidth: 100
                     id: frameIdChooser

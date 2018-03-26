@@ -29,12 +29,12 @@ import "."
 
 QuickAccessMenu {
     property var currentWorkspace: globalApplicationState.currentWorkspace
-    z: 100
+    //z: 100
     id: frameIdInput
     height: appStyle.controlHeightInner
     model: currentWorkspace ? currentWorkspace.getFrameIds() : []
     Connections {
-        target: currentWorkspace
+        target: frameIdInput.currentWorkspace
         onIsBusyExecutingChanged: {
             if(!currentWorkspace.isBusyExecuting)
                 frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
@@ -44,5 +44,5 @@ QuickAccessMenu {
                 frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
         }
     }
-    onCurrentWorkspaceChanged: frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
+    onCurrentWorkspaceChanged: if(frameIdInput.currentWorkspace) frameIdInput.model = frameIdInput.currentWorkspace.getFrameIds()
 }
