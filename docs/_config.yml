@@ -1,2 +1,2 @@
 exclude: [node_modules, gulpfile.js, minima-master, script, Gemfile, Gemfile.lock, minima.gemspec, package.json, Rakefile, lib/CHANGES.md, lib/README.md, lib/LICENSE]
-markdown: redcarpet
+markdown: kramdown
