@@ -60,6 +60,16 @@ namespace  time {
       return msg;
   }
 
+  mapit::msgs::Time* to_msg_allocated(const Stamp& stamp)
+  {
+      unsigned long sec, nsec;
+      to_sec_and_nsec(stamp, sec, nsec);
+      mapit::msgs::Time* msg = new mapit::msgs::Time();
+      msg->set_sec(sec);
+      msg->set_nsec(nsec);
+      return msg;
+  }
+
   void to_sec_and_nsec(Stamp stamp, unsigned long &sec, unsigned long &nsec)
   {
     seconds d_sec = std::chrono::duration_cast<seconds>( stamp.time_since_epoch() );

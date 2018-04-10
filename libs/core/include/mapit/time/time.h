@@ -62,6 +62,7 @@ namespace time {
 
   Stamp from_msg(const mapit::msgs::Time& stamp);
   mapit::msgs::Time to_msg(const Stamp& stamp);
+  mapit::msgs::Time* to_msg_allocated(const Stamp& stamp);
 
   void to_sec_and_nsec(Stamp stamp, unsigned long &sec, unsigned long &nsec);
 
