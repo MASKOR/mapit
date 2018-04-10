@@ -66,7 +66,7 @@ public:
      * @brief getRollingcommit get the Entrypoint for the history
      * @return
      */
-    virtual const mapit::msgs::Commit& getRollingcommit() = 0;
+    virtual std::shared_ptr<mapit::msgs::Commit> getRollingcommit() = 0;
 
     /**
      * @brief getRoot get Entry point to all objects of this commit.

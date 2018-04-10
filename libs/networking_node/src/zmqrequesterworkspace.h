@@ -51,7 +51,7 @@ public:
     std::vector<std::shared_ptr<Conflict> > getPendingConflicts();
     void setConflictSolved(const Path &path, const ObjectId &oid);
     virtual MessageType typeOfObject(const Path &oidOrName);
-    const Commit &getRollingcommit();
+    std::shared_ptr<Commit> getRollingcommit();
     std::shared_ptr<Tree> getRoot();
     std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId);
     std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);

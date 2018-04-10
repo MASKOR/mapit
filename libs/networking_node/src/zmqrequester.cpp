@@ -86,11 +86,36 @@ std::shared_ptr<Entity> mapit::ZmqRequester::getEntity(const mapit::ObjectId &oi
     return nullptr;
 }
 
-std::shared_ptr<Commit> mapit::ZmqRequester::getCommit(const mapit::ObjectId &oid)
+std::shared_ptr<Commit> mapit::ZmqRequester::getCommit(const mapit::CommitId &coID)
 {
-    //TODO: Define network message
-    assert(false);
-    return nullptr;
+    std::unique_ptr<RequestCommit> req = std::make_unique<RequestCommit>();
+    req->set_commit_id( coID );
+
+    try {
+        m_d->m_requestMutex.lock();
+        m_d->prepareForwardComChannel();
+        m_d->send(std::move(req));
+        m_d->prepareBackComChannel();
+        std::shared_ptr<ReplyCommit> rep(m_d->receive<ReplyCommit>());
+        m_d->m_requestMutex.unlock();
+        if(rep && (rep->status() == ReplyCommit::SUCCESS)) {
+            return std::make_shared<Commit>( rep->commit() );
+        } else {
+            std::string errorMsg = "";
+            if (rep == nullptr) {
+                errorMsg = "no reply from server";
+            } else {
+                errorMsg = "with error \"" + rep->error_msg() + "\"";
+            }
+            log_error("Could not get commit \"" + coID + "\"\n" + errorMsg);
+            return nullptr;
+        }
+    }
+    catch(zmq::error_t err) {
+        m_d->m_requestMutex.unlock();
+        log_error("ZmqRequester: Error in getCommit: " + err.what());
+        return nullptr;
+    }
 }
 
 std::shared_ptr<WorkspaceObj> mapit::ZmqRequester::getWorkspaceObj(const std::string &name)

@@ -80,9 +80,33 @@ MessageType mapit::ZmqRequesterWorkspace::typeOfObject(const mapit::Path &oidOrN
     return MessageEmpty;
 }
 
-const Commit& mapit::ZmqRequesterWorkspace::getRollingcommit()
+std::shared_ptr<Commit> mapit::ZmqRequesterWorkspace::getRollingcommit()
 {
-    return m_cache->getRollingcommit();
+    std::unique_ptr<RequestGenericEntry> req(new RequestGenericEntry);
+    req->set_workspace(m_workspaceName);
+    req->set_path("");
+    try {
+        if(m_requestMutex) m_requestMutex->lock();
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
+        if(m_requestMutex) m_requestMutex->unlock();
+        std::shared_ptr<Commit> ret(rep->mutable_entry()->release_commit());
+        return ret;
+    }
+    catch (std::runtime_error err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while getRollingcommit(): " + err.what());
+        return nullptr;
+    }
+    catch (zmq::error_t err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while getRollingcommit(): " + err.what());
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getRoot()

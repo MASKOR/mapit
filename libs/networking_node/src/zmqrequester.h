@@ -46,7 +46,7 @@ public:
     std::vector<std::string> listWorkspaceNames();
     std::shared_ptr<Tree> getTree(const ObjectId &oid);
     std::shared_ptr<Entity> getEntity(const ObjectId &oid);
-    std::shared_ptr<Commit> getCommit(const ObjectId &oid);
+    std::shared_ptr<Commit> getCommit(const CommitId &coID);
     std::shared_ptr<WorkspaceObj> getWorkspaceObj(const std::string &name);
     std::shared_ptr<Branch> getBranch(const std::string &name);
     MessageType typeOfObject(const ObjectId &oid);

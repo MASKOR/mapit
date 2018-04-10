@@ -77,7 +77,7 @@ void OpDescHistTest::test_description_after_operation()
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
     QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
-    QVERIFY( workspace->getRollingcommit().ops_size() == 0 );
+    QVERIFY( workspace->getRollingcommit()->ops_size() == 0 );
 
     OperationDescription desc_bunny;
     mapit::OperationResult ret;
@@ -93,13 +93,16 @@ void OpDescHistTest::test_description_after_operation()
     ret = workspace->doOperation( desc_bunny );
     QVERIFY( mapitIsOk(ret.first) );
 
-    QVERIFY( workspace->getRollingcommit().ops_size() == 1 );
-    QVERIFY( 0 == desc_bunny.params().compare( workspace->getRollingcommit().ops(0).params() ) );
-    QVERIFY( 0 == desc_bunny.operator_().operatorname().compare( workspace->getRollingcommit().ops(0).operator_().operatorname() ) );
+    std::shared_ptr<mapit::msgs::Commit> rollingCo = workspace->getRollingcommit();
+    int opsSize = rollingCo->ops_size();
+
+    QVERIFY( workspace->getRollingcommit()->ops_size() == 1 );
+    QVERIFY( 0 == desc_bunny.params().compare( workspace->getRollingcommit()->ops(0).params() ) );
+    QVERIFY( 0 == desc_bunny.operator_().operatorname().compare( workspace->getRollingcommit()->ops(0).operator_().operatorname() ) );
 
     mapit::CommitId coID = repo->commit(workspace, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
 
-    QVERIFY( workspace->getRollingcommit().ops_size() == 0 );
+    QVERIFY( workspace->getRollingcommit()->ops_size() == 0 );
 
     std::shared_ptr<mapit::msgs::Commit> co = repo->getCommit( coID );
     QVERIFY( co->ops_size() == 1 );

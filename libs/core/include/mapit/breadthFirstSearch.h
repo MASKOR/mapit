@@ -32,9 +32,9 @@
 namespace mapit
 {
 
-StatusCode breadthFirstSearchHistory(  std::shared_ptr<Repository> repo
+StatusCode breadthFirstSearchHistory(std::shared_ptr<Repository> repo
                                      , const CommitId& commitID
-                                     , msgs::Commit commit
+                                     , std::shared_ptr<Commit> commit
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> beforeCommit
                                      , std::function<bool(std::shared_ptr<mapit::msgs::Commit>, const mapit::CommitId&)> afterCommit
                                     );

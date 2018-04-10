@@ -89,6 +89,10 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestDeleteTree>( fn );
 
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestCommit, &mapit::ZmqResponderPrivate::handleRequestCommit>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestCommit>( fn );
+
     //TODO: allow ssh://?
     bind("tcp://*:" + std::to_string( m_portIncoming ) );
 }
@@ -611,3 +615,21 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
 //    }
 //    send( std::move( rep ) );
 //}
+
+void mapit::ZmqResponderPrivate::handleRequestCommit(RequestCommit* msg)
+{
+    std::unique_ptr<ReplyCommit> rep = std::make_unique<ReplyCommit>();
+
+    std::shared_ptr<mapit::msgs::Commit> co = m_repo->getCommit( msg->commit_id() );
+    if (co == nullptr) {
+        std::string error_msg = "Commit \"" + msg->commit_id() + "\"for RequestCommit does not exist";
+        log_info("handleRequestCommit: " + error_msg);
+        rep->set_error_msg( error_msg );
+        rep->set_status( ReplyCommit::ERROR );
+    } else {
+        rep->set_status( ReplyCommit::SUCCESS );
+        *rep->mutable_commit() = *co.get();
+    }
+
+    send( std::move( rep ) );
+}

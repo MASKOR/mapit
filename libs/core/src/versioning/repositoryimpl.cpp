@@ -108,7 +108,7 @@ std::shared_ptr<Entity> RepositoryImpl::getEntity(const ObjectId &oid)
     return m_p->m_serializer->getEntity(oid);
 }
 
-std::shared_ptr<Commit> RepositoryImpl::getCommit(const ObjectId &oid)
+std::shared_ptr<Commit> RepositoryImpl::getCommit(const CommitId &oid)
 {
     return m_p->m_serializer->getCommit(oid);
 }
