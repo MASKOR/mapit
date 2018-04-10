@@ -172,6 +172,8 @@ public:
                                         , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity) = 0;
 
     virtual mapit::msgs::MessageType typeOfObject(const Path &oidOrName) = 0;
+
+    virtual const std::string& getName() = 0;
 };
 
 }

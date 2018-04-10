@@ -47,6 +47,7 @@ public:
 
     // WorkspaceCommon interface
 public:
+    virtual const std::string& getName();
     bool isInConflictMode();
     std::vector<std::shared_ptr<Conflict> > getPendingConflicts();
     void setConflictSolved(const Path &path, const ObjectId &oid);

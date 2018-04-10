@@ -302,7 +302,7 @@ std::shared_ptr<WorkspaceObj> WorkspaceImpl::getWorkspaceObj()
     return m_workspace;
 }
 
-const std::string &WorkspaceImpl::getName() const
+const std::string &WorkspaceImpl::getName()
 {
     return m_name;
 }

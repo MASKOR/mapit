@@ -48,6 +48,12 @@ mapit::ZmqRequesterWorkspace::ZmqRequesterWorkspace(std::string name, ZmqProtobu
 {
 }
 
+const std::string&
+mapit::ZmqRequesterWorkspace::getName()
+{
+    return m_workspaceName;
+}
+
 bool mapit::ZmqRequesterWorkspace::isInConflictMode()
 {
     //TODO: nyi

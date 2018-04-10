@@ -111,7 +111,7 @@ public:
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity);
     std::shared_ptr<WorkspaceObj> getWorkspaceObj();
-    const std::string& getName() const;
+    virtual const std::string& getName();
     const std::string& getBranchName() const;
 private:
 
