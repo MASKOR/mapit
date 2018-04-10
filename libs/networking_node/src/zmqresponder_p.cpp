@@ -89,6 +89,10 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestDeleteTree>( fn );
 
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestDoCommit, &mapit::ZmqResponderPrivate::handleRequestDoCommit>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestDoCommit>( fn );
+
     member = &mapit::ZmqResponderPrivate::toDelegate<RequestCommit, &mapit::ZmqResponderPrivate::handleRequestCommit>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestCommit>( fn );
@@ -583,6 +587,25 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
     rep.send();
 }
 
+void mapit::ZmqResponderPrivate::handleRequestDoCommit(RequestDoCommit* msg)
+{
+    std::unique_ptr<ReplyDoCommit> rep = std::make_unique<ReplyDoCommit>();
+
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if (workspace == nullptr) {
+        std::string error_msg = "Workspace \"" + msg->workspace() + "\"for RequestDoCommit does not exist";
+        log_error(error_msg);
+        rep->set_status_code(1);
+        rep->set_error_msg( error_msg );
+    } else {
+        mapit::CommitId coID = m_repo->commit( workspace, msg->message(), msg->author(), msg->email(), mapit::time::from_msg(msg->stamp()) );
+        rep->set_commit_id( coID );
+        rep->set_status_code( 0 );
+        rep->set_error_msg( "" );
+    }
+
+    send( std::move( rep ) );
+}
 
 void mapit::ZmqResponderPrivate::handleRequestCommit(RequestCommit* msg)
 {

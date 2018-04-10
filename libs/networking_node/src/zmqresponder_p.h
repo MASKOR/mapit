@@ -53,6 +53,7 @@ public:
     void handleRequestStoreEntity(RequestStoreEntity* msg);
     void handleRequestDeleteEntity(RequestDeleteEntity* msg);
     void handleRequestDeleteTree(RequestDeleteTree* msg);
+    void handleRequestDoCommit(RequestDoCommit* msg);
     void handleRequestCommit(RequestCommit* msg);
 //    void handleRequestStoreGenericEntry(mapit::RequestStoreGenericEntry *msg);
 //    void handleRequestEntity(mapit::RequestEntity *msg);
