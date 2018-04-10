@@ -77,10 +77,6 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestStoreEntity>( fn );
 
-//    member = &mapit::ZmqResponderPrivate::toDelegate<RequestStoreTree, &mapit::ZmqResponderPrivate::handleRequestStoreTree>;
-//    fn = std::bind(member, this, std::placeholders::_1);
-//    add_receivable_message_type<RequestStoreTree>( fn );
-
     member = &mapit::ZmqResponderPrivate::toDelegate<RequestDeleteEntity, &mapit::ZmqResponderPrivate::handleRequestDeleteEntity>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestDeleteEntity>( fn );
@@ -445,47 +441,6 @@ void mapit::ZmqResponderPrivate::handleRequestStoreEntity(RequestStoreEntity *ms
     send( std::move( rep ) );
 }
 
-//void mapit::ZmqResponderPrivate::handleRequestStoreTree(RequestStoreTree *msg)
-//{
-//    std::unique_ptr<ReplyStoreTree> rep(new ReplyStoreTree());
-
-//    // Validate input
-//    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
-//    if(workspace == NULL)
-//    {
-//        rep->set_status( ReplyStoreTree::WORKSPACE_NOT_FOUND );
-//        send( std::move( rep ) );
-//        return;
-//    }
-//    MessageType type = workspace->typeOfObject(msg->path());
-//    if(type != MessageEmpty)
-//    {
-//        rep->set_status( ReplyStoreTree::EXISTED );
-//        send( std::move( rep ) );
-//        return;
-//    }
-//    OperationDescription desc;
-//    desc.mutable_operator_()->set_operatorname("StoreTree");
-//    desc.set_params("{source:\"network\"}");
-//    mapit::OperationResult res = workspace->doUntraceableOperation(desc, [&msg, this](mapit::OperationEnvironment *env){
-//        mapit::WorkspaceRaw* coraw = env->getWorkspace();
-//        std::shared_ptr<Tree> tree;
-//        StatusCode s = coraw->storeTree(msg->path(), tree);
-//        return s;
-//    });
-//    if(mapitIsOk(res.first))
-//    {
-//        assert(!has_more());
-//        rep->set_status(ReplyStoreTree::SUCCESS);
-//    }
-//    else
-//    {
-//        log_info("Could not store tree \"" + msg->path() + "\" due to an error during inline operator. (" + std::to_string(res.first) + ")");
-//        rep->set_status(ReplyStoreTree::ERROR);
-//    }
-//    send( std::move( rep ) );
-//}
-
 void
 mapit::ZmqResponderPrivate::handleRequestDeleteEntity(RequestDeleteEntity* msg)
 {
@@ -599,22 +554,6 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
     rep.send();
 }
 
-//void mapit::ZmqResponderPrivate::handleRequestTree(mapit::RequestTree *msg)
-//{
-//    std::unique_ptr<mapit::ReplyTree> rep(new mapit::ReplyTree());
-//    std::shared_ptr<Workspace> co = m_repo->getWorkspace(msg->workspace());
-//    std::shared_ptr<Tree> t = co->getTree(msg->path());
-//    if(t)
-//    {
-//        rep->set_status( mapit::ReplyTree::SUCCESS );
-//        rep->set_allocated_tree( new Tree(*t) );
-//    }
-//    else
-//    {
-//        rep->set_status( mapit::ReplyTree::NOT_FOUND );
-//    }
-//    send( std::move( rep ) );
-//}
 
 void mapit::ZmqResponderPrivate::handleRequestCommit(RequestCommit* msg)
 {

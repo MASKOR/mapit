@@ -50,7 +50,6 @@ public:
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
     void handleRequestGenericEntry(RequestGenericEntry *msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);
-//    void handleRequestStoreTree(RequestStoreTree *msg);
     void handleRequestDeleteEntity(RequestDeleteEntity* msg);
     void handleRequestDeleteTree(RequestDeleteTree* msg);
     void handleRequestCommit(RequestCommit* msg);
