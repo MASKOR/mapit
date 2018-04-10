@@ -522,33 +522,39 @@ void mapit::ZmqResponderPrivate::handleRequestGenericEntry(RequestGenericEntry *
         rep.send();
         return;
     }
-    MessageType type = workspace->typeOfObject(msg->path());
-    if(type == MessageTree)
-    {
-        std::shared_ptr<Tree> tree = workspace->getTree(msg->path());
-        if(tree)
+    if (msg->path().empty()) { // empty means the rollingcommit
+        std::shared_ptr<Commit> co = workspace->getRollingcommit();
+        rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
+        rep.reply()->mutable_entry()->set_allocated_commit( new Commit( *co ) );
+    } else {
+        MessageType type = workspace->typeOfObject(msg->path());
+        if(type == MessageTree)
         {
-            rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
-            rep.reply()->mutable_entry()->set_allocated_tree( new Tree(*tree) );
+            std::shared_ptr<Tree> tree = workspace->getTree(msg->path());
+            if(tree)
+            {
+                rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
+                rep.reply()->mutable_entry()->set_allocated_tree( new Tree(*tree) );
+            }
+            else
+            {
+                log_info("Tree \"" + msg->path() + "\" was requested but not found.");
+                rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
+            }
         }
-        else
+        else if(type == MessageEntity)
         {
-            log_info("Tree \"" + msg->path() + "\" was requested but not found.");
-            rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
-        }
-    }
-    else if(type == MessageEntity)
-    {
-        std::shared_ptr<Entity> entity = workspace->getEntity(msg->path());
-        if(entity)
-        {
-            rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
-            rep.reply()->mutable_entry()->set_allocated_entity( new Entity(*entity) );
-        }
-        else
-        {
-            log_info("Entity \"" + msg->path() + "\" was requested but not found.");
-            rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
+            std::shared_ptr<Entity> entity = workspace->getEntity(msg->path());
+            if(entity)
+            {
+                rep.reply()->set_status( ReplyGenericEntry::SUCCESS );
+                rep.reply()->mutable_entry()->set_allocated_entity( new Entity(*entity) );
+            }
+            else
+            {
+                log_info("Entity \"" + msg->path() + "\" was requested but not found.");
+                rep.reply()->set_status( ReplyGenericEntry::NOT_FOUND );
+            }
         }
     }
     rep.send();
