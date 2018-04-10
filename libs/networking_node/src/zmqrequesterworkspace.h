@@ -74,6 +74,7 @@ public:
     // Workspace interface
 public:
     OperationResult doOperation(const OperationDescription &desc);
+    mapit::StatusCode storeOperationDesc_(const OperationDescription &desc, bool restorable);
     OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate);
 
     // WorkspaceWritable interface

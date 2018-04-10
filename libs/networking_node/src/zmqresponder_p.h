@@ -48,6 +48,7 @@ public:
     void handleRequestHierarchyPlain(RequestHierarchyPlain* msg);
     void handleRequestListWorkspaces(RequestListWorkspaces* msg);
     void handleRequestOperatorExecution(RequestOperatorExecution* msg);
+    void handleRequestStoreOperatorExecution(RequestStoreOperatorExecution* msg);
     void handleRequestGenericEntry(RequestGenericEntry *msg);
     void handleRequestStoreEntity(RequestStoreEntity* msg);
     void handleRequestDeleteEntity(RequestDeleteEntity* msg);

@@ -166,15 +166,24 @@ std::shared_ptr<Entity> WorkspaceImpl::getEntityConflict(const ObjectId &objectI
     return nullptr;
 }
 
+mapit::StatusCode WorkspaceImpl::storeOperationDesc_(const OperationDescription &desc, bool restorable)
+{
+    OperationDescription* addedDesc = m_workspace->mutable_rollingcommit()->add_ops();
+    addedDesc->mutable_operator_()->set_operatorname( desc.operator_().operatorname() );
+    addedDesc->mutable_operator_()->set_operatorversion( desc.operator_().operatorversion() );
+    addedDesc->mutable_operator_()->set_restorable( restorable );
+    addedDesc->set_params( desc.params() );
+    m_serializer->storeWorkspaceCommit(m_workspace, m_name);
+
+    return MAPIT_STATUS_OK;
+}
+
 OperationResult WorkspaceImpl::doOperation(const OperationDescription &desc)
 {
     OperationResult result = OperatorLibraryManager::doOperation(desc, this);
     // when operation successfull, add to commit
     if ( mapitIsOk(result.first) ) {
-        OperationDescription* addedDesc = m_workspace->mutable_rollingcommit()->add_ops();
-        addedDesc->mutable_operator_()->set_operatorname( desc.operator_().operatorname() );
-        addedDesc->mutable_operator_()->set_operatorversion( desc.operator_().operatorversion() );
-        addedDesc->set_params( desc.params() );
+        storeOperationDesc_(desc, true);
     }
     return result;
 }

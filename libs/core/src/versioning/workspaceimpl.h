@@ -82,6 +82,7 @@ public:
     virtual std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
     virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(OperationEnvironment *)> operate);
+    virtual mapit::StatusCode storeOperationDesc_(const OperationDescription &desc, bool restorable);
 
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);

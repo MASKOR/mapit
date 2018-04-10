@@ -236,12 +236,50 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::depthFirstSearch(  const Path& p
     return mapit::depthFirstSearchWorkspace(this, path, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
+mapit::StatusCode
+mapit::ZmqRequesterWorkspace::storeOperationDesc_(const OperationDescription &desc, bool restorable)
+{
+    std::unique_ptr<RequestStoreOperatorExecution> req(new RequestStoreOperatorExecution);
+    req->set_workspace(m_workspaceName);
+    *req->mutable_param() = desc;
+    try {
+        if(m_requestMutex) m_requestMutex->lock();
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyStoreOperatorExecution> rep(m_node->receive<ReplyStoreOperatorExecution>());
+        if(m_requestMutex) m_requestMutex->unlock();
+        if (rep && rep->status_code() == 0) {
+            return MAPIT_STATUS_OK;
+        } else {
+            return MAPIT_STATUS_ERROR;
+        }
+    }
+    catch (std::runtime_error err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while storeOperationDesc(): " + err.what());
+        return MAPIT_STATUS_ERROR;
+    }
+    catch (zmq::error_t err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while storeOperationDesc(): " + err.what());
+        return MAPIT_STATUS_ERROR;
+    }
+}
+
 mapit::OperationResult mapit::ZmqRequesterWorkspace::doOperation(const OperationDescription &desc)
 {
     if(m_operationsLocal)
     {
         // Execute operation on this machine. ZmqRequesterWorkspaceWritable will read/write data from remote.
-        return OperatorLibraryManager::doOperation(desc, this);
+        OperationResult result = OperatorLibraryManager::doOperation(desc, this);
+        // when operation successfull, add to commit
+        if ( mapitIsOk(result.first) ) {
+            StatusCode status = storeOperationDesc_(desc, true);
+        }
+        return result;
     }
     else
     {

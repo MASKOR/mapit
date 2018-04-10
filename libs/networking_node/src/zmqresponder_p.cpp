@@ -69,6 +69,10 @@ mapit::ZmqResponderPrivate::ZmqResponderPrivate(int portIncomingRequests, Reposi
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestOperatorExecution>( fn );
 
+    member = &mapit::ZmqResponderPrivate::toDelegate<RequestStoreOperatorExecution, &mapit::ZmqResponderPrivate::handleRequestStoreOperatorExecution>;
+    fn = std::bind(member, this, std::placeholders::_1);
+    add_receivable_message_type<RequestStoreOperatorExecution>( fn );
+
     member = &mapit::ZmqResponderPrivate::toDelegate<RequestGenericEntry, &mapit::ZmqResponderPrivate::handleRequestGenericEntry>;
     fn = std::bind(member, this, std::placeholders::_1);
     add_receivable_message_type<RequestGenericEntry>( fn );
@@ -308,6 +312,25 @@ void mapit::ZmqResponderPrivate::handleRequestOperatorExecution(RequestOperatorE
     mapit::OperationResult result = workspace->doOperation(msg->param());
     rep->set_status_code(result.first);
     rep->set_error_msg(""); // TODO: This is the success, errormessage. There are no more errormessages yet.
+    send( std::move( rep ) );
+}
+
+void mapit::ZmqResponderPrivate::handleRequestStoreOperatorExecution(RequestStoreOperatorExecution* msg)
+{
+    std::unique_ptr<ReplyStoreOperatorExecution> rep(new ReplyStoreOperatorExecution());
+    std::shared_ptr<Workspace> workspace = m_repo->getWorkspace(msg->workspace());
+    if(workspace == NULL)
+    {
+        rep->set_status_code( MAPIT_STATUS_ERR_DB_NOT_FOUND );
+        rep->set_error_msg( "Workspace does not exist" );
+        send( std::move( rep ) );
+        return;
+    }
+
+    workspace->storeOperationDesc_(msg->param(), false);
+
+    rep->set_status_code(MAPIT_STATUS_OK);
+    rep->set_error_msg("");
     send( std::move( rep ) );
 }
 
