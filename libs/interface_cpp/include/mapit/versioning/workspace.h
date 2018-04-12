@@ -61,6 +61,14 @@ public:
     virtual OperationResult doOperation(const OperationDescription &desc) = 0;
 
     /**
+     * @brief storeOperationDesc stores the Operator desc of an operator that has been executed already.
+     *        This is needed for remote repositories with local execution and should only be called from the ZmqResponderPrivate
+     * @param desc
+     * @return
+     */
+    virtual StatusCode storeOperationDesc_(const OperationDescription &desc, bool restorable) = 0;
+
+    /**
      * @brief doUntraceableOperation Executes a custom operation.
      * This is meant to get raw sensor data into the system.
      * Whenever possible, doOperation should be used. Using this method extensively will

@@ -149,4 +149,4 @@ mapit::StatusCode operate_load_posepath(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, PosePathEntitydata_TYPENAME, &operate_load_posepath)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, PosePathEntitydata_TYPENAME, false, &operate_load_posepath)

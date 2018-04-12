@@ -133,4 +133,4 @@ mapit::StatusCode operate_grid(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "slice a pointcloud into multiple pointclouds using a grid", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_grid)
+MAPIT_MODULE(OPERATOR_NAME, "slice a pointcloud into multiple pointclouds using a grid", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, true, &operate_grid)

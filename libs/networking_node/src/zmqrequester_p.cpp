@@ -37,9 +37,11 @@ mapit::ZmqRequesterPrivate::ZmqRequesterPrivate(Repository *cache, std::string u
     add_receivable_message_type<ReplyHierarchy>();
     add_receivable_message_type<ReplyListWorkspaces>();
     add_receivable_message_type<ReplyOperatorExecution>();
+    add_receivable_message_type<ReplyStoreOperatorExecution>();
     add_receivable_message_type<ReplyGenericEntry>();
     add_receivable_message_type<ReplyStoreEntity>();
-    add_receivable_message_type<ReplyStoreTree>();
     add_receivable_message_type<ReplyDeleteEntity>();
     add_receivable_message_type<ReplyDeleteTree>();
+    add_receivable_message_type<ReplyDoCommit>();
+    add_receivable_message_type<ReplyCommit>();
 }

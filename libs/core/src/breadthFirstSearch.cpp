@@ -71,15 +71,14 @@ StatusCode breadthFirstSearchHistory(  std::shared_ptr<mapit::Repository> repo
 
 StatusCode breadthFirstSearchHistory(  std::shared_ptr<mapit::Repository> repo
                                      , const CommitId& commitID
-                                     , msgs::Commit commit
+                                     , std::shared_ptr<mapit::msgs::Commit> commit
                                      , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> beforeCommit
                                      , std::function<bool(std::shared_ptr<Commit>, const CommitId&)> afterCommit
                                     )
 {
-    std::shared_ptr<msgs::Commit> commitCopy = std::make_shared<msgs::Commit>( commit );
     BreadthMap breadthQueue;
-    time::Stamp stamp = time::from_msg( commit.stamp() );
-    BreadthCommit commitPair(commitID, commitCopy);
+    time::Stamp stamp = time::from_msg( commit->stamp() );
+    BreadthCommit commitPair(commitID, commit);
     breadthQueue.insert( BreadthMapPair(stamp, std::list<BreadthCommit>() ) );
     breadthQueue[stamp].push_back(commitPair);
 

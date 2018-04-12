@@ -105,4 +105,4 @@ mapit::StatusCode operate_vxg(mapit::OperationEnvironment* env)
     }
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_vxg)
+MAPIT_MODULE(OPERATOR_NAME, "use pcl voxelgrid filter on a pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, true, &operate_vxg)

@@ -48,6 +48,12 @@ mapit::ZmqRequesterWorkspace::ZmqRequesterWorkspace(std::string name, ZmqProtobu
 {
 }
 
+const std::string&
+mapit::ZmqRequesterWorkspace::getName()
+{
+    return m_workspaceName;
+}
+
 bool mapit::ZmqRequesterWorkspace::isInConflictMode()
 {
     //TODO: nyi
@@ -80,9 +86,33 @@ MessageType mapit::ZmqRequesterWorkspace::typeOfObject(const mapit::Path &oidOrN
     return MessageEmpty;
 }
 
-const Commit& mapit::ZmqRequesterWorkspace::getRollingcommit()
+std::shared_ptr<Commit> mapit::ZmqRequesterWorkspace::getRollingcommit()
 {
-    return m_cache->getRollingcommit();
+    std::unique_ptr<RequestGenericEntry> req(new RequestGenericEntry);
+    req->set_workspace(m_workspaceName);
+    req->set_path("");
+    try {
+        if(m_requestMutex) m_requestMutex->lock();
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyGenericEntry> rep(m_node->receive<ReplyGenericEntry>());
+        if(m_requestMutex) m_requestMutex->unlock();
+        std::shared_ptr<Commit> ret(rep->mutable_entry()->release_commit());
+        return ret;
+    }
+    catch (std::runtime_error err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while getRollingcommit(): " + err.what());
+        return nullptr;
+    }
+    catch (zmq::error_t err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while getRollingcommit(): " + err.what());
+        return nullptr;
+    }
 }
 
 std::shared_ptr<Tree> mapit::ZmqRequesterWorkspace::getRoot()
@@ -206,12 +236,50 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::depthFirstSearch(  const Path& p
     return mapit::depthFirstSearchWorkspace(this, path, beforeTree, afterTree, beforeEntity, afterEntity);
 }
 
+mapit::StatusCode
+mapit::ZmqRequesterWorkspace::storeOperationDesc_(const OperationDescription &desc, bool restorable)
+{
+    std::unique_ptr<RequestStoreOperatorExecution> req(new RequestStoreOperatorExecution);
+    req->set_workspace(m_workspaceName);
+    *req->mutable_param() = desc;
+    try {
+        if(m_requestMutex) m_requestMutex->lock();
+        m_node->prepareForwardComChannel();
+        m_node->send(std::move(req));
+        m_node->prepareBackComChannel();
+        std::shared_ptr<ReplyStoreOperatorExecution> rep(m_node->receive<ReplyStoreOperatorExecution>());
+        if(m_requestMutex) m_requestMutex->unlock();
+        if (rep && rep->status_code() == 0) {
+            return MAPIT_STATUS_OK;
+        } else {
+            return MAPIT_STATUS_ERROR;
+        }
+    }
+    catch (std::runtime_error err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while storeOperationDesc(): " + err.what());
+        return MAPIT_STATUS_ERROR;
+    }
+    catch (zmq::error_t err)
+    {
+        if(m_requestMutex) m_requestMutex->unlock();
+        log_error("Server Error while storeOperationDesc(): " + err.what());
+        return MAPIT_STATUS_ERROR;
+    }
+}
+
 mapit::OperationResult mapit::ZmqRequesterWorkspace::doOperation(const OperationDescription &desc)
 {
     if(m_operationsLocal)
     {
         // Execute operation on this machine. ZmqRequesterWorkspaceWritable will read/write data from remote.
-        return OperatorLibraryManager::doOperation(desc, this);
+        OperationResult result = OperatorLibraryManager::doOperation(desc, this);
+        // when operation successfull, add to commit
+        if ( mapitIsOk(result.first) ) {
+            StatusCode status = storeOperationDesc_(desc, false);
+        }
+        return result;
     }
     else
     {
@@ -250,6 +318,7 @@ mapit::OperationResult mapit::ZmqRequesterWorkspace::doUntraceableOperation(cons
 {
     mapit::OperationEnvironmentImpl env( desc );
     env.setWorkspace( this );
+    env.setOutputDescription(desc, false);
     // TODO: this breaks req/resp pattern!
     mapit::StatusCode status = operate( &env );
     OperationResult res(status, env.outputDescription());
@@ -289,7 +358,7 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::storeEntity(const mapit::Path &p
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
         if(m_requestMutex) m_requestMutex->unlock();
-        if(rep->status() == ReplyStoreEntity::SUCCESS)
+        if(rep && rep->status() == ReplyStoreEntity::SUCCESS)
         {
             return MAPIT_STATUS_OK;
         }

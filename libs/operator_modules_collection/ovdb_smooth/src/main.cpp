@@ -183,4 +183,4 @@ mapit::StatusCode operate_ovdb_smooth(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdb_smooth)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, true, &operate_ovdb_smooth)

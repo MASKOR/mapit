@@ -55,9 +55,10 @@ const std::string& OperationEnvironmentImpl::getParameters() const
     return m_operationDesc.params();
 }
 
-void OperationEnvironmentImpl::setOutputDescription(const std::string& out)
+void OperationEnvironmentImpl::setOutputDescription(const OperationDescription &desc, const bool &restorable)
 {
-    m_outDesc.set_params(out);
+    m_outDesc = desc;
+    m_outDesc.mutable_operator_()->set_restorable( restorable );
 }
 
 const OperationDescription OperationEnvironmentImpl::outputDescription() const

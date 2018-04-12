@@ -191,4 +191,4 @@ mapit::StatusCode operate_load_bags(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "load bagfiles in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_bags)
+MAPIT_MODULE(OPERATOR_NAME, "load bagfiles in mapit", "fhac", OPERATOR_VERSION, "any", false, &operate_load_bags)

@@ -91,4 +91,4 @@ mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
     return reg_local.operate();
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", &operate_reg_local_icp)
+MAPIT_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", true, &operate_reg_local_icp)

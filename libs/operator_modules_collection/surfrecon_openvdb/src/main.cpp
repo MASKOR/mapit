@@ -209,4 +209,4 @@ mapit::StatusCode operate_tolevelset(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "make a levelset out of a pointcloud using pcl and openvdb", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_tolevelset)
+MAPIT_MODULE(OPERATOR_NAME, "make a levelset out of a pointcloud using pcl and openvdb", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, true, &operate_tolevelset)

@@ -39,7 +39,7 @@ public:
     virtual operators::WorkspaceWritable *getWorkspace() const;
     virtual const mapit::msgs::OperationDescription *getDescription() const;
     virtual const std::string& getParameters() const;
-    virtual void setOutputDescription(const std::string& out);
+    virtual void setOutputDescription(const mapit::msgs::OperationDescription& desc, const bool& restorable);
     virtual const mapit::msgs::OperationDescription outputDescription() const;
 
 private:

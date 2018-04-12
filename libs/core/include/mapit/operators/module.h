@@ -72,6 +72,7 @@ struct ModuleInfo
     const int           moduleVersion;  //< version
     const int           apiVersion;     //< mapit api version
     const char*         layerType;      //< LayerType enum
+    const bool          restorable;     //< operates in a repeatable way
     const OperateFunc   operate;
     ModuleInfo(const ModuleInfo &o)
         : compiler(o.compiler)
@@ -84,6 +85,7 @@ struct ModuleInfo
         , moduleVersion(o.moduleVersion)
         , apiVersion(o.apiVersion)
         , layerType(o.layerType)
+        , restorable(o.restorable)
         , operate(o.operate)
     {}
     ModuleInfo(  const char*       compiler
@@ -96,6 +98,7 @@ struct ModuleInfo
                , const int         moduleVersion
                , const int         apiVersion
                , const char*       layerType
+               , const bool        restorable
                , const OperateFunc operate)
     : compiler(compiler)
     , compilerConfig(compilerConfig)
@@ -107,6 +110,7 @@ struct ModuleInfo
     , moduleVersion(moduleVersion)
     , apiVersion(apiVersion)
     , layerType(layerType)
+    , restorable(restorable)
     , operate(operate)
 {}
 
@@ -131,7 +135,7 @@ static const char* g_compilerconfig = "TODO";
 
 typedef ModuleInfo* (*GetModuleInfo)();
 
-#define MAPIT_MODULE(moduleName, description, author, moduleVersion, layerType, operateFunc) \
+#define MAPIT_MODULE(moduleName, description, author, moduleVersion, layerType, restorable, operateFunc) \
   extern "C" { \
       MODULE_EXPORT ModuleInfo* getModuleInfo() \
       { \
@@ -145,6 +149,7 @@ typedef ModuleInfo* (*GetModuleInfo)();
                                              , moduleVersion \
                                              , MAPIT_MODULE_API_VERSION \
                                              , layerType \
+                                             , restorable \
                                              , operateFunc ); \
           return &info; \
       } \

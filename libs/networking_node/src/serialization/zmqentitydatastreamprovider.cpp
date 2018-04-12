@@ -337,7 +337,7 @@ void mapit::ZmqEntitydataStreamProvider::endWrite(const char *memory, const mapi
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
         if(m_requestMutex) m_requestMutex->unlock();
-        if(rep->status() != ReplyStoreEntity::SUCCESS)
+        if(!rep || rep->status() != ReplyStoreEntity::SUCCESS)
         {
             log_error("received error from server when asked for entitydata");
         }

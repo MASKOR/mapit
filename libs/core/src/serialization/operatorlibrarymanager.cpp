@@ -139,6 +139,7 @@ mapit::OperationResult _doOperation(const ModuleInfo *module, const mapit::msgs:
 //    opdesc.set_params(params);
     OperationEnvironmentImpl env(desc);
     env.setWorkspace( workspace );
+    env.setOutputDescription(desc, module->restorable);
     StatusCode result = module->operate( &env );
     if(!mapitIsOk(result))
     {

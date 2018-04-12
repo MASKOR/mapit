@@ -123,4 +123,4 @@ mapit::StatusCode operate_load_pointcloud(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_load_pointcloud)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Pcd File", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, false, &operate_load_pointcloud)

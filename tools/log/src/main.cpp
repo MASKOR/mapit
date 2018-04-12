@@ -35,7 +35,7 @@
 namespace po = boost::program_options;
 
 void
-getHistory(std::shared_ptr<mapit::Repository> repo, const std::string& commitID, const mapit::msgs::Commit& commit)
+getHistory(std::shared_ptr<mapit::Repository> repo, const std::string& commitID, std::shared_ptr<mapit::msgs::Commit> commit)
 {
     std::string ret;
     mapit::breadthFirstSearchHistory(repo
@@ -75,7 +75,8 @@ getHistory(std::shared_ptr<mapit::Repository> repo, const std::string& commitID,
 void
 getHistory(std::shared_ptr<mapit::Repository> repo, const std::string& workspaceName, std::shared_ptr<mapit::Workspace> workspace)
 {
-    getHistory( repo, workspaceName, workspace->getRollingcommit() );
+    std::shared_ptr<mapit::msgs::Commit> rollCo = workspace->getRollingcommit();
+    getHistory( repo, workspaceName, rollCo );
 }
 
 void
@@ -153,7 +154,7 @@ int main(int argc, char *argv[])
     } else {
         commit = repo->getCommit( vars["ref"].as<std::string>() );
         if ( commit ) {
-            getHistory(repo, vars["ref"].as<std::string>(), *commit.get());
+            getHistory(repo, vars["ref"].as<std::string>(), commit);
         } else {
             std::cout << "given parameter ref: \"" << vars["ref"].as<std::string>() << "\" is neither a workspace nor a commit id" << std::endl;
             return 1;

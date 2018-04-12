@@ -73,7 +73,7 @@ public:
 
     virtual bool isInConflictMode();
     virtual std::vector< std::shared_ptr<Conflict> > getPendingConflicts();
-    virtual const Commit &getRollingcommit();
+    virtual std::shared_ptr<Commit> getRollingcommit();
     virtual std::shared_ptr<Tree> getRoot();
     virtual std::shared_ptr<Tree> getTree(const Path &path);
     virtual std::shared_ptr<Entity> getEntity(const Path &path);
@@ -82,6 +82,7 @@ public:
     virtual std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);
     virtual OperationResult doOperation(const OperationDescription &desc);
     virtual OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(OperationEnvironment *)> operate);
+    virtual mapit::StatusCode storeOperationDesc_(const OperationDescription &desc, bool restorable);
 
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnly(const Path &path);
     virtual std::shared_ptr<AbstractEntitydata> getEntitydataReadOnlyConflict(const ObjectId &entityId);
@@ -111,7 +112,7 @@ public:
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> beforeEntity
                                 , std::function<bool(std::shared_ptr<mapit::msgs::Entity>, const mapit::msgs::ObjectReference&, const Path&)> afterEntity);
     std::shared_ptr<WorkspaceObj> getWorkspaceObj();
-    const std::string& getName() const;
+    virtual const std::string& getName();
     const std::string& getBranchName() const;
 private:
 
@@ -330,7 +331,13 @@ StatusCode WorkspaceImpl::createPath(const Path &path, std::shared_ptr<T> create
             // use or copy existing
             bool segTransient = ref.id().empty() && !ref.path().empty();
             //bool segTransient = m_workspace->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is transient, instead this is ensured in assertion below)
-            assert(segTransient == (m_workspace->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
+            if (ref.path().empty() || ref.path().back() == '/') {
+                assert(segTransient == (m_workspace->transientoidstoorigin().count( ref.path() ) != 0)); //< if this happens, commit did not track objects correctly!
+            } else {
+                bool normalName = segTransient == (m_workspace->transientoidstoorigin().count( ref.path() ) != 0);
+                bool longerName = segTransient == (m_workspace->transientoidstoorigin().count( ref.path() + "/" ) != 0);
+                assert(normalName || longerName); //< if this happens, commit did not track objects correctly!
+            }
             if(segTransient)
             {
                 // delete leaf

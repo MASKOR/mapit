@@ -270,4 +270,4 @@ mapit::StatusCode operate_mls(mapit::OperationEnvironment* env)
     return operate(pc2, entityData, env);
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "resample data using moving least squares. Smooths normals or color", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_mls)
+MAPIT_MODULE(OPERATOR_NAME, "resample data using moving least squares. Smooths normals or color", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, true, &operate_mls)

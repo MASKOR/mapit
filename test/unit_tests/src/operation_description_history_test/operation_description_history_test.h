@@ -1,7 +1,6 @@
 /*******************************************************************************
  *
- * Copyright 2016-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
- *                2017 Tobias Neumann	<t.neumann@fh-aachen.de>
+ * Copyright      2018 Tobias Neumann	<t.neumann@fh-aachen.de>
  *
 ******************************************************************************/
 
@@ -21,22 +20,29 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <mapit/operators/module.h>
-#include <mapit/operators/versioning/workspacewritable.h>
-#include <mapit/operators/operationenvironment.h>
-#include <iostream>
-#include <memory>
-#include <mapit/errorcodes.h>
-#include <mapit/operators/versioning/workspacewritable.h>
+#ifndef __OPDESCHIST_TEST_H
+#define __OPDESCHIST_TEST_H
 
-mapit::StatusCode operate(mapit::OperationEnvironment* env)
+#include <QTest>
+#include "../repositorycommon.h"
+
+class OpDescHistTest : public RepositoryCommon
 {
-    assert(false); // Not yet implemented
-//    mapit::OperationDescription out;
-//    out.set_operatorname(OPERATOR_NAME);
-//    out.set_operatorversion(OPERATOR_VERSION);
-//    env->setOutputDescription( out.SerializeAsString() );
-    return MAPIT_STATUS_OK;
-}
+    Q_OBJECT
+private slots:
+    void init();
+    void cleanup();
 
-MAPIT_MODULE(OPERATOR_NAME, "just write raw data", "fhac", OPERATOR_VERSION, "any", false, &operate)
+    void initTestCase();
+    void cleanupTestCase();
+
+    void test_description_after_operation_data();
+    void test_description_after_operation();
+
+    void test_restorable_and_not_restorable_operator_data();
+    void test_restorable_and_not_restorable_operator();
+private:
+
+};
+
+#endif

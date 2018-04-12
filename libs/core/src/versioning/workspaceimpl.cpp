@@ -93,10 +93,10 @@ std::vector<std::shared_ptr<Conflict> > WorkspaceImpl::getPendingConflicts()
     return std::vector<std::shared_ptr<Conflict> >();
 }
 
-const mapit::msgs::Commit&
+std::shared_ptr<Commit>
 WorkspaceImpl::getRollingcommit()
 {
-    return m_workspace->rollingcommit();
+    return std::make_shared<Commit>( m_workspace->rollingcommit() );
 }
 
 std::shared_ptr<Tree> WorkspaceImpl::getRoot()
@@ -166,15 +166,33 @@ std::shared_ptr<Entity> WorkspaceImpl::getEntityConflict(const ObjectId &objectI
     return nullptr;
 }
 
+mapit::StatusCode WorkspaceImpl::storeOperationDesc_(const OperationDescription &desc, bool restorable)
+{
+    OperationDescription* addedDesc = m_workspace->mutable_rollingcommit()->add_ops();
+    addedDesc->mutable_operator_()->set_operatorname( desc.operator_().operatorname() );
+    addedDesc->mutable_operator_()->set_operatorversion( desc.operator_().operatorversion() );
+    addedDesc->mutable_operator_()->set_restorable( restorable );
+    addedDesc->set_params( desc.params() );
+    m_serializer->storeWorkspaceCommit(m_workspace, m_name);
+
+    return MAPIT_STATUS_OK;
+}
+
 OperationResult WorkspaceImpl::doOperation(const OperationDescription &desc)
 {
-    return OperatorLibraryManager::doOperation(desc, this);
+    OperationResult result = OperatorLibraryManager::doOperation(desc, this);
+    // when operation successfull, add to commit
+    if ( mapitIsOk(result.first) ) {
+        storeOperationDesc_(desc, result.second.operator_().restorable());
+    }
+    return result;
 }
 
 OperationResult WorkspaceImpl::doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate)
 {
     OperationEnvironmentImpl env(desc);
     env.setWorkspace( this );
+    env.setOutputDescription(desc, false);
     mapit::StatusCode result = operate( &env );
     return OperationResult(result, env.outputDescription());
 }
@@ -294,7 +312,7 @@ std::shared_ptr<WorkspaceObj> WorkspaceImpl::getWorkspaceObj()
     return m_workspace;
 }
 
-const std::string &WorkspaceImpl::getName() const
+const std::string &WorkspaceImpl::getName()
 {
     return m_name;
 }

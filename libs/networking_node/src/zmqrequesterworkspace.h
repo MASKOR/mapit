@@ -47,11 +47,12 @@ public:
 
     // WorkspaceCommon interface
 public:
+    virtual const std::string& getName();
     bool isInConflictMode();
     std::vector<std::shared_ptr<Conflict> > getPendingConflicts();
     void setConflictSolved(const Path &path, const ObjectId &oid);
     virtual MessageType typeOfObject(const Path &oidOrName);
-    const Commit &getRollingcommit();
+    std::shared_ptr<Commit> getRollingcommit();
     std::shared_ptr<Tree> getRoot();
     std::shared_ptr<Tree> getTreeConflict(const ObjectId &objectId);
     std::shared_ptr<Entity> getEntityConflict(const ObjectId &objectId);
@@ -73,6 +74,7 @@ public:
     // Workspace interface
 public:
     OperationResult doOperation(const OperationDescription &desc);
+    mapit::StatusCode storeOperationDesc_(const OperationDescription &desc, bool restorable);
     OperationResult doUntraceableOperation(const OperationDescription &desc, std::function<mapit::StatusCode(mapit::OperationEnvironment*)> operate);
 
     // WorkspaceWritable interface

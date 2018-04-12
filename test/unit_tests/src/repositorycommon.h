@@ -37,6 +37,12 @@ class ServerThread;
 class RepositoryCommon: public QObject
 {
     Q_OBJECT
+public:
+    enum Setup {
+        LOCAL = 1,
+        REMOTE = 2,
+        REMOTE_WITH_LOCAL_EXECUTION = 3
+    };
 protected:
     void createTestdata(bool withServer = false, bool withServerLocalyCalculated = false);
     void initTestdata();
@@ -49,6 +55,7 @@ private:
     std::function<void()> m_serverCallback;
     std::shared_ptr<ServerThread> m_serverThread[2];
     std::shared_ptr<mapit::Repository> m_networkRepo[2];
+    Setup setup;
 
     // Start only after stop has finished. Let the last recv() run into it's timeout.
     QMutex m_serverThreadMutex;

@@ -99,4 +99,4 @@ operateDelete(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "delete entities", "fhac", OPERATOR_VERSION, "any", &operateDelete)
+MAPIT_MODULE(OPERATOR_NAME, "delete entities", "fhac", OPERATOR_VERSION, "any", true, &operateDelete)

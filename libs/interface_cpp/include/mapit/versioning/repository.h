@@ -73,7 +73,7 @@ public:
 
     virtual std::shared_ptr<mapit::msgs::Tree> getTree(const ObjectId &oid) = 0;
     virtual std::shared_ptr<mapit::msgs::Entity> getEntity(const ObjectId &oid) = 0;
-    virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const ObjectId &oid) = 0;
+    virtual std::shared_ptr<mapit::msgs::Commit> getCommit(const CommitId &coID) = 0;
     virtual std::shared_ptr<mapit::msgs::WorkspaceObj> getWorkspaceObj(const std::string &name) = 0;
     virtual std::shared_ptr<mapit::msgs::Branch> getBranch(const std::string &name) = 0;
     virtual mapit::msgs::MessageType typeOfObject(const ObjectId &oid) = 0;
