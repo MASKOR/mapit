@@ -357,7 +357,7 @@ mapit::StatusCode mapit::ZmqRequesterWorkspace::storeEntity(const mapit::Path &p
         m_node->prepareBackComChannel();
         std::shared_ptr<ReplyStoreEntity> rep(m_node->receive<ReplyStoreEntity>());
         if(m_requestMutex) m_requestMutex->unlock();
-        if(rep->status() == ReplyStoreEntity::SUCCESS)
+        if(rep && rep->status() == ReplyStoreEntity::SUCCESS)
         {
             return MAPIT_STATUS_OK;
         }
