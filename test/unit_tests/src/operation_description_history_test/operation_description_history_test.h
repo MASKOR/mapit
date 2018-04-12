@@ -38,6 +38,9 @@ private slots:
 
     void test_description_after_operation_data();
     void test_description_after_operation();
+
+    void test_restorable_and_not_restorable_operator_data();
+    void test_restorable_and_not_restorable_operator();
 private:
 
 };

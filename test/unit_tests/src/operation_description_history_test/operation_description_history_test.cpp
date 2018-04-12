@@ -45,6 +45,7 @@
 
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Workspace>)
+Q_DECLARE_METATYPE(RepositoryCommon::Setup)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace fs = boost::filesystem;
@@ -100,7 +101,7 @@ void OpDescHistTest::test_description_after_operation()
     QVERIFY( 0 == desc_bunny.params().compare( workspace->getRollingcommit()->ops(0).params() ) );
     QVERIFY( 0 == desc_bunny.operator_().operatorname().compare( workspace->getRollingcommit()->ops(0).operator_().operatorname() ) );
 
-    mapit::CommitId coID = repo->commit(workspace, "CommitTest: first commit\n\nWith some text that is more describing of the whole situation", "the mapit system", "mapit@mascor.fh-aachen.de");
+    mapit::CommitId coID = repo->commit(workspace, "commit to clear the workspace", "the mapit system", "mapit@mascor.fh-aachen.de");
 
     QVERIFY( workspace->getRollingcommit()->ops_size() == 0 );
 
@@ -108,6 +109,59 @@ void OpDescHistTest::test_description_after_operation()
     QVERIFY( co->ops_size() == 1 );
     QVERIFY( 0 == desc_bunny.params().compare( co->ops(0).params() ) );
     QVERIFY( 0 == desc_bunny.operator_().operatorname().compare( co->ops(0).operator_().operatorname() ) );
+}
+
+void OpDescHistTest::test_restorable_and_not_restorable_operator_data() { createTestdata(true, true); }
+
+void OpDescHistTest::test_restorable_and_not_restorable_operator()
+{
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
+    QFETCH(RepositoryCommon::Setup, setup);
+
+    QVERIFY( workspace->getRollingcommit()->ops_size() == 0 );
+
+    OperationDescription desc_bunny;
+    mapit::OperationResult ret;
+    desc_bunny.mutable_operator_()->set_operatorname("load_pointcloud");
+    desc_bunny.set_params(
+                "{"
+                "  \"filename\" : \"data/bunny.pcd\","
+                "  \"target\"   : \"bunny\","
+                "  \"sec\"      : 1, "
+                "  \"nsec\"     : 0 "
+                "}"
+                );
+    ret = workspace->doOperation( desc_bunny );
+    QVERIFY( mapitIsOk(ret.first) );
+
+    OperationDescription desc_voxelgrid;
+    desc_voxelgrid.mutable_operator_()->set_operatorname("voxelgridfilter");
+    desc_voxelgrid.set_params(
+                "{"
+                "  \"target\"   : \"bunny\","
+                "  \"leafsize\" : 0.01"
+                "}"
+                );
+    ret = workspace->doOperation( desc_voxelgrid );
+    QVERIFY( mapitIsOk(ret.first) );
+
+    std::shared_ptr<mapit::msgs::Commit> rollingCo = workspace->getRollingcommit();
+
+    QVERIFY( workspace->getRollingcommit()->ops_size() == 2 );
+    QVERIFY( workspace->getRollingcommit()->ops(0).operator_().restorable() == false );
+    if (   setup == RepositoryCommon::Setup::LOCAL
+        || setup == RepositoryCommon::Setup::REMOTE) {
+        mapit::msgs::OperatorDescription desc = workspace->getRollingcommit()->ops(1).operator_();
+        QVERIFY( workspace->getRollingcommit()->ops(1).operator_().restorable() == true );
+    } else if (setup == RepositoryCommon::Setup::REMOTE_WITH_LOCAL_EXECUTION) {
+        QVERIFY( workspace->getRollingcommit()->ops(1).operator_().restorable() == false );
+    } else {
+        // the test needs to be updated for new options
+        QVERIFY(false);
+    }
+
+    repo->commit(workspace, "commit to clear workspace", "the mapit system", "mapit@mascor.fh-aachen.de");
 }
 
 DECLARE_TEST(OpDescHistTest)
