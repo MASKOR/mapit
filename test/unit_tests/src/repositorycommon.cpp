@@ -31,6 +31,7 @@
 
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Repository>)
 Q_DECLARE_METATYPE(std::shared_ptr<mapit::Workspace>)
+Q_DECLARE_METATYPE(RepositoryCommon::Setup)
 Q_DECLARE_METATYPE(std::function<void()>)
 
 void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalculated)
@@ -39,17 +40,18 @@ void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalc
     const bool testRemote = withServer;
     QTest::addColumn< std::shared_ptr<mapit::Repository> >("repo");
     QTest::addColumn< std::shared_ptr<mapit::Workspace> >("workspace");
+    QTest::addColumn< RepositoryCommon::Setup >("setup");
     QTest::addColumn< std::function<void()> >("startServer");
     QTest::addColumn< std::function<void()> >("stopServer");
 
-    QTest::newRow("local filesystem")  << m_repo[0] << m_workspace[0] << std::function<void()>([](){}) << std::function<void()>([](){});
+    QTest::newRow("local filesystem")  << m_repo[0] << m_workspace[0] << Setup::LOCAL << std::function<void()>([](){}) << std::function<void()>([](){});
     if(testLevelDB)
     {
-        QTest::newRow("local database")<< m_repo[1] << m_workspace[1] << std::function<void()>([](){}) << std::function<void()>([](){});
+        QTest::newRow("local database")<< m_repo[1] << m_workspace[1] << Setup::LOCAL << std::function<void()>([](){}) << std::function<void()>([](){});
     }
     if(testRemote)
     {
-        QTest::newRow("remote")        << m_repo[2] << m_workspace[2] << std::function<void()>([this]()
+        QTest::newRow("remote")        << m_repo[2] << m_workspace[2] << Setup::REMOTE << std::function<void()>([this]()
             {
                 QMutexLocker l(&m_serverThreadMutex);
                 m_serverThread[0]->start();
@@ -62,7 +64,7 @@ void RepositoryCommon::createTestdata(bool withServer, bool withServerLocalyCalc
     }
     if (withServerLocalyCalculated)
     {
-        QTest::newRow("remote with local execution")        << m_repo[3] << m_workspace[3] << std::function<void()>([this]()
+        QTest::newRow("remote with local execution")        << m_repo[3] << m_workspace[3] << Setup::REMOTE_WITH_LOCAL_EXECUTION << std::function<void()>([this]()
             {
                 QMutexLocker l(&m_serverThreadMutex);
                 m_serverThread[1]->start();
