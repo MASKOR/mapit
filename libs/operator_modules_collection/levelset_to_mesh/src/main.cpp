@@ -416,4 +416,4 @@ mapit::StatusCode operate_ovdbtomesh(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, &operate_ovdbtomesh)
+MAPIT_MODULE(OPERATOR_NAME, "make a mesh out of a levelset openvdb and assimp", "fhac", OPERATOR_VERSION, FloatGridEntitydata_TYPENAME, true, &operate_ovdbtomesh)

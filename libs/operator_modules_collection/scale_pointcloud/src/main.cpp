@@ -177,4 +177,4 @@ mapit::StatusCode operateScalePointclouds(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_ERROR; // this shouldn't be reached
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "scale pointclouds by a factor in x, y and z", "fhac", OPERATOR_VERSION, "any", &operateScalePointclouds)
+MAPIT_MODULE(OPERATOR_NAME, "scale pointclouds by a factor in x, y and z", "fhac", OPERATOR_VERSION, "any", true, &operateScalePointclouds)

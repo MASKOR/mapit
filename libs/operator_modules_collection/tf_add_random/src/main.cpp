@@ -188,4 +188,4 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
     }
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "add noise to transforms", "fhac", OPERATOR_VERSION, TfEntitydata_TYPENAME, &operate_tf_add_noise)
+MAPIT_MODULE(OPERATOR_NAME, "add noise to transforms", "fhac", OPERATOR_VERSION, TfEntitydata_TYPENAME, true, &operate_tf_add_noise)

@@ -123,4 +123,4 @@ mapit::StatusCode operate_load_primitive(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "Loads a primitive from JSON File", "fhac", OPERATOR_VERSION, PrimitiveEntitydata_TYPENAME, &operate_load_primitive)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a primitive from JSON File", "fhac", OPERATOR_VERSION, PrimitiveEntitydata_TYPENAME, true, &operate_load_primitive)

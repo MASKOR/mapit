@@ -90,4 +90,4 @@ mapit::StatusCode operate_edit_entity(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, "*", &operate_edit_entity)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Path from JSON File", "fhac", OPERATOR_VERSION, "*", true, &operate_edit_entity)

@@ -323,4 +323,4 @@ mapit::StatusCode operate_ctr(mapit::OperationEnvironment* env)
     return operate(pc2, entityData, env);
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "use point of mass as origin of the pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, &operate_ctr)
+MAPIT_MODULE(OPERATOR_NAME, "use point of mass as origin of the pointcloud", "fhac", OPERATOR_VERSION, PointcloudEntitydata_TYPENAME, true, &operate_ctr)

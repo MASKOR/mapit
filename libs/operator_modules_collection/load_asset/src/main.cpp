@@ -141,4 +141,4 @@ mapit::StatusCode operate_load_asset(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "Loads a Asset from JSON File", "fhac", OPERATOR_VERSION, AssetEntitydata_TYPENAME, &operate_load_asset)
+MAPIT_MODULE(OPERATOR_NAME, "Loads a Asset from JSON File", "fhac", OPERATOR_VERSION, AssetEntitydata_TYPENAME, false, &operate_load_asset)

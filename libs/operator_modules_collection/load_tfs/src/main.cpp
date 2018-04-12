@@ -148,4 +148,4 @@ mapit::StatusCode operate_load_tfs(mapit::OperationEnvironment* env)
 
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", &operate_load_tfs)
+MAPIT_MODULE(OPERATOR_NAME, "store transforms in mapit", "fhac", OPERATOR_VERSION, "any", true, &operate_load_tfs)

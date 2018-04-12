@@ -135,4 +135,5 @@ MAPIT_MODULE(OPERATOR_NAME,
             "Marcus Meeßen",
             OPERATOR_VERSION,
             PointcloudEntitydata_TYPENAME,
+            true,
             &operateStatisticalOutlierRemoval)

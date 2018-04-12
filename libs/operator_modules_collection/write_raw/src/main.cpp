@@ -39,4 +39,4 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "just write raw data", "fhac", OPERATOR_VERSION, "any", &operate)
+MAPIT_MODULE(OPERATOR_NAME, "just write raw data", "fhac", OPERATOR_VERSION, "any", false, &operate)

@@ -161,4 +161,4 @@ mapit::StatusCode operate(mapit::OperationEnvironment* env)
     return MAPIT_STATUS_OK;
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "copy tree or entity", "fhac", OPERATOR_VERSION, "any", &operate)
+MAPIT_MODULE(OPERATOR_NAME, "copy tree or entity", "fhac", OPERATOR_VERSION, "any", true, &operate)
