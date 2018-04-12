@@ -277,7 +277,7 @@ mapit::OperationResult mapit::ZmqRequesterWorkspace::doOperation(const Operation
         OperationResult result = OperatorLibraryManager::doOperation(desc, this);
         // when operation successfull, add to commit
         if ( mapitIsOk(result.first) ) {
-            StatusCode status = storeOperationDesc_(desc, true);
+            StatusCode status = storeOperationDesc_(desc, false);
         }
         return result;
     }
@@ -318,6 +318,7 @@ mapit::OperationResult mapit::ZmqRequesterWorkspace::doUntraceableOperation(cons
 {
     mapit::OperationEnvironmentImpl env( desc );
     env.setWorkspace( this );
+    env.setOutputDescription(desc, false);
     // TODO: this breaks req/resp pattern!
     mapit::StatusCode status = operate( &env );
     OperationResult res(status, env.outputDescription());

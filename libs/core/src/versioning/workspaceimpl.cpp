@@ -183,7 +183,7 @@ OperationResult WorkspaceImpl::doOperation(const OperationDescription &desc)
     OperationResult result = OperatorLibraryManager::doOperation(desc, this);
     // when operation successfull, add to commit
     if ( mapitIsOk(result.first) ) {
-        storeOperationDesc_(desc, true);
+        storeOperationDesc_(desc, result.second.operator_().restorable());
     }
     return result;
 }
@@ -192,6 +192,7 @@ OperationResult WorkspaceImpl::doUntraceableOperation(const OperationDescription
 {
     OperationEnvironmentImpl env(desc);
     env.setWorkspace( this );
+    env.setOutputDescription(desc, false);
     mapit::StatusCode result = operate( &env );
     return OperationResult(result, env.outputDescription());
 }
