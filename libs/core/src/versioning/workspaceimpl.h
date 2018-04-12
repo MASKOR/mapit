@@ -331,7 +331,13 @@ StatusCode WorkspaceImpl::createPath(const Path &path, std::shared_ptr<T> create
             // use or copy existing
             bool segTransient = ref.id().empty() && !ref.path().empty();
             //bool segTransient = m_workspace->transientoidstoorigin().count(oid) != 0; (other way to determine if seg is transient, instead this is ensured in assertion below)
-            assert(segTransient == (m_workspace->transientoidstoorigin().count(ref.path()) != 0)); //< if this happens, commit did not track objects correctly!
+            if (ref.path().empty() || ref.path().back() == '/') {
+                assert(segTransient == (m_workspace->transientoidstoorigin().count( ref.path() ) != 0)); //< if this happens, commit did not track objects correctly!
+            } else {
+                bool normalName = segTransient == (m_workspace->transientoidstoorigin().count( ref.path() ) != 0);
+                bool longerName = segTransient == (m_workspace->transientoidstoorigin().count( ref.path() + "/" ) != 0);
+                assert(normalName || longerName); //< if this happens, commit did not track objects correctly!
+            }
             if(segTransient)
             {
                 // delete leaf
