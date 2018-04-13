@@ -23,13 +23,15 @@ The build description for Fedora is given here:
     dnf install boost-devel eigen3-devel cppzmq-devel OpenEXR-devel \
                 protobuf protobuf-devel protobuf-lite-devel \
                 cmake cmake-gui automake libtool gtest-devel gtest wget gcc-c++ \
-                yaml-cpp-devel libuuid-devel
+                yaml-cpp-devel libuuid-devel \
+                git
+    dnf groupinstall "Development Tools" "Development Libraries"
 
 #### self build PCL
 
 Because we need the PCL without VTK and SSE we use a self build version
 
-    dnf install flann flann-devel
+    dnf install flann flann-devel libpcap-devel
     mkdir ~/ws
     cd ~/ws/
     git clone https://github.com/PointCloudLibrary/pcl.git
@@ -117,6 +119,12 @@ add the following to your ~.bashrc
     make install
 
 #### Qt
+
+In Fedora 27 it seem to be possible to directly use the system packages, this however is not widly tested
+
+    dnf install qt5 qt5-devel
+
+Alternatively the newest version can be installed with the official script
 
     cd ~/tmp
     wget http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
