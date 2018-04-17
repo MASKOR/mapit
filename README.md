@@ -16,7 +16,7 @@ With multiview multiple users can display the same data over network, also on a 
 ## Build
 
 Mapit is used on Ubuntu 16.04, Arch Linux and Fedora 27.
-The build description for Fedora is given here:
+The build description for Fedora is given here or in the [docker-mapit repo](https://github.com/MASKOR/docker-mapit):
 
 #### Dependencies
 
@@ -65,8 +65,11 @@ The detailed ROS installation is described here http://wiki.ros.org/Installation
 We used "Desktop Install (recommended)", not full.
 The tested installation of ROS is the following.
 
-    dnf install python-empy ros-kinetic-rosconsole_bridge poco-devel tinyxml2-devel lz4-devel urdfdom-headers-devel qhull-devel libuuid-devel urdfdom-devel collada-dom-devel yaml-cpp-devel \
-                python-rosdep python-rosinstall_generator python-wstool python-rosinstall @buildsys-build python2-netifaces
+    dnf install python-empy poco-devel tinyxml2-devel lz4-devel urdfdom-headers-devel \
+                qhull-devel libuuid-devel urdfdom-devel collada-dom-devel yaml-cpp-devel \
+                python-rosdep python-wstool python-rosinstall @buildsys-build \
+                python2-netifaces pyparsing python3-rosinstall_generator tinyxml-devel \
+                python-qt5 python-qt5-devel assimp-devel ogre-devel python-defusedxml
     mkdir -p /opt/ros/catkin_ws/
     chown -R tneumann:tneumann /opt/ros/
     cd /opt/ros/catkin_ws/
@@ -88,7 +91,9 @@ in src/collada_urdf/collada_parser/CMakeLists.txt change 2.3 to 2.4
 
     ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
-add the following to your ~.bashrc
+add the following to your ~/.bashrc
+
+    echo "source /opt/ros/catkin_ws/install_isolated/setup.bash" >> ~/.bashrc
     source /opt/ros/catkin_ws/install_isolated/setup.bash
 
 
