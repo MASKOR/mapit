@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright      2017 Tobias Neumann	<t.neumann@fh-aachen.de>
+# Copyright 2017-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
 #
 ################################################################################
 
@@ -22,7 +22,7 @@
 
 if(NOT DISABLE_PCL)
   cmake_minimum_required(VERSION 2.8)
-  project(reg_local)
+  project(registration_storage_helper)
 
   # message colors
   if(NOT WIN32)
@@ -43,7 +43,7 @@ if(NOT DISABLE_PCL)
   # describe target
   file(GLOB_RECURSE OPERATOR_SOURCES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/*.h
+    ${PROJECT_SOURCE_DIR}/include/**.h
     )
   add_library(${PROJECT_NAME} SHARED
     ${SRC_LIST}
@@ -55,8 +55,9 @@ if(NOT DISABLE_PCL)
     CXX_STANDARD 14
     )
   target_include_directories(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
       ${PROJECT_SOURCE_DIR}/src/
+      ${PROJECT_SOURCE_DIR}/include/
     )
 
   # mapit
@@ -66,7 +67,6 @@ if(NOT DISABLE_PCL)
     ${mapit_interface}
     layertype_pointcloud2
     layertype_tf
-    registration_storage_helper
     )
 
   # PCL
