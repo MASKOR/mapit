@@ -33,6 +33,8 @@
 #include <mapit/typedefs.h>
 #include <mapit/time/time.h>
 
+#include <functional>
+
 class QJsonDocument;
 class QJsonObject;
 
@@ -68,14 +70,12 @@ public:
                                                                      , std::shared_ptr<PointcloudEntitydata> entitydata
                                                                     );
 
-    void mapit_add_tf(  const time::Stamp &input_stamp
-                      , const Eigen::Affine3f &transform
-                     );
-    void mapit_remove_tfs(  const time::Stamp &stamp_start
-                          , const time::Stamp &stamp_end
-                         );
+    void operate_pairwise(std::function<bool(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                                             , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
+                                             , pcl::PointCloud<pcl::PointXYZ>& result_pc
+                                             , Eigen::Affine3f& result_transform
+                                             , double& fitness_score)> algorithm);
 
-public:
     // general setup
     mapit::operators::WorkspaceWritable* workspace_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
@@ -93,6 +93,14 @@ public:
     std::string cfg_tf_frame_id_;
     std::string cfg_tf_child_frame_id_;
     bool cfg_tf_is_static_;
+
+private:
+    void mapit_add_tf(  const time::Stamp &input_stamp
+                      , const Eigen::Affine3f &transform
+                     );
+    void mapit_remove_tfs(  const time::Stamp &stamp_start
+                          , const time::Stamp &stamp_end
+                         );
 };
 
 }

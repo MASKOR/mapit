@@ -74,11 +74,10 @@ private:
     MatchingAlgorithm cfg_matching_algorithm_;
     // ICP
     mapit::StatusCode get_cfg_icp(const QJsonObject& params);
-    void icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
-                     , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
+    bool icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                     , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
                      , pcl::PointCloud<pcl::PointXYZ>& result_pc
                      , Eigen::Affine3f& result_transform
-                     , bool& has_converged
                      , double& fitness_score);
 
     bool cfg_icp_set_maximum_iterations_;
