@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright      2017 Tobias Neumann	<t.neumann@fh-aachen.de>
+# Copyright 2017-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
 #
 ################################################################################
 
@@ -22,7 +22,7 @@
 
 if(NOT DISABLE_PCL)
   cmake_minimum_required(VERSION 2.8)
-  project(reg_local)
+  project(reg_local_icp)
 
   # message colors
   if(NOT WIN32)

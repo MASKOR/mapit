@@ -20,7 +20,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "reg_local.h"
+#include "reg_local_icp.h"
 
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
@@ -38,7 +38,7 @@
 
 #include <pcl/registration/icp.h>
 
-mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &status)
+mapit::RegLocalICP::RegLocalICP(mapit::OperationEnvironment* env, mapit::StatusCode &status)
 {
     status = MAPIT_STATUS_OK;
 
@@ -80,10 +80,10 @@ mapit::RegLocal::RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode &s
 }
 
 mapit::StatusCode
-mapit::RegLocal::operate()
+mapit::RegLocalICP::operate()
 {
     try {
-        reg_helper_->operate_pairwise( std::bind(&mapit::RegLocal::icp_execute, this
+        reg_helper_->operate_pairwise( std::bind(&mapit::RegLocalICP::icp_execute, this
                                                  , std::placeholders::_1
                                                  , std::placeholders::_2
                                                  , std::placeholders::_3
@@ -97,7 +97,7 @@ mapit::RegLocal::operate()
 }
 
 mapit::StatusCode
-mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
+mapit::RegLocalICP::get_cfg_icp(const QJsonObject &params)
 {
     cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations") && params["icp-maximum-iterations"].toInt() != 0;
     if ( cfg_icp_set_maximum_iterations_ ) {
@@ -124,7 +124,7 @@ mapit::RegLocal::get_cfg_icp(const QJsonObject &params)
 }
 
 bool
-mapit::RegLocal::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+mapit::RegLocalICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
                         , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
                         , pcl::PointCloud<pcl::PointXYZ>& result_pc
                         , Eigen::Affine3f& result_transform

@@ -148,8 +148,8 @@
         <file>icon/warning-24-ns.png</file>
         <file>qml/operators/levelset_to_mesh.qml</file>
         <file>qml/operators/normalestimation.qml</file>
-        <file>qml/operators/reg_local.qml</file>
-        <file>qml/operators/reg_local.png</file>
+        <file>qml/operators/reg_local_icp.qml</file>
+        <file>qml/operators/reg_local_icp.png</file>
         <file>qml/operators/copy.qml</file>
         <file>qml/operators/delete.qml</file>
         <file>qml/operators/delete.png</file>

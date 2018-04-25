@@ -31,7 +31,7 @@
 #include <mapit/layertypes/tflayer/utils.h>
 #include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 
-#include "reg_local.h"
+#include "reg_local_icp.h"
 
 mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
 {
@@ -84,7 +84,7 @@ mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
      */
 
     mapit::StatusCode status;
-    mapit::RegLocal reg_local(env, status);
+    mapit::RegLocalICP reg_local(env, status);
     if ( ! mapitIsOk( status ) ) {
         return status;
     }

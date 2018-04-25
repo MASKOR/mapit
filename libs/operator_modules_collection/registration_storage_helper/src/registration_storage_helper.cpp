@@ -293,9 +293,9 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  boost::s
         // handle the result
         switch (cfg_handle_result_) {
             case RegistrationStorageHelper::HandleResult::data_change: {
-                log_info("reg_local: change pointcloud " + cfg_input_one/* + " with tf:"*/);
+                log_info("RegistrationStorageHelper: change pointcloud " + cfg_input_one/* + " with tf:"*/);
     //                std::cout << transform.matrix() << std::endl;
-                log_warn("reg_local: only XYZ will survive, intensity and color will be lost");
+                log_warn("RegistrationStorageHelper: only XYZ will survive, intensity and color will be lost");
                 // TODO find way to transform pointcloud2 so that all data survive
                 std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
                 pcl::toPCLPointCloud2(result_pc, *icp_out2);
@@ -318,7 +318,7 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  boost::s
                     tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
                     tf_in_buffer.rotate( tf.transform.rotation );
                 } catch (...) {
-                    log_warn("reg_local: tf \""
+                    log_warn("RegistrationStorageHelper: tf \""
                            + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
                            + "\" at time " + std::to_string(sec) + "." + std::to_string(nsec) + " does not exists. Identity will be used");
                     tf_in_buffer = Eigen::Affine3f::Identity();
@@ -332,7 +332,7 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  boost::s
                 break;
             }
             default: {
-                log_error("reg_local: do not handle result of ICP (no effect), its not yet implemented.");
+                log_error("RegistrationStorageHelper: do not handle result of ICP (no effect), its not yet implemented.");
             }
         }
     }

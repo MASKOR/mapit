@@ -58,10 +58,10 @@ namespace tf2 {
 class BufferCore;
 }
 
-class RegLocal
+class RegLocalICP
 {
 public:
-    RegLocal(mapit::OperationEnvironment* env, mapit::StatusCode& status);
+    RegLocalICP(mapit::OperationEnvironment* env, mapit::StatusCode& status);
 
     mapit::StatusCode operate();
 private:

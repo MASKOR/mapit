@@ -274,7 +274,7 @@ void OPRegLocalICPTest::test_icp_tf_add()
 {
     // execute operator ICP
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("reg_local");
+    desc.mutable_operator_()->set_operatorname("reg_local_icp");
     desc.set_params(
                 "{"
                 "   \"input\"             : \"bunny\","
@@ -305,7 +305,7 @@ void OPRegLocalICPTest::test_icp_for_more_than_one_input()
 {
     // execute operator ICP
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("reg_local");
+    desc.mutable_operator_()->set_operatorname("reg_local_icp");
     desc.set_params(
                 "{"
                 "   \"input\"             : [ \"bunny\", \"bunny2\", \"bunny3\" ],"
@@ -326,7 +326,7 @@ void OPRegLocalICPTest::test_icp_tf_combine()
 {
     // execute operator ICP
     mapit::msgs::OperationDescription desc;
-    desc.mutable_operator_()->set_operatorname("reg_local");
+    desc.mutable_operator_()->set_operatorname("reg_local_icp");
     desc.set_params(
                 "{"
                 "   \"input\"             : [ \"bunny\", \"bunny2\" ],"
