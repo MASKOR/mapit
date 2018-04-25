@@ -27,7 +27,7 @@
 	url = https://github.com/dabulla/qt3d-vr-example
 [submodule "libs/mapit-msgs"]
 	path = libs/mapit-msgs
-	url = https://github.com/MASKOR/mapit-msgs.git
+	url = ../mapit-msgs.git
 [submodule "tools/diff/src/diff-match-patch-cpp-stl"]
 	path = tools/diff/src/diff-match-patch-cpp-stl
 	url = https://github.com/leutloff/diff-match-patch-cpp-stl.git
