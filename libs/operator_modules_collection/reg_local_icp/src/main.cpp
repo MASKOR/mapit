@@ -49,8 +49,6 @@ mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
      *  optional <string>"tf-child_frame_id" : ..., // in case of tf change or add
      *  optional <bool>"tf-is_static" : ..., // in case of tf change or add (true only works with one input specified) (default false)
      *
-     *  <enum-as-string>"matching-algorithm" : ["icp"], // what kind of local matching algorithm should be used
-     *
      *  optional <int>icp-maximum-iterations: ...,
      *  optional <double>icp-max-correspondence-distance: ...,
      *  optional <double>icp-transformation-epsilon: ...,

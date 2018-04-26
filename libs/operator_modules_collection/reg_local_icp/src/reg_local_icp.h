@@ -70,10 +70,6 @@ private:
     bool cfg_use_metascan_;
 
     //--- algorithm configs ---
-    enum class MatchingAlgorithm {ICP};
-    MatchingAlgorithm cfg_matching_algorithm_;
-    // ICP
-    mapit::StatusCode get_cfg_icp(const QJsonObject& params);
     bool icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
                      , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
                      , pcl::PointCloud<pcl::PointXYZ>& result_pc
