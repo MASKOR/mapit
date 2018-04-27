@@ -146,8 +146,8 @@ mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvi
     tf_buffer_ = std::make_shared<mapit::tf2::BufferCore>(workspace_, cfg_tf_prefix_);
 }
 
-boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
-mapit::RegistrationStorageHelper::get_pointcloud(std::string path, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata> entitydata)
+pcl::PointCloud<pcl::PointXYZ>::Ptr
+mapit::RegistrationStorageHelper::get_pointcloud(std::string path, mapit::time::Stamp& stamp, pcl::PCLHeader& header, std::shared_ptr<PointcloudEntitydata>& entitydata)
 {
     std::shared_ptr<mapit::msgs::Entity> entity = workspace_->getEntity( path );
     if (entity == nullptr) {

@@ -24,7 +24,6 @@
 #define REGISTRATION_STORAGE_HELPER_H
 
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <list>
 #include <string>
 
@@ -35,16 +34,13 @@
 
 #include <functional>
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
 class QJsonDocument;
 class QJsonObject;
 
 class PointcloudEntitydata;
-namespace pcl {
-template <typename PointT>
-class PointCloud;
-struct PointXYZ;
-struct PCLHeader;
-}
 
 namespace mapit {
 class OperationEnvironment;
@@ -118,11 +114,11 @@ public:
      * @throws mapit::StatusCode aka unsigned int
      * @return the pointcloud
      */
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> get_pointcloud(  std::string path
-                                                                     , mapit::time::Stamp &stamp
-                                                                     , pcl::PCLHeader& header
-                                                                     , std::shared_ptr<PointcloudEntitydata> entitydata
-                                                                    );
+    pcl::PointCloud<pcl::PointXYZ>::Ptr get_pointcloud(  std::string path
+                                                       , mapit::time::Stamp &stamp
+                                                       , pcl::PCLHeader& header
+                                                       , std::shared_ptr<PointcloudEntitydata>& entitydata
+                                                      );
 
     /**
      * @brief operate_pairwise start the pairwise registration
