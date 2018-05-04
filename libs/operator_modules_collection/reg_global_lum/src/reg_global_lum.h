@@ -76,13 +76,9 @@ public:
 private:
     mapit::RegistrationStorageHelper* reg_helper_;
 
-    bool elch_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
-                     , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
-                     , pcl::PointCloud<pcl::PointXYZ>& result_pc
-                     , Eigen::Affine3f& result_transform
-                     , double& fitness_score);
-
-    bool loopDetection (int end, const CloudVector &clouds, double dist, int &first, int &last);
+    void callback_add_pointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr input_pc);
+    void callback_search_and_process_loops();
+    void callback_execute_algorithm();
 
     pcl::registration::LUM<pcl::PointXYZ>::Ptr lum_;
 };

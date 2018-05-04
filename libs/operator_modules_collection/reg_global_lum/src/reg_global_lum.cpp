@@ -101,24 +101,28 @@ mapit::RegGlobalLUM::RegGlobalLUM(mapit::OperationEnvironment* env, mapit::Statu
 mapit::StatusCode
 mapit::RegGlobalLUM::operate()
 {
-    // load pointclouds and add to LUM
-    log_info("reg_global_lum: add Pointclouds");
-    for (std::string cfg_input_one : reg_helper_->cfg_input_) {
-        // get input cloud
-        mapit::time::Stamp input_stamp;
-        pcl::PCLHeader input_header;
-        std::shared_ptr<PointcloudEntitydata> entitydata_input;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr input_pc;
-        try {
-            input_pc = reg_helper_->get_pointcloud( cfg_input_one, input_stamp, input_header, entitydata_input );
-        } catch (mapit::StatusCode err) {
-            log_error("reg_global_lum: Error " << err << " while loading pointcloud");
-            return err;
-        }
-        lum_->addPointCloud( input_pc );
+    try {
+        reg_helper_->operate_global(  std::bind(&mapit::RegGlobalLUM::callback_add_pointcloud, this
+                                                , std::placeholders::_1)
+                                    , std::bind(&mapit::RegGlobalLUM::callback_search_and_process_loops, this)
+                                    , std::bind(&mapit::RegGlobalLUM::callback_execute_algorithm, this)
+                                   );
+    } catch(mapit::StatusCode err) {
+        return err;
     }
 
-    // add correspondance
+    return MAPIT_STATUS_OK;
+}
+
+void
+mapit::RegGlobalLUM::callback_add_pointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr input_pc)
+{
+    lum_->addPointCloud( input_pc );
+}
+
+void
+mapit::RegGlobalLUM::callback_search_and_process_loops()
+{
     log_info("reg_global_lum: and correspondances and search for loops");
     for (size_t pc_id = 1; pc_id < lum_->getNumVertices(); ++pc_id) {
         // iterative
@@ -153,7 +157,11 @@ mapit::RegGlobalLUM::operate()
             }
         }
     }
+}
 
+void
+mapit::RegGlobalLUM::callback_execute_algorithm()
+{
     log_info("reg_global_lum: start computation");
     // Change the computation parameters
     lum_->setMaxIterations(50);
@@ -179,7 +187,7 @@ mapit::RegGlobalLUM::operate()
 
     std::shared_ptr<mapit::AbstractEntitydata> abstract_entitydata = reg_helper_->workspace_->getEntitydataForReadWrite( result_filename );
     if ( 0 != std::strcmp( abstract_entitydata->type(), PointcloudEntitydata::TYPENAME() )) {
-        return MAPIT_STATUS_ERR_DB_CORRUPTION;
+        throw MAPIT_STATUS_ERR_DB_CORRUPTION;
     }
     std::shared_ptr<PointcloudEntitydata> entitydata = std::static_pointer_cast<PointcloudEntitydata>( abstract_entitydata );
 
@@ -189,60 +197,4 @@ mapit::RegGlobalLUM::operate()
 //      Eigen::Affine3f tf = lum_->getTransformation(i);
 //      log_info("tf for " << i << "\n" << tf.matrix());
 //    }
-
-    return MAPIT_STATUS_OK;
-}
-
-bool
-mapit::RegGlobalLUM::loopDetection(int end, const CloudVector &clouds, double dist, int &first, int &last)
-{
-  static double min_dist = -1;
-  int state = 0;
-
-  for (int i = end-1; i > 0; i--)
-  {
-    Eigen::Vector4f cstart, cend;
-    //TODO use pose of scan
-    pcl::compute3DCentroid (*(clouds[i].second), cstart);
-    pcl::compute3DCentroid (*(clouds[end].second), cend);
-    Eigen::Vector4f diff = cend - cstart;
-
-    double norm = diff.norm ();
-
-    //std::cout << "distance between " << i << " and " << end << " is " << norm << " state is " << state << std::endl;
-
-    if (state == 0 && norm > dist)
-    {
-      state = 1;
-      //std::cout << "state 1" << std::endl;
-    }
-    if (state > 0 && norm < dist)
-    {
-      state = 2;
-      //std::cout << "loop detected between scan " << i << " (" << clouds[i].first << ") and scan " << end << " (" << clouds[end].first << ")" << std::endl;
-      if (min_dist < 0 || norm < min_dist)
-      {
-        min_dist = norm;
-        first = i;
-        last = end;
-      }
-    }
-  }
-  //std::cout << "min_dist: " << min_dist << " state: " << state << " first: " << first << " end: " << end << std::endl;
-  if (min_dist > 0 && (state < 2 || end == int (clouds.size ()) - 1)) //TODO
-  {
-    min_dist = -1;
-    return true;
-  }
-  return false;
-}
-
-bool
-mapit::RegGlobalLUM::elch_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
-                        , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
-                        , pcl::PointCloud<pcl::PointXYZ>& result_pc
-                        , Eigen::Affine3f& result_transform
-                        , double& fitness_score)
-{
-    return false;
 }

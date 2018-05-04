@@ -134,6 +134,10 @@ public:
                                              , Eigen::Affine3f& result_transform
                                              , double& fitness_score)> algorithm);
 
+    void operate_global(  std::function<void(pcl::PointCloud<pcl::PointXYZ>::Ptr)> callback_add_pointcloud
+                        , std::function<void()> callback_search_and_process_loops
+                        , std::function<void()> callback_execute_algorithm);
+
     // general setup
     mapit::operators::WorkspaceWritable* workspace_;
     std::shared_ptr<mapit::tf2::BufferCore> tf_buffer_;
