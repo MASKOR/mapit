@@ -50,14 +50,17 @@ ColumnLayout {
     }
 
     //// out ////
-    property bool valid: currentEntitydataTransformId.path != ""
+    property bool valid: true
     property var parameters: {
-        "map": entityChooser.currentEntityPath,
+        "prefix": entityChooser.currentEntityPath,
         "transforms": [
-            {   "static": true,
+            {   "static": isStatic.checked,
                 "header": {
                     "frame_id": frameIdInput.text,
-                    "stamp": { "sec": 0, "nsec": 0 }
+                    "stamp": {
+                                "sec": parseInt(secInput.text),
+                                "nsec": parseInt(nsecInput.text)
+                            }
                 },
                 "transform": {
                     "child_frame_id" : childFrameIdInput.text,
@@ -159,7 +162,7 @@ ColumnLayout {
         HelperTarget {
             id: entityChooser
             currentEntityPath: root.currentEntityPath
-            text: "Map: "
+            text: "Prefix: "
         }
         RowLayout {
             Layout.fillWidth: true
@@ -299,8 +302,41 @@ ColumnLayout {
                 onTextChanged: root.updateTranslationMatrix()
             }
         }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Seconds: "
+            }
+            StyledTextField {
+                id: secInput
+                Layout.fillWidth: true
+                validator: IntValidator {}
+                text: "0"
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Nanoseconds: "
+            }
+            StyledTextField {
+                id: nsecInput
+                Layout.fillWidth: true
+                validator: IntValidator {}
+                text: "0"
+            }
+        }
         SystemPalette {
             id: palette
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            StyledLabel {
+                text: "Is Static:"
+            }
+            StyledCheckBox {
+                id: isStatic
+            }
         }
     }
 }
