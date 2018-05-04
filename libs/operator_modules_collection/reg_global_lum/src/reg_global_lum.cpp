@@ -105,7 +105,11 @@ mapit::RegGlobalLUM::operate()
         reg_helper_->operate_global(  std::bind(&mapit::RegGlobalLUM::callback_add_pointcloud, this
                                                 , std::placeholders::_1)
                                     , std::bind(&mapit::RegGlobalLUM::callback_search_and_process_loops, this)
-                                    , std::bind(&mapit::RegGlobalLUM::callback_execute_algorithm, this)
+                                    , std::bind(&mapit::RegGlobalLUM::callback_execute_algorithm, this
+                                                , std::placeholders::_1
+                                                , std::placeholders::_2
+                                                , std::placeholders::_3
+                                                , std::placeholders::_4)
                                    );
     } catch(mapit::StatusCode err) {
         return err;
@@ -160,41 +164,45 @@ mapit::RegGlobalLUM::callback_search_and_process_loops()
 }
 
 void
-mapit::RegGlobalLUM::callback_execute_algorithm()
+mapit::RegGlobalLUM::callback_execute_algorithm(  mapit::RegistrationStorageHelper::HandleResult& handle_result
+                                                , std::vector<Eigen::Affine3f>& out_tfs
+                                                , std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>& out_pointclouds
+                                                , pcl::PointCloud<pcl::PointXYZ>::Ptr out_pointcloud)
 {
     log_info("reg_global_lum: start computation");
     // Change the computation parameters
     lum_->setMaxIterations(50);
     lum_->setConvergenceThreshold (0.0);
 
-    lum_->compute ();
+    lum_->compute();
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_out = lum_->getConcatenatedCloud();
+    log_info("reg_global_lum: computation done");
 
-    std::string result_filename = "/LUM/out";
-    log_warn("reg_global_lum: saving result to " << result_filename << " no other handeling of the result is implemented");
-    log_warn("reg_global_lum: only XYZ will survive, intensity and color will be lost");
-    std::shared_ptr<pcl::PCLPointCloud2> pc_out = std::make_shared<pcl::PCLPointCloud2>();
-    pcl::toPCLPointCloud2(*cloud_out, *pc_out);
+    switch (handle_result) {
+//    TODO add this option
+//    case mapit::RegistrationStorageHelper::HandleResult::data_new...:
+//        out_pointcloud = lum_->getConcatenatedCloud();
+//        break;
+    case mapit::RegistrationStorageHelper::HandleResult::data_change:
+        for(int i = 0; i < lum_->getNumVertices(); ++i) {
+            Eigen::Affine3f tf = lum_->getTransformation(i);
+            pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud = lum_->getPointCloud(i);
 
+            pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+            pcl::transformPointCloud(*pointcloud, *pointcloud_transformed, tf);
 
-
-    std::shared_ptr<mapit::msgs::Entity> entity = std::make_shared<mapit::msgs::Entity>();
-//    entity->set_frame_id("");
-//    ...
-    entity->set_type( PointcloudEntitydata::TYPENAME() );
-    reg_helper_->workspace_->storeEntity(result_filename, entity);
-
-    std::shared_ptr<mapit::AbstractEntitydata> abstract_entitydata = reg_helper_->workspace_->getEntitydataForReadWrite( result_filename );
-    if ( 0 != std::strcmp( abstract_entitydata->type(), PointcloudEntitydata::TYPENAME() )) {
-        throw MAPIT_STATUS_ERR_DB_CORRUPTION;
+            out_pointclouds.push_back( pointcloud_transformed );
+        }
+        break;
+    case mapit::RegistrationStorageHelper::HandleResult::tf_add:
+    case mapit::RegistrationStorageHelper::HandleResult::tf_combine:
+        for(int i = 0; i < lum_->getNumVertices(); ++i) {
+            out_tfs.push_back( lum_->getTransformation(i) );
+        }
+        break;
+    default:
+        log_error("reg_global_lum: can't handle result " << (size_t)handle_result);
+        throw MAPIT_STATUS_ERROR;
+        break;
     }
-    std::shared_ptr<PointcloudEntitydata> entitydata = std::static_pointer_cast<PointcloudEntitydata>( abstract_entitydata );
-
-    entitydata->setData(pc_out);
-
-//    for(int i = 0; i < lum_->getNumVertices(); i++) {
-//      Eigen::Affine3f tf = lum_->getTransformation(i);
-//      log_info("tf for " << i << "\n" << tf.matrix());
-//    }
 }

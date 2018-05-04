@@ -87,7 +87,15 @@ mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvi
     }
     cfg_target_ = params["target"].toString().toStdString();
     if ( ! cfg_target_.empty() ) {
-        cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
+        // std::vector method
+        for (size_t i = 0; i < cfg_input_.size(); ++i) {
+            if ( 0 == cfg_target_.compare( cfg_input_.at(i) ) ) {
+                cfg_input_.erase( cfg_input_.begin() + i );
+                --i;
+            }
+        }
+        // std::list method
+//        cfg_input_.remove( cfg_target_ ); // delete the target from the input (in the case it is specified in both)
     }
 
     std::string output_pointcloud = "RegistrationStorageHelper: executing algorithm on pointclouds [ ";
@@ -393,11 +401,15 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  boost::s
 void
 mapit::RegistrationStorageHelper::operate_global(  std::function<void(pcl::PointCloud<pcl::PointXYZ>::Ptr)> callback_add_pointcloud
                                                  , std::function<void()> callback_search_and_process_loops
-                                                 , std::function<void()> callback_execute_algorithm)
+                                                 , std::function<void(  HandleResult&
+                                                                      , std::vector<Eigen::Affine3f>&
+                                                                      , std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>&
+                                                                      , pcl::PointCloud<pcl::PointXYZ>::Ptr)> callback_execute_algorithm)
 {
     // in case of tf-combine, a list is needed
     std::list<std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>>> tf_combine_list;
 
+    log_info("RegistrationStorageHelper: load pointclouds");
     for (std::string cfg_input_one : cfg_input_) {
         // get input cloud
         mapit::time::Stamp input_stamp;
@@ -406,117 +418,136 @@ mapit::RegistrationStorageHelper::operate_global(  std::function<void(pcl::Point
         boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input_pc;
         input_pc = get_pointcloud( cfg_input_one, input_stamp, input_header, entitydata_input );
 
+        log_info("RegistrationStorageHelper:\t load pointcloud " << cfg_input_one);
         callback_add_pointcloud(input_pc);
     }
 
+    log_info("RegistrationStorageHelper: start to search for loops");
     callback_search_and_process_loops();
 
-    callback_execute_algorithm();
+    log_info("RegistrationStorageHelper: execute algorithm");
+    std::vector<Eigen::Affine3f> tfs;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pointclouds;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud;
+    callback_execute_algorithm(cfg_handle_result_, tfs, pointclouds, pointcloud);
 
-//    {
-//        if ( ! has_converged ) {
-//          log_error("RegistrationStorageHelper: algorithm didn't converged");
-//          throw MAPIT_STATUS_ERROR;
-//        } else {
-//            log_info("RegistrationStorageHelper: matching for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
-//                   + "\" finished with fitness score " + std::to_string( fitness_score ));
-//        }
-
-//        // handle the result
-//        switch (cfg_handle_result_) {
-//            case RegistrationStorageHelper::HandleResult::data_change: {
-//                log_info("RegistrationStorageHelper: change pointcloud " + cfg_input_one/* + " with tf:"*/);
-//    //                std::cout << transform.matrix() << std::endl;
-//                log_warn("RegistrationStorageHelper: only XYZ will survive, intensity and color will be lost");
-//                // TODO find way to transform pointcloud2 so that all data survive
-//                std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
-//                pcl::toPCLPointCloud2(result_pc, *icp_out2);
-//                icp_out2->header = input_header;
-//                entitydata_input->setData(icp_out2);
-//                break;
-//            }
-//            case RegistrationStorageHelper::HandleResult::tf_add: {
-//                mapit_add_tf(input_stamp, result_transform);
-//                break;
-//            }
-//            case RegistrationStorageHelper::HandleResult::tf_combine: {
-//                // get old tf from buffer
-//                Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
-//                mapit::time::Stamp stamp = input_stamp;
-//                unsigned long sec, nsec;
-//                mapit::time::to_sec_and_nsec(stamp, sec, nsec);
-//                try {
-//                    tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, stamp);
-//                    tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
-//                    tf_in_buffer.rotate( tf.transform.rotation );
-//                } catch (...) {
-//                    log_warn("RegistrationStorageHelper: tf \""
-//                           + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
-//                           + "\" at time " + std::to_string(sec) + "." + std::to_string(nsec) + " does not exists. Identity will be used");
-//                    tf_in_buffer = Eigen::Affine3f::Identity();
-//                }
-//                // combine tf with tf currently in buffer
-//                std::shared_ptr<Eigen::Affine3f> tf_combined = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer * result_transform)); // std::make_shared is not possible because its call by value and that does not work with eigen
-
-//                // store tf to list
-//                std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(stamp, tf_combined);
-//                tf_combine_list.push_back(tf_pair);
-//                break;
-//            }
-//            default: {
-//                log_error("RegistrationStorageHelper: do not handle result of ICP (no effect), its not yet implemented.");
-//            }
-//        }
+    log_info("RegistrationStorageHelper: process result");
+//    if ( ! has_converged ) {
+//      log_error("RegistrationStorageHelper: algorithm didn't converged");
+//      throw MAPIT_STATUS_ERROR;
+//    } else {
+//        log_info("RegistrationStorageHelper: matching for cloud \"" + cfg_input_one + "\" to \"" + cfg_target_
+//               + "\" finished with fitness score " + std::to_string( fitness_score ));
 //    }
 
-//    // change tfs in mapit
-//    if ( cfg_handle_result_ == RegistrationStorageHelper::HandleResult::tf_combine) {
-//        // get time of input clouds
-//        mapit::time::Stamp earliest = tf_combine_list.front().first;
-//        mapit::time::Stamp latest = tf_combine_list.front().first;
-//        mapit::time::nanoseconds small_time = mapit::time::nanoseconds(1); // smallest time we can have
-//        for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_time : tf_combine_list) {
-//            if (earliest > tf_time.first) {
-//                earliest = tf_time.first;
-//            }
-//            if (latest < tf_time.first) {
-//                latest = tf_time.first;
-//            }
-//        }
-//        // get tf just before we change anything, and add that to the list to store, therefore we do not interpolate between old and new tfs
-//        try {
-//            tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, earliest - small_time);
-//            Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
-//            tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
-//            tf_in_buffer.rotate( tf.transform.rotation );
-//            // store tf to list
-//            std::shared_ptr<Eigen::Affine3f> tf_in_buffer_ptr = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer)); // std::make_shared is not possible because its call by value and that does not work with eigen
-//            std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(earliest - small_time, tf_in_buffer_ptr);
-//            tf_combine_list.push_back(tf_pair);
-//        } catch(...) {
-//            // when it doesn't work, there is also nothing todo here, so no worries
-//        }
+    // handle the result
+    for (size_t i = 0; i < cfg_input_.size(); ++i) {
+        std::string cfg_input_one = cfg_input_.at(i);
 
-//        // get tf just after we change anything, and add that to the list to store, therefore we do not interpolate between old and new tfs
-//        try {
-//            tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, latest + small_time);
-//            Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
-//            tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
-//            tf_in_buffer.rotate( tf.transform.rotation );
-//            // store tf to list
-//            std::shared_ptr<Eigen::Affine3f> tf_in_buffer_ptr = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer)); // std::make_shared is not possible because its call by value and that does not work with eigen
-//            std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(latest + small_time, tf_in_buffer_ptr);
-//            tf_combine_list.push_back(tf_pair);
-//        } catch(...) {
-//            // when it doesn't work, there is also nothing todo here, so no worries
-//        }
+        // get entity
+        mapit::time::Stamp input_stamp;
+        pcl::PCLHeader input_header;
+        std::shared_ptr<PointcloudEntitydata> entitydata;
+        get_pointcloud( cfg_input_one, input_stamp, input_header, entitydata );
 
-//        // delete tfs between time of clouds
-//        mapit_remove_tfs(earliest, latest);
+        switch (cfg_handle_result_) {
+            case RegistrationStorageHelper::HandleResult::data_change: {
+                pcl::PointCloud<pcl::PointXYZ>::Ptr result_pc = pointclouds.at(i);
+                log_info("RegistrationStorageHelper: change pointcloud " + cfg_input_one);
+                log_warn("RegistrationStorageHelper: only XYZ will survive, intensity and color will be lost");
+                // TODO find way to transform pointcloud2 so that all data survive
 
-//        // add new tfs
-//        for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_to_add : tf_combine_list) {
-//            mapit_add_tf(tf_to_add.first, *tf_to_add.second);
-//        }
-//    }
+                // convert to pcl::PCLPointCloud2
+                std::shared_ptr<pcl::PCLPointCloud2> icp_out2 = std::make_shared<pcl::PCLPointCloud2>();
+                pcl::toPCLPointCloud2(*result_pc, *icp_out2);
+                icp_out2->header = input_header;
+
+                // write entity data
+                entitydata->setData(icp_out2);
+                break;
+            }
+            case RegistrationStorageHelper::HandleResult::tf_add: {
+                mapit_add_tf(input_stamp, tfs.at(i));
+                break;
+            }
+            case RegistrationStorageHelper::HandleResult::tf_combine: {
+                // get old tf from buffer
+                Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
+                mapit::time::Stamp stamp = input_stamp;
+                unsigned long sec, nsec;
+                mapit::time::to_sec_and_nsec(stamp, sec, nsec);
+                try {
+                    tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, stamp);
+                    tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
+                    tf_in_buffer.rotate( tf.transform.rotation );
+                } catch (...) {
+                    log_warn("RegistrationStorageHelper: tf \""
+                           + cfg_tf_frame_id_ + "\" to \"" + cfg_tf_child_frame_id_
+                           + "\" at time " + std::to_string(sec) + "." + std::to_string(nsec) + " does not exists. Identity will be used");
+                    tf_in_buffer = Eigen::Affine3f::Identity();
+                }
+                // combine tf with tf currently in buffer
+                std::shared_ptr<Eigen::Affine3f> tf_combined = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer * tfs.at(i))); // std::make_shared is not possible because its call by value and that does not work with eigen
+
+                // store tf to list
+                std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(stamp, tf_combined);
+                tf_combine_list.push_back(tf_pair);
+                break;
+            }
+            default: {
+                log_error("RegistrationStorageHelper: do not handle result of global registration, its not yet implemented. :'(");
+            }
+        }
+    }
+
+    // change tfs in mapit
+    if ( cfg_handle_result_ == RegistrationStorageHelper::HandleResult::tf_combine) {
+        // get time of input clouds
+        mapit::time::Stamp earliest = tf_combine_list.front().first;
+        mapit::time::Stamp latest = tf_combine_list.front().first;
+        mapit::time::nanoseconds small_time = mapit::time::nanoseconds(1); // smallest time we can have
+        for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_time : tf_combine_list) {
+            if (earliest > tf_time.first) {
+                earliest = tf_time.first;
+            }
+            if (latest < tf_time.first) {
+                latest = tf_time.first;
+            }
+        }
+        // get tf just before we change anything, and add that to the list to store, therefore we do not interpolate between old and new tfs
+        try {
+            tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, earliest - small_time);
+            Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
+            tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
+            tf_in_buffer.rotate( tf.transform.rotation );
+            // store tf to list
+            std::shared_ptr<Eigen::Affine3f> tf_in_buffer_ptr = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer)); // std::make_shared is not possible because its call by value and that does not work with eigen
+            std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(earliest - small_time, tf_in_buffer_ptr);
+            tf_combine_list.push_back(tf_pair);
+        } catch(...) {
+            // when it doesn't work, there is also nothing todo here, so no worries
+        }
+
+        // get tf just after we change anything, and add that to the list to store, therefore we do not interpolate between old and new tfs
+        try {
+            tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_tf_frame_id_, cfg_tf_child_frame_id_, latest + small_time);
+            Eigen::Affine3f tf_in_buffer = Eigen::Affine3f::Identity();
+            tf_in_buffer.translation() << tf.transform.translation.x(), tf.transform.translation.y(), tf.transform.translation.z();
+            tf_in_buffer.rotate( tf.transform.rotation );
+            // store tf to list
+            std::shared_ptr<Eigen::Affine3f> tf_in_buffer_ptr = std::shared_ptr<Eigen::Affine3f>(new Eigen::Affine3f(tf_in_buffer)); // std::make_shared is not possible because its call by value and that does not work with eigen
+            std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_pair(latest + small_time, tf_in_buffer_ptr);
+            tf_combine_list.push_back(tf_pair);
+        } catch(...) {
+            // when it doesn't work, there is also nothing todo here, so no worries
+        }
+
+        // delete tfs between time of clouds
+        mapit_remove_tfs(earliest, latest);
+
+        // add new tfs
+        for (std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>> tf_to_add : tf_combine_list) {
+            mapit_add_tf(tf_to_add.first, *tf_to_add.second);
+        }
+    }
 }

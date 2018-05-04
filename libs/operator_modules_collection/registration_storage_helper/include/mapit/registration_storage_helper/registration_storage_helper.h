@@ -120,6 +120,8 @@ public:
                                                        , std::shared_ptr<PointcloudEntitydata>& entitydata
                                                       );
 
+    enum class HandleResult {tf_add, tf_combine, data_change};
+
     /**
      * @brief operate_pairwise start the pairwise registration
      * @param algorithm std::function to the matching algorithm
@@ -134,9 +136,23 @@ public:
                                              , Eigen::Affine3f& result_transform
                                              , double& fitness_score)> algorithm);
 
+    /**
+     * @brief operate_global starts the global registration
+     * @param callback_add_pointcloud             callback function to add a pointcloud to the used algorithm
+     * @param callback_search_and_process_loops   callback function to search for loops (or do other preprocessing) for the algorithm
+     * @param callback_execute_algorithm          callback function to execute the algorithm and return the result
+     *          HandleResult => normaly in variable (to decide what of the following 3 typed are to be filled
+     *                          but can also be overwirtten in case the selected solution is not possible with the algorithm
+     *          std::vector<Eigen::Affine3f> => out variable in case of tf_add or tf_combine
+     *          std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> => out variable in case of data_change
+     *          pcl::PointCloud<pcl::PointXYZ>::Ptr => out variable in case of TODO
+     */
     void operate_global(  std::function<void(pcl::PointCloud<pcl::PointXYZ>::Ptr)> callback_add_pointcloud
                         , std::function<void()> callback_search_and_process_loops
-                        , std::function<void()> callback_execute_algorithm);
+                        , std::function<void(  HandleResult&
+                                             , std::vector<Eigen::Affine3f>&
+                                             , std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>&
+                                             , pcl::PointCloud<pcl::PointXYZ>::Ptr)> callback_execute_algorithm);
 
     // general setup
     mapit::operators::WorkspaceWritable* workspace_;
@@ -144,13 +160,12 @@ public:
 
     std::string cfg_tf_prefix_;
 
-    std::list<std::string> cfg_input_;
+    std::vector<std::string> cfg_input_;
     std::string cfg_target_;
 
     bool cfg_use_frame_id_;
     std::string cfg_frame_id_;
 
-    enum class HandleResult {tf_add, tf_combine, data_change};
     HandleResult cfg_handle_result_;
     std::string cfg_tf_frame_id_;
     std::string cfg_tf_child_frame_id_;

@@ -78,7 +78,10 @@ private:
 
     void callback_add_pointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr input_pc);
     void callback_search_and_process_loops();
-    void callback_execute_algorithm();
+    void callback_execute_algorithm(  mapit::RegistrationStorageHelper::HandleResult& handle_result
+                                    , std::vector<Eigen::Affine3f>& out_tfs
+                                    , std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>& out_pointclouds
+                                    , pcl::PointCloud<pcl::PointXYZ>::Ptr out_pointcloud);
 
     pcl::registration::LUM<pcl::PointXYZ>::Ptr lum_;
 };
