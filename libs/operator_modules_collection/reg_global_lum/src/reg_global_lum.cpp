@@ -79,6 +79,8 @@
 
 #include <pcl/registration/correspondence_estimation.h>
 
+#include <mutex>
+
 mapit::RegGlobalLUM::RegGlobalLUM(mapit::OperationEnvironment* env, mapit::StatusCode &status)
 {
     status = MAPIT_STATUS_OK;
@@ -128,7 +130,22 @@ void
 mapit::RegGlobalLUM::callback_search_and_process_loops()
 {
     log_info("reg_global_lum: and correspondances and search for loops");
+    std::vector<Eigen::Vector4f> centroid;
+
+    centroid.resize( lum_->getNumVertices() );
+    #pragma omp parallel for
+    for (size_t pc_id = 0; pc_id < lum_->getNumVertices(); ++pc_id) {
+        Eigen::Vector4f c;
+        pcl::compute3DCentroid(*lum_->getPointCloud(0), c);
+        centroid[pc_id] = c;
+    }
+
+    std::mutex mtx_logging;
+    #pragma omp parallel for
     for (size_t pc_id = 1; pc_id < lum_->getNumVertices(); ++pc_id) {
+        mtx_logging.lock();
+        log_info("reg_global_lum: add correspondance for cloud " << pc_id - 1 << " -> " << pc_id);
+        mtx_logging.unlock();
         // iterative
         pcl::PointCloud<pcl::PointXYZ>::Ptr pc_source = lum_->getPointCloud(pc_id - 1);
         pcl::PointCloud<pcl::PointXYZ>::Ptr pc_target = lum_->getPointCloud(pc_id);
@@ -141,17 +158,22 @@ mapit::RegGlobalLUM::callback_search_and_process_loops()
 
         // search for loops
         Eigen::Vector4f c_loop, c_target;
-        pcl::compute3DCentroid(*pc_target, c_target);
+        c_target = centroid.at(pc_id);
+//        pcl::compute3DCentroid(*pc_target, c_target);
+//        centroid.push_back( c_target );
         for (size_t loop_id = 0; loop_id < pc_id - 1; ++loop_id) {
             pcl::PointCloud<pcl::PointXYZ>::Ptr pc_loop = lum_->getPointCloud(loop_id);
 
-            pcl::compute3DCentroid(*pc_loop, c_loop);
+//            pcl::compute3DCentroid(*pc_loop, c_loop);
+            c_loop = centroid.at(loop_id);
             Eigen::Vector4f diff = c_target - c_loop;
             double norm = diff.norm();
 
             // loop => add correspondance
-            if (norm < 7.) {
+            if (norm < 10) {
+                mtx_logging.lock();
                 log_info("reg_global_lum: loop between " << loop_id << " and " << pc_id);
+                mtx_logging.unlock();
                 pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ> corr_est;
                 corr_est.setInputSource( pc_loop );
                 corr_est.setInputTarget( pc_target );
