@@ -53,10 +53,11 @@ mapit::RegLocalICP::RegLocalICP(mapit::OperationEnvironment* env, mapit::StatusC
 
     cfg_use_metascan_ = params.contains("use-metascan") ? params["use-metascan"].toBool() : false;
     if (cfg_use_metascan_) {
-        log_info("reg_local_icp: use metascan on target (with voxelgrid TODO, not yet implemented)");
-    } else {
+        log_warn("reg_local_icp: metascan is not yet implemented");
+//        log_info("reg_local_icp: use metascan on target (with voxelgrid TODO, not yet implemented)");
+    }/* else {
         log_info("reg_local_icp: do not use metascan");
-    }
+    }*/
 
     // get algorithm params
     cfg_icp_set_maximum_iterations_ = params.contains("icp-maximum-iterations") && params["icp-maximum-iterations"].toInt() != 0;
@@ -99,11 +100,11 @@ mapit::RegLocalICP::operate()
 }
 
 bool
-mapit::RegLocalICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
-                        , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
-                        , pcl::PointCloud<pcl::PointXYZ>& result_pc
-                        , Eigen::Affine3f& result_transform
-                        , double& fitness_score)
+mapit::RegLocalICP::icp_execute(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                                , const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
+                                , pcl::PointCloud<pcl::PointXYZ>& result_pc
+                                , Eigen::Affine3f& result_transform
+                                , double& fitness_score)
 {
     pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
     icp.setInputSource(input);
@@ -128,9 +129,9 @@ mapit::RegLocalICP::icp_execute(  boost::shared_ptr<pcl::PointCloud<pcl::PointXY
     result_transform = Eigen::Affine3f( icp.getFinalTransformation() );
     fitness_score = icp.getFitnessScore();
 
-    if (cfg_use_metascan_ && has_converged) {
-        *target += result_pc;
-    }
+//    if (cfg_use_metascan_ && has_converged) {
+//        *target += result_pc;
+//    }
 
     return has_converged;
 }

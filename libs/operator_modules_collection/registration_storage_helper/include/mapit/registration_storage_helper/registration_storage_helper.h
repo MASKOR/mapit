@@ -124,14 +124,14 @@ public:
 
     /**
      * @brief operate_pairwise start the pairwise registration
-     * @param algorithm std::function to the matching algorithm
+     * @param algorithm std::function to the matching algorithm (needs to be thread safe)
      * @throws mapit::StatusCode aka unsigned int
      *
      * in case of a meta scan is requested, this can be done within
      * the algorithm function by modifing the target point cloud
      */
-    void operate_pairwise(std::function<bool(  boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
-                                             , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
+    void operate_pairwise(std::function<bool(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                                             , const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
                                              , pcl::PointCloud<pcl::PointXYZ>& result_pc
                                              , Eigen::Affine3f& result_transform
                                              , double& fitness_score)> algorithm);
@@ -161,7 +161,6 @@ public:
     std::string cfg_tf_prefix_;
 
     std::vector<std::string> cfg_input_;
-    std::string cfg_target_;
 
     bool cfg_use_frame_id_;
     std::string cfg_frame_id_;
@@ -191,6 +190,13 @@ private:
     void mapit_remove_tfs(  const time::Stamp &stamp_start
                           , const time::Stamp &stamp_end
                          );
+
+    struct pcd {
+        mapit::time::Stamp stamp;
+        pcl::PCLHeader header;
+        std::shared_ptr<PointcloudEntitydata> entitydata;
+        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc;
+    };
 };
 
 }
