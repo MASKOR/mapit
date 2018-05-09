@@ -71,7 +71,7 @@ private:
 
     //--- algorithm configs ---
     bool icp_execute(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
-                     , const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
+                     , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
                      , pcl::PointCloud<pcl::PointXYZ>& result_pc
                      , Eigen::Affine3f& result_transform
                      , double& fitness_score);

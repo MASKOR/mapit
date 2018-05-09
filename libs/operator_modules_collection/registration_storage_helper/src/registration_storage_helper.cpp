@@ -105,6 +105,8 @@ mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvi
         log_info("RegistrationStorageHelper: do not transform in any frame before executing algorithm");
     }
 
+    cfg_parallel_threads_ = std::thread::hardware_concurrency();
+
     // handle parameter
     std::string cfg_handle_result_str = params["handle-result"].toString().toStdString();
     if        ( 0 == cfg_handle_result_str.compare("tf-add") ) {
@@ -247,12 +249,16 @@ mapit::RegistrationStorageHelper::mapit_remove_tfs(const time::Stamp &stamp_star
 
 void
 mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
-                                                                      , const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>&
+                                                                      , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>&
                                                                       , pcl::PointCloud<pcl::PointXYZ>&
                                                                       , Eigen::Affine3f&
-                                                                      , double&)> algorithm)
+                                                                      , double&)> algorithm
+                                                   , const bool& use_metascan)
 {
-    std::vector<mapit::RegistrationStorageHelper::pcd> pointclouds( cfg_input_.size() );
+    if (use_metascan) {
+        cfg_parallel_threads_ = 1;
+    }
+    std::vector<mapit::RegistrationStorageHelper::PCD> pointclouds( cfg_input_.size() );
     for (size_t pc_id = 0; pc_id < cfg_input_.size(); ++pc_id) {
         log_info("RegistrationStorageHelper: load pointcloud " << cfg_input_.at(pc_id));
         pointclouds.at(pc_id).pc = get_pointcloud( cfg_input_.at(pc_id), pointclouds.at(pc_id).stamp, pointclouds.at(pc_id).header, pointclouds.at(pc_id).entitydata );
@@ -268,14 +274,20 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
         // there is no thread for the first pointcloud therefore create a special thread that can be joint
     });
 
-    size_t num_threads = std::thread::hardware_concurrency();
-    boost::interprocess::interprocess_semaphore thread_semaphore(num_threads);
-    log_info("RegistrationStorageHelper: run with " << num_threads << " parallel threads");
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+    if ( use_metascan) {
+        mapit::RegistrationStorageHelper::PCD target = pointclouds.at(0);
+        *target_pc = *target.pc;
+    }
+    boost::interprocess::interprocess_semaphore thread_semaphore(cfg_parallel_threads_);
+    log_info("RegistrationStorageHelper: run with " << cfg_parallel_threads_ << " parallel threads");
     for (size_t pc_id = 1; pc_id < cfg_input_.size(); ++pc_id) {
         thread_semaphore.wait(); // only start #CPUs ICP computations at once
         threads.at(pc_id) = std::make_shared<std::thread>([ &thread_semaphore
                                                           , this
                                                           , pc_id
+                                                          , &use_metascan
+                                                          , &target_pc
                                                           , &pointclouds
                                                           , &tf_combine_list
                                                           , &threads
@@ -285,10 +297,13 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
             std::string input_name = cfg_input_.at(pc_id);
 
             // get target cloud
-            mapit::RegistrationStorageHelper::pcd target = pointclouds.at(pc_id-1);
+            mapit::RegistrationStorageHelper::PCD target = pointclouds.at(pc_id-1);
+            if ( ! use_metascan) {
+                target_pc = target.pc;
+            }
 
             // get input cloud
-            mapit::RegistrationStorageHelper::pcd input = pointclouds.at(pc_id);
+            mapit::RegistrationStorageHelper::PCD input = pointclouds.at(pc_id);
 
             // execute algorithm
             double fitness_score = std::numeric_limits<double>::max();
@@ -296,7 +311,7 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
             Eigen::Affine3f result_transform;
             pcl::PointCloud<pcl::PointXYZ> result_pc;
 
-            bool has_converged = algorithm(input.pc, target.pc, result_pc, result_transform, fitness_score);
+            bool has_converged = algorithm(input.pc, target_pc, result_pc, result_transform, fitness_score);
 
             if ( ! has_converged ) {
                 log_error("RegistrationStorageHelper: algorithm didn't converged for " << input_name << " -> " << target_name);
@@ -312,7 +327,11 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
                 thread_semaphore.post(); // see this thread as finished and start the next one
                 threads.at(pc_id-1)->join();
 
-                pair_transform.at(pc_id) = pair_transform.at(pc_id-1) * result_transform; // This way we can parallel the registration
+                if ( use_metascan) {
+                    pair_transform.at(pc_id) = result_transform;
+                } else {
+                    pair_transform.at(pc_id) = pair_transform.at(pc_id-1) * result_transform; // This way we can parallel the registration
+                }
                 result_transform = pair_transform.at(pc_id);
             }
 
