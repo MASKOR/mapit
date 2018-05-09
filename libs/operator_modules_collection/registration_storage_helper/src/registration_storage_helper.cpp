@@ -39,6 +39,7 @@
 #include <boost/make_shared.hpp>
 
 #include <thread>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvironment* env)
 {
@@ -267,8 +268,13 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
         // there is no thread for the first pointcloud therefore create a special thread that can be joint
     });
 
+    size_t num_threads = std::thread::hardware_concurrency();
+    boost::interprocess::interprocess_semaphore thread_semaphore(num_threads);
+    log_info("RegistrationStorageHelper: run with " << num_threads << " parallel threads");
     for (size_t pc_id = 1; pc_id < cfg_input_.size(); ++pc_id) {
-        threads.at(pc_id) = std::make_shared<std::thread>([ this
+        thread_semaphore.wait(); // only start #CPUs ICP computations at once
+        threads.at(pc_id) = std::make_shared<std::thread>([ &thread_semaphore
+                                                          , this
                                                           , pc_id
                                                           , &pointclouds
                                                           , &tf_combine_list
@@ -293,21 +299,21 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
             bool has_converged = algorithm(input.pc, target.pc, result_pc, result_transform, fitness_score);
 
             if ( ! has_converged ) {
-                log_error("RegistrationStorageHelper: algorithm didn't converged");
+                log_error("RegistrationStorageHelper: algorithm didn't converged for " << input_name << " -> " << target_name);
               // TODO
     //          initial_guess = Eigen::Affine3f::Identity();
-              throw MAPIT_STATUS_ERROR;
+                throw MAPIT_STATUS_ERROR;
                 threads.at(pc_id-1)->join();
                 pair_transform.at(pc_id) = pair_transform.at(pc_id-1);
             } else {
                 // TODO wait for threads.at(pc_id-1) != nullptr
-                log_warn("RegistrationStorageHelper: wait for cloud " << target_name << " to be finished");
+                log_info("RegistrationStorageHelper: matching for cloud \"" + input_name + "\" to \"" + target_name
+                       + "\" finished with fitness score " + std::to_string( fitness_score ));
+                thread_semaphore.post(); // see this thread as finished and start the next one
                 threads.at(pc_id-1)->join();
 
                 pair_transform.at(pc_id) = pair_transform.at(pc_id-1) * result_transform; // This way we can parallel the registration
                 result_transform = pair_transform.at(pc_id);
-                log_info("RegistrationStorageHelper: matching for cloud \"" + input_name + "\" to \"" + target_name
-                       + "\" finished with fitness score " + std::to_string( fitness_score ));
             }
 
             // handle the result
