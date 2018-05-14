@@ -49,9 +49,6 @@ mapit::StatusCode operate_reg_global_lum(mapit::OperationEnvironment* env)
      *  optional <string>"tf-child_frame_id" : ..., // in case of tf change or add
      *  optional <bool>"tf-is_static" : ..., // in case of tf change or add (true only works with one input specified) (default false)
      *
-     *  optional <int>icp-maximum-iterations: ...,
-     *  optional <double>icp-max-correspondence-distance: ...,
-     *  optional <double>icp-transformation-epsilon: ...,
      * }
      *
      * comments:
