@@ -115,7 +115,7 @@ void FileSystemEntitydataStreamProvider::endWrite(mapit::ostream *&strm)
 {
     assert(strm);
     assert(static_cast<std::ofstream*>(strm)->is_open());
-    strm->flush();
+//    strm->flush(); // removed since this is slow and not needed
     static_cast<std::ofstream*>(strm)->close();
     delete strm;
 }
