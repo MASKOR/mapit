@@ -66,7 +66,7 @@ public:
      * {
      *  <string>"tf-prefix" : ..., // the prefix where to look for transforms (default "")
      *  <string>"input"[] : ..., // can either be, a list of entities or a tree containing enteties
-     *  <string>"target" : ...,
+     *  // <string>"target" : ...,
      *
      *  optional <string>"frame_id" : ..., // all data given to the matching algorithm will be in this frame
      *

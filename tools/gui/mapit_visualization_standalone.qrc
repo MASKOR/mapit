@@ -256,6 +256,7 @@
         <file>qml/components/StyledSlider.qml</file>
         <file>qml/components/StyledSplitView.qml</file>
         <file>qml/components/StyledTextField.qml</file>
+        <file>qml/components/HelperRegistration.qml</file>
         <file>qml/dialogs/About.qml</file>
         <file>qml/dialogs/VisualizationSettings.qml</file>
         <file>qml/EntityVisualSettings.qml</file>
