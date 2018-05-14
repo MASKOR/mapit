@@ -37,7 +37,7 @@ endif(WIN32)
 # TODO: If language could not be determined: There are Additional cmake variable for boost that mus be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_TF_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/**.h )
 add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_TF_SOURCES} )
-target_link_libraries( ${PROJECT_NAME} ${EIGEN3_LIBRARIES})
+target_link_libraries( ${PROJECT_NAME} ${EIGEN3_LIBRARIES} )
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})

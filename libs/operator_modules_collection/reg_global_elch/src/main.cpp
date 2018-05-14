@@ -31,9 +31,9 @@
 #include <mapit/layertypes/tflayer/utils.h>
 #include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 
-#include "reg_local.h"
+#include "reg_global_elch.h"
 
-mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
+mapit::StatusCode operate_reg_global_elch(mapit::OperationEnvironment* env)
 {
     /** structure:
      * {
@@ -48,8 +48,6 @@ mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
      *  optional <string>"tf-frame_id" : ..., // in case of tf change or add
      *  optional <string>"tf-child_frame_id" : ..., // in case of tf change or add
      *  optional <bool>"tf-is_static" : ..., // in case of tf change or add (true only works with one input specified) (default false)
-     *
-     *  <enum-as-string>"matching-algorithm" : ["icp"], // what kind of local matching algorithm should be used
      *
      *  optional <int>icp-maximum-iterations: ...,
      *  optional <double>icp-max-correspondence-distance: ...,
@@ -84,11 +82,17 @@ mapit::StatusCode operate_reg_local_icp(mapit::OperationEnvironment* env)
      */
 
     mapit::StatusCode status;
-    mapit::RegLocal reg_local(env, status);
+    mapit::RegGlobalELCH reg_global(env, status);
     if ( ! mapitIsOk( status ) ) {
         return status;
     }
-    return reg_local.operate();
+    return reg_global.operate();
 }
 
-MAPIT_MODULE(OPERATOR_NAME, "execute local scanmatching on pointclouds", "fhac", OPERATOR_VERSION, "any", true, &operate_reg_local_icp)
+MAPIT_MODULE(  OPERATOR_NAME
+             , "execute global scanmatching on pointclouds using ELCH (Explicit Loop Closing Heuristic)"
+             , "fhac"
+             , OPERATOR_VERSION
+             , "any"
+             , true
+             , &operate_reg_global_elch)
