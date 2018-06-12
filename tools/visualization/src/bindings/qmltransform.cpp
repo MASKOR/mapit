@@ -67,7 +67,7 @@ QMatrix4x4 QmlTransform::matrix() const
     matTr.translate(tfs.transform.translation.x(),
                     tfs.transform.translation.y(),
                     tfs.transform.translation.z());
-    return matRot * matTr;
+    return matTr * matRot;
 }
 
 bool QmlTransform::mustExist() const
@@ -125,8 +125,9 @@ mapit::tf::TransformStamped QmlTransform::getTfs(bool *found) const
 
     try
     {
-        long sec =  (stamp() && stamp()->getStamp()) ? stamp()->getStamp()->sec()  : 0;
-        long nsec = (stamp() && stamp()->getStamp()) ? stamp()->getStamp()->nsec() : 0;
+        long sec =  (stamp() && stamp()->getStamp()) ? stamp()->sec()  : 0;
+        long nsec = (stamp() && stamp()->getStamp()) ? stamp()->nsec() : 0;
+        if (sec == 0 && nsec == 0) throw mapit::tf2::TransformException("no time given");
         tfs = buffer->lookupTransform(targetFrame().toStdString(),
                                       sourceFrame().toStdString(),
                                       mapit::time::from_sec_and_nsec(sec, nsec));

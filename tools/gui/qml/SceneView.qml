@@ -123,7 +123,7 @@ Item {
                 }
                 StyledComboBox {
                     id: colorModeSelect
-                    model: ["flashlight (double sided)", "Axis", "Axis (HSV)", "flashlight (single sided)", "flashlight2"]
+                    model: ["flashlight (double sided)", "Axis", "Axis (HSV)", "flashlight (single sided)", "flashlight2", "Axis (HSV) cut", "cloud color"]
                 }
                 StyledLabel {
                     text: "Colorscale"
@@ -132,9 +132,9 @@ Item {
                 StyledSlider {
                     id: colorscaleSlider
                     width: 60
-                    value: 1.1
+                    value: 100
                     minimumValue: 0.1
-                    maximumValue:  10.0
+                    maximumValue:  100.0
                 }
             }
 

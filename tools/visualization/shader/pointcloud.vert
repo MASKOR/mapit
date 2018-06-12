@@ -157,13 +157,19 @@ void main()
     if(colorMode == 0) // flashlight (double sided)
         color = vec3(abs(dot(modelViewNormal * vertexNormal, normalize(position))));
     else if(colorMode == 1) // gray axis
-        color = vec3(axis*colorscale);
+        color = vec3(axis/colorscale);
     else if(colorMode == 2) // HSV
-        color = hsv_to_rgb(axis*-colorscale, 0.7, 1.0, 0.0).rgb;
+        color = hsv_to_rgb(axis/colorscale, 0.7, 1.0, 0.0).rgb;
     else if(colorMode == 3) // flashlight2
-    color = vec3(-dot(modelViewNormal * vertexNormal, normalize(position)));
+        color = vec3(-dot(modelViewNormal * vertexNormal, normalize(position)));
     else if(colorMode == 4) // flashlight (single sided)
         color = vec3(dot(modelViewNormal * vertexNormal, vec3(0.0,0.0,1.0)));
+    else if(colorMode == 5) { // HSV cut
+        float axisLocal = axis;
+        if (axisLocal < 0) axisLocal = 0;
+        if (axisLocal > colorscale) axisLocal = colorscale;
+        color = hsv_to_rgb(axisLocal/colorscale, 0.7, 1.0, 0.0).rgb;
+    }
     if(colorize == 7) {
         color = vertexColor;//unpackColor(vertexColor);
     }
