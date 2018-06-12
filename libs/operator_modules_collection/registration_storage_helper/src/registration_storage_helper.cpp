@@ -40,6 +40,7 @@
 
 #include <thread>
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
+#include <mutex>
 
 mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvironment* env)
 {
@@ -264,6 +265,13 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
         pointclouds.at(pc_id).pc = get_pointcloud( cfg_input_.at(pc_id), pointclouds.at(pc_id).stamp, pointclouds.at(pc_id).header, pointclouds.at(pc_id).entitydata );
     }
 
+    // in case of tf add, add identity for the first cloud
+    if ( cfg_handle_result_ == RegistrationStorageHelper::HandleResult::tf_add ) {
+        mapit::RegistrationStorageHelper::PCD first = pointclouds.at(0);
+        Eigen::Affine3f identity = Eigen::Affine3f::Identity();
+        mapit_add_tf(first.stamp, identity);
+    }
+
     // in case of tf-combine, a list is needed
     std::list<std::pair<mapit::time::Stamp, std::shared_ptr<Eigen::Affine3f>>> tf_combine_list;
 
@@ -275,15 +283,17 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
     });
 
     boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target_pc = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-    if ( use_metascan) {
+    if ( use_metascan ) {
         mapit::RegistrationStorageHelper::PCD target = pointclouds.at(0);
         *target_pc = *target.pc;
     }
     boost::interprocess::interprocess_semaphore thread_semaphore(cfg_parallel_threads_);
+    std::mutex mutex;
     log_info("RegistrationStorageHelper: run with " << cfg_parallel_threads_ << " parallel threads");
     for (size_t pc_id = 1; pc_id < cfg_input_.size(); ++pc_id) {
         thread_semaphore.wait(); // only start #CPUs ICP computations at once
         threads.at(pc_id) = std::make_shared<std::thread>([ &thread_semaphore
+                                                          , &mutex
                                                           , this
                                                           , pc_id
                                                           , &use_metascan
@@ -336,6 +346,7 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
             }
 
             // handle the result
+            mutex.lock();
             switch (cfg_handle_result_) {
                 case RegistrationStorageHelper::HandleResult::data_change: {
                     log_info("RegistrationStorageHelper: change pointcloud " + input_name/* + " with tf:"*/);
@@ -380,6 +391,7 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
                     log_error("RegistrationStorageHelper: do not handle result of ICP (no effect), its not yet implemented.");
                 }
             }
+            mutex.unlock();
         });
     }
     // Wait for last thread
