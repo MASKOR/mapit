@@ -45,6 +45,22 @@ namespace  time {
     return t;
   }
 
+  Stamp from_string(const std::string& stamp)
+  {
+      size_t stamp_pos_sec = stamp.find(".");
+      std::string stamp_sec = stamp.substr( 0, stamp_pos_sec );
+      std::string stamp_nano_sec = stamp.substr( stamp_pos_sec+1, stamp.length() );
+      struct tm tm;
+      strptime(stamp_sec.c_str(), "%Y-%m-%d %H:%M:%S", &tm);
+      time_t t = mktime(&tm);
+      Stamp stamp_ret = mapit::time::Clock::from_time_t( t );
+
+      long nano_sec = std::stol( stamp_nano_sec );
+      stamp_ret += mapit::time::nanoseconds( nano_sec );
+
+      return stamp_ret;
+  }
+
   Stamp from_msg(const mapit::msgs::Time& stamp)
   {
       return from_sec_and_nsec(stamp.sec(), stamp.nsec());

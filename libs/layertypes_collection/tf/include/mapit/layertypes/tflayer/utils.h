@@ -42,13 +42,18 @@ namespace tf {
     Eigen::Translation3f translation;
     Eigen::Quaternionf rotation;
 
-    static Transform Identity()
+    void Identity()
     {
-      Transform t;
-      t.translation = t.translation.Identity();
-      t.rotation.setIdentity();
-      return t;
+        translation = Eigen::Translation3f::Identity();
+        rotation = Eigen::Quaternionf::Identity();
     }
+//    static Transform Identity()
+//    {
+//      Transform t;
+//      t.translation = Eigen::Translation3f::Identity();
+//      t.rotation = Eigen::Quaternionf::Identity();
+//      return t;
+//    }
   };
   typedef std::shared_ptr<Transform> TransformPtr;
 

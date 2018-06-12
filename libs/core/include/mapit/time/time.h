@@ -26,6 +26,7 @@
 #include <mapit/msgs/datastructs.pb.h>
 #include <chrono>
 #include <ctime>
+#include <time.h>
 #include "date/date.h"
 
 namespace std {
@@ -60,6 +61,12 @@ namespace time {
 
   Stamp from_sec_and_nsec(long sec, long nsec);
 
+  /**
+   * @brief from_string kitty like format "YYYY-MM-DD HH:MM:SS.SS"
+   * @param stamp
+   * @return
+   */
+  Stamp from_string(const std::string& stamp);
   Stamp from_msg(const mapit::msgs::Time& stamp);
   mapit::msgs::Time to_msg(const Stamp& stamp);
   mapit::msgs::Time* to_msg_allocated(const Stamp& stamp);
