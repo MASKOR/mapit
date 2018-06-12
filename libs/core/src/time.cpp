@@ -114,12 +114,19 @@ namespace  time {
 
     std::string nsec_str = std::to_string(nsec);
     int zeros_to_add = 9 - nsec_str.size();
-    std::string zeroes = "";
+    std::string zeroes_nsec = "";
     for (int i = 0; i < zeros_to_add; ++i) {
-        zeroes += "0";
+        zeroes_nsec += "0";
     }
 
-    std::string out = std::to_string(sec) + "." + zeroes + nsec_str;
+    std::string sec_str = std::to_string(sec);
+    zeros_to_add = 9 - sec_str.size();
+    std::string zeroes_sec = "";
+    for (int i = 0; i < zeros_to_add; ++i) {
+        zeroes_sec += "0";
+    }
+
+    std::string out = zeroes_sec + sec_str + "." + zeroes_nsec + nsec_str;
     return out;
   }
 
