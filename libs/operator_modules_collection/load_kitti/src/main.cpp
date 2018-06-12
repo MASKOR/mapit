@@ -151,7 +151,7 @@ read_kitti_transform(fs::path file_name, double& scale, const bool& is_first, co
             ret->rotation = Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ())
                           * Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitY())
                           * Eigen::AngleAxisf(roll, Eigen::Vector3f::UnitX());
-            ret->rotation = origin->rotation.inverse() * ret->rotation;
+            ret->rotation = ret->rotation * origin->rotation.inverse();
             ret->translation = Eigen::Translation3f(x, y, z);
             ret->translation = Eigen::Translation3f(ret->translation.vector() - origin->translation.vector());
         }
@@ -211,6 +211,7 @@ mapit::StatusCode operate_load_kitti(mapit::OperationEnvironment* env)
      *   "datasets" : ["name_of_dataset_1", ...],
      *   "prefix-transforms" : <string>prefix where to store the transforms,
      *   "transform-frame_id" : <string>frame_id for transforms,
+     *   "transform-intermediate_frame_id" : <string>frame_id for offset,
      *   "transform-child_frame_id" : <string>child_frame_id for transforms,
      *   "prefix-pointclouds" : <string>prefix where to store the pointclouds
      *   "pointcloud-frame_id" : <string>frame_id for pointclouds
@@ -224,10 +225,18 @@ mapit::StatusCode operate_load_kitti(mapit::OperationEnvironment* env)
 
     std::string prefix_pointclouds = params["prefix-pointclouds"].toString().toStdString();
     std::string prefix_transforms = params["prefix-transforms"].toString().toStdString();
-    std::string pc_frame_id = params["pointcloud-frame_id"].toString().toStdString();
+    log_info("load_kitti: prefix-pointclouds:              " << prefix_pointclouds);
+    log_info("load_kitti: prefix-transforms:               " << prefix_transforms);
+
     std::string tf_frame_id = params["transform-frame_id"].toString().toStdString();
     std::string tf_child_frame_id = params["transform-child_frame_id"].toString().toStdString();
     std::string tf_intermediate_frame_id = params["transform-intermediate_frame_id"].toString().toStdString();
+    log_info("load_kitti: transform-frame_id:              " << tf_frame_id);
+    log_info("load_kitti: transform-child_frame_id:        " << tf_child_frame_id);
+    log_info("load_kitti: transform-intermediate_frame_id: " << tf_intermediate_frame_id);
+
+    std::string pc_frame_id = params["pointcloud-frame_id"].toString().toStdString();
+    log_info("load_kitti: pointcloud-frame_id:             " << pc_frame_id);
 
     QJsonArray json_dataset_names( params["datasets"].toArray() );
     for (auto json_dataset_name : json_dataset_names) {
