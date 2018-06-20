@@ -114,21 +114,21 @@ mapit::StatusCode operate_load_posepath(mapit::OperationEnvironment* env)
                 QJsonValue val = pt["x"];
                 if(val.isDouble())
                 {
-                    pose->set_x( val.toDouble() );
+                    pose->mutable_translation()->set_x( val.toDouble() );
                 }
                 else
                     log_error("point without x");
                 val = pt["y"];
                 if(val.isDouble())
                 {
-                    pose->set_y( val.toDouble() );
+                    pose->mutable_translation()->set_y( val.toDouble() );
                 }
                 else
                     log_error("point without y");
                 val = pt["z"];
                 if(val.isDouble())
                 {
-                    pose->set_z( val.toDouble() );
+                    pose->mutable_translation()->set_z( val.toDouble() );
                 }
                 else
                     log_error("point without z");

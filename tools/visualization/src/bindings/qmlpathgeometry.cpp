@@ -47,9 +47,9 @@ public:
             const mapit::msgs::Pose &pose = m_path->poses(i);
             int offset = i * sizeof(float) * 3;
             float* val = reinterpret_cast<float*>(&arr.data()[offset]);
-            val[0] = pose.x();
-            val[1] = pose.y();
-            val[2] = pose.z();
+            val[0] = pose.translation().x();
+            val[1] = pose.translation().y();
+            val[2] = pose.translation().z();
         }
         return arr;
     }
