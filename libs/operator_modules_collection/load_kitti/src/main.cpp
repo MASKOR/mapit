@@ -48,6 +48,7 @@ namespace fs = boost::filesystem;
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <fstream>
 
 void
 get_or_create_entity(  mapit::operators::WorkspaceWritable* workspace
