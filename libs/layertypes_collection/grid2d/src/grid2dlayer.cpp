@@ -49,7 +49,6 @@ const char *Grid2DEntitydata::type() const
 {
     return Grid2DEntitydata::TYPENAME();
 }
-/**
 bool Grid2DEntitydata::hasFixedGrid() const
 {
     return false;
@@ -59,7 +58,6 @@ bool Grid2DEntitydata::canSaveRegions() const
 {
     return false;
 }
-*/
 
 
 
