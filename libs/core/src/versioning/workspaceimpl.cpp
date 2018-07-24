@@ -116,8 +116,7 @@ std::shared_ptr<Tree> WorkspaceImpl::getTree(const Path &path)
 
     // if tree is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
-    //assert(!ref.id().empty() && ref.path().empty());
-    if(ref.id().empty()) return nullptr;
+    if(ref.id().empty()) ref.set_id( path );
     return m_serializer->getTree(ref.id());
 }
 
@@ -134,7 +133,7 @@ std::shared_ptr<Entity> WorkspaceImpl::getEntity(const Path &path)
     // if entity is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
     //assert(!ref.id().empty() && ref.path().empty());
-    if(ref.id().empty()) return nullptr;
+    if(ref.id().empty()) ref.set_id( path );
     return m_serializer->getEntity(ref.id());
 }
 
@@ -151,8 +150,7 @@ WorkspaceImpl::typeOfObject(const Path &path)
 
     // if object is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
-    //assert(!ref.id().empty() && ref.path().empty());
-    if(ref.id().empty()) return MessageEmpty;
+    if(ref.id().empty()) ref.set_id( path );
     return m_serializer->typeOfObject(ref.id());
 }
 
@@ -219,7 +217,7 @@ std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataReadOnly(const P
             log_warn("Entity not found." + path);
             return nullptr;
         }
-        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ref.id(), true), true);
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ent->dataid(), true), true);
     }
 }
 
@@ -237,18 +235,22 @@ std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataReadOnlyConflict
 
 std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataForReadWrite(const Path &path)
 {
-    // Only check transient, because writing is not allowed for already commited objects.
     Path p(preparePathFilename(path));
     if(p.empty()) return nullptr;
 
     std::shared_ptr<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p );
-    if( ent == nullptr )
+    if( ent != nullptr )
     {
-        log_error("Entity not found." + path);
-        return nullptr;
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
     }
-    assert( ent );
-    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
+
+    // check consistent objects, but if exists, create with read to consistent and write to transient
+    ent = getEntity(path);
+    if( ent != nullptr ) {
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ent->dataid(), true, m_name + "/" + p, true), true);
+    }
+
+    return nullptr;
 }
 
 StatusCode WorkspaceImpl::storeTree(const Path &path, std::shared_ptr<Tree> tree)
