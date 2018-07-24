@@ -217,7 +217,7 @@ std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataReadOnly(const P
             log_warn("Entity not found." + path);
             return nullptr;
         }
-        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ref.id(), true), true);
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ent->dataid(), true), true);
     }
 }
 
