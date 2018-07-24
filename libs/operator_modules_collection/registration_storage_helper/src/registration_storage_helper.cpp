@@ -138,6 +138,13 @@ mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvi
         throw MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
+    cfg_use_poor_mans_prediction_ = params.contains("use_poor_mans_prediction") ? params["use_poor_mans_prediction"].toBool() : false;
+    if (cfg_use_poor_mans_prediction_) {
+        log_info("RegistrationStorageHelper: use poor man's prediction");
+    } else {
+        log_info("RegistrationStorageHelper: don't use poor man's prediction");
+    }
+
     // get env
     workspace_ = env->getWorkspace();
     cfg_tf_prefix_ = params.contains("tf-prefix") ? params["tf-prefix"].toString().toStdString() : "";
@@ -250,6 +257,7 @@ mapit::RegistrationStorageHelper::mapit_remove_tfs(const time::Stamp &stamp_star
 
 void
 mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>
+                                                                      , const Eigen::Affine3f& initial_guess_transform
                                                                       , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>&
                                                                       , pcl::PointCloud<pcl::PointXYZ>&
                                                                       , Eigen::Affine3f&
@@ -257,6 +265,9 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
                                                    , const bool& use_metascan)
 {
     if (use_metascan) {
+        cfg_parallel_threads_ = 1;
+    }
+    if (cfg_use_poor_mans_prediction_) {
         cfg_parallel_threads_ = 1;
     }
     std::vector<mapit::RegistrationStorageHelper::PCD> pointclouds( cfg_input_.size() );
@@ -321,7 +332,19 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
             Eigen::Affine3f result_transform;
             pcl::PointCloud<pcl::PointXYZ> result_pc;
 
-            bool has_converged = algorithm(input.pc, target_pc, result_pc, result_transform, fitness_score);
+            Eigen::Affine3f initial_guess_transform = Eigen::Affine3f::Identity();
+            if ( ! use_metascan && cfg_use_poor_mans_prediction_ && pc_id >= 2) {
+//                initial_guess_transform = (pair_transform.at(pc_id-2).inverse() * pair_transform.at(pc_id-1)).matrix();
+                float factor = 1.f / 4;
+                Eigen::Affine3f previous_transform = (pair_transform.at(pc_id-2).inverse() * pair_transform.at(pc_id-1));
+                initial_guess_transform.matrix()(0, 3) = previous_transform.matrix()(0, 3) * factor;
+                initial_guess_transform.matrix()(1, 3) = previous_transform.matrix()(1, 3) * factor;
+                initial_guess_transform.matrix()(2, 3) = previous_transform.matrix()(2, 3) * factor;
+
+//                log_info("RegistrationStorageHelper: using initial guess:\n" << initial_guess_transform.matrix());
+            }
+
+            bool has_converged = algorithm(input.pc, initial_guess_transform, target_pc, result_pc, result_transform, fitness_score);
 
             if ( ! has_converged ) {
                 log_error("RegistrationStorageHelper: algorithm didn't converged for " << input_name << " -> " << target_name);

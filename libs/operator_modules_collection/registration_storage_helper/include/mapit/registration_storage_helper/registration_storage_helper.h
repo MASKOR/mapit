@@ -134,6 +134,7 @@ public:
      * the algorithm function by modifing the target point cloud
      */
     void operate_pairwise(std::function<bool(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                                             , const Eigen::Affine3f& initial_guess_transform
                                              , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>& target
                                              , pcl::PointCloud<pcl::PointXYZ>& result_pc
                                              , Eigen::Affine3f& result_transform
@@ -173,6 +174,8 @@ public:
     std::string cfg_tf_frame_id_;
     std::string cfg_tf_child_frame_id_;
     bool cfg_tf_is_static_;
+
+    bool cfg_use_poor_mans_prediction_;
 
     size_t cfg_parallel_threads_;
 

@@ -90,7 +90,8 @@ mapit::RegLocalICP::operate()
                                                  , std::placeholders::_2
                                                  , std::placeholders::_3
                                                  , std::placeholders::_4
-                                                 , std::placeholders::_5)
+                                                 , std::placeholders::_5
+                                                 , std::placeholders::_6)
                                        , cfg_use_metascan_);
     } catch(mapit::StatusCode err) {
         return err;
@@ -101,6 +102,7 @@ mapit::RegLocalICP::operate()
 
 bool
 mapit::RegLocalICP::icp_execute(  const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input
+                                , const Eigen::Affine3f& initial_guess_transform
                                 , boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> target
                                 , pcl::PointCloud<pcl::PointXYZ>& result_pc
                                 , Eigen::Affine3f& result_transform
@@ -123,7 +125,7 @@ mapit::RegLocalICP::icp_execute(  const boost::shared_ptr<pcl::PointCloud<pcl::P
         icp.setEuclideanFitnessEpsilon(cfg_icp_euclidean_fitness_epsilon_);
     }
 
-    icp.align(result_pc);
+    icp.align(result_pc, initial_guess_transform.matrix());
 
     bool has_converged = icp.hasConverged();
     result_transform = Eigen::Affine3f( icp.getFinalTransformation() );
