@@ -116,8 +116,7 @@ std::shared_ptr<Tree> WorkspaceImpl::getTree(const Path &path)
 
     // if tree is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
-    //assert(!ref.id().empty() && ref.path().empty());
-    if(ref.id().empty()) return nullptr;
+    if(ref.id().empty()) ref.set_id( path );
     return m_serializer->getTree(ref.id());
 }
 
@@ -134,7 +133,7 @@ std::shared_ptr<Entity> WorkspaceImpl::getEntity(const Path &path)
     // if entity is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
     //assert(!ref.id().empty() && ref.path().empty());
-    if(ref.id().empty()) return nullptr;
+    if(ref.id().empty()) ref.set_id( path );
     return m_serializer->getEntity(ref.id());
 }
 
@@ -151,8 +150,7 @@ WorkspaceImpl::typeOfObject(const Path &path)
 
     // if object is not transient, get from repo
     ObjectReference ref = objectReferenceForPath(p);
-    //assert(!ref.id().empty() && ref.path().empty());
-    if(ref.id().empty()) return MessageEmpty;
+    if(ref.id().empty()) ref.set_id( path );
     return m_serializer->typeOfObject(ref.id());
 }
 
