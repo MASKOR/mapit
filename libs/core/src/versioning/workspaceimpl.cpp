@@ -235,18 +235,22 @@ std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataReadOnlyConflict
 
 std::shared_ptr<AbstractEntitydata> WorkspaceImpl::getEntitydataForReadWrite(const Path &path)
 {
-    // Only check transient, because writing is not allowed for already commited objects.
     Path p(preparePathFilename(path));
     if(p.empty()) return nullptr;
 
     std::shared_ptr<Entity> ent = m_serializer->getEntityTransient(m_name + "/" + p );
-    if( ent == nullptr )
+    if( ent != nullptr )
     {
-        log_error("Entity not found." + path);
-        return nullptr;
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
     }
-    assert( ent );
-    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProviderTransient(m_name + "/" + p, true, true), true);
+
+    // check consistent objects, but if exists, create with read to consistent and write to transient
+    ent = getEntity(path);
+    if( ent != nullptr ) {
+        return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_serializer->getStreamProvider(ent->dataid(), true, m_name + "/" + p, true), true);
+    }
+
+    return nullptr;
 }
 
 StatusCode WorkspaceImpl::storeTree(const Path &path, std::shared_ptr<Tree> tree)
