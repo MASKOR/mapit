@@ -208,13 +208,10 @@ QStringList QmlWorkspace::getFrameIds()
         [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
         {
             // get the stream to write into a file
-            std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_workspace->getEntitydataReadOnly(path);
+            assert(obj);
+            frameIdSet.insert(QString::fromStdString(obj->frame_id()));
 
-            std::shared_ptr<mapit::msgs::Entity> ent = this->m_workspace->getEntity( path );
-            assert(ent);
-            frameIdSet.insert(QString::fromStdString(ent->frame_id()));
-
-            if(ed && strcmp(ed->type(), TfEntitydata::TYPENAME()) == 0)
+            if(strcmp(obj->type().c_str(), TfEntitydata::TYPENAME()) == 0)
             {
                 std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_workspace->getEntitydataReadOnly( path );
                 if( ed == nullptr ) return true;
