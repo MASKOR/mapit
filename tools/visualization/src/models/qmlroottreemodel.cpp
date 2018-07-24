@@ -80,7 +80,9 @@ void QmlRootTreeModel::syncModel(QStandardItem *si, QmlTree *tr, QString fullPat
         if(oldTree.value<QmlTree*>() != nullptr) oldTree.value<QmlTree*>()->deleteLater();
         si->setData(QVariant::fromValue(tr), Qt::UserRole);
     }
+
     QStringList children(tr->getRefs());
+    children.sort();
     for(QStringList::const_iterator iter(children.cbegin()); iter != children.cend(); ++iter)
     {
         QString childFullPath = fullPath + "/" + *iter;
