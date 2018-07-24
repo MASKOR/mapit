@@ -24,8 +24,12 @@
 
 QmlStamp::QmlStamp(mapit::msgs::Time* s, QObject *parent)
     : QObject(parent)
-    , m_stamp(s)
 {
+    if ( s ) {
+        m_stamp = new mapit::msgs::Time( *s );
+    } else {
+        m_stamp = nullptr;
+    }
 }
 
 int QmlStamp::sec() const

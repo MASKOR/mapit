@@ -55,7 +55,7 @@ Q_SIGNALS:
     void textChanged(QString text);
 
 private:
-    mapit::msgs::Time *m_stamp;
+    mapit::msgs::Time* m_stamp;
 };
 
 #endif
