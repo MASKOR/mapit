@@ -113,7 +113,7 @@ namespace mapit
 
     virtual bool existsStreamProvider(const ObjectId &entityId);
     virtual bool existsStreamProviderTransient(const Path &path);
-    virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead);
+    virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProvider(const ObjectId &entityId, bool canRead, const Path &oid, bool canWrite);
     virtual std::shared_ptr<AbstractEntitydataProvider> getStreamProviderTransient(const Path &oid, bool canRead, bool canWrite);
 
     /**

@@ -139,7 +139,7 @@ std::shared_ptr<AbstractEntitydata> RepositoryImpl::getEntitydataReadOnly(const 
         return NULL;
     }
     assert( ent );
-    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_p->m_serializer->getStreamProvider(oid, true), true);
+    return EntityDataLibraryManager::getEntitydataFromProvider(ent->type(), m_p->m_serializer->getStreamProvider(ent->dataid(), true), true);
 }
 
 std::shared_ptr<Workspace> RepositoryImpl::getWorkspace(const std::string &workspaceName)

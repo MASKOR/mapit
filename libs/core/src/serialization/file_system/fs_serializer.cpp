@@ -619,12 +619,15 @@ FSSerializer::existsStreamProviderTransient(const Path &path)
 }
 
 std::shared_ptr<AbstractEntitydataProvider>
-FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead)
+FSSerializer::getStreamProvider(const ObjectId &entityId, bool canRead, const Path &oid, bool canWrite)
 {
     //TODO: Get entity data by oid. Might be a file with name "entityId" in folder "_PREFIX_ENTITYDATA"?
-    fs::path path = repo_ / _PREFIX_ENTITY_ / fs::path(entityId);
+    fs::path path = repo_ / _PREFIX_ENTITY_DATA_ / fs::path(entityId);
     std::string fn(path.string());
-    return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(canRead?fn:"", ""));
+
+    fs::path path_transient = objectid_to_workspace_fs_path(oid) / _workspace_ENTITY_DATA_;
+    std::string fntransient( path_transient.string() );
+    return std::shared_ptr<AbstractEntitydataProvider>( new FileSystemEntitydataStreamProvider(canRead?fn:"", canWrite?fntransient:""));
 }
 
 std::shared_ptr<AbstractEntitydataProvider>
@@ -667,7 +670,7 @@ FSSerializer::typeOfObject(const ObjectId &oid)
     }
 
     if ( ! found) {
-        log_warn("Can't open file to detect type of object " + oid);
+//        log_warn("Can't open file to detect type of object " + oid);
         return MessageEmpty;
     }
 
@@ -683,7 +686,7 @@ FSSerializer::typeOfObjectTransient(const PathInternal &pathIntenal)
     fs::path path = objectid_to_workspace_fs_path(pathIntenal) / _WORKSPACE_GENERIC_ENTRY_;
 
     if ( ! fs::exists( path) ) {
-        log_warn("Can't open file to detect type of object " + path.string());
+//        log_warn("Can't open file to detect type of object " + path.string());
         return MessageEmpty;
     }
 
