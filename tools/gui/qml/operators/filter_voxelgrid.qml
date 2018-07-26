@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright      2017 Daniel Bulla	<d.bulla@fh-aachen.de>
+ *                2018 Tobias Neumann <t.neumann@fh-aachen.de>
  *
 ******************************************************************************/
 
@@ -42,8 +43,9 @@ ColumnLayout {
     //// out ////
     property bool valid: entityChooser.valid && leafsizeInput.text != ""
     property var parameters: {
-        "target": entityChooser.currentEntityPath,
-        "leafsize": parseFloat(leafsizeInput.text)
+          "target": entityChooser.currentEntityPath
+        , "leafsize": parseFloat(leafsizeInput.text)
+        , "octree-leafsize": parseFloat(octreeLeafsizeInput.text)
     }
 
     //// UI ////
@@ -62,6 +64,18 @@ ColumnLayout {
             validator: DoubleValidator {}
             text: "0.01"
             onTextChanged: console.log(parameters.leafsize)
+        }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        StyledLabel {
+            text: "octree Leafsize"
+        }
+        StyledTextField {
+            id: octreeLeafsizeInput
+            Layout.fillWidth: true
+            validator: DoubleValidator {}
+            text: "10.0"
         }
     }
 }

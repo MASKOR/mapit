@@ -22,7 +22,7 @@
 #
 
 if(NOT DISABLE_PCL)
-project(voxelgridfilter)
+project(filter_voxelgrid)
 cmake_minimum_required(VERSION 2.8)
 
 set(OPERATOR_VERSION 1)
@@ -35,7 +35,6 @@ add_definitions(-DOPERATOR_VERSION=${OPERATOR_VERSION})
 
 set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
 
 #if(NOT TARGET json11)
 #    find_package(json11 REQUIRED)
@@ -71,7 +70,7 @@ target_link_libraries( ${PROJECT_NAME}
     ${mapit_core}
     layertype_pointcloud2)
 
-qt5_use_modules(${PROJECT_NAME} Core Gui)
+qt5_use_modules(${PROJECT_NAME} Core)
 
 SET_TARGET_PROPERTIES(
     ${PROJECT_NAME}
