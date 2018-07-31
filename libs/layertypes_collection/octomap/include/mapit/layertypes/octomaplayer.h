@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
  * Copyright 2015-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
- *                2015 Tobias Neumann	<t.neumann@fh-aachen.de>
+ *           2015-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
  *
 ******************************************************************************/
 
@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef POINTCLOUDLAYER_H
-#define POINTCLOUDLAYER_H
+#ifndef OCTOMAPLAYER_H
+#define OCTOMAPLAYER_H
 
 #include <mapit/entitydata.h>
 #include <mapit/operators/serialization/abstractentitydataprovider.h>

@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Copyright 2015-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
-#           2015-2017 Tobias Neumann	<t.neumann@fh-aachen.de>
+#           2015-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
 #
 ################################################################################
 
@@ -21,7 +21,7 @@
 #  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-project(layertype_pointcloud2)
+project(layertype_octomap)
 
 cmake_minimum_required(VERSION 2.8)
 #find_package(PCL QUIET REQUIRED COMPONENTS common io apps filters kdtree search features surface keypoints registration)
@@ -48,10 +48,10 @@ else(WIN32)
 endif(WIN32)
 
 # TODO: If language could not be determined: There are Additional cmake variable for boost that must be set. Fix this
-file(GLOB_RECURSE LAYERTYPE_POINTCLOUD2_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
+file(GLOB_RECURSE LAYERTYPE_OCTOMAP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
                                                 ${PROJECT_SOURCE_DIR}/src/*.h
                                                 ${PROJECT_SOURCE_DIR}/include/*.h )
-add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_POINTCLOUD2_SOURCES} )
+add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_OCTOMAP_SOURCES} )
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
 
 # About dependency to pcl
@@ -79,7 +79,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${PCL_INCLUDE_DIRS}
                                                    $<INSTALL_INTERFACE:include>)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROJECT_NAME="${PROJECT_NAME}"
-                                           PUBLIC  PointcloudEntitydata_TYPENAME="${PROJECT_NAME}"
+                                           PUBLIC  OctomapEntitydata_TYPENAME="${PROJECT_NAME}"
                                                    MAPIT_ENABLE_PCL=1)
 
 if(UNIX)
@@ -99,12 +99,12 @@ generate_export_header(${PROJECT_NAME})
 #set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${MAPIT_VERSION})
 #set_property(TARGET ${PROJECT_NAME} PROPERTY SOVERSION ${MAPIT_VERSION})
 set_property(TARGET ${PROJECT_NAME} PROPERTY
-  INTERFACE_mapit_layertype_pointcloud2_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
+  INTERFACE_mapit_layertype_octomap_MAJOR_VERSION ${MAPIT_MAJOR_VERSION})
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY
   COMPATIBLE_INTERFACE_STRING MAPIT_MAJOR_VERSION
 )
 
-install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_pointcloud2_targets
+install(TARGETS ${PROJECT_NAME} EXPORT mapit_layertype_octomap_targets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -114,24 +114,24 @@ install(DIRECTORY include/mapit DESTINATION include )
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2ConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_octomapConfigVersion.cmake"
   VERSION 1
   COMPATIBILITY AnyNewerVersion
 )
 
-export(EXPORT mapit_layertype_pointcloud2_targets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2Targets.cmake"
+export(EXPORT mapit_layertype_octomap_targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_octomapTargets.cmake"
   NAMESPACE mapit::
 )
-configure_file(cmake/mapit_layertype_pointcloud2Config.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2Config.cmake"
+configure_file(cmake/mapit_layertype_octomapConfig.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_octomapConfig.cmake"
   COPYONLY
 )
 
 set(ConfigPackageLocation lib/cmake/mapit)
-install(EXPORT mapit_layertype_pointcloud2_targets
+install(EXPORT mapit_layertype_octomap_targets
   FILE
-    mapit_layertype_pointcloud2Targets.cmake
+    mapit_layertype_octomapTargets.cmake
   NAMESPACE
     mapit::
   DESTINATION
@@ -139,8 +139,8 @@ install(EXPORT mapit_layertype_pointcloud2_targets
 )
 install(
   FILES
-    cmake/mapit_layertype_pointcloud2Config.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_pointcloud2ConfigVersion.cmake"
+    cmake/mapit_layertype_octomapConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/mapit_layertype_octomapConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT

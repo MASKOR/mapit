@@ -30,8 +30,8 @@ find_dependency(mapit_core REQUIRED)
 
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET mapit::layertype_pointcloud2 AND NOT mapit::layertype_pointcloud2_BINARY_DIR)
-  include("${MAPIT_CORE_CMAKE_DIR}/mapit_layertype_pointcloud2Targets.cmake")
+if(NOT TARGET mapit::layertype_octomap AND NOT mapit::layertype_octomap_BINARY_DIR)
+  include("${MAPIT_CORE_CMAKE_DIR}/mapit_layertype_octomapTargets.cmake")
   #include("${MAPIT_CORE_CMAKE_DIR}/mapitCoreMacros.cmake")
 endif()
  

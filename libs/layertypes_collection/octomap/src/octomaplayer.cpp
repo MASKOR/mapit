@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
  * Copyright 2015-2017 Daniel Bulla	<d.bulla@fh-aachen.de>
- *           2015-2016 Tobias Neumann	<t.neumann@fh-aachen.de>
+ *           2015-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
  *
 ******************************************************************************/
 
@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mapit/layertypes/pointcloudlayer.h"
+#include "mapit/layertypes/octomaplayer.h"
 #include <mapit/logging.h>
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
