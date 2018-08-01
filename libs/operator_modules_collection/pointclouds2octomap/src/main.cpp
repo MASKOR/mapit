@@ -206,6 +206,7 @@ mapit::StatusCode operate_pcds2octomap(mapit::OperationEnvironment* env)
             std::string frame_id_current;
             mapit::time::Stamp stamp_current;
             try {
+                log_info("operator pointclouds2octomap: add pointcloud " << input_name);
                 addPointcloud(env, tf_prefix, input_name, frame_id, targetOctomap, frame_id_current, stamp_current);
             } catch (...) {
                 log_error("operator pointclouds2octomap: can't add entity " << input_name << " transform error");
@@ -236,6 +237,7 @@ mapit::StatusCode operate_pcds2octomap(mapit::OperationEnvironment* env)
     target_entity->set_allocated_stamp( mapit::time::to_msg_allocated( stamp_earliest ) );
     env->getWorkspace()->storeEntity(target_name, target_entity);
 
+    log_info("operator pointclouds2octomap: write octree " << target_name);
     targetEntityData->setData(targetOctomap);
 
     return MAPIT_STATUS_OK;
