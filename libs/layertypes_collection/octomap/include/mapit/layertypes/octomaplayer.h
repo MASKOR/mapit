@@ -26,23 +26,13 @@
 
 #include <mapit/entitydata.h>
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
-#include <pcl/PCLPointCloud2.h>
-#include <pcl/point_types.h>
+#include <octomap/octomap.h>
 
 #ifdef _WIN32
 #define MODULE_EXPORT __declspec(dllexport)
 #else
 #define MODULE_EXPORT // empty
 #endif
-
-// Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-namespace mapit
-{
-namespace entitytypes
-{
-typedef std::shared_ptr<pcl::PCLPointCloud2> Pointcloud2Ptr;
-}
-}
 
 extern "C"
 {
@@ -53,60 +43,41 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *
 
 }
 
-//#include <boost/preprocessor/repetition.hpp>
+namespace mapit
+{
+namespace entitytypes
+{
 
-//#define FOR_COMMON_POINTTYPES(fn, pointcloudEntitydata) \
-//    switch(pointcloudEntitydata.)
-
-
-
-class PointcloudEntitydata : public mapit::Entitydata<pcl::PCLPointCloud2>
+class Octomap : public mapit::Entitydata<octomap::OcTree>
 {
 public:
-    static const char* TYPENAME();
-    //
-    /**
-     * @brief The Representation enum of some Representations witch most algorithms will be able to use.
-     * Note that all representations of pcl is possible and all fields of pcd can be used.
-     * However, implementation of all types can be timeconsuming. At least these types should be supported by most
-     * operations.
-     */
-    enum Representation {
-        Rep_XY, // = pcl::PointXY,
-        Rep_XYZ, // = pcl::PointXYZ,
-        Rep_XYZI, // = pcl::PointXYZI,
-        Rep_XYZRGB, // = pcl::PointXYZRGB,
-        Rep_XYZRGBA, // = pcl::PointXYZRGBA,
-        //Rep_XYZNormal, // = pcl::PointXYZ,
-        Rep_XYZINormal, // = pcl::PointXYZINormal,
-        Rep_XYZRGBNormal, // = pcl::PointXYZRGBNormal,
-        //Rep_XYZRGBANormal, // = pcl::PointXYZRGB,
-        Rep_Other
-    };
+    static char const * TYPENAME();
 
-    PointcloudEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
+    Octomap(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
 
-    const char*         type() const;
-    bool                hasFixedGrid() const;
-    bool                canSaveRegions() const;
-    mapit::entitytypes::Pointcloud2Ptr  getData(float x1, float y1, float z1,
-                                float x2, float y2, float z2,
-                                bool clipMode,
-                                int lod = 0);
-    int                 setData(float x1, float y1, float z1,
-                                float x2, float y2, float z2,
-                                mapit::entitytypes::Pointcloud2Ptr &data,
-                                int lod = 0);
+    char const * type() const;
 
-    mapit::entitytypes::Pointcloud2Ptr  getData(int lod = 0);
-    int                 setData(mapit::entitytypes::Pointcloud2Ptr &data, int lod = 0);
+    bool hasFixedGrid() const;
+    bool canSaveRegions() const;
 
-    void gridCellAt(float   x, float   y, float   z,
-                    float &x1, float &y1, float &z1,
-                    float &x2, float &y2, float &z2) const;
+    std::shared_ptr<octomap::OcTree> getData( float x1, float y1, float z1
+                                             , float x2, float y2, float z2
+                                             , bool clipMode, int lod = 0);
+
+    std::shared_ptr<octomap::OcTree>  getData(int lod = 0);
+
+    int setData(  float x1, float y1, float z1
+                , float x2, float y2, float z2
+                , std::shared_ptr<octomap::OcTree> &data, int lod = 0);
+
+
+    int setData(std::shared_ptr<octomap::OcTree> &data, int lod = 0);
 
     int getEntityBoundingBox(float &x1, float &y1, float &z1,
                              float &x2, float &y2, float &z2);
+    void gridCellAt(  float   x, float   y, float   z
+                    , float &x1, float &y1, float &z1
+                    , float &x2, float &y2, float &z2) const;
 
     mapit::istream *startReadBytes(mapit::uint64_t start, mapit::uint64_t len);
     void endRead(mapit::istream *&strm);
@@ -117,8 +88,11 @@ public:
     size_t size() const;
 private:
     std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
-    //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
-    mapit::entitytypes::Pointcloud2Ptr m_pointcloud;
+    std::shared_ptr<octomap::OcTree> m_octomap;
 };
+
+}
+}
+
 
 #endif
