@@ -28,6 +28,10 @@ cmake_minimum_required(VERSION 2.8)
 
 find_package(mapit REQUIRED)
 
+find_package(octomap REQUIRED)
+include_directories(${OCTOMAP_INCLUDE_DIRS})
+link_libraries(${PROJECT_NAME} ${OCTOMAP_LIBRARIES})
+
 set (CMAKE_CXX_STANDARD 11)
 
 find_package(Boost COMPONENTS serialization system filesystem date_time)
@@ -49,8 +53,8 @@ endif(WIN32)
 
 # TODO: If language could not be determined: There are Additional cmake variable for boost that must be set. Fix this
 file(GLOB_RECURSE LAYERTYPE_OCTOMAP_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp
-                                                ${PROJECT_SOURCE_DIR}/src/*.h
-                                                ${PROJECT_SOURCE_DIR}/include/*.h )
+                                            ${PROJECT_SOURCE_DIR}/src/*.h
+                                            ${PROJECT_SOURCE_DIR}/include/*.h )
 add_library(${PROJECT_NAME} SHARED ${LAYERTYPE_OCTOMAP_SOURCES} )
 target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES} ${PCL_LIBRARIES} ${mapit_interface_cpp})
 
