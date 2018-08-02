@@ -46,7 +46,7 @@ Item {
     }
     Item {
         property string displayName: "Voxelgrid"
-        property string className: "voxelgridfilter"
+        property string className: "filter_voxelgrid"
         property var compo: Component {
             Item {
                 property var parameters: {
@@ -61,8 +61,8 @@ Item {
                     return {};
                 }
                 function execute() {
-                    console.log("exec: voxelgridfilter " + target + ", l: " + leafsize)
-                    globalOperationScheduler.operatorList.push({moduleName:"voxelgridfilter", parameters:parameters})
+                    console.log("exec: filter_voxelgrid " + target + ", l: " + leafsize)
+                    globalOperationScheduler.operatorList.push({moduleName:"filter_voxelgrid", parameters:parameters})
                 }
             }
         }

@@ -258,7 +258,7 @@ void TestRepositoriesCommunication::readPcd(mapit::Workspace *workspace)
 void TestRepositoriesCommunication::voxelgrid(mapit::Workspace *workspace)
 {
     OperationDescription operation;
-    operation.mutable_operator_()->set_operatorname("voxelgridfilter");
+    operation.mutable_operator_()->set_operatorname("filter_voxelgrid");
     QJsonObject params;
     params["leafsize"] = LEAF_SIZE;
     params["target"] = "themap/thelayer/bunny";

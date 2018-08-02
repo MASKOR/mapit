@@ -189,7 +189,7 @@ void TestRepository::testVoxelgridfilter()
     std::shared_ptr<Workspace> workspace(repo->getWorkspace("testworkspace"));
     QVERIFY(workspace != nullptr);
     OperationDescription operation;
-    operation.mutable_operator_()->set_operatorname("voxelgridfilter");
+    operation.mutable_operator_()->set_operatorname("filter_voxelgrid");
     QJsonObject params;
     params["leafsize"] = 0.01;
     params["target"] = workspacePath_.c_str();

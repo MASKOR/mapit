@@ -136,7 +136,7 @@ void OpDescHistTest::test_restorable_and_not_restorable_operator()
     QVERIFY( mapitIsOk(ret.first) );
 
     OperationDescription desc_voxelgrid;
-    desc_voxelgrid.mutable_operator_()->set_operatorname("voxelgridfilter");
+    desc_voxelgrid.mutable_operator_()->set_operatorname("filter_voxelgrid");
     desc_voxelgrid.set_params(
                 "{"
                 "  \"target\"   : \"bunny\","
