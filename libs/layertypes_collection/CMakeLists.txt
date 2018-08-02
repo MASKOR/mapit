@@ -50,6 +50,7 @@ list(REMOVE_ITEM SUBDIRS "CMakeFiles") # this directory is created by cpack (TOD
 
 if(NOT MAPIT_ENABLE_PCL)
   list(REMOVE_ITEM SUBDIRS "pointcloud2")
+  list(REMOVE_ITEM SUBDIRS "octomap")
 endif(NOT MAPIT_ENABLE_PCL)
 
 if(NOT MAPIT_ENABLE_OPENVDB)
