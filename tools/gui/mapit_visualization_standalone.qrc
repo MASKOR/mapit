@@ -160,11 +160,11 @@
         <file>qml/operators/scale_pointcloud.qml</file>
         <file>qml/operators/surfrecon_openvdb.qml</file>
         <file>qml/operators/surface_reconstruction.qml</file>
-        <file>qml/operators/voxelgridfilter.qml</file>
+        <file>qml/operators/filter_voxelgrid.qml</file>
         <file>qml/operators/load_las.qml</file>
         <file>qml/operators/levelset_to_mesh.png</file>
         <file>qml/operators/load_pointcloud.png</file>
-        <file>qml/operators/voxelgridfilter.png</file>
+        <file>qml/operators/filter_voxelgrid.png</file>
         <file>qml/operators/load_las.png</file>
         <file>qml/operators/normalestimation.png</file>
         <file>qml/operators/surfrecon_openvdb.png</file>
