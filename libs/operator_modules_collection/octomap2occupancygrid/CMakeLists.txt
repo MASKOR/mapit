@@ -44,7 +44,7 @@ find_package(Qt5Gui REQUIRED)
 
 file(GLOB_RECURSE OPERATOR_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${OPERATOR_SOURCES} )
-target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_core} layertype_tf json11)
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_core} layertype_tf layertype_octomap json11)
 
 qt5_use_modules(${PROJECT_NAME} Core Gui)
 
