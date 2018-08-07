@@ -135,12 +135,29 @@ int
 mapit::entitytypes::Octomap::getEntityBoundingBox(  float &x1, float &y1, float &z1
                                                   , float &x2, float &y2, float &z2)
 {
-    x1 = -std::numeric_limits<float>::infinity();
-    y1 = -std::numeric_limits<float>::infinity();
-    z1 = -std::numeric_limits<float>::infinity();
-    x2 =  std::numeric_limits<float>::infinity();
-    y2 =  std::numeric_limits<float>::infinity();
-    z2 =  std::numeric_limits<float>::infinity();
+    // make sure data is loaded if possible
+    getData();
+
+    if ( ! m_octomap ) {
+        // when data dosn't exists
+        x1 = -0;
+        y1 = -0;
+        z1 = -0;
+        x2 =  0;
+        y2 =  0;
+        z2 =  0;
+    } else {
+        // when data is readable use values from octomap
+        double x, y, z = 0;
+        m_octomap->getMetricMax(x, y, z);
+        x1 = -static_cast<float>(x);
+        y1 = -static_cast<float>(y);
+        z1 = -static_cast<float>(z);
+        x2 =  static_cast<float>(x);
+        y2 =  static_cast<float>(y);
+        z2 =  static_cast<float>(z);
+    }
+
     return 0;
 }
 
