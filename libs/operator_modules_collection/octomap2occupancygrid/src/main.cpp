@@ -28,6 +28,8 @@
 #include <mapit/operators/operationenvironment.h>
 #include <mapit/depthfirstsearch.h>
 #include <mapit/layertypes/octomaplayer.h>
+#include <mapit/layertypes/grid2d.h>
+#include <mapit/layertypes/grid2dHelper.h>
 #include <iostream>
 #include <memory>
 #include <mapit/errorcodes.h>
@@ -115,6 +117,11 @@ mapit::StatusCode operate_octomap2opccupancy_grid(mapit::OperationEnvironment* e
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
     std::string path_octomap = params["path-octomap"].toString().toStdString();
+    if ( ! params.contains("path-occupancy_grid") ) {
+        log_error("operator octomap2occupancy_grid: config does not contain path-occupancy_grid");
+        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
+    }
+    std::string path_occupancy_grid = params["path-occupancy_grid"].toString().toStdString();
     if ( ! params.contains("path-entity-stamps") ) {
         log_error("operator octomap2occupancy_grid: config does not contain path-entity-stamps");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
@@ -148,49 +155,51 @@ mapit::StatusCode operate_octomap2opccupancy_grid(mapit::OperationEnvironment* e
     std::string frame_id_map = octomap_entity->frame_id();
     std::shared_ptr<mapit::entitytypes::Octomap> octomap_entitydata = std::static_pointer_cast<mapit::entitytypes::Octomap>( workspace->getEntitydataReadOnly(path_octomap) );
 
+    std::shared_ptr<octomap::OcTree> octomap = octomap_entitydata->getData();
+    double octomap_resolution = octomap->getResolution();
+    // -- for all points in the transformed plane
+    // TODO does this work, or do I have to use the transformed x, y, z
+    double om_m_x, om_m_y, om_m_z;
+    float octomap_max_x, octomap_max_y, octomap_max_z;
+    octomap->getMetricMax(om_m_x, om_m_y, om_m_z);
+    octomap_max_x = static_cast<float>(om_m_x);
+    octomap_max_y = static_cast<float>(om_m_y);
+    octomap_max_z = static_cast<float>(om_m_z);
+
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+    mapit::msgs::Pose origin;
+    origin.mutable_translation()->set_x(0);
+    origin.mutable_translation()->set_y(0);
+    grid->initGrid(octomap_max_x * 1.1, octomap_max_y * 1.1, static_cast<float>(octomap_resolution), origin);
+
     Eigen::Affine3f pose;
     Eigen::Affine2f pose_2d; // for the 3D to 2D mapping, this is only x, y, ori
     // -- for each stamp
+    size_t slice_number = 1;
     for (mapit::time::Stamp stamp : stamps) {
+        log_info("operator octomap2occupancy_grid: at slice # " << slice_number++ << " / " << stamps.size());
         // -- get pose from transform
         try {
             mapit::tf::TransformStamped tf = tf_buffer.lookupTransform(frame_id_map, frame_id_sensor, stamp);
-            pose = tf.transform.rotation * tf.transform.translation;
-            Eigen::Vector3f euler = tf.transform.rotation.toRotationMatrix().eulerAngles(0, 1, 2);
+            pose = tf.transform.translation * tf.transform.rotation;
+            Eigen::Quaternionf q_yaw = tf.transform.rotation;
+            q_yaw.x() = 0;
+            q_yaw.y() = 0;
+            q_yaw.normalize();
+            Eigen::Vector3f euler = q_yaw.toRotationMatrix().eulerAngles(0, 1, 2);
             Eigen::Rotation2Df rot_2d(euler[2]);
             Eigen::Translation2f trans_2d(  tf.transform.translation.x()
                                           , tf.transform.translation.y());
-            pose_2d = rot_2d * trans_2d;
+            pose_2d = trans_2d * rot_2d;
         } catch (...) {
             log_error("operator octomap2occupancy_grid: can't lookup transform " << frame_id_map << " -> " << frame_id_sensor
                                                                                  << " at time " << mapit::time::to_string(stamp));
             return MAPIT_STATUS_ERR_UNKNOWN;
         }
-        std::shared_ptr<octomap::OcTree> octomap = octomap_entitydata->getData();
-        double octomap_resolution = octomap->getResolution();
-        // -- for all points in the transformed plane
-        // TODO does this work, or do I have to use the transformed x, y, z
-        double om_m_x, om_m_y, om_m_z;
-        float octomap_max_x, octomap_max_y, octomap_max_z;
-        octomap->getMetricMax(om_m_x, om_m_y, om_m_z);
-        octomap_max_x = static_cast<float>(om_m_x);
-        octomap_max_y = static_cast<float>(om_m_y);
-        octomap_max_z = static_cast<float>(om_m_z);
-
-//        // Test export to ansii art on screen, only works with 10x10m with 0.5 resolution
-//        std::map<size_t, std::vector<std::string>> map;
-//        size_t width = 41;
-//        for (size_t x = 0; x < width; ++x) {
-//            map[x] = std::vector<std::string>();
-//            for (size_t y = 0; y < width; ++y) {
-//                map.at(x).push_back(" ");
-//            }
-//        }
 
         for (float x = 0; x <= distance_sensor && x < octomap_max_x; x += octomap_resolution) {
             for (float y = 0; y <= distance_sensor && y < octomap_max_y; y += octomap_resolution) {
-                float z = 0; {
-//                for (float z = 0; z <= slice_hight && z < octomap_max_z; z += octomap_resolution) {
+                for (float z = 0; z <= slice_hight && z < octomap_max_z; z += octomap_resolution) {
                     // check all 8 poses (+/-x, +/-y and +/-z)
                     std::vector<Eigen::Vector3f> vecs;
                     vecs.push_back( Eigen::Vector3f( x,  y,  z) );
@@ -210,35 +219,53 @@ mapit::StatusCode operate_octomap2opccupancy_grid(mapit::OperationEnvironment* e
                                                                     , static_cast<double>(vec_tf.z())
                                                                     );
                         // get greyvalue 0 = occupied, 128 = unknown, 255 = free
-                        size_t greyvalue = 128; // unknown
+                        int greyvalue_new = mapit::entitytypes::Grid2DHelper::GRID_UNKNOWN;
                         if ( node ) {
                             if ( octomap->isNodeOccupied(node) ) {
-                                greyvalue = 0;
+                                greyvalue_new = mapit::entitytypes::Grid2DHelper::GRID_OCCUPIED;
                             } else {
-                                greyvalue = 255;
+                                greyvalue_new = mapit::entitytypes::Grid2DHelper::GRID_FREE;
                             }
                         }
 
                         // transform point on plane to 2D map from pose(x, y, ori) and vec(x, y)
                         Eigen::Vector2f vec_tf_2d = pose_2d * Eigen::Vector2f(vec.x(), vec.y());
-                        log_info("write at ( " << vec_tf_2d.transpose() << " ) = " << greyvalue);
-//                        // Test export to ansii art on screen
-//                        map.at(vec.x()/0.5 + 10/0.5).at(vec.y()/0.5 + 10/0.5) = greyvalue;
+//                        log_info("write at ( " << vec_tf_2d.transpose() << " ) = " << greyvalue);
+                        int greyvalue = std::max( greyvalue_new, grid->getProbability(vec_tf_2d.x(), vec_tf_2d.y()) );
+                        grid->setProbability(vec_tf_2d.x(), vec_tf_2d.y(), greyvalue);
                     }
                 }
             }
         }
 
-        // Test export to ansii art on screen
-//        for (size_t x = 0; x < width; ++x) {
+//        // Test export to ansii art on screen
+//        float used_width = 20;
+//        for (float x = -used_width; x < used_width; x += octomap_resolution ) {
 //            std::string line = "";
-//            for (size_t y = 0; y < width; ++y) {
-//                line += map.at(x).at(y) + " ";
+//            for (float y = -used_width; y < used_width; y += octomap_resolution ) {
+//                int prob = grid->getProbability(x, y);
+//                if (prob == mapit::entitytypes::Grid2DHelper::GRID_FREE) {
+//                    line += " ";
+//                } else if (prob == mapit::entitytypes::Grid2DHelper::GRID_OCCUPIED) {
+//                    line += "X";
+//                } else {
+//                    line += "-";
+//                }
+//                line += " ";
 //            }
 //            log_info( line );
 //        }
 //        log_info("");
     }
+
+    std::shared_ptr<mapit::msgs::Entity> grid_entity = std::make_shared<mapit::msgs::Entity>();
+    grid_entity->set_type( mapit::entitytypes::Grid2D::TYPENAME() );
+    grid_entity->set_frame_id( octomap_entity->frame_id() );
+    grid_entity->mutable_stamp()->set_sec( octomap_entity->stamp().sec() );
+    grid_entity->mutable_stamp()->set_nsec( octomap_entity->stamp().nsec() );
+    workspace->storeEntity(path_occupancy_grid, grid_entity);
+    std::shared_ptr<mapit::entitytypes::Grid2D> grid_ed = std::static_pointer_cast<mapit::entitytypes::Grid2D>( workspace->getEntitydataForReadWrite( path_occupancy_grid ) );
+    grid_ed->setData( grid );
 
     return MAPIT_STATUS_OK;
 }
