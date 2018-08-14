@@ -39,9 +39,11 @@ private slots:
     void cleanupTestCase();
 
     void testGetData();
+    void testGetData2();
     void testSetData();
 
     void testGetData_data();
+    void testGetData2_data();
     void testSetData_data();
 };
 
