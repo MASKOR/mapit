@@ -25,7 +25,7 @@
 #define __GRID2DTEST_H
 
 #include <QTest>
-#include <mapit/layertypes/grid2dlayer.h>
+#include <mapit/layertypes/grid2d.h>
 #include "../repositorycommon.h"
 
 class TestGrid2D: public RepositoryCommon

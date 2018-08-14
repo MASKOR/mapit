@@ -21,7 +21,7 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mapit/layertypes/grid2dlayer.h"
+#include "mapit/layertypes/grid2d.h"
 #include <mapit/logging.h>
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>

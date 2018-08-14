@@ -21,8 +21,8 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GRID2DLAYER_H
-#define GRID2DLAYER_H
+#ifndef GRID2D_H
+#define GRID2D_H
 
 #include <mapit/entitydata.h>
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
