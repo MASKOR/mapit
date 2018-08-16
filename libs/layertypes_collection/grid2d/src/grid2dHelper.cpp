@@ -56,15 +56,14 @@ int Grid2DHelper::getProbability(int x, int y) {
         log_error("Position outside of grid");
         throw std::out_of_range("position is out of field boundaries");
     }
-    std::string field = m_Grid2D->data();
-    return (int)field[y * m_Grid2D->height() + x];
+    return (int)m_Grid2D->data()[y * m_Grid2D->height() + x];
 }
 
 std::shared_ptr<mapit::msgs::Grid2D> Grid2DHelper::getGrid() {
     return m_Grid2D;
 }
 
-void Grid2DHelper::setdGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data) {
+void Grid2DHelper::setGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data) {
     m_Grid2D = grid2D_data;
 }
 

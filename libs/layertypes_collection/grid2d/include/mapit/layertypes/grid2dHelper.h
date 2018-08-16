@@ -57,7 +57,7 @@ public:
     int getProbability(int x, int y);
 
     std::shared_ptr<mapit::msgs::Grid2D> getGrid();
-    void setdGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
+    void setGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
 
 private:
    std::shared_ptr<mapit::msgs::Grid2D> m_Grid2D;
