@@ -25,10 +25,7 @@
 #define Grid2DHELPER_H
 
 #include <mapit/entitydata.h>
-#include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <mapit/msgs/datastructs.pb.h>
-#include <pcl/point_types.h>
-#include <mapit/layertypes/grid2d.h>
 
 #ifdef _WIN32
 #define MODULE_EXPORT __declspec(dllexport)
@@ -42,20 +39,35 @@ public:
     Grid2DHelper(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
     Grid2DHelper();
 
+    /**
+     * @brief Grid2DHelper::setFieldSize set size for data field
+     * @param size_x width of field
+     * @param size_y height of field
+     */
     void setFieldSize(int size_x, int size_y);
 
-    void setMarker(int x, int y, int marker);
+    /**
+     * @brief Grid2DHelper::setProbability sets a value to the datafield at positon (x,y)
+     * @param x x-position
+     * @param y y-position
+     * @param probability value to be set, [0, 100] or [-1]
+     */
+    void setProbability(int x, int y, int probability);
 
-    int getMarker(int x, int y);
+    int getProbability(int x, int y);
 
-    std::shared_ptr<mapit::msgs::Grid2D> get2dGrid();
+    std::shared_ptr<mapit::msgs::Grid2D> getGrid();
     void setdGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
 
 private:
    std::shared_ptr<mapit::msgs::Grid2D> m_Grid2D;
 
+   /**
+    * @brief Grid2DHelper::autoFieldExtender extends datafield if x or y or both are bigger than the current field
+    * @param x new width
+    * @param y new height
+    */
    void autoFieldExtender(int x, int y);
-   void initField();
 };
 
 #endif

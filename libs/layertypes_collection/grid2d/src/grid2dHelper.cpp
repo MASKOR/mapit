@@ -23,6 +23,7 @@
 #include "mapit/layertypes/grid2dHelper.h"
 #include <mapit/logging.h>
 #include <sstream>
+#include <stdexcept>
 
 Grid2DHelper::Grid2DHelper() {
 
@@ -34,51 +35,32 @@ Grid2DHelper::Grid2DHelper(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data) {
 
 
 
-/**
- * @brief Grid2DHelper::setFieldSize set size for data field
- * @param size_x width of field
- * @param size_y height of field
- */
 void Grid2DHelper::setFieldSize(int size_x, int size_y) {
     m_Grid2D->set_width(size_x);
     m_Grid2D->set_height(size_y);
+
+    m_Grid2D->mutable_data()->resize(m_Grid2D->width() * m_Grid2D->height(), -1);
 }
 
-/**
- * @brief Grid2DHelper::setMarker sets a value to the datafield at positon (x,y)
- * @param x x-position
- * @param y y-position
- * @param marker value to be set, [0, 100] or [-1]
- */
-void Grid2DHelper::setMarker(int x, int y, int marker) {
+void Grid2DHelper::setProbability(int x, int y, int probability) {
     if (x > m_Grid2D->width() || y > m_Grid2D->height()) {
         log_error("set value outside data field");
-        return;
-        // ERROR
+        throw std::out_of_range("position is out of field boundaries");
     }
-    std::string data = m_Grid2D->data();
-    if(data.empty()) {
-        initField();
-    }
-
     // set value
-    data[y * m_Grid2D->width() + x] = (signed char)marker;
-    m_Grid2D->set_allocated_data(&data);
+    m_Grid2D->mutable_data()[y * m_Grid2D->width() + x] = (signed char)probability;
 }
 
-int Grid2DHelper::getMarker(int x, int y) {
+int Grid2DHelper::getProbability(int x, int y) {
     if (x > m_Grid2D->width() || y > m_Grid2D->height()) {
         log_error("Position outside of grid");
-        // Error? Or just return -1 for unknown?
+        throw std::out_of_range("position is out of field boundaries");
     }
     std::string field = m_Grid2D->data();
-    if (field.empty()) { //gid size set but not inizialized
-        return -1; //
-    }
     return (int)field[y * m_Grid2D->height() + x];
 }
 
-std::shared_ptr<mapit::msgs::Grid2D> Grid2DHelper::get2dGrid() {
+std::shared_ptr<mapit::msgs::Grid2D> Grid2DHelper::getGrid() {
     return m_Grid2D;
 }
 
@@ -86,25 +68,6 @@ void Grid2DHelper::setdGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data) {
     m_Grid2D = grid2D_data;
 }
 
-void Grid2DHelper::initField() {
-    signed char defVal = -1; // -1 == unknown
-    std::string data;
-
-    // init field in row-major order
-    for (int y = 0; y < m_Grid2D->height(); y++) {
-        for (int x = 0; x < m_Grid2D->width(); x++) {
-            data += defVal;
-        }
-    }
-
-    m_Grid2D->set_allocated_data(&data);
-}
-
-/**
- * @brief Grid2DHelper::autoFieldExtender extends datafield if x or y or both are bigger than the current field
- * @param x new width
- * @param y new height
- */
 void Grid2DHelper::autoFieldExtender(int x, int y) {
     std::string data = m_Grid2D->data();
     if (x > m_Grid2D->width()) { //extend columns
@@ -115,7 +78,7 @@ void Grid2DHelper::autoFieldExtender(int x, int y) {
             for (int xc = 0; xc < x; xc++) {
                 if (xc < m_Grid2D->width()) {
                     //newData += data[yc*m_Grid2D->width() + xc];
-                    newData += getMarker(xc, yc);
+                    newData += getProbability(xc, yc);
                 } else {
                     newData += defVal;
                 }
