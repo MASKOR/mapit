@@ -61,7 +61,7 @@ bool Grid2DEntitydata::canSaveRegions() const
 
 
 
- mapit::entitytypes::Grid2DType Grid2DEntitydata::getData(float x1, float y1, float z1, float x2, float y2, float z2, bool clipMode, int lod)
+std::shared_ptr<Grid2DHelper> Grid2DEntitydata::getData(float x1, float y1, float z1, float x2, float y2, float z2, bool clipMode, int lod)
 {
 
     if(m_Grid2D == NULL)
@@ -77,12 +77,14 @@ bool Grid2DEntitydata::canSaveRegions() const
         }
         m_streamProvider->endReadFile(handle);
     }
-    return m_Grid2D;
+    std::shared_ptr<Grid2DHelper> ptrOut;
+    ptrOut->setGrid(m_Grid2D);
+    return ptrOut;
 }
 
 
 int Grid2DEntitydata::setData(float x1, float y1, float z1,
-                                   float x2, float y2, float z2, mapit::entitytypes::Grid2DType &data,
+                                   float x2, float y2, float z2, std::shared_ptr<Grid2DHelper> &data,
                                    int lod)
 
 {
@@ -90,7 +92,7 @@ int Grid2DEntitydata::setData(float x1, float y1, float z1,
     mapit::ReadWriteHandle handle;
     std::string filename = m_streamProvider->startWriteFile(handle);
     {
-        m_Grid2D = data;
+        m_Grid2D = data->getGrid();
         std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
         result = m_Grid2D->SerializeToOstream(&output);
     }
@@ -98,7 +100,7 @@ int Grid2DEntitydata::setData(float x1, float y1, float z1,
     return result;
 }
 
-mapit::entitytypes::Grid2DType Grid2DEntitydata::getData(int lod)
+std::shared_ptr<Grid2DHelper> Grid2DEntitydata::getData(int lod)
 {
     return getData(-std::numeric_limits<float>::infinity(),
                    -std::numeric_limits<float>::infinity(),
@@ -109,7 +111,7 @@ mapit::entitytypes::Grid2DType Grid2DEntitydata::getData(int lod)
                    false, lod);
 }
 
-int Grid2DEntitydata::setData(mapit::entitytypes::Grid2DType &data, int lod)
+int Grid2DEntitydata::setData(std::shared_ptr<Grid2DHelper> &data, int lod)
 {
     return setData(-std::numeric_limits<float>::infinity(),
                    -std::numeric_limits<float>::infinity(),
@@ -136,19 +138,6 @@ int Grid2DEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
                                               float &x2, float &y2, float &z2)
 {
 
- //   pcl::PointXYZ min;
- //   pcl::PointXYZ max;
- //   pcl::PointCloud<pcl::PointXYZ> pxyz;
- //   pcl::fromPCLPointCloud2<pcl::PointXYZ>(*m_pointcloud, pxyz);
- //   pcl::getMinMax3D(pxyz, min, max);
- //   x1 = min.x;
- //   y1 = min.y;
- //   z1 = min.z;
- //   x2 = max.x;
- //   y2 = max.y;
- //   z2 = max.z;
-
-    // TODO Do something usefull here
     x1 = -std::numeric_limits<float>::infinity();
     y1 = -std::numeric_limits<float>::infinity();
     z1 = -std::numeric_limits<float>::infinity();

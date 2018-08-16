@@ -28,6 +28,7 @@
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <mapit/msgs/datastructs.pb.h>
 #include <pcl/point_types.h>
+#include "grid2dHelper.h"
 
 #ifdef _WIN32
 #define MODULE_EXPORT __declspec(dllexport)
@@ -59,41 +60,21 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *
 
 
 
-class Grid2DEntitydata : public mapit::Entitydata<mapit::msgs::Grid2D>
+class Grid2DEntitydata : public mapit::Entitydata<Grid2DHelper>
 {
 public:
     static const char* TYPENAME();
-    //
-    /**
-     * @brief The Representation enum of some Representations witch most algorithms will be able to use.
-     * Note that all representations of pcl is possible and all fields of pcd can be used.
-     * However, implementation of all types can be timeconsuming. At least these types should be supported by most
-     * operations.
-     */
-    /*
-    enum Representation {
-        Rep_XY, // = pcl::PointXY,
-        Rep_XYZ, // = pcl::PointXYZ,
-        Rep_XYZI, // = pcl::PointXYZI,
-        Rep_XYZRGB, // = pcl::PointXYZRGB,
-        Rep_XYZRGBA, // = pcl::PointXYZRGBA,
-        //Rep_XYZNormal, // = pcl::PointXYZ,
-        Rep_XYZINormal, // = pcl::PointXYZINormal,
-        Rep_XYZRGBNormal, // = pcl::PointXYZRGBNormal,
-        //Rep_XYZRGBANormal, // = pcl::PointXYZRGB,
-        Rep_Other
-    };*/
 
     Grid2DEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
     bool                canSaveRegions() const;
-    mapit::entitytypes::Grid2DType getData(float x1, float y1, float z1,float x2, float y2, float z2, bool clipMode, int lod);
-    int                 setData(float x1, float y1, float z1, float x2, float y2, float z2,  mapit::entitytypes::Grid2DType &data, int lod);
+    std::shared_ptr<Grid2DHelper> getData(float x1, float y1, float z1,float x2, float y2, float z2, bool clipMode, int lod);
+    int                 setData(float x1, float y1, float z1, float x2, float y2, float z2,  std::shared_ptr<Grid2DHelper> &data, int lod);
 
-   mapit::entitytypes::Grid2DType  getData(int lod = 0);
-    int                 setData(mapit::entitytypes::Grid2DType &data, int lod = 0);
+    std::shared_ptr<Grid2DHelper> getData(int lod = 0);
+    int                 setData(std::shared_ptr<Grid2DHelper> &data, int lod = 0);
 
     void gridCellAt(float   x, float   y, float   z,
                     float &x1, float &y1, float &z1,
