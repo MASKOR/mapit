@@ -53,7 +53,12 @@ public:
      * @param probability value to be set, [0, 100] or [-1]
      */
     void setProbability(int x, int y, int probability);
-
+    /**
+     * @brief getProbability get the probalility value of the (x,y) position in the grid
+     * @param x x-position
+     * @param y y-position
+     * @return the probability value
+     */
     int getProbability(int x, int y);
 
     std::shared_ptr<mapit::msgs::Grid2D> getGrid();
