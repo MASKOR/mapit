@@ -32,19 +32,29 @@
 #else
 #define MODULE_EXPORT // empty
 #endif
-
+namespace mapit
+{
+namespace entitytypes
+{
 class Grid2DHelper
 {
 public:
     Grid2DHelper(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
     Grid2DHelper();
 
+    static const int GRID_UNKNOWN = -1;
+    static const int GRID_OCCUPIED = 100;
+    static const int GRID_FREE = 0;
+
     /**
-     * @brief Grid2DHelper::setFieldSize set size for data field
-     * @param size_x width of field
-     * @param size_y height of field
+     * @brief initGrid initialize grid with grid size, resolution and origin
+     * @param size_x width in meter
+     * @param size_y height in meter
+     * @param resolution resolution in meter
+     * @param origin origin position in real world
      */
-    void setFieldSize(int size_x, int size_y);
+    void initGrid(const unsigned int &size_x, const unsigned int &size_y,
+                      const unsigned int &resolution, mapit::msgs::Pose origin);
 
     /**
      * @brief Grid2DHelper::setProbability sets a value to the datafield at positon (x,y)
@@ -52,14 +62,14 @@ public:
      * @param y y-position
      * @param probability value to be set, [0, 100] or [-1]
      */
-    void setProbability(int x, int y, int probability);
+    void setProbability(const float &x, const float &y, int &probability);
     /**
      * @brief getProbability get the probalility value of the (x,y) position in the grid
      * @param x x-position
      * @param y y-position
      * @return the probability value
      */
-    int getProbability(int x, int y);
+    int getProbability(const float &x, const float &y);
 
     std::shared_ptr<mapit::msgs::Grid2D> getGrid();
     void setGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
@@ -72,7 +82,23 @@ private:
     * @param x new width
     * @param y new height
     */
-   void autoFieldExtender(int x, int y);
-};
+   void autoFieldExtender(const float &x, const float &y);
 
+   /**
+    * @brief getGridPosition calculates the fitted grid cell position
+    * @param x x-pos in meter
+    * @param y y-pos in meter
+    * @return cell position in grid as int representation
+    */
+   unsigned int getGridPosition(const float &x, const float &y);
+
+   /**
+    * @brief getFittedXY Fits an x or y position in meter to the correct cell distance in the grid
+    * @param xy x or y position in meter
+    * @return fitted x or y grid cell number as int
+    */
+   unsigned int getFittedXY(const float &xy);
+};
+}
+}
 #endif

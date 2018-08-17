@@ -35,15 +35,6 @@
 #else
 #define MODULE_EXPORT // empty
 #endif
-
-// Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
-namespace mapit
-{
-namespace entitytypes
-{
-typedef std::shared_ptr<mapit::msgs::Grid2D> Grid2DType;
-}
-}
 extern "C"
 {
 //Note: Not possible in MSVC/Windows. Breaks shared pointers exchange
@@ -52,6 +43,13 @@ extern "C"
 MODULE_EXPORT void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
 
 }
+// Not a good idea because voxelgridfilter uses pcl smart pointers (boost)
+namespace mapit
+{
+namespace entitytypes
+{
+//typedef std::shared_ptr<mapit::msgs::Grid2D> Grid2DType;
+
 
 //#include <boost/preprocessor/repetition.hpp>
 
@@ -60,12 +58,12 @@ MODULE_EXPORT void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *
 
 
 
-class Grid2DEntitydata : public mapit::Entitydata<Grid2DHelper>
+class Grid2D : public mapit::Entitydata<Grid2DHelper>
 {
 public:
     static const char* TYPENAME();
 
-    Grid2DEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
+    Grid2D(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider);
 
     const char*         type() const;
     bool                hasFixedGrid() const;
@@ -92,8 +90,9 @@ public:
     size_t size() const;
 private:
     std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
-    //pcl::PointCloud<pcl::PointXYZ> m_pointcloud;
-    mapit::entitytypes::Grid2DType m_Grid2D;
+    std::shared_ptr<mapit::msgs::Grid2D> m_Grid2D;
 };
 
+}
+}
 #endif

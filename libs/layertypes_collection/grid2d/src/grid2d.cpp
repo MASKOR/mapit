@@ -28,45 +28,47 @@
 #include <boost/archive/text_iarchive.hpp>
 //#include <pcl/compression/octree_pointcloud_compression.h>
 //#include <pcl/PCLPointCloud2.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/common/common.h> // for bb
+//#include <pcl/io/pcd_io.h>
+//#include <pcl/common/common.h> // for bb
 #include <mapit/msgs/datastructs.pb.h>
 #include <iostream>
 #include <fstream>
 
-const char *Grid2DEntitydata::TYPENAME()
+using namespace mapit::entitytypes;
+
+const char *Grid2D::TYPENAME()
 {
     return PROJECT_NAME;
 }
 
-Grid2DEntitydata::Grid2DEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
+Grid2D::Grid2D(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
      m_Grid2D( )
 {
 }
 
-const char *Grid2DEntitydata::type() const
+const char *Grid2D::type() const
 {
-    return Grid2DEntitydata::TYPENAME();
+    return Grid2D::TYPENAME();
 }
-bool Grid2DEntitydata::hasFixedGrid() const
-{
-    return false;
-}
-
-bool Grid2DEntitydata::canSaveRegions() const
+bool Grid2D::hasFixedGrid() const
 {
     return false;
 }
 
+bool Grid2D::canSaveRegions() const
+{
+    return false;
+}
 
 
-std::shared_ptr<Grid2DHelper> Grid2DEntitydata::getData(float x1, float y1, float z1, float x2, float y2, float z2, bool clipMode, int lod)
+
+std::shared_ptr<Grid2DHelper> Grid2D::getData(float x1, float y1, float z1, float x2, float y2, float z2, bool clipMode, int lod)
 {
 
     if(m_Grid2D == NULL)
     {
-        m_Grid2D = mapit::entitytypes::Grid2DType(new ::mapit::msgs::Grid2D);
+        m_Grid2D = std::shared_ptr<mapit::msgs::Grid2D>(new ::mapit::msgs::Grid2D);
         mapit::ReadWriteHandle handle;
         std::string filename = m_streamProvider->startReadFile(handle);
         {
@@ -83,7 +85,7 @@ std::shared_ptr<Grid2DHelper> Grid2DEntitydata::getData(float x1, float y1, floa
 }
 
 
-int Grid2DEntitydata::setData(float x1, float y1, float z1,
+int Grid2D::setData(float x1, float y1, float z1,
                                    float x2, float y2, float z2, std::shared_ptr<Grid2DHelper> &data,
                                    int lod)
 
@@ -100,7 +102,7 @@ int Grid2DEntitydata::setData(float x1, float y1, float z1,
     return result;
 }
 
-std::shared_ptr<Grid2DHelper> Grid2DEntitydata::getData(int lod)
+std::shared_ptr<Grid2DHelper> Grid2D::getData(int lod)
 {
     return getData(-std::numeric_limits<float>::infinity(),
                    -std::numeric_limits<float>::infinity(),
@@ -111,7 +113,7 @@ std::shared_ptr<Grid2DHelper> Grid2DEntitydata::getData(int lod)
                    false, lod);
 }
 
-int Grid2DEntitydata::setData(std::shared_ptr<Grid2DHelper> &data, int lod)
+int Grid2D::setData(std::shared_ptr<Grid2DHelper> &data, int lod)
 {
     return setData(-std::numeric_limits<float>::infinity(),
                    -std::numeric_limits<float>::infinity(),
@@ -122,7 +124,7 @@ int Grid2DEntitydata::setData(std::shared_ptr<Grid2DHelper> &data, int lod)
                    data, lod);
 }
 
-void Grid2DEntitydata::gridCellAt(float   x, float   y, float   z,
+void Grid2D::gridCellAt(float   x, float   y, float   z,
                                      float &x1, float &y1, float &z1,
                                      float &x2, float &y2, float &z2) const
 {
@@ -134,7 +136,7 @@ void Grid2DEntitydata::gridCellAt(float   x, float   y, float   z,
     z2 = +std::numeric_limits<float>::infinity();
 }
 
-int Grid2DEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
+int Grid2D::getEntityBoundingBox(float &x1, float &y1, float &z1,
                                               float &x2, float &y2, float &z2)
 {
 
@@ -148,27 +150,27 @@ int Grid2DEntitydata::getEntityBoundingBox(float &x1, float &y1, float &z1,
     return 0;
 }
 
-mapit::istream *Grid2DEntitydata::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
+mapit::istream *Grid2D::startReadBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startRead(start, len);
 }
 
-void Grid2DEntitydata::endRead(mapit::istream *&strm)
+void Grid2D::endRead(mapit::istream *&strm)
 {
     m_streamProvider->endRead(strm);
 }
 
-mapit::ostream *Grid2DEntitydata::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
+mapit::ostream *Grid2D::startWriteBytes(mapit::uint64_t start, mapit::uint64_t len)
 {
     return m_streamProvider->startWrite(start, len);
 }
 
-void Grid2DEntitydata::endWrite(mapit::ostream *&strm)
+void Grid2D::endWrite(mapit::ostream *&strm)
 {
     m_streamProvider->endWrite(strm);
 }
 
-size_t Grid2DEntitydata::size() const
+size_t Grid2D::size() const
 {
     m_streamProvider->getStreamSize();
 }
@@ -180,7 +182,7 @@ size_t Grid2DEntitydata::size() const
 //void* createEntitydata(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 void deleteEntitydataPcd(mapit::AbstractEntitydata *ld)
 {
-    Grid2DEntitydata *p = dynamic_cast<Grid2DEntitydata*>(ld);
+    Grid2D *p = dynamic_cast<Grid2D*>(ld);
     if(p)
     {
         delete p;
@@ -192,7 +194,7 @@ void deleteEntitydataPcd(mapit::AbstractEntitydata *ld)
 }
 void createEntitydata(std::shared_ptr<mapit::AbstractEntitydata> *out, std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
 {
-    //return std::shared_ptr<AbstractEntitydata>(new Grid2DEntitydata( streamProvider ), deleteWrappedLayerData);
-    *out = std::shared_ptr<mapit::AbstractEntitydata>(new Grid2DEntitydata( streamProvider ), deleteEntitydataPcd);
+    //return std::shared_ptr<AbstractEntitydata>(new Grid2D( streamProvider ), deleteWrappedLayerData);
+    *out = std::shared_ptr<mapit::AbstractEntitydata>(new Grid2D( streamProvider ), deleteEntitydataPcd);
 }
 
