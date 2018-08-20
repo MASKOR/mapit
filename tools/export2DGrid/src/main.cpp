@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         // TODO set through params?
         yamlFile << "occupied_thresh: 0.99";
         yamlFile << "free_thresh: 0.01";
-        yamlFile << "negate: 0";
+        yamlFile << "negate: 1"; // image is negated
         yamlFile.close();
 
         // write image file
