@@ -26,10 +26,6 @@
 #include <sstream>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-//#include <pcl/compression/octree_pointcloud_compression.h>
-//#include <pcl/PCLPointCloud2.h>
-//#include <pcl/io/pcd_io.h>
-//#include <pcl/common/common.h> // for bb
 #include <mapit/msgs/datastructs.pb.h>
 #include <iostream>
 #include <fstream>
@@ -66,7 +62,7 @@ bool Grid2D::canSaveRegions() const
 std::shared_ptr<Grid2DHelper> Grid2D::getData(float x1, float y1, float z1, float x2, float y2, float z2, bool clipMode, int lod)
 {
 
-    if(m_Grid2D == NULL)
+    if(m_Grid2D == nullptr)
     {
         m_Grid2D = std::shared_ptr<mapit::msgs::Grid2D>(new ::mapit::msgs::Grid2D);
         mapit::ReadWriteHandle handle;
@@ -81,7 +77,7 @@ std::shared_ptr<Grid2DHelper> Grid2D::getData(float x1, float y1, float z1, floa
     }
     std::shared_ptr<Grid2DHelper> ptrOut;
     ptrOut->setGrid(m_Grid2D);
-    return ptrOut;
+    return std::make_shared<Grid2DHelper>(m_Grid2D);
 }
 
 

@@ -48,15 +48,6 @@ namespace mapit
 {
 namespace entitytypes
 {
-//typedef std::shared_ptr<mapit::msgs::Grid2D> Grid2DType;
-
-
-//#include <boost/preprocessor/repetition.hpp>
-
-//#define FOR_COMMON_POINTTYPES(fn, pointcloudEntitydata) \
-//    switch(pointcloudEntitydata.)
-
-
 
 class Grid2D : public mapit::Entitydata<Grid2DHelper>
 {
@@ -91,6 +82,7 @@ public:
 private:
     std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
     std::shared_ptr<mapit::msgs::Grid2D> m_Grid2D;
+//    std::shared_ptr<Grid2DHelper> m_Grid2D;
 };
 
 }
