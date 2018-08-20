@@ -170,6 +170,7 @@ add_subdirectory(tools/commandlinetool)
 add_subdirectory(tools/stream_to_ros)
 add_subdirectory(tools/ls)
 add_subdirectory(tools/diff)
+add_subdirectory(tools/export2DGrid)
 
 set(MAPIT_ENABLE_TESTS ON CACHE BOOL "Generate tests (need Qt)")
 if(MAPIT_ENABLE_TESTS)
