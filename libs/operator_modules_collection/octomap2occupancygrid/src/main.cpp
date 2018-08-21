@@ -170,7 +170,8 @@ mapit::StatusCode operate_octomap2opccupancy_grid(mapit::OperationEnvironment* e
     mapit::msgs::Pose origin;
     origin.mutable_translation()->set_x(0);
     origin.mutable_translation()->set_y(0);
-    grid->initGrid(octomap_max_x * 1.1, octomap_max_y * 1.1, static_cast<float>(octomap_resolution), origin);
+    float grid_size_factor = 1.3f;
+    grid->initGrid(octomap_max_x * grid_size_factor, octomap_max_y * grid_size_factor, static_cast<float>(octomap_resolution), origin);
 
     Eigen::Affine3f pose;
     Eigen::Affine2f pose_2d; // for the 3D to 2D mapping, this is only x, y, ori
@@ -231,8 +232,16 @@ mapit::StatusCode operate_octomap2opccupancy_grid(mapit::OperationEnvironment* e
                         // transform point on plane to 2D map from pose(x, y, ori) and vec(x, y)
                         Eigen::Vector2f vec_tf_2d = pose_2d * Eigen::Vector2f(vec.x(), vec.y());
 //                        log_info("write at ( " << vec_tf_2d.transpose() << " ) = " << greyvalue);
-                        int greyvalue = std::max( greyvalue_new, grid->getProbability(vec_tf_2d.x(), vec_tf_2d.y()) );
-                        grid->setProbability(vec_tf_2d.x(), vec_tf_2d.y(), greyvalue);
+                        try {
+                            int greyvalue = std::max( greyvalue_new, grid->getProbability(vec_tf_2d.x(), vec_tf_2d.y()) );
+                            grid->setProbability(vec_tf_2d.x(), vec_tf_2d.y(), greyvalue);
+                        } catch (std::out_of_range e) {
+                            log_error("operator octomap2occupancy_grid: try to write out of 2D Grid with size factor of " << grid_size_factor);
+                            // TODO increase and restart?
+//                            grid_size_factor += 0.5f;
+//                            jump back to grid->initGrid
+                            return MAPIT_STATUS_ERROR;
+                        }
                     }
                 }
             }
