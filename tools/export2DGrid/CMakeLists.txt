@@ -27,6 +27,9 @@ find_package(mapit)
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 
+find_package(OpenCV)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 # make proto visible in qtcreator
 file(GLOB_RECURSE YAML_FILES ${PROJECT_SOURCE_DIR}/*.yaml)
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add yaml files to project" SOURCES ${YAML_FILES})
@@ -35,7 +38,7 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES} stdc++ layertype_grid2d)
+target_link_libraries(${PROJECT_NAME} ${mapit_interface} ${mapit_interface_cpp} ${mapit_standard_repository_factory} ${Boost_LIBRARIES} ${OpenCV_LIBS} stdc++ layertype_grid2d)
 
 if(MAPIT_ENABLE_LOG4CPLUS)
   target_link_libraries(${PROJECT_NAME} ${LOG4CPLUS_LIBRARIES})

@@ -31,7 +31,11 @@
 #include <mapit/errorcodes.h>
 #include <mapit/logging.h>
 #include <boost/program_options.hpp>
+#include <mapit/layertypes/grid2d.h>
 #include <mapit/layertypes/grid2dHelper.h>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 namespace po = boost::program_options;
 
@@ -83,18 +87,24 @@ int main(int argc, char *argv[])
     // definiion, see http://netpbm.sourceforge.net/doc/pgm.html
 
     // load entity data
+    std::string vla_1 = vars["workspace"].as<std::string>();
+    std::string vla_2 = vars["path"].as<std::string>();
     std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath
             = workspace->getEntitydataReadOnly(vars["path"].as<std::string>());
-    std::shared_ptr<mapit::entitytypes::Grid2DHelper> entityData
-            = std::dynamic_pointer_cast<mapit::entitytypes::Grid2DHelper>( abstractentitydataByPath );
+    std::string type = workspace->getEntity(vars["path"].as<std::string>())->type();
+    std::shared_ptr<mapit::entitytypes::Grid2D> entityData
+            = std::static_pointer_cast<mapit::entitytypes::Grid2D>( abstractentitydataByPath );
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> gridHelper = entityData->getData();
 
     // write yaml file
     std::ofstream yamlFile;
-    yamlFile.open (vars["path"].as<std::string>() + ".yaml");
-    yamlFile << "image: " << vars["path"].as<std::string>() << ".pgm\n";
-    yamlFile << "reslution: " << std::to_string(entityData->getGrid().resolution()) << "\n";
-    mapit::msgs::Vector oTrans = entityData->getGrid().origin().translation();
-    mapit::msgs::Quaternion oRot = entityData->getGrid().origin().rotation();
+    std::string image_name = vars["mapFile"].as<std::string>();
+    image_name = image_name.substr( image_name.find_last_of("/") + 1, image_name.size() );
+    yamlFile.open (vars["mapFile"].as<std::string>() + ".yaml");
+    yamlFile << "image: " << image_name << ".png" << std::endl;
+    yamlFile << "reslution: " << std::to_string(gridHelper->getGrid().resolution()) << std::endl;
+    mapit::msgs::Vector oTrans = gridHelper->getGrid().origin().translation();
+    mapit::msgs::Quaternion oRot = gridHelper->getGrid().origin().rotation();
 
     // calc yaw (z-axis rotation) from quaternation
     // code from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -102,31 +112,28 @@ int main(int argc, char *argv[])
     double cosy = +1.0 - 2.0 * (oRot.y() * oRot.y() + oRot.z() * oRot.z());
     double yaw = atan2(siny, cosy);
     yamlFile << "origin: [" << std::to_string(oTrans.x()) << ", " << std::to_string(oTrans.y())
-             << ", " << std::to_string(yaw) << "]\n";
+             << ", " << std::to_string(yaw) << "]" << std::endl;
     // TODO set through params?
-    yamlFile << "occupied_thresh: 0.99";
-    yamlFile << "free_thresh: 0.01";
-    yamlFile << "negate: 1"; // image is negated
+    yamlFile << "occupied_thresh: 0.99" << std::endl;
+    yamlFile << "free_thresh: 0.01" << std::endl;
+    yamlFile << "negate: 0" << std::endl; // image is negated
     yamlFile.close();
 
     // write image file
     // image is ASCII exchange file format, may be more efficient to use binary format
     // see
-    std::ofstream imageFile;
-    imageFile.open (vars["path"].as<std::string>() + ".pgm");
-    // P2 width height maxVal
-    imageFile << "P2\n";
-    imageFile << "Export of 2d map data";
-    imageFile << std::to_string(entityData->getGrid().width()) << " " << std::to_string(entityData->getGrid().width()) << "\n";
-    imageFile << "100\n";
-    const float resTicks = entityData->getGrid().resolution();
-    for (float y = 0; y < entityData->getGrid().height(); y+= resTicks) {
-        for (float x = 0; x < entityData->getGrid().width(); x+=resTicks) {
-            imageFile << " " << std::to_string(entityData->getProbability(x, y)) << " ";
+
+    cv::Mat image(gridHelper->getGrid().width(), gridHelper->getGrid().height(), CV_8UC1);
+    for (size_t i = 0; i < image.total(); ++i) {
+        signed char val = gridHelper->getGrid().data().at(i);
+        if (val == -1) {
+             image.at<uchar>(i) = 128;
+        } else {
+            image.at<uchar>(i) = static_cast<uchar>(255 - 2.55 * val);
         }
-        imageFile << "\n";
     }
-    imageFile.close();
+    cv::flip(image, image, 1);
+    cv::imwrite(vars["mapFile"].as<std::string>() + ".png", image);
 
     return 0;
 }
