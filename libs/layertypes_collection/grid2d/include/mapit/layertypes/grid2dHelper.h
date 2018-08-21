@@ -39,7 +39,7 @@ namespace entitytypes
 class Grid2DHelper
 {
 public:
-    Grid2DHelper(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
+    Grid2DHelper(const mapit::msgs::Grid2D &grid);
     Grid2DHelper();
 
     static const int GRID_UNKNOWN = -1;
@@ -53,8 +53,8 @@ public:
      * @param resolution resolution in meter
      * @param origin origin position in real world
      */
-    void initGrid(const unsigned int &size_x, const unsigned int &size_y,
-                      const unsigned int &resolution, mapit::msgs::Pose origin);
+    void initGrid(const float &size_x, const float &size_y,
+                  const float &resolution, const mapit::msgs::Pose &origin);
 
     /**
      * @brief Grid2DHelper::setProbability sets a value to the datafield at positon (x,y)
@@ -62,7 +62,8 @@ public:
      * @param y y-position
      * @param probability value to be set, [0, 100] or [-1]
      */
-    void setProbability(const float &x, const float &y, int &probability);
+    void setProbability(const float &x, const float &y, const int &probability);
+
     /**
      * @brief getProbability get the probalility value of the (x,y) position in the grid
      * @param x x-position
@@ -71,18 +72,18 @@ public:
      */
     int getProbability(const float &x, const float &y);
 
-    std::shared_ptr<mapit::msgs::Grid2D> getGrid();
-    void setGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data);
+    const mapit::msgs::Grid2D & getGrid();
+    void setGrid(const msgs::Grid2D &grid);
 
 private:
-   std::shared_ptr<mapit::msgs::Grid2D> m_Grid2D;
+   std::shared_ptr<mapit::msgs::Grid2D> grid_;
 
-   /**
-    * @brief Grid2DHelper::autoFieldExtender extends datafield if x or y or both are bigger than the current field
-    * @param x new width
-    * @param y new height
-    */
-   void autoFieldExtender(const float &x, const float &y);
+//   /**
+//    * @brief Grid2DHelper::autoFieldExtender extends datafield if x or y or both are bigger than the current field
+//    * @param x new width
+//    * @param y new height
+//    */
+//   void autoFieldExtender(const float &x, const float &y);
 
    /**
     * @brief getGridPosition calculates the fitted grid cell position
@@ -97,7 +98,9 @@ private:
     * @param xy x or y position in meter
     * @return fitted x or y grid cell number as int
     */
-   unsigned int getFittedXY(const float &xy);
+   unsigned int get_fitted_xy(const float &xy, const float &pose, const unsigned int &step);
+   unsigned int get_fitted_x(const float &x);
+   unsigned int get_fitted_y(const float &y);
 };
 }
 }

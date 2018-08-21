@@ -39,7 +39,7 @@ const char *Grid2D::TYPENAME()
 
 Grid2D::Grid2D(std::shared_ptr<mapit::AbstractEntitydataProvider> streamProvider)
     :m_streamProvider( streamProvider ),
-     m_Grid2D( )
+     grid2d_(nullptr)
 {
 }
 
@@ -62,37 +62,37 @@ bool Grid2D::canSaveRegions() const
 std::shared_ptr<Grid2DHelper> Grid2D::getData(float x1, float y1, float z1, float x2, float y2, float z2, bool clipMode, int lod)
 {
 
-    if(m_Grid2D == nullptr)
+    if (grid2d_ == nullptr)
     {
-        m_Grid2D = std::shared_ptr<mapit::msgs::Grid2D>(new ::mapit::msgs::Grid2D);
         mapit::ReadWriteHandle handle;
         std::string filename = m_streamProvider->startReadFile(handle);
         {
             // protobuff searilaze as/from string
             // seems like direct parse to/from stream is possible
             std::fstream input(filename, std::ios::in | std::ios::binary);
-            m_Grid2D->ParseFromIstream(&input);
+            mapit::msgs::Grid2D msg_grid;
+            msg_grid.ParseFromIstream(&input);
+
+            grid2d_ = std::make_shared<Grid2DHelper>();
+            grid2d_->setGrid(msg_grid);
         }
         m_streamProvider->endReadFile(handle);
     }
-    std::shared_ptr<Grid2DHelper> ptrOut;
-    ptrOut->setGrid(m_Grid2D);
-    return std::make_shared<Grid2DHelper>(m_Grid2D);
+
+    return grid2d_;
 }
 
 
 int Grid2D::setData(float x1, float y1, float z1,
-                                   float x2, float y2, float z2, std::shared_ptr<Grid2DHelper> &data,
-                                   int lod)
-
+                    float x2, float y2, float z2, std::shared_ptr<Grid2DHelper> &data,
+                    int lod)
 {
     int result = -1;
     mapit::ReadWriteHandle handle;
     std::string filename = m_streamProvider->startWriteFile(handle);
     {
-        m_Grid2D = data->getGrid();
         std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
-        result = m_Grid2D->SerializeToOstream(&output);
+        result = data->getGrid().SerializeToOstream(&output);
     }
     m_streamProvider->endWriteFile(handle);
     return result;
@@ -121,8 +121,8 @@ int Grid2D::setData(std::shared_ptr<Grid2DHelper> &data, int lod)
 }
 
 void Grid2D::gridCellAt(float   x, float   y, float   z,
-                                     float &x1, float &y1, float &z1,
-                                     float &x2, float &y2, float &z2) const
+                        float &x1, float &y1, float &z1,
+                        float &x2, float &y2, float &z2) const
 {
     x1 = -std::numeric_limits<float>::infinity();
     y1 = -std::numeric_limits<float>::infinity();
@@ -133,7 +133,7 @@ void Grid2D::gridCellAt(float   x, float   y, float   z,
 }
 
 int Grid2D::getEntityBoundingBox(float &x1, float &y1, float &z1,
-                                              float &x2, float &y2, float &z2)
+                                 float &x2, float &y2, float &z2)
 {
 
     x1 = -std::numeric_limits<float>::infinity();

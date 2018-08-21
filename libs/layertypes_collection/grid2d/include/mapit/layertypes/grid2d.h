@@ -28,7 +28,7 @@
 #include <mapit/operators/serialization/abstractentitydataprovider.h>
 #include <mapit/msgs/datastructs.pb.h>
 #include <pcl/point_types.h>
-#include "grid2dHelper.h"
+#include <mapit/layertypes/grid2dHelper.h>
 
 #ifdef _WIN32
 #define MODULE_EXPORT __declspec(dllexport)
@@ -81,8 +81,7 @@ public:
     size_t size() const;
 private:
     std::shared_ptr<mapit::AbstractEntitydataProvider> m_streamProvider;
-    std::shared_ptr<mapit::msgs::Grid2D> m_Grid2D;
-//    std::shared_ptr<Grid2DHelper> m_Grid2D;
+    std::shared_ptr<Grid2DHelper> grid2d_;
 };
 
 }

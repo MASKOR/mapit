@@ -32,97 +32,120 @@ Grid2DHelper::Grid2DHelper()
 
 }
 
-Grid2DHelper::Grid2DHelper(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data)
+Grid2DHelper::Grid2DHelper(const msgs::Grid2D &grid)
 {
-    this->m_Grid2D = grid2D_data;
+    grid_ = std::make_shared<mapit::msgs::Grid2D>(grid);
 }
 
 
 
-void Grid2DHelper::initGrid(const unsigned int &size_x, const unsigned int &size_y,
-                  const unsigned int &resolution, mapit::msgs::Pose origin)
+void
+Grid2DHelper::initGrid(const float &size_x, const float &size_y,
+                            const float &resolution, const msgs::Pose &origin)
 {
-    m_Grid2D->set_width(size_x);
-    m_Grid2D->set_height(size_y);
+    grid_->set_width( static_cast<unsigned int>(size_x / resolution) );
+    grid_->set_height( static_cast<unsigned int>(size_y / resolution) );
 
-    m_Grid2D->set_resolution(resolution);
-    m_Grid2D->set_allocated_origin(&origin);
+    grid_->set_resolution(resolution);
+    *grid_->mutable_origin() = origin;
 
-    m_Grid2D->mutable_data()->resize(m_Grid2D->width() * m_Grid2D->height(), -1);
+    grid_->mutable_data()->resize(grid_->width() * grid_->height(), -1);
 }
 
-void Grid2DHelper::setProbability(const float &x, const float &y, int &probability)
+void
+Grid2DHelper::setProbability(const float &x, const float &y, const int &probability)
 {
-    if (getFittedXY(x) > m_Grid2D->width() || getFittedXY(y) > m_Grid2D->height()) {
-        log_error("Grid2DHelper: set value outside grid");
-        throw std::out_of_range("Grid2DHelper: position is out of field boundaries");
-    }
     // set value
-    m_Grid2D->mutable_data()[getGridPosition(x, y)] = static_cast<signed char>(probability);
+    grid_->mutable_data()->at( getGridPosition(x, y) ) = static_cast<signed char>(probability);
 }
 
-int Grid2DHelper::getProbability(const float &x, const float &y)
+int
+Grid2DHelper::getProbability(const float &x, const float &y)
 {
-    if (getFittedXY(x) > m_Grid2D->width() || getFittedXY(y) > m_Grid2D->height()) {
+    return static_cast<int>(grid_->data().at( getGridPosition(x, y) ));
+}
+
+const mapit::msgs::Grid2D &
+Grid2DHelper::getGrid()
+{
+    return *grid_.get();
+}
+
+void
+Grid2DHelper::setGrid(const msgs::Grid2D &grid)
+{
+    grid_ = std::make_shared<msgs::Grid2D>(grid);
+}
+
+
+unsigned int
+Grid2DHelper::getGridPosition(const float &x, const float &y)
+{
+    unsigned int xPos = get_fitted_x(x);
+    unsigned int yPos = get_fitted_y(y);
+
+    if (   xPos > grid_->width()
+        || yPos > grid_->height()) {
         log_error("Grid2DHelper: Position outside of grid");
         throw std::out_of_range("Grid2DHelper: position is out of field boundaries");
     }
-    return static_cast<int>(m_Grid2D->data()[getGridPosition(x, y)]);
+
+    return yPos * grid_->height() + xPos;
 }
 
-std::shared_ptr<mapit::msgs::Grid2D> Grid2DHelper::getGrid()
+unsigned int
+Grid2DHelper::get_fitted_xy(const float &xy, const float &pose, const unsigned int &step)
 {
-    return m_Grid2D;
+    return static_cast<unsigned int>(
+                std::roundf( xy / grid_->resolution() )
+                + std::roundf( pose * step / 2 / grid_->resolution() )
+                );
 }
 
-void Grid2DHelper::setGrid(std::shared_ptr<mapit::msgs::Grid2D> grid2D_data)
+unsigned int
+Grid2DHelper::get_fitted_x(const float &x)
 {
-    m_Grid2D = grid2D_data;
+    return get_fitted_xy(x, grid_->origin().translation().x(), grid_->height());
 }
 
-
-unsigned int Grid2DHelper::getGridPosition(const float &x, const float &y)
+unsigned int
+Grid2DHelper::get_fitted_y(const float &y)
 {
-    unsigned int xPos = getFittedXY(x);
-    unsigned int yPos = getFittedXY(y);
-    return yPos * m_Grid2D->height() + xPos;
+    return get_fitted_xy(y, grid_->origin().translation().y(), grid_->width());
 }
 
-unsigned int Grid2DHelper::getFittedXY(const float &xy)
-{
-    return static_cast<unsigned int>(std::roundf(xy/m_Grid2D->resolution()));
-}
 
-void Grid2DHelper::autoFieldExtender(const float &x, const float &y)
-{
-    std::string data = m_Grid2D->data();
-    if (x > m_Grid2D->width()) { //extend columns
-        std::string newData;
-        signed char defVal = -1;
-        // extend field and add defVals for new entries
-        for (unsigned int yc = 0; yc < m_Grid2D->height(); yc++) {
-            for (unsigned int xc = 0; xc < x; xc++) {
-                if (xc < m_Grid2D->width()) {
-                    newData += static_cast<signed char>(getProbability(xc, yc));
-                } else {
-                    newData += defVal;
-                }
-            }
-        }
-        m_Grid2D->set_width(getFittedXY(x)); // set new width
-        data = newData;
-    }
+//void
+//Grid2DHelper::autoFieldExtender(const float &x, const float &y)
+//{
+//    std::string data = grid_->data();
+//    if (x > grid_->width()) { //extend columns
+//        std::string newData;
+//        signed char defVal = -1;
+//        // extend field and add defVals for new entries
+//        for (unsigned int yc = 0; yc < grid_->height(); yc++) {
+//            for (unsigned int xc = 0; xc < x; xc++) {
+//                if (xc < grid_->width()) {
+//                    newData += static_cast<signed char>(getProbability(xc, yc));
+//                } else {
+//                    newData += defVal;
+//                }
+//            }
+//        }
+//        grid_->set_width(get_fitted_xy(x)); // set new width
+//        data = newData;
+//    }
 
-    if (y > m_Grid2D->height()) { // extend height
-        signed char defVal = -1;
-        // extend field and add defVals for new entries
-        // this is easy, just add rows at the end of the string
-        // no copy action required
-        for (unsigned int yc = m_Grid2D->height(); yc < y; yc++) {
-            for (int xc = 0; xc < x; xc++) {
-                data += defVal;
-            }
-        }
-        m_Grid2D->set_height(getFittedXY(y)); // set new height
-    }
-}
+//    if (y > grid_->height()) { // extend height
+//        signed char defVal = -1;
+//        // extend field and add defVals for new entries
+//        // this is easy, just add rows at the end of the string
+//        // no copy action required
+//        for (unsigned int yc = grid_->height(); yc < y; yc++) {
+//            for (int xc = 0; xc < x; xc++) {
+//                data += defVal;
+//            }
+//        }
+//        grid_->set_height(get_fitted_xy(y)); // set new height
+//    }
+//}

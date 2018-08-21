@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     program_options_desc.add_options()
             ("help,h", "print usage")
             ("workspace,w", po::value<std::string>()->required(), "the workspace/version state to operate on")
-            ("epath,p", po::value<std::string>()->required(), "entity path to 2d grid to export")
+            ("path,p", po::value<std::string>()->required(), "entity path to 2d grid to export")
             ("mapFile,m", po::value<std::string>()->required(), "fully qualified or relative path to where the map data should be saved, will be saved as <path>.yaml and <path>.pgm");
     po::positional_options_description pos_options;
     pos_options.add("workspace",  1)
@@ -69,65 +69,64 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<mapit::Workspace> workspace = repo->getWorkspace( vars["workspace"].as<std::string>() );
 
-    if(workspace)
-    {
-        // do the magic
-        // export to ROS compatible 2d map data, see http://wiki.ros.org/map_server
-        // YAML file and some sort of picture / graphic image required
-        // graphic image will be interpreted using SDL_Imgage,see http://www.libsdl.org/projects/SDL_image/docs/SDL_image.html
-        // for supported formats.
-        // Using pnm file, more specific pgm for greyscale as map only needs greyscales
-        // definiion, see http://netpbm.sourceforge.net/doc/pgm.html
-
-        // load entity data
-        std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath
-                = workspace->getEntitydataReadOnly(vars["epath"].as<std::string>());
-        std::shared_ptr<mapit::entitytypes::Grid2DHelper> entityData
-                = std::dynamic_pointer_cast<mapit::entitytypes::Grid2DHelper>( abstractentitydataByPath );
-
-        // write yaml file
-        std::ofstream yamlFile;
-        yamlFile.open (vars["epath"].as<std::string>() + ".yaml");
-        yamlFile << "image: " << vars["epath"].as<std::string>() << ".pgm\n";
-        yamlFile << "reslution: " << std::to_string(entityData->getGrid()->resolution()) << "\n";
-        mapit::msgs::Vector oTrans = entityData->getGrid()->origin().translation();
-        mapit::msgs::Quaternion oRot = entityData->getGrid()->origin().rotation();
-
-        // calc yaw (z-axis rotation) from quaternation
-        // code from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-        double siny = +2.0 * (oRot.w() * oRot.z() + oRot.x() * oRot.y());
-        double cosy = +1.0 - 2.0 * (oRot.y() * oRot.y() + oRot.z() * oRot.z());
-        double yaw = atan2(siny, cosy);
-        yamlFile << "origin: [" << std::to_string(oTrans.x()) << ", " << std::to_string(oTrans.y())
-                 << ", " << std::to_string(yaw) << "]\n";
-        // TODO set through params?
-        yamlFile << "occupied_thresh: 0.99";
-        yamlFile << "free_thresh: 0.01";
-        yamlFile << "negate: 1"; // image is negated
-        yamlFile.close();
-
-        // write image file
-        // image is ASCII exchange file format, may be more efficient to use binary format
-        // see
-        std::ofstream imageFile;
-        imageFile.open (vars["epath"].as<std::string>() + ".pgm");
-        // P2 width height maxVal
-        imageFile << "P2\n";
-        imageFile << "Export of 2d map data";
-        imageFile << std::to_string(entityData->getGrid()->width()) << " " << std::to_string(entityData->getGrid()->width()) << "\n";
-        imageFile << "100\n";
-        const float resTicks = entityData->getGrid()->resolution();
-        for (float y = 0; y < entityData->getGrid()->height(); y+= resTicks) {
-            for (float x = 0; x < entityData->getGrid()->width(); x+=resTicks) {
-                imageFile << " " << std::to_string(entityData->getProbability(x, y)) << " ";
-            }
-            imageFile << "\n";
-        }
-        imageFile.close();
-    }
-    else
-    {
+    if ( ! workspace) {
         std::cout << "failed to get workspace " << std::endl;
+        return 1;
     }
-    return workspace == nullptr;
+
+    // do the magic
+    // export to ROS compatible 2d map data, see http://wiki.ros.org/map_server
+    // YAML file and some sort of picture / graphic image required
+    // graphic image will be interpreted using SDL_Imgage,see http://www.libsdl.org/projects/SDL_image/docs/SDL_image.html
+    // for supported formats.
+    // Using pnm file, more specific pgm for greyscale as map only needs greyscales
+    // definiion, see http://netpbm.sourceforge.net/doc/pgm.html
+
+    // load entity data
+    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath
+            = workspace->getEntitydataReadOnly(vars["path"].as<std::string>());
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> entityData
+            = std::dynamic_pointer_cast<mapit::entitytypes::Grid2DHelper>( abstractentitydataByPath );
+
+    // write yaml file
+    std::ofstream yamlFile;
+    yamlFile.open (vars["path"].as<std::string>() + ".yaml");
+    yamlFile << "image: " << vars["path"].as<std::string>() << ".pgm\n";
+    yamlFile << "reslution: " << std::to_string(entityData->getGrid().resolution()) << "\n";
+    mapit::msgs::Vector oTrans = entityData->getGrid().origin().translation();
+    mapit::msgs::Quaternion oRot = entityData->getGrid().origin().rotation();
+
+    // calc yaw (z-axis rotation) from quaternation
+    // code from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+    double siny = +2.0 * (oRot.w() * oRot.z() + oRot.x() * oRot.y());
+    double cosy = +1.0 - 2.0 * (oRot.y() * oRot.y() + oRot.z() * oRot.z());
+    double yaw = atan2(siny, cosy);
+    yamlFile << "origin: [" << std::to_string(oTrans.x()) << ", " << std::to_string(oTrans.y())
+             << ", " << std::to_string(yaw) << "]\n";
+    // TODO set through params?
+    yamlFile << "occupied_thresh: 0.99";
+    yamlFile << "free_thresh: 0.01";
+    yamlFile << "negate: 1"; // image is negated
+    yamlFile.close();
+
+    // write image file
+    // image is ASCII exchange file format, may be more efficient to use binary format
+    // see
+    std::ofstream imageFile;
+    imageFile.open (vars["path"].as<std::string>() + ".pgm");
+    // P2 width height maxVal
+    imageFile << "P2\n";
+    imageFile << "Export of 2d map data";
+    imageFile << std::to_string(entityData->getGrid().width()) << " " << std::to_string(entityData->getGrid().width()) << "\n";
+    imageFile << "100\n";
+    const float resTicks = entityData->getGrid().resolution();
+    for (float y = 0; y < entityData->getGrid().height(); y+= resTicks) {
+        for (float x = 0; x < entityData->getGrid().width(); x+=resTicks) {
+            imageFile << " " << std::to_string(entityData->getProbability(x, y)) << " ";
+        }
+        imageFile << "\n";
+    }
+    imageFile.close();
+
+    return 0;
 }
