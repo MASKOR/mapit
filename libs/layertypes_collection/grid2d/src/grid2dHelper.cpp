@@ -43,6 +43,7 @@ void
 Grid2DHelper::initGrid(const float &size_x, const float &size_y,
                             const float &resolution, const msgs::Pose &origin)
 {
+    grid_ = std::make_shared<mapit::msgs::Grid2D>();
     grid_->set_width( static_cast<unsigned int>(size_x / resolution) );
     grid_->set_height( static_cast<unsigned int>(size_y / resolution) );
 
@@ -84,8 +85,8 @@ Grid2DHelper::getGridPosition(const float &x, const float &y)
     unsigned int xPos = get_fitted_x(x);
     unsigned int yPos = get_fitted_y(y);
 
-    if (   xPos > grid_->width()
-        || yPos > grid_->height()) {
+    if (   xPos > grid_->height()
+        || yPos > grid_->width()) {
         log_error("Grid2DHelper: Position outside of grid");
         throw std::out_of_range("Grid2DHelper: position is out of field boundaries");
     }
@@ -97,8 +98,9 @@ unsigned int
 Grid2DHelper::get_fitted_xy(const float &xy, const float &pose, const unsigned int &step)
 {
     return static_cast<unsigned int>(
-                std::roundf( xy / grid_->resolution() )
-                + std::roundf( pose * step / 2 / grid_->resolution() )
+                  std::roundf( xy / grid_->resolution() )       // offset from pose on grid
+                + std::roundf( pose / grid_->resolution() )     // offset of pose on grid
+                + std::roundf( step / 2 )                       // center of grid
                 );
 }
 
