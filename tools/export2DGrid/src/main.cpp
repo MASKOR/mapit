@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     image_name = image_name.substr( image_name.find_last_of("/") + 1, image_name.size() );
     yamlFile.open (vars["mapFile"].as<std::string>() + ".yaml");
     yamlFile << "image: " << image_name << ".png" << std::endl;
-    yamlFile << "reslution: " << std::to_string(gridHelper->getGrid().resolution()) << std::endl;
+    yamlFile << "resolution: " << std::to_string(gridHelper->getGrid().resolution()) << std::endl;
     mapit::msgs::Vector oTrans = gridHelper->getGrid().origin().translation();
     mapit::msgs::Quaternion oRot = gridHelper->getGrid().origin().rotation();
 
