@@ -170,7 +170,7 @@ mapit::StatusCode operate_octomap2opccupancy_grid(mapit::OperationEnvironment* e
     mapit::msgs::Pose origin;
     origin.mutable_translation()->set_x(0);
     origin.mutable_translation()->set_y(0);
-    float grid_size_factor = 1.3f;
+    float grid_size_factor = 2.0f;
     grid->initGrid(octomap_max_x * grid_size_factor, octomap_max_y * grid_size_factor, static_cast<float>(octomap_resolution), origin);
 
     Eigen::Affine3f pose;
