@@ -58,350 +58,351 @@ void TestGrid2D::cleanupTestCase()
     cleanupTestdata();
 }
 
-void TestGrid2D::testGetData() {
-    QVERIFY(true);
-}
+//void TestGrid2D::testGetData() {
+//    QVERIFY(true);
+//}
 
-void TestGrid2D::testSetData() {
-    QVERIFY(true);
-}
+//void TestGrid2D::testSetData() {
+//    QVERIFY(true);
+//}
 
-void TestGrid2D::testGetData2() {
-    QVERIFY(true);
-}
+//void TestGrid2D::testGetData2() {
+//    QVERIFY(true);
+//}
 
-//void TestGrid2D::testGetData()
-//{
+void TestGrid2D::testGetData()
+{
 
-//    QFETCH(std::shared_ptr<mapit::Repository>, repo);
-//    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
-//    std::string epath("/hello/test/gridentity");
-//    Grid2D grid;
+    std::string epath("/hello/test/gridentity");
+    mapit::msgs::Grid2D grid;
 
-//    // test data
-//    float resolution = 100;
-//    float width = 2;
-//    float height = 3;
-//    // Position of origin, create quarernation & vector
-//    mapit::msgs::Quaternion origin_rot;
-//    origin_rot.set_w(1);
-//    origin_rot.set_x(2);
-//    origin_rot.set_y(3);
-//    origin_rot.set_z(4);
+    // test data
+    float resolution = 100;
+    float width = 2;
+    float height = 3;
+    // Position of origin, create quarernation & vector
+    mapit::msgs::Quaternion origin_rot;
+    origin_rot.set_w(1);
+    origin_rot.set_x(2);
+    origin_rot.set_y(3);
+    origin_rot.set_z(4);
 
-//    mapit::msgs::Vector origin_trans;
-//    origin_trans.set_x(5);
-//    origin_trans.set_y(6);
-//    origin_trans.set_z(7);
-
-
-//    mapit::msgs::Pose origin;
-
-//    origin.set_allocated_rotation(&origin_rot);
-//    origin.set_allocated_translation(&origin_trans);
-//    // data as bytes but converted to string in c++, so how does the string look like?
-//    //bytes data = 5;
-
-//    grid.set_resolution(resolution);
-//    grid.set_width(width);
-//    grid.set_height(height);
-//    grid.set_allocated_origin(&origin);
-//    std::string data = "12345";
-//    grid.set_allocated_data(&data);
-
-//    std::cout << "Grid at creation, rot(w) is: " << grid.origin().rotation().w() << "\n";
-////    origin.release_rotation();
-////    origin.release_translation();
-////    grid.release_origin();
-////    grid.release_data();
+    mapit::msgs::Vector origin_trans;
+    origin_trans.set_x(5);
+    origin_trans.set_y(6);
+    origin_trans.set_z(7);
 
 
-//    std::cout << "Grid at after release, rot(w) is: " << grid.origin().rotation().w() << "\n";
+    mapit::msgs::Pose origin;
 
+    origin.set_allocated_rotation(&origin_rot);
+    origin.set_allocated_translation(&origin_trans);
+    // data as bytes but converted to string in c++, so how does the string look like?
+    //bytes data = 5;
 
-//    // create operation
-//    OperationDescription desc;
-//    desc.mutable_operator_()->set_operatorname("myUntraceable");
-//    desc.set_params("{\"source:\":\"testInlineOperator\"}");
-//    QVERIFY(repo     != nullptr);
-//    QVERIFY(workspace != nullptr);
-//    mapit::OperationResult res = workspace->doUntraceableOperation(desc
-//                                                                   , [&grid, &epath](mapit::OperationEnvironment* env)
-//    {
-//        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
-//        std::shared_ptr<Entity> e(new Entity);
-//        e->set_type(Grid2DEntitydata::TYPENAME());
-//        mapit::StatusCode status = coraw->storeEntity(epath, e);
-//        if(!mapitIsOk(status))
-//        {
-//            return MAPIT_STATUS_ERROR;
-//        }
-//        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
-//        std::shared_ptr<Grid2DEntitydata> entityData = std::dynamic_pointer_cast<Grid2DEntitydata>( abstractEntitydata );
-//        if(entityData == nullptr)
-//        {
-//            return MAPIT_STATUS_ERROR;
-//        }
-//        std::cout << "Grid input, rot(w) is: " << grid.origin().rotation().w() << "\n";
+    grid.set_resolution(resolution);
+    grid.set_width(width);
+    grid.set_height(height);
+    grid.set_allocated_origin(&origin);
+    std::string data = "12345";
+    grid.set_allocated_data(&data);
 
-//        //copy from scan, then setData
-//        std::shared_ptr<mapit::msgs::Grid2D> grid2d(new mapit::msgs::Grid2D);
-//        grid2d->CopyFrom(grid);
-//        std::cout << "Grid before copy, rot(w) is: " << grid2d->origin().rotation().w() << "\n";
-//        std::shared_ptr<Grid2DHelper> help;
-//        std::shared_ptr<mapit::msgs::Grid2D> ptrGr(grid);
-//        help->setGrid(ptrGr);
-//        entityData->setData(help);
-//        return MAPIT_STATUS_OK;
-//    });
-//    QVERIFY(mapitIsOk(res.first));
-
-
-//    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = workspace->getEntitydataReadOnly(epath);
-//    std::shared_ptr<Grid2DEntitydata> entityData = std::dynamic_pointer_cast<Grid2DEntitydata>( abstractentitydataByPath );
-//    QVERIFY( entityData != nullptr );
-//    std::shared_ptr<Grid2DHelper> helpOut = entityData->getData(0);
-//    mapit::entitytypes::Grid2DType gridFromWS = helpOut->getGrid();
-//    QVERIFY(gridFromWS->resolution() == resolution);
-//    QVERIFY(gridFromWS->width() == width);
-//    QVERIFY(gridFromWS->height() == height);
-//    mapit::msgs::Pose poseFromWS = gridFromWS->origin();
-//    //QVERIFY( poseFromWS != nullptr );
-//    mapit::msgs::Quaternion rotationFromWS = poseFromWS.rotation();
-//    mapit::msgs::Vector translationFromWS = poseFromWS.translation();
-//    //QVERIFY( rotationFromWS != nullptr );
-//   // QVERIFY( translationFromWS != nullptr );
-//    std::cout << "WS rot(w): " << rotationFromWS.x() << "\n";
-//    std::cout << "OV rot(w): " << origin_rot.w() << "\n";
-//    QVERIFY(rotationFromWS.w() == origin_rot.w());
-//    QVERIFY(rotationFromWS.x() == origin_rot.x());
-//    QVERIFY(rotationFromWS.y() == origin_rot.y());
-//    QVERIFY(rotationFromWS.z() == origin_rot.z());
-//    QVERIFY(translationFromWS.x() == origin_trans.x());
-//    QVERIFY(translationFromWS.y() == origin_trans.y());
-//    QVERIFY(translationFromWS.z() == origin_trans.z());
-
-//    // release objects for memory integrity, seems like protobuf does not take care of that
-//    // altough documentation says it should
+    std::cout << "Grid at creation, rot(w) is: " << grid.origin().rotation().w() << "\n";
 //    origin.release_rotation();
 //    origin.release_translation();
 //    grid.release_origin();
 //    grid.release_data();
-//}
-
-//void TestGrid2D::testGetData2()
-//{
-
-//    QFETCH(std::shared_ptr<mapit::Repository>, repo);
-//    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
-
-//    std::string epath("/hello/test/gridentity");
-//    Grid2D grid;
-
-//    // test data
-//    float resolution = 100;
-//    float width = 2;
-//    float height = 3;
-//    // Position of origin, create quarernation & vector
-//    mapit::msgs::Quaternion origin_rot;
-//    origin_rot.set_w(1);
-//    origin_rot.set_x(2);
-//    origin_rot.set_y(3);
-//    origin_rot.set_z(4);
-
-//    mapit::msgs::Vector origin_trans;
-//    origin_trans.set_x(5);
-//    origin_trans.set_y(6);
-//    origin_trans.set_z(7);
 
 
-//    mapit::msgs::Pose origin;
-
-//    origin.set_allocated_rotation(&origin_rot);
-//    origin.set_allocated_translation(&origin_trans);
-//    // data as bytes but converted to string in c++, so how does the string look like?
-//    //bytes data = 5;
-
-//    grid.set_resolution(resolution);
-//    grid.set_width(width);
-//    grid.set_height(height);
-//    grid.set_allocated_origin(&origin);
-//    signed char ch1 = -1;
-//    signed char ch2 = 100;
-//    signed char ch3 = 15;
-//    std::string data;
-//    data += ch1;
-//    data += ch2;
-//    data += ch3;
-//    //std::string data = "12345";
-//    grid.set_allocated_data(&data);
-
-//    // create operation
-//    OperationDescription desc;
-//    desc.mutable_operator_()->set_operatorname("myUntraceable");
-//    desc.set_params("{\"source:\":\"testInlineOperator\"}");
-//    QVERIFY(repo     != nullptr);
-//    QVERIFY(workspace != nullptr);
-//    mapit::OperationResult res = workspace->doUntraceableOperation(desc
-//                                                                   , [&grid, &epath](mapit::OperationEnvironment* env)
-//    {
-//        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
-//        std::shared_ptr<Entity> e(new Entity);
-//        e->set_type(Grid2DEntitydata::TYPENAME());
-//        mapit::StatusCode status = coraw->storeEntity(epath, e);
-//        if(!mapitIsOk(status))
-//        {
-//            return MAPIT_STATUS_ERROR;
-//        }
-//        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
-//        std::shared_ptr<Grid2DEntitydata> entityData = std::dynamic_pointer_cast<Grid2DEntitydata>( abstractEntitydata );
-//        if(entityData == nullptr)
-//        {
-//            return MAPIT_STATUS_ERROR;
-//        }
-//        std::cout << "Grid input, rot(w) is: " << grid.origin().rotation().w() << "\n";
-
-//        //copy from scan, then setData
-//        std::shared_ptr<mapit::msgs::Grid2D> grid2d(new mapit::msgs::Grid2D);
-//        grid2d->CopyFrom(grid);
-//        std::cout << "Grid before copy, rot(w) is: " << grid2d->origin().rotation().w() << "\n";
-//        std::shared_ptr<Grid2DHelper> help();
-//        help->setGrid(grid2d);
-//        entityData->setData(help);
-//        return MAPIT_STATUS_OK;
-//    });
-//    QVERIFY(mapitIsOk(res.first));
+    std::cout << "Grid at after release, rot(w) is: " << grid.origin().rotation().w() << "\n";
 
 
-//    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = workspace->getEntitydataReadOnly(epath);
-//    std::shared_ptr<Grid2DEntitydata> entityData = std::dynamic_pointer_cast<Grid2DEntitydata>( abstractentitydataByPath );
-//    QVERIFY( entityData != nullptr );
-//    std::shared_ptr<Grid2DHelper> helpOut = entityData->getData(0);
-//    mapit::entitytypes::Grid2DType gridFromWS = helpOut->getGrid();
-//    QVERIFY(gridFromWS->resolution() == resolution);
-//    QVERIFY(gridFromWS->width() == width);
-//    QVERIFY(gridFromWS->height() == height);
-//    mapit::msgs::Pose poseFromWS = gridFromWS->origin();
-//    //QVERIFY( poseFromWS != nullptr );
-//    mapit::msgs::Quaternion rotationFromWS = poseFromWS.rotation();
-//    mapit::msgs::Vector translationFromWS = poseFromWS.translation();
-//    //QVERIFY( rotationFromWS != nullptr );
-//   // QVERIFY( translationFromWS != nullptr );
-//    std::cout << "WS rot(w): " << rotationFromWS.x() << "\n";
-//    std::cout << "OV rot(w): " << origin_rot.w() << "\n";
-//    QVERIFY(rotationFromWS.w() == origin_rot.w());
-//    QVERIFY(rotationFromWS.x() == origin_rot.x());
-//    QVERIFY(rotationFromWS.y() == origin_rot.y());
-//    QVERIFY(rotationFromWS.z() == origin_rot.z());
-//    QVERIFY(translationFromWS.x() == origin_trans.x());
-//    QVERIFY(translationFromWS.y() == origin_trans.y());
-//    QVERIFY(translationFromWS.z() == origin_trans.z());
+    // create operation
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
+    desc.set_params("{\"source:\":\"testInlineOperator\"}");
+    QVERIFY(repo     != nullptr);
+    QVERIFY(workspace != nullptr);
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc
+                                                                   , [&grid, &epath](mapit::OperationEnvironment* env)
+    {
+        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
+        std::shared_ptr<Entity> e(new Entity);
+        e->set_type(mapit::entitytypes::Grid2D::TYPENAME());
+        mapit::StatusCode status = coraw->storeEntity(epath, e);
+        if(!mapitIsOk(status))
+        {
+            return MAPIT_STATUS_ERROR;
+        }
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
+        std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractEntitydata );
+        if(entityData == nullptr)
+        {
+            return MAPIT_STATUS_ERROR;
+        }
+        std::cout << "Grid input, rot(w) is: " << grid.origin().rotation().w() << "\n";
 
-//    std::string dataFromWS = gridFromWS->data();
+        //copy from scan, then setData
+        std::shared_ptr<mapit::msgs::Grid2D> grid2d = std::make_shared<mapit::msgs::Grid2D>();
+        grid2d->CopyFrom(grid);
+        std::cout << "Grid before copy, rot(w) is: " << grid2d->origin().rotation().w() << "\n";
+        std::shared_ptr<mapit::entitytypes::Grid2DHelper> help = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+        help->setGrid(*grid2d);
+        entityData->setData(help);
+        return MAPIT_STATUS_OK;
+    });
+    QVERIFY(mapitIsOk(res.first));
+
+    float epsilon = 0.000001;
+
+    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = workspace->getEntitydataReadOnly(epath);
+    std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractentitydataByPath );
+    QVERIFY( entityData != nullptr );
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> helpOut = entityData->getData(0);
+    mapit::msgs::Grid2D gridFromWS = helpOut->getGrid();
+    QVERIFY(std::abs(gridFromWS.resolution() - resolution) < epsilon);
+    QVERIFY(std::abs(gridFromWS.width() - width)< epsilon);
+    QVERIFY(std::abs(gridFromWS.height() - height) < epsilon);
+    mapit::msgs::Pose poseFromWS = gridFromWS.origin();
+    //QVERIFY( poseFromWS != nullptr );
+    mapit::msgs::Quaternion rotationFromWS = poseFromWS.rotation();
+    mapit::msgs::Vector translationFromWS = poseFromWS.translation();
+    //QVERIFY( rotationFromWS != nullptr );
+   // QVERIFY( translationFromWS != nullptr );
+    std::cout << "WS rot(w): " << rotationFromWS.x() << "\n";
+    std::cout << "OV rot(w): " << origin_rot.w() << "\n";
+    QVERIFY(std::abs(rotationFromWS.w() - origin_rot.w()) < epsilon);
+    QVERIFY(std::abs(rotationFromWS.x() - origin_rot.x()) < epsilon);
+    QVERIFY(std::abs(rotationFromWS.y() - origin_rot.y()) < epsilon);
+    QVERIFY(std::abs(rotationFromWS.z() - origin_rot.z()) < epsilon);
+    QVERIFY(std::abs(translationFromWS.x() - origin_trans.x()) < epsilon);
+    QVERIFY(std::abs(translationFromWS.y() - origin_trans.y()) < epsilon);
+    QVERIFY(std::abs(translationFromWS.z() - origin_trans.z()) < epsilon);
+
+    // release objects for memory integrity, seems like protobuf does not take care of that
+    // altough documentation says it should
+    origin.release_rotation();
+    origin.release_translation();
+    grid.release_origin();
+    grid.release_data();
+}
+
+void TestGrid2D::testGetData2()
+{
+
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
+
+    std::string epath("/hello/test/gridentity");
+    Grid2D grid;
+
+    // test data
+    float resolution = 100;
+    float width = 2;
+    float height = 3;
+    // Position of origin, create quarernation & vector
+    mapit::msgs::Quaternion origin_rot;
+    origin_rot.set_w(1);
+    origin_rot.set_x(2);
+    origin_rot.set_y(3);
+    origin_rot.set_z(4);
+
+    mapit::msgs::Vector origin_trans;
+    origin_trans.set_x(5);
+    origin_trans.set_y(6);
+    origin_trans.set_z(7);
 
 
-//    int n = dataFromWS.length();
-//    char char_array[n+1];
-//    strcpy(char_array, dataFromWS.c_str());
+    mapit::msgs::Pose origin;
 
-//    std::cout << "Printing chars as integer: ";
-//    for (int i=0; i<n; i++)
-//      std::cout << (signed char)char_array[i];
-//    std::cout << "\n";
+    origin.set_allocated_rotation(&origin_rot);
+    origin.set_allocated_translation(&origin_trans);
+    // data as bytes but converted to string in c++, so how does the string look like?
+    //bytes data = 5;
 
-//    QVERIFY((int)char_array[0] == (int) ch1);
-//    QVERIFY((int)char_array[1] == (int) ch2);
-//    QVERIFY((int)char_array[2] == (int) ch3);
+    grid.set_resolution(resolution);
+    grid.set_width(width);
+    grid.set_height(height);
+    grid.set_allocated_origin(&origin);
+    signed char ch1 = -1;
+    signed char ch2 = 100;
+    signed char ch3 = 15;
+    std::string data;
+    data += ch1;
+    data += ch2;
+    data += ch3;
+    //std::string data = "12345";
+    grid.set_allocated_data(&data);
 
-//    // release objects for memory integrity, seems like protobuf does not take care of that
-//    // altough documentation says it should
-//    origin.release_rotation();
-//    origin.release_translation();
-//    grid.release_origin();
-//    grid.release_data();
-//}
+    // create operation
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
+    desc.set_params("{\"source:\":\"testInlineOperator\"}");
+    QVERIFY(repo     != nullptr);
+    QVERIFY(workspace != nullptr);
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc
+                                                                   , [&grid, &epath](mapit::OperationEnvironment* env)
+    {
+        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
+        std::shared_ptr<Entity> e(new Entity);
+        e->set_type(mapit::entitytypes::Grid2D::TYPENAME());
+        mapit::StatusCode status = coraw->storeEntity(epath, e);
+        if(!mapitIsOk(status))
+        {
+            return MAPIT_STATUS_ERROR;
+        }
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
+        std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractEntitydata );
+        if(entityData == nullptr)
+        {
+            return MAPIT_STATUS_ERROR;
+        }
+        std::cout << "Grid input, rot(w) is: " << grid.origin().rotation().w() << "\n";
 
-//void TestGrid2D::testSetData()
-//{
+        //copy from scan, then setData
+        std::shared_ptr<mapit::msgs::Grid2D> grid2d(new mapit::msgs::Grid2D);
+        grid2d->CopyFrom(grid);
+        std::cout << "Grid before copy, rot(w) is: " << grid2d->origin().rotation().w() << "\n";
+        std::shared_ptr<mapit::entitytypes::Grid2DHelper> help = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+        help->setGrid(*grid2d);
+        entityData->setData(help);
+        return MAPIT_STATUS_OK;
+    });
+    QVERIFY(mapitIsOk(res.first));
 
-//    QFETCH(std::shared_ptr<mapit::Repository>, repo);
-//    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
+    float epsilon = 0.000001;
 
-//    std::string epath("/hello/test/gridentity");
-//    Grid2D grid;
+    std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = workspace->getEntitydataReadOnly(epath);
+    std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractentitydataByPath );
+    QVERIFY( entityData != nullptr );
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> helpOut = entityData->getData(0);
+    mapit::msgs::Grid2D gridFromWS = helpOut->getGrid();
+    QVERIFY(std::abs(gridFromWS.resolution() - resolution) < epsilon);
+    QVERIFY(std::abs(gridFromWS.width() - width) < epsilon);
+    QVERIFY(std::abs(gridFromWS.height() - height) < epsilon);
+    mapit::msgs::Pose poseFromWS = gridFromWS.origin();
+    //QVERIFY( poseFromWS != nullptr );
+    mapit::msgs::Quaternion rotationFromWS = poseFromWS.rotation();
+    mapit::msgs::Vector translationFromWS = poseFromWS.translation();
+    //QVERIFY( rotationFromWS != nullptr );
+   // QVERIFY( translationFromWS != nullptr );
+    std::cout << "WS rot(w): " << rotationFromWS.x() << "\n";
+    std::cout << "OV rot(w): " << origin_rot.w() << "\n";
+    QVERIFY(std::abs(rotationFromWS.w() - origin_rot.w()) < epsilon);
+    QVERIFY(std::abs(rotationFromWS.x() - origin_rot.x()) < epsilon);
+    QVERIFY(std::abs(rotationFromWS.y() - origin_rot.y()) < epsilon);
+    QVERIFY(std::abs(rotationFromWS.z() - origin_rot.z()) < epsilon);
+    QVERIFY(std::abs(translationFromWS.x() - origin_trans.x()) < epsilon);
+    QVERIFY(std::abs(translationFromWS.y() - origin_trans.y()) < epsilon);
+    QVERIFY(std::abs(translationFromWS.z() - origin_trans.z()) < epsilon);
 
-//    // test data
-//    float resolution = 100;
-//    float width = 2;
-//    float height = 3;
-//    // Position of origin, create quarernation & vector
-//    mapit::msgs::Quaternion origin_rot;
-//    origin_rot.set_w(1);
-//    origin_rot.set_x(2);
-//    origin_rot.set_y(3);
-//    origin_rot.set_z(4);
-
-//    mapit::msgs::Vector origin_trans;
-//    origin_trans.set_x(5);
-//    origin_trans.set_y(6);
-//    origin_trans.set_z(7);
+    std::string dataFromWS = gridFromWS.data();
 
 
-//    mapit::msgs::Pose origin;
+    int n = dataFromWS.length();
+    char char_array[n+1];
+    strcpy(char_array, dataFromWS.c_str());
 
-//    origin.set_allocated_rotation(&origin_rot);
-//    origin.set_allocated_translation(&origin_trans);
-//    // data as bytes but converted to string in c++, so how does the string look like?
-//    //bytes data = 5;
+    std::cout << "Printing chars as integer: ";
+    for (int i=0; i<n; i++)
+      std::cout << static_cast<signed char>(char_array[i]);
+    std::cout << "\n";
 
-//    grid.set_resolution(resolution);
-//    grid.set_width(width);
-//    grid.set_height(height);
-//    grid.set_allocated_origin(&origin);
-//    std::string data = "12345";
-//    grid.set_allocated_data(&data);
+    QVERIFY(static_cast<int>(char_array[0]) == static_cast<int>(ch1));
+    QVERIFY(static_cast<int>(char_array[1]) == static_cast<int>(ch2));
+    QVERIFY(static_cast<int>(char_array[2]) == static_cast<int>(ch3));
 
-//    // create operation
-//    OperationDescription desc;
-//    desc.mutable_operator_()->set_operatorname("myUntraceable");
-//    desc.set_params("{\"source:\":\"testInlineOperator\"}");
-//    QVERIFY(repo     != nullptr);
-//    QVERIFY(workspace != nullptr);
-//    mapit::OperationResult res = workspace->doUntraceableOperation(desc
-//                                                                   , [&grid, &epath](mapit::OperationEnvironment* env)
-//    {
-//        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
-//        std::shared_ptr<Entity> e(new Entity);
-//        e->set_type(Grid2DEntitydata::TYPENAME());
-//        mapit::StatusCode status = coraw->storeEntity(epath, e);
-//        if(!mapitIsOk(status))
-//        {
-//            return MAPIT_STATUS_ERROR;
-//        }
-//        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
-//        std::shared_ptr<Grid2DEntitydata> entityData = std::dynamic_pointer_cast<Grid2DEntitydata>( abstractEntitydata );
-//        if(entityData == nullptr)
-//        {
-//            return MAPIT_STATUS_ERROR;
-//        }
+    // release objects for memory integrity, seems like protobuf does not take care of that
+    // altough documentation says it should
+    origin.release_rotation();
+    origin.release_translation();
+    grid.release_origin();
+    grid.release_data();
+}
 
-//        //copy from scan, then setData
-//        std::shared_ptr<mapit::msgs::Grid2D> grid2d(new mapit::msgs::Grid2D);
-//        grid2d->CopyFrom(grid);
-//        std::shared_ptr<Grid2DHelper> help();
-//        help->setGrid(grid2d);
-//        entityData->setData(help);
-//        return MAPIT_STATUS_OK;
-//    });
-//    QVERIFY(mapitIsOk(res.first));
+void TestGrid2D::testSetData()
+{
 
-//    // release objects, see testGetData
-//    origin.release_rotation();
-//    origin.release_translation();
-//    grid.release_origin();
-//    grid.release_data();
-//}
+    QFETCH(std::shared_ptr<mapit::Repository>, repo);
+    QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
+
+    std::string epath("/hello/test/gridentity");
+    Grid2D grid;
+
+    // test data
+    float resolution = 100;
+    float width = 2;
+    float height = 3;
+    // Position of origin, create quarernation & vector
+    mapit::msgs::Quaternion origin_rot;
+    origin_rot.set_w(1);
+    origin_rot.set_x(2);
+    origin_rot.set_y(3);
+    origin_rot.set_z(4);
+
+    mapit::msgs::Vector origin_trans;
+    origin_trans.set_x(5);
+    origin_trans.set_y(6);
+    origin_trans.set_z(7);
+
+
+    mapit::msgs::Pose origin;
+
+    origin.set_allocated_rotation(&origin_rot);
+    origin.set_allocated_translation(&origin_trans);
+    // data as bytes but converted to string in c++, so how does the string look like?
+    //bytes data = 5;
+
+    grid.set_resolution(resolution);
+    grid.set_width(width);
+    grid.set_height(height);
+    grid.set_allocated_origin(&origin);
+    std::string data = "12345";
+    grid.set_allocated_data(&data);
+
+    // create operation
+    OperationDescription desc;
+    desc.mutable_operator_()->set_operatorname("myUntraceable");
+    desc.set_params("{\"source:\":\"testInlineOperator\"}");
+    QVERIFY(repo     != nullptr);
+    QVERIFY(workspace != nullptr);
+    mapit::OperationResult res = workspace->doUntraceableOperation(desc
+                                                                   , [&grid, &epath](mapit::OperationEnvironment* env)
+    {
+        mapit::operators::WorkspaceWritable *coraw = env->getWorkspace();
+        std::shared_ptr<Entity> e(new Entity);
+        e->set_type(mapit::entitytypes::Grid2D::TYPENAME());
+        mapit::StatusCode status = coraw->storeEntity(epath, e);
+        if(!mapitIsOk(status))
+        {
+            return MAPIT_STATUS_ERROR;
+        }
+        std::shared_ptr<mapit::AbstractEntitydata> abstractEntitydata = coraw->getEntitydataForReadWrite( epath );
+        std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractEntitydata );
+        if(entityData == nullptr)
+        {
+            return MAPIT_STATUS_ERROR;
+        }
+
+        //copy from scan, then setData
+        std::shared_ptr<mapit::msgs::Grid2D> grid2d(new mapit::msgs::Grid2D);
+        grid2d->CopyFrom(grid);
+        std::shared_ptr<mapit::entitytypes::Grid2DHelper> help = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+        help->setGrid(*grid2d);
+        entityData->setData(help);
+        return MAPIT_STATUS_OK;
+    });
+    QVERIFY(mapitIsOk(res.first));
+
+    // release objects, see testGetData
+    origin.release_rotation();
+    origin.release_translation();
+    grid.release_origin();
+    grid.release_data();
+}
 
 void TestGrid2D::testGetData_data() { createTestdata(false, false); }
 void TestGrid2D::testGetData2_data() { createTestdata(false, false); }
