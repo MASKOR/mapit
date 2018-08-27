@@ -66,6 +66,7 @@ mapit::StatusCode saveRandomTFForEntity(  mapit::OperationEnvironment* env
                                        , std::shared_ptr<mapit::msgs::Entity> entity
                                        , const std::string& target
                                        , const std::string& frame_id
+                                       , const std::string& child_frame_id
                                        , const std::string& tfStoragePrefix
                                        , RandomStorage randomStorage)
 {
@@ -73,7 +74,6 @@ mapit::StatusCode saveRandomTFForEntity(  mapit::OperationEnvironment* env
         log_error("Can't acces entity: " + target);
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
-    std::string child_frame_id = entity->frame_id();
     if (child_frame_id.empty()) {
         log_error("Entity " + target + " does not have a frame_id set");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
@@ -141,6 +141,7 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
     std::string target = params["target"].toString().toStdString();
     std::string tfStoragePrefix = params["tf-storage-prefix"].toString().toStdString();
     std::string frame_id = params["frame_id"].toString().toStdString();
+    std::string child_frame_id = params["child_frame_id"].toString().toStdString();
     RandomStorage randomStorage;
     try {
         randomStorage.xMin = getParam(params, "x-min");
@@ -163,7 +164,7 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
     std::shared_ptr<mapit::msgs::Entity> entity = env->getWorkspace()->getEntity(target);
     if ( entity ) {
         // execute on entity
-        return saveRandomTFForEntity(env, entity, target, frame_id, tfStoragePrefix, randomStorage);
+        return saveRandomTFForEntity(env, entity, target, frame_id, child_frame_id, tfStoragePrefix, randomStorage);
     } else if ( env->getWorkspace()->getTree(target) ) {
         // execute on tree
         mapit::StatusCode status = MAPIT_STATUS_OK;
@@ -173,7 +174,7 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
                     , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
                     , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
                         {
-                            status = saveRandomTFForEntity(env, obj, path, frame_id, tfStoragePrefix, randomStorage);
+                            status = saveRandomTFForEntity(env, obj, path, frame_id, child_frame_id, tfStoragePrefix, randomStorage);
                             if ( ! mapitIsOk(status) ) {
                                 return false;
                             }
