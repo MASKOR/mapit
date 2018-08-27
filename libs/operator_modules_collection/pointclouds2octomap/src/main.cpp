@@ -39,6 +39,8 @@
 #include <QtCore/QJsonArray>
 #include <pcl/io/pcd_io.h>
 
+std::shared_ptr<mapit::tf2::BufferCore> buffer_;
+
 void
 addPointcloud(  mapit::OperationEnvironment* env
               , std::string const &tf_prefix
@@ -73,8 +75,7 @@ addPointcloud(  mapit::OperationEnvironment* env
     pcl::fromPCLPointCloud2(*input_pc2, input_pc);
 
     // get transform
-    mapit::tf2::BufferCore buffer(env->getWorkspace(), tf_prefix);
-    mapit::tf::TransformStamped tf = buffer.lookupTransform(target_frame_id, frame_id, stamp);
+    mapit::tf::TransformStamped tf = buffer_->lookupTransform(target_frame_id, frame_id, stamp);
 
     // add cloud to octomap
     octomap::Pointcloud cloudOM;
@@ -187,6 +188,8 @@ mapit::StatusCode operate_pcds2octomap(mapit::OperationEnvironment* env)
         log_error("operator pointclouds2octomap: cfg \"resolution\" too small or empty, can't set to " << resolution << " should at least be 0.001");
         return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
     }
+
+    buffer_ = std::make_shared<mapit::tf2::BufferCore>(env->getWorkspace(), tf_prefix);
 
     // create (or overwrite) target entity
     std::shared_ptr<mapit::msgs::Entity> target_entity = std::make_shared<mapit::msgs::Entity>();
