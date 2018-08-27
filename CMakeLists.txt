@@ -171,6 +171,7 @@ add_subdirectory(tools/stream_to_ros)
 add_subdirectory(tools/ls)
 add_subdirectory(tools/diff)
 add_subdirectory(tools/export_octree)
+add_subdirectory(tools/get_transform)
 
 set(MAPIT_ENABLE_TESTS ON CACHE BOOL "Generate tests (need Qt)")
 if(MAPIT_ENABLE_TESTS)
