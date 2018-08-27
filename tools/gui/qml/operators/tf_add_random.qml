@@ -40,6 +40,7 @@ ColumnLayout {
                 "target"   : entityChooserTarget.currentEntityPath,
                 "tf-storage-prefix" : tfStoragePrefix.currentEntityPath,
                 "frame_id" : frameId.currentText,
+                "child_frame_id" : childFrameId.currentText,
                 "x-min" : parseFloat(xMin.text),
                 "x-max" : parseFloat(xMax.text),
                 "y-min" : parseFloat(yMin.text),
@@ -106,27 +107,44 @@ ColumnLayout {
             currentWorkspace: root.currentWorkspace
             currentText: "random"
         }
+        // child frame_id
+        StyledLabel {
+            Layout.column: 0
+            Layout.row: 3
+            text: "child_frame_id:"
+        }
+        FrameIdChooser {
+            Layout.column: 1
+            Layout.row: 3
+            Layout.columnSpan: 2
+            z: 80
+            Layout.fillWidth: true
+            Layout.minimumWidth: 100
+            id: childFrameId
+            allowNew: true
+            currentWorkspace: root.currentWorkspace
+        }
 
         // min/max values
         StyledLabel {
             Layout.column: 1
-            Layout.row: 3
+            Layout.row: 4
             text: "min:"
         }
         StyledLabel {
             Layout.column: 2
-            Layout.row: 3
+            Layout.row: 4
             text: "max:"
         }
         // x
         StyledLabel {
             Layout.column: 0
-            Layout.row: 4
+            Layout.row: 5
             text: "x:"
         }
         StyledTextField {
             Layout.column: 1
-            Layout.row: 4
+            Layout.row: 5
             id: xMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
@@ -134,7 +152,7 @@ ColumnLayout {
         }
         StyledTextField {
             Layout.column: 2
-            Layout.row: 4
+            Layout.row: 5
             id: xMax
             Layout.fillWidth: true
             validator: DoubleValidator {}
@@ -143,12 +161,12 @@ ColumnLayout {
         // y
         StyledLabel {
             Layout.column: 0
-            Layout.row: 5
+            Layout.row: 6
             text: "y:"
         }
         StyledTextField {
             Layout.column: 1
-            Layout.row: 5
+            Layout.row: 6
             id: yMin
             Layout.fillWidth: true
             validator: DoubleValidator {}
@@ -156,7 +174,7 @@ ColumnLayout {
         }
         StyledTextField {
             Layout.column: 2
-            Layout.row: 5
+            Layout.row: 6
             id: yMax
             Layout.fillWidth: true
             validator: DoubleValidator {}
