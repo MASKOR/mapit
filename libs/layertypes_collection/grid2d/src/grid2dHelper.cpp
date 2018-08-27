@@ -24,6 +24,7 @@
 #include <mapit/logging.h>
 #include <sstream>
 #include <stdexcept>
+#include <cmath>
 
 using namespace mapit::entitytypes;
 
