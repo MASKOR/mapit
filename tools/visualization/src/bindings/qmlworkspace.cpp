@@ -201,32 +201,33 @@ QStringList QmlWorkspace::entities() const
 QStringList QmlWorkspace::getFrameIds()
 {
     if(this->m_workspace == nullptr) return QStringList();
-    QSet<QString> frameIdSet;
-
-    mapit::StatusCode s = this->m_workspace->depthFirstSearch(
-        depthFirstSearchWorkspaceAll(Tree), depthFirstSearchWorkspaceAll(Tree),
-        [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
-        {
-            // get the stream to write into a file
-            assert(obj);
-            frameIdSet.insert(QString::fromStdString(obj->frame_id()));
-
-            if(strcmp(obj->type().c_str(), TfEntitydata::TYPENAME()) == 0)
+    if ( frameIdSet.empty() ) {
+        mapit::StatusCode s = this->m_workspace->depthFirstSearch(
+            depthFirstSearchWorkspaceAll(Tree), depthFirstSearchWorkspaceAll(Tree),
+            [&](std::shared_ptr<Entity> obj, const ObjectReference& ref, const mapit::Path &path)
             {
-                std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_workspace->getEntitydataReadOnly( path );
-                if( ed == nullptr ) return true;
-                std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
-                if( tfEd == nullptr ) return true;
-                std::shared_ptr<mapit::tf::store::TransformStampedList> tfStore = tfEd->getData();
-                if(tfStore == nullptr ) return true;
-                frameIdSet.insert(QString::fromStdString( tfStore->get_child_frame_id() ));
-            }
-            return true;
-        },
-        depthFirstSearchWorkspaceAll(Entity));
-    if( !mapitIsOk(s) ) {
-        log_warn("getFrameIds did not succeed for UI");
+                // get the stream to write into a file
+                assert(obj);
+                frameIdSet.insert(QString::fromStdString(obj->frame_id()));
+
+                if(strcmp(obj->type().c_str(), TfEntitydata::TYPENAME()) == 0)
+                {
+                    std::shared_ptr<mapit::AbstractEntitydata> ed = this->m_workspace->getEntitydataReadOnly( path );
+                    if( ed == nullptr ) return true;
+                    std::shared_ptr<TfEntitydata> tfEd = std::dynamic_pointer_cast<TfEntitydata>( ed );
+                    if( tfEd == nullptr ) return true;
+                    std::shared_ptr<mapit::tf::store::TransformStampedList> tfStore = tfEd->getData();
+                    if(tfStore == nullptr ) return true;
+                    frameIdSet.insert(QString::fromStdString( tfStore->get_child_frame_id() ));
+                }
+                return true;
+            },
+            depthFirstSearchWorkspaceAll(Entity));
+        if( !mapitIsOk(s) ) {
+            log_warn("getFrameIds did not succeed for UI");
+        }
     }
+
     return frameIdSet.toList();
 }
 
@@ -297,6 +298,7 @@ void QmlWorkspace::operationExecuted(int result)
 
 void QmlWorkspace::reloadEntities()
 {
+    frameIdSet.clear();
     m_entities.clear();
     if(m_workspace)
     {
