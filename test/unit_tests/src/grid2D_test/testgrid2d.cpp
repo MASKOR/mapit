@@ -409,4 +409,140 @@ void TestGrid2D::testGetData2_data() { createTestdata(false, false); }
 
 void TestGrid2D::testSetData_data() { createTestdata(false, false); }
 
+void TestGrid2D::testSetDataHelper()
+{
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+    mapit::msgs::Pose origin;
+    origin.mutable_translation()->set_x(0);
+    origin.mutable_translation()->set_y(0);
+    int value_grey = mapit::entitytypes::Grid2DHelper::GRID_UNKNOWN;
+    int value_occu = mapit::entitytypes::Grid2DHelper::GRID_OCCUPIED;
+    int value_free = mapit::entitytypes::Grid2DHelper::GRID_FREE;
+    grid->initGrid(100.0f, 100.0f, static_cast<float>(1.0), origin);
+    // set some vars
+    grid->setProbability(2.0f, 4.0f, value_grey);
+    grid->setProbability(2.0f, 5.0f, value_free);
+    grid->setProbability(2.0f, 6.0f, value_occu);
+
+    grid->setProbability(12.0f, 14.0f, value_free);
+    grid->setProbability(12.0f, 15.0f, value_free);
+    grid->setProbability(12.0f, 16.0f, value_free);
+
+    grid->setProbability(22.0f, 24.0f, value_occu);
+    grid->setProbability(22.0f, 25.0f, value_free);
+    grid->setProbability(22.0f, 26.0f, value_occu);
+
+    mapit::msgs::Grid2D g = grid->getGrid();
+    std::string data = g.data();
+    int n = static_cast<int>(data.length());
+    std::cout << "Grid size; " << n << "\n";
+    char char_array[n+1];
+    strcpy(char_array, data.c_str());
+
+//    std::cout << "Printing chars as integer: ";
+//    for (int i=0; i<n; i++)
+//      std::cout << static_cast<int>(char_array[i]) << " ";
+//    std::cout << "\n" << "End of grid\n";
+
+    QVERIFY(grid->getProbability(2.0f, 4.0f) == value_grey);
+    QVERIFY(grid->getProbability(2.0f, 5.0f) == value_free);
+    QVERIFY(grid->getProbability(2.0f, 6.0f) == value_occu);
+
+    QVERIFY(grid->getProbability(12.0f, 14.0f) == value_free);
+    QVERIFY(grid->getProbability(12.0f, 15.0f) == value_free);
+    QVERIFY(grid->getProbability(12.0f, 16.0f) == value_free);
+
+    QVERIFY(grid->getProbability(22.0f, 24.0f) == value_occu);
+    QVERIFY(grid->getProbability(22.0f, 25.0f) == value_free);
+    QVERIFY(grid->getProbability(22.0f, 26.0f) == value_occu);
+
+    QVERIFY(grid->getProbability(99.0f, 99.0f) == value_grey);
+}
+
+void TestGrid2D::testGetDataHelper()
+{
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+    mapit::msgs::Pose origin;
+    origin.mutable_translation()->set_x(0);
+    origin.mutable_translation()->set_y(0);
+    grid->initGrid(100.0f, 100.0f, static_cast<float>(1.0), origin);
+
+    mapit::msgs::Grid2D g = grid->getGrid();
+    std::string data = g.data();
+
+    QVERIFY(grid->getGrid().width() == 100);
+    QVERIFY(grid->getGrid().height() == 100);
+
+    for (float x = 0.0f; x < 100.0f; x++) {
+        for (float y = 0.0f; y < 100.0f; y++) {
+            //std::cout << "Get value at x=" << x << " and y=" << y << " \n";
+            QVERIFY(grid->getProbability(x, y) == mapit::entitytypes::Grid2DHelper::GRID_UNKNOWN);
+        }
+    }
+}
+
+void TestGrid2D::testGridHelper()
+{
+    float size_x = 100.0f, size_y = 100.0f;
+    std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
+    mapit::msgs::Pose origin;
+    origin.mutable_translation()->set_x(0);
+    origin.mutable_translation()->set_y(0);
+    grid->initGrid(size_x, size_y, static_cast<float>(1.0), origin);
+    QVERIFY(grid->getGrid().width() == size_x);
+    QVERIFY(grid->getGrid().height() == size_y);
+
+    int value_grey = mapit::entitytypes::Grid2DHelper::GRID_UNKNOWN;
+    int value_occu = mapit::entitytypes::Grid2DHelper::GRID_OCCUPIED;
+    int value_free = mapit::entitytypes::Grid2DHelper::GRID_FREE;
+
+    grid->setProbability(2.0f, 2.0f, value_occu);
+
+    grid->setProbability(2.0f, 4.0f, value_grey);
+    grid->setProbability(2.0f, 5.0f, value_free);
+    grid->setProbability(2.0f, 6.0f, value_occu);
+
+    grid->setProbability(12.0f, 14.0f, value_free);
+    grid->setProbability(12.0f, 15.0f, value_free);
+    grid->setProbability(12.0f, 16.0f, value_free);
+
+    grid->setProbability(22.0f, 24.0f, value_occu);
+    grid->setProbability(22.0f, 25.0f, value_free);
+    grid->setProbability(22.0f, 26.0f, value_occu);
+
+    mapit::msgs::Grid2D g = grid->getGrid();
+    std::string data = g.data();
+
+    std::cout << "Testing grid, 10x10, no maipulation: \n";
+    for (float y = 0.0f; y < size_y; y++) {
+        for (float x = 0.0f; x < size_x; x++) {
+            std::cout << grid->getProbability(x, y) << " ";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "Testing grid direct, 10x10, no maipulation: \n";
+    for (int xy = 0; xy < data.length(); xy++) {
+        std::cout << static_cast<int>(data.at(xy)) << " ";
+        if (xy % 100 == 99) {
+            std::cout << "\n";
+        }
+    }
+
+}
+
+void TestGrid2D::testSetDataHelper_data()
+{
+    createTestdata(false, false);
+}
+
+void TestGrid2D::testGetDataHelper_data()
+{
+    createTestdata(false, false);
+}
+
+void TestGrid2D::testGridHelper_data()
+{
+    createTestdata(false, false);
+}
 DECLARE_TEST(TestGrid2D)

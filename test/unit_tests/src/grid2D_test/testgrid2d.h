@@ -45,6 +45,15 @@ private slots:
     void testGetData_data();
     void testGetData2_data();
     void testSetData_data();
+
+    void testSetDataHelper();
+    void testSetDataHelper_data();
+
+    void testGetDataHelper();
+    void testGetDataHelper_data();
+
+    void testGridHelper();
+    void testGridHelper_data();
 };
 
 #endif
