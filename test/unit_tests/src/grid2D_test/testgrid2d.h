@@ -54,6 +54,20 @@ private slots:
 
     void testGridHelper();
     void testGridHelper_data();
+
+    void testGridNegative();
+    void testGridNegative_data();
+
+    void testRangeCheckX();
+    void testRangeCheckX_data();
+
+    void testRangeCheckY();
+    void testRangeCheckY_data();
+
+    void testGridResolution1();
+    void testGridResolution2();
+    void testGridResolution1_data();
+    void testGridResolution2_data();
 };
 
 #endif
