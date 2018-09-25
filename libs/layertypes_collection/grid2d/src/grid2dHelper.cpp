@@ -83,16 +83,23 @@ Grid2DHelper::setGrid(const msgs::Grid2D &grid)
 unsigned int
 Grid2DHelper::getGridPosition(const float &x, const float &y)
 {
+    // x and y in meters
     unsigned int xPos = get_fitted_x(x);
     unsigned int yPos = get_fitted_y(y);
 
-    if (   xPos > grid_->height()
-        || yPos > grid_->width()) {
-        log_error("Grid2DHelper: Position outside of grid");
+    if (   xPos > grid_->width()
+        || yPos > grid_->height()) {
+        log_error("Grid2DHelper: Position outside of grid: x=" << x << "/" << xPos << "/" << grid_->width()
+                  << " y=" << y << "/" << yPos << "/" << grid_->height());
         throw std::out_of_range("Grid2DHelper: position is out of field boundaries");
     }
-
-    return yPos * grid_->height() + xPos;
+//    unsigned int pos = yPos * grid_->width() + xPos;
+//    if (pos > grid_->data().length()) { //This should never happen
+//        log_error("Grid2DHelper: extra check -> Position outside of grid: x=" << x << "/" << xPos
+//                  << " y=" << y << "/" << yPos << "; at pos " << pos  << " for length " << grid_->data().length());
+//        throw std::out_of_range("Grid2DHelper: extra check -> position is out of field boundaries");
+//    }
+    return yPos * grid_->width() + xPos;
 }
 
 unsigned int
@@ -101,20 +108,20 @@ Grid2DHelper::get_fitted_xy(const float &xy, const float &pose, const unsigned i
     return static_cast<unsigned int>(
                   std::roundf( xy / grid_->resolution() )       // offset from pose on grid
                 + std::roundf( pose / grid_->resolution() )     // offset of pose on grid
-                + std::roundf( step / 2 )                       // center of grid
+                + std::roundf( step / 2 )                       // center of grid on respective axis
                 );
 }
 
 unsigned int
 Grid2DHelper::get_fitted_x(const float &x)
 {
-    return get_fitted_xy(x, grid_->origin().translation().x(), grid_->height());
+    return get_fitted_xy(x, grid_->origin().translation().x(), grid_->width());
 }
 
 unsigned int
 Grid2DHelper::get_fitted_y(const float &y)
 {
-    return get_fitted_xy(y, grid_->origin().translation().y(), grid_->width());
+    return get_fitted_xy(y, grid_->origin().translation().y(), grid_->height());
 }
 
 

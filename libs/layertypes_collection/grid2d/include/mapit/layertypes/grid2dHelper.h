@@ -21,6 +21,13 @@
  *  along with mapit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * This class provided an easy-to-use 2D Grid Map using the class @grid2d
+ * Provided are geter and setter for a specific grid position as well as for the whole grid.
+ * Additionally, constant values for occupied, free, and unknown propabilities are given.
+ * The maps default origin (0,0) is in the center of the grid.
+ */
+
 #ifndef Grid2DHELPER_H
 #define Grid2DHELPER_H
 
@@ -51,7 +58,7 @@ public:
      * @param size_x width in meter
      * @param size_y height in meter
      * @param resolution resolution in meter
-     * @param origin origin position in real world
+     * @param origin origin position in real world, (0,0) is grid center
      */
     void initGrid(const float &size_x, const float &size_y,
                   const float &resolution, const mapit::msgs::Pose &origin);
@@ -96,7 +103,9 @@ private:
    /**
     * @brief getFittedXY Fits an x or y position in meter to the correct cell distance in the grid
     * @param xy x or y position in meter
-    * @return fitted x or y grid cell number as int
+    * @param pose x or y origin pose
+    * @param step x or y size of grid
+    * @return fitted x or y distance in cells (int)
     */
    unsigned int get_fitted_xy(const float &xy, const float &pose, const unsigned int &step);
    unsigned int get_fitted_x(const float &x);
