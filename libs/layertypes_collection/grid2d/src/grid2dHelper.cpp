@@ -89,8 +89,9 @@ Grid2DHelper::getGridPosition(const float &x, const float &y)
 
     if (   xPos > grid_->width()
         || yPos > grid_->height()) {
-        log_error("Grid2DHelper: Position outside of grid: x=" << x << "/" << xPos << "/" << grid_->width()
-                  << " y=" << y << "/" << yPos << "/" << grid_->height());
+        log_error(   "Grid2DHelper: Position outside of grid:" << std::endl
+                  << "                " << "x=" << x << "m, is Grid pos of width: " << xPos << "/" << grid_->width() << std::endl
+                  << "                " << "y=" << y << "m, is Grid pos of width: " << yPos << "/" << grid_->height());
         throw std::out_of_range("Grid2DHelper: position is out of field boundaries");
     }
 //    unsigned int pos = yPos * grid_->width() + xPos;
