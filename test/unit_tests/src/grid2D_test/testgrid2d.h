@@ -65,9 +65,7 @@ private slots:
     void testRangeCheckY_data();
 
     void testGridResolution1();
-    void testGridResolution2();
     void testGridResolution1_data();
-    void testGridResolution2_data();
 };
 
 #endif

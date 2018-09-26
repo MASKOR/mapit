@@ -72,8 +72,6 @@ void TestGrid2D::cleanupTestCase()
 
 void TestGrid2D::testGetData()
 {
-    std::cout << "Run testGetData()" << std::endl;
-
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
     QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
@@ -82,8 +80,8 @@ void TestGrid2D::testGetData()
 
     // test data
     float resolution = 100;
-    float width = 2;
-    float height = 3;
+    unsigned int width = 2;
+    unsigned int height = 3;
     // Position of origin, create quarernation & vector
     mapit::msgs::Quaternion origin_rot;
     origin_rot.set_w(1);
@@ -112,15 +110,10 @@ void TestGrid2D::testGetData()
     grid.mutable_data()->assign(data);
     //grid.set_allocated_data(&data);
 
-    std::cout << "Grid at creation, rot(w) is: " << grid.origin().rotation().w() << "\n";
 //    origin.release_rotation();
 //    origin.release_translation();
 //    grid.release_origin();
 //    grid.release_data();
-
-
-    std::cout << "Grid at after release, rot(w) is: " << grid.origin().rotation().w() << "\n";
-
 
     // create operation
     OperationDescription desc;
@@ -145,12 +138,10 @@ void TestGrid2D::testGetData()
         {
             return MAPIT_STATUS_ERROR;
         }
-        std::cout << "Grid input, rot(w) is: " << grid.origin().rotation().w() << "\n";
 
         //copy from scan, then setData
         std::shared_ptr<mapit::msgs::Grid2D> grid2d = std::make_shared<mapit::msgs::Grid2D>();
         grid2d->CopyFrom(grid);
-        std::cout << "Grid before copy, rot(w) is: " << grid2d->origin().rotation().w() << "\n";
         std::shared_ptr<mapit::entitytypes::Grid2DHelper> help = std::make_shared<mapit::entitytypes::Grid2DHelper>();
         help->setGrid(*grid2d);
         entityData->setData(help);
@@ -158,7 +149,7 @@ void TestGrid2D::testGetData()
     });
     QVERIFY(mapitIsOk(res.first));
 
-    float epsilon = 0.000001;
+    float epsilon = 0.000001f;
 
     std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = workspace->getEntitydataReadOnly(epath);
     std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractentitydataByPath );
@@ -166,16 +157,14 @@ void TestGrid2D::testGetData()
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> helpOut = entityData->getData(0);
     mapit::msgs::Grid2D gridFromWS = helpOut->getGrid();
     QVERIFY(std::abs(gridFromWS.resolution() - resolution) < epsilon);
-    QVERIFY(std::abs(gridFromWS.width() - width)< epsilon);
-    QVERIFY(std::abs(gridFromWS.height() - height) < epsilon);
+    QVERIFY(std::abs(static_cast<long>(gridFromWS.width()) - width)< epsilon);
+    QVERIFY(std::abs(static_cast<long>(gridFromWS.height()) - height) < epsilon);
     mapit::msgs::Pose poseFromWS = gridFromWS.origin();
     //QVERIFY( poseFromWS != nullptr );
     mapit::msgs::Quaternion rotationFromWS = poseFromWS.rotation();
     mapit::msgs::Vector translationFromWS = poseFromWS.translation();
     //QVERIFY( rotationFromWS != nullptr );
    // QVERIFY( translationFromWS != nullptr );
-    std::cout << "WS rot(w): " << rotationFromWS.x() << "\n";
-    std::cout << "OV rot(w): " << origin_rot.w() << "\n";
     QVERIFY(std::abs(rotationFromWS.w() - origin_rot.w()) < epsilon);
     QVERIFY(std::abs(rotationFromWS.x() - origin_rot.x()) < epsilon);
     QVERIFY(std::abs(rotationFromWS.y() - origin_rot.y()) < epsilon);
@@ -194,8 +183,6 @@ void TestGrid2D::testGetData()
 
 void TestGrid2D::testGetData2()
 {
-    std::cout << "Run testGetData2()" << std::endl;
-
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
     QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
@@ -204,8 +191,8 @@ void TestGrid2D::testGetData2()
 
     // test data
     float resolution = 100;
-    float width = 2;
-    float height = 3;
+    unsigned int width = 2;
+    unsigned int height = 3;
     // Position of origin, create quarernation & vector
     mapit::msgs::Quaternion origin_rot;
     origin_rot.set_w(1);
@@ -263,12 +250,10 @@ void TestGrid2D::testGetData2()
         {
             return MAPIT_STATUS_ERROR;
         }
-        std::cout << "Grid input, rot(w) is: " << grid.origin().rotation().w() << "\n";
 
         //copy from scan, then setData
         std::shared_ptr<mapit::msgs::Grid2D> grid2d(new mapit::msgs::Grid2D);
         grid2d->CopyFrom(grid);
-        std::cout << "Grid before copy, rot(w) is: " << grid2d->origin().rotation().w() << "\n";
         std::shared_ptr<mapit::entitytypes::Grid2DHelper> help = std::make_shared<mapit::entitytypes::Grid2DHelper>();
         help->setGrid(*grid2d);
         entityData->setData(help);
@@ -276,7 +261,7 @@ void TestGrid2D::testGetData2()
     });
     QVERIFY(mapitIsOk(res.first));
 
-    float epsilon = 0.000001;
+    float epsilon = 0.000001f;
 
     std::shared_ptr<mapit::AbstractEntitydata> abstractentitydataByPath = workspace->getEntitydataReadOnly(epath);
     std::shared_ptr<mapit::entitytypes::Grid2D> entityData = std::dynamic_pointer_cast<mapit::entitytypes::Grid2D>( abstractentitydataByPath );
@@ -284,16 +269,14 @@ void TestGrid2D::testGetData2()
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> helpOut = entityData->getData(0);
     mapit::msgs::Grid2D gridFromWS = helpOut->getGrid();
     QVERIFY(std::abs(gridFromWS.resolution() - resolution) < epsilon);
-    QVERIFY(std::abs(gridFromWS.width() - width) < epsilon);
-    QVERIFY(std::abs(gridFromWS.height() - height) < epsilon);
+    QVERIFY(std::abs(static_cast<long>(gridFromWS.width()) - width) < epsilon);
+    QVERIFY(std::abs(static_cast<long>(gridFromWS.height()) - height) < epsilon);
     mapit::msgs::Pose poseFromWS = gridFromWS.origin();
     //QVERIFY( poseFromWS != nullptr );
     mapit::msgs::Quaternion rotationFromWS = poseFromWS.rotation();
     mapit::msgs::Vector translationFromWS = poseFromWS.translation();
     //QVERIFY( rotationFromWS != nullptr );
    // QVERIFY( translationFromWS != nullptr );
-    std::cout << "WS rot(w): " << rotationFromWS.x() << "\n";
-    std::cout << "OV rot(w): " << origin_rot.w() << "\n";
     QVERIFY(std::abs(rotationFromWS.w() - origin_rot.w()) < epsilon);
     QVERIFY(std::abs(rotationFromWS.x() - origin_rot.x()) < epsilon);
     QVERIFY(std::abs(rotationFromWS.y() - origin_rot.y()) < epsilon);
@@ -305,14 +288,9 @@ void TestGrid2D::testGetData2()
     std::string dataFromWS = gridFromWS.data();
 
 
-    int n = dataFromWS.length();
+    size_t n = dataFromWS.length();
     char char_array[n+1];
     strcpy(char_array, dataFromWS.c_str());
-
-    std::cout << "Printing chars as integer: ";
-    for (int i=0; i<n; i++)
-      std::cout << static_cast<signed char>(char_array[i]);
-    std::cout << "\n";
 
     QVERIFY(static_cast<int>(char_array[0]) == static_cast<int>(ch1));
     QVERIFY(static_cast<int>(char_array[1]) == static_cast<int>(ch2));
@@ -328,8 +306,6 @@ void TestGrid2D::testGetData2()
 
 void TestGrid2D::testSetData()
 {
-    std::cout << "Run testSetData()" << std::endl;
-
     QFETCH(std::shared_ptr<mapit::Repository>, repo);
     QFETCH(std::shared_ptr<mapit::Workspace>, workspace);
 
@@ -415,8 +391,6 @@ void TestGrid2D::testSetData_data() { createTestdata(false, false); }
 
 void TestGrid2D::testSetDataHelper()
 {
-    std::cout << "Run testSetDataHelper()" << std::endl;
-
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
     origin.mutable_translation()->set_x(0);
@@ -440,15 +414,6 @@ void TestGrid2D::testSetDataHelper()
 
     mapit::msgs::Grid2D g = grid->getGrid();
     std::string data = g.data();
-    int n = static_cast<int>(data.length());
-    std::cout << "Grid size; " << n << "\n";
-    char char_array[n+1];
-    strcpy(char_array, data.c_str());
-
-//    std::cout << "Printing chars as integer: ";
-//    for (int i=0; i<n; i++)
-//      std::cout << static_cast<int>(char_array[i]) << " ";
-//    std::cout << "\n" << "End of grid\n";
 
     QVERIFY(grid->getProbability(2.0f, 4.0f) == value_grey);
     QVERIFY(grid->getProbability(2.0f, 5.0f) == value_free);
@@ -465,8 +430,6 @@ void TestGrid2D::testSetDataHelper()
 
 void TestGrid2D::testGetDataHelper()
 {
-    std::cout << "Run testGetDataHelper()" << std::endl;
-
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
     origin.mutable_translation()->set_x(-50);
@@ -489,16 +452,14 @@ void TestGrid2D::testGetDataHelper()
 
 void TestGrid2D::testGridHelper()
 {
-    std::cout << "Run testGridHelper()" << std::endl;
-
     float size_x = 4.0f, size_y = 10.0f;
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
     origin.mutable_translation()->set_x(roundf(-size_x/2));
     origin.mutable_translation()->set_y(roundf(-size_y/2));
     grid->initGrid(size_x, size_y, static_cast<float>(1.0), origin);
-    QVERIFY(grid->getGrid().width() == size_x);
-    QVERIFY(grid->getGrid().height() == size_y);
+    QVERIFY(grid->getGrid().width() == static_cast<unsigned int>(size_x));
+    QVERIFY(grid->getGrid().height() == static_cast<unsigned int>(size_y));
 
     int value_grey = mapit::entitytypes::Grid2DHelper::GRID_UNKNOWN;
     int value_occu = mapit::entitytypes::Grid2DHelper::GRID_OCCUPIED;
@@ -541,7 +502,6 @@ void TestGrid2D::testGridHelper()
 
 void TestGrid2D::testGridNegative()
 {
-    std::cout << "Run testGridNegative()" << std::endl;
     float size_x = 4.0f, size_y = 4.0f;
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
@@ -563,7 +523,6 @@ void TestGrid2D::testGridNegative()
 
 void TestGrid2D::testRangeCheckX()
 {
-    std::cout << "Run testRangeCheckX()" << std::endl;
     float size_x = 4.0f, size_y = 4.0f;
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
@@ -577,14 +536,12 @@ void TestGrid2D::testRangeCheckX()
         grid->setProbability(5.0f, 0.0f, retVal);
         QVERIFY(false);
     } catch (const std::out_of_range &ex) {
-        std::cout << ex.what() << std::endl;
         QVERIFY(true);
     }
 }
 
 void TestGrid2D::testRangeCheckY()
 {
-    std::cout << "Run testRangeCheckY()" << std::endl;
     float size_x = 4.0f, size_y = 4.0f;
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
@@ -598,14 +555,12 @@ void TestGrid2D::testRangeCheckY()
         grid->setProbability(0.0f, 5.0f, retVal);
         QVERIFY(false);
     } catch (const std::out_of_range &ex) {
-        std::cout << ex.what() << std::endl;
         QVERIFY(true);
     }
 }
 
 void TestGrid2D::testGridResolution1()
 {
-    std::cout << "Run testGridResolution1()" << std::endl;
     float size_x = 4.0f, size_y = 8.0f, resolution = 0.1f;
     std::shared_ptr<mapit::entitytypes::Grid2DHelper> grid = std::make_shared<mapit::entitytypes::Grid2DHelper>();
     mapit::msgs::Pose origin;
@@ -618,12 +573,6 @@ void TestGrid2D::testGridResolution1()
     QVERIFY(std::abs(grid->getGrid().height() - size_y / resolution) < epsilon);
     QVERIFY(std::abs(grid->getGrid().width() - size_x / resolution) < epsilon);
     QVERIFY(grid->getGrid().data().length() == grid->getGrid().height() * grid->getGrid().width());
-}
-
-void TestGrid2D::testGridResolution2()
-{
-    std::cout << "Run testGridResolution2()" << std::endl;
-
 }
 
 void TestGrid2D::testSetDataHelper_data()
@@ -657,11 +606,6 @@ void TestGrid2D::testGridNegative_data()
 }
 
 void TestGrid2D::testGridResolution1_data()
-{
-    createTestdata(false, false);
-}
-
-void TestGrid2D::testGridResolution2_data()
 {
     createTestdata(false, false);
 }
