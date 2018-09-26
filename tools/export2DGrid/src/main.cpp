@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     // image is ASCII exchange file format, may be more efficient to use binary format
     // see
 
-    cv::Mat image(gridHelper->getGrid().width(), gridHelper->getGrid().height(), CV_8UC1);
+    cv::Mat image(gridHelper->getGrid().height(), gridHelper->getGrid().width(), CV_8UC1);
     for (size_t i = 0; i < image.total(); ++i) {
         signed char val = gridHelper->getGrid().data().at(i);
         if (val == -1) {
