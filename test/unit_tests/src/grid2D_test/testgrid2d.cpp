@@ -1,7 +1,8 @@
 /*******************************************************************************
  *
  * Copyright      2015 Daniel Bulla	<d.bulla@fh-aachen.de>
- *                2015 Tobias Neumann	<t.neumann@fh-aachen.de>
+- *          2015-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
+ *                2018 Michael Norget   <mnorget@amt.rwth-aachen.de>
  *
 ******************************************************************************/
 
