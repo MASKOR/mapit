@@ -82,6 +82,7 @@ FOREACH(subdir ${SUBDIRS})
                                   layertype_pointcloud2
                                   load_pointcloud
                                   layertype_tf
+                                  layertype_grid2d
                                   ${PCL_LIBRARIES} ${BOOST_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                                   ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
@@ -129,6 +130,7 @@ target_link_libraries(TestAll Qt5::Test
                               layertype_pointcloud2
                               load_pointcloud
                               layertype_tf
+                              layertype_grid2d
                               ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CPLUS_LIBRARIES}
                               ${OPENVDB_LIBRARIES} ${TBB_LIBRARIES} ${HALF_LIBRARIES} stdc++)
 
