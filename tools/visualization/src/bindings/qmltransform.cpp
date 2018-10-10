@@ -24,9 +24,8 @@
 #include "mapit/ui/bindings/qmltransform.h"
 #include "mapit/ui/bindings/qmlworkspace.h"
 #include <mapit/logging.h>
-#include <mapit/layertypes/tflayer.h>
-#include <mapit/layertypes/tflayer/tf2/buffer_core.h>
 #include <mapit/layertypes/tflayer/tf2/exceptions.h>
+#include <mapit/ui/tools/tf_buffer.h>
 
 QmlTransform::QmlTransform()
     : QObject()
@@ -121,7 +120,7 @@ mapit::tf::TransformStamped QmlTransform::getTfs(bool *found) const
     // extract entities mapname
     mapit::tf::TransformStamped tfs;
 
-    std::shared_ptr<mapit::tf2::BufferCore> buffer = std::shared_ptr<mapit::tf2::BufferCore>(new mapit::tf2::BufferCore(workspace()->getWorkspaceObj().get(), ""));
+    mapit::tf2::BufferCore* buffer = TfBufferSingleton::get_instance()->get_buffer_core_ro(workspace());
 
     try
     {

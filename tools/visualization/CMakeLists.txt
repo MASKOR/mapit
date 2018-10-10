@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Copyright 2015-2018 Daniel Bulla	<d.bulla@fh-aachen.de>
-#           2015-2017 Tobias Neumann	<t.neumann@fh-aachen.de>
+#           2015-2018 Tobias Neumann	<t.neumann@fh-aachen.de>
 #                2017 Marcus Meeßen	<marcus.meessen@alumni.fh-aachen.de>
 #
 ################################################################################
@@ -70,6 +70,7 @@ endif(MAPIT_ENABLE_PCL)
 set(MAPIT_VISUALIZATION_INCLUDE ${PROJECT_SOURCE_DIR}/include)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/)
+#include_directories(${PROJECT_SOURCE_DIR}/include)
 if(WIN32)
     include_directories(${MAPIT_ROOT_DIR}/externals/windows/include_ovr)
     link_directories(${MAPIT_ROOT_DIR}/externals/windows/lib-msvc2013-md-64)
@@ -149,6 +150,7 @@ endif(WITH_LAS)
 
 target_include_directories(${PROJECT_NAME} PUBLIC  ${MAPIT_VISUALIZATION_INCLUDE}
                                            PRIVATE ${PROJECT_SOURCE_DIR}/include/bindings
+#                                                   ${PROJECT_SOURCE_DIR}/include/tools
                                                    ${PROJECT_SOURCE_DIR}/../Qt3DPointcloudRenderer/include
                                                    ${PROJECT_SOURCE_DIR}/../Qt3DOpenVDBRenderer/include)
 
@@ -156,6 +158,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC  ${MAPIT_VISUALIZATION_INCLUDE
 file(GLOB_RECURSE QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.js ${PROJECT_SOURCE_DIR}/*/qmldir)
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${QMLFILES})
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )

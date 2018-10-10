@@ -104,6 +104,7 @@ private:
     OperationExecutor *m_executor;
     QString m_name;
     QStringList m_entities;
+    QSet<QString> frameIdSet;
 
     void reloadEntities();
     int m_lastOperationStatus;
