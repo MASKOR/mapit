@@ -33,9 +33,15 @@
 #include <boost/program_options.hpp>
 #include <mapit/layertypes/grid2d.h>
 #include <mapit/layertypes/grid2dHelper.h>
+#ifdef OPENCV_VERSION_2
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#else
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#endif
 
 namespace po = boost::program_options;
 
