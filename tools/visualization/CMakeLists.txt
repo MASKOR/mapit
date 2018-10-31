@@ -127,12 +127,15 @@ target_link_libraries(${PROJECT_NAME}   ${mapit_core}
                                         layertype_tf
                                         layertype_pose_path
                                         layertype_asset
-                                        layertype_openvdb
                                         layertype_primitive
                                         networking_node
                                         Qt5::Qml Qt5::Quick
                                         ${Boost_LIBRARIES}
                                         stdc++)
+if(MAPIT_ENABLE_OPENVDB)
+target_link_libraries(${PROJECT_NAME}
+                                        layertype_openvdb)
+endif()
 if(MAPIT_ENABLE_PCL)
     target_link_libraries(${PROJECT_NAME}
                                         Qt3DPointcloudRenderer
@@ -159,6 +162,11 @@ file(GLOB_RECURSE QMLFILES ${PROJECT_SOURCE_DIR}/*.qml ${PROJECT_SOURCE_DIR}/*.j
 
 add_custom_target(${PROJECT_NAME}_ADDITIONAL_PROJECT_FILES ALL ${CMAKE_COMMAND} -E echo "Add qml files to project" SOURCES ${QMLFILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+
+#target_link_libraries(${PROJECT_NAME} asan)
+#add_compile_options(-fsanitize=address)
+#add_compile_options(-fsanitize=thread)
+#add_compile_options(-fsanitize=undefined)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/${CMAKE_LIBRARY_ARCHITECTURE} )
