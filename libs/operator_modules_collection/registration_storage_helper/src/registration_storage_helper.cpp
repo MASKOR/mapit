@@ -170,15 +170,15 @@ mapit::RegistrationStorageHelper::get_pointcloud(std::string path, mapit::time::
     header = pc2->header;
     boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
     pcl::fromPCLPointCloud2(*pc2, *pc);
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
     if (cfg_use_frame_id_) {
+        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc_transformed = boost::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
         mapit::tf::TransformStamped tf = tf_buffer_->lookupTransform(cfg_frame_id_, frame_id, stamp);
         pcl::transformPointCloud(*pc, *pc_transformed, tf.transform.translation.vector(), tf.transform.rotation);
-    } else {
-        *pc_transformed = *pc;
-    }
 
-    return pc_transformed;
+        return pc_transformed;
+    } else {
+        return pc;
+    }
 }
 
 void
