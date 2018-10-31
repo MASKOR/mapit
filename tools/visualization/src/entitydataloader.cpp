@@ -33,7 +33,9 @@
 #if WITH_LAS
 #include <mapit/layertypes/lastype.h>
 #endif // WITH_LAS
+#if MAPIT_ENABLE_OPENVDB
 #include <mapit/layertypes/openvdblayer.h>
+#endif
 #include <mapit/layertypes/tflayer.h>
 #include <mapit/layertypes/pose_path.h>
 #include <mapit/layertypes/primitive.h>
@@ -64,10 +66,16 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<mapit::AbstractEntitydata>
     QJsonObject result;
     if(entitydata == nullptr) return result;
 //#if MAPIT_ENABLE_PCL OR/AND OPENVDB
-    if(strcmp(entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0 || strcmp(entitydata->type(), FloatGridEntitydata::TYPENAME()) == 0)
+    if(strcmp(entitydata->type(), PointcloudEntitydata::TYPENAME()) == 0
+#if MAPIT_ENABLE_OPENVDB
+        || strcmp(entitydata->type(), FloatGridEntitydata::TYPENAME()) == 0
+#endif
+        )
     {
         std::shared_ptr<PointcloudEntitydata> entitydataPointcloud;
+#if MAPIT_ENABLE_OPENVDB
         std::shared_ptr<FloatGridEntitydata> entitydataOpenVDB;
+#endif
         if(entitydataPointcloud = std::dynamic_pointer_cast<PointcloudEntitydata>( entitydata ))
         {
             mapit::entitytypes::Pointcloud2Ptr pc2 = entitydataPointcloud->getData();
@@ -98,6 +106,7 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<mapit::AbstractEntitydata>
             }
             result["fields"] = returnPointfieldList;
         }
+#if MAPIT_ENABLE_OPENVDB
         else if(entitydataOpenVDB = std::dynamic_pointer_cast<FloatGridEntitydata>( entitydata ))
         {
             float xMin, yMin, zMin, xMax, yMax, zMax;
@@ -129,6 +138,7 @@ QJsonObject extractInfoFromEntitydata(std::shared_ptr<mapit::AbstractEntitydata>
             returnPointfieldList.append(jsNZ);
             result["fields"] = returnPointfieldList;
         }
+#endif
     }
     else
 //#endif
