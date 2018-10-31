@@ -133,8 +133,8 @@ mapit::RegistrationStorageHelper::RegistrationStorageHelper(mapit::OperationEnvi
     }
 
     // sanity check
-    if ( cfg_tf_is_static_ && cfg_input_.size() != 1) {
-        log_error("RegistrationStorageHelper: \"tf-is_static\" := true is only allowed for one \"input\" cloud specified");
+    if ( cfg_tf_is_static_ && cfg_input_.size() != 2) {
+        log_error("RegistrationStorageHelper: \"tf-is_static\" := true is only allowed for two \"input\" clouds specified");
         throw MAPIT_STATUS_INVALID_ARGUMENT;
     }
 
@@ -276,8 +276,8 @@ mapit::RegistrationStorageHelper::operate_pairwise(std::function<bool(  const bo
         pointclouds.at(pc_id).pc = get_pointcloud( cfg_input_.at(pc_id), pointclouds.at(pc_id).stamp, pointclouds.at(pc_id).header, pointclouds.at(pc_id).entitydata );
     }
 
-    // in case of tf add, add identity for the first cloud
-    if ( cfg_handle_result_ == RegistrationStorageHelper::HandleResult::tf_add ) {
+    // in case of tf add, add identity for the first cloud but don't do this is the tf is static
+    if ( cfg_handle_result_ == RegistrationStorageHelper::HandleResult::tf_add && ! cfg_tf_is_static_ ) {
         mapit::RegistrationStorageHelper::PCD first = pointclouds.at(0);
         Eigen::Affine3f identity = Eigen::Affine3f::Identity();
         mapit_add_tf(first.stamp, identity);
