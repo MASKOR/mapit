@@ -36,12 +36,14 @@ if(NOT DISABLE_PCL)
   # required, but disables this project without an error
   find_package(rosbag)
   find_package(sensor_msgs)
+  find_package(pcl_conversions)
 
-  if(NOT (rosbag_FOUND AND sensor_msgs_FOUND))
+  if(NOT (rosbag_FOUND AND sensor_msgs_FOUND AND pcl_conversions_FOUND))
     message(AUTHOR_WARNING "${Red}"
       "Operator \"${PROJECT_NAME}\" will not be build, dependencies are not satisfied"
       "\n - rosbag: ${rosbag_FOUND}"
       "\n - sensor_msgs: ${sensor_msgs_FOUND}"
+      "\n - pcl_conversions: ${pcl_conversions_FOUND}"
       "${ColourReset}")
   else()
     message(AUTHOR_WARNING "${Green}"
@@ -91,10 +93,12 @@ if(NOT DISABLE_PCL)
     target_include_directories(${PROJECT_NAME} PRIVATE
       ${rosbag_INCLUDE_DIRS}
       ${sensor_msgs_INCLUDE_DIRS}
+      ${pcl_conversions_INCLUDE_DIRS}
       )
     target_link_libraries(${PROJECT_NAME}
       ${rosbag_LIBRARIES}
       ${sensor_msgs_LIBRARIES}
+      ${pcl_conversions_LIBRARIES}
       )
 
     SET_TARGET_PROPERTIES(
