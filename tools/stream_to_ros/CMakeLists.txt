@@ -36,15 +36,21 @@ if(NOT DISABLE_PCL)
   find_package(roscpp)
   find_package(rosgraph_msgs)
   find_package(sensor_msgs)
+  find_package(tf2_msgs)
+  find_package(pcl_conversions)
 
   if(NOT (roscpp_FOUND
           AND rosgraph_msgs_FOUND
-          AND sensor_msgs_FOUND))
+          AND tf2_msgs_FOUND
+          AND sensor_msgs_FOUND
+          AND pcl_conversions_FOUND))
     message(AUTHOR_WARNING "${Red}"
       "Tool \"${PROJECT_NAME}\" will not be build, dependencies are not satisfied"
       "\n - roscpp: ${roscpp_FOUND}"
       "\n - rosgraph_msgs: ${rosgraph_msgs_FOUND}"
+      "\n - tf2_msgs: ${tf2_msgs_FOUND}"
       "\n - sensor_msgs: ${sensor_msgs_FOUND}"
+      "\n - pcl_conversions: ${pcl_conversions_FOUND}"
       "${ColourReset}")
   else()
     message(AUTHOR_WARNING "${Green}"
@@ -86,11 +92,13 @@ if(NOT DISABLE_PCL)
       ${roscpp_INCLUDE_DIRS}
       ${rosgraph_msgs_INCLUDE_DIRS}
       ${sensor_msgs_INCLUDE_DIRS}
+      ${tf2_msgs_INCLUDE_DIRS}
       )
     target_link_libraries(${PROJECT_NAME}
       ${roscpp_LIBRARIES}
       ${rosgraph_msgs_LIBRARIES}
       ${sensor_msgs_LIBRARIES}
+      ${tf2_msgs_LIBRARIES}
       )
 
     # boost
