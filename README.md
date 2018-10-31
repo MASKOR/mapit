@@ -59,7 +59,7 @@ end case
     make -j8
     make -j8 install
 
-#### ROS
+#### ROS (optional)
 
 The detailed ROS installation is described here http://wiki.ros.org/Installation/Source.
 We used "Desktop Install (recommended)", not full.
@@ -97,7 +97,7 @@ add the following to your ~/.bashrc
     source /opt/ros/catkin_ws/install_isolated/setup.bash
 
 
-#### openVDB
+#### openVDB (optional)
 
     dnf install blosc-devel blosc cppunit-devel cppunit-devel glfw-devel ilmbase-devel OpenEXR-devel tbb-devel python-devel libXi-devel
     cd ws/
@@ -120,6 +120,17 @@ add the following to your ~/.bashrc
              -DOPENVDB_DISABLE_BOOST_IMPLICIT_LINKING=false \
              -DOPENVDB_ENABLE_3_ABI_COMPATIBLE=false
     
+    make -j8
+    make install
+
+#### OctoMap (optional)
+
+    cd ~/ws
+    git clone https://github.com/OctoMap/octomap.git
+    cd octomap
+    mkdir build
+    cd build
+    cmake ..
     make -j8
     make install
 
@@ -173,7 +184,8 @@ Alternatively the newest version can be installed with the official script
              -DMAPIT_ENABLE_VISUALIZATION=true \
              -DWITH_LAS=false \
              -DHAVE_LASZIP=false \
-             -DMAPIT_ENABLE_OPENVDB=true
+             -DMAPIT_ENABLE_OPENVDB=true \
+             -DMAPIT_ENABLE_OCTOMAP=true
     
     make -j8
 
