@@ -138,7 +138,17 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
     log_info( "tf_add_noise params:" + env->getParameters() );
     QJsonObject params(paramsDoc.object());
 
-    std::string target = params["target"].toString().toStdString();
+    std::vector<std::string> targets;
+    if ( params["target"].isString() ) {
+        targets.push_back( params["target"].toString().toStdString() );
+    } else if ( params["target"].isArray() ) {
+        for (QJsonValue input : params["target"].toArray() ) {
+            if ( ! input.isString() ) {
+                log_error("tf_add_noise: cfg \"target\" ignore one value in \"target\" array, because it isn't a string");
+            }
+            targets.push_back( input.toString().toStdString() );
+        }
+    }
     std::string tfStoragePrefix = params["tf-storage-prefix"].toString().toStdString();
     std::string frame_id = params["frame_id"].toString().toStdString();
     std::string child_frame_id = params["child_frame_id"].toString().toStdString();
@@ -161,32 +171,38 @@ mapit::StatusCode operate_tf_add_noise(mapit::OperationEnvironment* env)
     }
 
 
-    std::shared_ptr<mapit::msgs::Entity> entity = env->getWorkspace()->getEntity(target);
-    if ( entity ) {
-        // execute on entity
-        return saveRandomTFForEntity(env, entity, target, frame_id, child_frame_id, tfStoragePrefix, randomStorage);
-    } else if ( env->getWorkspace()->getTree(target) ) {
-        // execute on tree
+    for (std::string target : targets) {
+        log_info("tf_add_noise: at target " << target);
+        std::shared_ptr<mapit::msgs::Entity> entity = env->getWorkspace()->getEntity(target);
         mapit::StatusCode status = MAPIT_STATUS_OK;
-        env->getWorkspace()->depthFirstSearch(
-                      target
-                    , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
-                    , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
-                    , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
-                        {
-                            status = saveRandomTFForEntity(env, obj, path, frame_id, child_frame_id, tfStoragePrefix, randomStorage);
-                            if ( ! mapitIsOk(status) ) {
-                                return false;
+        if ( entity ) {
+            // execute on entity
+            status =  saveRandomTFForEntity(env, entity, target, frame_id, child_frame_id, tfStoragePrefix, randomStorage);
+        } else if ( env->getWorkspace()->getTree(target) ) {
+            // execute on tree
+            env->getWorkspace()->depthFirstSearch(
+                          target
+                        , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
+                        , depthFirstSearchWorkspaceAll(mapit::msgs::Tree)
+                        , [&](std::shared_ptr<mapit::msgs::Entity> obj, const ObjectReference& ref, const mapit::Path &path)
+                            {
+                                status = saveRandomTFForEntity(env, obj, path, frame_id, child_frame_id, tfStoragePrefix, randomStorage);
+                                if ( ! mapitIsOk(status) ) {
+                                    return false;
+                                }
+                                return true;
                             }
-                            return true;
-                        }
-                    , depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
-                    );
-        return status;
-    } else {
-        log_error("operator voxelgrid: target is neither a tree nor entity");
-        return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
+                        , depthFirstSearchWorkspaceAll(mapit::msgs::Entity)
+                        );
+        } else {
+            log_error("operator voxelgrid: target is neither a tree nor entity");
+            return MAPIT_STATUS_ERR_DB_INVALID_ARGUMENT;
+        }
+        if ( ! mapitIsOk(status) ) {
+            return status;
+        }
     }
+    return MAPIT_STATUS_OK;
 }
 
 MAPIT_MODULE(OPERATOR_NAME, "add noise to transforms", "fhac", OPERATOR_VERSION, TfEntitydata_TYPENAME, true, &operate_tf_add_noise)

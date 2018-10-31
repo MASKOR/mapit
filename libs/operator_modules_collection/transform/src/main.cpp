@@ -75,6 +75,9 @@
  *
  *
  */
+
+std::shared_ptr<mapit::tf2::BufferCore> buffer_core_;
+
 void
 transformPointCloud(const Eigen::Matrix4f &transform, const pcl::PCLPointCloud2 &in,
                     pcl::PCLPointCloud2 &out)
@@ -194,8 +197,7 @@ executeTransform(mapit::OperationEnvironment* env, std::shared_ptr<mapit::msgs::
     mapit::entitytypes::Pointcloud2Ptr pc2 = entityData->getData();
 
     // get TF
-    mapit::tf2::BufferCore buffer_core(env->getWorkspace(), "");
-    mapit::tf::TransformStamped tf = buffer_core.lookupTransform(frame_id, entity->frame_id(), mapit::time::from_msg(entity->stamp()));
+    mapit::tf::TransformStamped tf = buffer_core_->lookupTransform(frame_id, entity->frame_id(), mapit::time::from_msg(entity->stamp()));
 
     transformPointCloud(tf, *pc2, *pc2);
 
@@ -217,6 +219,8 @@ mapit::StatusCode operate_transform(mapit::OperationEnvironment* env)
     }
 
     std::string target = params["target"].toString().toStdString();
+
+    buffer_core_ = std::make_shared<mapit::tf2::BufferCore>(env->getWorkspace(), "");
 
     std::shared_ptr<mapit::msgs::Entity> entity = env->getWorkspace()->getEntity(target);
     if ( entity != nullptr ) {
