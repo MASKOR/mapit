@@ -74,6 +74,9 @@ public:
 
     mapit::StatusCode operate();
 private:
+    int cfg_lum_maximum_iterations_;
+    float cfg_lum_convergence_threshold_;
+    float cfg_lum_graph_centroid_distance_;
     mapit::RegistrationStorageHelper* reg_helper_;
 
     void callback_add_pointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr input_pc);

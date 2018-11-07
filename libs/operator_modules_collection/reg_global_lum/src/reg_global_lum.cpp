@@ -96,7 +96,17 @@ mapit::RegGlobalLUM::RegGlobalLUM(mapit::OperationEnvironment* env, mapit::Statu
     QJsonDocument paramsDoc = QJsonDocument::fromJson( QByteArray(env->getParameters().c_str(), env->getParameters().length()) );
     QJsonObject params(paramsDoc.object());
 
-    // create and configure ELCH
+    // get LUM configs
+    cfg_lum_maximum_iterations_ = params["lum-maximum-iterations"].toInt(5);
+    log_info("reg_global_lum: cfg \"lum-maximum-iterations\": " << cfg_lum_maximum_iterations_);
+
+    cfg_lum_convergence_threshold_ = static_cast<float>(params["lum-convergence-threshold"].toDouble(0.0));
+    log_info("reg_global_lum: cfg \"lum-convergence-threshold\": " << cfg_lum_convergence_threshold_);
+
+    cfg_lum_graph_centroid_distance_ = static_cast<float>(params["lum-graph-centroid-distance"].toDouble(20.0));
+    log_info("reg_global_lum: cfg \"lum-graph-centroid-distance\": " << cfg_lum_graph_centroid_distance_);
+
+    // create and configure LUM
     lum_ = boost::make_shared<pcl::registration::LUM<pcl::PointXYZ>>();
 }
 
@@ -164,10 +174,10 @@ mapit::RegGlobalLUM::callback_search_and_process_loops()
 
             c_loop = centroid.at(loop_id);
             Eigen::Vector4f diff = c_target - c_loop;
-            double norm = diff.norm();
+            float norm = diff.norm();
 
             // loop => add correspondance
-            if (norm < 10) {
+            if (norm < cfg_lum_graph_centroid_distance_) {
                 mtx_logging.lock();
                 log_info("reg_global_lum: add correspondance for cloud " << loop_id << " -> " << pc_id);
                 mtx_logging.unlock();
@@ -190,8 +200,8 @@ mapit::RegGlobalLUM::callback_execute_algorithm(  mapit::RegistrationStorageHelp
 {
     log_info("reg_global_lum: start computation");
     // Change the computation parameters
-    lum_->setMaxIterations(50);
-    lum_->setConvergenceThreshold (0.0);
+    lum_->setMaxIterations( cfg_lum_maximum_iterations_ );
+    lum_->setConvergenceThreshold ( cfg_lum_convergence_threshold_ );
 
     lum_->compute();
 
