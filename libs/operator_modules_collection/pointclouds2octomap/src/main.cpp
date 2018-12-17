@@ -73,6 +73,7 @@ addPointcloud(  mapit::OperationEnvironment* env
     std::shared_ptr<pcl::PCLPointCloud2> input_pc2 = input_entity_data->getData();
     pcl::PointCloud<pcl::PointXYZ> input_pc;
     pcl::fromPCLPointCloud2(*input_pc2, input_pc);
+    input_pc2.reset();
 
     // get transform
     mapit::tf::TransformStamped tf = buffer_->lookupTransform(target_frame_id, frame_id, stamp);
@@ -92,8 +93,9 @@ addPointcloud(  mapit::OperationEnvironment* env
     for (pcl::PointXYZ point : input_pc) {
         cloudOM.push_back( point.x, point.y, point.z );
     }
-    targetOctomap->insertPointCloud(cloudOM, identity, pose);
 
+    targetOctomap->insertPointCloud(cloudOM, identity, pose);
+    targetOctomap->prune();
 }
 
 std::vector<std::string>
